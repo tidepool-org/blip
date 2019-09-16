@@ -21,6 +21,10 @@ export default class HistoryTable extends Table {
   static get columns() {
     return [
       {
+        key: 'level',
+        label: t('Level'),
+      },
+      {
         key: 'parameterChange',
         label: t('Parameter'),
 
@@ -31,9 +35,6 @@ export default class HistoryTable extends Table {
 
       },
       {
-        key: 'level',
-        label: t('Level'),
-      }, {
         key: 'parameterDate',
         label: t('Date'),
       },
@@ -118,73 +119,91 @@ export default class HistoryTable extends Table {
     );
   }
 
-  formatData(data, params, ord) {
-    const history = data.parameters;
-    let currentParameters = params;
-    let order = ord;
-    const formattedData = _.map(history, (hist) => {
-      const h = hist;
-      switch (h.changeType) {
-        case 'added':
-          currentParameters.push(h);
-          break;
-        case 'deleted':
-          currentParameters = _.filter(currentParameters, s => s.name !== h.name);
-          break;
-        case 'updated':
-          currentParameters = _.map(currentParameters, current => {
-            const param = current;
-            if (param.name === h.name) {
-              h.previousValue = param.value;
-              h.previousUnit = param.unit;
-              param.value = h.value;
-              param.unit = h.unit;
-            }
-            return param;
-          });
-          break;
-        default:
-          break;
-      }
-      h.effectiveDate = new Date(h.effectiveDate);
-      h.parameterDate = h.effectiveDate.toLocaleString();
-      h.parameterChange = this.getParameterChange(h);
-      h.valueChange = this.getValueChange(h);
-      h.order = order;
-      order++;
-      return h;
-    });
-    // const maxDate = _.reduce(formattedData,
-    //   (p1, p2) => ((p1.effectiveDate > p2.effectiveDate) ? p1.effectiveDate : p2.effectiveDate),
-    //   new Date(0));
-    const maxDate = new Date(data.changeDate);
-    const rows = [
-      {
-        isSpanned: true,
-        spannedContent: maxDate.toLocaleString(),
-        isoDate: maxDate.toISOString(),
-        order,
-      },
-    ];
-    order++;
-
-    return {
-      rows: rows.concat(formattedData),
-      currentParameters,
-      order,
-    };
-  }
-
   getAllRows(history) {
-    let rows = [];
-    let order = 0;
-    let currentParameters = [];
-    _.forEach(_.sortBy(history, ['changeDate']), h => {
-      const newRows = this.formatData(h, currentParameters, order);
-      currentParameters = newRows.currentParameters;
-      order = newRows.order;
-      rows = rows.concat(newRows.rows);
-    });
-    return rows.sort((r1, r2) => (r1.order > r2.order ? -1 : 1));
+    const rows = [];
+
+    if (_.isArray(history)) {
+      const currentParameters = new Map();
+
+      const nHistory = history.length;
+      for (let i = 0; i < nHistory; i++) {
+        const parameters = history[i].parameters;
+
+        if (_.isArray(parameters)) {
+          const nParameters = parameters.length;
+          let latestDate = new Date(0);
+
+          // Compare b->a since there is a reverse order at the end
+          parameters.sort((a, b) =>
+            b.level.toString().localeCompare(a.level.toString())
+            || b.name.localeCompare(a.name)
+          );
+
+          for (let j = 0; j < nParameters; j++) {
+            const parameter = parameters[j];
+            const row = { ...parameter };
+            const changeDate = new Date(parameter.effectiveDate);
+
+            if (latestDate.getTime() < changeDate.getTime()) {
+              latestDate = changeDate;
+            }
+            row.parameterDate = changeDate.toLocaleString();
+
+            switch (row.changeType) {
+              case 'added':
+                if (currentParameters.has(parameter.name)) {
+                  // eslint-disable-next-line max-len
+                  console.warn(`History: Parameter ${parameter.name} was added, but present in current parameters`);
+                }
+                currentParameters.set(parameter.name, {
+                  value: parameter.value,
+                  unit: parameter.unit,
+                });
+                break;
+              case 'deleted':
+                if (currentParameters.has(parameter.name)) {
+                  currentParameters.delete(parameter.name);
+                } else {
+                  // eslint-disable-next-line max-len
+                  console.warn(`History: Parameter ${parameter.name} was removed, but not present in current parameters`);
+                }
+                break;
+              case 'updated':
+                if (currentParameters.has(parameter.name)) {
+                  const currParam = currentParameters.get(parameter.name);
+                  row.previousUnit = currParam.unit;
+                  row.previousValue = currParam.value;
+                } else {
+                  // eslint-disable-next-line max-len
+                  console.warn(`History: Parameter ${parameter.name} was updated, but not present in current parameters`);
+                  row.changeType = 'added';
+                }
+
+                currentParameters.set(parameter.name, {
+                  value: parameter.value,
+                  unit: parameter.unit,
+                });
+                break;
+              default:
+                console.warn(`Unknown change type ${row.changeType}:`, row);
+                break;
+            }
+
+            row.parameterChange = this.getParameterChange(row);
+            row.valueChange = this.getValueChange(row);
+
+            rows.push(row);
+          }
+
+          rows.push({
+            isSpanned: true,
+            spannedContent: latestDate.toLocaleString(),
+            isoDate: latestDate.toISOString(),
+          });
+        }
+      }
+    }
+
+    return rows.reverse();
   }
 }

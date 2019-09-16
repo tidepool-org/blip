@@ -1,5 +1,9 @@
-# Yourloops data visualization for diabetes device data 
+# Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
+
+## 0.4.3
+### Fixed
+- [PT-640] Fix display of parameter history is not accurate
 
 ## 0.4.2
 ### Fixed
@@ -25,7 +29,7 @@ This node package is a dependency of Blip and was forked from tidepool/viz.
 
 ## 0.2.0-rc01 - 2019-05-17
 ### Added
-- Integrate latest changes from Tidepool Viz [v1.3.0](https://github.com/tidepool-org/viz/releases/tag/v1.3.0) 
+- Integrate latest changes from Tidepool Viz [v1.3.0](https://github.com/tidepool-org/viz/releases/tag/v1.3.0)
 
 ## 0.1.3 - 2019-04-17
 ### Changed

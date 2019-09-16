@@ -96,7 +96,7 @@ const Diabeloop = (props) => {
 
   const parameters = _.get(pumpSettings, 'payload.parameters', null);
   const device = _.get(pumpSettings, 'payload.device', null);
-  const history = _.get(pumpSettings, 'payload.history', null);
+  const history = _.sortBy(_.cloneDeep(_.get(pumpSettings, 'payload.history', null)), ['changeDate']);
 
   if (parameters === null || device === null) {
     return null;
