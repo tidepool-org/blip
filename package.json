@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.20.2-dblp.0.6.1",
+  "version": "0.6.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma --log-level debug start",
@@ -32,7 +32,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@tidepool/viz": "mdblp/viz#dblp.0.4.2",
+    "@tidepool/viz": "mdblp/viz#dblp.0.4.3",
     "core-js": "3.1.4",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
