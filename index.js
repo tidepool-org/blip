@@ -452,6 +452,7 @@ module.exports = function (config, deps) {
         'type',
         'uploadId',
         'deviceId',
+        'subType',
       ];
 
       // Generate url with any valid provided params
