@@ -41,6 +41,8 @@ export let Patients = translate()(React.createClass({
     currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
+    fetchingPendingReceivedInvites: React.PropTypes.bool.isRequired,
+    fetchingAssociatedAccounts: React.PropTypes.bool.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
@@ -362,11 +364,18 @@ export let Patients = translate()(React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, api) => {
-  return [
-    dispatchProps.fetchPendingReceivedInvites.bind(null, api),
-    dispatchProps.fetchPatients.bind(null, api)
-  ];
+export function getFetchers(dispatchProps, stateProps, api) {
+  const fetchers = [];
+
+  if (!stateProps.fetchingPendingReceivedInvites.inProgress && !stateProps.fetchingPendingReceivedInvites.completed) {
+    fetchers.push(dispatchProps.fetchPendingReceivedInvites.bind(null, api));
+  }
+
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+  }
+
+  return fetchers;
 };
 
 
@@ -411,15 +420,17 @@ export function mapStateToProps(state) {
 
   let {
     fetchingUser: { inProgress: fetchingUser },
-    fetchingPatients: { inProgress: fetchingPatients },
-    fetchingPendingReceivedInvites: { inProgress: fetchingInvites },
+    fetchingAssociatedAccounts,
+    fetchingPendingReceivedInvites,
   } = state.blip.working;
 
   return {
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,
-    loading: fetchingUser || fetchingPatients || fetchingInvites,
+    fetchingPendingReceivedInvites,
+    fetchingAssociatedAccounts,
+    loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
@@ -432,7 +443,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
-  fetchPatients: actions.async.fetchPatients,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   clearPatientData: actions.sync.clearPatientData,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
@@ -451,7 +462,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     ]),
     stateProps,
     {
-      fetchers: getFetchers(dispatchProps, ownProps, api),
+      fetchers: getFetchers(dispatchProps, stateProps, api),
       location: ownProps.location,
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),

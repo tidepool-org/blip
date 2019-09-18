@@ -39,6 +39,7 @@ describe('DonateForm', () => {
     dataDonationAccounts: [],
     onUpdateDataDonationAccounts: sinon.stub(),
     working: false,
+    dataDonationAccountsFetched: true,
     trackMetric: sinon.stub(),
   };
 
@@ -80,6 +81,35 @@ describe('DonateForm', () => {
     };
 
     expect(wrapper.instance().getWrappedInstance().state).to.eql(expectedInitialState);
+  });
+
+  describe('getNonProfitAccounts', () => {
+    it('should return a slice of the data donation accounts array with the primary account filtered out', () => {
+      expect(wrapper.instance().getWrappedInstance().getNonProfitAccounts([
+        { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
+        { email: 'bigdata+CARBDM@tidepool.org' },
+        { email: 'bigdata+CWD@tidepool.org' },
+      ])).to.eql([
+        { email: 'bigdata+CARBDM@tidepool.org' },
+        { email: 'bigdata+CWD@tidepool.org' },
+      ]);
+    });
+  });
+
+  describe('componentWillReceiveProps', () => {
+    it('should set the form values state as soon as the data donation accounts are fetched', () => {
+      const setStateSpy = sinon.spy(DonateForm.WrappedComponent.prototype, 'setState');
+
+      wrapper.setProps({ dataDonationAccountsFetched: false })
+      sinon.assert.callCount(setStateSpy, 0);
+
+      wrapper.setProps({ dataDonationAccountsFetched: true })
+      sinon.assert.callCount(setStateSpy, 1);
+      sinon.assert.calledWith(setStateSpy, sinon.match({
+        formValues: sinon.match.object,
+        initialFormValues: sinon.match.object,
+      }));
+    });
   });
 
   describe('render', () => {
@@ -163,6 +193,18 @@ describe('DonateForm', () => {
       const element = mount(<DonateForm {...newProps} />);
       expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
     });
+
+    it('should set initial form values with a provided props argument', () => {
+      expect(wrapper.instance().getWrappedInstance().getInitialFormValues({
+        dataDonationAccounts: [
+          { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
+          { email: 'bigdata+NSF@tidepool.org' },
+        ]
+      })).to.eql({
+        dataDonate: true,
+        dataDonateDestination: 'NSF',
+      });
+    });
   });
 
   describe('getSubmitButtonText', () => {
@@ -231,6 +273,16 @@ describe('DonateForm', () => {
 
       // Set the form working state to true
       wrapper.setProps({ working: true });
+      expect(button().prop('disabled')).to.be.true;
+    });
+
+    it('should disable the submit button if the data donation accounts have not been fetched', () => {
+      // Change the form to enable the submit button
+      checkbox().simulate('change', { target: { name: 'dataDonate', checked: true } });
+      expect(button().prop('disabled')).to.be.false;
+
+      // Set the dataDonationAccountsFetched prop to false
+      wrapper.setProps({ dataDonationAccountsFetched: false });
       expect(button().prop('disabled')).to.be.true;
     });
   });

@@ -353,14 +353,14 @@ describe('notification', () => {
     });
   });
 
-  describe('fetchPatientsFailure', () => {
+  describe('fetchAssociatedAccountsFailure', () => {
     it('should build a notification', () => {
-      let action = actions.sync.fetchPatientsFailure(ERR);
+      let action = actions.sync.fetchAssociatedAccountsFailure(ERR);
 
       let state = reducer(initialState, action);
 
       expect(state).to.deep.equal({
-        key: 'fetchingPatients',
+        key: 'fetchingAssociatedAccounts',
         isDismissible: true,
         link: null,
         status: null
