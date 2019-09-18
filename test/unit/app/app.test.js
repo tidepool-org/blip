@@ -28,7 +28,7 @@ var personUtils = require('../../../app/core/personutils');
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('App',  () => {
+describe('App', () => {
 
   api.log = sinon.stub();
 
@@ -40,7 +40,7 @@ describe('App',  () => {
       log: sinon.stub(),
       personUtils: personUtils,
       trackMetric: sinon.stub()
-    }
+    },
   };
 
   describe('constructor', () => {
@@ -49,7 +49,14 @@ describe('App',  () => {
       children: createFragment({}),
       fetchers: [],
       fetchingPatient: false,
-      fetchingUser: false,
+      fetchingUser: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingDataSources: {
+        inProgress: false,
+        completed: null,
+      },
       location: '/foo',
       loggingOut: false,
       onAcceptTerms: sinon.stub(),
@@ -75,7 +82,14 @@ describe('App',  () => {
         children: createFragment({}),
         fetchers: [],
         fetchingPatient: false,
-        fetchingUser: false,
+        fetchingUser: {
+          inProgress: false,
+          completed: null,
+        },
+        fetchingDataSources: {
+          inProgress: false,
+          completed: null,
+        },
         location: '/foo',
         loggingOut: false,
         onAcceptTerms: sinon.stub(),
@@ -95,7 +109,7 @@ describe('App',  () => {
 
       var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(10);
+      expect(console.error.callCount).to.equal(11);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
     });
@@ -523,8 +537,8 @@ describe('App',  () => {
         expect(result.authenticated).to.equal(initialState.isLoggedIn);
       });
 
-      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-        expect(result.fetchingUser).to.equal(initialState.working.fetchingUser.inProgress);
+      it('should map working.fetchingUser to fetchingUser', () => {
+        expect(result.fetchingUser).to.eql(initialState.working.fetchingUser);
       });
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
@@ -599,8 +613,8 @@ describe('App',  () => {
         expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
       });
 
-      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-        expect(result.fetchingUser).to.equal(loggedIn.working.fetchingUser.inProgress);
+      it('should map working.fetchingUser to fetchingUser', () => {
+        expect(result.fetchingUser).to.eql(loggedIn.working.fetchingUser);
       });
 
       it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
@@ -630,7 +644,7 @@ describe('App',  () => {
 
       it('should return the current patient in view as patient and empty permissions', () => {
         expect(result.patient).to.deep.equal(Object.assign({}, loggedIn.allUsersMap.d4e5f6, { permissions: {} }));
-      }); 
+      });
 
       it('should return empty permsOfLoggedInUser if user does not have authorization', () => {
         expect(result.permsOfLoggedInUser).to.be.empty;
@@ -676,10 +690,10 @@ describe('App',  () => {
           }
         };
         const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
-        });  
+        });
       });
 
       context('Care team member without upload permissions', () => {
@@ -721,7 +735,7 @@ describe('App',  () => {
           }
         };
         const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
-  
+
         it('should return correct permsOfLoggedInUser permissions', () => {
           expect(careTeamMemberNoUploadResult.permsOfLoggedInUser).to.equal(careTeamMemberNoUpload.membershipPermissionsInOtherCareTeams.d4e5f6);
         });
@@ -729,10 +743,18 @@ describe('App',  () => {
 
       describe('getFetchers', () => {
         const stateProps = {
-          authenticated: false,
+          authenticated: true,
+          fetchingUser: {
+            inProgress: false,
+            completed: null,
+          },
+          fetchingDataSources: {
+            inProgress: false,
+            completed: null,
+          },
         };
 
-        const dispatchProps ={
+        const dispatchProps = {
           fetchUser: sinon.stub().returns('fetchUser'),
           fetchDataSources: sinon.stub().returns('fetchDataSources'),
         };
@@ -743,10 +765,44 @@ describe('App',  () => {
           const result = getFetchers(stateProps, dispatchProps, api);
           expect(result[0]).to.be.a('function');
           expect(result[0]()).to.equal('fetchUser');
+          expect(result[1]).to.be.a('function');
+          expect(result[1]()).to.equal('fetchDataSources');
+        });
+
+        it('should only add the user and data source fetchers if fetches are not already in progress or completed', () => {
+          const standardResult = getFetchers(stateProps, dispatchProps, api);
+          expect(standardResult.length).to.equal(2);
+
+          const inProgressResult = getFetchers({
+            authenticated: true,
+            fetchingUser: {
+              inProgress: true,
+              completed: null,
+            },
+            fetchingDataSources: {
+              inProgress: true,
+              completed: null,
+            },
+          }, dispatchProps, api);
+
+          expect(inProgressResult.length).to.equal(0);
+
+          const completedResult = getFetchers({
+            authenticated: true,
+            fetchingUser: {
+              inProgress: false,
+              completed: true,
+            },
+            fetchingDataSources: {
+              inProgress: false,
+              completed: true,
+            },
+          }, dispatchProps, api);
+          expect(completedResult.length).to.equal(0);
         });
 
         it('should return an array containing the data sources fetcher from dispatchProps, but only if authenticated', () => {
-          const result = getFetchers(stateProps, dispatchProps, api);
+          const result = getFetchers(_.assign({}, stateProps, { authenticated: false } ), dispatchProps, api);
           expect(result[1]).to.be.undefined;
 
           const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);

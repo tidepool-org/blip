@@ -229,7 +229,7 @@ export function login(api, credentials, options, postLoginAction) {
           dispatch(sync.loginFailure(error, err));
         }
       } else {
-        api.user.get((err, user) => {
+        dispatch(fetchUser(api, (err, user) => {
           const isClinic = personUtils.isClinic(user);
 
           let redirectRoute = '/patients?justLoggedIn=true';
@@ -243,7 +243,7 @@ export function login(api, credentials, options, postLoginAction) {
             ));
           } else {
             if (_.get(user, ['profile', 'patient'])) {
-              api.patient.get(user.userid, (err, patient) => {
+              dispatch(fetchPatient(api, user.userid, (err, patient) => {
                 if (err) {
                   dispatch(sync.loginFailure(
                     createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
@@ -256,7 +256,7 @@ export function login(api, credentials, options, postLoginAction) {
                   }
                   dispatch(routeActions.push(redirectRoute));
                 }
-              });
+              }));
             } else {
               dispatch(sync.loginSuccess(user));
               if (postLoginAction) {
@@ -265,7 +265,7 @@ export function login(api, credentials, options, postLoginAction) {
               dispatch(routeActions.push(redirectRoute));
             }
           }
-        });
+        }));
       }
     });
   };
@@ -327,7 +327,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
         ));
       } else {
         dispatch(sync.removeMembershipInOtherCareTeamSuccess(patientId));
-        dispatch(fetchPatients(api));
+        dispatch(fetchAssociatedAccounts(api));
       }
     });
   }
@@ -743,7 +743,7 @@ export function logError(api, error, message, properties) {
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchUser(api) {
+export function fetchUser(api, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.fetchUserRequest());
 
@@ -762,21 +762,11 @@ export function fetchUser(api) {
           createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED)
         ));
       } else {
-        if (_.get(user, ['profile', 'patient'])) {
-          api.patient.get(user.userid, (err, patient) => {
-            if (err) {
-              dispatch(sync.fetchUserFailure(
-                createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
-              ));
-            } else {
-              user = update(user, { $merge: patient });
-              dispatch(sync.fetchUserSuccess(user));
-            }
-          });
-        } else {
-          dispatch(sync.fetchUserSuccess(user));
-        }
+        dispatch(sync.fetchUserSuccess(user));
       }
+
+      // Invoke callback if provided
+      cb(err,user);
     });
   };
 }
@@ -829,8 +819,23 @@ export function fetchPendingReceivedInvites(api) {
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
-export function fetchPatient(api, id) {
+export function fetchPatient(api, id, cb = _.noop) {
   return (dispatch, getState) => {
+    // If we have a valid cache of the patient in our redux store, return without dispatching the fetch
+    if(checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
+      const patient = _.get(getState(), ['blip', 'allUsersMap', id]);
+      // In cases where the patient was set via the results from getPatients, the settings will not
+      // be present, and we need them for the data views, so we bypass the cache to ensure we get
+      // the complete patient object
+      if (_.get(patient, 'settings')) {
+        dispatch(sync.fetchPatientSuccess(patient));
+
+        // Invoke callback if provided
+        cb(null, patient);
+        return null;
+      }
+    }
+
     dispatch(sync.fetchPatientRequest());
 
     api.patient.get(id, (err, patient) => {
@@ -856,26 +861,29 @@ export function fetchPatient(api, id) {
       } else {
         dispatch(sync.fetchPatientSuccess(patient));
       }
+
+      // Invoke callback if provided
+      cb(err, patient);
     });
   };
 }
 
 /**
- * Fetch Patients Action Creator
+ * Fetch Associated Accounts Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchPatients(api) {
+export function fetchAssociatedAccounts(api) {
   return (dispatch) => {
-    dispatch(sync.fetchPatientsRequest());
+    dispatch(sync.fetchAssociatedAccountsRequest());
 
-    api.patient.getAll((err, patients) => {
+    api.user.getAssociatedAccounts((err, accounts) => {
       if (err) {
-        dispatch(sync.fetchPatientsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS, err), err
+        dispatch(sync.fetchAssociatedAccountsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsSuccess(patients));
+        dispatch(sync.fetchAssociatedAccountsSuccess(accounts));
       }
     });
   };
@@ -1109,27 +1117,6 @@ export function fetchMessageThread(api, id ) {
         ));
       } else {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
-      }
-    });
-  };
-}
-
-/**
- * Fetch Data Donation Accounts Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function fetchDataDonationAccounts(api) {
-  return (dispatch) => {
-    dispatch(sync.fetchDataDonationAccountsRequest());
-
-    api.user.getDataDonationAccounts((err, accounts) => {
-      if (err) {
-        dispatch(sync.fetchDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS, err), err
-        ));
-      } else {
-        dispatch(sync.fetchDataDonationAccountsSuccess(accounts));
       }
     });
   };

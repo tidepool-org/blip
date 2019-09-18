@@ -21,7 +21,8 @@ import { MGDL_UNITS } from '../../core/constants';
 
 const working = {
   inProgress: false,
-  notification: null
+  notification: null,
+  completed: null,
 };
 
 const initialState = {
@@ -63,7 +64,7 @@ const initialState = {
     fetchingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
-    fetchingPatients: Object.assign({}, working),
+    fetchingAssociatedAccounts: Object.assign({}, working),
     fetchingPendingReceivedInvites: Object.assign({}, working),
     fetchingPendingSentInvites: Object.assign({}, working),
     fetchingUser: Object.assign({}, working),

@@ -34,31 +34,38 @@ var expect = chai.expect;
 describe('showingDexcomConnectBanner', () => {
   describe('showBanner', () => {
     it('should set state to true', () => {
-      let initialStateForTest = false;
+      let initialStateForTest = null;
 
       let action = actions.sync.showBanner('dexcom');
 
-      let intermediate = reducer(initialStateForTest, action);
-
-      expect(intermediate).to.be.true;
-
-      let nextState = reducer(null, action);
+      let nextState = reducer(initialStateForTest, action);
 
       expect(nextState).to.be.true;
+    });
+
+    it('should not set state to true if banner was already dismissed', () => {
+      let initialStateForTest = false; // signifies dismissal, as opposed to null, which is the default state
+
+      let action = actions.sync.showBanner('dexcom');
+
+      let nextState = reducer(initialStateForTest, action);
+
+      expect(nextState).to.be.false;
     });
   });
 
   describe('hideBanner', () => {
-    it('should set state to null', () => {
+    it('should set state to null, but only if type matches', () => {
       let initialStateForTest = true;
 
+      let typeMismatchAction = actions.sync.hideBanner('donate');
       let action = actions.sync.hideBanner('dexcom');
 
-      let intermediate = reducer(initialStateForTest, action);
+      let intermediate = reducer(initialStateForTest, typeMismatchAction);
 
-      expect(intermediate).to.be.null;
+      expect(intermediate).to.be.true;
 
-      let nextState = reducer(null, action);
+      let nextState = reducer(initialStateForTest, action);
 
       expect(nextState).to.be.null;
     });

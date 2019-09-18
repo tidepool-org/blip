@@ -97,8 +97,6 @@ const ageVerification = (fieldLabel, fieldValue, prerequisites, isOtherPerson) =
   if (!isOtherPerson && fieldValue) {
     let now = new Date();
     let datePlusAge = new Date(parseInt(fieldValue.year) + 13, fieldValue.month, fieldValue.day);
-    console.log(datePlusAge);
-    console.log(now < datePlusAge);
 
     if (now < datePlusAge) {
       return invalid(errors.underaged());
@@ -186,7 +184,7 @@ export const typeValidators = {
     if (!dateValidator('', prerequisites.birthday).valid) {
       return invalid(errors.invalidBirthday());
     }
-    
+
     // checks to see if diagnosis date is earlier than birthdate (which is not allowed)
     birthdayObj = new Date(prerequisites.birthday.year, prerequisites.birthday.month, prerequisites.birthday.day);
     diagnosisDateObj = new Date(fieldValue.year, fieldValue.month, fieldValue.day);
