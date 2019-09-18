@@ -106,6 +106,17 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
+                <ClipboardButton
+                  className='copyButton'
+                  button-title={'For email or notes'}
+                  data-clipboard-target="#copyBasicsText"
+                  onSuccess = {this.copyBasicsClicked}
+                >
+                <p className='Copy-as-text'>{'Copy as text'}</p>
+                </ClipboardButton>
+                <pre className='copyText' id="copyBasicsText">
+                   {basicsText(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
+                </pre>
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
                   bgSources={this.props.dataUtil.bgSources}
@@ -124,17 +135,7 @@ class Basics extends Component {
                 />
               </div>
             </div>
-            <ClipboardButton
-              className='copyButton'
-              button-title={'For email or notes'}
-              data-clipboard-target="#copyBasicsText"
-              onSuccess = {this.copyBasicsClicked}
-            >
-            <p>{'Copy as text'}</p>
-            </ClipboardButton>
-            <pre className='copyText' id="copyBasicsText">
-                {basicsText(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
-            </pre>
+            
           </div>
         </div>
         <Footer
