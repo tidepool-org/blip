@@ -267,9 +267,9 @@ var PatientInfo = translate()(React.createClass({
         errorElem = <div className="PatientInfo-error-message">{error}</div>;
       }
       fullNameNode = (
-        <div className="">
+        <div>
           <label className="PatientInfo-label" htmlFor="fullName">{t('Full Name')}</label>
-          <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
+          <input className={classes} id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
           {errorElem}
         </div>
       );
@@ -721,7 +721,7 @@ var PatientInfo = translate()(React.createClass({
     const updatedPatientProfile = updatedPatient.profile.patient;
 
     if (formValues.birthday) {
-      updatedPatientProfile.birthday =  sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+      updatedPatientProfile.birthday = sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {

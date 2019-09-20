@@ -473,9 +473,9 @@ function updatePatient(patient, cb) {
   const profile = profileFromUser(patient);
   const loggedInUserId = tidepool.getUserId();
   const updatedEmails = _.get(patient, 'emails');
-  const newEmail = _.get(updatedEmails, '[0]');
+  const newEmail = _.get(updatedEmails, '0');
 
-  if(loggedInUserId !== patientId){
+  if (loggedInUserId !== patientId) {
     tidepool.findProfile(patientId, function(err, currentProfile){
       if(err){
         return cb(err);
@@ -518,8 +518,8 @@ function updatePatient(patient, cb) {
         return cb(err);
       }
 
-    patient = _.assign({}, patient, {
-      profile: profile,
+      patient = _.assign({}, patient, {
+        profile: profile,
       });
       return cb(null, patient);
     });

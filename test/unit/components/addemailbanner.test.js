@@ -26,7 +26,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import AddEmailBanner from '../../../app/components/addemailbanner';
-import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
+import { browserHistory } from 'react-router'
 
 const expect = chai.expect;
 
@@ -69,5 +69,15 @@ describe('AddEmailBanner', () => {
     emailButton.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
     sinon.assert.calledWith(props.trackMetric, 'Clicked Banner Add Email');
+  });
+
+  it('should redirect to the patient profile page when the add email button is clicked', () => {
+    const browserPushSpy = sinon.spy(browserHistory, 'push');
+
+    const emailButton = wrapper.find('button');
+    emailButton.simulate('click');
+
+    sinon.assert.calledWith(browserPushSpy, `/patients/${props.patient.userid}/profile#edit`);
+    browserPushSpy.restore();
   });
 });
