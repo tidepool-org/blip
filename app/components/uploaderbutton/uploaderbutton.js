@@ -43,7 +43,7 @@ export default translate()(class UploaderButton extends Component {
   };
 
   componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/chrome-uploader');
+    const uploaderRepo = github.getRepo('tidepool-org/uploader');
     uploaderRepo.listReleases((err, releases, request) => {
       if(err){
         this.setState({error: true});
