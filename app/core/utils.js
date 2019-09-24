@@ -433,7 +433,7 @@ utils.processPatientData = (data, queryParams, settings) => {
 utils.getLatestGithubRelease = (releases) => {
   const latestRelease = _.filter(releases, {prerelease: false})[0];
   let latestTag = latestRelease.tag_name;
-  const urlBase = `https://github.com/tidepool-org/chrome-uploader/releases/download/${latestTag}`;
+  const urlBase = `https://github.com/tidepool-org/uploader/releases/download/${latestTag}`;
   latestTag = latestTag.substr(1);
   const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
   const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.dmg`;
