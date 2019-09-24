@@ -417,7 +417,7 @@ var PatientInfo = translate()(React.createClass({
       email = (
         <div className={classes}>
           <label className="PatientInfo-label" htmlFor="email">{t('Patient Email (optional)')}</label>
-          <input type="email" className="PatientInfo-input" id="email" ref="email" placeholder="Email address" defaultValue={formValues.email} />
+          <input type="email" className="PatientInfo-input" id="email" ref="email" placeholder="Email address" defaultValue={formValues.email} required/>
           {errorElem}
         </div>
       );
