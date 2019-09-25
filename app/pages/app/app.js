@@ -30,6 +30,7 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 import Navbar from '../../components/navbar';
 import DonateBanner from '../../components/donatebanner';
 import DexcomBanner from '../../components/dexcombanner';
+import AddEmailBanner from '../../components/addemailbanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 
@@ -304,6 +305,26 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderAddEmailBanner() {
+    this.props.context.log('Rendering clinician add email banner');
+
+    const {
+      patient,
+      permsOfLoggedInUser
+    } = this.props;
+    if(_.has(permsOfLoggedInUser, 'custodian') && !_.has(patient, 'username')){
+      this.props.context.trackMetric('Banner displayed Add Email');
+      return (
+        <div className="App-addemailbanner">
+          <AddEmailBanner
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+    return null;
+  }
+
   renderNotification() {
     var notification = this.props.notification;
     var handleClose;
@@ -377,11 +398,13 @@ export class AppComponent extends React.Component {
     var notification = this.renderNotification();
     var donatebanner = this.renderDonateBanner();
     var dexcombanner = this.renderDexcomConnectBanner();
+    var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
     return (
       <div className="app" onClick={this.hideNavbarDropdown.bind(this)}>
         {overlay}
+        {emailbanner}
         {navbar}
         {notification}
         {donatebanner}
