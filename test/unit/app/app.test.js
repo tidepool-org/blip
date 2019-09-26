@@ -192,6 +192,38 @@ describe('App', () => {
     });
   });
 
+  describe('renderEmailBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingDexcomConnectBanner: null,
+      onClickDexcomConnectBanner: sinon.stub(),
+      onDismissDexcomConnectBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      patient: {},
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = mount(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the patient username and permsOfLoggedInUser prop values', () => {
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
+
+      wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+
+      wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
+      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+    });
+  });
+
   describe('componentWillReceiveProps', () => {
     let props = _.assign({}, baseProps, {
       showBanner: sinon.stub(),

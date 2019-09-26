@@ -190,6 +190,11 @@ a.PatientInfo-block {
   }
 }
 
+.PatientInfo-input[id="email"]:invalid {
+  border: solid 1px #6d6d6d;
+  background-color: #dcdff9;
+}
+
 .PatientInfo-input-error {
   border-color: @red-error;
 }
@@ -209,13 +214,7 @@ a.PatientInfo-block {
 
 .PatientInfo-button {
   &:extend(.btn all);
-  display: inline-block;
-  margin-left: 10px;
-
-  font-size: @font-size-small;
   line-height: 20px;
-  height: 22px;
-  padding: 0 8px;
 }
 
 .PatientInfo-button--primary {
