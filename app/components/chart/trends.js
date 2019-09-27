@@ -122,6 +122,18 @@ const Trends = translate()(class Trends extends PureComponent {
     }
   };
 
+  componentWillReceiveProps(nextProps) {
+    const newDataLoaded = this.props.loading && !nextProps.loading;
+
+    if (newDataLoaded) {
+      // Trigger a reset of the endpoints state so that the stats will know to update
+      const endpoints = this.state.endpoints;
+      this.setState({
+        endpoints: []
+      }, this.setState({ endpoints }))
+    }
+  }
+
   formatDate(datetime) {
     const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);

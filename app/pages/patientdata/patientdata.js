@@ -123,7 +123,7 @@ export let PatientData = translate()(React.createClass({
       },
       printOpts: {
         numDays: {
-          daily: 6,
+          daily: 15,
           bgLog: 30,
         },
       },
