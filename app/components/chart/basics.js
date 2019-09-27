@@ -112,7 +112,7 @@ class Basics extends Component {
                   data-clipboard-target="#copyBasicsText"
                   onSuccess = {this.copyBasicsClicked}
                 >
-                <p className='Copy-as-text'>{'Copy as text'}</p>
+                  <p>{'Copy as text'}</p>
                 </ClipboardButton>
                 <pre className='copyText' id="copyBasicsText">
                    {basicsText(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
@@ -135,7 +135,6 @@ class Basics extends Component {
                 />
               </div>
             </div>
-            
           </div>
         </div>
         <Footer
