@@ -40,7 +40,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
   };
 
   componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/chrome-uploader');
+    const uploaderRepo = github.getRepo('tidepool-org/uploader');
     uploaderRepo.listReleases((err, releases, request) => {
       if(err){
         this.setState({error: true});
