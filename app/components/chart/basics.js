@@ -4,14 +4,13 @@ import bows from 'bows';
 import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
-import ClipboardButton from 'react-clipboard.js';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
 const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const Loader = vizComponents.Loader;
+const { ClipboardButton, Loader } = vizComponents;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
@@ -79,6 +78,8 @@ class Basics extends Component {
   };
 
   render = () => {
+    const { t } = this.props;
+
     return (
       <div id="tidelineMain" className="basics">
         <Header
@@ -107,16 +108,10 @@ class Basics extends Component {
             <div className="patient-data-sidebar-inner">
               <div>
                 <ClipboardButton
-                  className='copyButton'
-                  button-title={'For email or notes'}
-                  data-clipboard-target="#copyBasicsText"
-                  onSuccess = {this.copyBasicsClicked}
-                >
-                  <p>{'Copy as text'}</p>
-                </ClipboardButton>
-                <pre className='copyText' id="copyBasicsText">
-                   {basicsText(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
-                </pre>
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.copyBasicsClicked}
+                  getText={basicsText.bind(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
+                />
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
                   bgSources={this.props.dataUtil.bgSources}

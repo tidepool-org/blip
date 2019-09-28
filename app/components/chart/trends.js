@@ -41,7 +41,7 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
 const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
-const Loader = viz.components.Loader;
+const {ClipboardButton, Loader} = viz.components;
 
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
@@ -373,7 +373,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   render() {
-    const { currentPatientInViewId } = this.props;
+    const { currentPatientInViewId, t } = this.props;
     return (
       <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
@@ -392,6 +392,11 @@ const Trends = translate()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
+              <ClipboardButton
+                buttonTitle={t('For email or notes')}
+                onSuccess={this.copyTrendsClicked}
+                clipboardText='Hello Trends!'
+              />
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
@@ -552,6 +557,10 @@ const Trends = translate()(class Trends extends PureComponent {
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   }
+
+  copyTrendsClicked = () => {
+    this.props.trackMetric('Clicked Trends Settings');
+  };
 });
 
 export default Trends;
