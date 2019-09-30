@@ -45,6 +45,8 @@ class Stats extends Component {
     this.state = {
       stats: this.getStatsByChartType(this.props),
     };
+
+    window.downloadStatData = this.downloadStatData();
   }
 
   componentWillReceiveProps = nextProps => {
@@ -61,6 +63,8 @@ class Stats extends Component {
       } else if (update.activeDays) {
         this.updateStatData(nextProps);
       }
+
+      window.downloadStatData = this.downloadStatData(nextProps);
     }
   };
 
@@ -228,6 +232,13 @@ class Stats extends Component {
     this.log('stats', stats);
 
     this.setState({ stats });
+  };
+
+  downloadStatData = (props = this.props) => () => {
+    console.save({
+      stats: this.state.stats,
+      endpoints: props.endpoints,
+    }, `stats-${props.chartType}.json`);
   };
 };
 
