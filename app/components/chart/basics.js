@@ -13,13 +13,13 @@ import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { ClipboardButton, Loader } = vizComponents;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+const basicsText = vizUtils.text.basicsText;
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
 import { BG_DATA_TYPES } from '../../core/constants';
-import basicsText from './basicsText';
 
 class Basics extends Component {
   static propTypes = {
@@ -110,7 +110,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.copyBasicsClicked}
-                  getText={basicsText.bind(this.props.patient, this.props.patientData, this.props.dataUtil, this.props.chartPrefs)}
+                  getText={basicsText.bind(this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs)}
                 />
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
@@ -127,6 +127,7 @@ class Basics extends Component {
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
+                  onStatsChange={this.handleStatsChange}
                 />
               </div>
             </div>
@@ -237,6 +238,8 @@ class Basics extends Component {
     };
     this.props.updateChartPrefs(prefs);
   };
+
+  handleStatsChange = stats => this.setState({ stats });
 
   handleClickBasics = e => {
     if (e) {

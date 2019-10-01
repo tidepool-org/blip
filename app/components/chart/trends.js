@@ -41,6 +41,7 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
 const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
+const trendsText = viz.utils.text.trendsText;
 const {ClipboardButton, Loader} = viz.components;
 
 const Trends = translate()(class Trends extends PureComponent {
@@ -275,6 +276,8 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
+  handleStatsChange = stats => this.setState({ stats });
+
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent,
@@ -395,7 +398,7 @@ const Trends = translate()(class Trends extends PureComponent {
               <ClipboardButton
                 buttonTitle={t('For email or notes')}
                 onSuccess={this.copyTrendsClicked}
-                clipboardText='Hello Trends!'
+                getText={trendsText.bind(this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs)}
               />
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
@@ -412,6 +415,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.state.endpoints}
+                onStatsChange={this.handleStatsChange}
               />
             </div>
           </div>

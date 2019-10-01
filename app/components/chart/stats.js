@@ -29,6 +29,7 @@ class Stats extends Component {
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     onAverageDailyDoseInputChange: PropTypes.func,
+    onStatsChange: PropTypes.func,
   };
 
   constructor(props) {
@@ -46,7 +47,7 @@ class Stats extends Component {
       stats: this.getStatsByChartType(this.props),
     };
 
-    window.downloadStatData = this.downloadStatData();
+    this.onStatsChange(this.props);
   }
 
   componentWillReceiveProps = nextProps => {
@@ -56,15 +57,13 @@ class Stats extends Component {
       if (update.stats) {
         this.setState({
           stats: this.getStatsByChartType(nextProps)
-        });
+        }, this.onStatsChange.bind(this, nextProps));
       } else if (update.endpoints) {
         this.updateDataUtilEndpoints(nextProps);
         this.updateStatData(nextProps);
       } else if (update.activeDays) {
         this.updateStatData(nextProps);
       }
-
-      window.downloadStatData = this.downloadStatData(nextProps);
     }
   };
 
@@ -228,17 +227,21 @@ class Stats extends Component {
       stats[i].title = getStatTitle(stat.id, opts);
     });
 
-
     this.log('stats', stats);
 
-    this.setState({ stats });
+    this.setState({ stats }, this.onStatsChange.bind(this, props));
   };
 
-  downloadStatData = (props = this.props) => () => {
-    console.save({
-      stats: this.state.stats,
-      endpoints: props.endpoints,
-    }, `stats-${props.chartType}.json`);
+  onStatsChange = (props = this.props) => {
+    if (_.isFunction(props.onStatsChange)) props.onStatsChange({ ...this.state.stats });
+
+    window.downloadStatData = () => {
+      console.save({
+        stats: this.state.stats,
+        endpoints: props.endpoints,
+        bgPrefs: props.bgPrefs,
+      }, `stats-${props.chartType}.json`);
+    };
   };
 };
 
