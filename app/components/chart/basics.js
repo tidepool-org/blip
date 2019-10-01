@@ -285,7 +285,7 @@ class Basics extends Component {
   };
 
   copyBasicsClicked = () => {
-    this.props.trackMetric('Clicked Basics Settings');
+    this.props.trackMetric('Clicked Copy Settings', { source: 'Basics' });
   };
 };
 

@@ -103,7 +103,7 @@ const Settings = translate()(React.createClass({
 
     const self = this;
     const handleCopySettings = function() {
-      self.props.trackMetric('Clicked Copy Settings');
+      self.props.trackMetric('Clicked Copy Settings', { source: 'Device Settings' });
     };
 
     return (

@@ -563,7 +563,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   copyTrendsClicked = () => {
-    this.props.trackMetric('Clicked Trends Settings');
+    this.props.trackMetric('Clicked Copy Settings', { source: 'Trends' });
   };
 });
 
