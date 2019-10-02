@@ -110,7 +110,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.copyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs)}
+                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs)}
                 />
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
