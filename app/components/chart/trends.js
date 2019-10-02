@@ -398,7 +398,7 @@ const Trends = translate()(class Trends extends PureComponent {
               <ClipboardButton
                 buttonTitle={t('For email or notes')}
                 onSuccess={this.copyTrendsClicked}
-                getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs)}
+                getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.chartPrefs[this.chartType])}
               />
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
@@ -413,6 +413,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 bgSource={this.props.dataUtil.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
+                timePrefs={this.props.timePrefs}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.state.endpoints}
                 onStatsChange={this.handleStatsChange}

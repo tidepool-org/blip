@@ -124,6 +124,7 @@ class Basics extends Component {
                   bgSource={this.props.dataUtil.bgSource}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
+                  timePrefs={this.props.timePrefs}
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
