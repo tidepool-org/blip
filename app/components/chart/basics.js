@@ -110,7 +110,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.copyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs)}
+                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
                 />
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
@@ -124,7 +124,6 @@ class Basics extends Component {
                   bgSource={this.props.dataUtil.bgSource}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  timePrefs={this.props.timePrefs}
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
@@ -240,7 +239,19 @@ class Basics extends Component {
     this.props.updateChartPrefs(prefs);
   };
 
-  handleStatsChange = stats => this.setState({ stats });
+  handleStatsChange = stats => {
+    this.setState({ stats });
+
+    window.downloadStatData = () => {
+      console.save({
+        bgPrefs: this.props.bgPrefs,
+        data: this.props.patientData.basicsData,
+        endpoints: this.props.endpoints,
+        stats: stats,
+        timePrefs: this.props.timePrefs,
+      }, 'stats-basics.json');
+    };
+  };
 
   handleClickBasics = e => {
     if (e) {

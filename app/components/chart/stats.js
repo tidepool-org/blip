@@ -26,7 +26,6 @@ class Stats extends Component {
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
     chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
-    timePrefs: PropTypes.object,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     onAverageDailyDoseInputChange: PropTypes.func,
@@ -233,18 +232,8 @@ class Stats extends Component {
     this.setState({ stats }, this.onStatsChange.bind(this, props));
   };
 
-  onStatsChange = (props = this.props) => {
-    if (_.isFunction(props.onStatsChange)) props.onStatsChange({ ...this.state.stats });
-
-    window.downloadStatData = () => {
-      console.save({
-        stats: this.state.stats,
-        endpoints: props.endpoints,
-        bgPrefs: props.bgPrefs,
-        chartPrefs: props.chartPrefs[props.chartType],
-        timePrefs: props.timePrefs,
-      }, `stats-${props.chartType}.json`);
-    };
+  onStatsChange = () => {
+    if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange({ ...this.state.stats });
   };
 };
 

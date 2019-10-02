@@ -276,7 +276,19 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
-  handleStatsChange = stats => this.setState({ stats });
+  handleStatsChange = stats => {
+    this.setState({ stats });
+
+    window.downloadStatData = () => {
+      console.save({
+        bgPrefs: this.props.bgPrefs,
+        chartPrefs: this.props.chartPrefs[this.chartType],
+        endpoints: this.state.endpoints,
+        stats: stats,
+        timePrefs: this.props.timePrefs,
+      }, 'stats-trends.json');
+    };
+  };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
@@ -413,7 +425,6 @@ const Trends = translate()(class Trends extends PureComponent {
                 bgSource={this.props.dataUtil.bgSource}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                timePrefs={this.props.timePrefs}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.state.endpoints}
                 onStatsChange={this.handleStatsChange}
