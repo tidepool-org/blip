@@ -173,6 +173,33 @@ export class DataUtil {
     return data;
   };
 
+  /**
+   * Return the number of days which have at least one bolus or one basal data.
+   * @param {Array} bolus Array of bolus data
+   * @param {Array} basal Array of basal data
+   */
+  getNumDaysWithInsulin(bolus, basal) {
+    const uDays = []; // Array of unique days (in string...)
+
+    if (!(_.isArray(bolus) && _.isArray(basal))) {
+      this.log.warn('bolus or basal is not an array', bolus, basal);
+      return this.days;
+    }
+
+    const insulin = _.concat(bolus, basal);
+
+    _.forEach(insulin, (value) => {
+      if (_.isObject(value) && _.isString(value.normalTime) && value.normalTime.length > 10) {
+        const day = value.normalTime.substring(0, 10);
+        if (uDays.indexOf(day) < 0) {
+          uDays.push(day);
+        }
+      }
+    });
+
+    return Math.min(uDays.length, this.days);
+  }
+
   getBasalBolusData = () => {
     this.applyDateFilters();
 
@@ -188,8 +215,9 @@ export class DataUtil {
     };
 
     if (this.days > 1) {
-      basalBolusData.basal = basalBolusData.basal / this.days;
-      basalBolusData.bolus = basalBolusData.bolus / this.days;
+      const nDays = this.getNumDaysWithInsulin(bolusData, basalData);
+      basalBolusData.basal = basalBolusData.basal / nDays;
+      basalBolusData.bolus = basalBolusData.bolus / nDays;
     }
 
     return basalBolusData;
