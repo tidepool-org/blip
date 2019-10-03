@@ -47,7 +47,7 @@ class Stats extends Component {
       stats: this.getStatsByChartType(this.props),
     };
 
-    this.onStatsChange(this.props);
+    this.onStatsChange();
   }
 
   componentWillReceiveProps = nextProps => {
@@ -233,7 +233,7 @@ class Stats extends Component {
   };
 
   onStatsChange = () => {
-    if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange({ ...this.state.stats });
+    if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange([...this.state.stats]);
   };
 };
 

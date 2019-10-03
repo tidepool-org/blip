@@ -4,16 +4,17 @@
 /* global it */
 /* global before */
 /* global after */
+/* global afterEach */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var _ = require('lodash');
-var expect = chai.expect;
-
-const renderer = TestUtils.createRenderer();
-
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import { shallow } from 'enzyme';
+import _ from 'lodash';
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';
+
+const expect = chai.expect;
+const renderer = TestUtils.createRenderer();
 
 describe('Settings', function () {
   const bgPrefs = {
@@ -36,6 +37,19 @@ describe('Settings', function () {
     },
     bgUnits: MGDL_UNITS
   };
+
+  const baseProps = {
+    bgPrefs,
+    chartPrefs: {},
+    patientData: {},
+    printReady: false,
+    trackMetric: sinon.stub(),
+    pdf: {},
+  };
+
+  afterEach(() => {
+    baseProps.trackMetric.reset();
+  });
 
   describe('render', function() {
     it('should render without problems', function () {
@@ -125,8 +139,8 @@ describe('Settings', function () {
         pdf: {},
       };
 
-      var dailyElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var settingsElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(settingsElem);
 
       var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
       var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
@@ -144,14 +158,24 @@ describe('Settings', function () {
         onClickPrint: sinon.spy(),
       };
 
-      var dailyElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
+      var settingsElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(settingsElem);
       var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
       var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
 
       expect(props.onClickPrint.callCount).to.equal(0);
       TestUtils.Simulate.click(printLink);
       expect(props.onClickPrint.callCount).to.equal(1);
+    });
+  });
+
+  describe('handleCopySettingsClicked', () => {
+    it('should track metric with source param when called', () => {
+      const wrapper = shallow(<Settings.WrappedComponent {...baseProps} />);
+      const instance = wrapper.instance();
+      instance.handleCopySettingsClicked();
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Device Settings' });
     });
   });
 });

@@ -101,15 +101,10 @@ const Settings = translate()(React.createClass({
   renderChart: function() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
-    const self = this;
-    const handleCopySettings = function() {
-      self.props.trackMetric('Clicked Copy Settings', { source: 'Device Settings' });
-    };
-
     return (
       <PumpSettingsContainer
         currentPatientInViewId={this.props.currentPatientInViewId}
-        copySettingsClicked={handleCopySettings}
+        copySettingsClicked={this.handleCopySettingsClicked}
         bgUnits={this.props.bgPrefs.bgUnits}
         manufacturerKey={_.get(mostRecentSettings, 'source', '').toLowerCase()}
         pumpSettings={mostRecentSettings}
@@ -156,6 +151,10 @@ const Settings = translate()(React.createClass({
   },
 
   // handlers
+  handleCopySettingsClicked: function() {
+    this.props.trackMetric('Clicked Copy Settings', { source: 'Device Settings' });
+  },
+
   handleClickTrends: function(e) {
     if (e) {
       e.preventDefault();

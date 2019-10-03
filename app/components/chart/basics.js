@@ -109,7 +109,7 @@ class Basics extends Component {
               <div>
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
-                  onSuccess={this.copyBasicsClicked}
+                  onSuccess={this.handleCopyBasicsClicked}
                   getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
                 />
                 <BgSourceToggle
@@ -296,7 +296,7 @@ class Basics extends Component {
     this.props.onSwitchToDaily(date, title);
   };
 
-  copyBasicsClicked = () => {
+  handleCopyBasicsClicked = () => {
     this.props.trackMetric('Clicked Copy Settings', { source: 'Basics' });
   };
 };

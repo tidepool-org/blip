@@ -409,7 +409,7 @@ const Trends = translate()(class Trends extends PureComponent {
             <div className="patient-data-sidebar-inner">
               <ClipboardButton
                 buttonTitle={t('For email or notes')}
-                onSuccess={this.copyTrendsClicked}
+                onSuccess={this.handleCopyTrendsClicked}
                 getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.chartPrefs[this.chartType])}
               />
               <BgSourceToggle
@@ -574,7 +574,7 @@ const Trends = translate()(class Trends extends PureComponent {
     );
   }
 
-  copyTrendsClicked = () => {
+  handleCopyTrendsClicked = () => {
     this.props.trackMetric('Clicked Copy Settings', { source: 'Trends' });
   };
 });
