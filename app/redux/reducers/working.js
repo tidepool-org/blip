@@ -71,6 +71,10 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_REQUEST:
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.GENERATE_PDF_REQUEST:
+    case types.DATA_WORKER_ADD_DATA_REQUEST:
+    case types.DATA_WORKER_REMOVE_DATA_REQUEST:
+    case types.DATA_WORKER_UPDATE_DATUM_REQUEST:
+    case types.DATA_WORKER_QUERY_DATA_REQUEST:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_SERVER_TIME_REQUEST:
@@ -124,6 +128,10 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
+    case types.DATA_WORKER_ADD_DATA_SUCCESS:
+    case types.DATA_WORKER_REMOVE_DATA_SUCCESS:
+    case types.DATA_WORKER_UPDATE_DATUM_SUCCESS:
+    case types.DATA_WORKER_QUERY_DATA_SUCCESS:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.FETCH_DATA_SOURCES_SUCCESS:
     case types.FETCH_SERVER_TIME_SUCCESS:
@@ -186,6 +194,10 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_FAILURE:
     case types.VERIFY_CUSTODIAL_FAILURE:
     case types.GENERATE_PDF_FAILURE:
+    case types.DATA_WORKER_ADD_DATA_FAILURE:
+    case types.DATA_WORKER_REMOVE_DATA_FAILURE:
+    case types.DATA_WORKER_UPDATE_DATUM_FAILURE:
+    case types.DATA_WORKER_QUERY_DATA_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:

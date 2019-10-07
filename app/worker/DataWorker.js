@@ -33,6 +33,26 @@ export default class DataWorker {
   handleMessage(msg, postMessage) {
     const { data: action } = msg;
     switch (action.type) {
+      case actionTypes.DATA_WORKER_QUERY_DATA_REQUEST: {
+
+        break;
+      }
+
+      case actionTypes.DATA_WORKER_ADD_DATA_REQUEST: {
+
+        break;
+      }
+
+      case actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST: {
+
+        break;
+      }
+
+      case actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST: {
+
+        break;
+      }
+
       default:
         throw new Error(`Unhandled action type [${action.type}] passed to Web Worker!`);
     }
