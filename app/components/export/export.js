@@ -26,6 +26,7 @@ export default translate()(class Export extends Component {
   static propTypes = {
     api: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -69,6 +70,7 @@ export default translate()(class Export extends Component {
 
     this.props.api.tidepool.getExportDataURL(
       this.props.patient.userid,
+      this.props.user.userid,
       options,
       (err, url) => {
         if (err) {

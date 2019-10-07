@@ -27,6 +27,9 @@ describe('Export', () => {
     patient: {
       userId: 'abc123'
     },
+    user: {
+      userID: 'def456'
+    },
   };
   const mmollProps = {
     api: {
@@ -42,8 +45,10 @@ describe('Export', () => {
         },
       },
     },
+    user: {
+      userID: 'def456'
+    },
   };
-  const expectedInitialFormValues = {};
   const expectedInitialState = {
     allTime: false,
     endDate: moment().format(JS_DATE_FORMAT),
@@ -231,7 +236,7 @@ describe('Export', () => {
 
     it('should set error state if callback errors', () => {
       let errMessage = 'get data url error';
-      props.api.tidepool.getExportDataURL.callsArgWith(2, errMessage);
+      props.api.tidepool.getExportDataURL.callsArgWith(3, errMessage);
       button.simulate('submit');
       sinon.assert.calledOnce(props.api.tidepool.getExportDataURL);
       expect(wrapper.instance().getWrappedInstance().state.error).to.equal(
