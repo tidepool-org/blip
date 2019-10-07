@@ -448,6 +448,10 @@ module.exports = function (config, deps) {
         'medtronic',
         'startDate',
         'endDate',
+        'latest',
+        'type',
+        'uploadId',
+        'deviceId',
       ];
 
       // Generate url with any valid provided params
@@ -1034,11 +1038,11 @@ module.exports = function (config, deps) {
     },
     /**
      * Get URL for data export for a given user
-     * 
+     *
      * @param {String} userId of the user to get data for
-     * @param {Object} options 
+     * @param {Object} options
      * @param {String} options.format 'json'|'excel'
-     * @param {String} options.startDate 
+     * @param {String} options.startDate
      * @param {String} options.endDate
      * @param cb
      * @returns {cb} cb(err, response)
