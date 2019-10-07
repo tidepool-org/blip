@@ -22,7 +22,7 @@ import _ from 'lodash';
 
 import * as actions from '../redux/actions/worker';
 import * as actionTypes from '../redux/constants/actionTypes';
-import DataUtil from '@tidepool/viz/dist/data';
+import { DataUtil } from '@tidepool/viz/dist/data';
 
 export default class DataWorker {
   constructor(data = [], Worker = DataUtil) {
