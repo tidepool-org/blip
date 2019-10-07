@@ -250,7 +250,7 @@ describe('BG Log', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

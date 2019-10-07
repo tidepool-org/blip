@@ -48,7 +48,7 @@ function integerFromText(value, defaultValue) {
 const config = {
   VERSION: pkg.version,
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
-  API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
+  API_HOST: __API_HOST__ || `${window.location.protocol}//${window.location.host}`,
   INVITE_KEY: __INVITE_KEY__ || '',
   LATEST_TERMS: __LATEST_TERMS__ || null,
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),

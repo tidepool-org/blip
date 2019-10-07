@@ -534,8 +534,8 @@ describe('utils', () => {
   describe('getLatestGithubRelease', function() {
     it('should return the latest github release from a list of releases', function() {
       expect(utils.getLatestGithubRelease(releases)).to.deep.equal({
-        latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
+        latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
+        latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
       });
     });
   });

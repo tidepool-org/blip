@@ -13,3 +13,9 @@ coverage
 tmp
 web
 *.log
+
+# Use yarn.lock
+package-lock.json
+
+# Ignore old translation files
+locales/*/*_old.json

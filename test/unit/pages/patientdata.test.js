@@ -28,7 +28,7 @@ const t = i18next.t.bind(i18next);
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-import PD, { PatientData, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -1621,7 +1621,7 @@ describe('PatientData', function () {
       data = {
         basics: {},
         daily: {},
-        weekly: {},
+        bgLog: {},
       },
 
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
@@ -1661,13 +1661,13 @@ describe('PatientData', function () {
       ]);
     });
 
-    it('should add weekly stats to the provided data object if a `dateRange` property exists', () => {
+    it('should add bgLog stats to the provided data object if a `dateRange` property exists', () => {
       instance.generatePDFStats(data, instance.state);
-      expect(data.weekly.stats).to.be.undefined;
+      expect(data.bgLog.stats).to.be.undefined;
 
-      data.weekly.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      data.bgLog.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
       instance.generatePDFStats(data, instance.state);
-      expect(data.weekly.stats).to.be.an('object').and.have.keys([
+      expect(data.bgLog.stats).to.be.an('object').and.have.keys([
         'averageGlucose',
       ]);
     });
@@ -3658,6 +3658,79 @@ describe('PatientData', function () {
     });
   });
 
+  describe('getFetchers', () => {
+    const stateProps = {
+      fetchingPendingSentInvites: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+    };
+
+    const ownProps = {
+      routeParams: { id: '12345' }
+    };
+
+    const dispatchProps = {
+      fetchPatient: sinon.stub().returns('fetchPatient'),
+      fetchPatientData: sinon.stub().returns('fetchPatientData'),
+      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
+      fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+    };
+
+    const api = {};
+
+    it('should return an array containing the patient and patient data fetchers from dispatchProps', () => {
+      const result = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPatient');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchPatientData');
+      expect(result[2]).to.be.a('function');
+      expect(result[2]()).to.equal('fetchPendingSentInvites');
+      expect(result[3]).to.be.a('function');
+      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+    });
+
+    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(4);
+
+      const inProgressResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+      }, api);
+
+      expect(inProgressResult.length).to.equal(2);
+      expect(inProgressResult[0]()).to.equal('fetchPatient');
+      expect(inProgressResult[1]()).to.equal('fetchPatientData');
+
+      const completedResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      }, api);
+
+      expect(completedResult.length).to.equal(2);
+      expect(completedResult[0]()).to.equal('fetchPatient');
+      expect(completedResult[1]()).to.equal('fetchPatientData');
+    });
+  });
+
   describe('mapStateToProps', () => {
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
@@ -3682,8 +3755,10 @@ describe('PatientData', function () {
           a1b2c3: { root: { } },
         },
         working: {
-          fetchingPatient: {inProgress: false, notification: null},
-          fetchingPatientData: {inProgress: false, notification: null},
+          fetchingPatient: {inProgress: false, notification: null, completed: null},
+          fetchingPatientData: {inProgress: false, notification: null, completed: null},
+          fetchingPendingSentInvites: {inProgress: false, notification: null, completed: null},
+          fetchingAssociatedAccounts: {inProgress: false, notification: null, completed: null},
           fetchingUser: { inProgress: false, notification: null },
           generatingPDF: { inProgress: false, notification: null },
         },
@@ -3730,6 +3805,14 @@ describe('PatientData', function () {
 
       it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
         expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.equal(state.working.fetchingPendingSentInvites);
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
       });
     });
 
@@ -3810,6 +3893,14 @@ describe('PatientData', function () {
 
       it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
         expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.equal(state.working.fetchingPendingSentInvites);
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
       });
     });
   });

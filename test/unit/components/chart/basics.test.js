@@ -194,7 +194,7 @@ describe('Basics', () => {
       wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       expect(wrapper.state('atMostRecent')).to.be.true;
       expect(wrapper.state('inTransition')).to.be.false;
-      expect(wrapper.state('title')).to.be.a.string;
+      expect(wrapper.state('title')).to.be.a('string');
     });
   });
 

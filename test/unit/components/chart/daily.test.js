@@ -251,7 +251,7 @@ describe('Daily', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

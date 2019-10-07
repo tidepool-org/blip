@@ -96,7 +96,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickOneWeek = this.handleClickOneWeek.bind(this);
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
-    this.handleClickBgLog = this.handleClickBgLog.bind(this);
+    this.handleClickTwoWeeks = this.handleClickTwoWeeks.bind(this);
     this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
@@ -121,6 +121,18 @@ const Trends = translate()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
   };
+
+  componentWillReceiveProps(nextProps) {
+    const newDataLoaded = this.props.loading && !nextProps.loading;
+
+    if (newDataLoaded) {
+      // Trigger a reset of the endpoints state so that the stats will know to update
+      const endpoints = this.state.endpoints;
+      this.setState({
+        endpoints: []
+      }, this.setState({ endpoints }))
+    }
+  }
 
   formatDate(datetime) {
     const { t } = this.props;
