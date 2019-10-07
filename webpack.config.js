@@ -51,13 +51,22 @@ const babelLoaderConfiguration = [
   {
     test: /\.js$/,
     exclude: function(modulePath) {
-      return /node_modules/.test(modulePath) && !/node_modules\/(tideline)/.test(modulePath);
+      return /node_modules/.test(modulePath) && !/node_modules\/(tideline|tidepool-platform-client)/.test(modulePath);
     },
     use: {
       loader: 'babel-loader',
       options: {
         cacheDirectory: true,
       },
+    },
+  },
+  {
+    test: /\.js?$/,
+    include: [
+      fs.realpathSync('./node_modules/@tidepool/viz'),
+    ],
+    use: {
+      loader: 'source-map-loader',
     },
   },
 ];
@@ -153,10 +162,12 @@ if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
 }
 
+const devPublicPath = process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/';
+
 const entry = isDev
   ? [
     '@babel/polyfill',
-    'webpack-dev-server/client?http://localhost:3000',
+    'webpack-dev-server/client?' + devPublicPath,
     'webpack/hot/only-dev-server',
     './app/main.js',
   ] : [
@@ -167,27 +178,28 @@ const entry = isDev
 const output = {
   filename: 'bundle.js',
   path: path.join(__dirname, '/dist'),
-  publicPath: isDev ? 'http://localhost:3000/' : '/',
+  publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
 
 const resolve = {
-  symlinks: false,
   modules: [
     path.join(__dirname, 'node_modules'),
     'node_modules',
   ],
 };
 
+let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';
+if (process.env.WEBPACK_DEVTOOL === false) devtool = undefined;
+
 module.exports = {
   devServer: {
     publicPath: output.publicPath,
     historyApiFallback: true,
     hot: isDev,
-    // clientLogLevel: 'warning',
     clientLogLevel: 'info',
   },
-  devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
+  devtool,
   entry,
   mode: isDev ? 'development' : 'production',
   module: {
@@ -230,4 +242,11 @@ module.exports = {
   plugins,
   resolve,
   resolveLoader: resolve,
+  cache: isDev,
+  watchOptions: {
+    ignored: [
+      /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))/,
+      /(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/
+    ]
+  },
 };

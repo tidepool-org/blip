@@ -34,7 +34,7 @@ import { dataDonationAccounts as initialState } from '../../../../app/redux/redu
 var expect = chai.expect;
 
 describe('dataDonationAccounts', () => {
-  describe('fetchDataDonationAccountsSuccess', () => {
+  describe('fetchAssociatedAccountsSuccess', () => {
     it('should set state to an array of confirmed data donation accounts', () => {
       let initialStateForTest = [];
       let tracked = mutationTracker.trackObj(initialStateForTest);
@@ -44,7 +44,7 @@ describe('dataDonationAccounts', () => {
         { email: 'bigdata+NSF@tidepool.org', status: 'confirmed' },
       ];
 
-      let action = actions.sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
+      let action = actions.sync.fetchAssociatedAccountsSuccess({ dataDonationAccounts });
 
       let state = reducer(initialStateForTest, action);
 
@@ -64,7 +64,7 @@ describe('dataDonationAccounts', () => {
         { email: 'bigdata+NSF@tidepool.org' },
       ];
 
-      let action = actions.sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
+      let action = actions.sync.fetchAssociatedAccountsSuccess({ dataDonationAccounts });
 
       let state = reducer(initialStateForTest, action);
 

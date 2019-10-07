@@ -61,7 +61,7 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToWeekly: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
@@ -97,7 +97,7 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
     this.handleClickTwoWeeks = this.handleClickTwoWeeks.bind(this);
-    this.handleClickWeekly = this.handleClickWeekly.bind(this);
+    this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
     this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
@@ -121,6 +121,18 @@ const Trends = translate()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
   };
+
+  componentWillReceiveProps(nextProps) {
+    const newDataLoaded = this.props.loading && !nextProps.loading;
+
+    if (newDataLoaded) {
+      // Trigger a reset of the endpoints state so that the stats will know to update
+      const endpoints = this.state.endpoints;
+      this.setState({
+        endpoints: []
+      }, this.setState({ endpoints }))
+    }
+  }
 
   formatDate(datetime) {
     const { t } = this.props;
@@ -255,12 +267,12 @@ const Trends = translate()(class Trends extends PureComponent {
     this.chart.setExtent(newDomain, oldDomain);
   }
 
-  handleClickWeekly(e) {
+  handleClickBgLog(e) {
     if (e) {
       e.preventDefault();
     }
     const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
-    this.props.onSwitchToWeekly(datetime);
+    this.props.onSwitchToBgLog(datetime);
   }
 
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
@@ -435,7 +447,7 @@ const Trends = translate()(class Trends extends PureComponent {
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
-        onClickTwoWeeks={this.handleClickWeekly}
+        onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
       ref="header" />
     );

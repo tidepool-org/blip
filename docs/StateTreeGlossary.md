@@ -54,7 +54,7 @@ The various `working` leaves are fairly self-explanatory, but just in case (and 
 
 - `fetchingPatientData` occurs when fetching a PWD's diabetes device data (`/patients/:id/data`)
 
-- `fetchingPatients` occurs when fetching the profiles of the PWDs whose data the logged-in user has access to (`/patients`)
+- `fetchingAssociatedAccounts` occurs when fetching the profiles of the PWDs whose data the logged-in user has access to, as well as their care team members and linked data donation accounts (`/patients`)
 
 - `fetchingPendingReceivedInvites` occurs when fetching the incoming care team invitations for the logged-in user (`/patients`)
 

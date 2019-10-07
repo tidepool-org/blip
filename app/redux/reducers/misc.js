@@ -28,7 +28,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_USER_FAILURE:
     case types.FETCH_PENDING_SENT_INVITES_FAILURE:
     case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
-    case types.FETCH_PATIENTS_FAILURE:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
@@ -49,7 +49,6 @@ export const notification = (state = initialState.notification, action) => {
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
@@ -99,13 +98,14 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
 export const showingDonateBanner = (state = initialState.showingDonateBanner, action) => {
   switch (action.type) {
     case types.SHOW_BANNER:
-      return (action.payload.type === 'donate') ? true : state;
+      return (action.payload.type === 'donate' && state !== false) ? true : state;
     case types.DISMISS_BANNER:
       return (action.payload.type === 'donate') ? false : state;
     case types.FETCH_USER_SUCCESS:
       const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime');
       return dismissedBanner ? false : state;
     case types.HIDE_BANNER:
+        return (action.payload.type === 'donate') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -116,7 +116,7 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
 export const showingDexcomConnectBanner = (state = initialState.showingDexcomConnectBanner, action) => {
   switch (action.type) {
     case types.SHOW_BANNER:
-      return (action.payload.type === 'dexcom') ? true : state;
+      return (action.payload.type === 'dexcom' && state !== false) ? true : state;
     case types.DISMISS_BANNER:
       return (action.payload.type === 'dexcom') ? false : state;
     case types.FETCH_USER_SUCCESS:
@@ -124,6 +124,7 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
+        return (action.payload.type === 'dexcom') ? null : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -182,44 +183,44 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.LOGIN_SUCCESS: {
       const { user } = action.payload;
       return update(state, {
-        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])}
+        [user.userid]: { $set: _.omit(user, ['permissions', 'team'])},
+        [`${user.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
       });
     }
     case types.FETCH_PATIENT_SUCCESS: {
       let newState;
       const { patient } = action.payload;
+      const patientCache = {[`${patient.userid}_cacheUntil`]: { $set: generateCacheTTL(36e5) }}; // Cache for 60 mins
       if (state[patient.userid]) {
         newState = update(state, {
-          [patient.userid]: { $merge: _.omit(patient, ['permissions', 'team'])}
+          [patient.userid]: { $merge: patient },
+          ...patientCache,
         });
       } else {
         newState = update(state, {
-          [patient.userid]: { $set: _.omit(patient, ['permissions', 'team'])}
+          [patient.userid]: { $set: patient },
+          ...patientCache,
         });
       }
 
-      const { team } = patient;
-      if (team) {
-        let others = {};
-        action.payload.patient.team.forEach(
-          (member) => others[member.userid] = _.omit(member, 'permissions')
-        );
-        return update(newState, { $merge: others });
-      }
       return newState;
     }
-    case types.FETCH_PATIENTS_SUCCESS:
-      const { patients } = action.payload || [];
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
+      const { patients = [], careTeam = [] } = action.payload;
       let patientsMap = {};
 
-      patients.forEach((patient) => {
-        patientsMap[patient.userid] = _.omit(patient, ['permissions', 'team']);
+      [...patients, ...careTeam].forEach((patient) => {
+        patientsMap[patient.userid] = _.omit(patient, ['permissions']);
+        patientsMap[`${patient.userid}_cacheUntil`] = generateCacheTTL(36e5); // Cache for 60 mins
       });
 
       return update(state, { $merge: patientsMap });
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
-      return update(state, { $merge: { [creator.userid]: creator } });
+      return update(state, { $merge: {
+        [creator.userid]: creator,
+        [`${creator.userid}_cacheUntil`]: generateCacheTTL(36e5),
+      } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.SETUP_DATA_STORAGE_SUCCESS:
@@ -227,7 +228,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
     case types.UPDATE_USER_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: action.payload.updatedUser }});
     case types.UPDATE_PATIENT_SUCCESS:
-      return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions', 'team']) }});
+      return update(state, { [action.payload.updatedPatient.userid]: { $merge: action.payload.updatedPatient }});
     case types.UPDATE_SETTINGS_SUCCESS:
       return update(state, { [action.payload.userId]: { settings: { $merge: action.payload.updatedSettings }}});
     case types.LOGOUT_REQUEST:
@@ -284,9 +285,9 @@ export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
 
 export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCareTeam, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENT_SUCCESS:
-      const team = _.get(action.payload, ['patient', 'team'], []);
-      return team.map((member) => member.userid);
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
+      const team = _.get(action.payload, 'careTeam', []);
+      return team.length ? team.map((member) => member.userid) : state;
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
       return _.reject(state, (memberId) => {
         return memberId === _.get(action.payload, 'removedMemberId', null);
@@ -300,7 +301,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
 
 export const membershipInOtherCareTeams = (state = initialState.membershipInOtherCareTeams, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
       const patients = _.get(action.payload, ['patients'], []);
       return patients.map((patient) => patient.userid);
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
@@ -332,13 +333,14 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
         return state;
       }
     }
-    case types.FETCH_PATIENT_SUCCESS: {
-      const team = _.get(action.payload, ['patient', 'team']);
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS: {
+      const team = _.get(action.payload, 'careTeam');
       if (!_.isEmpty(team)) {
         let permissions = {};
         team.forEach((t) => permissions[t.userid] = t.permissions);
         return update(state, { $merge: permissions });
       }
+      return state;
     }
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS: {
@@ -354,6 +356,16 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
     }
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
       return _.omit(state, _.get(action.payload, 'removedMemberId', null));
+    case types.SET_MEMBER_PERMISSIONS_SUCCESS:
+      const userId = _.get(action.payload, 'memberId');
+      const perms = _.get(action.payload, 'permissions');
+      if (userId && !_.isEmpty(perms)) {
+        return update(state, {
+          [userId]: { $set: perms }
+        });
+      } else {
+        return state;
+      }
     case types.LOGOUT_REQUEST:
       return {};
     default:
@@ -368,13 +380,13 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
       const { context } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: { [creatorId]: context }});
     }
-    case types.FETCH_PATIENT_SUCCESS: {
-      const { patient } = action.payload;
-      return update(state, { $set: { [patient.userid]: patient.permissions } });
-    }
-    case types.FETCH_PATIENTS_SUCCESS: {
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS: {
       let permissions = {};
-      action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
+      action.payload.patients.forEach((patient) => {
+        if (patient.permissions) {
+          permissions[patient.userid] = patient.permissions;
+        }
+      });
 
       return update(state, { $set: permissions });
     }
@@ -424,7 +436,10 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
     case types.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId, patientData, fetchedUntil } = action.payload;
       const sortedData = _.filter(_.orderBy(patientData, 'time', 'desc'), datum => (
-        fetchedUntil ? datum.time >= fetchedUntil : true)
+        fetchedUntil
+          ? _.includes(['pumpSettings', 'upload'], datum.type) || datum.time >= fetchedUntil
+          : true
+        )
       );
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
@@ -537,8 +552,8 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
 export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
   let accounts;
   switch(action.type) {
-    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
-      accounts = state.concat(_.get(action.payload, 'accounts', []));
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
+      accounts = state.concat(_.get(action.payload, 'dataDonationAccounts', []));
       return update(state, { $set: _.uniqBy(accounts, 'email') });
 
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:

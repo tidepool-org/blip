@@ -28,7 +28,7 @@ var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
-import Weekly from '../../../../app/components/chart/weekly';
+import BgLog from '../../../../app/components/chart/bgLog';
 import { shallow, mount } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
@@ -37,7 +37,7 @@ import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
-describe('Weekly', () => {
+describe('BG Log', () => {
   let baseProps = {
     bgPrefs: {
       bgClasses: {
@@ -68,18 +68,18 @@ describe('Weekly', () => {
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
-    onSwitchToWeekly: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     trackMetric: sinon.stub(),
     uploadUrl: '',
     chartPrefs: {
-      weekly: {},
+      bgLog: {},
     },
     dataUtil: new DataUtilStub(),
     currentPatientInViewId: 1234,
     patientData: {
-      WeeklyData: {
+      BgLogData: {
         data: {},
       },
       grouped: {
@@ -88,7 +88,7 @@ describe('Weekly', () => {
     },
     pdf: {},
     printReady: false,
-    WeeklyState: {
+    BgLogState: {
       '1234': {},
     },
     loading: false,
@@ -101,7 +101,7 @@ describe('Weekly', () => {
   let wrapper;
   let instance;
   beforeEach(() => {
-    wrapper = shallow(<Weekly.WrappedComponent {...baseProps} />);
+    wrapper = shallow(<BgLog.WrappedComponent {...baseProps} />);
     instance = wrapper.instance();
   })
 
@@ -128,7 +128,7 @@ describe('Weekly', () => {
     });
 
     it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
-      let mountedWrapper = mount(<Weekly {...baseProps} />);
+      let mountedWrapper = mount(<BgLog {...baseProps} />);
 
       var printLink = mountedWrapper.find('.printview-print-icon').hostNodes();
       expect(printLink.length).to.equal(1);
@@ -145,7 +145,7 @@ describe('Weekly', () => {
         },
       });
 
-      let mountedWrapper = mount(<Weekly {...props} />);
+      let mountedWrapper = mount(<BgLog {...props} />);
       const instance = mountedWrapper.instance().getWrappedInstance();
 
       var printLink = mountedWrapper.find('.printview-print-icon');
@@ -250,7 +250,7 @@ describe('Weekly', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

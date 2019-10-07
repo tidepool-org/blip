@@ -29,7 +29,7 @@ import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
-const chartWeeklyFactory = tidelineBlip.twoweek;
+const chartBgLogFactory = tidelineBlip.twoweek;
 
 import { components as vizComponents } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
@@ -37,7 +37,7 @@ const Loader = vizComponents.Loader;
 import Header from './header';
 import Footer from './footer';
 
-class WeeklyChart extends Component {
+class BgLogChart extends Component {
   static propTypes = {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
@@ -58,7 +58,7 @@ class WeeklyChart extends Component {
     super(props);
 
     this.chartOpts = ['bgClasses', 'bgUnits', 'timePrefs'];
-    this.log = bows('Weekly Chart');
+    this.log = bows('BgLog Chart');
   }
 
   mount = () => {
@@ -73,7 +73,7 @@ class WeeklyChart extends Component {
   mountChart = (node, chartOpts) => {
     this.log('Mounting...');
     chartOpts = chartOpts || {};
-    this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.chart = chartBgLogFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
     this.chart.node = node;
     this.bindEvents();
   };
@@ -157,7 +157,7 @@ class WeeklyChart extends Component {
   };
 }
 
-class Weekly extends Component {
+class BgLog extends Component {
   static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
@@ -171,7 +171,7 @@ class Weekly extends Component {
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
@@ -185,8 +185,8 @@ class Weekly extends Component {
   constructor(props) {
     super(props);
 
-    this.chartType = 'weekly';
-    this.log = bows('Weekly View');
+    this.chartType = 'bgLog';
+    this.log = bows('BgLog View');
     this.state = this.getInitialState()
   }
 
@@ -220,7 +220,7 @@ class Weekly extends Component {
 
   render = () => {
     return (
-      <div id="tidelineMain" className="weekly">
+      <div id="tidelineMain" className="bgLog">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -255,7 +255,7 @@ class Weekly extends Component {
 
   renderChart = () => {
     return (
-      <WeeklyChart
+      <BgLogChart
         bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -291,7 +291,7 @@ class Weekly extends Component {
         onClickNext={this.handlePanForward}
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
-        onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickBgLog={this.handleClickBgLog}
         onClickPrint={this.handleClickPrint}
       ref="header" />
     );
@@ -305,9 +305,10 @@ class Weekly extends Component {
         inTransition={this.state.inTransition}
         title={''}
         onClickOneDay={this.handleClickOneDay}
+        onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
-        onClickTwoWeeks={this.handleClickTwoWeeks}
+        onClickBgLog={this.handleClickBgLog}
         onClickPrint={this.handleClickPrint}
         printReady={!!this.props.pdf.url}
       ref="header" />
@@ -321,9 +322,9 @@ class Weekly extends Component {
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.weekly-no-uploaded-data">
-        <p>The Weekly view shows a history of your finger stick BG data, but it looks like you haven't uploaded finger stick data yet.</p>
-        <p>To see your data in the Weekly view, <a
+      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.bg-log-no-uploaded-data">
+        <p>The BG Log view shows a history of your finger stick BG data, but it looks like you haven't uploaded finger stick data yet.</p>
+        <p>To see your data in the BG Log view, <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a> your pump or BG meter.</p>
@@ -395,7 +396,7 @@ class Weekly extends Component {
     this.props.onClickPrint(this.props.pdf);
   };
 
-  handleClickTwoWeeks = e => {
+  handleClickBgLog = e => {
     if (e) {
       e.preventDefault();
     }
@@ -490,4 +491,4 @@ class Weekly extends Component {
   };
 }
 
-export default translate()(Weekly);
+export default translate()(BgLog);

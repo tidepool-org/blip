@@ -28,7 +28,7 @@ const t = i18next.t.bind(i18next);
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-import PD, { PatientData, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -61,6 +61,25 @@ describe('PatientData', function () {
     t
   };
 
+  const commonStats = {
+    averageGlucose: 'averageGlucose',
+    averageDailyDose: 'averageDailyDose',
+    carbs: 'carbs',
+    coefficientOfVariation: 'coefficientOfVariation',
+    glucoseManagementIndicator: 'glucoseManagementIndicator',
+    readingsInRange: 'readingsInRange',
+    sensorUsage: 'sensorUsage',
+    standardDev: 'standardDev',
+    timeInAuto: 'timeInAuto',
+    timeInRange: 'timeInRange',
+    totalInsulin: 'totalInsulin',
+  }
+
+  const statFetchMethods = _.transform(commonStats, (result, value, key) => {
+    result[value] = sinon.stub();
+  }, {});
+
+
   before(() => {
     PD.__Rewire__('Basics', React.createClass({
       render: function() {
@@ -72,27 +91,30 @@ describe('PatientData', function () {
         return (<div className='fake-trends-view'></div>);
       }
     }));
-    PD.__Rewire__('Weekly', React.createClass({
+    PD.__Rewire__('BgLog', React.createClass({
       render: function() {
-        return (<div className='fake-weekly-view'></div>);
+        return (<div className='fake-bgLog-view'></div>);
       }
     }));
     PD.__Rewire__('vizUtils', {
       data: {
         selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
-        selectWeeklyViewData: sinon.stub().returns('stubbed filtered weekly data'),
+        selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
         DataUtil: DataUtilStub,
       },
+      stat: {
+        commonStats,
+        statFetchMethods,
+        getStatDefinition: sinon.stub().callsFake((data, type) => `stubbed ${type} definition`),
+      }
     });
-    // PD.__Rewire__('DataUtil', DataUtilStub);
   });
 
   after(() => {
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
-    PD.__ResetDependency__('Weekly');
+    PD.__ResetDependency__('BgLog');
     PD.__ResetDependency__('vizUtils');
-    // PD.__ResetDependency__('DataUtil');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -525,7 +547,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when latest data is from a bgm', () => {
+        it('should set the default view to <BgLog /> when latest data is from a bgm', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'bgm',
@@ -533,14 +555,14 @@ describe('PatientData', function () {
 
           kickOffProcessing(data);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
         });
 
-        it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
+        it('should set the default view to <BgLog /> when latest data type is cbg but came from a pump', () => {
           const data = [{
             type: 'cbg',
             deviceId: 'pump-cgm',
@@ -617,7 +639,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when type is smbg', () => {
+        it('should set the default view to <BgLog /> when type is smbg', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'unknown',
@@ -625,7 +647,7 @@ describe('PatientData', function () {
 
           kickOffProcessing(data);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
@@ -694,7 +716,7 @@ describe('PatientData', function () {
           sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
         });
 
-        it('should set the default view to <Weekly /> when type is smbg', () => {
+        it('should set the default view to <BgLog /> when type is smbg', () => {
           const data = [{
             type: 'smbg',
             deviceId: 'unknown',
@@ -702,7 +724,7 @@ describe('PatientData', function () {
 
           kickOffProcessing(data, false);
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-weekly-view');
+          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
           expect(view).to.be.ok;
 
           sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
@@ -840,7 +862,7 @@ describe('PatientData', function () {
           smbgLines: false,
           smbgRangeOverlay: true,
         },
-        weekly: {
+        bgLog: {
           bgSource: 'smbg',
         },
       });
@@ -1396,7 +1418,7 @@ describe('PatientData', function () {
       expect(elem.generatePDF.callCount).to.equal(1);
     });
 
-    it('should generate a pdf when view is weekly and patient data is processed', function () {
+    it('should generate a pdf when view is bgLog and patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1417,7 +1439,7 @@ describe('PatientData', function () {
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'weekly', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartType: 'bgLog', processingData: false, processedPatientData });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1590,10 +1612,72 @@ describe('PatientData', function () {
     });
   });
 
+  describe('generatePDFStats', () => {
+    let wrapper;
+    let instance;
+    let data;
+
+    beforeEach(() => {
+      data = {
+        basics: {},
+        daily: {},
+        bgLog: {},
+      },
+
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+      instance.dataUtil = new DataUtilStub();
+    });
+
+    it('should add basics stats to the provided data object if a `dateRange` property exists', () => {
+      instance.generatePDFStats(data, instance.state);
+      expect(data.basics.stats).to.be.undefined;
+
+      data.basics.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      instance.generatePDFStats(data, instance.state);
+      expect(data.basics.stats).to.be.an('object').and.have.keys([
+        'timeInRange',
+        'readingsInRange',
+        'totalInsulin',
+        'timeInAuto',
+        'carbs',
+        'averageDailyDose',
+      ]);
+    });
+
+    it('should add daily stats to the provided data object if the `dataByDate` object map is not empty', () => {
+      data.daily.dataByDate = {};
+      instance.generatePDFStats(data, instance.state);
+      expect(data.daily.dataByDate).to.be.eql({});
+
+      data.daily.dataByDate['2019-01-01'] = { bounds: [12345678, 23456789] };
+      instance.generatePDFStats(data, instance.state);
+      expect(data.daily.dataByDate['2019-01-01'].stats).to.be.an('object').and.have.keys([
+        'timeInRange',
+        'averageGlucose',
+        'totalInsulin',
+        'timeInAuto',
+        'carbs',
+      ]);
+    });
+
+    it('should add bgLog stats to the provided data object if a `dateRange` property exists', () => {
+      instance.generatePDFStats(data, instance.state);
+      expect(data.bgLog.stats).to.be.undefined;
+
+      data.bgLog.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
+      instance.generatePDFStats(data, instance.state);
+      expect(data.bgLog.stats).to.be.an('object').and.have.keys([
+        'averageGlucose',
+      ]);
+    });
+  });
+
   describe('generatePDF', () => {
-    it('should filter the daily and weekly view data before dispatching the generate pdf action', () => {
+    it('should filter the daily and bgLog view data before dispatching the generate pdf action', () => {
       const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
-      const weeklyFilterStub = PD.__get__('vizUtils').data.selectWeeklyViewData;
+      const bgLogFilterStub = PD.__get__('vizUtils').data.selectBgLogViewData;
+      const pickSpy = sinon.spy(_, 'pick');
 
       const props = _.assign({}, defaultProps, {
         generatePDFRequest: sinon.stub(),
@@ -1616,23 +1700,79 @@ describe('PatientData', function () {
       };
 
       const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+      const instance = wrapper.instance();
 
       sinon.assert.callCount(dailyFilterStub, 0);
-      sinon.assert.callCount(weeklyFilterStub, 0);
+      sinon.assert.callCount(bgLogFilterStub, 0);
       sinon.assert.callCount(props.generatePDFRequest, 0);
 
-      wrapper.instance().generatePDF(props, state);
+      instance.generatePDFStats = sinon.stub().returns({});
+      instance.generatePDF(props, state);
 
       sinon.assert.callCount(dailyFilterStub, 1);
-      sinon.assert.callCount(weeklyFilterStub, 1);
+      sinon.assert.callCount(bgLogFilterStub, 1);
       sinon.assert.callCount(props.generatePDFRequest, 1);
+
+      sinon.assert.callCount(pickSpy, 2);
+      assert(dailyFilterStub.calledBefore(bgLogFilterStub));
+      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
+      expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
 
       assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
       sinon.assert.calledWithMatch(props.generatePDFRequest,
         'combined',
         {
           daily: 'stubbed filtered daily data',
-          weekly: 'stubbed filtered weekly data',
+          bgLog: 'stubbed filtered bgLog data',
+        },
+      );
+
+      pickSpy.restore();
+    });
+
+    it('should add stats to the pdf data object by passing it to `generatePDFStats`', () => {
+      const props = _.assign({}, defaultProps, {
+        generatePDFRequest: sinon.stub(),
+      });
+
+      const state = {
+        processedPatientData: {
+          diabetesData: [{
+            normalTime: '2018-02-02T00:00:00.000Z',
+          }],
+          grouped: {
+            pumpSettings: {},
+          },
+        },
+        printOpts: {
+          numDays: {
+            daily: 6,
+          },
+        },
+      };
+
+      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+      const instance = wrapper.instance();
+
+      sinon.assert.callCount(props.generatePDFRequest, 0);
+
+
+      instance.generatePDFStats = sinon.stub().callsFake((data) => {
+        data.basics = { stats: 'stubbed basics stats' };
+        return data;
+      });
+
+      instance.generatePDF(props, state);
+
+      sinon.assert.callCount(props.generatePDFRequest, 1);
+      sinon.assert.callCount(instance.generatePDFStats, 1);
+
+      sinon.assert.calledWithMatch(props.generatePDFRequest,
+        'combined',
+        {
+          daily: 'stubbed filtered daily data',
+          bgLog: 'stubbed filtered bgLog data',
+          basics: { stats: 'stubbed basics stats' },
         },
       );
     });
@@ -1902,9 +2042,9 @@ describe('PatientData', function () {
       });
     });
 
-    context('weekly chart', () => {
+    context('bgLog chart', () => {
       beforeEach(() => {
-        setChartType('weekly');
+        setChartType('bgLog');
       });
 
       it('should not trigger data fetching if all fetched data has not been processed', () => {
@@ -2362,6 +2502,7 @@ describe('PatientData', function () {
     let getTimezoneForDataProcessingStub;
     let handleInitialProcessedDataStub;
     let hideLoadingStub;
+    let utilsStubs;
 
     const processedPatientDataStub = {
       data: 'stubbed data',
@@ -2412,13 +2553,16 @@ describe('PatientData', function () {
       handleInitialProcessedDataStub = sinon.stub(instance, 'handleInitialProcessedData');
       hideLoadingStub = sinon.stub(instance, 'hideLoading');
 
-      PD.__Rewire__('utils', {
+      utilsStubs = {
         processPatientData: sinon.stub().returns(processedPatientDataStub),
         filterPatientData: sinon.stub().returns({
           processedData: 'stubbed filtered data',
         }),
         getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
-      });
+        getLatestPumpSettings: sinon.stub().returns({}),
+      };
+
+      PD.__Rewire__('utils', utilsStubs);
 
       PD.__Rewire__('DataUtil', DataUtilStub);
 
@@ -2539,7 +2683,7 @@ describe('PatientData', function () {
           );
         });
 
-        it('should call processPatientData util on data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
+        it('should call processPatientData util on diabetes data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed
           });
@@ -2553,6 +2697,34 @@ describe('PatientData', function () {
             [
               shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
               ...shouldProcessProps.patientNotesMap[40],
+            ],
+          );
+        });
+
+        it('should ensure call to processPatientData util includes latest `pumpSettings` and corresponding `upload` datums', () => {
+          wrapper.setState({
+            lastDatumProcessedIndex: -1, // no data has been processed
+          });
+          wrapper.setProps(shouldProcessProps);
+          setStateSpy.resetHistory();
+
+          // Rewire processPatientData util to return undefined
+          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
+            getLatestPumpSettings: sinon.stub().returns({
+              latestPumpSettings: { type: 'pumpSettings' },
+              uploadRecord: { type: 'upload' },
+            }),
+          }));
+
+          instance.processData();
+          sinon.assert.calledOnce(processPatientDataStub);
+          sinon.assert.calledWith(
+            processPatientDataStub,
+            [
+              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
+              ...shouldProcessProps.patientNotesMap[40],
+              { type: 'pumpSettings' },
+              { type: 'upload' },
             ],
           );
         });
@@ -2733,15 +2905,11 @@ describe('PatientData', function () {
           );
 
           // Rewire processPatientData util to return undefined
-          PD.__Rewire__('utils', {
+          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
             processPatientData: sinon.stub().returns(_.assign({}, processedPatientDataStub, {
               timePrefs: undefined,
             })),
-            filterPatientData: sinon.stub().returns({
-              processedData: 'stubbed filtered data',
-            }),
-            getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
-          });
+          }));
 
           wrapper.setState({
             processedPatientData: {
@@ -3388,7 +3556,7 @@ describe('PatientData', function () {
     });
   });
 
-  describe('handleSwitchToWeekly', function() {
+  describe('handleSwitchToBgLog', function() {
     it('should track a metric', function() {
       var props = {
         currentPatientInViewId: 40,
@@ -3409,33 +3577,33 @@ describe('PatientData', function () {
       elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
-      elem.handleSwitchToWeekly('2016-08-19T01:51:55.000Z');
+      elem.handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
       expect(props.trackMetric.callCount).to.equal(callCount + 1);
       expect(props.trackMetric.calledWith('Clicked Switch To Two Week')).to.be.true;
     });
 
-    it('should set the `chartType` state to `weekly`', () => {
+    it('should set the `chartType` state to `bgLog`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
       instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'basics'});
 
-      instance.handleSwitchToWeekly();
-      expect(wrapper.state('chartType')).to.equal('weekly');
+      instance.handleSwitchToBgLog();
+      expect(wrapper.state('chartType')).to.equal('bgLog');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `weekly.chartPrefs` state', () => {
+    it('should set `dataUtil._chartPrefs` to the `bgLog.chartPrefs` state', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
-      const chartPrefs = { weekly: 'weekly prefs' };
+      const chartPrefs = { bgLog: 'bgLog prefs' };
 
       wrapper.setState({ chartPrefs })
       instance.dataUtil = new DataUtilStub();
 
-      instance.handleSwitchToWeekly();
-      expect(instance.dataUtil._chartPrefs).to.equal('weekly prefs');
+      instance.handleSwitchToBgLog();
+      expect(instance.dataUtil._chartPrefs).to.equal('bgLog prefs');
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
@@ -3445,7 +3613,7 @@ describe('PatientData', function () {
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
-      instance.handleSwitchToWeekly('2018-03-03T00:00:00.000Z');
+      instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
 
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
@@ -3490,6 +3658,79 @@ describe('PatientData', function () {
     });
   });
 
+  describe('getFetchers', () => {
+    const stateProps = {
+      fetchingPendingSentInvites: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+    };
+
+    const ownProps = {
+      routeParams: { id: '12345' }
+    };
+
+    const dispatchProps = {
+      fetchPatient: sinon.stub().returns('fetchPatient'),
+      fetchPatientData: sinon.stub().returns('fetchPatientData'),
+      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
+      fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+    };
+
+    const api = {};
+
+    it('should return an array containing the patient and patient data fetchers from dispatchProps', () => {
+      const result = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPatient');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchPatientData');
+      expect(result[2]).to.be.a('function');
+      expect(result[2]()).to.equal('fetchPendingSentInvites');
+      expect(result[3]).to.be.a('function');
+      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+    });
+
+    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      expect(standardResult.length).to.equal(4);
+
+      const inProgressResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+      }, api);
+
+      expect(inProgressResult.length).to.equal(2);
+      expect(inProgressResult[0]()).to.equal('fetchPatient');
+      expect(inProgressResult[1]()).to.equal('fetchPatientData');
+
+      const completedResult = getFetchers(dispatchProps, ownProps, {
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      }, api);
+
+      expect(completedResult.length).to.equal(2);
+      expect(completedResult[0]()).to.equal('fetchPatient');
+      expect(completedResult[1]()).to.equal('fetchPatientData');
+    });
+  });
+
   describe('mapStateToProps', () => {
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
@@ -3514,8 +3755,10 @@ describe('PatientData', function () {
           a1b2c3: { root: { } },
         },
         working: {
-          fetchingPatient: {inProgress: false, notification: null},
-          fetchingPatientData: {inProgress: false, notification: null},
+          fetchingPatient: {inProgress: false, notification: null, completed: null},
+          fetchingPatientData: {inProgress: false, notification: null, completed: null},
+          fetchingPendingSentInvites: {inProgress: false, notification: null, completed: null},
+          fetchingAssociatedAccounts: {inProgress: false, notification: null, completed: null},
           fetchingUser: { inProgress: false, notification: null },
           generatingPDF: { inProgress: false, notification: null },
         },
@@ -3562,6 +3805,14 @@ describe('PatientData', function () {
 
       it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
         expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.equal(state.working.fetchingPendingSentInvites);
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
       });
     });
 
@@ -3642,6 +3893,14 @@ describe('PatientData', function () {
 
       it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
         expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
+
+      it('should map working.fetchingPendingSentInvites to fetchingPendingSentInvites', () => {
+        expect(result.fetchingPendingSentInvites).to.equal(state.working.fetchingPendingSentInvites);
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
       });
     });
   });

@@ -534,8 +534,8 @@ describe('utils', () => {
   describe('getLatestGithubRelease', function() {
     it('should return the latest github release from a list of releases', function() {
       expect(utils.getLatestGithubRelease(releases)).to.deep.equal({
-        latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
+        latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
+        latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
       });
     });
   });
@@ -575,6 +575,65 @@ describe('utils', () => {
         spanInDays: 19,
         count: 4,
       });
+    });
+  });
+
+  describe('getLatestPumpSettings', () => {
+    const data = [
+      {
+        type: 'upload',
+        uploadId: 'upload123',
+        time: '2018-03-01T00:00:00.000Z',
+      },
+      {
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      },
+      {
+        type: 'cbg',
+        uploadId: 'upload123',
+        time: '2018-02-02T00:00:00.000Z',
+      },
+      {
+        type: 'pumpSettings',
+        id: 'oldSettings123',
+        uploadId: 'upload123',
+        time: '2017-01-10T00:00:00.000Z',
+      },
+    ];
+
+    it('should get the latest pump settings data in a randomly-ordered raw data set', () => {
+      expect(utils.getLatestPumpSettings(data).latestPumpSettings).to.deep.equal({
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      });
+
+      expect(utils.getLatestPumpSettings([...data].reverse()).latestPumpSettings).to.deep.equal({
+        type: 'pumpSettings',
+        id: 'latestSettings123',
+        uploadId: 'upload123',
+        time: '2017-02-18T00:00:00.000Z',
+      });
+    });
+
+    it('should return `undefined` for `latestPumpSettings` when missing in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).latestPumpSettings).to.be.undefined;
+    });
+
+    it('should return `undefined` for `uploadRecord` when pump settings are missing in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).uploadRecord).to.be.undefined;
+    });
+
+    it('should return the upload record when pump settings are present and the corresponding upload is in data set', () => {
+      expect(utils.getLatestPumpSettings(data).uploadRecord).to.eql(data[0]);
+    });
+
+    it('should return `undefined` for `uploadRecord` when pump settings are present and the corresponding upload is not in data set', () => {
+      expect(utils.getLatestPumpSettings(_.omitBy(data, { type: 'upload' })).uploadRecord).to.be.undefined;
     });
   });
 });

@@ -5,6 +5,7 @@
 /* global expect */
 /* global beforeEach */
 /* global afterEach */
+/* global context */
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -57,7 +58,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
@@ -113,7 +114,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
@@ -141,7 +142,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         const actions = store.getActions();
@@ -168,7 +169,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
         const actions = store.getActions();
@@ -196,7 +197,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey'));
 
         const actions = store.getActions();
@@ -227,7 +228,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.confirmSignup(api, 'fakeSignupKey', 'g@a.com'));
 
         const actions = store.getActions();
@@ -268,7 +269,7 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_SUCCESS and it should call verifyCustodial once for a successful request', () => {
-        let user = { id: 27 };
+        let user = { id: 27, emailVerified: true };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -285,6 +286,8 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'VERIFY_CUSTODIAL_REQUEST' },
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: 'VERIFY_CUSTODIAL_SUCCESS' },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
@@ -362,7 +365,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.resendEmailVerification(api, email));
 
         const actions = store.getActions();
@@ -390,7 +393,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.resendEmailVerification(api, email));
 
         const actions = store.getActions();
@@ -540,7 +543,7 @@ describe('Actions', () => {
     describe('login', () => {
       it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27 };
+        let user = { id: 27, emailVerified: true };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
@@ -550,6 +553,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
@@ -557,7 +562,9 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+
+
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
@@ -569,7 +576,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, profile: { patient: true } };
+        let user = { id: 27, profile: { patient: true }, emailVerified: true };
         let patient = { foo: 'bar' };
 
         let api = {
@@ -584,13 +591,17 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
 
         store.dispatch(async.login(api, creds));
 
@@ -604,7 +615,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: [ 'clinic' ], profile: {} };
+        const user = { id: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -619,6 +630,8 @@ describe('Actions', () => {
 
         const expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
           { type: '@@router/TRANSITION', payload: { method: 'push', args: [ '/clinician-details' ] } }
         ];
@@ -641,7 +654,7 @@ describe('Actions', () => {
 
       it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view', () => {
         const creds = { username: 'bruce', password: 'wayne' };
-        const user = { id: 27, roles: ['clinic'], profile: { clinic: true } };
+        const user = { id: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
         const patient = { foo: 'bar' };
 
         const api = {
@@ -656,6 +669,8 @@ describe('Actions', () => {
 
         const expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
           { type: '@@router/TRANSITION', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
         ];
@@ -695,7 +710,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
@@ -727,7 +742,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
@@ -760,7 +775,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
@@ -785,17 +800,21 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
           { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
-        expectedActions[1].error = actions[1].error;
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[2].error = actions[2].error;
+        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER });
+        expectedActions[3].error = actions[3].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -804,7 +823,7 @@ describe('Actions', () => {
 
       it('[500 on patient fetch] should trigger LOGIN_FAILURE and it should call login, user.get, and patient.get once for a failed patient.get request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27, profile: { patient: true} };
+        let user = { id: 27, profile: { patient: true}, emailVerified: true };
         let api = {
           patient: {
             get: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
@@ -820,17 +839,23 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user }},
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_FAILURE', error: err, payload: { link: null }, meta: { apiError: {status: 500, body: 'Error!'} } },
           { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
-        expectedActions[1].error = actions[1].error;
+        expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[4].error = actions[4].error;
+        expect(actions[5].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[5].error = actions[5].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -855,7 +880,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
@@ -940,29 +965,29 @@ describe('Actions', () => {
           access: {
             leaveGroup: sinon.stub().callsArgWith(1, null)
           },
-          patient: {
-            getAll: sinon.stub().callsArgWith(0, null, patients)
-          }
+          user: {
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients })
+          },
         };
 
         let expectedActions = [
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_SUCCESS', payload: { removedPatientId: patientId } },
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients: patients } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
         expect(api.access.leaveGroup.callCount).to.equal(1)
-        expect(api.patient.getAll.callCount).to.equal(1);
+        expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
       });
 
       it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', () => {
@@ -984,7 +1009,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
 
         const actions = store.getActions();
@@ -1020,7 +1045,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
@@ -1056,7 +1081,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.removeMemberFromTargetCareTeam(api, patientId, memberId, callback));
@@ -1093,7 +1118,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.sendInvite(api, email, permissions, callback));
@@ -1128,7 +1153,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.sendInvite(api, email, permissions, callback));
@@ -1166,7 +1191,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.sendInvite(api, email, permissions, callback));
@@ -1206,7 +1231,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.sendInvite(api, email, permissions, callback));
@@ -1239,7 +1264,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.cancelSentInvite(api, email, callback));
@@ -1273,7 +1298,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
         store.dispatch(async.cancelSentInvite(api, email, callback));
@@ -1287,67 +1312,6 @@ describe('Actions', () => {
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
         sinon.assert.calledWithExactly(callback, error, email);
-      });
-    });
-
-    describe('fetchDataDonationAccounts', () => {
-      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_SUCCESS and it should call api.user.getDataDonationAccounts once for a successful request', () => {
-        let dataDonationAccounts = [
-          { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let api = {
-          user: {
-            getDataDonationAccounts: sinon.stub().callsArgWith(0, null, dataDonationAccounts)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_DATA_DONATION_ACCOUNTS_REQUEST' },
-          { type: 'FETCH_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: dataDonationAccounts } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchDataDonationAccounts(api));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
-        let dataDonationAccounts = [
-          { email: 'bigdata@tidepool.org' },
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let api = {
-          user: {
-            getDataDonationAccounts: sinon.stub().callsArgWith(0, { status: 500, body: 'Error!' }, null)
-          }
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_DATA_DONATION_ACCOUNTS_REQUEST' },
-          { type: 'FETCH_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchDataDonationAccounts(api));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DATA_DONATION_ACCOUNTS });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.getDataDonationAccounts.callCount).to.equal(1);
       });
     });
 
@@ -1376,7 +1340,7 @@ describe('Actions', () => {
           { type: 'SEND_INVITE_SUCCESS', payload: { invite: { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } } },
           { type: 'CANCEL_SENT_INVITE_REQUEST' },
           { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { accounts: {
+          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { dataDonationAccounts: {
             addAccounts: _.map(addAccounts, email => ({ email: email })),
             removeAccounts: _.map(removeAccounts, account => account.email),
           }}}
@@ -1474,7 +1438,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.dismissDonateBanner(api, patient.id));
 
         const actions = store.getActions();
@@ -1510,7 +1474,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.dismissDexcomConnectBanner(api, patient.id));
 
         const actions = store.getActions();
@@ -1546,7 +1510,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.clickDexcomConnectBanner(api, patient.id));
 
         const actions = store.getActions();
@@ -1577,7 +1541,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
         const actions = store.getActions();
@@ -1605,7 +1569,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
         const actions = store.getActions();
@@ -1632,7 +1596,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
         const actions = store.getActions();
@@ -1659,7 +1623,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
         const actions = store.getActions();
@@ -1700,7 +1664,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
         const actions = store.getActions();
@@ -1732,7 +1696,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
         const actions = store.getActions();
@@ -1759,7 +1723,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updatePatient(api, patient));
 
         const actions = store.getActions();
@@ -1787,7 +1751,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updatePatient(api, patient));
 
         const actions = store.getActions();
@@ -1817,7 +1781,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updatePreferences(api, patientId, preferences));
 
         const actions = store.getActions();
@@ -1847,7 +1811,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updatePreferences(api, patientId, preferences));
 
         const actions = store.getActions();
@@ -1877,7 +1841,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
@@ -1907,7 +1871,7 @@ describe('Actions', () => {
             expect(isTSA(action)).to.be.true;
           });
 
-          let store = mockStore(initialState);
+          let store = mockStore({ blip: initialState });
           store.dispatch(async.updateSettings(api, patientId, settings));
 
           const actions = store.getActions();
@@ -1937,7 +1901,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
@@ -1975,7 +1939,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.updateSettings(api, patientId, settings));
 
         const actions = store.getActions();
@@ -2303,7 +2267,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.requestPasswordReset(api, email));
 
         const actions = store.getActions();
@@ -2329,7 +2293,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.requestPasswordReset(api, email));
 
         const actions = store.getActions();
@@ -2356,7 +2320,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.confirmPasswordReset(api, payload));
 
         const actions = store.getActions();
@@ -2382,7 +2346,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.confirmPasswordReset(api, payload));
 
         const actions = store.getActions();
@@ -2415,7 +2379,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.logError(api, error, message, props));
 
         const actions = store.getActions();
@@ -2425,7 +2389,7 @@ describe('Actions', () => {
     });
 
     describe('fetchUser', () => {
-      it('should trigger FETCH_USER_SUCCESS and it should call get once for a successful request', () => {
+      it('should trigger FETCH_USER_SUCCESS and it should call user.get once for a successful request', () => {
         let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -2441,40 +2405,12 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.user.get.callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_USER_SUCCESS and it should call user.get and patient.get once for a successful request', () => {
-        let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle', profile: { patient: true } };
-        let patient = { foo: 'bar' };
-        let api = {
-          user: {
-            get: sinon.stub().callsArgWith(0, null, user)
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_USER_REQUEST' },
-          { type: 'FETCH_USER_SUCCESS', payload: { user : _.merge({}, user, patient) } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchUser(api));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.get.callCount).to.equal(1);
-        expect(api.patient.get.callCount).to.equal(1);
       });
 
       it('should trigger FETCH_USER_FAILURE and it should call error once for a request for user that has not verified email', () => {
@@ -2494,7 +2430,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
@@ -2521,7 +2457,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
@@ -2548,7 +2484,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchUser(api));
 
         const actions = store.getActions();
@@ -2576,7 +2512,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPendingSentInvites(api));
 
         const actions = store.getActions();
@@ -2603,7 +2539,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPendingSentInvites(api));
 
         const actions = store.getActions();
@@ -2631,7 +2567,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
         const actions = store.getActions();
@@ -2658,7 +2594,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchPendingReceivedInvites(api));
 
         const actions = store.getActions();
@@ -2687,6 +2623,65 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PATIENT_SUCCESS without fetching patient if complete patient record is in cache', () => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65, settings: {} };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          allUsersMap: {
+            58686: patient,
+            '58686_cacheUntil': 9999999999999,
+          }
+        } });
+        store.dispatch(async.fetchPatient(api, 58686));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.patient.get.callCount).to.equal(0);
+      });
+
+      it('should skip the cache and fetch patient if settings are missing in cached patient record', () => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65, settings: undefined };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: {
+          ...initialState,
+          allUsersMap: {
+            58686: patient,
+            '58686_cacheUntil': 9999999999999,
+          }
+        } });
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
@@ -2754,62 +2749,62 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPatients', () => {
-      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', () => {
+    describe('fetchAssociatedAccounts', () => {
+      it('should trigger FETCH_ASSOCIATED_ACCOUNTS_SUCCESS and it should call error once for a successful request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
 
         let api = {
-          patient: {
-            getAll: sinon.stub().callsArgWith(0, null, patients)
+          user: {
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, null, { patients })
           }
         };
 
         let expectedActions = [
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients : patients } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients : patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatients(api));
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchAssociatedAccounts(api));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.patient.getAll.callCount).to.equal(1);
+        expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_ASSOCIATED_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
         let patients = [
           { id: 58686, name: 'Buddy Holly', age: 65 }
         ]
 
         let api = {
-          patient: {
-            getAll: sinon.stub().callsArgWith(0, {status: 500, body: {status: 500, body: 'Error!'}}, null)
+          user: {
+            getAssociatedAccounts: sinon.stub().callsArgWith(0, {status: 500, body: {status: 500, body: 'Error!'}}, null)
           }
         };
 
-        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENTS);
+        let err = new Error(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS);
         err.status = 500;
 
         let expectedActions = [
-          { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_FAILURE', error: err, meta: { apiError: {status: 500, body: {status: 500, body: 'Error!'}} } }
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+          { type: 'FETCH_ASSOCIATED_ACCOUNTS_FAILURE', error: err, meta: { apiError: {status: 500, body: {status: 500, body: 'Error!'}} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatients(api));
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchAssociatedAccounts(api));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENTS });
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.patient.getAll.callCount).to.equal(1);
+        expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
       });
     });
 
@@ -2817,11 +2812,47 @@ describe('Actions', () => {
       const patientId = 300;
       const serverTime = '2018-01-28T00:00:11.000Z';
       const serverTimePlusOneDay = moment.utc(serverTime).add(1, 'days').toISOString();
+
+      const latestPumpSettings = { uploadId: 'abc123', time: '2017-11-15T00:00:00.000Z', type: 'pumpSettings' };
+      const latestUpload = { uploadId: 'abc123', time: '2017-11-01T00:00:00.000Z', type: 'upload' };
+
+      const diabetesDataRangeSufficient = {
+        spanInDays: 30,
+        start: '2018-01-01T00:00:00.000Z',
+        end: '2018-01-30T00:00:00.000Z',
+      };
+
+      const diabetesDataRangeInsufficient = {
+        spanInDays: 29,
+        start: '2018-01-01T00:00:00.000Z',
+        end: '2018-01-29T00:00:00.000Z',
+      };
+
+      const diabetesDataMissing = {
+        spanInDays: null,
+        start: undefined,
+        end: undefined,
+      };
+
+      const latestPumpSettingsSufficient = {
+        latestPumpSettings,
+        uploadRecord: latestUpload,
+      };
+
+      const latestPumpSettingsMissing = {
+        latestPumpSettings: undefined,
+        uploadRecord: undefined,
+      };
+
+      const latestPumpSettingsMissingUpload = {
+        latestPumpSettings,
+        uploadRecord: undefined,
+      };
+
       let options;
       let patientData;
       let teamNotes;
       let api;
-
 
       beforeEach(() => {
         options = {
@@ -2833,11 +2864,11 @@ describe('Actions', () => {
 
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
-          { id: 25, value: 540.4, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
+          { id: 26, value: 30.8, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
         ];
 
         teamNotes = [
-          { id: 25, note: 'foo' }
+          { id: 28, note: 'foo' }
         ];
 
         api = {
@@ -2853,300 +2884,613 @@ describe('Actions', () => {
         };
 
         async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 30,
-            start: '2018-01-01T00:00:00.000Z',
-            end: '2018-01-30T00:00:00.000Z',
-          }),
+          getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+          getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
         });
       });
 
-      it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-31T00:00:00.000Z'
+      context('data is available in cache', () => {
+        it('should not trigger FETCH_PATIENT_DATA_REQUEST by default', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [{ foo: 'bar' }],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.not.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+        });
+
+        it('should not trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is true', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [{ foo: 'bar' }],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, { ...options, useCache: true }, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.not.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+        });
+
+        it('should still trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is false', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+            patientDataMap: {
+              [patientId]: [],
+              [`${patientId}_cacheUntil`]: 9999999999999,
+            }
+          } });
+          store.dispatch(async.fetchPatientData(api, { ...options, useCache: false }, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+        });
+      });
+
+      context('initial data fetch', () => {
+        context('enough data returned', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+
+        context('not enough data returned', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeInsufficient),
+              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
+            });
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-30T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+
+            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
+            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
+
+            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: '2017-12-30T00:00:00.000Z',
+              endDate: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
+            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
+              start: options.startDate,
+              end: options.endDate,
+            }));
+            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: '2017-12-30T00:00:00.000Z',
+              endDate: serverTimePlusOneDay,
+              start: '2017-12-30T00:00:00.000Z',
+              end: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when no data is returned on first call', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataMissing),
+              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
+            });
+
+            api.patientData = {
+              get: sinon.stub().callsArgWith(2, null, []),
+            };
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: [],
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: null,
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+
+            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
+            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
+            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: null, // should fetch to the beginning by not specifying a start date
+              endDate: serverTimePlusOneDay,
+              initial: false,
+            }));
+
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
+            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
+              start: options.startDate,
+              end: options.endDate,
+            }));
+            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
+              startDate: null,
+              endDate: serverTimePlusOneDay,
+              start: null,
+              end: serverTimePlusOneDay,
+              initial: false,
+            }));
+          });
+        });
+
+        context('server time fetch fails', () => {
+          it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
+            options = _.assign({}, options, {
+              browserTimeStub: '2018-01-28T00:01:00.000Z',
+            });
+
+            api.server = {
+              getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
+            };
+
+            let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
+            err.status = 500;
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData,
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z',
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SERVER_TIME });
+            expectedActions[1].error = actions[1].error;
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+        });
+
+        context('missing pump settings', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST only twice if the upload record is present after fetching pump settings', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissing)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, [latestPumpSettings]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST three times if the upload record is missing after fetching pump settings', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissing)
+                .onSecondCall().returns(latestPumpSettingsMissingUpload),
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, [latestPumpSettings])
+              .onThirdCall().callsArgWith(2, null, [latestUpload]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+
+        context('missing pump settings upload record', () => {
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is present after fetching', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, [latestUpload]);
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+
+          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is missing after fetching, but still dispatch success', () => {
+            async.__Rewire__('utils', {
+              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+              getLatestPumpSettings: sinon.stub()
+                .onFirstCall().returns(latestPumpSettingsMissingUpload)
+                .onSecondCall().returns(latestPumpSettingsSufficient)
+            });
+
+            api.patientData.get= sinon.stub()
+              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
+              .onSecondCall().callsArgWith(2, null, []); // no upload found -- oh well we tried
+
+            let expectedActions = [
+              { type: 'FETCH_SERVER_TIME_REQUEST' },
+              {
+                type: 'FETCH_SERVER_TIME_SUCCESS',
+                payload: { serverTime },
+              },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              { type: 'FETCH_PATIENT_DATA_REQUEST' },
+              {
+                type: 'FETCH_PATIENT_DATA_SUCCESS',
+                payload: {
+                  patientData: patientData.concat(latestPumpSettings),
+                  patientNotes: teamNotes,
+                  patientId: patientId,
+                  fetchedUntil: '2017-12-03T00:00:00.000Z'
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: initialState });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
+          });
+        });
+      });
+
+      context('subsequent data fetch', () => {
+        it('should not consider the data range and trigger FETCH_PATIENT_DATA_REQUEST only once', () => {
+          options = _.assign({}, options, {
+            initial: false,
+          });
+
+          let expectedActions = [
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            {
+              type: 'FETCH_PATIENT_DATA_SUCCESS',
+              payload: {
+                patientData: patientData,
+                patientNotes: teamNotes,
+                patientId: patientId,
+                fetchedUntil: '2018-01-01T00:00:00.000Z'
+              },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          sinon.assert.notCalled(async.__get__('utils').getDiabetesDataRange);
         });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-        sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
       });
 
+      context('handleFetchErrors', () => {
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
+          api.patientData = {
+            get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          };
 
-      it('should not consider the data range and trigger FETCH_PATIENT_DATA_REQUEST only once when not performing the initial data fetch', () => {
-        options = _.assign({}, options, {
-          initial: false,
-        });
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
 
-        let expectedActions = [
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2018-01-01T00:00:00.000Z'
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[3].error = actions[3].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings call returning error', () => {
+          async.__Rewire__('utils', {
+            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissing),
+          });
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-        sinon.assert.notCalled(async.__get__('utils').getDiabetesDataRange);
-      });
+          api.patientData = {
+            get: sinon.stub(),
+          };
 
-      it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
-        async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: 29, // should trigger second fetch if less than 30
-            start: '2018-01-01T00:00:00.000Z',
-            end: '2018-01-01T00:14:00.000Z',
-          }),
-        });
+          api.patientData.get
+            .onFirstCall().callsArgWith(2, null, [])
+            .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null);
 
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-02T00:00:00.000Z'
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
+
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS });
+          expectedActions[4].error = actions[4].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings upload call returning error', () => {
+          async.__Rewire__('utils', {
+            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
+            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissingUpload),
+          });
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
+          api.patientData = {
+            get: sinon.stub()
+              .onFirstCall().callsArgWith(2, null, [])
+              .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          };
 
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-        expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-        expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-02T00:00:00.000Z',
-          endDate: serverTimePlusOneDay,
-          initial: false,
-        }));
+          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          err.status = 500;
 
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-        expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-          start: options.startDate,
-          end: options.endDate,
-        }));
-        expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: '2017-12-02T00:00:00.000Z',
-          endDate: serverTimePlusOneDay,
-          start: '2017-12-02T00:00:00.000Z',
-          end: serverTimePlusOneDay,
-          initial: false,
-        }));
-
-        sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when no data is returned on first call', () => {
-        async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns({
-            spanInDays: null,
-            start: undefined,
-            end: undefined,
-          }),
-        });
-
-        api.patientData = {
-          get: sinon.stub().callsArgWith(2, null, []),
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData: [],
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: null,
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expectedActions[4].error = actions[4].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
+        it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
+          api.team = {
+            getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
+          };
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
+          let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
+          err.status = 500;
 
-        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-        expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-        expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: null, // should fetch to the beginning by not specifying a start date
-          endDate: serverTimePlusOneDay,
-          initial: false,
-        }));
-
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-        expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-          start: options.startDate,
-          end: options.endDate,
-        }));
-        expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-          startDate: null,
-          endDate: serverTimePlusOneDay,
-          start: null,
-          end: serverTimePlusOneDay,
-          initial: false,
-        }));
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
-        api.patientData = {
-          get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
-        expectedActions[3].error = actions[3].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
-        api.team = {
-          getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          {
-            type: 'FETCH_SERVER_TIME_SUCCESS',
-            payload: { serverTime },
-          },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
-        expectedActions[3].error = actions[3].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
-        api.server = {
-          getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_SERVER_TIME_REQUEST' },
-          { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-          { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          {
-            type: 'FETCH_PATIENT_DATA_SUCCESS',
-            payload: {
-              patientData,
-              patientNotes: teamNotes,
-              patientId: patientId,
-              fetchedUntil: '2017-12-31T00:00:00.000Z',
+          let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST' },
+            {
+              type: 'FETCH_SERVER_TIME_SUCCESS',
+              payload: { serverTime },
             },
-          },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
+            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          ];
+          _.each(expectedActions, (action) => {
+            expect(isTSA(action)).to.be.true;
+          });
+
+          let store = mockStore({ blip: initialState });
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          const actions = store.getActions();
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+          expectedActions[3].error = actions[3].error;
+          expect(actions).to.eql(expectedActions);
+          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
-
-        let store = mockStore(initialState);
-        store.dispatch(async.fetchPatientData(api, options, patientId));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SERVER_TIME });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
 
@@ -3169,7 +3513,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchSettings(api, patientId));
 
         const actions = store.getActions();
@@ -3198,7 +3542,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchSettings(api, patientId));
 
         const actions = store.getActions();
@@ -3230,7 +3574,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchMessageThread(api, 300));
 
         const actions = store.getActions();
@@ -3259,7 +3603,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchMessageThread(api, 400));
 
         const actions = store.getActions();
@@ -3291,7 +3635,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
@@ -3316,7 +3660,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.fetchDataSources(api));
 
         const actions = store.getActions();
@@ -3348,7 +3692,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.connectDataSource(api, 'fitbit', { path: [ '/v1/oauth/fitbit' ] }, { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
@@ -3374,7 +3718,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
@@ -3403,7 +3747,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.connectDataSource(api, 'strava', { path: [ '/v1/oauth/strava' ] }, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
@@ -3432,7 +3776,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.disconnectDataSource(api, 'fitbit', { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
@@ -3456,7 +3800,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
@@ -3483,7 +3827,7 @@ describe('Actions', () => {
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore(initialState);
+        let store = mockStore({ blip: initialState });
         store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();

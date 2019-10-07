@@ -84,7 +84,7 @@ describe('Trends', () => {
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
-    onSwitchToWeekly: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
@@ -229,6 +229,63 @@ describe('Trends', () => {
       ]);
     });
 
+    it('should call componentWillReceiveProps', () => {
+      const loadingProps = {
+        ...baseProps,
+        loading: true,
+      }
+      wrapper = shallow(<Trends.WrappedComponent { ...loadingProps }/>)
+      instance = wrapper.instance()
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      expect(instance.props.loading).to.be.true;
+      expect(wrapper.state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      sinon.spy(instance, 'componentWillReceiveProps')
+      wrapper.setProps({loading: false})
+      sinon.assert.calledOnce(instance.componentWillReceiveProps)
+    });
+
+    it('should update the endpoints correctly when it is finished loading', () => {
+      const loadingProps = {
+        ...baseProps,
+        loading: true,
+      }
+      wrapper = shallow(<Trends.WrappedComponent { ...loadingProps }/>)
+      instance = wrapper.instance()
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      expect(instance.props.loading).to.be.true;
+      expect(wrapper.state().endpoints).to.eql([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-29T00:00:00.000Z',
+      ]);
+
+      let spy = sinon.spy(instance, 'setState')
+
+      wrapper.setProps({loading: false})
+      sinon.assert.calledTwice(spy)
+      sinon.assert.calledWith(spy, {endpoints: []})
+      sinon.assert.calledWith(spy, {endpoints: ['2018-01-15T00:00:00.000Z', '2018-01-29T00:00:00.000Z',]})
+    });
+
+    it('should not update the endpoints if data has not been loaded', () => {
+      wrapper = shallow(<Trends.WrappedComponent { ...baseProps }/>)
+      instance = wrapper.instance()
+
+      let spy = sinon.spy(instance, 'setState')
+      expect(spy.notCalled).to.be.true;     
+    });
+
     it('should call the `updateDatetimeLocation` prop method', () => {
       sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
 
@@ -254,7 +311,7 @@ describe('Trends', () => {
 
       sinon.assert.callCount(_.debounce, 1);
       sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a.function;
+      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
     });

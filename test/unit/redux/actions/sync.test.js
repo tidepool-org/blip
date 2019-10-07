@@ -1485,57 +1485,65 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPatientsRequest', () => {
+    describe('fetchAssociatedAccountsRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchPatientsRequest();
+        let action = sync.fetchAssociatedAccountsRequest();
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_REQUEST', () => {
-        let action = sync.fetchPatientsRequest();
-        expect(action.type).to.equal('FETCH_PATIENTS_REQUEST');
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_REQUEST', () => {
+        let action = sync.fetchAssociatedAccountsRequest();
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_REQUEST');
       });
     });
 
-    describe('fetchPatientsSuccess', () => {
+    describe('fetchAssociatedAccountsSuccess', () => {
       it('should be a TSA', () => {
-        let patients = [{
-          id: 20,
-          name: 'Bruce Lee',
-          age: 24
-        }];
-        let action = sync.fetchPatientsSuccess(patients);
+        let accounts = {
+          patients: [{
+            id: 20,
+            name: 'Bruce Lee',
+            age: 24
+          }],
+          dataDonationAccounts: [],
+          careTeam: [],
+        };
+        let action = sync.fetchAssociatedAccountsSuccess(accounts);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_SUCCESS', () => {
-        let patients = [{
-          id: 20,
-          name: 'Jackie Chan',
-          age: 24
-        }];
-        let action = sync.fetchPatientsSuccess(patients);
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', () => {
+        let accounts = {
+          patients: [{
+            id: 20,
+            name: 'Bruce Lee',
+            age: 24
+          }],
+          dataDonationAccounts: [],
+          careTeam: [],
+        };
+        let action = sync.fetchAssociatedAccountsSuccess(accounts);
 
-        expect(action.type).to.equal('FETCH_PATIENTS_SUCCESS');
-        expect(action.payload.patients).to.equal(patients);
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_SUCCESS');
+        expect(action.payload.patients).to.equal(accounts.patients);
       });
     });
 
-    describe('fetchPatientsFailure', () => {
+    describe('fetchAssociatedAccountsFailure', () => {
       it('should be a TSA', () => {
         let error = new Error(':(');
-        let action = sync.fetchPatientsFailure(error);
+        let action = sync.fetchAssociatedAccountsFailure(error);
 
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PATIENTS_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_ASSOCIATED_ACCOUNTS_FAILURE and error should equal passed error', () => {
         let error = new Error(':(');
-        let action = sync.fetchPatientsFailure(error);
+        let action = sync.fetchAssociatedAccountsFailure(error);
 
-        expect(action.type).to.equal('FETCH_PATIENTS_FAILURE');
+        expect(action.type).to.equal('FETCH_ASSOCIATED_ACCOUNTS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
@@ -1723,61 +1731,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchDataDonationAccountsRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.fetchDataDonationAccountsRequest();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_REQUEST', () => {
-        let action = sync.fetchDataDonationAccountsRequest();
-        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_REQUEST');
-      });
-    });
-
-    describe('fetchDataDonationAccountsSuccess', () => {
-      it('should be a TSA', () => {
-        let dataDonationAccounts = [
-          { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_SUCCESS', () => {
-        let dataDonationAccounts = [
-          { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let action = sync.fetchDataDonationAccountsSuccess(dataDonationAccounts);
-
-        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_SUCCESS');
-        expect(action.payload.accounts).to.equal(dataDonationAccounts);
-      });
-    });
-
-    describe('fetchDataDonationAccountsFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error(':(');
-        let action = sync.fetchDataDonationAccountsFailure(error);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal FETCH_DATA_DONATION_ACCOUNTS_FAILURE and error should equal passed error', () => {
-        let error = new Error(':(');
-        let action = sync.fetchDataDonationAccountsFailure(error);
-
-        expect(action.type).to.equal('FETCH_DATA_DONATION_ACCOUNTS_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('updateDataDonationAccountsRequest', () => {
       it('should be a TSA', () => {
         let action = sync.updateDataDonationAccountsRequest();
@@ -1820,7 +1773,7 @@ describe('Actions', () => {
         let action = sync.updateDataDonationAccountsSuccess(dataDonationAccounts);
 
         expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS');
-        expect(action.payload.accounts).to.equal(dataDonationAccounts);
+        expect(action.payload.dataDonationAccounts).to.equal(dataDonationAccounts);
       });
     });
 

@@ -42,6 +42,7 @@ var PatientInfo = translate()(React.createClass({
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
     dataDonationAccounts: React.PropTypes.array,
+    dataDonationAccountsFetched: React.PropTypes.bool,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func,
@@ -62,9 +63,11 @@ var PatientInfo = translate()(React.createClass({
   },
 
   getInitialState: function() {
+    var editing = this.isEditingAllowed(this.props.permsOfLoggedInUser) && window.location.hash === '#edit';
     return {
-      editing: false,
-      validationErrors: {}
+      editing,
+      validationErrors: {},
+      bioLength: 0
     };
   },
 
@@ -188,7 +191,7 @@ var PatientInfo = translate()(React.createClass({
 
   renderEditLink: function() {
     const { t } = this.props;
-    if (!this.isSamePersonUserAndPatient()) {
+    if (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser)) {
       return null;
     }
 
@@ -202,7 +205,7 @@ var PatientInfo = translate()(React.createClass({
     // Important to add a `key`, different from the "Cancel" button in edit mode
     // or else react will maintain the "focus" state when flipping back and forth
     return (
-      <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>{t('Edit')}</button>
+      <button key="edit" className="PatientInfo-button PatientInfo-button--primary" type="button" onClick={handleClick}>{t('Edit')}</button>
     );
   },
 
@@ -239,6 +242,8 @@ var PatientInfo = translate()(React.createClass({
               {this.renderBirthdayInput(formValues)}
               {this.renderDiagnosisDateInput(formValues)}
               {this.renderDiagnosisTypeInput(formValues)}
+              {this.renderMRNInput(formValues)}
+              {this.renderEmailInput(formValues)}
             </div>
           </div>
           {this.renderAboutInput(formValues)}
@@ -255,15 +260,16 @@ var PatientInfo = translate()(React.createClass({
     var fullNameNode, errorElem, classes;
     var error = this.state.validationErrors.fullName;
     // Legacy: revisit when proper "child accounts" are implemented
-    if (personUtils.patientIsOtherPerson(this.props.patient)) {
+    if (personUtils.patientIsOtherPerson(this.props.patient) || this.isEditingAllowed(this.props.permsOfLoggedInUser)) {
       classes = 'PatientInfo-input';
       if (error) {
         classes += ' PatientInfo-input-error';
         errorElem = <div className="PatientInfo-error-message">{error}</div>;
       }
       fullNameNode = (
-        <div className={classes}>
-          <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
+        <div>
+          <label className="PatientInfo-label" htmlFor="fullName">{t('Full Name')}</label>
+          <input className={classes} id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
           {errorElem}
         </div>
       );
@@ -353,13 +359,72 @@ var PatientInfo = translate()(React.createClass({
       classes += ' PatientInfo-input-error';
       errorElem = <div className="PatientInfo-error-message">{error}</div>;
     }
+
+    var charCountClass;
+    if (this.state.bioLength > 256) {
+      charCountClass = 'PatientInfo-error-message';
+    }
+
+    var charCount = <div className={charCountClass}>{this.state.bioLength === 0 ? '' : this.state.bioLength.toString() + '/256'}</div>;
     return (<div className="PatientInfo-bio">
       <textarea className={classes} ref="about"
         placeholder={t('Anything you would like to share?')}
         rows="3"
-        defaultValue={formValues.about}>
+        defaultValue={formValues.about}
+        onChange={(event) => this.setState({ bioLength : event.target.value === undefined ? 0 : event.target.value.length })}>
       </textarea>
+      {charCount}
       {errorElem}
+    </div>);
+  },
+
+  renderMRNInput: function(formValues) {
+    var mrn, errorElem, classes;
+    const error = this.state.validationErrors.mrn;
+    const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
+
+    if (permsOfLoggedInUser.hasOwnProperty('custodian')) {
+      classes = '';
+      if (error) {
+        classes += ' PatientInfo-input-error';
+        errorElem = <div className="PatientInfo-error-message">{error}</div>;
+      }
+      mrn = (
+        <div className={classes}>
+          <label className="PatientInfo-label" htmlFor="mrn">{t('MRN (optional)')}</label>
+          <input className="PatientInfo-input" id="mrn" ref="mrn" placeholder="MRN" defaultValue={formValues.mrn} />
+          {errorElem}
+        </div>
+      );
+    }
+
+    return (<div className="PatientInfo-blockRow">
+      {mrn}
+    </div>);
+  },
+
+  renderEmailInput: function(formValues) {
+    var email, errorElem, classes;
+    const error = this.state.validationErrors.email;
+    const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
+
+    if (permsOfLoggedInUser.hasOwnProperty('custodian')) {
+      classes = '';
+      if (error) {
+        classes += ' PatientInfo-input-error';
+        errorElem = <div className="PatientInfo-error-message">{error}</div>;
+      }
+      email = (
+        <div className={classes}>
+          <label className="PatientInfo-label" htmlFor="email">{t('Patient Email (optional)')}</label>
+          <input type="email" className="PatientInfo-input" id="email" ref="email" placeholder="Email address" defaultValue={formValues.email} required/>
+          {errorElem}
+        </div>
+      );
+    }
+
+    return (<div className="PatientInfo-blockRow">
+      {email}
     </div>);
   },
 
@@ -410,6 +475,7 @@ var PatientInfo = translate()(React.createClass({
           <div className="PatientInfo-content">
             <DonateForm
               dataDonationAccounts={this.props.dataDonationAccounts || []}
+              dataDonationAccountsFetched={this.props.dataDonationAccountsFetched || false}
               onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
               working={this.props.updatingDataDonationAccounts || false}
               trackMetric={this.props.trackMetric}
@@ -567,6 +633,7 @@ var PatientInfo = translate()(React.createClass({
     var formValues = {};
     var patientInfo = personUtils.patientInfo(patient);
     var name = personUtils.patientFullName(patient);
+    var email = _.get(patient, 'profile.emails[0]', null);
 
     if (name) {
       formValues.fullName = name;
@@ -588,6 +655,14 @@ var PatientInfo = translate()(React.createClass({
       if (patientInfo.about) {
         formValues.about = patientInfo.about;
       }
+
+      if (patientInfo.mrn) {
+        formValues.mrn = patientInfo.mrn;
+      }
+    }
+
+    if (email) {
+      formValues.email = email;
     }
 
     return formValues;
@@ -619,7 +694,9 @@ var PatientInfo = translate()(React.createClass({
       'birthday',
       'diagnosisDate',
       'diagnosisType',
-      'about'
+      'about',
+      'mrn',
+      'email'
     ], function(acc, key, value) {
       if (self.refs[key]) {
         acc[key] = self.refs[key].value;
@@ -631,42 +708,60 @@ var PatientInfo = translate()(React.createClass({
   submitFormValues: function(formValues) {
     formValues = this.prepareFormValuesForSubmit(formValues);
 
+    if(this.props.permsOfLoggedInUser.hasOwnProperty('custodian') && !this.props.patient.username && formValues.username){
+      this.props.trackMetric('VCA - add patient email saved');
+    }
     // Save optimistically
     this.props.onUpdatePatient(formValues);
     this.toggleEdit();
   },
 
   prepareFormValuesForSubmit: function(formValues) {
-    // Legacy: revisit when proper "child accounts" are implemented
-    if (personUtils.patientIsOtherPerson(this.props.patient)) {
-      formValues.isOtherPerson = true;
-    }
+    const updatedPatient = _.cloneDeep(this.props.patient);
+    const updatedPatientProfile = updatedPatient.profile.patient;
 
     if (formValues.birthday) {
-      formValues.birthday =  sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+      updatedPatientProfile.birthday = sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+      updatedPatientProfile.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
     }
 
     if (!formValues.diagnosisType) {
-      delete formValues.diagnosisType;
+      delete updatedPatientProfile.diagnosisType;
+    } else {
+      updatedPatientProfile.diagnosisType = formValues.diagnosisType;
     }
 
     if (!formValues.about) {
-      delete formValues.about;
+      delete updatedPatientProfile.about;
+    } else {
+      updatedPatientProfile.about = formValues.about;
     }
 
-    var profile = _.assign({}, this.props.patient.profile, {
-      patient: formValues
-    });
+    if (formValues.email) {
+      _.assign(updatedPatient, {emails: [formValues.email]})
+      updatedPatient.username = formValues.email;
+      updatedPatient.profile.emails = [formValues.email];
+      updatedPatientProfile.email = formValues.email;
+    }
 
-    var result = _.assign({}, this.props.patient, {
-      profile: profile
-    });
+    if (formValues.fullName) {
+      if (personUtils.patientIsOtherPerson(this.props.patient)) {
+        _.assign(updatedPatientProfile, {fullName: formValues.fullName});
+      } else {
+        updatedPatient.fullName = formValues.fullName;
+      }
+    }
 
-    return result;
+    if (!formValues.mrn) {
+      delete updatedPatientProfile.mrn;
+    } else {
+      updatedPatientProfile.mrn = formValues.mrn;
+    }
+
+    return updatedPatient;
   }
 }));
 

@@ -78,7 +78,7 @@ describe('Stats', () => {
         grouped: true,
         showingLines: false
       },
-      weekly: {},
+      bgLog: {},
     },
     chartType: 'basics',
     dataUtil: new DataUtilStub(),
@@ -101,24 +101,10 @@ describe('Stats', () => {
         'bgUnits',
         'bgBounds',
       ]);
-
-      expect(instance.dataFetchMethods).to.have.all.keys([
-        'averageGlucose',
-        'averageDailyDose',
-        'carbs',
-        'coefficientOfVariation',
-        'glucoseManagementIndicator',
-        'readingsInRange',
-        'sensorUsage',
-        'standardDev',
-        'timeInAuto',
-        'timeInRange',
-        'totalInsulin',
-      ]);
     });
 
     it('should set `stats` to state', () => {
-      expect(instance.state.stats).to.be.an.array;
+      expect(instance.state.stats).to.be.an('array');
     });
 
     it('should set the dataUtil endpoints', () => {
@@ -278,10 +264,10 @@ describe('Stats', () => {
       });
     });
 
-    context('weekly', () => {
+    context('bgLog', () => {
       beforeEach(() => {
         wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'weekly',
+          chartType: 'bgLog',
         })} />);
       });
 
@@ -497,10 +483,10 @@ describe('Stats', () => {
       });
     });
 
-    context('weekly', () => {
+    context('bgLog', () => {
       beforeEach(() => {
         wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'weekly',
+          chartType: 'bgLog',
         })} />);
         instance = wrapper.instance();
       });

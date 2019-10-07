@@ -35,6 +35,7 @@ const Patient = translate()(React.createClass({
     acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool,
     dataDonationAccounts: React.PropTypes.array,
+    dataDonationAccountsFetched: React.PropTypes.bool,
     changingMemberPermissions: React.PropTypes.bool,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
@@ -128,6 +129,7 @@ const Patient = translate()(React.createClass({
           onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           dataDonationAccounts={this.props.dataDonationAccounts || []}
+          dataDonationAccountsFetched={this.props.dataDonationAccountsFetched}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
           dataSources={this.props.dataSources}

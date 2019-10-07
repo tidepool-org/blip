@@ -38,7 +38,7 @@ class Basics extends Component {
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
@@ -91,7 +91,7 @@ class Basics extends Component {
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
@@ -261,12 +261,12 @@ class Basics extends Component {
     this.props.onClickPrint(this.props.pdf);
   };
 
-  handleClickTwoWeeks = e => {
+  handleClickBgLog = e => {
     if (e) {
       e.preventDefault();
     }
     const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToWeekly(dateRange[1]);
+    this.props.onSwitchToBgLog(dateRange[1]);
   };
 
   handleSelectDay = (date, title) => {

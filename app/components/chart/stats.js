@@ -13,7 +13,8 @@ const {
   getStatAnnotations,
   getStatData,
   getStatDefinition,
-  getStatTitle
+  getStatTitle,
+  statFetchMethods,
 } = vizUtils.stat;
 
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
@@ -24,7 +25,7 @@ class Stats extends Component {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object,
-    chartType: PropTypes.oneOf(['basics', 'daily', 'weekly', 'trends']).isRequired,
+    chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     onAverageDailyDoseInputChange: PropTypes.func,
@@ -37,20 +38,6 @@ class Stats extends Component {
     this.bgPrefs = {
       bgUnits: this.props.bgPrefs.bgUnits,
       bgBounds: reshapeBgClassesToBgBounds(this.props.bgPrefs),
-    };
-
-    this.dataFetchMethods = {
-      [commonStats.averageGlucose]: 'getAverageGlucoseData',
-      [commonStats.averageDailyDose]: 'getTotalInsulinData',
-      [commonStats.carbs]: 'getCarbsData',
-      [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
-      [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
-      [commonStats.readingsInRange]: 'getReadingsInRangeData',
-      [commonStats.sensorUsage]: 'getSensorUsage',
-      [commonStats.standardDev]: 'getStandardDevData',
-      [commonStats.timeInAuto]: 'getTimeInAutoData',
-      [commonStats.timeInRange]: 'getTimeInRangeData',
-      [commonStats.totalInsulin]: 'getBasalBolusData',
     };
 
     this.updateDataUtilEndpoints(this.props);
@@ -104,16 +91,18 @@ class Stats extends Component {
       : false;
   };
 
-  renderStats = stats => (_.map(stats, stat => (
+  renderStats = (stats, animate) => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
-      <Stat bgPrefs={this.bgPrefs} {...stat} />
+      <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
     </div>
   )));
 
   render = () => {
+    const { chartPrefs: { animateStats } } = this.props;
+
     return (
       <div className="Stats">
-        {this.renderStats(this.state.stats)}
+        {this.renderStats(this.state.stats, animateStats)}
       </div>
     );
   };
@@ -134,7 +123,7 @@ class Stats extends Component {
     const addStat = statType => {
       const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
 
-      const stat = getStatDefinition(dataUtil[this.dataFetchMethods[statType]](), statType, {
+      const stat = getStatDefinition(dataUtil[statFetchMethods[statType]](), statType, {
         bgSource,
         days,
         bgPrefs: {
@@ -179,7 +168,7 @@ class Stats extends Component {
         cbgSelected && addStat(commonStats.coefficientOfVariation);
         break;
 
-      case 'weekly':
+      case 'bgLog':
         addStat(commonStats.readingsInRange);
         addStat(commonStats.averageGlucose);
         addStat(commonStats.standardDev);
@@ -219,7 +208,7 @@ class Stats extends Component {
     const { manufacturer } = latestPump;
 
     _.each(stats, (stat, i) => {
-      const data = dataUtil[this.dataFetchMethods[stat.id]]();
+      const data = dataUtil[statFetchMethods[stat.id]]();
       const opts = {
         bgSource: bgSource,
         bgPrefs: {

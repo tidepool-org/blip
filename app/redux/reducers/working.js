@@ -46,7 +46,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_USER_REQUEST:
     case types.FETCH_PENDING_SENT_INVITES_REQUEST:
     case types.FETCH_PENDING_RECEIVED_INVITES_REQUEST:
-    case types.FETCH_PATIENTS_REQUEST:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
@@ -71,7 +71,6 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_REQUEST:
     case types.VERIFY_CUSTODIAL_REQUEST:
     case types.GENERATE_PDF_REQUEST:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_SERVER_TIME_REQUEST:
@@ -83,7 +82,8 @@ export default (state = initialWorkingState, action) => {
           [key]: {
             $set: {
               inProgress: true,
-              notification: null
+              notification: null,
+              completed: state[key].completed,
             }
           }
         });
@@ -99,7 +99,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_USER_SUCCESS:
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
     case types.FETCH_PENDING_RECEIVED_INVITES_SUCCESS:
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
@@ -124,19 +124,29 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.FETCH_DATA_SOURCES_SUCCESS:
     case types.FETCH_SERVER_TIME_SUCCESS:
     case types.CONNECT_DATA_SOURCE_SUCCESS:
     case types.DISCONNECT_DATA_SOURCE_SUCCESS:
       key = actionWorkingMap(action.type);
-      if (key) {
+      if (key && action.type === types.LOGOUT_SUCCESS) {
+        return update(initialWorkingState, {
+          [key]: {
+            $set: {
+              inProgress: false,
+              notification: _.get(action, ['payload', 'notification'], null),
+              completed: true,
+            }
+          }
+        });
+      } else if (key) {
         return update(state, {
           [key]: {
             $set: {
               inProgress: false,
-              notification: _.get(action, ['payload', 'notification'], null)
+              notification: _.get(action, ['payload', 'notification'], null),
+              completed: true,
             }
           }
         });
@@ -152,7 +162,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_USER_FAILURE:
     case types.FETCH_PENDING_SENT_INVITES_FAILURE:
     case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
-    case types.FETCH_PATIENTS_FAILURE:
+    case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
@@ -176,7 +186,6 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_FAILURE:
     case types.VERIFY_CUSTODIAL_FAILURE:
     case types.GENERATE_PDF_FAILURE:
-    case types.FETCH_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
@@ -190,8 +199,9 @@ export default (state = initialWorkingState, action) => {
               inProgress: false,
               notification: {
                 type: 'error',
-                message: _.get(action, ['error', 'message'], null)
-              }
+                message: _.get(action, ['error', 'message'], null),
+              },
+              completed: false,
             }
           }
         });

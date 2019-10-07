@@ -50,8 +50,9 @@ var PeopleList = translate()(React.createClass({
       // first sort by fullName
       var sortedPeople = _.sortBy(this.props.people, function(person) {
         var patient = _.get(person, 'profile.patient', null);
-        return (patient && patient.isOtherPerson && patient.fullName) ?
-          patient.fullName.toLowerCase() : person.profile.fullName.toLowerCase();
+        return (patient && patient.isOtherPerson && patient.fullName)
+          ? _.get(patient, 'fullName', '').toLowerCase()
+          : _.get(person, 'profile.fullName', '').toLowerCase();
       });
 
       // then pop the logged-in user to the top if has data

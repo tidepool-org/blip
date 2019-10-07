@@ -221,7 +221,7 @@ class Daily extends Component {
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    onSwitchToBgLog: React.PropTypes.func.isRequired,
     onSwitchToTrends: React.PropTypes.func.isRequired,
     // PatientData state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
@@ -280,7 +280,7 @@ class Daily extends Component {
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
@@ -444,12 +444,12 @@ class Daily extends Component {
     this.props.onClickPrint(this.props.pdf);
   };
 
-  handleClickTwoWeeks = e => {
+  handleClickBgLog = e => {
     if (e) {
       e.preventDefault();
     }
     const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
-    this.props.onSwitchToWeekly(datetime);
+    this.props.onSwitchToBgLog(datetime);
   };
 
   handleDatetimeLocationChange = datetimeLocationEndpoints => {

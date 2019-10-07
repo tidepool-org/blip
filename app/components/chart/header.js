@@ -45,7 +45,7 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
     onClickMostRecent: React.PropTypes.func,
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func,
-    onClickTwoWeeks: React.PropTypes.func,
+    onClickBgLog: React.PropTypes.func,
     onClickSettings: React.PropTypes.func,
     onClickPrint: React.PropTypes.func,
   };
@@ -57,7 +57,7 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
   renderStandard = () => {
     const { t } = this.props;
 
-    const printViews = ['basics', 'daily', 'weekly', 'settings'];
+    const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, this.props.chartType);
 
     const basicsLinkClass = cx({
@@ -78,9 +78,9 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    const weekLinkClass = cx({
-      'js-weekly': true,
-      'patient-data-subnav-active': this.props.chartType === 'weekly',
+    const bgLogLinkClass = cx({
+      'js-bgLog': true,
+      'patient-data-subnav-active': this.props.chartType === 'bgLog',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
@@ -88,11 +88,11 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
       'js-date': true,
       'patient-data-subnav-text' : this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
-        this.props.chartType === 'weekly' ||
+        this.props.chartType === 'bgLog' ||
         this.props.chartType === 'trends',
       'patient-data-subnav-dates-basics': this.props.chartType === 'basics',
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
-      'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
+      'patient-data-subnav-dates-bgLog': this.props.chartType === 'bgLog',
       'patient-data-subnav-dates-trends': this.props.chartType === 'trends',
     });
 
@@ -145,7 +145,7 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
         <div className="app-no-print patient-data-subnav-left">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
-            <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>{t('Weekly')}</a>
+            <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
             <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
@@ -175,8 +175,8 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
         return t('Basics');
       case 'daily':
         return t('Daily');
-      case 'weekly':
-        return t('Weekly');
+      case 'bgLog':
+        return t('BG Log');
       case 'trends':
         return t('Trends');
       case 'settings':

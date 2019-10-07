@@ -92,6 +92,19 @@ const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
   return valid();
 };
 
+const ageVerification = (fieldLabel, fieldValue, prerequisites, isOtherPerson) => {
+  //if making an account for yourself, you have to be at least 13 years old
+  if (!isOtherPerson && fieldValue) {
+    let now = new Date();
+    let datePlusAge = new Date(parseInt(fieldValue.year) + 13, fieldValue.month, fieldValue.day);
+
+    if (now < datePlusAge) {
+      return invalid(errors.underaged());
+    }
+  }
+  return dateValidator(fieldLabel, fieldValue);
+}
+
 /**
  * Map of type validators for use in validateField()
  *
@@ -152,12 +165,14 @@ export const typeValidators = {
 
     return valid();
   },
-  date: dateValidator,
+  date: (fieldLabel, fieldValue, prerequisites, isOtherPerson) => {
+    return ageVerification(fieldLabel, fieldValue, prerequisites, isOtherPerson);
+  },
   diagnosisDate: (fieldLabel, fieldValue, prerequisites) => {
     let dateMask = t('M-D-YYYY');
     let validDateCheck = dateValidator(fieldLabel, fieldValue);
-    let birthdayObj, birthdayDateString;
-    let diagnosisDateObj, diagnosisDateString;
+    let birthdayObj;
+    let diagnosisDateObj;
     if (!validDateCheck.valid) {
       return validDateCheck;
     }
@@ -170,13 +185,11 @@ export const typeValidators = {
       return invalid(errors.invalidBirthday());
     }
 
-    birthdayDateString = t('{{month}}-{{day}}-{{year}}', {month: prerequisites.birthday.month, day: prerequisites.birthday.day, year: prerequisites.birthday.year});
-    birthdayObj = sundial.parseFromFormat(birthdayDateString, dateMask);
+    // checks to see if diagnosis date is earlier than birthdate (which is not allowed)
+    birthdayObj = new Date(prerequisites.birthday.year, prerequisites.birthday.month, prerequisites.birthday.day);
+    diagnosisDateObj = new Date(fieldValue.year, fieldValue.month, fieldValue.day);
 
-    diagnosisDateString = t('{{month}}-{{day}}-{{year}}', {month: fieldValue.month, day: fieldValue.day, year: fieldValue.year});
-    diagnosisDateObj = sundial.parseFromFormat(diagnosisDateString, dateMask);
-
-    if (birthdayObj > diagnosisDateObj) {
+    if (diagnosisDateObj < birthdayObj) {
       return invalid(errors.mustBeAfterBirthday(fieldLabel));
     }
 
@@ -215,11 +228,11 @@ export const typeValidators = {
  * @param  {Object|null} prerequisites
  * @return {Object}               either the results of invalid(message) or valid()
  */
-export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
+export const validateField = (type, fieldLabel, fieldValue, prerequisites, isOtherPerson) => {
   if(!typeValidators[type]) { // @TODO: Gordon Dent: at present we do not have generic validation, we may way to add this
     return valid();
   }
-  return typeValidators[type](fieldLabel, fieldValue, prerequisites);
+  return typeValidators[type](fieldLabel, fieldValue, prerequisites, isOtherPerson);
 };
 
 /**
@@ -229,14 +242,14 @@ export const validateField = (type, fieldLabel, fieldValue, prerequisites) => {
  *
  * @return {Object} an object which is either empty (valid form) or contains entries for field names with error messages
  */
-export const validateForm = (form) => {
+export const validateForm = (form, isOtherPerson) => {
   if (!form) { // @TODO: Gordon Dent: may want to check if not object too
     return {};
   }
 
   return form
     .map((field) => {
-      let result = validateField(field.type, field.label, field.value, field.prerequisites);
+      let result = validateField(field.type, field.label, field.value, field.prerequisites, isOtherPerson);
       result.name = field.name;
 
       return result;

@@ -796,24 +796,22 @@ export function fetchPatientFailure(error, apiError, link) {
   };
 }
 
-export function fetchPatientsRequest() {
+export function fetchAssociatedAccountsRequest() {
   return {
-    type: ActionTypes.FETCH_PATIENTS_REQUEST,
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_REQUEST,
   };
 }
 
-export function fetchPatientsSuccess(patients) {
+export function fetchAssociatedAccountsSuccess(accounts) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
-    payload: {
-      patients: patients,
-    },
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS,
+    payload: accounts,
   };
 }
 
-export function fetchPatientsFailure(error, apiError) {
+export function fetchAssociatedAccountsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_FAILURE,
+    type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
@@ -874,42 +872,17 @@ export function fetchMessageThreadFailure(error, apiError) {
   };
 }
 
-export function fetchDataDonationAccountsRequest() {
-  return {
-    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_REQUEST,
-  };
-}
-
-export function fetchDataDonationAccountsSuccess(accounts) {
-  return {
-    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_SUCCESS,
-    payload: {
-      accounts,
-    },
-  };
-}
-
-export function fetchDataDonationAccountsFailure(error, apiError) {
-  return {
-    type: ActionTypes.FETCH_DATA_DONATION_ACCOUNTS_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function updateDataDonationAccountsRequest() {
   return {
     type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST,
   };
 }
 
-export function updateDataDonationAccountsSuccess(accounts) {
+export function updateDataDonationAccountsSuccess(dataDonationAccounts) {
   return {
     type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS,
     payload: {
-      accounts,
+      dataDonationAccounts,
     },
   };
 }

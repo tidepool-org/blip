@@ -11,12 +11,23 @@ import Patient from '../patient/';
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-let getFetchers = (dispatchProps, ownProps, api) => {
-  return [
+export function getFetchers(dispatchProps, ownProps, stateProps, api) {
+  const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchDataDonationAccounts.bind(null, api),
-    dispatchProps.fetchPendingSentInvites.bind(null, api),
   ];
+
+  if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
+    fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
+  }
+
+  if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
+    // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
+    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'routeParams.id') ) {
+      fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+    }
+  }
+
+  return fetchers;
 };
 
 export function mapStateToProps(state) {
@@ -25,11 +36,21 @@ export function mapStateToProps(state) {
   let permissions = {};
   let permsOfLoggedInUser = {};
 
-  let {
+  const {
     allUsersMap,
     loggedInUserId,
     currentPatientInViewId,
+    working,
   } = state.blip;
+
+  const {
+    fetchingUser,
+    fetchingPatient,
+    fetchingPendingSentInvites,
+    fetchingAssociatedAccounts,
+    updatingDataDonationAccounts,
+    updatingPatientBgUnits,
+  } = working;
 
   if (allUsersMap){
     if (loggedInUserId) {
@@ -59,13 +80,16 @@ export function mapStateToProps(state) {
 
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingUser: fetchingUser.inProgress,
     patient: { permissions, ...patient },
     permsOfLoggedInUser: permsOfLoggedInUser,
-    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPatient: fetchingPatient.inProgress,
+    fetchingPendingSentInvites: fetchingPendingSentInvites,
+    fetchingAssociatedAccounts: fetchingAssociatedAccounts,
     dataDonationAccounts: state.blip.dataDonationAccounts,
-    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
-    updatingPatientBgUnits: state.blip.working.updatingPatientBgUnits.inProgress,
+    dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
+    updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
+    updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
   };
@@ -73,14 +97,13 @@ export function mapStateToProps(state) {
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acknowledgeNotification: actions.sync.acknowledgeNotification,
-  fetchDataDonationAccounts: actions.async.fetchDataDonationAccounts,
+  fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchDataSources: actions.async.fetchDataSources,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   updatePatient: actions.async.updatePatient,
   updatePatientSettings: actions.async.updateSettings,
-  fetchDataSources: actions.async.fetchDataSources,
   connectDataSource: actions.async.connectDataSource,
   disconnectDataSource: actions.async.disconnectDataSource,
 }, dispatch);
@@ -88,7 +111,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
