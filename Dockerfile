@@ -1,7 +1,6 @@
 ### Stage 0 - Base image
 FROM node:10.14.2-alpine as base
 WORKDIR /app
-RUN mkdir -p dist node_modules && chown -R node:node .
 
 
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
@@ -12,7 +11,7 @@ RUN \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && apk --no-cache update \
   && apk --no-cache upgrade \
-  && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
+  && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -23,6 +22,9 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
+RUN apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
 RUN \
