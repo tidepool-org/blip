@@ -25,7 +25,7 @@ class Basics extends Component {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
+    // dataUtil: React.PropTypes.object,
     endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
@@ -104,14 +104,14 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <BgSourceToggle
+                {/* <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
                   bgSources={this.props.dataUtil.bgSources}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   onClickBgSourceToggle={this.toggleBgDataSource}
-                />
-                <Stats
+                /> */}
+                {/* <Stats
                   bgPrefs={this.props.bgPrefs}
                   bgSource={this.props.dataUtil.bgSource}
                   chartPrefs={this.props.chartPrefs}
@@ -119,7 +119,7 @@ class Basics extends Component {
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
-                />
+                /> */}
               </div>
             </div>
           </div>
