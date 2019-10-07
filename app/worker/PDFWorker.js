@@ -27,13 +27,14 @@ import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
 export default class PDFWorker {
   constructor(importer, renderer) {
     this.log = __DEV__ ? bows('PDFWorker') : _.noop;
-    this.log('Ready!');
     this.importer = importer;
     this.renderer = renderer;
+    this.log('Ready!');
   }
 
   handleMessage(msg, postMessage) {
     const { data: action } = msg;
+
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
         const { type, opts } = action.payload;

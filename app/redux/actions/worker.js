@@ -124,7 +124,7 @@ export function dataWorkerUpdateDatumFailure(error) {
   };
 }
 
-export function dataWorkerQueryRequest(query) {
+export function dataWorkerQueryDataRequest(query) {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
@@ -134,14 +134,14 @@ export function dataWorkerQueryRequest(query) {
   };
 }
 
-export function dataWorkerQuerySuccess(data) {
+export function dataWorkerQueryDataSuccess(data) {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
     payload: { data },
   };
 }
 
-export function dataWorkerQueryFailure(error) {
+export function dataWorkerQueryDataFailure(error) {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_FAILURE,
     error,
