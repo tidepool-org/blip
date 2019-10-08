@@ -41,8 +41,8 @@ export let Patients = translate()(React.createClass({
     currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    fetchingPendingReceivedInvites: React.PropTypes.bool.isRequired,
-    fetchingAssociatedAccounts: React.PropTypes.bool.isRequired,
+    fetchingPendingReceivedInvites: React.PropTypes.object.isRequired,
+    fetchingAssociatedAccounts: React.PropTypes.object.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
@@ -327,6 +327,7 @@ export let Patients = translate()(React.createClass({
   componentWillMount: function() {
     if (this.props.currentPatientInViewId) {
       this.props.clearPatientData(this.props.currentPatientInViewId);
+      this.props.dataWorkerRemoveDataRequest();
     }
 
     if (this.props.clearPatientInView) {
@@ -445,6 +446,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   clearPatientData: actions.sync.clearPatientData,
+  dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage
@@ -456,6 +458,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     {},
     _.pick(dispatchProps, [
       'clearPatientData',
+      'dataWorkerRemoveDataRequest',
       'clearPatientInView',
       'showWelcomeMessage',
       'onHideWelcomeSetup',
