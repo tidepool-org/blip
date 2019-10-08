@@ -52,7 +52,7 @@ export function removeGeneratedPDFS() {
 }
 
 /* Data Worker */
-export function dataWorkerAddDataRequest(data) {
+export function dataWorkerAddDataRequest(data = []) {
   return {
     type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
@@ -81,7 +81,7 @@ export function dataWorkerRemoveDataRequest(predicate) {
     type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
     payload: {
-      predicate: JSON.stringify(predicate),
+      predicate: predicate ? JSON.stringify(predicate) : undefined,
     },
   };
 }
@@ -100,7 +100,7 @@ export function dataWorkerRemoveDataFailure(error) {
   };
 }
 
-export function dataWorkerUpdateDatumRequest(datum) {
+export function dataWorkerUpdateDatumRequest(datum = {}) {
   return {
     type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
@@ -124,7 +124,7 @@ export function dataWorkerUpdateDatumFailure(error) {
   };
 }
 
-export function dataWorkerQueryDataRequest(query) {
+export function dataWorkerQueryDataRequest(query = {}) {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
