@@ -45,7 +45,12 @@ const initialState = {
   patientDataMap: {},
   patientNotesMap: {},
   pdf: {},
-  data: {},
+  data: {
+    data: {},
+    timePrefs: {},
+    bgPrefs: {},
+    metaData: {},
+  },
   pendingReceivedInvites: [],
   pendingSentInvites: [],
   messageThread: null,

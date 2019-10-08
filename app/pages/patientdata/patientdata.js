@@ -66,6 +66,9 @@ export let PatientData = translate()(React.createClass({
     addPatientNote: React.PropTypes.func.isRequired,
     clearPatientData: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
+    data: React.PropTypes.object,
+    dataWorkerRemoveDataRequest: React.PropTypes.func.isRequired,
+    dataWorkerQueryDataRequest: React.PropTypes.func.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
@@ -83,6 +86,7 @@ export let PatientData = translate()(React.createClass({
     patient: React.PropTypes.object,
     patientDataMap: React.PropTypes.object.isRequired,
     patientNotesMap: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -94,7 +98,7 @@ export let PatientData = translate()(React.createClass({
 
   getInitialState: function() {
     var state = {
-      chartPrefs: {
+      chartPrefs: { // TODO: set default bgSources from props.data.metaData dynamically here?
         basics: {},
         daily: {},
         trends: {
@@ -130,14 +134,14 @@ export let PatientData = translate()(React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      endpoints: [],
+      endpoints: [], // TODO: do we need this and datetimeLocation?
       fetchEarlierDataCount: 0,
-      lastDatumProcessedIndex: -1,
-      lastDiabetesDatumProcessedIndex: -1,
+      // lastDatumProcessedIndex: -1,
+      // lastDiabetesDatumProcessedIndex: -1,
       loading: true,
-      processingData: false,
-      processEarlierDataCount: 0,
-      processedPatientData: null,
+      // processingData: false,
+      // processEarlierDataCount: 0,
+      // processedPatientData: null,
       timePrefs: {
         timezoneAware: false,
         timezoneName: null
@@ -153,7 +157,7 @@ export let PatientData = translate()(React.createClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
+    const initialProcessing = _.get(this.props.data, 'metaData.size', 0) > 0;
     const patientID = this.props.currentPatientInViewId;
     const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
     const showLoader = initialProcessing && missingPatientData;
@@ -168,7 +172,8 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
+    // const initialProcessing = this.state.lastDatumProcessedIndex < 0;
+    const initialProcessing = _.get(this.props.data, 'metaData.size', 0) > 0;
 
     if (initialProcessing && this.state.loading) {
       return this.renderInitialLoading();
@@ -268,14 +273,17 @@ export let PatientData = translate()(React.createClass({
   },
 
   isEmptyPatientData: function() {
-    return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
+    return (!_.get(this.props, 'patient.userid', false) || _.get(this.props.data, 'metaData.size', 0) > 0);
+    // return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
   },
 
   isInsufficientPatientData: function() {
-    var data = _.get(this.state.processedPatientData, 'data', {});
+    var latestDataByType = _.values(_.get(this.props.data, 'metaData.latestDatumByType', {}));
+
+    // var data = _.get(this.state.processedPatientData, 'data', {});
     // add additional checks against data and return false iff:
     // only messages data
-    if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
+    if (_.reject(latestDataByType, function(d) { return d.type === 'message'; }).length === 0) {
       this.log('Sorry, tideline is kind of pointless with only messages.');
       return true;
     }
@@ -290,9 +298,9 @@ export let PatientData = translate()(React.createClass({
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
+            data={this.props.data}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -317,11 +325,10 @@ export let PatientData = translate()(React.createClass({
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            // dataUtil={this.dataUtil}
+            data={this.props.data}
             endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
@@ -346,11 +353,10 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            // dataUtil={this.dataUtil}
+            data={this.props.data}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
@@ -373,12 +379,11 @@ export let PatientData = translate()(React.createClass({
           <Trends
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            data={this.props.data}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            // dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -399,11 +404,11 @@ export let PatientData = translate()(React.createClass({
           <BgLog
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            // dataUtil={this.dataUtil}
+            data={this.props.data}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
+            isClinicAccount={personUtils.isClinic(this.props.user)}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -419,8 +424,7 @@ export let PatientData = translate()(React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
-            ref="tideline"
-            isClinicAccount={personUtils.isClinic(this.props.user)} />
+            ref="tideline" />
           );
       case 'settings':
         return this.renderSettings();
@@ -544,6 +548,7 @@ export let PatientData = translate()(React.createClass({
   // },
 
   generatePDF: function (props, state) {
+    // TODO: All data selection here to use new data worker
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
 
@@ -554,7 +559,7 @@ export let PatientData = translate()(React.createClass({
     });
 
     if (diabetesData.length > 0) {
-      const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
+      const mostRecent = diabetesData[diabetesData.length - 1].normalTime; // TODO: Get from data.metaData.latestDatumByType
       const opts = {
         bgPrefs: state.bgPrefs,
         numDays: state.printOpts.numDays,
@@ -622,26 +627,26 @@ export let PatientData = translate()(React.createClass({
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
-      const patientData = _.get(this.props, ['patientDataMap', patientID], []);
+      // const patientData = _.get(this.props, ['patientDataMap', patientID], []);
       const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
-      const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-      const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
-      const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
+      // const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
+      // const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
+      // const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
 
-      const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
-      const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
+      // const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
+      // const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
 
       const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
       const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
 
       // If we've reached the limit of our fetched data, we need to get some more
       if (
-        allFetchedDatumsProcessed && (
+        // allFetchedDatumsProcessed && (
           (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
-          || (isScrollChart && chartLimitReached)
-        )
+          // || (isScrollChart && chartLimitReached)
+        // )
       ) {
         if (allDataFetched) {
           return;
@@ -651,15 +656,15 @@ export let PatientData = translate()(React.createClass({
 
       // If we've reached the limit of our processed data (since we process in smaller chunks than
       // what we fetch), we need to process some more.
-      if (
-        !allFetchedDatumsProcessed && (
-          (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
-          || (isScrollChart && chartLimitReached)
-        )
-      ) {
-        this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
-        return this.processData(this.props);
-      }
+      // if (
+      //   !allFetchedDatumsProcessed && (
+      //     (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
+      //     || (isScrollChart && chartLimitReached)
+      //   )
+      // ) {
+      //   this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
+      //   return this.processData(this.props);
+      // }
     }
   },
 
@@ -683,7 +688,7 @@ export let PatientData = translate()(React.createClass({
       edit(message, cb);
     }
     this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updatePatientNote(message);
+    this.props.updatePatientNote(message); // TODO: update in the data util after pushing to server
     this.props.trackMetric('Edit To Message');
   },
 
@@ -713,8 +718,8 @@ export let PatientData = translate()(React.createClass({
 
     // this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
     this.setState({
-      chartType: 'basics'
-    });
+      chartType: 'basics' // TODO: need to set the endpoints in the query somehow
+    }, this.queryData);
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -736,7 +741,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       chartType: 'daily',
       datetimeLocation,
-    });
+    }, this.queryData);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -756,7 +761,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       chartType: 'trends',
       datetimeLocation,
-    });
+    }, this.queryData);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -778,7 +783,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       chartType: 'bgLog',
       datetimeLocation,
-    });
+    }, this.queryData);
   },
 
   handleSwitchToSettings: function(e) {
@@ -790,7 +795,7 @@ export let PatientData = translate()(React.createClass({
     }
     this.setState({
       chartType: 'settings'
-    });
+    }, this.queryData);
   },
 
   handleClickPrint: function(pdf = {}) {
@@ -830,16 +835,18 @@ export let PatientData = translate()(React.createClass({
         endpoints: [],
         datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
-        lastDatumProcessedIndex: -1,
-        lastProcessedDateTarget: null,
+        // lastDatumProcessedIndex: -1,
+        // lastProcessedDateTarget: null,
         loading: true,
-        processEarlierDataCount: 0,
-        processedPatientData: null,
+        // processEarlierDataCount: 0,
+        // processedPatientData: null,
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
     }
   },
 
+  // TODO: hopefully we can eliminate this altogether
+  // only called from componentWillUnmount of chartbasicsfactory in tideline
   updateBasicsData: function(basicsData) {
     // only attempt to update data if there's already data present to update
     if(this.state.processedPatientData){
@@ -870,21 +877,25 @@ export let PatientData = translate()(React.createClass({
     };
 
     // this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
+    // TODO: should maybe ensure that the prefs have changed before firing the queryData calls
+    // Might not be necessary, but should keep an eye on how often we fire this off.
     this.setState({
       chartPrefs: newPrefs,
-    });
+    }, this.queryData);
   },
 
+  // TODO: see updateChartEndpoints. Both needed?
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime,
-    });
+    }, this.queryData);
   },
 
+  // TODO: see updateDatetimeLocation. Both needed?
   updateChartEndpoints: function(endpoints) {
     this.setState({
       endpoints,
-    });
+    }, this.queryData);
   },
 
   componentWillMount: function() {
@@ -909,7 +920,6 @@ export let PatientData = translate()(React.createClass({
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-    const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
     const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
@@ -923,11 +933,12 @@ export let PatientData = translate()(React.createClass({
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
     if (patientSettings && nextPatientData) {
-      if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
-        this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
-        this.processData(nextProps); // TODO: Stop storing then processing data, instead push directly into worker
-      }
-      else if (!newDiabetesDataReturned && newDataRangeFetched) {
+      // if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
+      //   this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
+      //   this.processData(nextProps); // TODO: Stop storing then processing data, instead push directly into worker
+      // }
+      // else if (!newDiabetesDataReturned && newDataRangeFetched) {
+      if (!newDiabetesDataReturned && newDataRangeFetched) {
         if (!allDataFetched) {
           // Our latest data fetch yeilded no new data. We now request the remainder of the available
           // data to make sure that we don't miss any.
@@ -945,6 +956,8 @@ export let PatientData = translate()(React.createClass({
     const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
     const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
     const userFetched = !nextProps.fetchingUser;
+
+    // TODO: might want to derive this in data worker and add to metaData
     const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
@@ -955,6 +968,7 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
+  // TODO: update as required to work with new data worker results
   deriveChartTypeFromLatestData: function(latestData, uploads) {
     let chartType = 'basics'; // Default to 'basics'
 
@@ -1010,26 +1024,28 @@ export let PatientData = translate()(React.createClass({
 
   setInitialChartType: function(processedData) {
     // Determine default chart type and date from latest data
-    const uploads = _.get(processedData.grouped, 'upload', []);
-    const latestData = _.last(processedData.diabetesData);
+    // const uploads = _.get(processedData.grouped, 'upload', []);
+    // const latestDatum = _.last(processedData.diabetesData);
+    const uploads = _.get(this.props.data, 'data.current.upload', []);
+    const latestDatum = _.last(_.sortBy(_.values(_.get(this.props.data, 'metaData.latestDatumByType')), ['normalTime']));
 
-    if (uploads && latestData) {
+    if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
       const chartType = _.get(
         this.props, 'queryParams.chart',
-        this.deriveChartTypeFromLatestData(latestData, uploads)
+        this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
 
-      const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
+      const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
       const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
       const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
-        ? moment.utc(latestDataDateCeiling.valueOf())
+        ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(timezone)
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
-        : moment.utc(latestDataDateCeiling.valueOf())
+        : moment.utc(latestDatumDateCeiling.valueOf())
           .tz(timezone)
           .toISOString());
 
@@ -1085,202 +1101,202 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
-  getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
-    let diabetesDataCount = 0;
+  // getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
+  //   let diabetesDataCount = 0;
 
-    // First, we get the index of the first diabetes datum that falls outside of our processing window.
-    let targetIndex = _.findIndex(unprocessedData, datum => {
-      const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
+  //   // First, we get the index of the first diabetes datum that falls outside of our processing window.
+  //   let targetIndex = _.findIndex(unprocessedData, datum => {
+  //     const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
 
-      if (isDiabetesDatum) {
-        diabetesDataCount++;
-      }
+  //     if (isDiabetesDatum) {
+  //       diabetesDataCount++;
+  //     }
 
-      return targetDatetime > datum.time && isDiabetesDatum;
-    });
+  //     return targetDatetime > datum.time && isDiabetesDatum;
+  //   });
 
-    if (targetIndex === -1) {
-      // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
-      // we process all the remaining fetched, unprocessed data.
-      targetIndex = unprocessedData.length;
-      this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
-    } else if (diabetesDataCount === 1) {
-      // If the first diabetes datum found was outside of our processing window, we need to include it.
-      targetIndex++;
-      this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
-    }
+  //   if (targetIndex === -1) {
+  //     // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
+  //     // we process all the remaining fetched, unprocessed data.
+  //     targetIndex = unprocessedData.length;
+  //     this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
+  //   } else if (diabetesDataCount === 1) {
+  //     // If the first diabetes datum found was outside of our processing window, we need to include it.
+  //     targetIndex++;
+  //     this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
+  //   }
 
-    // Because targetIndex was set to the first one outside of our processing window, and we're
-    // looking for the last datum to process, we decrement by one and return
-    return --targetIndex;
-  },
+  //   // Because targetIndex was set to the first one outside of our processing window, and we're
+  //   // looking for the last datum to process, we decrement by one and return
+  //   return --targetIndex;
+  // },
 
-  processData: function(props = this.props) {
-    const patientID = props.currentPatientInViewId;
-    const patientData = _.get(props, ['patientDataMap', patientID], []);
-    const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
+  // processData: function(props = this.props) {
+  //   const patientID = props.currentPatientInViewId;
+  //   const patientData = _.get(props, ['patientDataMap', patientID], []);
+  //   const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
-    // Return if currently processing or we've already fetched and processed all data
-    if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
-      if (!this.state.processingData) {
-        this.setState({
-          loading: false,
-        });
-      }
-      return;
-    };
+  //   // Return if currently processing or we've already fetched and processed all data
+  //   if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
+  //     if (!this.state.processingData) {
+  //       this.setState({
+  //         loading: false,
+  //       });
+  //     }
+  //     return;
+  //   };
 
-    if (patientData.length) {
-      this.setState({
-        loading: true,
-        processingData: true,
-      });
+  //   if (patientData.length) {
+  //     this.setState({
+  //       loading: true,
+  //       processingData: true,
+  //     });
 
-      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
-      const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-      const processDataMaxDays = isInitialProcessing ? 30 : 56;
+  //     const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
+  //     const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
+  //     const processDataMaxDays = isInitialProcessing ? 30 : 56;
 
-      // Grab the first diabetes datum time on first process in case upload date is much later
-      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
-      const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
+  //     // Grab the first diabetes datum time on first process in case upload date is much later
+  //     const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
+  //     const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
 
-      const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
-      let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
-      _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
+  //     const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
+  //     let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
+  //     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
 
-      // Determine how far back into the unprocessed patient data we want to process.
-      const timezoneSettings = this.state.timePrefs.timezoneAware
-        ? this.state.timePrefs
-        : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
+  //     // Determine how far back into the unprocessed patient data we want to process.
+  //     const timezoneSettings = this.state.timePrefs.timezoneAware
+  //       ? this.state.timePrefs
+  //       : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
 
-      const targetDatetime = this.subtractTimezoneOffset(
-        lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
-        timezoneSettings
-      );
+  //     const targetDatetime = this.subtractTimezoneOffset(
+  //       lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
+  //       timezoneSettings
+  //     );
 
-      // If there's only a week or less data to process, and not all the data has been fetched,
-      // we just fetch instead of a tiny processing cycle followed by an immediate fetch
-      const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
-      const remainingDataIsLessThanAWeek = timeOfLastUnprocessedDatum &&  moment(targetDatetime).subtract(1, 'week').isSameOrBefore(moment(timeOfLastUnprocessedDatum));
-      if (!isInitialProcessing && !allDataFetched && remainingDataIsLessThanAWeek) {
-        return this.setState({
-          processingData: false,
-        }, this.fetchEarlierData);
-      }
+  //     // If there's only a week or less data to process, and not all the data has been fetched,
+  //     // we just fetch instead of a tiny processing cycle followed by an immediate fetch
+  //     const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
+  //     const remainingDataIsLessThanAWeek = timeOfLastUnprocessedDatum &&  moment(targetDatetime).subtract(1, 'week').isSameOrBefore(moment(timeOfLastUnprocessedDatum));
+  //     if (!isInitialProcessing && !allDataFetched && remainingDataIsLessThanAWeek) {
+  //       return this.setState({
+  //         processingData: false,
+  //       }, this.fetchEarlierData);
+  //     }
 
-      // Find a cutoff point for processing unprocessed diabetes data
-      const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
-      const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
-      this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
-      this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
+  //     // Find a cutoff point for processing unprocessed diabetes data
+  //     const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
+  //     const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
+  //     this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
+  //     this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
 
-      // We need to track the last processed indexes for diabetes and bg data to help determine when
-      // we've reached the scroll limits of the daily and bgLog charts
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
-        return _.includes(DIABETES_DATA_TYPES, datum.type);
-      });
+  //     // We need to track the last processed indexes for diabetes and bg data to help determine when
+  //     // we've reached the scroll limits of the daily and bgLog charts
+  //     const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
+  //       return _.includes(DIABETES_DATA_TYPES, datum.type);
+  //     });
 
-      // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
-      // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
-      // where we include and process datums that are outside of the scheduled processing time frame
-      // when no diabetes data is found within it.
-      const lastProcessedDateTargets = [
-        _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
-        targetDatetime,
-      ];
+  //     // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
+  //     // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
+  //     // where we include and process datums that are outside of the scheduled processing time frame
+  //     // when no diabetes data is found within it.
+  //     const lastProcessedDateTargets = [
+  //       _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
+  //       targetDatetime,
+  //     ];
 
-      const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
+  //     const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
 
-      const lastProcessedDateTarget = sortedDateTargets[0]
-      this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
+  //     const lastProcessedDateTarget = sortedDateTargets[0]
+  //     this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
 
-      window.downloadInputData = () => {
-        console.save(patientData.concat(patientNotes), 'blip-input.json');
-      };
+  //     window.downloadInputData = () => {
+  //       console.save(patientData.concat(patientNotes), 'blip-input.json');
+  //     };
 
-      // Process data fetched after the initial processing
-      if (isInitialProcessing) {
-        // Kick off the processing of the initial data fetch
-        const combinedData = dataToProcess.concat(patientNotes);
+  //     // Process data fetched after the initial processing
+  //     if (isInitialProcessing) {
+  //       // Kick off the processing of the initial data fetch
+  //       const combinedData = dataToProcess.concat(patientNotes);
 
-        // Ensure that the latest pump settings and upload datums, which may be outside of the
-        // processed date target, are included in the initial processing
-        const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
-        combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
+  //       // Ensure that the latest pump settings and upload datums, which may be outside of the
+  //       // processed date target, are included in the initial processing
+  //       const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
+  //       combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
 
-        const processedData = utils.processPatientData(
-          combinedData,
-          props.queryParams,
-          patientSettings,
-        );
+  //       const processedData = utils.processPatientData(
+  //         combinedData,
+  //         props.queryParams,
+  //         patientSettings,
+  //       );
 
-        const timePrefs = processedData.timePrefs || this.state.timePrefs;
-        const bgPrefs = {
-          bgClasses: processedData.bgClasses,
-          bgUnits: processedData.bgUnits
-        };
+  //       const timePrefs = processedData.timePrefs || this.state.timePrefs;
+  //       const bgPrefs = {
+  //         bgClasses: processedData.bgClasses,
+  //         bgUnits: processedData.bgUnits
+  //       };
 
-        // TODO: Add raw data here (or where makes sense) to new data worker
+  //       // TODO: Add raw data here (or where makes sense) to new data worker
 
-        // this.dataUtil = new DataUtil(
-        //   processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
-        //   { bgPrefs, timePrefs }
-        // );
+  //       // this.dataUtil = new DataUtil(
+  //       //   processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
+  //       //   { bgPrefs, timePrefs }
+  //       // );
 
-        // Set default bgSource for basics based on whether there is any cbg data in the current view.
-        const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
-          bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
-        });
+  //       // Set default bgSource for basics based on whether there is any cbg data in the current view.
+  //       const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
+  //         bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
+  //       });
 
-        this.setState({
-          bgPrefs,
-          chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
-          lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex: lastDatumToProcessIndex,
-          lastProcessedDateTarget,
-          loading: false,
-          processedPatientData: processedData,
-          processingData: false,
-          timePrefs,
-        }, () => {
-          this.handleInitialProcessedData(props, processedData, patientSettings);
-          props.trackMetric('Processed initial patient data', { patientID });
-        });
-      }
-      else {
-        // We don't need full processing for subsequent data. We just add and preprocess the new datums.
-        const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
+  //       this.setState({
+  //         bgPrefs,
+  //         chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
+  //         lastDiabetesDatumProcessedIndex,
+  //         lastDatumProcessedIndex: lastDatumToProcessIndex,
+  //         lastProcessedDateTarget,
+  //         loading: false,
+  //         processedPatientData: processedData,
+  //         processingData: false,
+  //         timePrefs,
+  //       }, () => {
+  //         this.handleInitialProcessedData(props, processedData, patientSettings);
+  //         props.trackMetric('Processed initial patient data', { patientID });
+  //       });
+  //     }
+  //     else {
+  //       // We don't need full processing for subsequent data. We just add and preprocess the new datums.
+  //       const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
 
-        // Need to have all of the upload data present when filtering data or else the `source` and
-        // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
-        // of upload records, as deduplication will happen when `addData` is called.
-        const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
-        const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
+  //       // Need to have all of the upload data present when filtering data or else the `source` and
+  //       // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
+  //       // of upload records, as deduplication will happen when `addData` is called.
+  //       const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
+  //       const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
 
-        // Add and process the new data
-        const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
-        const processedPatientData = addData(combinedNewData);
-        // this.dataUtil.addData(combinedNewData);
-        // TODO: Add raw data here (or where makes sense) to new data worker
+  //       // Add and process the new data
+  //       const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
+  //       const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
+  //       const processedPatientData = addData(combinedNewData);
+  //       // this.dataUtil.addData(combinedNewData);
+  //       // TODO: Add raw data here (or where makes sense) to new data worker
 
-        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
-        const count = this.state.processEarlierDataCount + 1;
+  //       const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
+  //       const count = this.state.processEarlierDataCount + 1;
 
-        this.setState({
-          lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex,
-          lastProcessedDateTarget,
-          processEarlierDataCount: count,
-          processedPatientData,
-          processingData: false,
-        }, () => {
-          this.hideLoading();
-          props.trackMetric('Processed earlier patient data', { patientID, count });
-        });
-      }
-    }
-  },
+  //       this.setState({
+  //         lastDiabetesDatumProcessedIndex,
+  //         lastDatumProcessedIndex,
+  //         lastProcessedDateTarget,
+  //         processEarlierDataCount: count,
+  //         processedPatientData,
+  //         processingData: false,
+  //       }, () => {
+  //         this.hideLoading();
+  //         props.trackMetric('Processed earlier patient data', { patientID, count });
+  //       });
+  //     }
+  //   }
+  // },
 
   hideLoading: function(timeout = 250) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
@@ -1291,97 +1307,97 @@ export let PatientData = translate()(React.createClass({
     }, timeout);
   },
 
-  handleInitialProcessedData: function(props, processedData, patientSettings) {
-    const userId = props.currentPatientInViewId;
-    const patientData = _.get(props, ['patientDataMap', userId], []);
-    const patientNotes = _.get(props, ['patientNotesMap', userId], []);
+  // handleInitialProcessedData: function(props, processedData, patientSettings) {
+  //   const userId = props.currentPatientInViewId;
+  //   const patientData = _.get(props, ['patientDataMap', userId], []);
+  //   const patientNotes = _.get(props, ['patientNotesMap', userId], []);
 
-    if (!this.state.chartType) {
-      this.setInitialChartType(processedData);
-    }
+  //   if (!this.state.chartType) {
+  //     this.setInitialChartType(processedData);
+  //   }
 
-    let combinedData = patientData.concat(patientNotes);
+  //   let combinedData = patientData.concat(patientNotes);
 
-    window.downloadPrintViewData = () => {
-      // const initialBgUnits = this.dataUtil.bgUnits;
+  //   window.downloadPrintViewData = () => {
+  //     // const initialBgUnits = this.dataUtil.bgUnits;
 
-      const prepareProcessedData = (bgUnits) => {
-        const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
+  //     const prepareProcessedData = (bgUnits) => {
+  //       const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
 
-        return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
-          combinedData,
-          props.queryParams,
-          _.assign({}, patientSettings, {
-            bgTarget: {
-              low: patientSettings.bgTarget.low * multiplier,
-              high: patientSettings.bgTarget.high * multiplier,
-            },
-            units: { bg: bgUnits }
-          }),
-        );
-      };
+  //       return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
+  //         combinedData,
+  //         props.queryParams,
+  //         _.assign({}, patientSettings, {
+  //           bgTarget: {
+  //             low: patientSettings.bgTarget.low * multiplier,
+  //             high: patientSettings.bgTarget.high * multiplier,
+  //           },
+  //           units: { bg: bgUnits }
+  //         }),
+  //       );
+  //     };
 
-      const data = {
-        [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
-        [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
-      };
+  //     const data = {
+  //       [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
+  //       [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
+  //     };
 
-      const bgPrefs = {
-        [MGDL_UNITS]: {
-          bgClasses: data[MGDL_UNITS].bgClasses,
-          bgUnits: data[MGDL_UNITS].bgUnits
-        },
-        [MMOLL_UNITS]: {
-          bgClasses: data[MMOLL_UNITS].bgClasses,
-          bgUnits: data[MMOLL_UNITS].bgUnits
-        },
-      };
+  //     const bgPrefs = {
+  //       [MGDL_UNITS]: {
+  //         bgClasses: data[MGDL_UNITS].bgClasses,
+  //         bgUnits: data[MGDL_UNITS].bgUnits
+  //       },
+  //       [MMOLL_UNITS]: {
+  //         bgClasses: data[MMOLL_UNITS].bgClasses,
+  //         bgUnits: data[MMOLL_UNITS].bgUnits
+  //       },
+  //     };
 
-      const dData = {
-        [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
-        [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
-      };
+  //     const dData = {
+  //       [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
+  //       [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
+  //     };
 
-      const preparePrintData = (bgUnits) => {
-        // this.dataUtil.bgPrefs = bgPrefs[bgUnits];
-        // this.dataUtil.removeData();
-        // this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
-        // TODO: query data worker for this data
+  //     const preparePrintData = (bgUnits) => {
+  //       // this.dataUtil.bgPrefs = bgPrefs[bgUnits];
+  //       // this.dataUtil.removeData();
+  //       // this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
+  //       // TODO: query data worker for this data
 
-        return this.generatePDFStats({
-          basics: data[bgUnits].basicsData,
-          daily: vizUtils.data.selectDailyViewData(
-            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-            _.pick(
-              data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
-            ),
-            this.state.printOpts.numDays.daily,
-            this.state.timePrefs,
-          ),
-          settings: _.last(data[bgUnits].grouped.pumpSettings),
-          bgLog: vizUtils.data.selectBgLogViewData(
-            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-            _.pick(
-              data[bgUnits].grouped,
-              ['smbg']
-            ),
-            this.state.printOpts.numDays.bgLog,
-            this.state.timePrefs,
-          ),
-        }, this.state);
-      };
+  //       return this.generatePDFStats({
+  //         basics: data[bgUnits].basicsData,
+  //         daily: vizUtils.data.selectDailyViewData(
+  //           dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+  //           _.pick(
+  //             data[bgUnits].grouped,
+  //             ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
+  //           ),
+  //           this.state.printOpts.numDays.daily,
+  //           this.state.timePrefs,
+  //         ),
+  //         settings: _.last(data[bgUnits].grouped.pumpSettings),
+  //         bgLog: vizUtils.data.selectBgLogViewData(
+  //           dData[bgUnits][dData[bgUnits].length - 1].normalTime,
+  //           _.pick(
+  //             data[bgUnits].grouped,
+  //             ['smbg']
+  //           ),
+  //           this.state.printOpts.numDays.bgLog,
+  //           this.state.timePrefs,
+  //         ),
+  //       }, this.state);
+  //     };
 
-      console.save({
-        [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
-        [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
-      }, 'print-view.json');
+  //     console.save({
+  //       [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
+  //       [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
+  //     }, 'print-view.json');
 
-      // this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
-      // this.dataUtil.removeData();
-      // this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
-    };
-  },
+  //     // this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
+  //     // this.dataUtil.removeData();
+  //     // this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
+  //   };
+  // },
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
@@ -1488,6 +1504,7 @@ export function mapStateToProps(state, props) {
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
+    data: state.blip.data,
     viz: state.viz,
   };
 }
@@ -1496,6 +1513,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
+  dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
@@ -1517,6 +1535,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'addPatientNote',
     'clearPatientData',
     'dataWorkerRemoveDataRequest',
+    'dataWorkerQueryDataRequest',
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',

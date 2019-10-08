@@ -134,10 +134,10 @@ export function dataWorkerQueryDataRequest(query = {}) {
   };
 }
 
-export function dataWorkerQueryDataSuccess(data) {
+export function dataWorkerQueryDataSuccess(result) {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
-    payload: { data },
+    payload: { result },
   };
 }
 
