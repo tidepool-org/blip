@@ -28,6 +28,7 @@ import update from 'react-addons-update';
 import personUtils from '../../core/personutils';
 
 import { routeActions } from 'react-router-redux';
+import { worker } from '.';
 
 const utils = require('../../core/utils');
 
@@ -1020,6 +1021,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // We have enough data for the initial rendering.
         dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
       }
     }
 
@@ -1037,6 +1039,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // There either aren't any pump settings, or we have both the pumpSettings and upload. Dispatch results
         dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
       }
     }
 
@@ -1093,6 +1096,7 @@ export function fetchPatientData(api, options, id) {
           } else {
             // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
             dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
+            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
           }
         }
       });
