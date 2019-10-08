@@ -205,7 +205,7 @@ export default translate()(class Export extends Component {
               value={MMOLL_UNITS}
               checked={this.state.bgUnits === MMOLL_UNITS}
               onChange={this.handleInputChange}
-              />{' '}
+            />{' '}
             {MMOLL_UNITS}
           </div>
           
