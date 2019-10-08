@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.28.0",
+  "version": "1.28.0-export-units.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -130,7 +130,7 @@
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
     "tideline": "1.14.0",
-    "tidepool-platform-client": "0.41.0",
+    "tidepool-platform-client": "0.41.0-export-units.2",
     "tidepool-standard-action": "0.1.1",
     "uglify-es": "3.3.9",
     "uglifyjs-webpack-plugin": "2.2.0",
