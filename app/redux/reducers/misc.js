@@ -443,7 +443,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
       );
       const method = state[patientId] ? '$push' : '$set';
       return update(state, {
-        [patientId]: { [method]: sortedData },
+        [patientId]: { [method]: sortedData }, // TODO: no longer store here once new data worker set up
         [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
         [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
       });
@@ -451,7 +451,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
     case types.CLEAR_PATIENT_DATA: {
       const { patientId } = action.payload;
       return update(state, {
-        [patientId]: { $set: null },
+        [patientId]: { $set: null }, // TODO: no longer store here once new data worker set up
         [`${patientId}_cacheUntil`]: { $set: null },
         [`${patientId}_fetchedUntil`]: { $set: null },
       });
