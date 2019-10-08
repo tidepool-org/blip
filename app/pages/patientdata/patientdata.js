@@ -823,6 +823,7 @@ export let PatientData = translate()(React.createClass({
     var refresh = this.props.onRefresh;
     if (refresh) {
       this.props.clearPatientData(this.props.currentPatientInViewId);
+      this.props.dataWorkerRemoveDataRequest();
       this.props.removeGeneratedPDFS();
 
       this.setState({
@@ -924,7 +925,7 @@ export let PatientData = translate()(React.createClass({
     if (patientSettings && nextPatientData) {
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
         this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
-        this.processData(nextProps);
+        this.processData(nextProps); // TODO: Stop storing then processing data, instead push directly into worker
       }
       else if (!newDiabetesDataReturned && newDataRangeFetched) {
         if (!allDataFetched) {
@@ -1494,6 +1495,7 @@ export function mapStateToProps(state, props) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
+  dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
@@ -1514,6 +1516,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const assignedDispatchProps = [
     'addPatientNote',
     'clearPatientData',
+    'dataWorkerRemoveDataRequest',
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
