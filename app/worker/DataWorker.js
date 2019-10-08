@@ -36,45 +36,47 @@ export default class DataWorker {
 
     switch (action.type) {
       case actionTypes.DATA_WORKER_ADD_DATA_REQUEST: {
-        const data = JSON.parse(action.payload.data);
         try {
-          this.dataUtil.addData(data)
-          postMessage(actions.dataWorkerAddDataSuccess({ success: true }))
+          const data = JSON.parse(action.payload.data);
+          this.dataUtil.addData(data);
+          postMessage(actions.dataWorkerAddDataSuccess({ success: true }));
         } catch (error) {
-          postMessage(actions.dataWorkerAddDataFailure(error))
+          postMessage(actions.dataWorkerAddDataFailure(error));
         }
         break;
       }
 
       case actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST: {
-        const predicate = JSON.parse(action.payload.predicate);
         try {
-          this.dataUtil.removeData(predicate)
-          postMessage(actions.dataWorkerRemoveDataSuccess({ success: true }))
+          const predicate = action.payload.predicate
+            ? JSON.parse(action.payload.predicate)
+            : undefined;
+          this.dataUtil.removeData(predicate);
+          postMessage(actions.dataWorkerRemoveDataSuccess({ success: true }));
         } catch (error) {
-          postMessage(actions.dataWorkerRemoveDataFailure(error))
+          postMessage(actions.dataWorkerRemoveDataFailure(error));
         }
         break;
       }
 
       case actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST: {
-        const datum = JSON.parse(action.payload.datum);
         try {
-          this.dataUtil.updateDatum(datum)
-          postMessage(actions.dataWorkerRemoveDataSuccess({ success: true }))
+          const datum = JSON.parse(action.payload.datum);
+          this.dataUtil.updateDatum(datum);
+          postMessage(actions.dataWorkerRemoveDataSuccess({ success: true }));
         } catch (error) {
-          postMessage(actions.dataWorkerRemoveDataFailure(error))
+          postMessage(actions.dataWorkerRemoveDataFailure(error));
         }
         break;
       }
 
       case actionTypes.DATA_WORKER_QUERY_DATA_REQUEST: {
-        const query = JSON.parse(action.payload.query);
         try {
-          const result = this.resultUtil.query(query)
-          postMessage(actions.dataWorkerQueryDataSuccess(result))
+          const query = JSON.parse(action.payload.query);
+          const result = this.resultUtil.query(query);
+          postMessage(actions.dataWorkerQueryDataSuccess(result));
         } catch (error) {
-          postMessage(actions.dataWorkerQueryDataFailure(error))
+          postMessage(actions.dataWorkerQueryDataFailure(error));
         }
         break;
       }
