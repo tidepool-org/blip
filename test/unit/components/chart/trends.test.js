@@ -116,6 +116,7 @@ describe('Trends', () => {
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateChartPrefs.reset();
     baseProps.updateDatetimeLocation.reset();
+    baseProps.trackMetric.reset();
   });
 
   describe('render', () => {
@@ -127,6 +128,11 @@ describe('Trends', () => {
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
+    });
+
+    it('should render the clipboard copy button', () => {
+      const button = wrapper.find('ClipboardButton');
+      expect(button.length).to.equal(1);
     });
 
     it('should render the bg toggle', () => {
@@ -283,7 +289,7 @@ describe('Trends', () => {
       instance = wrapper.instance()
 
       let spy = sinon.spy(instance, 'setState')
-      expect(spy.notCalled).to.be.true;     
+      expect(spy.notCalled).to.be.true;
     });
 
     it('should call the `updateDatetimeLocation` prop method', () => {
@@ -314,6 +320,24 @@ describe('Trends', () => {
       expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
 
       _.debounce.restore();
+    });
+  });
+
+  describe('handleStatsChange', () => {
+    it('should set the stats to state state', () => {
+      const instance = wrapper.instance();
+      expect(wrapper.state('stats')).to.be.undefined;
+      instance.handleStatsChange([{ id: 'newstat' }]);
+      expect(wrapper.state('stats')).to.eql([{ id: 'newstat' }]);
+    });
+  });
+
+  describe('handleCopyTrendsClicked', () => {
+    it('should track metric with source param when called', () => {
+      const instance = wrapper.instance();
+      instance.handleCopyTrendsClicked();
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Trends' });
     });
   });
 

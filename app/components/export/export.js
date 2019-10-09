@@ -18,6 +18,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment-timezone';
 import { translate, Trans } from 'react-i18next';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -25,6 +26,7 @@ export default translate()(class Export extends Component {
   static propTypes = {
     api: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -41,6 +43,7 @@ export default translate()(class Export extends Component {
       format: 'json',
       extraExpanded: false,
       error: false,
+      bgUnits: _.get(props, 'patient.settings.units.bg', MGDL_UNITS),
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -56,6 +59,7 @@ export default translate()(class Export extends Component {
       'startDate',
       'anonymizeData',
       'format',
+      'bgUnits',
     ]);
     if (this.state.allTime) {
       options = _.omit(options, ['endDate', 'startDate']);
@@ -66,6 +70,7 @@ export default translate()(class Export extends Component {
 
     this.props.api.tidepool.getExportDataURL(
       this.props.patient.userid,
+      this.props.user.userid,
       options,
       (err, url) => {
         if (err) {
@@ -184,6 +189,26 @@ export default translate()(class Export extends Component {
             <a onClick={() => this.setDateRange(14)}>Last 14 Days</a>
           </div>
 
+          <div className="Export-units">
+            Units:
+            <input
+              name="bgUnits"
+              type="radio"
+              value={MGDL_UNITS}
+              checked={this.state.bgUnits === MGDL_UNITS}
+              onChange={this.handleInputChange}
+            />{' '}
+            {MGDL_UNITS}
+            <input
+              name="bgUnits"
+              type="radio"
+              value={MMOLL_UNITS}
+              checked={this.state.bgUnits === MMOLL_UNITS}
+              onChange={this.handleInputChange}
+            />{' '}
+            {MMOLL_UNITS}
+          </div>
+          
           <div className="Export-filetype">
             File type:
             <input
