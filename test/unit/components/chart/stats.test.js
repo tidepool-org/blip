@@ -86,6 +86,7 @@ describe('Stats', () => {
       '2018-01-15T00:00:00.000Z',
       '2018-01-31T00:00:00.000Z',
     ],
+    onStatsChange: sinon.stub(),
   };
 
   let wrapper;
@@ -93,6 +94,10 @@ describe('Stats', () => {
   beforeEach(() => {
     wrapper = shallow(<Stats {...baseProps} />);
     instance = wrapper.instance();
+  });
+
+  afterEach(() => {
+    baseProps.onStatsChange.reset();
   });
 
   describe('constructor', () => {
@@ -114,6 +119,10 @@ describe('Stats', () => {
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
       sinon.assert.calledWith(dataUtilEndpointsSpy.set, baseProps.endpoints);
       dataUtilEndpointsSpy.restore();
+    });
+
+    it('should call the `onStatsChange` method', () => {
+      sinon.assert.callCount(baseProps.onStatsChange, 1);
     });
   });
 
@@ -550,9 +559,11 @@ describe('Stats', () => {
   });
 
   describe('componentWillReceiveProps', () => {
-    it('should update `stats` state when bgSource prop changes', () => {
+    it('should update `stats` state and call `onStatsChange` when bgSource prop changes', () => {
       const setStateSpy = sinon.spy(instance, 'setState');
+      const onStatsChangeSpy = sinon.spy(instance, 'onStatsChange');
       sinon.assert.callCount(setStateSpy, 0);
+      sinon.assert.callCount(onStatsChangeSpy, 0);
 
       instance.componentWillReceiveProps(_.assign({}, baseProps, {
         bgSource: 'smbg',
@@ -560,14 +571,18 @@ describe('Stats', () => {
 
       sinon.assert.callCount(setStateSpy, 1);
       sinon.assert.calledWith(setStateSpy, { stats: sinon.match.array });
+
+      sinon.assert.callCount(onStatsChangeSpy, 1);
     });
 
-    it('should call `updateDataUtilEndpoints` and `updateStatData` if endpoints change', () => {
+    it('should call `updateDataUtilEndpoints`, `onStatsChange` and `updateStatData` if endpoints change', () => {
       const dataUtilEndpointsSpy = sinon.spy(baseProps.dataUtil, 'endpoints', ['set']);
       const updateStatDataSpy = sinon.spy(instance, 'updateStatData');
+      const onStatsChangeSpy = sinon.spy(instance, 'onStatsChange');
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 0);
       sinon.assert.callCount(updateStatDataSpy, 0);
+      sinon.assert.callCount(onStatsChangeSpy, 0);
 
       const nextProps = _.assign({}, baseProps, {
         endpoints: ['foo', 'bar'],
@@ -581,11 +596,15 @@ describe('Stats', () => {
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);
+
+      sinon.assert.callCount(onStatsChangeSpy, 1);
     });
 
-    it('should call `updateStatData` if activeDays changes', () => {
+    it('should call `updateStatData` and `onStatsChange` if activeDays changes', () => {
       const updateStatDataSpy = sinon.spy(instance, 'updateStatData');
+      const onStatsChangeSpy = sinon.spy(instance, 'onStatsChange');
       sinon.assert.callCount(updateStatDataSpy, 0);
+      sinon.assert.callCount(onStatsChangeSpy, 0);
 
       const nextProps = _.assign({}, baseProps, {
         chartType: 'trends',
@@ -596,6 +615,8 @@ describe('Stats', () => {
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);
+
+      sinon.assert.callCount(onStatsChangeSpy, 1);
     });
   });
 
@@ -710,6 +731,16 @@ describe('Stats', () => {
 
       sinon.assert.callCount(setStateSpy, 1);
       sinon.assert.calledWith(setStateSpy, { stats: sinon.match.array });
+    });
+  });
+
+  describe('onStatsChange', () => {
+    it('should call the `onStatsChange` prop with stats', () => {
+      sinon.assert.callCount(baseProps.onStatsChange, 1); // Called once in constructor
+      wrapper.setState({ stats: [{ id: 'newStat' }] })
+      instance.onStatsChange();
+      sinon.assert.callCount(baseProps.onStatsChange, 2);
+      sinon.assert.calledWithMatch(baseProps.onStatsChange, [{ id: 'newStat' }]);
     });
   });
 });

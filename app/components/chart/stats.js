@@ -24,11 +24,12 @@ class Stats extends Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
-    chartPrefs: PropTypes.object,
+    chartPrefs: PropTypes.object.isRequired,
     chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
     onAverageDailyDoseInputChange: PropTypes.func,
+    onStatsChange: PropTypes.func,
   };
 
   constructor(props) {
@@ -45,6 +46,8 @@ class Stats extends Component {
     this.state = {
       stats: this.getStatsByChartType(this.props),
     };
+
+    this.onStatsChange();
   }
 
   componentWillReceiveProps = nextProps => {
@@ -54,7 +57,7 @@ class Stats extends Component {
       if (update.stats) {
         this.setState({
           stats: this.getStatsByChartType(nextProps)
-        });
+        }, this.onStatsChange.bind(this, nextProps));
       } else if (update.endpoints) {
         this.updateDataUtilEndpoints(nextProps);
         this.updateStatData(nextProps);
@@ -224,10 +227,13 @@ class Stats extends Component {
       stats[i].title = getStatTitle(stat.id, opts);
     });
 
-
     this.log('stats', stats);
 
-    this.setState({ stats });
+    this.setState({ stats }, this.onStatsChange.bind(this, props));
+  };
+
+  onStatsChange = () => {
+    if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange([...this.state.stats]);
   };
 };
 

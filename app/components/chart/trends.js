@@ -41,7 +41,8 @@ const TrendsContainer = viz.containers.TrendsContainer;
 const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
 const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
-const Loader = viz.components.Loader;
+const trendsText = viz.utils.text.trendsText;
+const {ClipboardButton, Loader} = viz.components;
 
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
@@ -275,6 +276,20 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
+  handleStatsChange = stats => {
+    this.setState({ stats });
+
+    window.downloadStatData = () => {
+      console.save({
+        bgPrefs: this.props.bgPrefs,
+        chartPrefs: this.props.chartPrefs[this.chartType],
+        endpoints: this.state.endpoints,
+        stats: stats,
+        timePrefs: this.props.timePrefs,
+      }, 'stats-trends.json');
+    };
+  };
+
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent,
@@ -373,7 +388,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   render() {
-    const { currentPatientInViewId } = this.props;
+    const { currentPatientInViewId, t } = this.props;
     return (
       <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
@@ -392,6 +407,11 @@ const Trends = translate()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
+              <ClipboardButton
+                buttonTitle={t('For email or notes')}
+                onSuccess={this.handleCopyTrendsClicked}
+                getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.chartPrefs[this.chartType])}
+              />
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
@@ -407,6 +427,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.state.endpoints}
+                onStatsChange={this.handleStatsChange}
               />
             </div>
           </div>
@@ -552,6 +573,10 @@ const Trends = translate()(class Trends extends PureComponent {
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
     );
   }
+
+  handleCopyTrendsClicked = () => {
+    this.props.trackMetric('Clicked Copy Settings', { source: 'Trends' });
+  };
 });
 
 export default Trends;
