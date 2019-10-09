@@ -156,7 +156,7 @@ var PatientInfo = translate()(React.createClass({
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
-        {/*this.renderExport()*/}
+        {this.renderExport()}
       </div>
     );
   },
@@ -517,7 +517,7 @@ var PatientInfo = translate()(React.createClass({
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">Export My Data</div>
         <div className="PatientInfo-content">
-          <Export api={this.props.api} patient={this.props.patient} />
+          <Export api={this.props.api} patient={this.props.patient} user={this.props.user}/>
         </div>
       </div>
     )
