@@ -156,9 +156,9 @@ export default (type) => {
     case types.DATA_WORKER_UPDATE_DATUM_FAILURE:
       return 'updatingDatum';
 
-    case types.DATA_WORKER_QUERY_REQUEST:
-    case types.DATA_WORKER_QUERY_SUCCESS:
-    case types.DATA_WORKER_QUERY_FAILURE:
+    case types.DATA_WORKER_QUERY_DATA_REQUEST:
+    case types.DATA_WORKER_QUERY_DATA_SUCCESS:
+    case types.DATA_WORKER_QUERY_DATA_FAILURE:
       return 'queryingData';
 
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:

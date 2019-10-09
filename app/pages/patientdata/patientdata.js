@@ -716,10 +716,9 @@ export let PatientData = translate()(React.createClass({
       e.preventDefault();
     }
 
-    // this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-    this.setState({
-      chartType: 'basics' // TODO: need to set the endpoints in the query somehow
-    }, this.queryData);
+    const datetimeLocation = null;
+
+    this.updateChart('basics', datetimeLocation); // TODO: need to set the datetimeLocation, and enpoints in the query somehow
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -737,11 +736,7 @@ export let PatientData = translate()(React.createClass({
       .hours(12)
       .toISOString();
 
-    // this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
-    this.setState({
-      chartType: 'daily',
-      datetimeLocation,
-    }, this.queryData);
+    this.updateChart('daily', datetimeLocation);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -757,11 +752,7 @@ export let PatientData = translate()(React.createClass({
       .tz(timezone)
       .toISOString();
 
-    // this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
-    this.setState({
-      chartType: 'trends',
-      datetimeLocation,
-    }, this.queryData);
+    this.updateChart('trends', datetimeLocation);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -779,11 +770,7 @@ export let PatientData = translate()(React.createClass({
       .hours(12)
       .toISOString();
 
-    // this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
-    this.setState({
-      chartType: 'bgLog',
-      datetimeLocation,
-    }, this.queryData);
+    this.updateChart('bgLog', datetimeLocation);
   },
 
   handleSwitchToSettings: function(e) {
@@ -793,9 +780,8 @@ export let PatientData = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({
-      chartType: 'settings'
-    }, this.queryData);
+
+    this.updateChart('settings');
   },
 
   handleClickPrint: function(pdf = {}) {
@@ -876,26 +862,35 @@ export let PatientData = translate()(React.createClass({
       ...updates,
     };
 
-    // this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
-    // TODO: should maybe ensure that the prefs have changed before firing the queryData calls
-    // Might not be necessary, but should keep an eye on how often we fire this off.
     this.setState({
       chartPrefs: newPrefs,
     }, this.queryData);
   },
 
-  // TODO: see updateChartEndpoints. Both needed?
+  // Sets the scroll location in scroll charts, or the range end in non-scroll charts.
+  // Used to derive the endpoints that are used by the data worker.
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime,
     }, this.queryData);
   },
 
-  // TODO: see updateDatetimeLocation. Both needed?
+  // Sets the endpoints used by the data worker for data fetching and processing
   updateChartEndpoints: function(endpoints) {
     this.setState({
       endpoints,
     }, this.queryData);
+  },
+
+  updateChart: function(chartType, datetimeLocation) {
+    const state = {
+      chartType,
+      datetimeLocation,
+    };
+
+    if (!this.state.initialDatetimeLocation) state.initialDatetimeLocation = datetimeLocation;
+
+    this.setState(state, this.queryData);
   },
 
   componentWillMount: function() {
@@ -919,7 +914,7 @@ export let PatientData = translate()(React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
-    const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
+    const patientData = _.get(nextProps, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
     const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
@@ -929,15 +924,26 @@ export let PatientData = translate()(React.createClass({
     const newDiabetesDataReturned = nextFetchedDataRange.count > (currentFetchedDataRange.count || 0);
     const allDataFetched = nextFetchedDataRange.fetchedUntil === 'start';
 
+    const dataAddedToWorker = _.get(nextProps, 'data.metaData.size', 0) > 0;
+
     // Hold processing until patient is fetched (ensuring settings are accessible), AND
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
-    if (patientSettings && nextPatientData) {
-      // if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
-      //   this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
-      //   this.processData(nextProps); // TODO: Stop storing then processing data, instead push directly into worker
-      // }
-      // else if (!newDiabetesDataReturned && newDataRangeFetched) {
+    if (patientSettings && patientData) {
+      if (dataAddedToWorker && !nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
+        this.queryData({
+          types: {
+            upload: {
+              select: 'deviceId,deviceTags',
+            }
+          }
+        });
+      }
+
+      if (nextProps.queryingData.completed && !this.state.chartType) {
+        this.setInitialChartType();
+      }
+
       if (!newDiabetesDataReturned && newDataRangeFetched) {
         if (!allDataFetched) {
           // Our latest data fetch yeilded no new data. We now request the remainder of the available
@@ -965,6 +971,13 @@ export let PatientData = translate()(React.createClass({
     // we check to see if we need to generate a new pdf to avoid stale data
     if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
       this.generatePDF(nextProps, nextState);
+    }
+  },
+
+  queryData: function (query) {
+    console.log('queryData called');
+    if (query) {
+      this.props.dataWorkerQueryDataRequest(query);
     }
   },
 
@@ -1022,10 +1035,8 @@ export let PatientData = translate()(React.createClass({
     return chartType;
   },
 
-  setInitialChartType: function(processedData) {
+  setInitialChartType: function() {
     // Determine default chart type and date from latest data
-    // const uploads = _.get(processedData.grouped, 'upload', []);
-    // const latestDatum = _.last(processedData.diabetesData);
     const uploads = _.get(this.props.data, 'data.current.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(this.props.data, 'metaData.latestDatumByType')), ['normalTime']));
 
@@ -1049,15 +1060,7 @@ export let PatientData = translate()(React.createClass({
           .tz(timezone)
           .toISOString());
 
-      let state = {
-        chartType,
-        datetimeLocation,
-        initialDatetimeLocation: datetimeLocation,
-      };
-
-      // this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
-
-      this.setState(state);
+      this.updateChart(chartType, datetimeLocation);
       this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
@@ -1298,14 +1301,14 @@ export let PatientData = translate()(React.createClass({
   //   }
   // },
 
-  hideLoading: function(timeout = 250) {
-    // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
-    // so that child components can be aware of the change in processing states. It also serves
-    // to ensure the loading indicator shows long enough for the user to make sense of it.
-    setTimeout(() => {
-      this.setState({ loading: false });
-    }, timeout);
-  },
+  // hideLoading: function(timeout = 250) {
+  //   // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
+  //   // so that child components can be aware of the change in processing states. It also serves
+  //   // to ensure the loading indicator shows long enough for the user to make sense of it.
+  //   setTimeout(() => {
+  //     this.setState({ loading: false });
+  //   }, timeout);
+  // },
 
   // handleInitialProcessedData: function(props, processedData, patientSettings) {
   //   const userId = props.currentPatientInViewId;
@@ -1502,6 +1505,8 @@ export function mapStateToProps(state, props) {
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
+    addingData: state.blip.working.addingData,
+    queryingData: state.blip.working.queryingData,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
     data: state.blip.data,

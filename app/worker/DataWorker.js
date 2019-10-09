@@ -38,8 +38,8 @@ export default class DataWorker {
       case actionTypes.DATA_WORKER_ADD_DATA_REQUEST: {
         try {
           const data = JSON.parse(action.payload.data);
-          this.dataUtil.addData(data);
-          postMessage(actions.dataWorkerAddDataSuccess({ success: true }));
+          const result = this.dataUtil.addData(data);
+          postMessage(actions.dataWorkerAddDataSuccess(result));
         } catch (error) {
           postMessage(actions.dataWorkerAddDataFailure(error));
         }
@@ -73,7 +73,7 @@ export default class DataWorker {
       case actionTypes.DATA_WORKER_QUERY_DATA_REQUEST: {
         try {
           const query = JSON.parse(action.payload.query);
-          const result = this.resultUtil.query(query);
+          const result = this.dataUtil.query(query);
           postMessage(actions.dataWorkerQueryDataSuccess(result));
         } catch (error) {
           postMessage(actions.dataWorkerQueryDataFailure(error));
