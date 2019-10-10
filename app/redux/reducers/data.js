@@ -1,6 +1,7 @@
 import update from 'react-addons-update';
 
 import * as actionTypes from '../constants/actionTypes';
+import initialState from './initialState';
 
 const data = (state = {}, action) => {
   switch (action.type) {
@@ -10,7 +11,7 @@ const data = (state = {}, action) => {
       });
 
     case actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS:
-      return update(state, { $set: {} });
+      return update(state, { $set: initialState.data });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
       return update(state, {
