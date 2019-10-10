@@ -68,6 +68,7 @@ export let PatientData = translate()(React.createClass({
     currentPatientInViewId: React.PropTypes.string.isRequired,
     data: React.PropTypes.object,
     dataWorkerRemoveDataRequest: React.PropTypes.func.isRequired,
+    dataWorkerRemoveDataSuccess: React.PropTypes.func.isRequired,
     dataWorkerQueryDataRequest: React.PropTypes.func.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
@@ -912,6 +913,7 @@ export let PatientData = translate()(React.createClass({
 
   componentWillUnmount: function() {
     this.props.removeGeneratedPDFS();
+    this.props.dataWorkerRemoveDataSuccess();
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -1550,6 +1552,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
+  dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
   dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
@@ -1572,6 +1575,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'addPatientNote',
     'clearPatientData',
     'dataWorkerRemoveDataRequest',
+    'dataWorkerRemoveDataSuccess',
     'dataWorkerQueryDataRequest',
     'generatePDFRequest',
     'processPatientDataRequest',
