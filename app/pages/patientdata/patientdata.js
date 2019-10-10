@@ -154,13 +154,18 @@ export let PatientData = translate()(React.createClass({
 
   log: bows('PatientData'),
 
+  isInitialProcessing: function() {
+    const dataFetched = _.get(this.props.data, 'metaData.size');
+    const rangeDataLoaded = _.get(this.props.data, 'data.current.endpoints.0', 0) !== 0;
+    return !dataFetched || !rangeDataLoaded;
+  },
+
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const initialProcessing = _.get(this.props.data, 'metaData.size', 0) > 0;
     const patientID = this.props.currentPatientInViewId;
     const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
-    const showLoader = initialProcessing && missingPatientData;
+    const showLoader = this.isInitialProcessing() && missingPatientData;
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -172,10 +177,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    // const initialProcessing = this.state.lastDatumProcessedIndex < 0;
-    const initialProcessing = _.get(this.props.data, 'metaData.size', 0) > 0;
-
-    if (initialProcessing && this.state.loading) {
+    if (this.isInitialProcessing() && this.state.loading) {
       return this.renderInitialLoading();
     }
 
