@@ -969,8 +969,8 @@ export let PatientData = translate()(React.createClass({
       }
 
       // With initial query for upload data completed, set the initial chart type
-      if (this.props.queryingData.completed && !this.state.chartType) {
-        this.setInitialChartType();
+      if (nextProps.queryingData.completed && !this.state.chartType) {
+        this.setInitialChartType(nextProps);
       }
 
       // Handle data range fetch that yeilds no new data
@@ -1065,26 +1065,22 @@ export let PatientData = translate()(React.createClass({
     return chartType;
   },
 
-  setInitialChartType: function() {
+  setInitialChartType: function(props = this.props) {
     // Determine default chart type and date from latest data
-    const uploads = _.get(this.props.data, 'data.current.data.upload', []);
-    const latestDatum = _.last(_.sortBy(_.values(_.get(this.props.data, 'metaData.latestDatumByType')), ['normalTime']));
+    const uploads = _.get(props.data, 'data.current.data.upload', []);
+    const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
       const chartType = _.get(
-        this.props, 'queryParams.chart',
+        props, 'queryParams.chart',
         this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
-
-      console.log('uploads', uploads);
-      console.log('latestDatum', latestDatum);
-      console.log('chartType', chartType);
 
       const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
       const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
+      const datetimeLocation = _.get(props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(timezone)
           .subtract(1, 'day')
@@ -1095,7 +1091,7 @@ export let PatientData = translate()(React.createClass({
           .toISOString());
 
       this.updateChart(chartType, datetimeLocation);
-      this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
+      props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
 
