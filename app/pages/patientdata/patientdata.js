@@ -142,10 +142,10 @@ export let PatientData = translate()(React.createClass({
       // processingData: false,
       // processEarlierDataCount: 0,
       // processedPatientData: null,
-      timePrefs: {
-        timezoneAware: false,
-        timezoneName: null
-      },
+      // timePrefs: {
+      //   timezoneAware: false,
+      //   timezoneName: null
+      // },
       showUploadOverlay: false,
     };
 
@@ -932,17 +932,32 @@ export let PatientData = translate()(React.createClass({
     // processing hasn't already taken place (this should be cleared already when switching patients), AND
     // nextProps patient data exists
     if (patientSettings && patientData) {
-      if (dataAddedToWorker && !nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
-        this.queryData({
-          types: {
-            upload: {
-              select: 'deviceId,deviceTags',
-            }
-          },
-          timePrefs: this.state.timePrefs,
-          bgPrefs: this.state.bgPrefs,
-        });
+      if (dataAddedToWorker) {
+        let timePrefs = this.state.timePrefs;
+
+        if (!timePrefs) {
+          const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
+          timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+          this.setState({
+            timePrefs,
+          });
+        }
+
+        if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
+          console.log('timePrefs', timePrefs);
+          console.log('this.state.bgPrefs', this.state.bgPrefs);
+          this.queryData({
+            types: {
+              upload: {
+                select: 'deviceId,deviceTags',
+              }
+            },
+            timePrefs,
+            bgPrefs: this.state.bgPrefs,
+          });
+        }
       }
+
 
       if (this.props.queryingData.completed && !this.state.chartType) {
         this.setInitialChartType();
@@ -1178,7 +1193,7 @@ export let PatientData = translate()(React.createClass({
   //     // Determine how far back into the unprocessed patient data we want to process.
   //     const timezoneSettings = this.state.timePrefs.timezoneAware
   //       ? this.state.timePrefs
-  //       : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
+  //       : utils.getTimePrefsForDataProcessing(unprocessedPatientData, props.queryParams);
 
   //     const targetDatetime = this.subtractTimezoneOffset(
   //       lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),

@@ -2499,7 +2499,7 @@ describe('PatientData', function () {
     let shouldProcessProps;
     let processPatientDataStub;
     let addDataStub;
-    let getTimezoneForDataProcessingStub;
+    let getTimePrefsForDataProcessingStub;
     let handleInitialProcessedDataStub;
     let hideLoadingStub;
     let utilsStubs;
@@ -2558,7 +2558,7 @@ describe('PatientData', function () {
         filterPatientData: sinon.stub().returns({
           processedData: 'stubbed filtered data',
         }),
-        getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
+        getTimePrefsForDataProcessing: sinon.stub().returns('stubbed timezone'),
         getLatestPumpSettings: sinon.stub().returns({}),
       };
 
@@ -2567,7 +2567,7 @@ describe('PatientData', function () {
       PD.__Rewire__('DataUtil', DataUtilStub);
 
       processPatientDataStub = PD.__get__('utils').processPatientData;
-      getTimezoneForDataProcessingStub = PD.__get__('utils').getTimezoneForDataProcessing;
+      getTimePrefsForDataProcessingStub = PD.__get__('utils').getTimePrefsForDataProcessing;
 
       setStateSpy = sinon.spy(instance, 'setState');
     });
@@ -2575,7 +2575,7 @@ describe('PatientData', function () {
     afterEach(() => {
       processPatientDataStub.reset();
       addDataStub.reset();
-      getTimezoneForDataProcessingStub.reset();
+      getTimePrefsForDataProcessingStub.reset();
       PD.__ResetDependency__('utils');
       PD.__ResetDependency__('DataUtil');
     });
@@ -2650,9 +2650,9 @@ describe('PatientData', function () {
           },
         }));
         instance.processData();
-        sinon.assert.calledOnce(getTimezoneForDataProcessingStub);
+        sinon.assert.calledOnce(getTimePrefsForDataProcessingStub);
         sinon.assert.calledWith(
-          getTimezoneForDataProcessingStub,
+          getTimePrefsForDataProcessingStub,
           sinon.match.array,
           { timezone: 'US/Eastern' },
         );

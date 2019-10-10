@@ -394,7 +394,7 @@ describe('utils', () => {
     });
   });
 
-  describe('getTimezoneForDataProcessing', () => {
+  describe('getTimePrefsForDataProcessing', () => {
     const data = [
       { type: 'upload', time: '2018-01-02T00:00:00.000Z', timezone: 'US/Eastern' },
       { type: 'smbg', time: '2018-01-10T00:00:00.000Z', timezone: 'US/Central' },
@@ -406,7 +406,7 @@ describe('utils', () => {
     context('Timezone provided from queryParam', () => {
       it('should set a valid timezone from a query param', () => {
         const queryParamsWithValidTimezone = _.assign({}, queryParams, { timezone: 'UTC' });
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithValidTimezone)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(data, queryParamsWithValidTimezone)).to.eql({
           timezoneAware: true,
           timezoneName: 'UTC',
         });
@@ -421,7 +421,7 @@ describe('utils', () => {
 
         const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
 
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -438,7 +438,7 @@ describe('utils', () => {
 
         const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
 
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({});
+        expect(utils.getTimePrefsForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({});
 
         DateTimeFormatStub.restore();
       });
@@ -446,7 +446,7 @@ describe('utils', () => {
 
     context('Timezone provided from most recent upload', () => {
       it('should set a valid timezone from a query param', () => {
-        expect(utils.getTimezoneForDataProcessing(data, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(data, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'US/Pacific',
         });
@@ -466,7 +466,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -488,7 +488,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({});
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({});
 
         DateTimeFormatStub.restore();
       });
@@ -502,7 +502,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing([], {})).to.eql({
+        expect(utils.getTimePrefsForDataProcessing([], {})).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -517,7 +517,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing([], {})).to.be.undefined;
+        expect(utils.getTimePrefsForDataProcessing([], {})).to.be.undefined;
 
         DateTimeFormatStub.restore();
       });

@@ -286,9 +286,8 @@ utils.roundBgTarget = (value, units) => {
   return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
 }
 
-utils.getTimezoneForDataProcessing = (data, queryParams) => {
+utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   var timePrefsForTideline;
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   try {
@@ -324,9 +323,9 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     setNewTimePrefs(queryParams.timezone);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    setNewTimePrefs(mostRecentUpload.timezone);
-    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  else if (!_.isEmpty(latestUpload) && !_.isEmpty(latestUpload.timezone)) {
+    setNewTimePrefs(latestUpload.timezone);
+    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
   }
   else if (browserTimezone) {
     setNewTimePrefs(browserTimezone);
@@ -369,7 +368,7 @@ utils.processPatientData = (data, queryParams, settings) => {
     return null;
   }
 
-  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
+  const timePrefsForTideline = utils.getTimePrefsForDataProcessing(data, queryParams);
   const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
 
   console.time('Nurseshark Total');
