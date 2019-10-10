@@ -936,11 +936,13 @@ export let PatientData = translate()(React.createClass({
             upload: {
               select: 'deviceId,deviceTags',
             }
-          }
+          },
+          timePrefs: this.state.timePrefs,
+          bgPrefs: this.state.bgPrefs,
         });
       }
 
-      if (nextProps.queryingData.completed && !this.state.chartType) {
+      if (this.props.queryingData.completed && !this.state.chartType) {
         this.setInitialChartType();
       }
 
@@ -1037,7 +1039,7 @@ export let PatientData = translate()(React.createClass({
 
   setInitialChartType: function() {
     // Determine default chart type and date from latest data
-    const uploads = _.get(this.props.data, 'data.current.upload', []);
+    const uploads = _.get(this.props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(this.props.data, 'metaData.latestDatumByType')), ['normalTime']));
 
     if (uploads && latestDatum) {
@@ -1046,6 +1048,10 @@ export let PatientData = translate()(React.createClass({
         this.props, 'queryParams.chart',
         this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
+
+      console.log('uploads', uploads);
+      console.log('latestDatum', latestDatum);
+      console.log('chartType', chartType);
 
       const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
       const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
