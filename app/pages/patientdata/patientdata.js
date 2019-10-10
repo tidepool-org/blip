@@ -928,14 +928,11 @@ export let PatientData = translate()(React.createClass({
 
     const dataAddedToWorker = _.get(nextProps, 'data.metaData.size', 0) > 0;
 
-    // Hold processing until patient is fetched (ensuring settings are accessible), AND
-    // processing hasn't already taken place (this should be cleared already when switching patients), AND
-    // nextProps patient data exists
+    // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
     if (patientSettings && patientData) {
       if (dataAddedToWorker) {
+        // Set bgPrefs to state
         let bgPrefs = this.state.bgPrefs;
-        let timePrefs = this.state.timePrefs;
-
         if (!bgPrefs) {
           bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
           bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
@@ -944,6 +941,8 @@ export let PatientData = translate()(React.createClass({
           });
         }
 
+        // Set timePrefs to state
+        let timePrefs = this.state.timePrefs;
         if (!timePrefs) {
           const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
           timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
@@ -952,6 +951,7 @@ export let PatientData = translate()(React.createClass({
           });
         }
 
+        // Perform initial query of upload data to prepare for setting inital chart type
         if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
           this.queryData({
             types: {
@@ -966,11 +966,12 @@ export let PatientData = translate()(React.createClass({
         }
       }
 
-
+      // With initial query for upload data completed, set the initial chart type
       if (this.props.queryingData.completed && !this.state.chartType) {
         this.setInitialChartType();
       }
 
+      // Handle data range fetch that yeilds no new data
       if (!newDiabetesDataReturned && newDataRangeFetched) {
         if (!allDataFetched) {
           // Our latest data fetch yeilded no new data. We now request the remainder of the available
