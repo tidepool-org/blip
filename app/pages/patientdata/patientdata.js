@@ -933,7 +933,16 @@ export let PatientData = translate()(React.createClass({
     // nextProps patient data exists
     if (patientSettings && patientData) {
       if (dataAddedToWorker) {
+        let bgPrefs = this.state.bgPrefs;
         let timePrefs = this.state.timePrefs;
+
+        if (!bgPrefs) {
+          bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+          bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+          this.setState({
+            bgPrefs,
+          });
+        }
 
         if (!timePrefs) {
           const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
@@ -944,16 +953,15 @@ export let PatientData = translate()(React.createClass({
         }
 
         if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
-          console.log('timePrefs', timePrefs);
-          console.log('this.state.bgPrefs', this.state.bgPrefs);
           this.queryData({
             types: {
               upload: {
                 select: 'deviceId,deviceTags',
-              }
+              },
             },
+            metaData: 'latestDatumByType,latestPumpUpload',
             timePrefs,
-            bgPrefs: this.state.bgPrefs,
+            bgPrefs,
           });
         }
       }

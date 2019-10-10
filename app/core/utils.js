@@ -337,19 +337,20 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
-  var bgUnits = _.get(settings, 'units.bg', MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
+  var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
+
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
+    low: { boundary: utils.roundBgTarget(patientSettings.bgTarget.low, bgUnits) },
+    target: { boundary: utils.roundBgTarget(patientSettings.bgTarget.high, bgUnits) },
   };
 
   // Allow overriding stored BG Unit preferences via query param
   const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
   if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
     bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.high, bgUnits), bgUnits);
+    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
+    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
     console.log(`Displaying BG in ${bgUnits} from query params`);
   }
 
