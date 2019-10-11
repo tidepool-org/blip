@@ -160,7 +160,6 @@ class BgLogChart extends Component {
 class BgLog extends Component {
   static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
     dataUtil: React.PropTypes.object,
     initialDatetimeLocation: React.PropTypes.string,
@@ -219,6 +218,8 @@ class BgLog extends Component {
   };
 
   render = () => {
+    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
+
     return (
       <div id="tidelineMain" className="bgLog">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -233,7 +234,7 @@ class BgLog extends Component {
             <div className="patient-data-sidebar-inner">
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.dataUtil.bgSource}
+                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

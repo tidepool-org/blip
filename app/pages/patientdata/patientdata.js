@@ -56,8 +56,7 @@ import {
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-// const { DataUtil } = vizUtils.data;
-const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { addDuration, findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
@@ -135,7 +134,7 @@ export let PatientData = translate()(React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      endpoints: [], // TODO: do we need this and datetimeLocation?
+      // endpoints: [], // TODO: do we need this and datetimeLocation?
       fetchEarlierDataCount: 0,
       // lastDatumProcessedIndex: -1,
       // lastDiabetesDatumProcessedIndex: -1,
@@ -166,7 +165,8 @@ export let PatientData = translate()(React.createClass({
     const messages = this.renderMessagesContainer();
     const patientID = this.props.currentPatientInViewId;
     const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
-    const showLoader = this.isInitialProcessing() && missingPatientData;
+    const showLoader = this.isInitialProcessing() && this.state.loading;
+    // const showLoader = this.isInitialProcessing() && missingPatientData;
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -178,6 +178,11 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
+    console.log('renderPatientData');
+    console.log('this.isInitialProcessing()', this.isInitialProcessing());
+    console.log('this.state.loading', this.state.loading);
+    console.log('this.isEmptyPatientData()', this.isEmptyPatientData());
+    console.log('this.isInsufficientPatientData()', this.isInsufficientPatientData());
     if (this.isInitialProcessing() && this.state.loading) {
       return this.renderInitialLoading();
     }
@@ -276,16 +281,12 @@ export let PatientData = translate()(React.createClass({
   },
 
   isEmptyPatientData: function() {
-    return (!_.get(this.props, 'patient.userid', false) || _.get(this.props.data, 'metaData.size', 0) > 0);
-    // return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
+    return (!_.get(this.props, 'patient.userid', false) || _.get(this.props.data, 'metaData.size', 0) <= 0);
   },
 
   isInsufficientPatientData: function() {
     var latestDataByType = _.values(_.get(this.props.data, 'metaData.latestDatumByType', {}));
 
-    // var data = _.get(this.state.processedPatientData, 'data', {});
-    // add additional checks against data and return false iff:
-    // only messages data
     if (_.reject(latestDataByType, function(d) { return d.type === 'message'; }).length === 0) {
       this.log('Sorry, tideline is kind of pointless with only messages.');
       return true;
@@ -322,18 +323,19 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
+    console.log('renderChart', this.state.chartType);
     switch (this.state.chartType) {
       case 'basics':
         return (
           <Basics
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            data={this.props.data}
             endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
             loading={this.state.loading}
+            patient={this.props.patient}
+            patientData={this.props.data}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -357,11 +359,11 @@ export let PatientData = translate()(React.createClass({
           <Daily
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            data={this.props.data}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
             loading={this.state.loading}
+            patient={this.props.patient}
+            patientData={this.props.data}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -383,12 +385,12 @@ export let PatientData = translate()(React.createClass({
           <Trends
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            data={this.props.data}
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
             loading={this.state.loading}
+            patient={this.props.patient}
+            patientData={this.props.data}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -408,12 +410,12 @@ export let PatientData = translate()(React.createClass({
           <BgLog
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            data={this.props.data}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicAccount={personUtils.isClinic(this.props.user)}
-            patient={this.props.patient}
             loading={this.state.loading}
+            patient={this.props.patient}
+            patientData={this.props.data}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -626,8 +628,11 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(endpoints) {
-    this.updateChartEndpoints(endpoints);
+  handleChartDateRangeUpdate: function(dateTimeLocation) {
+  // handleChartDateRangeUpdate: function(endpoints) {
+    const endpoints = this.getChartEndpoints(dateTimeLocation);
+    this.updateChart(this.state.chartType, dateTimeLocation, endpoints);
+    // this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       const patientID = this.props.currentPatientInViewId;
@@ -720,9 +725,14 @@ export let PatientData = translate()(React.createClass({
       e.preventDefault();
     }
 
-    const datetimeLocation = null;
+    const dateCeiling = getLocalizedCeiling(this.state.endpoints[1], this.state.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-    this.updateChart('basics', datetimeLocation); // TODO: need to set the datetimeLocation, and enpoints in the query somehow
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .tz(timezone)
+      .toISOString();
+
+    this.updateChart('basics', datetimeLocation);
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -875,20 +885,46 @@ export let PatientData = translate()(React.createClass({
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime,
-    }, this.queryData);
+    });
   },
 
   // Sets the endpoints used by the data worker for data fetching and processing
-  updateChartEndpoints: function(endpoints) {
-    this.setState({
-      endpoints,
-    }, this.queryData);
+  // updateChartEndpoints: function(endpoints) {
+  //   this.setState({
+  //     endpoints,
+  //   });
+  // },
+
+  getChartEndpoints: function(dateTimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
+    let endpoints = [];
+
+    switch (chartType) {
+      case 'basics':
+        endpoints = [
+          findBasicsStart(dateTimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf(),
+          getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).toISOString().valueOf(),
+        ];
+        break;
+
+      case 'daily':
+        break;
+
+      case 'bgLog':
+        break;
+
+      case 'trends':
+        break;
+    }
+
+    return endpoints;
   },
 
-  updateChart: function(chartType, datetimeLocation) {
+  // TODO: move enpoints-setting per type here instead of in inidividual views and passing updateChartEndpoints?
+  updateChart: function(chartType, datetimeLocation, endpoints) {
     const state = {
-      chartType,
-      datetimeLocation,
+      chartType: chartType || this.state.chartType,
+      endpoints: endpoints || this.state.endpoints,
+      datetimeLocation: datetimeLocation || this.state.datetimeLocation,
     };
 
     if (!this.state.initialDatetimeLocation) state.initialDatetimeLocation = datetimeLocation;
@@ -969,8 +1005,9 @@ export let PatientData = translate()(React.createClass({
       }
 
       // With initial query for upload data completed, set the initial chart type
-      if (nextProps.queryingData.completed && !this.state.chartType) {
-        this.setInitialChartType(nextProps);
+      if (nextProps.queryingData.completed) {
+        if (!this.state.chartType) this.setInitialChartView(nextProps);
+        if (this.state.loading) this.setState({ loading: false });
       }
 
       // Handle data range fetch that yeilds no new data
@@ -1081,6 +1118,8 @@ export let PatientData = translate()(React.createClass({
       }
 
       chartQuery.stats = stats;
+      chartQuery.bgSource = this.state.chartPrefs[this.state.chartType].bgSource;
+      chartQuery.endpoints = this.state.endpoints;
 
       this.props.dataWorkerQueryDataRequest(chartQuery);
     }
@@ -1141,7 +1180,7 @@ export let PatientData = translate()(React.createClass({
     return chartType;
   },
 
-  setInitialChartType: function(props = this.props) {
+  setInitialChartView: function(props = this.props) {
     // Determine default chart type and date from latest data
     const uploads = _.get(props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
@@ -1166,7 +1205,9 @@ export let PatientData = translate()(React.createClass({
           .tz(timezone)
           .toISOString());
 
-      this.updateChart(chartType, datetimeLocation);
+      const endpoints = this.getChartEndpoints(datetimeLocation, chartType);
+
+      this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
@@ -1422,7 +1463,7 @@ export let PatientData = translate()(React.createClass({
   //   const patientNotes = _.get(props, ['patientNotesMap', userId], []);
 
   //   if (!this.state.chartType) {
-  //     this.setInitialChartType(processedData);
+  //     this.setInitialChartView(processedData);
   //   }
 
   //   let combinedData = patientData.concat(patientNotes);

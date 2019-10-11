@@ -389,6 +389,8 @@ const Trends = translate()(class Trends extends PureComponent {
 
   render() {
     const { currentPatientInViewId, t } = this.props;
+    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
+
     return (
       <div id="tidelineMain" className="trends grid">
         {this.renderHeader()}
@@ -413,8 +415,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.chartPrefs[this.chartType])}
               />
               <BgSourceToggle
-                bgSource={this.props.dataUtil.bgSource}
-                bgSources={this.props.dataUtil.bgSources}
+                bgSources={bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
@@ -422,7 +423,7 @@ const Trends = translate()(class Trends extends PureComponent {
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.dataUtil.bgSource}
+                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

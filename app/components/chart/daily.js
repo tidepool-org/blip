@@ -261,6 +261,8 @@ class Daily extends Component {
   };
 
   render = () => {
+    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
+
     return (
       <div id="tidelineMain" className="daily">
         <Header
@@ -318,15 +320,14 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSource={this.props.dataUtil.bgSource}
-                bgSources={this.props.dataUtil.bgSources}
+                bgSources={bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.dataUtil.bgSource}
+                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}

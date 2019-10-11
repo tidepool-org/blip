@@ -481,7 +481,7 @@ describe('PatientData', function () {
               loading: false,
             });
 
-            elem.setInitialChartType(processedData);
+            elem.setInitialChartView(processedData);
           };
 
           elem.componentWillReceiveProps({
@@ -511,7 +511,7 @@ describe('PatientData', function () {
         wrapper.setState({ chartPrefs })
         instance.dataUtil = new DataUtilStub();
 
-        instance.setInitialChartType(processedData);
+        instance.setInitialChartView(processedData);
         expect(instance.dataUtil._chartPrefs).to.equal('basics prefs');
       });
 

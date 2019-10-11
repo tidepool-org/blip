@@ -11,9 +11,8 @@ const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { ClipboardButton, Loader } = vizComponents;
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
-const basicsText = vizUtils.text.basicsText;
+const { findBasicsStart, getTimezoneFromTimePrefs, getLocalizedCeiling } = vizUtils.datetime;
+const { basicsText } = vizUtils.text;
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -26,9 +25,8 @@ class Basics extends Component {
     bgPrefs: React.PropTypes.object.isRequired,
     bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
-    // dataUtil: React.PropTypes.object,
-    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
-    timePrefs: React.PropTypes.object.isRequired,
+    // endpoints: React.PropTypes.arrayOf(React.PropTypes.number),
+    initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
@@ -41,6 +39,7 @@ class Basics extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
@@ -55,6 +54,8 @@ class Basics extends Component {
     this.chartType = 'basics';
     this.log = bows('Basics View');
 
+    this.log('constructor running')
+
     this.state = this.getInitialState();
   }
 
@@ -64,21 +65,26 @@ class Basics extends Component {
     title: this.getTitle(),
   });
 
+  getCurrentData = (path) => _.get(this.props, `patientData.data.current.${path}`, {});
+
   componentWillMount = () => {
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    // const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
 
-    if (dateRange) {
-      const endpoints = [
-        dateRange[0],
-        getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString(),
-      ];
+    // if (dateRange) {
+      // const endpoints = [
+      //   findBasicsStart(this.props.initialDatetimeLocation, getTimezoneFromTimePrefs(this.props.timePrefs)),
+      //   getLocalizedCeiling(this.props.initialDatetimeLocation, this.props.timePrefs).toISOString(),
+      // ];
 
-      this.props.onUpdateChartDateRange(endpoints);
-    }
+      // this.props.onUpdateChartDateRange(endpoints);
+    // }
+    // this.props.onUpdateChartDateRange(this.props.initialDatetimeLocation);
   };
 
   render = () => {
     const { t } = this.props;
+    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
+    const latestPumpUpload = _.get(this.props.patientData, 'metaData.latestPumpUpload', {});
 
     return (
       <div id="tidelineMain" className="basics">
@@ -113,19 +119,19 @@ class Basics extends Component {
                   getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
                 />
                 <BgSourceToggle
-                  bgSource={this.props.dataUtil.bgSource}
-                  bgSources={this.props.dataUtil.bgSources}
+                  bgSources={bgSources}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   onClickBgSourceToggle={this.toggleBgDataSource}
                 />
                 <Stats
                   bgPrefs={this.props.bgPrefs}
-                  bgSource={this.props.dataUtil.bgSource}
+                  bgSource={bgSources.current}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  dataUtil={this.props.dataUtil}
-                  endpoints={this.props.endpoints}
+                  endpoints={this.getCurrentData('endpoints')}
+                  statsData={this.getCurrentData('stats')}
+                  latestPumpUpload={latestPumpUpload}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
                   onStatsChange={this.handleStatsChange}
                 />
@@ -149,7 +155,7 @@ class Basics extends Component {
           bgUnits={this.props.bgPrefs.bgUnits}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
-          patientData={this.props.patientData}
+          patientData={this.props.data}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={this.props.timePrefs}
           updateBasicsData={this.props.updateBasicsData}
@@ -185,6 +191,7 @@ class Basics extends Component {
     if (this.isMissingBasics()) {
       return '';
     }
+
     const timePrefs = this.props.timePrefs
     let timezone;
     if (!timePrefs.timezoneAware) {
@@ -193,27 +200,29 @@ class Basics extends Component {
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    const basicsData = this.props.patientData.basicsData;
-    const dtMask = t('MMM D, YYYY');
 
-    return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
+    const dtMask = t('MMM D, YYYY');
+    return sundial.formatInTimezone(this.props.endpoints[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(this.props.endpoints[1], timezone, dtMask);
   }
 
   isMissingBasics = () => {
-    const basicsData = _.get(this.props, 'patientData.basicsData', {});
-    let data;
+    const aggregations = this.getCurrentData('aggregations');
 
-    if (basicsData.data) {
-      data = basicsData.data;
-    }
-    else {
-      return true;
-    }
+    const {
+      basals = {},
+      boluses = {},
+      fingersticks = {},
+      siteChanges = {},
+    } = aggregations;
 
-    // require at least one relevant data point to show The Basics
-    const basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
-    return basicsDataLength === 0;
+    const {
+      calibration = {},
+      smbg = {},
+    } = fingersticks;
+
+    const basicsData = [basals, boluses, siteChanges, calibration, smbg];
+    return !_.some(basicsData, d => _.keys(d.byDate).length > 0);
   };
 
   // handlers

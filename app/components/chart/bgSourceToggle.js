@@ -10,10 +10,10 @@ const { statBgSourceLabels } = vizUtils.stat;
 
 class BgSourceToggle extends PureComponent {
   static propTypes = {
-    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     bgSources: PropTypes.shape({
       cbg: PropTypes.bool.isRequired,
       smbg: PropTypes.bool.isRequired,
+      current: PropTypes.string,
     }).isRequired,
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
@@ -27,8 +27,8 @@ class BgSourceToggle extends PureComponent {
     return (
       <div className="toggle-container">
         {showToggle ? <TwoOptionToggle
-          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === 'smbg' }}
-          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === 'cbg' }}
+          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSources.current === 'smbg' }}
+          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSources.current === 'cbg' }}
           toggleFn={this.handleBgToggle}
           disabled={disabled}
         /> : null}
@@ -41,8 +41,8 @@ class BgSourceToggle extends PureComponent {
       e.preventDefault();
     }
 
-    if (this.props.bgSource) {
-      const bgSource = this.props.bgSource === 'cbg' ? 'smbg' : 'cbg';
+    if (this.props.bgSources.current) {
+      const bgSource = this.props.bgSources.current === 'cbg' ? 'smbg' : 'cbg';
       this.props.onClickBgSourceToggle(e, bgSource);
     }
   };
