@@ -11,3 +11,4 @@ As you're getting ready to develop code in this repository, we recommend startin
 - [architecture](./Architecture.md)
 - [code style](./CodeStyle.md)
 - [dependencies](./Dependencies.md)
+- [internationalization](./Internationalization.md)
