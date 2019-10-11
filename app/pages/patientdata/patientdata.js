@@ -331,6 +331,7 @@ export let PatientData = translate()(React.createClass({
             data={this.props.data}
             endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
+            initialDatetimeLocation={this.state.datetimeLocation}
             patient={this.props.patient}
             loading={this.state.loading}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -747,7 +748,6 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
@@ -1008,7 +1008,83 @@ export let PatientData = translate()(React.createClass({
     console.log('queryData called');
     if (query) {
       this.props.dataWorkerQueryDataRequest(query);
+    } else {
+      const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
+      const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
+      const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+      console.log('this.state.datetimeLocation', this.state.datetimeLocation);
+
+      let chartQuery = {}
+      let stats = [];
+
+      switch (this.state.chartType) {
+        case 'basics':
+          chartQuery.aggregationsByDate = 'basals,boluses,fingersticks,siteChanges';
+
+          cbgSelected && stats.push(commonStats.timeInRange);
+          smbgSelected && stats.push(commonStats.readingsInRange);
+          stats.push(commonStats.averageGlucose);
+          cbgSelected && stats.push(commonStats.sensorUsage);
+          stats.push(commonStats.totalInsulin);
+          isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+          stats.push(commonStats.carbs);
+          stats.push(commonStats.averageDailyDose);
+          cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+          break;
+
+        case 'daily':
+          chartQuery.types = {
+            basal: {},
+            bolus: {},
+            cbg: {},
+            food: {},
+            message: {},
+            smbg: {},
+            wizard: {},
+          };
+
+          cbgSelected && stats.push(commonStats.timeInRange);
+          smbgSelected && stats.push(commonStats.readingsInRange);
+          stats.push(commonStats.averageGlucose);
+          stats.push(commonStats.totalInsulin);
+          isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+          stats.push(commonStats.carbs);
+          cbgSelected && stats.push(commonStats.standardDev);
+          cbgSelected && stats.push(commonStats.coefficientOfVariation);
+          break;
+
+        case 'bgLog':
+          chartQuery.types = {
+            smbg: {},
+          };
+
+          stats.push(commonStats.readingsInRange);
+          stats.push(commonStats.averageGlucose);
+          stats.push(commonStats.standardDev);
+          stats.push(commonStats.coefficientOfVariation);
+          break;
+
+        case 'trends':
+          chartQuery.types = {
+            cbg: {},
+            smbg: {},
+          };
+
+          cbgSelected && stats.push(commonStats.timeInRange);
+          smbgSelected && stats.push(commonStats.readingsInRange);
+          stats.push(commonStats.averageGlucose);
+          cbgSelected && stats.push(commonStats.sensorUsage);
+          cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+          stats.push(commonStats.standardDev);
+          stats.push(commonStats.coefficientOfVariation);
+          break;
+      }
+
+      chartQuery.stats = stats;
+
+      this.props.dataWorkerQueryDataRequest(chartQuery);
     }
+
   },
 
   // TODO: update as required to work with new data worker results
