@@ -1,9 +1,11 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
-## 0.4.4 - 2019-10-03
+## 0.4.4 - 2019-10-11 
 ### Fixed
 - [PT-703] Fix avg Daily insulin is not correct on Basics page
+### Added 
+- [PT-710] Distinguish rescuecarbs in Viz
 
 ## 0.4.3
 ### Fixed
