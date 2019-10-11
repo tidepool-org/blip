@@ -230,6 +230,32 @@ var legend = {
       type: 'text'
     }
   ],
+  rescuecarbs: [
+    {
+      create: function(opts) {
+        opts.widths.push(opts.SHAPE_WIDTH);
+        return opts.selection.append('rect')
+          .attr({
+            'class': 'd3-rect-rescuecarbs-legend'
+          });
+      },
+      type: 'rect'
+    },
+    {
+      create: function(opts) {
+        return opts.selection.append('text')
+          .attr({
+            'class': 'd3-pool-legend'
+          })
+          .text(t('rescuecarbs'))
+          .each(function() {
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
+          });
+      },
+      type: 'text'
+    }
+  ],
   cumWidth: function(a, i) {
     var b = a.slice();
     b.splice(i);

@@ -61,7 +61,7 @@ module.exports = function(pool, opts) {
           return opts.r;
         },
         'stroke-width': 0,
-        class: 'd3-circle-carbs d3-carbs-only',
+        class: 'd3-circle-rescuecarbs',
         id: function(d) {
           return 'carbs_' + d.id;
         }

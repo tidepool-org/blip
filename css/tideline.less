@@ -208,10 +208,27 @@ svg {
   stroke: @carbs;
   stroke-width: 1.5;
 }
+.d3-rect-rescuecarbs {
+  fill: @rescuecarbs;
+}
+.d3-rect-rescuecarbs-legend {
+  .d3-rect-rescuecarbs;
+  stroke: @rescuecarbs;
+  stroke-width: 1.5;
+}
 .d3-circle-carbs {
   fill: @carbs;
 }
 .d3-carbs-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+.d3-circle-rescuecarbs {
+  fill: @rescuecarbs;
+}
+.d3-rescuecarbs-text {
   fill: @text;
   font-size: @font-size-small;
   dominant-baseline: central;
