@@ -401,7 +401,7 @@ function TidelineData(data, opts) {
     if (opts.timePrefs.timezoneAware) {
       watson = function(d) {
         if (d.type !== 'fill') {
-          d.normalTime = d.time;
+          d.normalTime = (new Date(d.time)).toISOString();
           d.displayOffset = -dt.getOffset(d.time, opts.timePrefs.timezoneName);
           if (d.type === 'basal') {
             d.normalEnd = dt.addDuration(d.time, d.duration);
