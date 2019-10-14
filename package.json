@@ -1,13 +1,13 @@
 {
   "name": "sundial",
-  "version": "1.6.0",
+  "version": "0.1.0",
   "description": "Tidepool's datetime wrapper",
   "keywords": [
     "datetime",
     "date",
     "time"
   ],
-  "homepage": "https://github.com/tidepool-org/sundial",
+  "homepage": "https://github.com/mdblp/sundial",
   "bugs": "https://github.com/tidepool-org/sundial/issues",
   "license": "BSD-2-Clause",
   "author": {
@@ -35,13 +35,16 @@
     "lib"
   ],
   "main": "sundial.js",
-  "repository": "https://github.com/tidepool-org/sundial.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdblp/sundial.git"
+  },
   "scripts": {
     "test": "grunt test",
     "browser-tests": "node_modules/.bin/testem"
   },
   "dependencies": {
-    "moment-timezone": "0.5.21"
+    "moment-timezone": "0.5.26"
   },
   "devDependencies": {
     "chai": "3.4.1",
