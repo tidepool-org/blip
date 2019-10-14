@@ -181,10 +181,8 @@ module.exports = function(pool, opts) {
             })
             .text(function(d) {
               /* jshint laxbreak: true */
-              return isAutomated
-                ? _.get(AUTOMATED_BASAL_LABELS, source, 'A').charAt(0)
-                : _.get(SCHEDULED_BASAL_LABELS, source, 'M').charAt(0);
-            });
+              return isAutomated ? t('A_Label').charAt(0) : t('M_Label').charAt(0);
+          });
 
           markers.exit().remove();
         }

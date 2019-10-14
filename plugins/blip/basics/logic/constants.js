@@ -15,4 +15,5 @@ module.exports = {
   TANDEM: 'Tandem',
   ANIMAS: 'Animas',
   MEDTRONIC: 'Medtronic',
+  DIABELOOP: 'Diabeloop',
 };

@@ -25,6 +25,9 @@ var newNoteImg = require('../../img/message/new.png');
 
 var log = require('bows')('Message');
 
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
+
 var NEW_NOTE_WIDTH = 36;
 var NEW_NOTE_HEIGHT = 29;
 var NEW_NOTE_X = 0;
@@ -216,14 +219,14 @@ module.exports = function(pool, opts) {
         x: NEW_NOTE_X + 1,
         y: NEW_NOTE_Y + 43,
       })
-      .text('New');
+      .text(t('New'));
       d3.select('#tidelineLabels').append('text')
       .attr({
         'class': 'newNoteText',
         x: NEW_NOTE_X + 1,
         y: NEW_NOTE_Y + 56,
       })
-      .text('note');
+      .text(t('note'));
     });
     newNote.on('mouseout', function() {
       d3.selectAll('#tidelineLabels .newNoteText').remove();

@@ -2,14 +2,14 @@ sudo: false
 
 language: node_js
 
-dist: trusty
+dist: bionic
 
 node_js:
-  - "10.14.2"
+  - "10.15.3"
   - "stable"
 
 cache:
-  yarn: true
+  npm: true
   directories:
     - node_modules
 
@@ -17,10 +17,10 @@ before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 
 install:
-  - yarn install --frozen-lockfile
+  - npm install
 
 script:
-  - "npm test"
+  - ./build.sh
 
 matrix:
   allow_failures:

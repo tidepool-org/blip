@@ -32,6 +32,7 @@ var Footer = require('./footer');
 var modalPlugin = require('../../plugins/blip').modalday;
 var brush = modalPlugin.brush;
 var modalDay = modalPlugin.modalDay;
+var MMMM_D_FORMAT = require('../../js/data/util/constants');
 
 var Modal = React.createClass({
   chartType: 'modal',
@@ -119,7 +120,7 @@ var Modal = React.createClass({
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return moment.utc(datetime).tz(timezone).format('MMMM D');
+    return moment.utc(datetime).tz(timezone).format(MMMM_D_FORMAT);
   },
   getTitle: function(datetimeLocationEndpoints) {
     // endpoint is exclusive, so need to subtract a day

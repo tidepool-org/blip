@@ -85,7 +85,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           basicsData.sections.siteChanges.hasHover = false;
         }
       }
-      else if (latestPump === constants.INSULET) {
+      else if (latestPump === constants.INSULET || latestPump === constants.DIABELOOP) {
         basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
 
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;

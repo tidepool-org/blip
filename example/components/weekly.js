@@ -26,6 +26,8 @@ var chartWeeklyFactory = require('../../plugins/blip').twoweek;
 var Header = require('./header');
 var Footer = require('./footer');
 
+var MMMM_D_FORMAT = require('../../js/data/util/constants');
+
 var tideline = {
   log: bows('Two Weeks')
 };
@@ -98,7 +100,7 @@ var Weekly = React.createClass({
     /* jshint ignore:end */
   },
   formatDate: function(datetime) {
-    return moment(datetime).utc().format('MMMM D');
+    return moment(datetime).utc().format(MMMM_D_FORMAT);
   },
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);

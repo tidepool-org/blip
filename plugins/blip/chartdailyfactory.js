@@ -123,7 +123,7 @@ function chartDailyFactory(el, options) {
         'light': ' g'
       }])
       .labelBaseline(options.labelBaseline)
-      .legend(['bolus', 'carbs'])
+      .legend(['bolus', 'carbs', 'rescuecarbs'])
       .index(chart.pools().indexOf(poolBolus))
       .heightRatio(1.35)
       .gutterWeight(1.0);

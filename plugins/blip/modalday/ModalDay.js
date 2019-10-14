@@ -33,7 +33,7 @@ var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');
 var smbgInfo = require('./SMBGInfo');
 
-var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } = require('../../../js/data/util/constants');
+var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD, HOUR_FORMAT, DDDD_MMMM_D_FORMAT} = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000;
 var chart;
@@ -158,7 +158,7 @@ d3.chart('ModalDay', {
         }
         else {
           data = d3.time.hour.utc.range(start, end, 3).map(function (d) {
-            return d3.time.format.utc('%-I %p')(d).toLowerCase();
+            return d3.time.format.utc(HOUR_FORMAT)(d).toLowerCase();
           });
         }
         return this.selectAll('text')
@@ -310,7 +310,7 @@ d3.chart('ModalDay', {
                     y: labelMargins.y,
                     'class': 'smbgDayLabel'
                   })
-                  .text(moment(d).tz(timezone).format('dddd, MMMM D'));
+                  .text(moment(d).tz(timezone).format(DDDD_MMMM_D_FORMAT));
                 infoPlot = smbgInfo.create(this, {
                   x: chart.xScale(), y: chart.yScale()
                 }, {

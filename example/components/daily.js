@@ -26,6 +26,8 @@ var chartDailyFactory = require('../../plugins/blip').oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
+var DDDD_MMMM_D_FORMAT = require('../../js/data/util/constants');
+
 var Daily = React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
@@ -92,7 +94,7 @@ var Daily = React.createClass({
     if (this.props.chartPrefs.timePrefs.timezoneAware) {
       return moment(datetime).tz(this.props.chartPrefs.timePrefs.timezoneName).format('dddd, MMMM D');
     }
-    return moment(datetime).utc().format('dddd, MMMM D');
+    return moment(datetime).utc().format(DDDD_MMMM_D_FORMAT);
   },
   // handlers
   handleClickModal: function() {

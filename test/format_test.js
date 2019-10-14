@@ -20,11 +20,45 @@
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
+var i18next = require('i18next');
+
+// At some time we could add test on other languages
+var i18nconf = {
+  locales        : ["en", "fr"],
+  defaultLocale : "en",
+};
+
+i18next.init({
+  fallbackLng: i18nconf.defaultLocale,
+  lng: i18nconf.defaultLocale,
+  // To allow . in keys
+  keySeparator: false,
+  // To allow : in keys
+  nsSeparator: '|',
+  // debug mode
+  debug: false,
+  // If the translation is empty, return the key instead
+  returnEmptyString: false,
+  resources: {
+    en: {
+      // Default namespace
+      translation: require('./locales/en/translation.json')
+    },
+    fr: {
+      // Default namespace
+      translation: require('./locales/fr/translation.json')
+    }
+  }
+});
 
 var fmt = require('../js/data/util/format');
 var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
 
 describe('format utility', function() {
+  before(() => {
+    i18next.changeLanguage('en');
+  });
+  
   describe('tooltipBG', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.tooltipBG);
@@ -249,6 +283,12 @@ describe('format utility', function() {
 
     it('should translate a value of milliseconds per 24 hours into a timestamp', function() {
       expect(fmt.millisecondsAsTimeOfDay(3900000)).to.equal('1:05 AM');
+    });
+
+    it('should translate in french a value of milliseconds per 24 hours into a timestamp', function() {
+      i18next.changeLanguage('fr');
+      expect(fmt.millisecondsAsTimeOfDay(3900000)).to.equal('1h05');
+      i18next.changeLanguage('en');
     });
   });
 
