@@ -52,6 +52,14 @@ describe('DataUtil', () => {
       deliveryType: 'scheduled',
       rate: 0.5,
     }),
+    new Types.Basal({
+      duration: MS_IN_HOUR,
+      deviceTime: '2018-02-03T03:00:00',
+      source: 'Medtronic',
+      deviceModel: '1780',
+      deliveryType: 'scheduled',
+      rate: 0.5,
+    }),
   ];
 
   const bolusData = [
@@ -66,6 +74,10 @@ describe('DataUtil', () => {
     new Types.Bolus({
       deviceTime: '2018-02-01T03:00:00',
       value: 6,
+    }),
+    new Types.Bolus({
+      deviceTime: '2018-02-03T03:00:00',
+      value: 4,
     }),
   ];
 
@@ -439,7 +451,7 @@ describe('DataUtil', () => {
     });
 
     it('should remove all data from the crossfilter', () => {
-      expect(dataUtil.data.size()).to.equal(25);
+      expect(dataUtil.data.size()).to.equal(27);
       dataUtil.removeData();
       expect(dataUtil.data.size()).to.equal(0);
     });
@@ -603,10 +615,10 @@ describe('DataUtil', () => {
     });
 
     it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day', () => {
-      dataUtil.endpoints = twoDayEndpoints;
+      dataUtil.endpoints = twoWeekEndpoints;
       expect(dataUtil.getBasalBolusData()).to.eql({
-        basal: 0.75,
-        bolus: 7.5,
+        basal: 1, // (0.25 + 0.75 + 0.5 + 0.5) / 2 days when keeping only days with insulin data
+        bolus: 9.5, // (4 + 5 + 6 + 4) / 2
       });
     });
 
@@ -1067,9 +1079,9 @@ describe('DataUtil', () => {
     });
 
     it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day', () => {
-      dataUtil.endpoints = twoDayEndpoints;
+      dataUtil.endpoints = twoWeekEndpoints;
       expect(dataUtil.getTotalInsulinData()).to.eql({
-        totalInsulin: 8.25,
+        totalInsulin: 10.5, // 9.5 + 1
       });
     });
 

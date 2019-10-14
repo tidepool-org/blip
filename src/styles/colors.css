@@ -18,7 +18,7 @@
 :root {
   --basal: #19A0D7;
   --basal-automated: #00D3E6;
-  --bolus: #7CD0F0;
+  --bolus: #6fc3bb;
   --bolus--interrupted: #FF8B7C;
   --bolus--ride: #107EA8;
   --bolus--undelivered: #BCECFA;
@@ -57,10 +57,17 @@
   --white: #FFFFFF;
   --brand-purple: #627CFF;
   --brand-purple-dark: #281946;
+  --bg-history-added-plain:rgba(118,211,166,1);
+  --bg-history-added-soft:rgba(118,211,166,0.1);
+  --bg-history-updated-plain:rgba(255,211,130,1);
+  --bg-history-updated-soft:rgba(255,211,130,0.1);
+  --bg-history-deleted-plain:rgba(251,89,81,1);
+  --bg-history-deleted-soft:rgba(251,89,81,0.1);
 }
 
+
 :export {
-  bolus: #7CD0F0;
+  bolus: #6fc3bb;
   basal: #19A0D7;
   basalAutomated: #00e9fa;
   statDark: #27385b;

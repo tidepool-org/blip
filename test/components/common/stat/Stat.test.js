@@ -393,29 +393,42 @@ describe('Stat', () => {
     });
 
     it('should call the `renderCalculatedOutput` method when the stat type is `input`', () => {
-      const renderCalculatedOutputSpy = sinon.spy(instance, 'renderCalculatedOutput');
+      const statProps = { ...defaultProps };
+      statProps.type = statTypes.input;
+
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderCalculatedOutputSpy = sinon.spy(statInstance, 'renderCalculatedOutput');
       sinon.assert.callCount(renderCalculatedOutputSpy, 0);
 
-      instance.props.type = statTypes.input;
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderCalculatedOutputSpy, 1);
     });
 
     it('should call the `renderStatLegend` method when the `legend` prop is `true`', () => {
-      const renderStatLegendSpy = sinon.spy(instance, 'renderStatLegend');
+      const statProps = { ...defaultProps };
+      statProps.legend = true;
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderStatLegendSpy = sinon.spy(statInstance, 'renderStatLegend');
       sinon.assert.callCount(renderStatLegendSpy, 0);
 
-      instance.props.legend = true;
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderStatLegendSpy, 1);
     });
 
     it('should call the `renderStatUnits` method when the stat type is `true`', () => {
-      const renderStatUnitsSpy = sinon.spy(instance, 'renderStatUnits');
+      const statProps = { ...defaultProps };
+      statProps.units = 'myUnits';
+      const statComp = shallow(<Stat {...statProps} />);
+      const statInstance = statComp.instance();
+
+      const renderStatUnitsSpy = sinon.spy(statInstance, 'renderStatUnits');
       sinon.assert.callCount(renderStatUnitsSpy, 0);
 
-      instance.props.units = 'myUnits';
-      instance.renderStatFooter();
+      statInstance.renderStatFooter();
       sinon.assert.callCount(renderStatUnitsSpy, 1);
     });
   });

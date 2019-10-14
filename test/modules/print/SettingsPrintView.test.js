@@ -144,7 +144,6 @@ describe('SettingsPrintView', () => {
     it('should set it\'s own required initial instance properties for non-tandem devices', () => {
       const requiredProps = [
         { prop: 'manufacturer', type: 'string', value: 'animas' },
-        { prop: 'isTandem', type: 'boolean', value: false },
         { prop: 'deviceMeta', type: 'object' },
       ];
 
@@ -165,7 +164,6 @@ describe('SettingsPrintView', () => {
 
       const requiredProps = [
         { prop: 'manufacturer', type: 'string', value: 'medtronic' },
-        { prop: 'isTandem', type: 'boolean', value: false },
         { prop: 'deviceMeta', type: 'object' },
       ];
 
@@ -184,7 +182,6 @@ describe('SettingsPrintView', () => {
 
       const requiredProps = [
         { prop: 'manufacturer', type: 'string', value: 'tandem' },
-        { prop: 'isTandem', type: 'boolean', value: true },
         { prop: 'deviceMeta', type: 'object' },
       ];
 

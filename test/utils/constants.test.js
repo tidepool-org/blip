@@ -217,6 +217,11 @@ describe('constants', () => {
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
           [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
         },
+        [constants.DIABELOOP]: {
+          [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+          [constants.AUTOMATED_DELIVERY]: 'Loop mode',
+          [constants.SCHEDULED_DELIVERY]: 'Loop mode off',
+        },
         default: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
@@ -232,6 +237,7 @@ describe('constants', () => {
     it('should define automated basal models per device manufacturer', () => {
       expect(constants.AUTOMATED_BASAL_DEVICE_MODELS).to.eql({
         [constants.MEDTRONIC]: ['1580', '1581', '1582', '1780', '1781', '1782'],
+        [constants.DIABELOOP]: ['DBLG1'],
       });
     });
   });

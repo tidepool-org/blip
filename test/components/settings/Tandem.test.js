@@ -116,7 +116,7 @@ describe('Tandem', () => {
     const mounted = mount(<Tandem {...props} />);
     const clipBoardButton = mounted.find(formatClassesAsSelector(styles.copyButton)).at(0);
     expect(copySettingsClicked.callCount).to.equal(0);
-    clipBoardButton.prop('onSuccess')();
+    clipBoardButton.simulate('click');
     expect(copySettingsClicked.callCount).to.equal(1);
   });
 

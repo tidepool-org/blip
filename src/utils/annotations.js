@@ -114,10 +114,16 @@ export function getOutOfRangeAnnotationMessage(datum) {
   _.each(annotations, annotation => {
     if (_.get(annotation, 'code', '') === 'bg/out-of-range') {
       const value = annotation.value;
+      let message;
+      if (value === 'low') {
+        message = t('* This BG value was lower than your device could record. Your actual BG value is lower than it appears here.');
+      } else {
+        message = t('* This BG value was higher than your device could record. Your actual BG value is higher than it appears here.');
+      }
       messages.push(
         _.assign({}, annotation, {
           message: {
-            value: t('* This BG value was {{value}}er than your device could record. Your actual BG value is {{value}}er than it appears here.', { value }),
+            value: message,
           },
         })
       );

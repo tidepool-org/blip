@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sundial from 'sundial';
-import crossfilter from 'crossfilter'; // eslint-disable-line import/no-unresolved
+import crossfilter from 'crossfilter2';
 import i18next from 'i18next';
 
 import generateClassifiers from '../classifiers';
@@ -48,6 +48,7 @@ import {
   TANDEM,
   ANIMAS,
   MEDTRONIC,
+  DIABELOOP,
   pumpVocabulary,
 } from '../constants';
 
@@ -205,7 +206,7 @@ export function processInfusionSiteHistory(data, patient) {
     } else {
       basicsData.sections.siteChanges.type = SECTION_TYPE_UNDECLARED;
     }
-  } else if (latestPump === INSULET) {
+  } else if (latestPump === INSULET || latestPump === DIABELOOP) {
     basicsData.data.reservoirChange.infusionSiteHistory = getInfusionSiteHistory(
       basicsData,
       SITE_CHANGE_RESERVOIR

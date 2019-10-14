@@ -194,7 +194,7 @@ const NonTandem = (props) => {
         className={styles.copyButton}
         button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
-        onSuccess={copySettingsClicked}
+        onClick={copySettingsClicked}
       >
         <p>{t('Copy as text')}</p>
       </ClipboardButton>

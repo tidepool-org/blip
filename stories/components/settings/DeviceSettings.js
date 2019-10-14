@@ -5,6 +5,7 @@ import { storiesOf } from '@storybook/react';
 import { MMOLL_UNITS } from '../../../src/utils/constants';
 import NonTandem from '../../../src/components/settings/NonTandem';
 import Tandem from '../../../src/components/settings/Tandem';
+import Diabeloop from '../../../src/components/settings/Diabeloop';
 
 const animasFlatRateData = require('../../../data/pumpSettings/animas/flatrate.json');
 const animasMultiRateData = require('../../../data/pumpSettings/animas/multirate.json');
@@ -153,3 +154,20 @@ storiesOf('Device Settings [Tandem]', module)
       user={user}
     />
   ));
+
+const DiabeloopSettingsData = require('../../../data/pumpSettings/diabeloop/device.json');
+const diabeloopHistoryData = require('../../../data/pumpSettings/diabeloop/deviceHistory.json');
+DiabeloopSettingsData.payload.history = diabeloopHistoryData.history;
+
+storiesOf('Device Settings [Diabeloop]', module)
+  .add('default', () => (
+    <Diabeloop
+      copySettingsClicked={() => {}}
+      deviceKey={'diabeloop'}
+      pumpSettings={DiabeloopSettingsData}
+      timePrefs={timePrefs}
+      user={user}
+      handleClickHistory={() => false}
+    />
+  )
+  );

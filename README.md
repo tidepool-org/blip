@@ -8,15 +8,18 @@ This README is focused on just the nuts & bolts of getting the code in this repo
 
 #### Table of contents
 
-- [Getting started](#getting-started)
-- [Development](#development)
+- [@tidepool/viz](#tidepoolviz)
+      - [Table of contents](#table-of-contents)
+  - [Getting started](#getting-started)
+  - [Development](#development)
     - [Running locally with blip](#running-locally-with-blip)
     - [Running locally in React Storybook](#running-locally-in-react-storybook)
     - [Running the tests](#running-the-tests)
     - [Running the linter](#running-the-linter)
-- [Production](#production)
+ - [Production](#production)
     - [Publishing examples](#publishing-examples-to-github-pages-with-react-storybook)
     - [Publishing to npm](#building-and-publishing-to-npm)
+ - [Diabeloop Specifics](#diabeloop-specifics)
 
 * * * * *
 
@@ -76,7 +79,7 @@ For more about the use of React Storybook in this repo, see [use of React Storyb
 
 ### Running the tests
 
-To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.com/ 'Travis CI')):
+To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.org/ 'Travis CI')):
 
 ```bash
 $ npm test
@@ -115,11 +118,16 @@ See [the publishing section](docs/misc/Docs.md#publishing) of the docs on docs.
 When a new feature(s) is/are complete (i.e., branch is synchronized with master, reviewed with a sign-off from another developer), it's time to publish the package to npm! Since this is one of our most recently created repositories, any member of the "developers" team in the `@tidepool` npm organization will be able to publish the package using his or her npm login. Steps to publishing are as follows:
 
 1. create a tag on the approved pull request using the `mversion` tool with the `-m` option to auto-commit the version bump and tag (e.g., `$ mversion patch -m` for a patch version bump)
-1. push the new commit and tag to the GitHub remote with `$ git push origin <branch-name>` and `$ git push origin --tags`
-1. check that the tag build has passed on [TravisCI](https://travis-ci.com/tidepool-org/viz)
-1. `$ npm whoami` to check if you are logged in as yourself; if you are, skip to 7.
-1. if you are logged in as `tidepool-robot`, log out with `$ npm logout`
-1. then log in as yourself with `$ npm login`
-1. publish the new version with `$ npm publish`; before the *actual* publish happens, the `yarn` install, linter, tests, and packaging webpack build will run since we have set those up through the `prepare` and `prepublishOnly` npm hooks in the package.json
-1. merge the approved pull request to master
-1. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `@tidepool/viz` as a dependency!
+2. push the new commit and tag to the GitHub remote with `$ git push origin <branch-name>` and `$ git push origin --tags`
+3. check that the tag build has passed on [TravisCI](https://travis-ci.org/tidepool-org/viz)
+4. `$ npm whoami` to check if you are logged in as yourself; if you are, skip to 7.
+5. if you are logged in as `tidepool-robot`, log out with `$ npm logout`
+6. then log in as yourself with `$ npm login`
+7. publish the new version with `$ npm publish`; before the *actual* publish happens, the `yarn` install, linter, tests, and packaging webpack build will run since we have set those up through the `prepare` and `prepublishOnly` npm hooks in the package.json
+8. merge the approved pull request to master
+9. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `@tidepool/viz` as a dependency!
+
+## Diabeloop Specifics
+
+In order to get the images in the local folder so the build can properly finish, you need to:
+1. Run the `artifact.sh`. This will copy the YourLoops logo in `src/modules/print/images/diabeloop`

@@ -34,7 +34,7 @@ export function noData(val) {
 
 /**
  * deviceName
- * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem
+ * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem, diabeloop
  *
  * @return {String}              name for given manufacturer
  */
@@ -44,6 +44,7 @@ export function deviceName(manufacturer) {
     insulet: 'OmniPod',
     medtronic: 'Medtronic',
     tandem: 'Tandem',
+    diabeloop: 'Diabeloop',
   };
   return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer] || manufacturer;
 }
@@ -144,7 +145,7 @@ export function getTotalBasalRates(scheduleData) {
  * getScheduleLabel
  * @param  {String} scheduleName  basal schedule name
  * @param  {String} activeName    name of active basal schedule at time of upload
- * @param  {String} deviceKey    one of: animas, carelink, insulet, medtronic, tandem
+ * @param  {String} deviceKey    one of: animas, carelink, insulet, medtronic, tandem, diabeloop
  * @param  {Boolean} noUnits      whether units should be included in label object
  *
  * @return {Object}              object representing basal schedule label
@@ -197,7 +198,7 @@ export function getTimedSchedules(settingsData) {
 export function getDeviceMeta(settingsData, timePrefs) {
   const utc = datetime.getHammertimeFromDatumWithTimePrefs(settingsData, timePrefs);
   const uploadedTime = utc ?
-    datetime.formatLocalizedFromUTC(utc, timePrefs, 'MMM D, YYYY') :
+    datetime.formatLocalizedFromUTC(utc, timePrefs, datetime.LONG_DAY_FORMAT) :
     false;
   return {
     schedule: settingsData.activeSchedule || 'unknown',

@@ -23,7 +23,7 @@ import {
   getOutOfRangeThreshold,
 } from '../../../utils/bloodglucose';
 import { formatBgValue } from '../../../utils/format';
-import { formatLocalizedFromUTC } from '../../../utils/datetime';
+import { formatLocalizedFromUTC, HOUR_MINUTE_FORMAT } from '../../../utils/datetime';
 import {
   getMedtronic600AnnotationMessages,
   getOutOfRangeAnnotationMessage,
@@ -96,7 +96,12 @@ class SMBGTooltip extends PureComponent {
     );
     const title = this.props.title ? this.props.title : (
       <div className={styles.title}>
-        {formatLocalizedFromUTC(this.props.smbg.normalTime, this.props.timePrefs, 'h:mm a')}
+        {
+          formatLocalizedFromUTC(
+            this.props.smbg.normalTime,
+            this.props.timePrefs,
+            HOUR_MINUTE_FORMAT)
+          }
       </div>
     );
     return (

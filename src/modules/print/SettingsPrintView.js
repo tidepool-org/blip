@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-
+import i18next from 'i18next';
 import PrintView from './PrintView';
 
 import {
@@ -33,10 +33,14 @@ import {
   target,
 } from '../../utils/settings/nonTandemData';
 
+import * as dblData from '../../utils/settings/diabeloopData';
+
 import {
   basalSchedules as profileSchedules,
   basal as tandemBasal,
 } from '../../utils/settings/tandemData';
+
+const t = i18next.t.bind(i18next);
 
 class SettingsPrintView extends PrintView {
   constructor(doc, data, opts) {
@@ -45,7 +49,6 @@ class SettingsPrintView extends PrintView {
     this.source = _.get(data, 'source', '').toLowerCase();
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
-    this.isTandem = this.manufacturer === 'tandem';
     this.deviceMeta = getDeviceMeta(data, opts.timePrefs);
 
     this.doc.addPage();
@@ -58,16 +61,22 @@ class SettingsPrintView extends PrintView {
   render() {
     this.renderDeviceMeta();
 
-    if (this.isTandem) {
-      this.renderTandemProfiles();
-    } else {
-      this.renderBasalSchedules();
-      this.renderWizardSettings();
+    switch (this.manufacturer) {
+      case 'tandem':
+        this.renderTandemProfiles();
+        break;
+      case 'diabeloop':
+        this.renderDiabeloopProfiles();
+        break;
+      default:
+        this.renderBasalSchedules();
+        this.renderWizardSettings();
+        break;
     }
   }
 
   renderDeviceMeta() {
-    const device = deviceName(this.manufacturer) || 'Unknown';
+    const device = deviceName(this.manufacturer) || t('Unknown');
     this.doc
       .font(this.boldFont)
       .fontSize(this.defaultFontSize)
@@ -81,7 +90,7 @@ class SettingsPrintView extends PrintView {
   }
 
   renderTandemProfiles() {
-    this.renderSectionHeading('Profile Settings');
+    this.renderSectionHeading(t('Profile Settings'));
 
     const basalSchedules = profileSchedules(this.data);
 
@@ -192,8 +201,82 @@ class SettingsPrintView extends PrintView {
     });
   }
 
+  renderDiabeloopProfiles() {
+    // Device informations:
+    const device = _.get(this.data, 'payload.device', null);
+
+    // Device parameters:
+    const parameters = _.get(this.data, 'payload.parameters', null);
+
+    // Render the device informations table:
+    if (device !== null) {
+      const deviceTableData = dblData.getDeviceInfosData(device);
+
+      const deviceTableDataWidth = (this.chartArea.width * 0.6);
+
+      this.renderTableHeading(deviceTableData.heading, {
+        columnDefaults: {
+          fill: {
+            color: this.tableSettings.colors.zebraHeader,
+            opacity: 1,
+          },
+          width: deviceTableDataWidth,
+        },
+      });
+
+      deviceTableData.columns[0].width = (deviceTableDataWidth * 0.4);
+      deviceTableData.columns[1].width = (deviceTableDataWidth * 0.6);
+
+      this.renderTable(deviceTableData.columns, deviceTableData.rows, {
+        columnDefaults: {
+          zebra: false,
+          headerFill: false,
+          headerBorder: '',
+        },
+        flexColumn: 'start',
+        showHeaders: false,
+      });
+    } else {
+      this.renderSectionHeading(t('No diabeloop device informations available'));
+    }
+
+    // Render the device parameters tables:
+    if (parameters !== null) {
+      const parametersByLevel = dblData.getParametersByLevel(parameters);
+
+      // eslint-disable-next-line lodash/prefer-lodash-method
+      parametersByLevel.forEach((params, level) => {
+        const tableData = dblData.getDeviceParametersData(params,
+          { level, width: this.chartArea.width });
+
+        this.renderTableHeading(tableData.heading, {
+          columnDefaults: {
+            fill: {
+              color: this.tableSettings.colors.zebraHeader,
+              opacity: 1,
+            },
+            width: this.chartArea.width,
+          },
+        });
+
+        this.renderTable(tableData.columns, tableData.rows, {
+          columnDefaults: {
+            zebra: true,
+            headerFill: false,
+          },
+          flexColumn: 'start',
+          showHeaders: true,
+        });
+      });
+    } else {
+      this.renderSectionHeading(t('No diabeloop device parameters available'));
+    }
+
+    this.resetText();
+  }
+
   renderBasalSchedules() {
-    this.renderSectionHeading('Basal Rates');
+    this.renderSectionHeading(t('Basal Rates'));
 
     this.setLayoutColumns({
       width: this.chartArea.width,

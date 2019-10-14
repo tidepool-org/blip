@@ -1,31 +1,35 @@
 {
   "name": "@tidepool/viz",
-  "version": "1.8.0",
+  "version": "0.5.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
   ],
   "main": "dist/index.js",
   "scripts": {
-    "apidocs": "./node_modules/.bin/jsdoc2md",
-    "browser-tests": "NODE_ENV=test ./node_modules/.bin/karma start --browsers Chrome",
-    "build": "NODE_ENV=production npm run clean && ./node_modules/.bin/webpack --config package.config.js",
+    "apidocs": "jsdoc2md",
+    "browser-tests": "NODE_ENV=test karma start --browsers Chrome",
+    "prebuild": "npm run clean",
+    "build": "NODE_ENV=production webpack --config package.config.js",
     "build-docs": "./update-gh-pages.sh",
-    "build-storybooks": "./node_modules/.bin/build-storybook -c storybook -o web/stories && ./node_modules/.bin/build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
-    "clean": "NODE_ENV=production ./node_modules/.bin/rimraf ./dist/*",
-    "lint": "NODE_ENV=test ./node_modules/.bin/eslint src/ stories/ storiesDatatypes/ test/ *.js",
-    "prepublishOnly": "NODE_ENV=production ./node_modules/.bin/rimraf ./node_modules && yarn install --frozen-lockfile && npm test && NODE_ENV=production npm run build",
+    "build-storybooks": "build-storybook -c storybook -o web/stories && build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
+    "clean": "NODE_ENV=production rimraf ./dist/*",
+    "lint": "NODE_ENV=test eslint src/ stories/ storiesDatatypes/ test/ *.js",
+    "prepare": "NODE_ENV=production npm run build",
     "pretest": "NODE_ENV=test npm run lint",
-    "serve-docs": "./node_modules/.bin/gitbook serve",
-    "start": "NODE_ENV=development ./node_modules/.bin/webpack --config package.config.js --watch",
-    "stories": "NODE_ENV=development ./node_modules/.bin/start-storybook -c storybook -p 8083 -s ./static",
+    "serve-docs": "gitbook serve",
+    "start": "NODE_ENV=development webpack --config package.config.js --watch",
+    "stories": "NODE_ENV=development start-storybook -c storybook -p 8082 -s ./static",
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
-    "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/.bin/karma start --no-single-run --reporters=mocha",
-    "typestories": "NODE_ENV=development ./node_modules/.bin/start-storybook -c storybookDatatypes -p 8082"
+    "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha",
+    "typestories": "NODE_ENV=development start-storybook -c storybookDatatypes -p 8082"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tidepool-org/viz.git"
+    "url": "git+https://github.com/mdblp/viz.git"
+  },
+  "publishConfig": {
+    "registry": "https://nexus.ci.diabeloop.eu/repository/your-loops-npm/"
   },
   "engines": {
     "node": ">=10.x",
@@ -40,7 +44,7 @@
     "bluebird": "3.5.2",
     "bows": "1.7.0",
     "classnames": "2.2.6",
-    "crossfilter2": "1.4.6",
+    "crossfilter2": "1.4.7",
     "d3-array": "1.2.4",
     "d3-format": "1.3.2",
     "d3-scale": "2.1.2",
@@ -54,7 +58,7 @@
     "lodash": "4.17.11",
     "memorystream": "0.3.1",
     "moment": "2.22.2",
-    "moment-timezone": "0.5.21",
+    "moment-timezone": "0.5.26",
     "parse-svg-path": "0.1.2",
     "prop-types": "15.6.2",
     "react": "15.6.2",
@@ -72,7 +76,7 @@
     "redux": "3.5.2",
     "redux-thunk": "2.2.0",
     "serialize-svg-path": "0.1.0",
-    "sundial": "1.6.0",
+    "sundial": "mdblp/sundial#dblp.0.1.0",
     "text-table": "0.2.0",
     "translate-svg-path": "0.0.1",
     "victory": "30.6.0",
@@ -151,6 +155,6 @@
     "redux": "3.x"
   },
   "resolutions": {
-    "sundial/moment-timezone": "0.5.21"
+    "sundial/moment-timezone": "0.5.26"
   }
 }

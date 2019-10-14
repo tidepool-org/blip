@@ -6,3 +6,5 @@ local/
 node_modules/
 web/
 *.log
+yarn.lock
+package-lock.json

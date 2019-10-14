@@ -46,7 +46,9 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-const logo = require('./images/tidepool-logo-408x46.png');
+// TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
+// branding should make use of artifact.sh to download specific branding artifacts such as images
+const logo = require('./images/diabeloop/ylp_logo_small.png');
 
 class PrintView {
   constructor(doc, data = {}, opts) {
@@ -770,7 +772,7 @@ class PrintView {
   }
 
   renderLogo() {
-    this.logoWidth = 100;
+    this.logoWidth = 80;
     const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
     const yOffset = this.margins.top + 5;
 

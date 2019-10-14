@@ -23,12 +23,14 @@ import { utcFormat } from 'd3-time-format';
 
 import styles from './CBGDateTraceLabel.css';
 
+import { D3_LONG_FORMAT } from '../../../utils/datetime';
+
 const CBGDateTraceLabel = (props) => {
   if (!props.focusedDateTrace) {
     return null;
   }
   const { focusedDateTrace: { data: { localDate: date }, position } } = props;
-  const formattedDate = utcFormat('%A, %B %-d')(Date.parse(date));
+  const formattedDate = utcFormat(D3_LONG_FORMAT)(Date.parse(date));
   return (
     <div className={styles.container}>
       <Tooltip
