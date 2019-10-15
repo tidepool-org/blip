@@ -22,13 +22,14 @@ import { BG_DATA_TYPES } from '../../core/constants';
 
 class Basics extends Component {
   static propTypes = {
+    aggregationsByDate: React.PropTypes.object.isRequired,
     bgPrefs: React.PropTypes.object.isRequired,
     bgSources: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     endpoints: React.PropTypes.array.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
+    latestPumpUpload: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -54,8 +55,7 @@ class Basics extends Component {
     super(props);
     this.chartType = 'basics';
     this.log = bows('Basics View');
-
-    this.log('constructor running')
+    this.log('constructor aggregationsByDate', this.props.aggregationsByDate);
 
     this.state = this.getInitialState();
   }
@@ -65,6 +65,10 @@ class Basics extends Component {
     inTransition: false,
     title: this.getTitle(),
   });
+
+  componentWillReceiveProps = nextProps => {
+    this.log('nextProps aggregationsByDate', nextProps.aggregationsByDate);
+  };
 
   render = () => {
     const { t, bgSources } = this.props;
@@ -99,7 +103,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.data)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.aggregationsByDate, this.props.latestPumpUpload)}
                 />
                 <BgSourceToggle
                   bgSources={bgSources}
@@ -128,18 +132,18 @@ class Basics extends Component {
   renderChart = () => {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
-        <BasicsChart
+        {/* <BasicsChart
           bgClasses={this.props.bgPrefs.bgClasses}
           bgUnits={this.props.bgPrefs.bgUnits}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
-          patientData={this.props.data}
+          patientData={this.props.aggregationsByDate}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={this.props.timePrefs}
           updateBasicsData={this.props.updateBasicsData}
           updateBasicsSettings={this.props.updateBasicsSettings}
           ref="chart"
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric} /> */}
       </div>
     );
   };
@@ -190,7 +194,7 @@ class Basics extends Component {
       boluses = {},
       fingersticks = {},
       siteChanges = {},
-    } = this.props.aggregations;
+    } = this.props.aggregationsByDate;
 
     const {
       calibration = {},

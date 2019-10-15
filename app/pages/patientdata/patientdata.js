@@ -323,12 +323,11 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
-    console.log('renderChart', this.state.chartType);
     switch (this.state.chartType) {
       case 'basics':
         return (
           <Basics
-            aggregations={this.getCurrentData('aggregations')}
+            aggregationsByDate={this.getCurrentData('aggregationsByDate')}
             bgPrefs={this.state.bgPrefs}
             bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
@@ -337,7 +336,7 @@ export let PatientData = translate()(React.createClass({
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.getCurrentData('data')}
+            latestPumpUpload={this.getMetaData('latestPumpUpload')}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
