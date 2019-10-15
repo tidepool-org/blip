@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
@@ -20,240 +20,307 @@ const {
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 
-class Stats extends Component {
-  static propTypes = {
-    bgPrefs: PropTypes.object.isRequired,
-    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
-    chartPrefs: PropTypes.object.isRequired,
-    chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
-    endpoints: PropTypes.arrayOf(PropTypes.string),
-    statsData: PropTypes.object.isRequired,
-    onAverageDailyDoseInputChange: PropTypes.func,
-    onStatsChange: PropTypes.func,
-  };
+const Stats = (props) => {
+  const {
+    chartType,
+    bgSource,
+    bgPrefs,
+    endpoints = {},
+    statsData,
+    latestPumpUpload = {},
+  } = props;
 
-  constructor(props) {
-    super(props);
-    this.log = bows('Stats');
+  const { manufacturer } = latestPumpUpload;
 
-    // this.bgPrefs = {
-    //   bgUnits: this.props.bgPrefs.bgUnits,
-    //   bgBounds: reshapeBgClassesToBgBounds(this.props.bgPrefs),
-    // };
+  const stats = [];
 
-    // this.updateDataUtilEndpoints(this.props);
+  _.forOwn(statsData, (data, statType) => {
+    const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
 
-    this.state = {
-      stats: [],
-    };
+    const stat = getStatDefinition(data, statType, {
+      bgSource,
+      days: endpoints.activeDays || endpoints.days,
+      bgPrefs,
+      manufacturer,
+      ...chartStatOpts,
+    });
 
-    this.getStatsFromData(this.props);
-    // this.onStatsChange();
-  }
+    if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+      stat.onInputChange = props.onAverageDailyDoseInputChange;
+    }
 
-  // componentWillReceiveProps = nextProps => {
-  //   const update = this.updatesRequired(nextProps);
+    stats.push(stat);
+  });
 
-  //   if (update) {
-  //     if (update.stats) {
-  //       this.setState({
-  //         stats: this.getStatsFromData(nextProps)
-  //       }, this.onStatsChange.bind(this, nextProps));
-  //     } else if (update.endpoints) {
-  //       this.updateDataUtilEndpoints(nextProps);
-  //       this.updateStatData(nextProps);
-  //     } else if (update.activeDays) {
-  //       this.updateStatData(nextProps);
-  //     }
-  //   }
-  // };
+  console.log('stats', stats);
 
-  // shouldComponentUpdate = nextProps => {
-  //   return this.updatesRequired(nextProps);
-  // };
+  const { chartPrefs: { animateStats } } = props;
 
-  // updatesRequired = nextProps => {
-  //   const {
-  //     bgSource,
-  //     chartPrefs,
-  //     chartType,
-  //     endpoints,
-  //   } = nextProps;
-
-  //   const { activeDays } = chartPrefs[chartType];
-
-  //   const activeDaysChanged = activeDays && !_.isEqual(activeDays, this.props.chartPrefs[chartType].activeDays);
-  //   const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
-  //   const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
-
-  //   return activeDaysChanged || bgSourceChanged || endpointsChanged
-  //     ? {
-  //       activeDays: activeDaysChanged,
-  //       endpoints: endpointsChanged,
-  //       stats: bgSourceChanged,
-  //     }
-  //     : false;
-  // };
-
-  renderStats = (stats, animate) => (_.map(stats, stat => (
+  const renderStats = (stats, animate) => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
-      <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
+      <Stat animate={animate} bgPrefs={bgPrefs} {...stat} />
     </div>
   )));
 
-  render = () => {
-    const { chartPrefs: { animateStats } } = this.props;
+  return (
+    <div className="Stats">
+      {renderStats(stats, animateStats)}
+    </div>
+  );
+}
 
-    return (
-      <div className="Stats">
-        {this.renderStats(this.state.stats, animateStats)}
-      </div>
-    );
-  };
-
-  getStatsFromData = (props = this.props) => {
-    const {
-      chartType,
-      bgSource,
-      bgPrefs,
-      latestPumpUpload = {},
-      endpoints = {},
-    } = props;
-
-    const { manufacturer } = latestPumpUpload;
-
-    // const stats = [];
-    const stats = _.forOwn(this.props.statsData, (data, statType) => {
-      const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
-
-      const stat = getStatDefinition(data, statType, {
-        bgSource,
-        days: endpoints.activeDays || endpoints.days,
-        bgPrefs,
-        manufacturer,
-        ...chartStatOpts,
-      });
-
-      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-        stat.onInputChange = props.onAverageDailyDoseInputChange;
-      }
-
-      return stat;
-    });
-
-    // const addStat = statType => {
-    //   const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
-
-    //   const stat = getStatDefinition(dataUtil[statFetchMethods[statType]](), statType, {
-    //     bgSource,
-    //     days,
-    //     bgPrefs: {
-    //       bgBounds,
-    //       bgUnits,
-    //     },
-    //     manufacturer,
-    //     ...chartStatOpts,
-    //   });
-
-    //   if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-    //     stat.onInputChange = props.onAverageDailyDoseInputChange;
-    //   }
-
-    //   stats.push(stat);
-    // };
-
-    // const cbgSelected = bgSource === 'cbg';
-    // const smbgSelected = bgSource === 'smbg';
-
-    // switch (chartType) {
-    //   case 'basics':
-    //     cbgSelected && addStat(commonStats.timeInRange);
-    //     smbgSelected && addStat(commonStats.readingsInRange);
-    //     addStat(commonStats.averageGlucose);
-    //     cbgSelected && addStat(commonStats.sensorUsage);
-    //     addStat(commonStats.totalInsulin);
-    //     isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-    //     addStat(commonStats.carbs);
-    //     addStat(commonStats.averageDailyDose);
-    //     cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-    //     break;
-
-    //   case 'daily':
-    //     cbgSelected && addStat(commonStats.timeInRange);
-    //     smbgSelected && addStat(commonStats.readingsInRange);
-    //     addStat(commonStats.averageGlucose);
-    //     addStat(commonStats.totalInsulin);
-    //     isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
-    //     addStat(commonStats.carbs);
-    //     cbgSelected && addStat(commonStats.standardDev);
-    //     cbgSelected && addStat(commonStats.coefficientOfVariation);
-    //     break;
-
-    //   case 'bgLog':
-    //     addStat(commonStats.readingsInRange);
-    //     addStat(commonStats.averageGlucose);
-    //     addStat(commonStats.standardDev);
-    //     addStat(commonStats.coefficientOfVariation);
-    //     break;
-
-    //   case 'trends':
-    //     cbgSelected && addStat(commonStats.timeInRange);
-    //     smbgSelected && addStat(commonStats.readingsInRange);
-    //     addStat(commonStats.averageGlucose);
-    //     cbgSelected && addStat(commonStats.sensorUsage);
-    //     cbgSelected && addStat(commonStats.glucoseManagementIndicator);
-    //     addStat(commonStats.standardDev);
-    //     addStat(commonStats.coefficientOfVariation);
-    //     break;
-    // }
-
-    this.log('stats', stats);
-
-    this.setState({ stats }, this.onStatsChange);
-    // return stats;
-  };
-
-  // updateDataUtilEndpoints = props => {
-  //   const {
-  //     dataUtil,
-  //     endpoints,
-  //   } = props;
-
-  //   dataUtil.endpoints = endpoints;
-  // };
-
-  // updateStatData = props => {
-  //   const { bgSource, dataUtil } = props;
-  //   const stats = this.state.stats;
-
-  //   const { bgBounds, bgUnits, days, latestPump } = dataUtil;
-  //   const { manufacturer } = latestPump;
-
-  //   _.each(stats, (stat, i) => {
-  //     const data = dataUtil[statFetchMethods[stat.id]]();
-  //     const opts = {
-  //       bgSource: bgSource,
-  //       bgPrefs: {
-  //         bgBounds,
-  //         bgUnits,
-  //       },
-  //       days,
-  //       manufacturer,
-  //     };
-
-  //     stats[i].data = getStatData(data, stat.id, opts);
-  //     stats[i].annotations = getStatAnnotations(data, stat.id, opts);
-  //     stats[i].title = getStatTitle(stat.id, opts);
-  //   });
-
-  //   this.log('stats', stats);
-
-  //   this.setState({ stats }, this.onStatsChange.bind(this, props));
-  // };
-
-  onStatsChange = () => {
-    if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange([...this.state.stats]);
-  };
+Stats.propTypes = {
+  bgPrefs: PropTypes.object.isRequired,
+  bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+  chartPrefs: PropTypes.object.isRequired,
+  chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
+  endpoints: PropTypes.arrayOf(PropTypes.string),
+  statsData: PropTypes.object.isRequired,
+  onAverageDailyDoseInputChange: PropTypes.func,
+  onStatsChange: PropTypes.func,
 };
+
+// class Stats extends PureComponent {
+//   static propTypes = {
+//     bgPrefs: PropTypes.object.isRequired,
+//     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+//     chartPrefs: PropTypes.object.isRequired,
+//     chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
+//     endpoints: PropTypes.arrayOf(PropTypes.string),
+//     statsData: PropTypes.object.isRequired,
+//     onAverageDailyDoseInputChange: PropTypes.func,
+//     onStatsChange: PropTypes.func,
+//   };
+
+//   constructor(props) {
+//     super(props);
+//     this.log = bows('Stats');
+
+//     // this.bgPrefs = {
+//     //   bgUnits: this.props.bgPrefs.bgUnits,
+//     //   bgBounds: reshapeBgClassesToBgBounds(this.props.bgPrefs),
+//     // };
+
+//     // this.updateDataUtilEndpoints(this.props);
+
+//     this.state = {
+//       stats: this.getStatsFromData(this.props),
+//     };
+
+//     // this.getStatsFromData(this.props);
+//     // this.onStatsChange();
+//   }
+
+//   // componentWillReceiveProps = nextProps => {
+//     // const update = this.updatesRequired(nextProps);
+
+//     // this.setState({
+//     //   stats: this.getStatsFromData(nextProps)
+//     // }, this.onStatsChange.bind(this, nextProps));
+
+//     // if (update) {
+//     //   if (update.stats) {
+//     //     this.setState({
+//     //       stats: this.getStatsFromData(nextProps)
+//     //     }, this.onStatsChange.bind(this, nextProps));
+//     //   } else if (update.endpoints) {
+//     //     this.updateDataUtilEndpoints(nextProps);
+//     //     this.updateStatData(nextProps);
+//     //   } else if (update.activeDays) {
+//     //     this.updateStatData(nextProps);
+//     //   }
+//     // }
+//   // };
+
+//   // shouldComponentUpdate = nextProps => {
+//   //   return this.updatesRequired(nextProps);
+//   // };
+
+//   // updatesRequired = nextProps => {
+//   //   const {
+//   //     bgSource,
+//   //     chartPrefs,
+//   //     chartType,
+//   //     endpoints,
+//   //   } = nextProps;
+
+//   //   const { activeDays } = chartPrefs[chartType];
+
+//   //   const activeDaysChanged = activeDays && !_.isEqual(activeDays, this.props.chartPrefs[chartType].activeDays);
+//   //   const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
+//   //   const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
+
+//   //   return activeDaysChanged || bgSourceChanged || endpointsChanged
+//   //     ? {
+//   //       activeDays: activeDaysChanged,
+//   //       endpoints: endpointsChanged,
+//   //       stats: bgSourceChanged,
+//   //     }
+//   //     : false;
+//   // };
+
+//   renderStats = (stats, animate) => (_.map(stats, stat => (
+//     <div id={`Stat--${stat.id}`} key={stat.id}>
+//       <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
+//     </div>
+//   )));
+
+//   render = () => {
+//     const { chartPrefs: { animateStats } } = this.props;
+
+//     return (
+//       <div className="Stats">
+//         {this.renderStats(this.state.stats, animateStats)}
+//       </div>
+//     );
+//   };
+
+//   getStatsFromData = (props = this.props) => {
+//     const {
+//       chartType,
+//       bgSource,
+//       bgPrefs,
+//       latestPumpUpload = {},
+//       endpoints = {},
+//     } = props;
+
+//     const { manufacturer } = latestPumpUpload;
+
+//     const stats = [];
+
+//     this.props.statsData
+
+//     _.forOwn(this.props.statsData, (data, statType) => {
+//       const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
+
+//       const stat = getStatDefinition(data, statType, {
+//         bgSource,
+//         days: endpoints.activeDays || endpoints.days,
+//         bgPrefs,
+//         manufacturer,
+//         ...chartStatOpts,
+//       });
+
+//       if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+//         stat.onInputChange = props.onAverageDailyDoseInputChange;
+//       }
+
+//       stats.push(stat);
+//     });
+
+//     // const addStat = statType => {
+//     //   const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
+
+//     //   const stat = getStatDefinition(dataUtil[statFetchMethods[statType]](), statType, {
+//     //     bgSource,
+//     //     days,
+//     //     bgPrefs: {
+//     //       bgBounds,
+//     //       bgUnits,
+//     //     },
+//     //     manufacturer,
+//     //     ...chartStatOpts,
+//     //   });
+
+//     //   if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+//     //     stat.onInputChange = props.onAverageDailyDoseInputChange;
+//     //   }
+
+//     //   stats.push(stat);
+//     // };
+
+//     // const cbgSelected = bgSource === 'cbg';
+//     // const smbgSelected = bgSource === 'smbg';
+
+//     // switch (chartType) {
+//     //   case 'basics':
+//     //     cbgSelected && addStat(commonStats.timeInRange);
+//     //     smbgSelected && addStat(commonStats.readingsInRange);
+//     //     addStat(commonStats.averageGlucose);
+//     //     cbgSelected && addStat(commonStats.sensorUsage);
+//     //     addStat(commonStats.totalInsulin);
+//     //     isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+//     //     addStat(commonStats.carbs);
+//     //     addStat(commonStats.averageDailyDose);
+//     //     cbgSelected && addStat(commonStats.glucoseManagementIndicator);
+//     //     break;
+
+//     //   case 'daily':
+//     //     cbgSelected && addStat(commonStats.timeInRange);
+//     //     smbgSelected && addStat(commonStats.readingsInRange);
+//     //     addStat(commonStats.averageGlucose);
+//     //     addStat(commonStats.totalInsulin);
+//     //     isAutomatedBasalDevice && addStat(commonStats.timeInAuto);
+//     //     addStat(commonStats.carbs);
+//     //     cbgSelected && addStat(commonStats.standardDev);
+//     //     cbgSelected && addStat(commonStats.coefficientOfVariation);
+//     //     break;
+
+//     //   case 'bgLog':
+//     //     addStat(commonStats.readingsInRange);
+//     //     addStat(commonStats.averageGlucose);
+//     //     addStat(commonStats.standardDev);
+//     //     addStat(commonStats.coefficientOfVariation);
+//     //     break;
+
+//     //   case 'trends':
+//     //     cbgSelected && addStat(commonStats.timeInRange);
+//     //     smbgSelected && addStat(commonStats.readingsInRange);
+//     //     addStat(commonStats.averageGlucose);
+//     //     cbgSelected && addStat(commonStats.sensorUsage);
+//     //     cbgSelected && addStat(commonStats.glucoseManagementIndicator);
+//     //     addStat(commonStats.standardDev);
+//     //     addStat(commonStats.coefficientOfVariation);
+//     //     break;
+//     // }
+
+//     this.log('stats', stats);
+
+//     // this.setState({ stats }, this.onStatsChange);
+//     return stats;
+//   };
+
+//   // updateDataUtilEndpoints = props => {
+//   //   const {
+//   //     dataUtil,
+//   //     endpoints,
+//   //   } = props;
+
+//   //   dataUtil.endpoints = endpoints;
+//   // };
+
+//   // updateStatData = props => {
+//   //   const { bgSource, dataUtil } = props;
+//   //   const stats = this.state.stats;
+
+//   //   const { bgBounds, bgUnits, days, latestPump } = dataUtil;
+//   //   const { manufacturer } = latestPump;
+
+//   //   _.each(stats, (stat, i) => {
+//   //     const data = dataUtil[statFetchMethods[stat.id]]();
+//   //     const opts = {
+//   //       bgSource: bgSource,
+//   //       bgPrefs: {
+//   //         bgBounds,
+//   //         bgUnits,
+//   //       },
+//   //       days,
+//   //       manufacturer,
+//   //     };
+
+//   //     stats[i].data = getStatData(data, stat.id, opts);
+//   //     stats[i].annotations = getStatAnnotations(data, stat.id, opts);
+//   //     stats[i].title = getStatTitle(stat.id, opts);
+//   //   });
+
+//   //   this.log('stats', stats);
+
+//   //   this.setState({ stats }, this.onStatsChange.bind(this, props));
+//   // };
+
+//   onStatsChange = () => {
+//     if (_.isFunction(this.props.onStatsChange)) this.props.onStatsChange([...this.state.stats]);
+//   };
+// };
 
 export default Stats
