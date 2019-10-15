@@ -23,9 +23,9 @@ import { BG_DATA_TYPES } from '../../core/constants';
 class Basics extends Component {
   static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
+    bgSources: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    // endpoints: React.PropTypes.arrayOf(React.PropTypes.number),
+    endpoints: React.PropTypes.array.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
@@ -39,6 +39,7 @@ class Basics extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    stats: React.PropTypes.array.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
@@ -65,26 +66,8 @@ class Basics extends Component {
     title: this.getTitle(),
   });
 
-  getCurrentData = (path) => _.get(this.props, `patientData.data.current.${path}`, {});
-
-  componentWillMount = () => {
-    // const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-
-    // if (dateRange) {
-      // const endpoints = [
-      //   findBasicsStart(this.props.initialDatetimeLocation, getTimezoneFromTimePrefs(this.props.timePrefs)),
-      //   getLocalizedCeiling(this.props.initialDatetimeLocation, this.props.timePrefs).toISOString(),
-      // ];
-
-      // this.props.onUpdateChartDateRange(endpoints);
-    // }
-    // this.props.onUpdateChartDateRange(this.props.initialDatetimeLocation);
-  };
-
   render = () => {
-    const { t } = this.props;
-    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
-    const latestPumpUpload = _.get(this.props.patientData, 'metaData.latestPumpUpload', {});
+    const { t, bgSources } = this.props;
 
     return (
       <div id="tidelineMain" className="basics">
@@ -113,10 +96,10 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <ClipboardButton
+                <ClipboardButton // TODO: replace this.props.patientData.basicsData appropriately
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
                 />
                 <BgSourceToggle
                   bgSources={bgSources}
@@ -126,14 +109,8 @@ class Basics extends Component {
                 />
                 <Stats
                   bgPrefs={this.props.bgPrefs}
-                  bgSource={bgSources.current}
                   chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  endpoints={this.getCurrentData('endpoints')}
-                  statsData={this.getCurrentData('stats')}
-                  latestPumpUpload={latestPumpUpload}
-                  onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
-                  onStatsChange={this.handleStatsChange}
+                  stats={this.props.stats}
                 />
               </div>
             </div>
@@ -207,14 +184,12 @@ class Basics extends Component {
   }
 
   isMissingBasics = () => {
-    const aggregations = this.getCurrentData('aggregations');
-
     const {
       basals = {},
       boluses = {},
       fingersticks = {},
       siteChanges = {},
-    } = aggregations;
+    } = this.props.aggregations;
 
     const {
       calibration = {},
@@ -239,28 +214,26 @@ class Basics extends Component {
     this.props.updateChartPrefs(prefs);
   };
 
-  handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.basics.averageDailyDose = {
-      inputValue,
-      suffixValue,
-    };
-    this.props.updateChartPrefs(prefs);
-  };
+  // handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
+  //   const prefs = _.cloneDeep(this.props.chartPrefs);
+  //   prefs.basics.averageDailyDose = {
+  //     inputValue,
+  //     suffixValue,
+  //   };
+  //   this.props.updateChartPrefs(prefs);
+  // };
 
-  handleStatsChange = stats => {
-    this.setState({ stats });
-
-    window.downloadStatData = () => {
-      console.save({
-        bgPrefs: this.props.bgPrefs,
-        data: this.props.patientData.basicsData,
-        endpoints: this.props.endpoints,
-        stats: stats,
-        timePrefs: this.props.timePrefs,
-      }, 'stats-basics.json');
-    };
-  };
+  // handleStatsChange = stats => { // TODO: Likely find another way of exporting stats data
+  //   window.downloadStatData = () => {
+  //     console.save({
+  //       bgPrefs: this.props.bgPrefs,
+  //       data: this.props.patientData.basicsData,
+  //       endpoints: this.props.endpoints,
+  //       stats: stats,
+  //       timePrefs: this.props.timePrefs,
+  //     }, 'stats-basics.json');
+  //   };
+  // };
 
   handleClickBasics = e => {
     if (e) {
@@ -273,16 +246,14 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToTrends(dateRange[1]);
+    this.props.onSwitchToTrends(this.props.endpoints[1]);
   };
 
   handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToDaily(dateRange[1]);
+    this.props.onSwitchToDaily(this.props.endpoints[1]);
   };
 
   handleClickPrint = e => {
@@ -297,8 +268,7 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToBgLog(dateRange[1]);
+    this.props.onSwitchToBgLog(this.props.endpoints[1]);
   };
 
   handleSelectDay = (date, title) => {

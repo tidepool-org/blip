@@ -328,14 +328,16 @@ export let PatientData = translate()(React.createClass({
       case 'basics':
         return (
           <Basics
+            aggregations={this.getCurrentData('aggregations')}
             bgPrefs={this.state.bgPrefs}
+            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
-            endpoints={this.state.endpoints}
+            endpoints={this.getCurrentData('endpoints.range')}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.props.data}
+            patientData={this.getCurrentData('data')}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -352,6 +354,7 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
+            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'daily':
@@ -552,6 +555,54 @@ export let PatientData = translate()(React.createClass({
 
   //   return data;
   // },
+
+  generateStats: function (props = this.props, state = this.state) {
+    const {
+      chartType,
+      chartPrefs,
+      bgPrefs,
+      timePrefs,
+    } = this.state;
+
+    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
+    const bgSource = this.getMetaData('bgSources.current');
+    const endpoints = this.getCurrentData('endpoints');
+    const statsData = this.getCurrentData('stats');
+
+    const stats = [];
+
+    _.forOwn(statsData, (data, statType) => {
+      const chartStatOpts = _.get(chartPrefs, [chartType, statType]);
+
+      const stat = getStatDefinition(data, statType, {
+        bgSource,
+        days: endpoints.activeDays || endpoints.days,
+        bgPrefs,
+        manufacturer,
+        ...chartStatOpts,
+      });
+
+      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+        stat.onInputChange = props.onAverageDailyDoseInputChange;
+      }
+
+      stats.push(stat);
+    });
+
+    this.log('stats', stats);
+
+    window.downloadStatData = () => {
+      console.save({
+        bgPrefs,
+        data: this.getCurrentData('data'),
+        endpoints,
+        stats,
+        timePrefs,
+      }, `stats-${chartType}.json`);
+    };
+
+    return stats;
+  },
 
   generatePDF: function (props, state) {
     // TODO: All data selection here to use new data worker
@@ -917,6 +968,14 @@ export let PatientData = translate()(React.createClass({
     }
 
     return endpoints;
+  },
+
+  getCurrentData: function(path) {
+    return _.get(this.props, `data.data.current.${path}`, {});
+  },
+
+  getMetaData: function(path) {
+    return _.get(this.props, `data.metaData.${path}`, {});
   },
 
   // TODO: move enpoints-setting per type here instead of in inidividual views and passing updateChartEndpoints?
