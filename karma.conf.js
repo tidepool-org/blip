@@ -7,12 +7,6 @@ const mochaConf = optional('./config/mocha.opts.json') || {};
 
 const testWebpackConf = _.assign({}, webpackConf, {
   devtool: 'inline-source-map',
-  plugins: [
-    new webpack.DefinePlugin({
-      __DEV__: false,
-      __TEST__: true,
-    }),
-  ],
 });
 
 delete testWebpackConf.devServer;

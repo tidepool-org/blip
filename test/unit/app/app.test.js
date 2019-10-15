@@ -6,10 +6,10 @@
 /* global beforeEach */
 /* global afterEach */
 
-var React = require('react');
-var createFragment = require('react-addons-create-fragment');
-var _ = require('lodash');
-var TestUtils = require('react-addons-test-utils');
+import _ from 'lodash';
+import React from 'react';
+import createFragment from 'react-addons-create-fragment';
+import TestUtils from 'react-dom/test-utils';
 
 import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';

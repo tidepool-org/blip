@@ -23,6 +23,7 @@ deploy/
 dist/
 config/*
 !config/local.sh
+!config/env.docker.sh
 test/bin
 web/
 artifact_node.sh
@@ -33,7 +34,7 @@ packageMounts/*
 # GitBook
 _book/
 
-# Use yarn.lock
+yarn.lock
 package-lock.json
 
 # Ignore old translation files

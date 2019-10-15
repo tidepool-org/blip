@@ -96,7 +96,7 @@ describe('Basics', () => {
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(1);
       expect(chart.length).to.equal(0);
-      expect(noDataMessage.text()).to.include('upload some device data');
+      expect(noDataMessage.text()).to.include('The Basics view shows a summary');
     });
 
     it('should render the basics chart if any data is uploaded', () => {

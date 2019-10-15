@@ -6,7 +6,7 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import sundial from 'sundial';
@@ -117,7 +117,8 @@ describe('Signup', function () {
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.equal('Create Tidepool Account')
+      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Create')
+      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Account')
     });
 
     it('should render the clinician signup-form when clinician was selected', function () {
@@ -134,7 +135,7 @@ describe('Signup', function () {
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.equal('Create Clinician Account')
+      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/)
     });
 
     it('should render the correct fields for the personal signup form', function() {
@@ -260,7 +261,7 @@ describe('Signup', function () {
 
       expect(wrapper.find('.signup-form').length).to.equal(1)
       expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.equal('Create Tidepool Account')
+      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/)
     });
 
     it('should set the state to show the clinician form according to the location pathname', function() {

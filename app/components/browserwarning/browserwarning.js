@@ -68,6 +68,8 @@ export default translate()(class BrowserWarning extends Component {
       copyButton = <button className="btn browser-warning-copy-button" onClick={() => self.copyText()}>{t('Please press Ctrl + C now')}</button>
     }
 
+    var url = (typeof window !== 'undefined') ? window.location.origin : 'https://www.your-loops.com';
+
     if (!utils.isMobile()) {
       downloadCopy = (<div>
         <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
@@ -75,12 +77,28 @@ export default translate()(class BrowserWarning extends Component {
         </a>
         {copyButton}
         <Trans className="browser-warning-text" i18nKey="html.browser-warning-text">
-          and paste it into <span className="dark-text">Chrome</span> to see this page on <span className="browser-warning-nowrap">your desktop computer.</span>
+          <span className="dark-text">Copy and paste</span>
+          <input type="text" className="blip-link-text" value={url} readOnly={true}></input>
+          <span className="dark-text">into Chrome.</span>
         </Trans>
         <div className="blip-link-text-wrap">
           <input type="text" className="blip-link-text" value="app.tidepool.org" readOnly={true}></input>
         </div>
       </div>);
+    }
+
+    var mobileApp = null;
+    if (utils.haveMobileApp()) {
+      mobileApp = (
+        <div className="browser-warning-mobile">
+          <div className="browser-warning-mobile-message">
+            {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}
+          </div>
+          <div className="browser-warning-mobile-appstore-container">
+            <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
+            <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
+          </div>
+        </div>);
     }
 
     return (
@@ -90,16 +108,8 @@ export default translate()(class BrowserWarning extends Component {
             {t('Tidepool Web works with Chrome on ')}
             <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
-          {downloadCopy} 
-          <div className="browser-warning-mobile">
-            <div className="browser-warning-mobile-message">
-              {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}
-            </div>
-            <div className="browser-warning-mobile-appstore-container">
-              <img alt='Download on the App Store' src={appstoreImageUrl} className="appstore-badge" onClick={handleClickiOS}/>
-              <img alt='Get it on Google Play' src={playstoreImageUrl} className="playstore-badge" onClick={handleClickAndroid}/>
-            </div>
-          </div>
+          {downloadCopy}
+          {mobileApp}
         </div>
       </div>
     );

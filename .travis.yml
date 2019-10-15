@@ -5,31 +5,43 @@ language: node_js
 dist: trusty
 
 node_js:
-  - "10.14.2"
+  - 10.15.3
   - node
 
-cache:
-  yarn: true
-  directories:
-    - node_modules
+cache: npm
+
+addons:
+  chrome: stable
 
 before_install:
   - if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-  - export PATH="$HOME/.yarn/bin:$PATH"
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 
 install:
-  - yarn install --frozen-lockfile
+  - npm install
 
-addons:
-  artifacts:
-    s3_region: us-west-2
-    paths:
-      - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
-    target_paths:
-      - /
-  chrome: stable
+deploy:
+  # Control deployment by setting a value for `on`. Setting the `branch`
+  # option to `master` means Travis will only attempt a deployment on
+  # builds of your repo's master branch (e.g., after you merge a PR).
+  on:
+    tags: true
+    node_js: 10.15.3
+#    branch: dbl
+  provider: s3
+  # You can refer to environment variables from Travis repo settings!
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  region: $AWS_DEFAULT_REGION
+  # Name of the S3 bucket to which your site should be uploaded.
+  bucket: $AWS_BUCKET
+  # Prevent Travis from deleting your built site so it can be uploaded.
+  skip_cleanup: true
+  # Path of the source directory containing your built site.
+  local_dir: deploy
+  # Path to a directory containing your built site.
+  upload-dir: deploy
+  # Set the Cache-Control header.
+  cache_control: "max-age=21600"
 
 services:
   - docker

@@ -6,6 +6,7 @@ _book
 artifact_node.sh
 config/*
 !config/local.sh
+!config/env.docker.sh
 deploy
 dist
 test/bin
@@ -14,7 +15,7 @@ tmp
 web
 *.log
 
-# Use yarn.lock
+yarn.lock
 package-lock.json
 
 # Ignore old translation files

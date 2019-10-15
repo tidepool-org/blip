@@ -3,8 +3,6 @@
 /* global sinon */
 /* global it */
 
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 import _ from 'lodash';
 var assert = chai.assert;
 var expect = chai.expect;

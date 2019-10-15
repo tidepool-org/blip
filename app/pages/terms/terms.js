@@ -23,22 +23,30 @@ import i18next from '../../core/language';
 import config from '../../config';
 import LoginNav from '../../components/loginnav';
 import utils  from '../../core/utils';
-import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
+import { CONFIG } from '../../core/constants';
 
 import * as actions from '../../redux/actions';
 
 const t = i18next.t.bind(i18next);
 
+var brand = CONFIG[__BRANDING__].name;
+
+var urlTermsOfUse = CONFIG[__BRANDING__].terms;
+var textTermsOfUse = CONFIG[__BRANDING__].termsText;
+
+var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
+var textPrivacyPolicy = CONFIG[__BRANDING__].privacyText;
+
 const ACCEPT_OF_AGE = <Trans parent="span" i18nKey="html.terms-accept-of-age">
-  I am 18 or older and I accept the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+  I am 18 or older and I accept the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
 </Trans>;
 
 const ACCEPT_ON_BEHALF = <Trans parent="span" i18nKey="html.terms-accept-on-behalf">
-  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+  I agree that my child aged 13 through 17 can use {brand} Applications and agree that they are also bound to the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
 </Trans>;
 
 const TERMS_OF_USE_UPDATED = <Trans parent="span" i18nKey="html.terms-of-use-updated">
-  The Terms of Use and Privacy Policy have changed since you last used Tidepool.<br/>
+  The Terms of Use and Privacy Policy have changed since you last used {brand}.<br/>
   You need to accept the changes to continue.
 </Trans>;
 

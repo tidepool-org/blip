@@ -16,6 +16,7 @@
  */
 
 import i18next from './language';
+import config from '../config'
 
 const t = i18next.t.bind(i18next);
 
@@ -28,6 +29,27 @@ export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-c
 export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/'
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
+// BRANDING
+export const CONFIG = {
+  'tidepool': {
+    name: 'Tidepool',
+    support:'http://support.tidepool.org/',
+    legal:'http://tidepool.org/legal/',
+    terms: URL_TERMS_OF_USE,
+    termsText: t('Tidepool Applications Terms of Use'),
+    privacy: URL_PRIVACY_POLICY,
+    privacyText: t('Privacy Policy')
+  },
+  'diabeloop': {
+    name: 'YourLoops',
+    support: 'https://www.diabeloop.com',
+    legal: config.ASSETS_URL + 'terms.pdf',
+    terms: config.ASSETS_URL + 'terms.pdf',
+    termsText: t('Diabeloop Applications Terms of Use'),
+    privacy: config.ASSETS_URL + 'data-privacy.pdf',
+    privacyText: t('Privacy Policy')
+  }
+};
 
 export const DATA_DONATION_NONPROFITS = () => [
   { value: 'AADE', label: t('AADE Foundation') },

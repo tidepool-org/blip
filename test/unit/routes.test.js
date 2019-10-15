@@ -2,6 +2,7 @@
 /* global sinon */
 /* global describe */
 /* global it */
+/* global before */
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -11,6 +12,7 @@ import {
   requireAuth,
   requireAuthAndNoPatient,
   requireNoAuth,
+  requireNoAuthAndPatientSignupAllowed,
   requireNotVerified,
   onUploaderPasswordReset,
   hashToUrl,
@@ -18,7 +20,6 @@ import {
   onOtherRouteEnter,
   ensureNoAuth
 } from '../../app/routes';
-
 import config from '../../app/config';
 
 var expect = chai.expect;
@@ -30,9 +31,9 @@ describe('routes', () => {
   ]);
 
   describe('requiresChrome', () => {
-    it('should not redirect and call next when isChrome is true', () => {
+    it('should not redirect and call next when isAcceptedBrowser is true', () => {
       let utils = {
-        isChrome: sinon.stub().returns(true)
+        isAcceptedBrowser: sinon.stub().returns(true)
       };
 
       let next = sinon.stub();
@@ -42,15 +43,15 @@ describe('routes', () => {
 
       requiresChrome(utils, next)(nextState, replace, cb);
 
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isAcceptedBrowser.callCount).to.equal(1);
       expect(replace.callCount).to.equal(0);
       expect(cb.callCount).to.equal(0);
       expect(next.withArgs(nextState, replace, cb).callCount).to.equal(1);
     });
 
-    it('should redirect and call cb when isChrome is false', () => {
+    it('should redirect and call cb when isAcceptedBrowser is false', () => {
       let utils = {
-        isChrome: sinon.stub().returns(false)
+        isAcceptedBrowser: sinon.stub().returns(false)
       };
 
       let next = sinon.stub();
@@ -60,7 +61,7 @@ describe('routes', () => {
 
       requiresChrome(utils, next)(nextState, replace, cb);
 
-      expect(utils.isChrome.callCount).to.equal(1);
+      expect(utils.isAcceptedBrowser.callCount).to.equal(1);
       expect(replace.withArgs('/browser-warning').callCount).to.equal(1);
       expect(cb.callCount).to.equal(1);
       expect(next.callCount).to.equal(0);
@@ -975,5 +976,85 @@ describe('routes', () => {
 
       expect(replace.withArgs('/login').callCount).to.equal(1);
     })
+  });
+
+  describe('requireNoAuthAndAllowedPatientSignup', () => {
+    describe('Configuration allowing signup of patient', () => {
+
+      before(() => {
+        config.ALLOW_SIGNUP_PATIENT = true;
+      });
+
+      it('should update route to /patients if user is authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
+      });
+
+      it('should not update route if user is not authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(false)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.callCount).to.equal(0);
+      });
+    });
+
+    describe('Configuration NOT allowing signup of patient (only clinician)', () => {
+
+      before(() => {
+        config.ALLOW_SIGNUP_PATIENT = false;
+      });
+
+      it('should update route to /patients if user is authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(true)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
+      });
+
+      it('should update route to /signup if user is not authenticated', () => {
+        let api = {
+          user: {
+            isAuthenticated: sinon.stub().returns(false)
+          }
+        };
+
+        let replace = sinon.stub();
+
+        expect(replace.callCount).to.equal(0);
+
+        requireNoAuthAndPatientSignupAllowed(api)(null, replace);
+
+        expect(replace.withArgs('/signup').callCount).to.equal(1);
+      });
+    });
   });
 });

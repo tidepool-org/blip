@@ -54,7 +54,16 @@ const config = {
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   PASSWORD_MAX_LENGTH: integerFromText(__PASSWORD_MAX_LENGTH__, 72),
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
-  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false)
+  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
+  ALLOW_SIGNUP_PATIENT: booleanFromText(__ALLOW_SIGNUP_PATIENT__, true),
+  ALLOW_PATIENT_CHANGE_EMAIL: booleanFromText(__ALLOW_PATIENT_CHANGE_EMAIL__, true),
+  ALLOW_PATIENT_CHANGE_PASSWORD: booleanFromText(__ALLOW_PATIENT_CHANGE_PASSWORD__, true),
+  HELP_LINK: __HELP_LINK__ || null,
+  ASSETS_URL: __ASSETS_URL__ || null,
+  HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),
+  HIDE_DEXCOM_BANNER: booleanFromText(__HIDE_DEXCOM_BANNER__ , false),
+  HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false),
+  BRANDING: __BRANDING__ || 'tidepool'
 }
 
 if (__DEV__) {

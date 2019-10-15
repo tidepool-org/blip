@@ -3,9 +3,9 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var _ = require('lodash');
+import _ from 'lodash';
+import React from 'react';
+import TestUtils from 'react-dom/test-utils';
 var expect = chai.expect;
 
 import Header from '../../../../app/components/chart/header'

@@ -12,7 +12,10 @@
     "__UPLOAD_API__": false,
     "__API_HOST__": false,
     "__INVITE_KEY__": false,
-    "__LATEST_TERMS__": false
+    "__LATEST_TERMS__": false,
+    "__HIDE_DONATE__": false,
+    "__HIDE_DEXCOM_BANNER__": false,
+    "__BRANDING__": false
   },
   "rules": {
     "quotes": [2, "single", {

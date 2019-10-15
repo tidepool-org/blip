@@ -36,12 +36,15 @@ import TidepoolNotification from '../../components/notification';
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
+
+import Config from '../../config';
 
 // Styles
 require('tideline/css/tideline.less');
 require('../../style.less');
 
+document.title = CONFIG[__BRANDING__].name;
 export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: React.PropTypes.bool.isRequired,
@@ -161,7 +164,7 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the donate banner.
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDonateBanner !== false) {
+    if (!__HIDE_DONATE__ && showingDonateBanner !== false) {
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
@@ -177,7 +180,7 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner !== false && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
@@ -190,6 +193,16 @@ export class AppComponent extends React.Component {
         this.props.hideBanner('dexcom');
       }
     }
+    if (Config.HELP_LINK !== null && this.props.authenticated && typeof window.zE === 'function') {
+      let name = this.props.user.profile.fullName;
+      let email = this.props.user.emails[0];
+
+      window.zE('webWidget', 'prefill', {
+        name: { value: name, readOnly: true },
+        email: { value: email, readOnly: true },
+      });
+    }
+
   }
 
   /**
@@ -262,7 +275,7 @@ export class AppComponent extends React.Component {
       userIsDonor,
     } = this.props;
 
-    if (showingDonateBanner) {
+    if (!__HIDE_DONATE__ && showingDonateBanner) {
       return (
         <div className="App-donatebanner">
           <DonateBanner
@@ -289,7 +302,7 @@ export class AppComponent extends React.Component {
       patient,
     } = this.props;
 
-    if (showingDexcomConnectBanner) {
+    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
           <DexcomBanner

@@ -208,6 +208,36 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderNoData: function() {
+    if (config.HIDE_UPLOAD_LINK) {
+      return this.renderNoDataWithoutUploadLink();
+    }
+    return this.renderNoDataWithUploadLink();
+  },
+
+  renderNoDataWithoutUploadLink: function() {
+    const { t } = this.props;
+    var header = this.renderEmptyHeader();
+    var noDataText = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
+    var reloadBtnText = t('Click to reload.');
+
+    return (
+      <div>
+        {header}
+        <div className="container-box-outer patient-data-content-outer">
+          <div className="container-box-inner patient-data-content-inner">
+            <div className="patient-data-content">
+              <div className="patient-data-message-no-data">
+                <p>{noDataText}</p>
+                <button type="button" className="btn btn-primary" onClick={this.handleClickNoDataRefresh}>{reloadBtnText}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+
+  renderNoDataWithUploadLink: function() {
     const { t } = this.props;
     var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
     var header = this.renderEmptyHeader();

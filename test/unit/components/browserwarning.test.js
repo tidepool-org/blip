@@ -1,15 +1,23 @@
 /* global chai */
 /* global describe */
+/* global before */
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
-
+import React from 'react';
+import TestUtils from 'react-dom/test-utils';
 import BrowserWarning from '../../../app/components/browserwarning';
 
+var expect = chai.expect;
+
 describe('BrowserWarning', function () {
+  before(() => {
+    if (typeof window.config !== 'object') {
+      window.config = {};
+    }
+    window.config.BRANDING = 'tidepool';
+  });
+
   it('should be a function', function() {
     expect(BrowserWarning).to.be.a('function');
   });

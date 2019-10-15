@@ -118,11 +118,11 @@ describe('DexcomBanner', () => {
     });
 
     it('should render a dexcom message', () => {
-      const expectedText = 'Using Dexcom G5 Mobile on Android? See your data in Tidepool.'
+      const expectedText = new RegExp(/Using Dexcom G[1-9] Mobile on Android\? See your data in/, 'g');
       const messageText = wrapper.find('.message-text');
 
       expect(messageText).to.have.length(1);
-      expect(messageText.text()).contains(expectedText);
+      expect(messageText.text()).to.match(expectedText);
     });
 
     it('should render a link to the dexcom connect info on the website', () => {

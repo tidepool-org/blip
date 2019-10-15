@@ -29,7 +29,6 @@ package.json
 postcss.config.js
 server.js
 start.sh
-test.config.js
 update-gh-pages.sh
 webpack.config.js
 yarn.lock

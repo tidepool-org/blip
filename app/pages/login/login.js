@@ -17,7 +17,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate } from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
@@ -30,6 +30,12 @@ import { validateForm } from '../../core/validation';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
+
+import CookieConsent from 'react-cookie-consent';
+
+import Config from '../../config'
+import { CONFIG } from '../../core/constants';
+
 
 export let Login = translate()(React.createClass({
   propTypes: {
@@ -69,28 +75,72 @@ export let Login = translate()(React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('User Reached login page');
+    }
+
+    if (Config.HELP_LINK !== null) {
+      window.zESettings = {
+        webWidget: {
+          helpCenter: {
+            filter: {
+              category: '360001386093'
+            }
+          }
+        }
+      };
+    }
+  },
+
   render: function() {
+    const { t } = this.props;
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
+    var browserWarning = this.renderBrowserWarning();
+
+    var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
+    var urlTermsOfUse = CONFIG[__BRANDING__].terms;
+
+    var cookieText = (
+      <Trans i18nKey="html.cookie-content">
+        <div>
+          Please consult our <a href={urlPrivacyPolicy} className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Data Privacy</a> and our <a href={urlTermsOfUse} className="link-cookieConsent" target="_blank" rel="noreferrer noopener">Terms of Use</a>
+        </div>
+      </Trans>
+    );
+    var acceptText = t('Accept');
 
     return (
-      <div className="login">
+      <div>
         <LoginNav
           page="login"
           hideLinks={Boolean(this.props.seedEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
+        {browserWarning}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
           </div>
         </div>
+        <CookieConsent
+          location="bottom"
+          buttonText={acceptText}
+          cookieName="CookieConsent"
+          disableStyles={true}
+          containerClasses="login-cookieConsent-container"
+          contentClasses="login-cookieConsent-content"
+          buttonClasses="simple-form-submit btn btn-primary js-form-submit"
+          expires={365}>
+          {cookieText}
+        </CookieConsent>
       </div>
     );
   },
 
-  renderInviteIntroduction: function() {
+  renderInviteIntroduction: function(){
     const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
@@ -101,6 +151,19 @@ export let Login = translate()(React.createClass({
         <p>{t('You\'ve been invited to Tidepool.')}</p><p>{t('Log in to view the invitation.')}</p>
       </div>
     );
+  },
+
+  renderBrowserWarning: function() {
+    const { t } = this.props;
+
+    if (!utils.isChrome()) {
+      return (
+        <div className='login-browserWarning'>
+          <br></br>
+          <p>{t('BrowserWarning')}</p>
+        </div>
+      );
+    }
   },
 
   renderForm: function() {

@@ -1,8 +1,13 @@
 ### Stage 0 - Base image
-FROM node:10.14.2-alpine as base
+FROM node:10.15.3-alpine as base
 WORKDIR /app
-RUN mkdir -p dist node_modules && chown -R node:node .
-
+RUN \
+  mkdir -p dist node_modules \
+  && chown -R node:node . \
+  && apk --no-cache  update \
+  && apk --no-cache  upgrade \
+  && apk add --no-cache git openssh-client wget \
+  && npm install --global npm@latest
 
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
 FROM base as developBase
@@ -10,8 +15,6 @@ RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && apk --no-cache  update \
-  && apk --no-cache  upgrade \
   && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
@@ -24,20 +27,23 @@ ENV \
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
 COPY package.json .
-COPY yarn.lock .
+ENV nexus_token=''
+# Run as node user, so that npm run the prepare scripts in dependencies
+USER node
 RUN \
   # Build and separate all dependancies required for production
-  yarn install --production && cp -R node_modules production_node_modules \
+  npm install --only=production \
+  && cp -ra node_modules production_node_modules \
   # Build all modules, including `devDependancies`
-  && yarn install
-COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
-COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
-COPY packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
+  && npm install
+COPY packageMounts/stub packageMounts/tideline/package*.json* /app/packageMounts/tideline/
+COPY packageMounts/stub packageMounts/tidepool-platform-client/package*.json*  /app/packageMounts/tidepool-platform-client/
+COPY packageMounts/stub packageMounts/@tidepool/viz/package*.json* /app/packageMounts/@tidepool/viz/
 ARG LINKED_PKGS=""
 RUN \
   # Build all modules for mounted packages (used when npm linking in development containers)
-  for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done \
-  && yarn cache clean
+  for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && npm install; done \
+  && npm cache clean --force
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
@@ -52,7 +58,7 @@ COPY --chown=node:node . .
 # Link any packages as needed
 USER node
 ARG LINKED_PKGS=""
-RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
+RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && npm link && cd /app && npm link ${i}; done
 CMD ["npm", "start"]
 
 
@@ -83,12 +89,14 @@ ENV \
 
 ### Stage 6 - Build production-ready release
 FROM buildBase as build
-USER node
 # Copy all `node_modules` from `dependancies` layer
 COPY --from=dependencies /app/node_modules ./node_modules
 # Copy source files, and possibily invalidate so we have to rebuild
 COPY . .
-RUN npm run build
+USER node
+RUN \
+  source ./config/env.docker.sh \
+  && npm run build
 
 
 ### Stage 7 - Serve production-ready release
@@ -103,3 +111,8 @@ COPY --from=build \
   /app/server.js \
   ./
 CMD ["npm", "run", "server"]
+
+
+### Stage 7.5 - Serve docker-compose-ready release
+FROM build AS dockerStack
+CMD ["sh", "-c", "npm run build-config && npm run server"]

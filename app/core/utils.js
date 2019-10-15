@@ -65,15 +65,28 @@ utils.getIn = (obj, props, notFound) => {
   return result.child;
 };
 
+utils.isAcceptedBrowser = () => {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return (userAgent.indexOf('chrome') > -1
+    || userAgent.indexOf('firefox') > -1
+    || userAgent.indexOf('crios') > -1
+    || userAgent.indexOf('edge') > -1);
+};
+
 utils.isChrome = () => {
   var userAgent = navigator.userAgent.toLowerCase();
-  return (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1);
+  return (userAgent.indexOf('chrome') > -1
+    || userAgent.indexOf('crios') > -1);
 };
 
 utils.isMobile = () => {
   var userAgent = navigator.userAgent.toLowerCase();
   return (userAgent.indexOf('mobi') > -1);
 };
+
+utils.haveMobileApp = () => {
+  return window.config.BRANDING === 'tidepool';
+}
 
 utils.validateEmail = email => {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
