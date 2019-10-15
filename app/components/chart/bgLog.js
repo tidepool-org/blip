@@ -218,8 +218,6 @@ class BgLog extends Component {
   };
 
   render = () => {
-    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
-
     return (
       <div id="tidelineMain" className="bgLog">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -234,11 +232,8 @@ class BgLog extends Component {
             <div className="patient-data-sidebar-inner">
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                stats={this.props.stats}
               />
             </div>
           </div>

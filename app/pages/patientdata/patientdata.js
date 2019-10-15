@@ -361,12 +361,13 @@ export let PatientData = translate()(React.createClass({
         return (
           <Daily
             bgPrefs={this.state.bgPrefs}
+            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.props.data}
+            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -381,19 +382,21 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
+            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'trends':
         return (
           <Trends
             bgPrefs={this.state.bgPrefs}
+            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.props.data}
+            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -406,6 +409,7 @@ export let PatientData = translate()(React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             trendsState={this.props.viz.trends}
+            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'bgLog':
@@ -418,7 +422,7 @@ export let PatientData = translate()(React.createClass({
             isClinicAccount={personUtils.isClinic(this.props.user)}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.props.data}
+            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -433,6 +437,7 @@ export let PatientData = translate()(React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
+            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'settings':

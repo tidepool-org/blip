@@ -47,7 +47,7 @@ const {ClipboardButton, Loader} = viz.components;
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
+    bgSources: React.PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
     dataUtil: PropTypes.object,
@@ -276,20 +276,6 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
-  handleStatsChange = stats => {
-    this.setState({ stats });
-
-    window.downloadStatData = () => {
-      console.save({
-        bgPrefs: this.props.bgPrefs,
-        chartPrefs: this.props.chartPrefs[this.chartType],
-        endpoints: this.state.endpoints,
-        stats: stats,
-        timePrefs: this.props.timePrefs,
-      }, 'stats-trends.json');
-    };
-  };
-
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent,
@@ -388,8 +374,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   render() {
-    const { currentPatientInViewId, t } = this.props;
-    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
+    const { currentPatientInViewId, bgSources, t } = this.props;
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -423,12 +408,8 @@ const Trends = translate()(class Trends extends PureComponent {
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
-                onStatsChange={this.handleStatsChange}
+                stats={this.props.stats}
               />
             </div>
           </div>

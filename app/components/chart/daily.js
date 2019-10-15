@@ -203,7 +203,7 @@ const DailyChart = translate()(class DailyChart extends Component {
 class Daily extends Component {
   static propTypes = {
     bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
+    bgSources: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     dataUtil: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
@@ -261,8 +261,6 @@ class Daily extends Component {
   };
 
   render = () => {
-    const bgSources = _.get(this.props.patientData, 'metaData.bgSources', {});
-
     return (
       <div id="tidelineMain" className="daily">
         <Header
@@ -320,18 +318,15 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSources={bgSources}
+                bgSources={this.props.bgSources}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
                 bgPrefs={this.props.bgPrefs}
-                bgSource={bgSources.current}
                 chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                stats={this.props.stats}
               />
             </div>
           </div>

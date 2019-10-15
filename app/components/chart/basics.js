@@ -96,10 +96,10 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <ClipboardButton // TODO: replace this.props.patientData.basicsData appropriately
+                <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.data)}
                 />
                 <BgSourceToggle
                   bgSources={bgSources}
@@ -117,9 +117,10 @@ class Basics extends Component {
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-        ref="footer" />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          ref="footer"
+        />
       </div>
       );
   };
@@ -213,27 +214,6 @@ class Basics extends Component {
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs);
   };
-
-  // handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
-  //   const prefs = _.cloneDeep(this.props.chartPrefs);
-  //   prefs.basics.averageDailyDose = {
-  //     inputValue,
-  //     suffixValue,
-  //   };
-  //   this.props.updateChartPrefs(prefs);
-  // };
-
-  // handleStatsChange = stats => { // TODO: Likely find another way of exporting stats data
-  //   window.downloadStatData = () => {
-  //     console.save({
-  //       bgPrefs: this.props.bgPrefs,
-  //       data: this.props.patientData.basicsData,
-  //       endpoints: this.props.endpoints,
-  //       stats: stats,
-  //       timePrefs: this.props.timePrefs,
-  //     }, 'stats-basics.json');
-  //   };
-  // };
 
   handleClickBasics = e => {
     if (e) {
