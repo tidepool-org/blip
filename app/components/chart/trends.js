@@ -30,15 +30,12 @@ import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
-import { BG_DATA_TYPES } from '../../core/constants';
-
 
 import * as viz from '@tidepool/viz';
 const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
 const TrendsContainer = viz.containers.TrendsContainer;
-const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
 const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
 const trendsText = viz.utils.text.trendsText;
@@ -46,17 +43,11 @@ const {ClipboardButton, Loader} = viz.components;
 
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
-    bgPrefs: PropTypes.object.isRequired,
-    bgSources: React.PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
-    dataUtil: PropTypes.object,
-    timePrefs: PropTypes.object.isRequired,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
-    patient: React.PropTypes.object,
-    patientData: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
-    trendsState: PropTypes.object.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -64,7 +55,9 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
     trackMetric: PropTypes.func.isRequired,
+    trendsState: PropTypes.object.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     updateDatetimeLocation: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
@@ -73,7 +66,6 @@ const Trends = translate()(class Trends extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.bgBounds = reshapeBgClassesToBgBounds(props.bgPrefs);
     this.chartType = 'trends';
     this.log = bows('Trends');
 
@@ -397,19 +389,18 @@ const Trends = translate()(class Trends extends PureComponent {
               <ClipboardButton
                 buttonTitle={t('For email or notes')}
                 onSuccess={this.handleCopyTrendsClicked}
-                getText={trendsText.bind(this, this.props.patient, this.state.stats, this.state.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.chartPrefs[this.chartType])}
+                getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.chartPrefs[this.chartType])}
               />
               <BgSourceToggle
-                bgSources={bgSources}
+                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
-                bgPrefs={this.props.bgPrefs}
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={this.props.stats}
+                stats={_.get(this.props, 'data.stats', [])}
               />
             </div>
           </div>
@@ -452,25 +443,25 @@ const Trends = translate()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
-      ref="header" />
+        ref="header" />
     );
   }
 
   renderSubNav() {
     return (
       <SubNav
-       activeDays={this.props.chartPrefs.trends.activeDays}
-       activeDomain={this.props.chartPrefs.trends.activeDomain}
-       extentSize={this.props.chartPrefs.trends.extentSize}
-       domainClickHandlers={{
-        '1 week': this.handleClickOneWeek,
-        '2 weeks': this.handleClickTwoWeeks,
-        '4 weeks': this.handleClickFourWeeks
-       }}
-       onClickDay={this.toggleDay}
-       toggleWeekdays={this.toggleWeekdays}
-       toggleWeekends={this.toggleWeekends}
-      ref="subnav" />
+        activeDays={this.props.chartPrefs.trends.activeDays}
+        activeDomain={this.props.chartPrefs.trends.activeDomain}
+        extentSize={this.props.chartPrefs.trends.extentSize}
+        domainClickHandlers={{
+         '1 week': this.handleClickOneWeek,
+         '2 weeks': this.handleClickTwoWeeks,
+         '4 weeks': this.handleClickFourWeeks
+        }}
+        onClickDay={this.toggleDay}
+        toggleWeekdays={this.toggleWeekdays}
+        toggleWeekends={this.toggleWeekends}
+        ref="subnav" />
     );
   }
 
@@ -478,10 +469,7 @@ const Trends = translate()(class Trends extends PureComponent {
     return (
       <TrendsContainer
         activeDays={this.props.chartPrefs.trends.activeDays}
-        bgPrefs={{
-          bgBounds: this.bgBounds,
-          bgUnits: this.props.bgPrefs.bgUnits,
-        }}
+        bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -523,7 +511,7 @@ const Trends = translate()(class Trends extends PureComponent {
     if (showingCbg) {
       return (
         <FocusedRangeLabels
-          bgPrefs={this.props.bgPrefs}
+          bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
           dataType={'cbg'}
           focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
           focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
@@ -532,7 +520,7 @@ const Trends = translate()(class Trends extends PureComponent {
     } else if (showingSmbg) {
       return (
         <FocusedRangeLabels
-          bgPrefs={this.props.bgPrefs}
+          bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
           dataType={'smbg'}
           focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
           timePrefs={this.props.timePrefs} />
@@ -548,7 +536,7 @@ const Trends = translate()(class Trends extends PureComponent {
     const { currentPatientInViewId } = this.props;
     return (
       <FocusedSMBGPointLabel
-        bgPrefs={this.props.bgPrefs}
+        bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
         timePrefs={this.props.timePrefs}
         grouped={this.props.chartPrefs.trends.smbgGrouped}
         lines={this.props.chartPrefs.trends.smbgLines}

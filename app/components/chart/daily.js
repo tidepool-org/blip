@@ -26,7 +26,6 @@ import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
-import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -202,15 +201,11 @@ const DailyChart = translate()(class DailyChart extends Component {
 
 class Daily extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSources: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
+    pdf: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -318,15 +313,15 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSources={this.props.bgSources}
+                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
-                bgPrefs={this.props.bgPrefs}
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={this.props.stats}
+                stats={_.get(this.props, 'data.stats', [])}
               />
             </div>
           </div>

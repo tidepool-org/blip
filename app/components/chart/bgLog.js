@@ -25,7 +25,6 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import Stats from './stats';
-import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -159,11 +158,11 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
+    loading: React.PropTypes.bool.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
@@ -172,10 +171,7 @@ class BgLog extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -231,9 +227,9 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <Stats
-                bgPrefs={this.props.bgPrefs}
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={this.props.stats}
+                stats={_.get(this.props, 'data.stats', [])}
               />
             </div>
           </div>
