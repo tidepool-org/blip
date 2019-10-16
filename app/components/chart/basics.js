@@ -22,6 +22,7 @@ class Basics extends Component {
     chartPrefs: React.PropTypes.object.isRequired,
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
+    loading: React.PropTypes.bool.isRequired,
     patient: React.PropTypes.object,
     pdf: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
