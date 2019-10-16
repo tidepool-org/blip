@@ -178,11 +178,6 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    console.log('renderPatientData');
-    console.log('this.isInitialProcessing()', this.isInitialProcessing());
-    console.log('this.state.loading', this.state.loading);
-    console.log('this.isEmptyPatientData()', this.isEmptyPatientData());
-    console.log('this.isInsufficientPatientData()', this.isInsufficientPatientData());
     if (this.isInitialProcessing() && this.state.loading) {
       return this.renderInitialLoading();
     }
@@ -299,11 +294,9 @@ export let PatientData = translate()(React.createClass({
       <div>
         <div className="app-no-print">
           <Settings
-            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
-            timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -323,20 +316,25 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
+    const data = { ...this.props.data, stats: this.generateStats() };
+    if (_.get(data, 'data.current.stats')) data.data.current.stats = this.generateStats();
+
+    window.downloadChartData = () => {
+      console.save({
+        data,
+        chartPrefs: this.state.chartPrefs[this.state.chartType],
+      }, `data-${this.state.chartType}.json`);
+    };
+
     switch (this.state.chartType) {
       case 'basics':
         return (
           <Basics
-            aggregationsByDate={this.getCurrentData('aggregationsByDate')}
-            bgPrefs={this.state.bgPrefs}
-            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
-            endpoints={this.getCurrentData('endpoints.range')}
-            timePrefs={this.state.timePrefs}
+            data={data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            latestPumpUpload={this.getMetaData('latestPumpUpload')}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -353,20 +351,16 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
-            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'daily':
         return (
           <Daily
-            bgPrefs={this.state.bgPrefs}
-            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.state.timePrefs}
+            data={data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -381,21 +375,17 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             pdf={this.props.pdf.combined || {}}
-            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'trends':
         return (
           <Trends
-            bgPrefs={this.state.bgPrefs}
-            bgSources={this.getMetaData('bgSources')}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
+            data={data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -404,24 +394,21 @@ export let PatientData = translate()(React.createClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             trackMetric={this.props.trackMetric}
+            trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
-            trendsState={this.props.viz.trends}
-            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'bgLog':
         return (
           <BgLog
-            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            timePrefs={this.state.timePrefs}
+            data={data}
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicAccount={personUtils.isClinic(this.props.user)}
             loading={this.state.loading}
             patient={this.props.patient}
-            patientData={this.getCurrentData('data')}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -436,7 +423,6 @@ export let PatientData = translate()(React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
-            stats={this.generateStats()}
             ref="tideline" />
           );
       case 'settings':
@@ -594,17 +580,6 @@ export let PatientData = translate()(React.createClass({
     });
 
     this.log('stats', stats);
-
-    window.downloadStatData = () => {
-      console.save({
-        bgPrefs,
-        data: this.getCurrentData('data'),
-        endpoints,
-        stats,
-        timePrefs,
-      }, `stats-${chartType}.json`);
-    };
-
     return stats;
   },
 

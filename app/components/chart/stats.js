@@ -29,7 +29,6 @@ Stats.propTypes = {
   bgPrefs: PropTypes.object.isRequired,
   chartPrefs: PropTypes.object.isRequired,
   stats: PropTypes.array.isRequired,
-  // onAverageDailyDoseInputChange: PropTypes.func, // TODO: still need this?
 };
 
 export default Stats
