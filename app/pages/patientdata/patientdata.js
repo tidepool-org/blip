@@ -124,6 +124,7 @@ export let PatientData = translate()(React.createClass({
         bgLog: {
           bgSource: 'smbg',
         },
+        settings: {},
       },
       printOpts: {
         numDays: {
