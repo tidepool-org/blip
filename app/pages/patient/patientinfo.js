@@ -671,12 +671,16 @@ var PatientInfo = translate()(React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
     var formValues = this.getFormValues();
+    const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
 
     this.setState({validationErrors: {}});
 
     var isNameRequired = personUtils.patientIsOtherPerson(this.props.patient);
-    var validationErrors = personUtils.validateFormValues(formValues, isNameRequired,  FORM_DATE_FORMAT);
+    var validationErrors = personUtils.validateFormValues(formValues, isNameRequired, FORM_DATE_FORMAT);
 
+    if(permsOfLoggedInUser.hasOwnProperty('custodian') && validationErrors.diagnosisDate === personUtils.OUT_OF_ORDER_TEXT){
+      delete validationErrors.diagnosisDate;
+    }
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         validationErrors: validationErrors
@@ -751,7 +755,7 @@ var PatientInfo = translate()(React.createClass({
       if (personUtils.patientIsOtherPerson(this.props.patient)) {
         _.assign(updatedPatientProfile, {fullName: formValues.fullName});
       } else {
-        updatedPatient.fullName = formValues.fullName;
+        updatedPatient.profile.fullName = formValues.fullName;
       }
     }
 
