@@ -317,12 +317,12 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
-    const data = { ...this.props.data, stats: this.generateStats() };
-    if (_.get(data, 'data.current.stats')) data.data.current.stats = this.generateStats();
+    const stats = this.generateStats();
 
     window.downloadChartData = () => {
       console.save({
-        data,
+        data: this.props.data,
+        stats,
         chartPrefs: this.state.chartPrefs[this.state.chartType],
       }, `data-${this.state.chartType}.json`);
     };
@@ -332,11 +332,9 @@ export let PatientData = translate()(React.createClass({
         return (
           <Basics
             chartPrefs={this.state.chartPrefs}
-            data={data}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
-            patient={this.props.patient}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -346,22 +344,24 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            pdf={this.props.pdf.combined || {}}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            stats={stats}
             updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
         return (
           <Daily
             chartPrefs={this.state.chartPrefs}
-            data={data}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
-            patient={this.props.patient}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -372,10 +372,12 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            pdf={this.props.pdf.combined || {}}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -383,10 +385,9 @@ export let PatientData = translate()(React.createClass({
           <Trends
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            data={data}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
-            patient={this.props.patient}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -394,6 +395,8 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
@@ -405,11 +408,10 @@ export let PatientData = translate()(React.createClass({
         return (
           <BgLog
             chartPrefs={this.state.chartPrefs}
-            data={data}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicAccount={personUtils.isClinic(this.props.user)}
             loading={this.state.loading}
-            patient={this.props.patient}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -419,6 +421,8 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
@@ -552,7 +556,6 @@ export let PatientData = translate()(React.createClass({
       chartType,
       chartPrefs,
       bgPrefs,
-      timePrefs,
     } = this.state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');

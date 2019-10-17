@@ -206,6 +206,7 @@ class Daily extends Component {
     initialDatetimeLocation: React.PropTypes.string,
     loading: React.PropTypes.bool.isRequired,
     pdf: React.PropTypes.object.isRequired,
+    stats: React.PropTypes.array.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -321,7 +322,7 @@ class Daily extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={_.get(this.props, 'data.stats', [])}
+                stats={this.props.stats}
               />
             </div>
           </div>

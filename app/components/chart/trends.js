@@ -45,7 +45,7 @@ const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
-    data: React.PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
@@ -54,8 +54,9 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    patient: PropTypes.object,
+    stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     trendsState: PropTypes.object.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
@@ -389,7 +390,7 @@ const Trends = translate()(class Trends extends PureComponent {
               <ClipboardButton
                 buttonTitle={t('For email or notes')}
                 onSuccess={this.handleCopyTrendsClicked}
-                getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.chartPrefs[this.chartType])}
+                getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
               />
               <BgSourceToggle
                 bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -400,7 +401,7 @@ const Trends = translate()(class Trends extends PureComponent {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={_.get(this.props, 'data.stats', [])}
+                stats={this.props.stats}
               />
             </div>
           </div>

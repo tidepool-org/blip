@@ -33,6 +33,7 @@ class Basics extends Component {
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
     pdf: React.PropTypes.object.isRequired,
+    stats: React.PropTypes.array.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateBasicsData: React.PropTypes.func.isRequired,
@@ -64,6 +65,8 @@ class Basics extends Component {
   render = () => {
     const { t } = this.props;
 
+    console.log('this.props.stats', this.props.stats);
+
     return (
       <div id="tidelineMain" className="basics">
         <Header
@@ -94,7 +97,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.data)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats)}
                 />
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -105,7 +108,7 @@ class Basics extends Component {
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
-                  stats={_.get(this.props, 'data.stats', [])}
+                  stats={this.props.stats}
                 />
               </div>
             </div>

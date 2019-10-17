@@ -172,6 +172,7 @@ class BgLog extends Component {
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     pdf: React.PropTypes.object.isRequired,
+    stats: React.PropTypes.array.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -229,7 +230,7 @@ class BgLog extends Component {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={_.get(this.props, 'data.stats', [])}
+                stats={this.props.stats}
               />
             </div>
           </div>
