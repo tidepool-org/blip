@@ -10,9 +10,6 @@ node_js:
 
 cache: npm
 
-addons:
-  chrome: stable
-
 before_install:
   - if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
 
@@ -45,6 +42,9 @@ deploy:
 
 services:
   - docker
+
+addons:
+  chrome: stable
 
 script:
   - npm test

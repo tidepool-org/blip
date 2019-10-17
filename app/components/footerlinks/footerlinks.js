@@ -18,6 +18,7 @@
 import React, { PropTypes } from 'react';
 
 import { CONFIG } from '../../core/constants';
+import i18next from 'i18next';
 
 require('./images/jdrf.png');
 require('./images/jdrf_hover.png');
@@ -25,6 +26,7 @@ require('./images/jdrf_hover.png');
 var urlSupport = CONFIG[__BRANDING__].support;
 var urlLegal = CONFIG[__BRANDING__].legal;
 
+const t = i18next.t.bind(i18next);
 var SupportText = (__BRANDING__ !== 'diabeloop') ? 'Get Support' : 'Diabeloop';
 
 const FooterLinks = (props) => {
@@ -65,7 +67,7 @@ const FooterLinks = (props) => {
           href="http://tidepool.org/products/tidepool-mobile/"
           id='mobile'
           onClick={metricFnMkr('Mobile App')}
-          target="_blank">Get Mobile App</a>
+          target="_blank">{t('Get Mobile App')}</a>
       </div>
     }
     <div className='footer-link large-format-only'>       
@@ -73,22 +75,22 @@ const FooterLinks = (props) => {
           href={urlSupport}
           id='support'
           onClick={metricFnMkr('Support')}
-          target="_blank">{SupportText}</a>
+          target="_blank">{t(SupportText)}</a>
     </div>
     <div className='footer-link'>       
         <a
           href={urlLegal}
           id='legal'
           onClick={metricFnMkr('PP and TOU')}
-          target='_blank'>Privacy and Terms of Use</a>
-      </div>
+          target='_blank'>{t('Privacy and Terms of Use')}</a>
+    </div>
     {__BRANDING__ === 'diabeloop' ? (
         <div className='footer-link large-format-only'>
           <a
             href='https://tidepool.org'
             id='jdrf'
             target='_blank'>
-            Using Tidepool
+            {t('Using Tidepool')}
           </a>
         </div>
       ):(
@@ -98,7 +100,7 @@ const FooterLinks = (props) => {
             id='jdrf'
             onClick={metricFnMkr('JDRF')}
             target='_blank'>
-            Made possible by
+            {t('Made possible by')}
             <img />
           </a>
         </div>
