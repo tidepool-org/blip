@@ -4,6 +4,7 @@ var fs = require('fs');
 var crypto = require('crypto');
 var ms = require('ms');
 
+var reConfig = /(<!-- config -->)|(<script [^>]*src="config(\.[\w]*)*\.js"[^>]*><\/script>)/m;
 var start = new Date();
 
 // NOTE: Webpack's hash also uses the absolute path on the filesystem
@@ -26,10 +27,19 @@ mv('-f', 'dist/config.js', 'dist/' + filename);
 
 console.log('Updating "dist/index.html"...');
 var indexHtml = fs.readFileSync('dist/index.html', 'utf8');
-indexHtml = indexHtml.replace('<!-- config -->',
-  '<script type="text/javascript" src="/' + filename + '"></script>'
-);
-indexHtml = indexHtml.replace(/config.*.js/gm, filename);
+
+// Replace from config.js part
+if (reConfig.test(indexHtml)) {
+  var configStrOrig = reConfig.exec(indexHtml)[0];
+  var configStrRepl = `<script type="text/javascript" src="${filename}"></script>`;
+  console.log(`Replace ${configStrOrig} by ${configStrRepl}`);
+  indexHtml = indexHtml.replace(reConfig, configStrRepl);
+} else {
+  console.error("Missing config template part");
+  process.exit(1);
+}
+
+// Replace ZenDesk Javascript
 if (typeof process.env.HELP_LINK === 'string') {
   if (process.env.HELP_LINK === 'disable') {
     indexHtml = indexHtml.replace(/(<script id="ze-snippet".*<\/script>)/, '');
@@ -39,6 +49,8 @@ if (typeof process.env.HELP_LINK === 'string') {
     });
   }
 }
+
+// Saving
 indexHtml.to('dist/index.html');
 
 var end = new Date();

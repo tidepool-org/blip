@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## [0.7.1] - 2019-10-17
+### Fixed
+- PT-738 Blip build in invalid due to missing config
+
 ## [0.7.0] - 2019-10-15
 ### Added
 - PT-401 Display rescueCarbs with specific layout in Daily view

@@ -1,8 +1,9 @@
 {
   "name": "blip",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "scripts": {
+    "mrproper": "rm -rf dist node_modules coverage",
     "test": "TZ=UTC NODE_ENV=test karma --log-level debug --reporters=mocha start",
     "pretest": "NODE_ENV=test npm run lint",
     "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",

@@ -165,6 +165,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
+    minify: false
   }),
 ];
 
@@ -189,7 +190,7 @@ const entry = isDev
   ];
 
 const output = {
-  filename: 'bundle.js',
+  filename: isDev || isTest ? 'bundle.js' : 'bundle.[hash].js',
   path: path.join(__dirname, '/dist'),
   publicPath: isDev ? devPublicPath : '/',
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
