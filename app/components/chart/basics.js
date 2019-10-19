@@ -19,6 +19,7 @@ import Footer from './footer';
 
 class Basics extends Component {
   static propTypes = {
+    aggregations: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -36,7 +37,7 @@ class Basics extends Component {
     stats: React.PropTypes.array.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updateBasicsData: React.PropTypes.func.isRequired,
+    // updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -58,14 +59,8 @@ class Basics extends Component {
     title: this.getTitle(),
   });
 
-  componentWillReceiveProps = nextProps => {
-    this.log('nextProps aggregationsByDate', _.get(nextProps, 'data.data.current.aggregationsByDate'));
-  };
-
   render = () => {
     const { t } = this.props;
-
-    console.log('this.props.stats', this.props.stats);
 
     return (
       <div id="tidelineMain" className="basics">
@@ -97,7 +92,7 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
                 />
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -126,18 +121,19 @@ class Basics extends Component {
   renderChart = () => {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
-        {/* <BasicsChart
+        <BasicsChart
+          aggregations={this.props.aggregations}
           bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
+          data={this.props.data}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
-          patientData={_.get(this.props, 'data.data.current.aggregationsByDate')}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={_.get(this.props, 'data.timePrefs', {})}
-          updateBasicsData={this.props.updateBasicsData}
+          // updateBasicsData={this.props.updateBasicsData}
           updateBasicsSettings={this.props.updateBasicsSettings}
           ref="chart"
-          trackMetric={this.props.trackMetric} /> */}
+          trackMetric={this.props.trackMetric} />
       </div>
     );
   };
@@ -178,8 +174,8 @@ class Basics extends Component {
     }
 
     const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(_.get(this.props, 'data.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.endpoints.range', [])[1], timezone, dtMask);
+    return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1], timezone, dtMask);
   }
 
   isMissingBasics = () => {
@@ -224,14 +220,14 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToTrends(_.get(this.props, 'data.endpoints.range', [])[1]);
+    this.props.onSwitchToTrends(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToDaily(_.get(this.props, 'data.endpoints.range', [])[1]);
+    this.props.onSwitchToDaily(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleClickPrint = e => {
@@ -246,7 +242,7 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToBgLog(_.get(this.props, 'data.endpoints.range', [])[1]);
+    this.props.onSwitchToBgLog(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleSelectDay = (date, title) => {

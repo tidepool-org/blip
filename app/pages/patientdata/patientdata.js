@@ -59,6 +59,7 @@ const { Loader } = vizComponents;
 const { addDuration, findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
+const { defineBasicsAggregations, processBasicsAggregations } = vizUtils.aggregation;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -99,7 +100,9 @@ export let PatientData = translate()(React.createClass({
   getInitialState: function() {
     var state = {
       chartPrefs: { // TODO: set default bgSources from props.data.metaData dynamically here?
-        basics: {},
+        basics: {
+          sections: {},
+        },
         daily: {},
         trends: {
           activeDays: {
@@ -317,13 +320,18 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
+    const isBasics = this.state.chartType === 'basics';
     const stats = this.generateStats();
+    let aggregations;
+
+    if (isBasics) aggregations = this.getBasicsAggregations();
 
     window.downloadChartData = () => {
       console.save({
-        data: this.props.data,
-        stats,
         chartPrefs: this.state.chartPrefs[this.state.chartType],
+        data: this.props.data,
+        aggregations,
+        stats,
       }, `data-${this.state.chartType}.json`);
     };
 
@@ -347,8 +355,9 @@ export let PatientData = translate()(React.createClass({
             patient={this.props.patient}
             pdf={this.props.pdf.combined || {}}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            aggregations={aggregations}
             stats={stats}
-            updateBasicsData={this.updateBasicsData}
+            // updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -880,14 +889,14 @@ export let PatientData = translate()(React.createClass({
 
   // TODO: hopefully we can eliminate this altogether
   // only called from componentWillUnmount of chartbasicsfactory in tideline
-  updateBasicsData: function(basicsData) {
-    // only attempt to update data if there's already data present to update
-    if(this.state.processedPatientData){
-      this.setState({
-        processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
-      });
-    }
-  },
+  // updateBasicsData: function(basicsData) {
+  //   // only attempt to update data if there's already data present to update
+  //   if(this.state.processedPatientData){
+  //     this.setState({
+  //       processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
+  //     });
+  //   }
+  // },
 
   updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
     if (canUpdateSettings) {
@@ -959,6 +968,30 @@ export let PatientData = translate()(React.createClass({
 
   getMetaData: function(path) {
     return _.get(this.props, `data.metaData.${path}`, {});
+  },
+
+  getBasicsAggregations: function() {
+    const {
+      data: {
+        current: {
+          aggregationsByDate = {},
+        },
+      },
+      bgPrefs,
+      metaData: { latestPumpUpload },
+    } = this.props.data;
+
+    const manufacturer = _.get(latestPumpUpload, 'manufacturer');
+
+    return _.isEmpty(aggregationsByDate) ? {} : processBasicsAggregations(
+      defineBasicsAggregations(
+        bgPrefs,
+        manufacturer,
+      ),
+      aggregationsByDate,
+      this.props.patient,
+      manufacturer
+    );
   },
 
   // TODO: move enpoints-setting per type here instead of in inidividual views and passing updateChartEndpoints?
