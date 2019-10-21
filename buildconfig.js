@@ -4,7 +4,10 @@ var fs = require('fs');
 var crypto = require('crypto');
 var ms = require('ms');
 
+var reTitle = /<title>([^<]*)<\/title>/;
 var reConfig = /(<!-- config -->)|(<script [^>]*src="config(\.[\w]*)*\.js"[^>]*><\/script>)/m;
+var reZendesk = /(<!-- Zendesk disabled -->)|(<script id="ze-snippet" type="text\/javascript" src="[^"]+">\s*<\/script>)/m;
+var zendeskDisable = '<!-- Zendesk disabled -->';
 var start = new Date();
 
 // NOTE: Webpack's hash also uses the absolute path on the filesystem
@@ -18,7 +21,7 @@ function getHash(str) {
 }
 
 console.log('Building config...');
-exec('webpack --config config.webpack.js');
+exec('webpack --devtool source-map --config config.webpack.js');
 
 var hash = getHash(fs.readFileSync('dist/config.js'));
 var filename = 'config.' + hash + '.js';
@@ -27,6 +30,11 @@ mv('-f', 'dist/config.js', 'dist/' + filename);
 
 console.log('Updating "dist/index.html"...');
 var indexHtml = fs.readFileSync('dist/index.html', 'utf8');
+
+// Replace the title
+if (typeof process.env.BRANDING === 'string') {
+  indexHtml = indexHtml.replace(reTitle, `<title>${process.env.BRANDING}</title>`);
+}
 
 // Replace from config.js part
 if (reConfig.test(indexHtml)) {
@@ -41,12 +49,13 @@ if (reConfig.test(indexHtml)) {
 
 // Replace ZenDesk Javascript
 if (typeof process.env.HELP_LINK === 'string') {
+  console.log("Using HELP_LINK: ", process.env.HELP_LINK);
+
   if (process.env.HELP_LINK === 'disable') {
-    indexHtml = indexHtml.replace(/(<script id="ze-snippet".*<\/script>)/, '');
+    indexHtml = indexHtml.replace(reZendesk, zendeskDisable);
+
   } else {
-    indexHtml = indexHtml.replace(/(<script id="ze-snippet" src="([^"]+)">)/, (match, p1, p2) => {
-      return p1.replace(p2, process.env.HELP_LINK);
-    });
+    indexHtml = indexHtml.replace(reZendesk, `<script id="ze-snippet" type="text/javascript" src="${process.env.HELP_LINK}"></script>`);
   }
 }
 

@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## [0.7.1] - 2019-10-17
 ### Fixed
 - PT-738 Blip build in invalid due to missing config
+- PT-746 Fix Zendesk script missing when running buildconfig
 
 ## [0.7.0] - 2019-10-15
 ### Added
