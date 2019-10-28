@@ -99,7 +99,7 @@ export let PatientData = translate()(React.createClass({
 
   getInitialState: function() {
     var state = {
-      chartPrefs: { // TODO: set default bgSources from props.data.metaData dynamically here?
+      chartPrefs: {
         basics: {
           sections: {},
         },
@@ -939,23 +939,33 @@ export let PatientData = translate()(React.createClass({
   // },
 
   getChartEndpoints: function(dateTimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
+    let start;
+    let end;
     let endpoints = [];
 
     switch (chartType) {
       case 'basics':
-        endpoints = [
-          findBasicsStart(dateTimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf(),
-          getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).toISOString().valueOf(),
-        ];
+        start = findBasicsStart(dateTimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
+        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        endpoints = [start, end];
         break;
 
       case 'daily':
+        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        start = moment.utc(end).subtract(1, 'day').valueOf();
+        endpoints = [start, end];
         break;
 
       case 'bgLog':
+        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        start = moment.utc(end).subtract(14, 'days').valueOf();
+        endpoints = [start, end];
         break;
 
       case 'trends':
+        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        start = moment.utc(end).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
+        endpoints = [start, end];
         break;
     }
 
@@ -1264,6 +1274,7 @@ export let PatientData = translate()(React.createClass({
     // Determine default chart type and date from latest data
     const uploads = _.get(props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
+    const bgSource = this.getMetaData('bgSources.current');
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
@@ -1286,6 +1297,13 @@ export let PatientData = translate()(React.createClass({
           .toISOString());
 
       const endpoints = this.getChartEndpoints(datetimeLocation, chartType);
+
+      // Set the default bgSource for basics, daily, and trends charts
+      this.updateChartPrefs({
+        basics: { ...this.state.chartPrefs.basics, bgSource },
+        daily: { ...this.state.chartPrefs.daily, bgSource },
+        trends: { ...this.state.chartPrefs.trends, bgSource },
+      });
 
       this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
