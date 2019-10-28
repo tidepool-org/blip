@@ -278,7 +278,7 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
-    // Update the chart date range in the patientData component.
+    // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
@@ -377,12 +377,12 @@ const Trends = translate()(class Trends extends PureComponent {
             {this.renderSubNav()}
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              <div id="tidelineContainer" className="patient-data-chart-trends">
+              {/* <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
               {this.renderFocusedCbgDateTraceLabel()}
               {this.renderFocusedSMBGPointLabel()}
-              {this.renderFocusedRangeLabels()}
+              {this.renderFocusedRangeLabels()} */}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -482,10 +482,10 @@ const Trends = translate()(class Trends extends PureComponent {
         smbgLines={this.props.chartPrefs.trends.smbgLines}
         timePrefs={this.props.timePrefs}
         // data
-        cbgByDate={this.props.patientData.cbgByDate}
-        cbgByDayOfWeek={this.props.patientData.cbgByDayOfWeek}
-        smbgByDate={this.props.patientData.smbgByDate}
-        smbgByDayOfWeek={this.props.patientData.smbgByDayOfWeek}
+        cbgByDate={this.props.data.cbgByDate}
+        cbgByDayOfWeek={this.props.data.cbgByDayOfWeek}
+        smbgByDate={this.props.data.smbgByDate}
+        smbgByDayOfWeek={this.props.data.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}

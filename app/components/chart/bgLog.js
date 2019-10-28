@@ -40,9 +40,9 @@ class BgLogChart extends Component {
   static propTypes = {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
@@ -62,7 +62,7 @@ class BgLogChart extends Component {
 
   mount = () => {
     this.mountChart(ReactDOM.findDOMNode(this));
-    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+    this.initializeChart(this.props.data, this.props.initialDatetimeLocation);
   };
 
   componentWillUnmount = () => {
@@ -136,7 +136,7 @@ class BgLogChart extends Component {
   goToMostRecent = () => {
     this.chart.clear();
     this.bindEvents();
-    this.chart.load(this.props.patientData);
+    this.chart.load(this.props.data);
   };
 
   hideValues = () => {
@@ -222,7 +222,7 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
+              {/* {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()} */}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -249,11 +249,11 @@ class BgLog extends Component {
   renderChart = () => {
     return (
       <BgLogChart
-        bgClasses={this.props.bgPrefs.bgClasses}
-        bgUnits={this.props.bgPrefs.bgUnits}
+        bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
+        bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        patientData={this.props.patientData}
-        timePrefs={this.props.timePrefs}
+        data={this.props.data}
+        timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onMostRecent={this.handleMostRecent}
@@ -342,13 +342,7 @@ class BgLog extends Component {
     this.refs.chart && this.refs.chart.rerenderChart();
   };
 
-  isMissingSMBG = () => {
-    const data = this.props.patientData;
-    if (_.isEmpty(data.grouped.smbg)) {
-      return true;
-    }
-    return false;
-  };
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.data.current.data.smbg'))
 
   // handlers
   handleClickTrends = e => {
@@ -429,7 +423,7 @@ class BgLog extends Component {
 
     this.props.updateDatetimeLocation(chart.getCurrentDay());
 
-    // Update the chart date range in the patientData component.
+    // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();

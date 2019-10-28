@@ -46,10 +46,10 @@ const DailyChart = translate()(class DailyChart extends Component {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     bolusRatio: React.PropTypes.number,
+    data: React.PropTypes.object.isRequired,
     dynamicCarbs: React.PropTypes.bool,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: React.PropTypes.func.isRequired,
@@ -129,11 +129,11 @@ const DailyChart = translate()(class DailyChart extends Component {
   initializeChart = datetime => {
     const { t } = this.props;
     this.log('Initializing...');
-    if (_.isEmpty(this.props.patientData)) {
+    if (_.isEmpty(this.props.data)) {
       throw new Error(t('Cannot create new chart with no data'));
     }
 
-    this.chart.load(this.props.patientData);
+    this.chart.load(this.props.data);
     if (datetime) {
       this.chart.locate(datetime);
     }
@@ -219,7 +219,7 @@ class Daily extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onSwitchToTrends: React.PropTypes.func.isRequired,
-    // PatientData state updaters
+    // data state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
@@ -283,14 +283,14 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              <DailyChart
-                bgClasses={this.props.bgPrefs.bgClasses}
-                bgUnits={this.props.bgPrefs.bgUnits}
+              {/* <DailyChart
+                bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
+                bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
-                patientData={this.props.patientData}
-                timePrefs={this.props.timePrefs}
+                data={this.props.data}
+                timePrefs={_.get(this.props, 'data.timePrefs', {})}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
@@ -308,7 +308,7 @@ class Daily extends Component {
                 onCBGOut={this.handleCBGOut}
                 onCarbHover={this.handleCarbHover}
                 onCarbOut={this.handleCarbOut}
-                ref="chart" />
+                ref="chart" /> */}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -328,9 +328,9 @@ class Daily extends Component {
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-        ref="footer" />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          ref="footer" />
         {this.state.hoveredBolus && <BolusTooltip
             position={{
               top: this.state.hoveredBolus.top,
@@ -458,7 +458,7 @@ class Daily extends Component {
 
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
-    // Update the chart date range in the patientData component.
+    // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
