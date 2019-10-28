@@ -1080,9 +1080,12 @@ export let PatientData = translate()(React.createClass({
       }
 
       // With initial query for upload data completed, set the initial chart type
-      if (nextProps.queryingData.completed) {
-        if (!this.state.chartType) this.setInitialChartView(nextProps);
-        if (this.state.loading) this.setState({ loading: false });
+      if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
+        if (!this.state.chartType) {
+          this.setInitialChartView(nextProps);
+        } else if (this.state.loading) {
+          this.hideLoading();
+        }
       }
 
       // Handle data range fetch that yeilds no new data
@@ -1093,7 +1096,7 @@ export let PatientData = translate()(React.createClass({
           this.fetchEarlierData({ startDate: null });
         }
         else {
-          this.setState({ loading: false });
+          this.hideLoading();
         }
       }
     }
@@ -1118,6 +1121,8 @@ export let PatientData = translate()(React.createClass({
 
   queryData: function (query) {
     console.log('queryData called');
+    this.setState({ loading: true });
+
     if (query) {
       this.props.dataWorkerQueryDataRequest(query);
     } else {
@@ -1523,14 +1528,14 @@ export let PatientData = translate()(React.createClass({
   //   }
   // },
 
-  // hideLoading: function(timeout = 250) {
-  //   // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
-  //   // so that child components can be aware of the change in processing states. It also serves
-  //   // to ensure the loading indicator shows long enough for the user to make sense of it.
-  //   setTimeout(() => {
-  //     this.setState({ loading: false });
-  //   }, timeout);
-  // },
+  hideLoading: function(timeout = 250) {
+    // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
+    // so that child components can be aware of the change in processing states. It also serves
+    // to ensure the loading indicator shows long enough for the user to make sense of it.
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, timeout);
+  },
 
   // handleInitialProcessedData: function(props, processedData, patientSettings) {
   //   const userId = props.currentPatientInViewId;
