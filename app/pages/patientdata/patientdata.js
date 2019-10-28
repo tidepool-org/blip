@@ -775,7 +775,7 @@ export let PatientData = translate()(React.createClass({
       .tz(timezone)
       .toISOString();
 
-    this.updateChart('basics', datetimeLocation);
+    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, 'basics'));
   },
 
   handleSwitchToDaily: function(datetime, title) {
