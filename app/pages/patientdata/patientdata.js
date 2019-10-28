@@ -437,6 +437,7 @@ export let PatientData = translate()(React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
+            queryingData={this.props.queryingData}
             ref="tideline" />
           );
       case 'settings':
@@ -671,10 +672,10 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(dateTimeLocation) {
+  handleChartDateRangeUpdate: function(datetimeLocation) {
   // handleChartDateRangeUpdate: function(endpoints) {
-    const endpoints = this.getChartEndpoints(dateTimeLocation);
-    this.updateChart(this.state.chartType, dateTimeLocation, endpoints);
+    const endpoints = this.getChartEndpoints(datetimeLocation);
+    this.updateChart(this.state.chartType, datetimeLocation, endpoints, false);
     // this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
@@ -772,7 +773,7 @@ export let PatientData = translate()(React.createClass({
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+      // .tz(timezone)
       .toISOString();
 
     this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, 'basics'));
@@ -783,12 +784,12 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+      // .tz(timezone)
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
@@ -805,7 +806,7 @@ export let PatientData = translate()(React.createClass({
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+      // .tz(timezone)
       .toISOString();
 
     this.updateChart('trends', datetimeLocation);
@@ -816,12 +817,12 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
+    // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+      // .tz(timezone)
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
@@ -874,14 +875,18 @@ export let PatientData = translate()(React.createClass({
       this.props.removeGeneratedPDFS();
 
       this.setState({
-        endpoints: [],
+        bgPrefs: undefined,
         datetimeLocation: this.state.initialDatetimeLocation,
+        endpoints: [],
         fetchEarlierDataCount: 0,
         // lastDatumProcessedIndex: -1,
         // lastProcessedDateTarget: null,
         loading: true,
+        chartType: undefined,
+        refreshChartType: this.state.chartType,
         // processEarlierDataCount: 0,
         // processedPatientData: null,
+        timePrefs: undefined,
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
     }
@@ -925,11 +930,11 @@ export let PatientData = translate()(React.createClass({
 
   // Sets the scroll location in scroll charts, or the range end in non-scroll charts.
   // Used to derive the endpoints that are used by the data worker.
-  updateDatetimeLocation: function(datetime) {
-    this.setState({
-      datetimeLocation: datetime,
-    });
-  },
+  // updateDatetimeLocation: function(datetime) {
+  //   this.setState({
+  //     datetimeLocation: datetime,
+  //   });
+  // },
 
   // Sets the endpoints used by the data worker for data fetching and processing
   // updateChartEndpoints: function(endpoints) {
@@ -938,32 +943,32 @@ export let PatientData = translate()(React.createClass({
   //   });
   // },
 
-  getChartEndpoints: function(dateTimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
+  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
     let start;
     let end;
     let endpoints = [];
 
     switch (chartType) {
       case 'basics':
-        start = findBasicsStart(dateTimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
-        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        start = findBasicsStart(datetimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
+        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         endpoints = [start, end];
         break;
 
       case 'daily':
-        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(1, 'day').valueOf();
         endpoints = [start, end];
         break;
 
       case 'bgLog':
-        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(14, 'days').valueOf();
         endpoints = [start, end];
         break;
 
       case 'trends':
-        end = getLocalizedCeiling(dateTimeLocation, this.state.timePrefs).valueOf();
+        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
         endpoints = [start, end];
         break;
@@ -1004,8 +1009,7 @@ export let PatientData = translate()(React.createClass({
     );
   },
 
-  // TODO: move enpoints-setting per type here instead of in inidividual views and passing updateChartEndpoints?
-  updateChart: function(chartType, datetimeLocation, endpoints) {
+  updateChart: function(chartType, datetimeLocation, endpoints, showLoading = true) {
     const state = {
       chartType: chartType || this.state.chartType,
       endpoints: endpoints || this.state.endpoints,
@@ -1014,7 +1018,23 @@ export let PatientData = translate()(React.createClass({
 
     if (!this.state.initialDatetimeLocation) state.initialDatetimeLocation = datetimeLocation;
 
-    this.setState(state, this.queryData);
+    const chartTypeChanged = !_.isEqual(chartType, this.state.chartType);
+    const endpointsChanged = !_.isEqual(endpoints, this.state.endpoints);
+    const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
+
+    const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
+      ? this.queryData.bind(this, null, showLoading) : _.noop;
+
+    console.log('chartTypeChanged', chartTypeChanged);
+    console.log('endpointsChanged', endpointsChanged);
+    console.log('datetimeLocationChanged', datetimeLocationChanged);
+
+    if (datetimeLocationChanged) {
+      console.log('datetimeLocation', datetimeLocation);
+      console.log('this.state.datetimeLocation', this.state.datetimeLocation);
+    }
+
+    this.setState(state, cb);
   },
 
   componentWillMount: function() {
@@ -1129,9 +1149,10 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  queryData: function (query) {
+  queryData: function (query, showLoading = true) {
     console.log('queryData called');
-    this.setState({ loading: true });
+    showLoading && this.setState({ loading: true });
+    this.setState({ querying: true });
 
     if (query) {
       this.props.dataWorkerQueryDataRequest(query);
@@ -1139,7 +1160,6 @@ export let PatientData = translate()(React.createClass({
       const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
       const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
       const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
-      console.log('this.state.datetimeLocation', this.state.datetimeLocation);
 
       let chartQuery = {}
       let stats = [];
@@ -1170,6 +1190,8 @@ export let PatientData = translate()(React.createClass({
             wizard: {},
           };
 
+          chartQuery.fillData = true;
+
           cbgSelected && stats.push(commonStats.timeInRange);
           smbgSelected && stats.push(commonStats.readingsInRange);
           stats.push(commonStats.averageGlucose);
@@ -1183,7 +1205,10 @@ export let PatientData = translate()(React.createClass({
         case 'bgLog':
           chartQuery.types = {
             smbg: {},
+            fill: {},
           };
+
+          chartQuery.fillData = true;
 
           stats.push(commonStats.readingsInRange);
           stats.push(commonStats.averageGlucose);
@@ -1278,7 +1303,7 @@ export let PatientData = translate()(React.createClass({
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
-      const chartType = _.get(
+      const chartType = this.state.refreshChartType || _.get(
         props, 'queryParams.chart',
         this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
@@ -1288,12 +1313,12 @@ export let PatientData = translate()(React.createClass({
 
       const datetimeLocation = _.get(props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
         ? moment.utc(latestDatumDateCeiling.valueOf())
-          .tz(timezone)
+          // .tz(timezone)
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
-          .tz(timezone)
+          // .tz(timezone)
           .toISOString());
 
       const endpoints = this.getChartEndpoints(datetimeLocation, chartType);

@@ -123,9 +123,6 @@ class BgLogChart extends Component {
 
   // handlers
   handleDatetimeLocationChange = datetimeLocationEndpoints => {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1]
-    });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   }
 
@@ -174,7 +171,8 @@ class BgLog extends Component {
     pdf: React.PropTypes.object.isRequired,
     stats: React.PropTypes.array.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
+    queryingData: React.PropTypes.object.isRequired,
+    // updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
   };
 
@@ -203,7 +201,9 @@ class BgLog extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.loading && !nextProps.loading) {
+    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    const queryingDataJustCompleted = this.props.queryingData.inProgress && !nextProps.queryingData.inProgress;
+    if (loadingJustCompleted || queryingDataJustCompleted) {
       this.refs.chart.rerenderChart();
     }
   };
@@ -222,7 +222,7 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {/* {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()} */}
+              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -391,37 +391,14 @@ class BgLog extends Component {
   };
 
   handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
-    const { timezoneAware, timezoneName } = this.props.timePrefs;
-
-    const startMoment = moment
-      .utc(datetimeLocationEndpoints[0])
-      .startOf('day');
-
-    const endMoment = moment
-      .utc(datetimeLocationEndpoints[1])
-      .add(1, 'day')
-      .startOf('day');
-
-    let startTimezoneOffset = 0;
-    let endTimezoneOffset = 0;
-
-    if (timezoneAware) {
-      startTimezoneOffset = sundial.getOffsetFromZone(startMoment.toISOString(), timezoneName);
-      endTimezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
-    }
-
-    const endpoints = [
-      startMoment.subtract(startTimezoneOffset, 'minutes').toISOString(),
-      endMoment.subtract(endTimezoneOffset, 'minutes').toISOString(),
-    ];
+    console.log('datetimeLocationEndpoints', datetimeLocationEndpoints);
+    console.log('this.props.initialDatetimeLocation', this.props.initialDatetimeLocation);
 
     this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints,
     });
 
-    this.props.updateDatetimeLocation(chart.getCurrentDay());
+    // this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -429,8 +406,8 @@ class BgLog extends Component {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(endpoints, this.refs.chart);
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 50);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints[1], chart);
 
     this.setState({ debouncedDateRangeUpdate });
   };
