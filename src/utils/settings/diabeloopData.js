@@ -33,7 +33,13 @@ export function getParametersByLevel(parameters) {
       mapParams.set(parameter.level, []);
     }
 
-    mapParams.get(parameter.level).push(parameter);
+    const param = {
+      name: t(`params:::${parameter.name}`),
+      value: parameter.value,
+      unit: parameter.unit,
+      level: parameter.level,
+    };
+    mapParams.get(parameter.level).push(param);
   });
 
   return mapParams;

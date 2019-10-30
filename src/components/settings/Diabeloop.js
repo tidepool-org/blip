@@ -62,7 +62,6 @@ function renderDiabeloopParameters(parametersByLevel) {
       },
       className: styles.bdlgSettingsHeader,
     };
-
     tables.push(
       <Table
         title={title}
