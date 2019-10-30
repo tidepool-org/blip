@@ -46,7 +46,12 @@ const initialState = {
   patientNotesMap: {},
   pdf: {},
   data: {
-    data: {},
+    data: {
+      all: {},
+      current: {},
+      next: {},
+      prev: {},
+    },
     timePrefs: {},
     bgPrefs: {},
     metaData: {},

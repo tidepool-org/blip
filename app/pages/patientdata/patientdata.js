@@ -137,6 +137,7 @@ export let PatientData = translate()(React.createClass({
       },
       createMessage: null,
       createMessageDatetime: null,
+      data: {},
       datetimeLocation: null,
       // endpoints: [], // TODO: do we need this and datetimeLocation?
       fetchEarlierDataCount: 0,
@@ -386,7 +387,7 @@ export let PatientData = translate()(React.createClass({
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
+            // updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
       case 'trends':
@@ -409,7 +410,7 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
+            // updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
@@ -434,7 +435,7 @@ export let PatientData = translate()(React.createClass({
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
+            // updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             queryingData={this.props.queryingData}
@@ -673,13 +674,37 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleChartDateRangeUpdate: function(datetimeLocation) {
-  // handleChartDateRangeUpdate: function(endpoints) {
+    // Only update the chart endpoints and query for additional data
+    // if we've scrolled more than half way out of the current range
+    // Range is available in _.mean(data.data.current.endpoints.range)
+    // NB: stats still need to be updated based on the endpoints, though. Hmm...
+    // Which should be fine, if we only request the stats with updated endpoints, but not new data
+    const rangeMidpoint = _.mean(this.getCurrentData('endpoints.range'));
+    const days = this.getCurrentData('endpoints.days');
+    const rangeThreshold = days * 864e5 * .75
     const endpoints = this.getChartEndpoints(datetimeLocation);
-    this.updateChart(this.state.chartType, datetimeLocation, endpoints, false);
+    this.log('datetimeLocation', moment.utc(datetimeLocation).valueOf());
+    this.log('rangeMidpoint', rangeMidpoint);
+    this.log('newEndpoints', endpoints);
+    // const updateNextThreshold =
+    const updateChartData = true;
+
+    if (updateChartData) {
+      this.updateChart(this.state.chartType, datetimeLocation, endpoints, { showLoading: true });
+    } else {
+      this.updateChart(this.state.chartType, datetimeLocation, endpoints, {
+        showLoading: false,
+        query: {
+          stats: this.getStatsByType(),
+          endpoints,
+        }
+      });
+    }
+
     // this.updateChartEndpoints(endpoints);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
-      const patientID = this.props.currentPatientInViewId;
+      // const patientID = this.props.currentPatientInViewId;
       // const patientData = _.get(this.props, ['patientDataMap', patientID], []);
       const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
@@ -770,7 +795,7 @@ export let PatientData = translate()(React.createClass({
     }
 
     const dateCeiling = getLocalizedCeiling(this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       // .tz(timezone)
@@ -786,7 +811,7 @@ export let PatientData = translate()(React.createClass({
 
     // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       // .tz(timezone)
@@ -803,7 +828,7 @@ export let PatientData = translate()(React.createClass({
     });
 
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       // .tz(timezone)
@@ -819,7 +844,7 @@ export let PatientData = translate()(React.createClass({
 
     // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       // .tz(timezone)
@@ -929,7 +954,10 @@ export let PatientData = translate()(React.createClass({
   },
 
   // Sets the scroll location in scroll charts, or the range end in non-scroll charts.
-  // Used to derive the endpoints that are used by the data worker.
+  // Used to derive the endpoints that are used by the data worker to update stats on the fly.
+  // TODO: ideally handleChartDateRangeUpdate is only needed, and the endpoints are updated all the time
+  // and stats are calculated constantly (no debounce) there, either through the data worker, or a separate
+  // stats worker that is passed the data directly (which could be a lot of work, so hopefully not)
   // updateDatetimeLocation: function(datetime) {
   //   this.setState({
   //     datetimeLocation: datetime,
@@ -950,8 +978,8 @@ export let PatientData = translate()(React.createClass({
 
     switch (chartType) {
       case 'basics':
-        start = findBasicsStart(datetimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
         end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
+        start = findBasicsStart(datetimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
         endpoints = [start, end];
         break;
 
@@ -1009,7 +1037,63 @@ export let PatientData = translate()(React.createClass({
     );
   },
 
-  updateChart: function(chartType, datetimeLocation, endpoints, showLoading = true) {
+  getStatsByType: function() {
+    const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
+    const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
+    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+
+    let stats = [];
+
+    switch (this.state.chartType) {
+      case 'basics':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        cbgSelected && stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.totalInsulin);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        stats.push(commonStats.carbs);
+        stats.push(commonStats.averageDailyDose);
+        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        break;
+
+      case 'daily':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.totalInsulin);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        stats.push(commonStats.carbs);
+        cbgSelected && stats.push(commonStats.standardDev);
+        cbgSelected && stats.push(commonStats.coefficientOfVariation);
+        break;
+
+      case 'bgLog':
+        stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.standardDev);
+        stats.push(commonStats.coefficientOfVariation);
+        break;
+
+      case 'trends':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        cbgSelected && stats.push(commonStats.sensorUsage);
+        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.standardDev);
+        stats.push(commonStats.coefficientOfVariation);
+        break;
+    }
+
+    return stats;
+  },
+
+  updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
+    _.defaults(opts, {
+      showLoading: true,
+    });
+
     const state = {
       chartType: chartType || this.state.chartType,
       endpoints: endpoints || this.state.endpoints,
@@ -1023,11 +1107,7 @@ export let PatientData = translate()(React.createClass({
     const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
 
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
-      ? this.queryData.bind(this, null, showLoading) : _.noop;
-
-    console.log('chartTypeChanged', chartTypeChanged);
-    console.log('endpointsChanged', endpointsChanged);
-    console.log('datetimeLocationChanged', datetimeLocationChanged);
+      ? this.queryData.bind(this, opts.query, opts.showLoading) : _.noop;
 
     if (datetimeLocationChanged) {
       console.log('datetimeLocation', datetimeLocation);
@@ -1099,7 +1179,7 @@ export let PatientData = translate()(React.createClass({
           this.queryData({
             types: {
               upload: {
-                select: 'deviceId,deviceTags',
+                select: 'id,deviceId,deviceTags',
               },
             },
             metaData: 'latestDatumByType,latestPumpUpload',
@@ -1107,16 +1187,17 @@ export let PatientData = translate()(React.createClass({
             bgPrefs,
           });
         }
-      }
 
-      // With initial query for upload data completed, set the initial chart type
-      if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
-        if (!this.state.chartType) {
-          this.setInitialChartView(nextProps);
-        } else if (this.state.loading) {
-          this.hideLoading();
+        // With initial query for upload data completed, set the initial chart type
+        if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
+          if (!this.state.chartType) {
+            this.setInitialChartView(nextProps);
+          } else if (this.state.loading) {
+            this.hideLoading();
+          }
         }
       }
+
 
       // Handle data range fetch that yeilds no new data
       if (!newDiabetesDataReturned && newDataRangeFetched) {
@@ -1157,26 +1238,11 @@ export let PatientData = translate()(React.createClass({
     if (query) {
       this.props.dataWorkerQueryDataRequest(query);
     } else {
-      const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
-      const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
-      const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
-
       let chartQuery = {}
-      let stats = [];
 
       switch (this.state.chartType) {
         case 'basics':
           chartQuery.aggregationsByDate = 'basals,boluses,fingersticks,siteChanges';
-
-          cbgSelected && stats.push(commonStats.timeInRange);
-          smbgSelected && stats.push(commonStats.readingsInRange);
-          stats.push(commonStats.averageGlucose);
-          cbgSelected && stats.push(commonStats.sensorUsage);
-          stats.push(commonStats.totalInsulin);
-          isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-          stats.push(commonStats.carbs);
-          stats.push(commonStats.averageDailyDose);
-          cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
           break;
 
         case 'daily':
@@ -1191,15 +1257,6 @@ export let PatientData = translate()(React.createClass({
           };
 
           chartQuery.fillData = true;
-
-          cbgSelected && stats.push(commonStats.timeInRange);
-          smbgSelected && stats.push(commonStats.readingsInRange);
-          stats.push(commonStats.averageGlucose);
-          stats.push(commonStats.totalInsulin);
-          isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-          stats.push(commonStats.carbs);
-          cbgSelected && stats.push(commonStats.standardDev);
-          cbgSelected && stats.push(commonStats.coefficientOfVariation);
           break;
 
         case 'bgLog':
@@ -1209,11 +1266,6 @@ export let PatientData = translate()(React.createClass({
           };
 
           chartQuery.fillData = true;
-
-          stats.push(commonStats.readingsInRange);
-          stats.push(commonStats.averageGlucose);
-          stats.push(commonStats.standardDev);
-          stats.push(commonStats.coefficientOfVariation);
           break;
 
         case 'trends':
@@ -1221,24 +1273,15 @@ export let PatientData = translate()(React.createClass({
             cbg: {},
             smbg: {},
           };
-
-          cbgSelected && stats.push(commonStats.timeInRange);
-          smbgSelected && stats.push(commonStats.readingsInRange);
-          stats.push(commonStats.averageGlucose);
-          cbgSelected && stats.push(commonStats.sensorUsage);
-          cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-          stats.push(commonStats.standardDev);
-          stats.push(commonStats.coefficientOfVariation);
           break;
       }
 
-      chartQuery.stats = stats;
+      chartQuery.stats = this.getStatsByType();
       chartQuery.bgSource = this.state.chartPrefs[this.state.chartType].bgSource;
       chartQuery.endpoints = this.state.endpoints;
 
       this.props.dataWorkerQueryDataRequest(chartQuery);
     }
-
   },
 
   // TODO: update as required to work with new data worker results
