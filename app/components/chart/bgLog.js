@@ -30,8 +30,9 @@ import Stats from './stats';
 import tidelineBlip from 'tideline/plugins/blip';
 const chartBgLogFactory = tidelineBlip.twoweek;
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
 import Footer from './footer';
@@ -43,7 +44,7 @@ class BgLogChart extends Component {
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
+    // timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -187,7 +188,7 @@ class BgLog extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
-      endpoints: [],
+      // endpoints: [],
       inTransition: false,
       showingValues: this.props.isClinicAccount,
       title: ''
@@ -201,9 +202,10 @@ class BgLog extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    // const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const queryingDataJustCompleted = this.props.queryingData.inProgress && !nextProps.queryingData.inProgress;
-    if (loadingJustCompleted || queryingDataJustCompleted) {
+    if (queryingDataJustCompleted) {
+    // if (loadingJustCompleted) {
       this.refs.chart.rerenderChart();
     }
   };
@@ -342,7 +344,7 @@ class BgLog extends Component {
     this.refs.chart && this.refs.chart.rerenderChart();
   };
 
-  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.data.current.data.smbg'))
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.data.all.smbg'))
 
   // handlers
   handleClickTrends = e => {
@@ -391,14 +393,9 @@ class BgLog extends Component {
   };
 
   handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
-    console.log('datetimeLocationEndpoints', datetimeLocationEndpoints);
-    console.log('this.props.initialDatetimeLocation', this.props.initialDatetimeLocation);
-
     this.setState({
       title: this.getTitle(datetimeLocationEndpoints),
     });
-
-    // this.props.updateDatetimeLocation(chart.getCurrentDay());
 
     // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -406,8 +403,15 @@ class BgLog extends Component {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
+    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .subtract(1, 'day')
+      .hours(12)
+      .toISOString();
+
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 50);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints[1], chart);
+    debouncedDateRangeUpdate(datetimeLocation);
 
     this.setState({ debouncedDateRangeUpdate });
   };
