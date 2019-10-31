@@ -44,7 +44,6 @@ class BgLogChart extends Component {
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    // timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -83,11 +82,18 @@ class BgLogChart extends Component {
     this.chart.destroy();
   };
 
-  rerenderChart = () => {
-    this.log('Rerendering...');
+  remountChart = () => {
+    this.log('Remounting...');
     this.unmountChart();
     this.mount();
     this.chart.emitter.emit('inTransition', false);
+  }
+
+  rerenderChart = (props = this.props) => {
+    this.log('Rerendering...');
+    this.chart.clear();
+    this.bindEvents();
+    this.chart.load(props.data, props.initialDatetimeLocation);
   };
 
   bindEvents = () => {
@@ -172,8 +178,6 @@ class BgLog extends Component {
     pdf: React.PropTypes.object.isRequired,
     stats: React.PropTypes.array.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    queryingData: React.PropTypes.object.isRequired,
-    // updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
   };
 
@@ -202,11 +206,9 @@ class BgLog extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    // const loadingJustCompleted = this.props.loading && !nextProps.loading;
-    const queryingDataJustCompleted = this.props.queryingData.inProgress && !nextProps.queryingData.inProgress;
-    if (queryingDataJustCompleted) {
-    // if (loadingJustCompleted) {
-      this.refs.chart.rerenderChart();
+    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    if (loadingJustCompleted) {
+      this.refs.chart.rerenderChart(nextProps);
     }
   };
 
@@ -341,10 +343,10 @@ class BgLog extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.rerenderChart();
+    this.refs.chart && this.refs.chart.remountChart();
   };
 
-  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.data.all.smbg'))
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'))
 
   // handlers
   handleClickTrends = e => {
@@ -410,7 +412,7 @@ class BgLog extends Component {
       .hours(12)
       .toISOString();
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 50);
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 100);
     debouncedDateRangeUpdate(datetimeLocation);
 
     this.setState({ debouncedDateRangeUpdate });

@@ -47,7 +47,7 @@ const initialState = {
   pdf: {},
   data: {
     data: {
-      all: {},
+      combined: [],
       current: {},
       next: {},
       prev: {},

@@ -15,8 +15,8 @@ const data = (state = {}, action) => {
       return update(state, { $set: initialState.data });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
-      console.time('Process All Data');
-      const allData = _.cloneDeep(state.data.all) || {}
+      console.time('Process Combined Data');
+      const combined = [];
 
       const current = _.get(action.payload, 'result.data.current', {});
       const currentData = current.data || {};
@@ -27,21 +27,17 @@ const data = (state = {}, action) => {
       const prev = _.get(action.payload, 'result.data.prev', {});
       const prevData = prev.data || {};
 
-      _.each([currentData, nextData, prevData], dataSet => {
-        _.forOwn(dataSet, (value, key) => {
-          if (!allData[key]) allData[key] = [];
-          allData[key].push.apply(allData[key], value);
+      _.each([prevData, currentData, nextData], (dataSet = {}) => {
+        _.forOwn(dataSet, datums => {
+          combined.push.apply(combined, datums);
         });
       });
 
-      _.forOwn(allData, (value, key) => {
-        allData[key] = _.sortBy(_.uniqBy(value, 'id'), d => -d.normalTime);
-      });
-      console.timeEnd('Process All Data');
+      if (combined.length === 0) combined.push.apply(combined, state.data.combined);
 
       return update(state, {
         data: {
-          all: { $set: allData },
+          combined: { $set: combined },
           current: { $set: current },
           next: { $set: next },
           prev: { $set: prev },

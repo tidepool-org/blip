@@ -139,18 +139,8 @@ export let PatientData = translate()(React.createClass({
       createMessageDatetime: null,
       data: {},
       datetimeLocation: null,
-      // endpoints: [], // TODO: do we need this and datetimeLocation?
       fetchEarlierDataCount: 0,
-      // lastDatumProcessedIndex: -1,
-      // lastDiabetesDatumProcessedIndex: -1,
       loading: true,
-      // processingData: false,
-      // processEarlierDataCount: 0,
-      // processedPatientData: null,
-      // timePrefs: {
-      //   timezoneAware: false,
-      //   timezoneName: null
-      // },
       showUploadOverlay: false,
     };
 
@@ -168,10 +158,7 @@ export let PatientData = translate()(React.createClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const patientID = this.props.currentPatientInViewId;
-    const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
     const showLoader = this.isInitialProcessing() && this.state.loading;
-    // const showLoader = this.isInitialProcessing() && missingPatientData;
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -387,7 +374,6 @@ export let PatientData = translate()(React.createClass({
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            // updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
       case 'trends':
@@ -410,7 +396,6 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
-            // updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
@@ -435,10 +420,8 @@ export let PatientData = translate()(React.createClass({
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            // updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
-            queryingData={this.props.queryingData}
             ref="tideline" />
           );
       case 'settings':
@@ -675,38 +658,36 @@ export let PatientData = translate()(React.createClass({
 
   handleChartDateRangeUpdate: function(datetimeLocation) {
     // Only update the chart endpoints and query for additional data
-    // if we've scrolled more than half way out of the current range
-    // Range is available in _.mean(data.data.current.endpoints.range)
-    // NB: stats still need to be updated based on the endpoints, though. Hmm...
-    // Which should be fine, if we only request the stats with updated endpoints, but not new data
-    const rangeMidpoint = _.mean(this.getCurrentData('endpoints.range'));
-    const days = this.getCurrentData('endpoints.days');
-    const rangeThreshold = days * 864e5 * .75
-    const endpoints = this.getChartEndpoints(datetimeLocation);
-    this.log('datetimeLocation', moment.utc(datetimeLocation).valueOf());
-    this.log('rangeMidpoint', rangeMidpoint);
-    this.log('newEndpoints', endpoints);
-    // const updateNextThreshold =
-    const updateChartData = true;
+    // if we've scrolled to the end the current available data
+    // const prevEndpoints = _.get(this.props, 'data.data.prev.endpoints.range', []);
+    // const nextEndpoints = _.get(this.props, 'data.data.next.endpoints.range', []);
+    const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
+    const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
+    const newEndpoints = this.getChartEndpoints(datetimeLocation);
 
-    if (updateChartData) {
-      this.updateChart(this.state.chartType, datetimeLocation, endpoints, { showLoading: true });
-    } else {
-      this.updateChart(this.state.chartType, datetimeLocation, endpoints, {
-        showLoading: false,
-        query: {
-          stats: this.getStatsByType(),
-          endpoints,
-        }
-      });
-    }
+    const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
+    const nextLimitReached = newEndpoints[1] >= nextEndpoints[1]
 
-    // this.updateChartEndpoints(endpoints);
+    const updateChartData = prevLimitReached || nextLimitReached;
+
+    const { next: nextDays, prev: prevDays } = this.getDaysByType();
+
+    const updateOpts = {
+      showLoading: updateChartData,
+      query: updateChartData ? undefined : {
+        endpoints: newEndpoints,
+        nextDays,
+        prevDays,
+        stats: this.getStatsByType(),
+      },
+    };
+
+    this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
 
     if (!this.props.fetchingPatientData && !this.state.processingData) {
       // const patientID = this.props.currentPatientInViewId;
       // const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
+      const dateRangeStart = moment.utc(newEndpoints[0]).startOf('day');
       const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
       // const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
@@ -953,23 +934,6 @@ export let PatientData = translate()(React.createClass({
     }, this.queryData);
   },
 
-  // Sets the scroll location in scroll charts, or the range end in non-scroll charts.
-  // Used to derive the endpoints that are used by the data worker to update stats on the fly.
-  // TODO: ideally handleChartDateRangeUpdate is only needed, and the endpoints are updated all the time
-  // and stats are calculated constantly (no debounce) there, either through the data worker, or a separate
-  // stats worker that is passed the data directly (which could be a lot of work, so hopefully not)
-  // updateDatetimeLocation: function(datetime) {
-  //   this.setState({
-  //     datetimeLocation: datetime,
-  //   });
-  // },
-
-  // Sets the endpoints used by the data worker for data fetching and processing
-  // updateChartEndpoints: function(endpoints) {
-  //   this.setState({
-  //     endpoints,
-  //   });
-  // },
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
     let start;
@@ -1089,6 +1053,34 @@ export let PatientData = translate()(React.createClass({
     return stats;
   },
 
+  getDaysByType: function() {
+    const days = {};
+
+    switch (this.state.chartType) {
+      case 'daily':
+        days.next = 13;
+        days.prev = 13;
+        break;
+
+      case 'bgLog':
+        days.next = 56;
+        days.prev = 56;
+        break;
+
+      case 'trends':
+        days.next = 56;
+        days.prev = 56;
+        break;
+
+      default:
+        days.next = 0;
+        days.prev = 0;
+        break;
+    }
+
+    return days;
+  },
+
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
       showLoading: true,
@@ -1188,13 +1180,24 @@ export let PatientData = translate()(React.createClass({
           });
         }
 
-        // With initial query for upload data completed, set the initial chart type
         if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
-          if (!this.state.chartType) {
-            this.setInitialChartView(nextProps);
-          } else if (this.state.loading) {
-            this.hideLoading();
+          // With initial query for upload data completed, set the initial chart type
+          if (!this.state.chartType) this.setInitialChartView(nextProps);
+
+          // When new data is loaded, set the range endpoints to state to allow us to know when
+          // we've reached our chart limits.
+          const newDataLoaded = _.get(nextProps, 'data.data.current.data')
+          if (newDataLoaded) {
+            this.setState({
+              chartEndpoints: {
+                current: _.get(nextProps, 'data.data.current.endpoints.range', []),
+                next: _.get(nextProps, 'data.data.next.endpoints.range', []),
+                prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
+              },
+            });
           }
+
+          if (this.state.loading) this.hideLoading();
         }
       }
 
@@ -1276,9 +1279,13 @@ export let PatientData = translate()(React.createClass({
           break;
       }
 
+      const { next: nextDays, prev: prevDays } = this.getDaysByType();
+
       chartQuery.stats = this.getStatsByType();
       chartQuery.bgSource = this.state.chartPrefs[this.state.chartType].bgSource;
       chartQuery.endpoints = this.state.endpoints;
+      chartQuery.nextDays = nextDays;
+      chartQuery.prevDays = prevDays;
 
       this.props.dataWorkerQueryDataRequest(chartQuery);
     }
@@ -1416,203 +1423,6 @@ export let PatientData = translate()(React.createClass({
     const patientID = this.props.currentPatientInViewId;
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
-
-  // getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
-  //   let diabetesDataCount = 0;
-
-  //   // First, we get the index of the first diabetes datum that falls outside of our processing window.
-  //   let targetIndex = _.findIndex(unprocessedData, datum => {
-  //     const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
-
-  //     if (isDiabetesDatum) {
-  //       diabetesDataCount++;
-  //     }
-
-  //     return targetDatetime > datum.time && isDiabetesDatum;
-  //   });
-
-  //   if (targetIndex === -1) {
-  //     // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
-  //     // we process all the remaining fetched, unprocessed data.
-  //     targetIndex = unprocessedData.length;
-  //     this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
-  //   } else if (diabetesDataCount === 1) {
-  //     // If the first diabetes datum found was outside of our processing window, we need to include it.
-  //     targetIndex++;
-  //     this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
-  //   }
-
-  //   // Because targetIndex was set to the first one outside of our processing window, and we're
-  //   // looking for the last datum to process, we decrement by one and return
-  //   return --targetIndex;
-  // },
-
-  // processData: function(props = this.props) {
-  //   const patientID = props.currentPatientInViewId;
-  //   const patientData = _.get(props, ['patientDataMap', patientID], []);
-  //   const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
-
-  //   // Return if currently processing or we've already fetched and processed all data
-  //   if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
-  //     if (!this.state.processingData) {
-  //       this.setState({
-  //         loading: false,
-  //       });
-  //     }
-  //     return;
-  //   };
-
-  //   if (patientData.length) {
-  //     this.setState({
-  //       loading: true,
-  //       processingData: true,
-  //     });
-
-  //     const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
-  //     const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-  //     const processDataMaxDays = isInitialProcessing ? 30 : 56;
-
-  //     // Grab the first diabetes datum time on first process in case upload date is much later
-  //     const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
-  //     const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
-
-  //     const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
-  //     let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
-  //     _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
-
-  //     // Determine how far back into the unprocessed patient data we want to process.
-  //     const timezoneSettings = this.state.timePrefs.timezoneAware
-  //       ? this.state.timePrefs
-  //       : utils.getTimePrefsForDataProcessing(unprocessedPatientData, props.queryParams);
-
-  //     const targetDatetime = this.subtractTimezoneOffset(
-  //       lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
-  //       timezoneSettings
-  //     );
-
-  //     // If there's only a week or less data to process, and not all the data has been fetched,
-  //     // we just fetch instead of a tiny processing cycle followed by an immediate fetch
-  //     const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
-  //     const remainingDataIsLessThanAWeek = timeOfLastUnprocessedDatum &&  moment(targetDatetime).subtract(1, 'week').isSameOrBefore(moment(timeOfLastUnprocessedDatum));
-  //     if (!isInitialProcessing && !allDataFetched && remainingDataIsLessThanAWeek) {
-  //       return this.setState({
-  //         processingData: false,
-  //       }, this.fetchEarlierData);
-  //     }
-
-  //     // Find a cutoff point for processing unprocessed diabetes data
-  //     const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
-  //     const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
-  //     this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
-  //     this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
-
-  //     // We need to track the last processed indexes for diabetes and bg data to help determine when
-  //     // we've reached the scroll limits of the daily and bgLog charts
-  //     const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
-  //       return _.includes(DIABETES_DATA_TYPES, datum.type);
-  //     });
-
-  //     // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
-  //     // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
-  //     // where we include and process datums that are outside of the scheduled processing time frame
-  //     // when no diabetes data is found within it.
-  //     const lastProcessedDateTargets = [
-  //       _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
-  //       targetDatetime,
-  //     ];
-
-  //     const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
-
-  //     const lastProcessedDateTarget = sortedDateTargets[0]
-  //     this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
-
-  //     window.downloadInputData = () => {
-  //       console.save(patientData.concat(patientNotes), 'blip-input.json');
-  //     };
-
-  //     // Process data fetched after the initial processing
-  //     if (isInitialProcessing) {
-  //       // Kick off the processing of the initial data fetch
-  //       const combinedData = dataToProcess.concat(patientNotes);
-
-  //       // Ensure that the latest pump settings and upload datums, which may be outside of the
-  //       // processed date target, are included in the initial processing
-  //       const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
-  //       combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
-
-  //       const processedData = utils.processPatientData(
-  //         combinedData,
-  //         props.queryParams,
-  //         patientSettings,
-  //       );
-
-  //       const timePrefs = processedData.timePrefs || this.state.timePrefs;
-  //       const bgPrefs = {
-  //         bgClasses: processedData.bgClasses,
-  //         bgUnits: processedData.bgUnits
-  //       };
-
-  //       // TODO: Add raw data here (or where makes sense) to new data worker
-
-  //       // this.dataUtil = new DataUtil(
-  //       //   processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
-  //       //   { bgPrefs, timePrefs }
-  //       // );
-
-  //       // Set default bgSource for basics based on whether there is any cbg data in the current view.
-  //       const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
-  //         bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
-  //       });
-
-  //       this.setState({
-  //         bgPrefs,
-  //         chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
-  //         lastDiabetesDatumProcessedIndex,
-  //         lastDatumProcessedIndex: lastDatumToProcessIndex,
-  //         lastProcessedDateTarget,
-  //         loading: false,
-  //         processedPatientData: processedData,
-  //         processingData: false,
-  //         timePrefs,
-  //       }, () => {
-  //         this.handleInitialProcessedData(props, processedData, patientSettings);
-  //         props.trackMetric('Processed initial patient data', { patientID });
-  //       });
-  //     }
-  //     else {
-  //       // We don't need full processing for subsequent data. We just add and preprocess the new datums.
-  //       const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-
-  //       // Need to have all of the upload data present when filtering data or else the `source` and
-  //       // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
-  //       // of upload records, as deduplication will happen when `addData` is called.
-  //       const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
-  //       const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
-
-  //       // Add and process the new data
-  //       const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-  //       const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
-  //       const processedPatientData = addData(combinedNewData);
-  //       // this.dataUtil.addData(combinedNewData);
-  //       // TODO: Add raw data here (or where makes sense) to new data worker
-
-  //       const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
-  //       const count = this.state.processEarlierDataCount + 1;
-
-  //       this.setState({
-  //         lastDiabetesDatumProcessedIndex,
-  //         lastDatumProcessedIndex,
-  //         lastProcessedDateTarget,
-  //         processEarlierDataCount: count,
-  //         processedPatientData,
-  //         processingData: false,
-  //       }, () => {
-  //         this.hideLoading();
-  //         props.trackMetric('Processed earlier patient data', { patientID, count });
-  //       });
-  //     }
-  //   }
-  // },
 
   hideLoading: function(timeout = 250) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
