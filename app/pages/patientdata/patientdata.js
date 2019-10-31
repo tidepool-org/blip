@@ -161,7 +161,7 @@ export let PatientData = translate()(React.createClass({
 
   isInitialProcessing: function() {
     const dataFetched = _.get(this.props.data, 'metaData.size');
-    const rangeDataLoaded = _.get(this.props.data, 'data.current.endpoints.0', 0) !== 0;
+    const rangeDataLoaded = this.getCurrentData('endpoints.range.0', 0) !== 0;
     return !dataFetched || !rangeDataLoaded;
   },
 
@@ -1005,12 +1005,12 @@ export let PatientData = translate()(React.createClass({
     return endpoints;
   },
 
-  getCurrentData: function(path) {
-    return _.get(this.props, `data.data.current.${path}`, {});
+  getCurrentData: function(path, emptyValue = {}) {
+    return _.get(this.props, `data.data.current.${path}`, emptyValue);
   },
 
-  getMetaData: function(path) {
-    return _.get(this.props, `data.metaData.${path}`, {});
+  getMetaData: function(path, emptyValue = {}) {
+    return _.get(this.props, `data.metaData.${path}`, emptyValue);
   },
 
   getBasicsAggregations: function() {
