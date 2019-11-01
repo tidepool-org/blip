@@ -1250,6 +1250,7 @@ export let PatientData = translate()(React.createClass({
             basal: {},
             bolus: {},
             cbg: {},
+            deviceEvent: {},
             food: {},
             message: {},
             smbg: {},

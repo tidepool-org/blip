@@ -93,6 +93,7 @@ const DailyChart = translate()(class DailyChart extends Component {
 
   getInitialState = () => {
     return {
+      initialDatetimeLocation: this.props.initialDatetimeLocation,
       datetimeLocation: null
     };
   };
@@ -222,7 +223,6 @@ class Daily extends Component {
     // data state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   };
 
@@ -257,6 +257,9 @@ class Daily extends Component {
   };
 
   render = () => {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+
     return (
       <div id="tidelineMain" className="daily">
         <Header
@@ -283,14 +286,14 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {/* <DailyChart
-                bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
-                bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
+              <DailyChart
+                bgClasses={bgPrefs.bgClasses}
+                bgUnits={bgPrefs.bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
                 data={this.props.data}
-                timePrefs={_.get(this.props, 'data.timePrefs', {})}
+                timePrefs={timePrefs}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
@@ -308,7 +311,7 @@ class Daily extends Component {
                 onCBGOut={this.handleCBGOut}
                 onCarbHover={this.handleCarbHover}
                 onCarbOut={this.handleCarbOut}
-                ref="chart" /> */}
+                ref="chart" />
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -320,7 +323,7 @@ class Daily extends Component {
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
-                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
+                bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
               />
@@ -338,8 +341,8 @@ class Daily extends Component {
             }}
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={this.props.timePrefs}
+            bgPrefs={bgPrefs}
+            timePrefs={timePrefs}
           />}
         {this.state.hoveredSMBG && <SMBGTooltip
             position={{
@@ -348,8 +351,8 @@ class Daily extends Component {
             }}
             side={this.state.hoveredSMBG.side}
             smbg={this.state.hoveredSMBG.data}
-            timePrefs={this.props.timePrefs}
-            bgPrefs={this.props.bgPrefs}
+            timePrefs={timePrefs}
+            bgPrefs={bgPrefs}
           />}
         {this.state.hoveredCBG && <CBGTooltip
           position={{
@@ -358,8 +361,8 @@ class Daily extends Component {
           }}
           side={this.state.hoveredCBG.side}
           cbg={this.state.hoveredCBG.data}
-          timePrefs={this.props.timePrefs}
-          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+          bgPrefs={bgPrefs}
         />}
         {this.state.hoveredCarb && <FoodTooltip
           position={{
@@ -368,8 +371,8 @@ class Daily extends Component {
           }}
           side={this.state.hoveredCarb.side}
           food={this.state.hoveredCarb.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          bgPrefs={bgPrefs}
+          timePrefs={timePrefs}
         />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
@@ -377,8 +380,10 @@ class Daily extends Component {
   };
 
   getTitle = datetime => {
-    const { timePrefs, t } = this.props;
+    const { t } = this.props;
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
     let timezone;
+
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
@@ -445,18 +450,9 @@ class Daily extends Component {
   };
 
   handleDatetimeLocationChange = datetimeLocationEndpoints => {
-    const endpoints = [
-      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
-      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
-    ];
-
     this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints[1]),
-      endpoints,
     });
-
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -464,8 +460,8 @@ class Daily extends Component {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(endpoints);
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 100);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints[1]);
 
     this.setState({ debouncedDateRangeUpdate });
   };
