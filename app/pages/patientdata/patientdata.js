@@ -549,7 +549,7 @@ export let PatientData = translate()(React.createClass({
     const {
       chartType,
       chartPrefs,
-      bgPrefs,
+      bgPrefs = {},
     } = this.state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
@@ -1259,7 +1259,7 @@ export let PatientData = translate()(React.createClass({
             wizard: {},
           };
 
-          chartQuery.fillData = true;
+          chartQuery.fillData = { adjustForDSTChanges: true };
           break;
 
         case 'bgLog':
@@ -1268,7 +1268,7 @@ export let PatientData = translate()(React.createClass({
             fill: {},
           };
 
-          chartQuery.fillData = true;
+          chartQuery.fillData = { adjustForDSTChanges: false };
           break;
 
         case 'trends':
