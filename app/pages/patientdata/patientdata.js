@@ -657,20 +657,17 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleChartDateRangeUpdate: function(datetimeLocation) {
-    // Only update the chart endpoints and query for additional data
-    // if we've scrolled to the end the current available data
-    // const prevEndpoints = _.get(this.props, 'data.data.prev.endpoints.range', []);
-    // const nextEndpoints = _.get(this.props, 'data.data.next.endpoints.range', []);
+    const newEndpoints = this.getChartEndpoints(datetimeLocation);
+    const { next: nextDays, prev: prevDays } = this.getDaysByType();
+
+    // Only query for additional data if we're not on the initial data
+    // and we've scrolled to the end the current available data
+    const isOnInitialDay = datetimeLocation === this.state.initialDatetimeLocation;
     const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
     const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
-    const newEndpoints = this.getChartEndpoints(datetimeLocation);
-
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1]
-
-    const updateChartData = prevLimitReached || nextLimitReached;
-
-    const { next: nextDays, prev: prevDays } = this.getDaysByType();
+    const updateChartData = !isOnInitialDay && (prevLimitReached || nextLimitReached);
 
     const updateOpts = {
       showLoading: updateChartData,
@@ -1092,11 +1089,11 @@ export let PatientData = translate()(React.createClass({
       datetimeLocation: datetimeLocation || this.state.datetimeLocation,
     };
 
-    if (!this.state.initialDatetimeLocation) state.initialDatetimeLocation = datetimeLocation;
-
     const chartTypeChanged = !_.isEqual(chartType, this.state.chartType);
     const endpointsChanged = !_.isEqual(endpoints, this.state.endpoints);
     const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
+
+    if (!this.state.initialDatetimeLocation || chartTypeChanged) state.initialDatetimeLocation = datetimeLocation;
 
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, opts.showLoading) : _.noop;
