@@ -192,10 +192,10 @@ class BgLog extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
-      // endpoints: [],
+      initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       showingValues: this.props.isClinicAccount,
-      title: ''
+      title: '',
     };
   };
 
@@ -346,7 +346,7 @@ class BgLog extends Component {
     this.refs.chart && this.refs.chart.remountChart();
   };
 
-  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'))
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));
 
   // handlers
   handleClickTrends = e => {
@@ -364,8 +364,16 @@ class BgLog extends Component {
     if (e) {
       e.preventDefault();
     }
+
     this.setState({showingValues: false});
-    this.refs.chart.goToMostRecent();
+
+    const chartDays = _.get(this.refs, 'chart.chart.days', []);
+
+    if (_.includes(chartDays, this.state.initialDatetimeLocation.slice(0,10))) {
+      this.refs.chart.goToMostRecent();
+    } else {
+      this.props.onUpdateChartDateRange(this.state.initialDatetimeLocation, true)
+    }
   };
 
   handleClickOneDay = e => {

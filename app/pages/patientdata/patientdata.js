@@ -656,7 +656,7 @@ export let PatientData = translate()(React.createClass({
     return datetime;
   },
 
-  handleChartDateRangeUpdate: function(datetimeLocation) {
+  handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const newEndpoints = this.getChartEndpoints(datetimeLocation);
     const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
@@ -667,7 +667,7 @@ export let PatientData = translate()(React.createClass({
     const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1]
-    const updateChartData = !isOnInitialDay && (prevLimitReached || nextLimitReached);
+    const updateChartData = forceChartDataUpdate || (!isOnInitialDay && (prevLimitReached || nextLimitReached));
 
     const updateOpts = {
       showLoading: updateChartData,
