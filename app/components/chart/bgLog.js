@@ -402,7 +402,7 @@ class BgLog extends Component {
     return;
   };
 
-  handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
+  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
     this.setState({
       title: this.getTitle(datetimeLocationEndpoints),
     });
