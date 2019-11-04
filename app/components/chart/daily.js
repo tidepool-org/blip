@@ -461,7 +461,7 @@ class Daily extends Component {
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 100);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints[1]);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints[0].end.toISOString());
 
     this.setState({ debouncedDateRangeUpdate });
   };

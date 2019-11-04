@@ -657,7 +657,10 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
-    const newEndpoints = this.getChartEndpoints(datetimeLocation);
+    const newEndpoints = this.getChartEndpoints(datetimeLocation, {
+      setEndToLocalCeiling: this.state.chartType !== 'daily'
+    });
+
     const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
     // Only query for additional data if we're not on the initial data
@@ -775,7 +778,7 @@ export let PatientData = translate()(React.createClass({
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       .toISOString();
 
-    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, 'basics'));
+    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType: 'basics' }));
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -918,38 +921,36 @@ export let PatientData = translate()(React.createClass({
   },
 
 
-  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, chartType = this.state.chartType) {
+  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts) {
+    const {
+      chartType = this.state.chartType,
+      setEndToLocalCeiling = true,
+    } = opts;
+
     let start;
-    let end;
-    let endpoints = [];
+    const end = setEndToLocalCeiling
+      ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
+      : Date.parse(datetimeLocation);
 
     switch (chartType) {
       case 'basics':
-        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = findBasicsStart(datetimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
-        endpoints = [start, end];
         break;
 
       case 'daily':
-        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(1, 'day').valueOf();
-        endpoints = [start, end];
         break;
 
       case 'bgLog':
-        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(14, 'days').valueOf();
-        endpoints = [start, end];
         break;
 
       case 'trends':
-        end = getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf();
         start = moment.utc(end).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
-        endpoints = [start, end];
         break;
     }
 
-    return endpoints;
+    return (start && end ? [start, end] : []);
   },
 
   getCurrentData: function(path, emptyValue = {}) {
@@ -1352,7 +1353,7 @@ export let PatientData = translate()(React.createClass({
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
 
-      const endpoints = this.getChartEndpoints(datetimeLocation, chartType);
+      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
 
       // Set the default bgSource for basics, daily, and trends charts
       this.updateChartPrefs({
