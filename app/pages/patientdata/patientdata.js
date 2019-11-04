@@ -749,8 +749,6 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleShowMessageThread: function(messageThread) {
-    var self = this;
-
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread);
@@ -773,10 +771,8 @@ export let PatientData = translate()(React.createClass({
     }
 
     const dateCeiling = getLocalizedCeiling(this.state.endpoints[1], this.state.timePrefs);
-    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      // .tz(timezone)
       .toISOString();
 
     this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, 'basics'));
@@ -789,10 +785,8 @@ export let PatientData = translate()(React.createClass({
 
     // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      // .tz(timezone)
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
@@ -806,10 +800,8 @@ export let PatientData = translate()(React.createClass({
     });
 
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      // .tz(timezone)
       .toISOString();
 
     this.updateChart('trends', datetimeLocation);
@@ -822,10 +814,8 @@ export let PatientData = translate()(React.createClass({
 
     // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    // const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      // .tz(timezone)
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
@@ -882,13 +872,9 @@ export let PatientData = translate()(React.createClass({
         datetimeLocation: this.state.initialDatetimeLocation,
         endpoints: [],
         fetchEarlierDataCount: 0,
-        // lastDatumProcessedIndex: -1,
-        // lastProcessedDateTarget: null,
         loading: true,
         chartType: undefined,
         refreshChartType: this.state.chartType,
-        // processEarlierDataCount: 0,
-        // processedPatientData: null,
         timePrefs: undefined,
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
@@ -1357,16 +1343,13 @@ export let PatientData = translate()(React.createClass({
       );
 
       const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
-      const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
       const datetimeLocation = _.get(props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
         ? moment.utc(latestDatumDateCeiling.valueOf())
-          // .tz(timezone)
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
-          // .tz(timezone)
           .toISOString());
 
       const endpoints = this.getChartEndpoints(datetimeLocation, chartType);
@@ -1558,7 +1541,6 @@ export let PatientData = translate()(React.createClass({
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-
 export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
