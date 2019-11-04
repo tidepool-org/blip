@@ -60,7 +60,6 @@ const Trends = translate()(class Trends extends PureComponent {
     trackMetric: PropTypes.func.isRequired,
     trendsState: PropTypes.object.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    updateDatetimeLocation: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
   };
 
@@ -130,14 +129,15 @@ const Trends = translate()(class Trends extends PureComponent {
 
   formatDate(datetime) {
     const { t } = this.props;
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+    const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
 
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
   getNewDomain(current, extent) {
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-    const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const timezone = getTimezoneFromTimePrefs(timePrefs);
+    const end = getLocalizedCeiling(current.valueOf(), timePrefs);
     const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -145,7 +145,8 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   getTitle(datetimeLocationEndpoints) {
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const timezone = getTimezoneFromTimePrefs(timePrefs);
 
     // endpoint is exclusive, so need to subtract a day
     const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
@@ -377,12 +378,12 @@ const Trends = translate()(class Trends extends PureComponent {
             {this.renderSubNav()}
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {/* <div id="tidelineContainer" className="patient-data-chart-trends">
+              <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
               {this.renderFocusedCbgDateTraceLabel()}
               {this.renderFocusedSMBGPointLabel()}
-              {this.renderFocusedRangeLabels()} */}
+              {this.renderFocusedRangeLabels()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -480,7 +481,7 @@ const Trends = translate()(class Trends extends PureComponent {
         smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
         smbgGrouped={this.props.chartPrefs.trends.smbgGrouped}
         smbgLines={this.props.chartPrefs.trends.smbgLines}
-        timePrefs={this.props.timePrefs}
+        timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // data
         cbgByDate={this.props.data.cbgByDate}
         cbgByDayOfWeek={this.props.data.cbgByDayOfWeek}
@@ -516,7 +517,7 @@ const Trends = translate()(class Trends extends PureComponent {
           dataType={'cbg'}
           focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
           focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
-          timePrefs={this.props.timePrefs} />
+          timePrefs={_.get(this.props, 'data.timePrefs', {})} />
       );
     } else if (showingSmbg) {
       return (
@@ -524,7 +525,7 @@ const Trends = translate()(class Trends extends PureComponent {
           bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
           dataType={'smbg'}
           focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
-          timePrefs={this.props.timePrefs} />
+          timePrefs={_.get(this.props, 'data.timePrefs', {})} />
       );
     }
     return null;
@@ -538,7 +539,7 @@ const Trends = translate()(class Trends extends PureComponent {
     return (
       <FocusedSMBGPointLabel
         bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
-        timePrefs={this.props.timePrefs}
+        timePrefs={_.get(this.props, 'data.timePrefs', {})}
         grouped={this.props.chartPrefs.trends.smbgGrouped}
         lines={this.props.chartPrefs.trends.smbgLines}
         focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
