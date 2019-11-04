@@ -641,31 +641,22 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  subtractTimezoneOffset: function(datetime, timezoneSettings = this.state.timePrefs) {
-    const dateMoment = moment.utc(datetime);
-
-    if (dateMoment.isValid()) {
-      let timezoneOffset = 0;
-
-      if (_.get(timezoneSettings, 'timezoneAware')) {
-        timezoneOffset = sundial.getOffsetFromZone(dateMoment.toISOString(), timezoneSettings.timezoneName);
-      }
-      return dateMoment.subtract(timezoneOffset, 'minutes').toISOString();
-    }
-
-    return datetime;
-  },
-
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
+    const isDaily = this.state.chartType === 'daily';
+
     const newEndpoints = this.getChartEndpoints(datetimeLocation, {
-      setEndToLocalCeiling: this.state.chartType !== 'daily'
+      setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
     });
+
+    const newDatetimeLocation = isDaily
+      ? moment.utc(datetimeLocation).subtract(12, 'hours').toISOString()
+      : datetimeLocation;
 
     const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
     // Only query for additional data if we're not on the initial data
     // and we've scrolled to the end the current available data
-    const isOnInitialDay = datetimeLocation === this.state.initialDatetimeLocation;
+    const isOnInitialDay = newDatetimeLocation === this.state.initialDatetimeLocation;
     const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
     const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
@@ -1343,10 +1334,14 @@ export let PatientData = translate()(React.createClass({
         this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
 
+      const isDaily = chartType === 'daily';
+      const isBgLog = chartType === 'bgLog';
+
       const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
 
-      const datetimeLocation = _.get(props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
+      const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
+          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'utc')
           .subtract(1, 'day')
           .hours(12)
           .toISOString()

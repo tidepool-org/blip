@@ -239,6 +239,7 @@ class Daily extends Component {
     return {
       atMostRecent: false,
       endpoints: [],
+      initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       title: '',
     };
@@ -423,7 +424,14 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().goToMostRecent();
+
+    const latestFillDatum = _.findLast(this.refs.chart.wrappedInstance.chart.renderedData(), { type: 'fill' });
+
+    if (latestFillDatum.fillDate >= this.state.initialDatetimeLocation.slice(0,10)) {
+      this.refs.chart.getWrappedInstance().goToMostRecent();
+    } else {
+      this.props.onUpdateChartDateRange(this.state.initialDatetimeLocation, true)
+    }
   };
 
   handleClickOneDay = e => {
