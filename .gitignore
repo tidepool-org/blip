@@ -39,3 +39,4 @@ package-lock.json
 
 # Ignore old translation files
 locales/*/*_old.json
+locales/*/parameter.*.json*

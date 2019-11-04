@@ -1,6 +1,6 @@
 # Blip
 
-[![Build Status](https://img.shields.io/travis/com/tidepool-org/blip.svg)](https://travis-ci.com/tidepool-org/blip)
+[![Build Status](https://travis-ci.org/mdblp/blip.svg?branch=dblp)](https://travis-ci.org/mdblp/blip)
 
 Blip is a web app for type 1 diabetes (T1D) built on top of the [Tidepool](http://tidepool.org/) platform. It allows patients and their "care team" (family, doctors) to visualize their diabetes device data (from insulin pumps, BGMs, and/or CGMs) and message each other.
 
@@ -105,6 +105,21 @@ After you've found the key, you can provide it as a `signupKey` parameter in the
 When running locally, there is also workaround so you don't have to verify the e-mail address of a new user: if you create a new user and add the localhost secret +skip to the e-mail address - e.g. `me+skip@something.org` - this will then allow you to login straightaway, skipping the e-mail verification step.
 
 **NB: The UI is *not* guaranteed to display correctly for +skip-created users on all pages, and so 💣 *THIS WORKFLOW IS NOT CURRENTLY RECOMMENDED* 💣. For now, you must create a normal account (without +skip) if you want to work on the sign-up flow, although we have plans to fix the way the +skip workaround operates on the platform to address this.**
+
+### Updating the local tree for custom branding and translation
+
+This is done using the `artifact.sh` script:
+```
+$ bash -eu artifact.sh
+```
+
+To download Diabeloop parameters translation, you will need a *Personal access tokens* from github.
+Please follow the [github instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) to create one. You only need to check the scope `repo` (Full control of private repositories).
+
+Then to fetch the translations:
+```
+$ GIT_TOKEN='replace_me_with_the_token' bash -eu artifact.sh
+```
 
 ## Running against `dev`
 

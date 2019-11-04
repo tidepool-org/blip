@@ -4,8 +4,11 @@ import { reactI18nextModule } from 'react-i18next';
 import getLocale from 'browser-locale';
 import moment from 'moment';
 import mainEN from '../../locales/en/translation.json';
+import parameterEN from '../../locales/en/parameter.json';
 import mainFR from '../../locales/fr/translation.json';
+import parameterFR from '../../locales/fr/parameter.json';
 import mainDE from '../../locales/de/translation.json';
+import parameterDE from '../../locales/de/parameter.json';
 
 // Update moment with the right language, for date display
 i18n.on('languageChanged', lng => {
@@ -46,20 +49,23 @@ i18n
       // Needed for react < 16
       defaultTransParent: 'div'
     },
-    ns: ['main'],
+    ns: ['main', 'params'],
     defaultNS: 'main',
 
     resources: {
       en: {
         // Default namespace
-        main: mainEN
+        main: mainEN,
+        params: parameterEN
       },
       fr: {
-        main: mainFR
+        main: mainFR,
+        params: parameterFR
       },
       de: {
-        main: mainDE
-      }      
+        main: mainDE,
+        params: parameterDE
+      }
     }
   });
 
