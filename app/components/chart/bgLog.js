@@ -346,7 +346,7 @@ class BgLog extends Component {
     this.refs.chart && this.refs.chart.remountChart();
   };
 
-  isMissingSMBG = () => _.isEmpty(_.find(_.get(this.props, 'data.data.combined', []), { type: 'smbg' }));
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));
 
   // handlers
   handleClickTrends = e => {
