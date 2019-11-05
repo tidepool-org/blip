@@ -246,7 +246,7 @@ class Daily extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.loading && !nextProps.loading) {
+    if (this.props.loading && !nextProps.loading && this.refs.chart) {
       this.refs.chart.getWrappedInstance().rerenderChart();
     }
   };
@@ -287,32 +287,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              <DailyChart
-                bgClasses={bgPrefs.bgClasses}
-                bgUnits={bgPrefs.bgUnits}
-                bolusRatio={this.props.chartPrefs.bolusRatio}
-                dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-                initialDatetimeLocation={this.props.initialDatetimeLocation}
-                data={this.props.data}
-                timePrefs={timePrefs}
-                // message handlers
-                onCreateMessage={this.props.onCreateMessage}
-                onShowMessageThread={this.props.onShowMessageThread}
-                // other handlers
-                onDatetimeLocationChange={this.handleDatetimeLocationChange}
-                onHideBasalSettings={this.handleHideBasalSettings}
-                onMostRecent={this.handleMostRecent}
-                onShowBasalSettings={this.handleShowBasalSettings}
-                onTransition={this.handleInTransition}
-                onBolusHover={this.handleBolusHover}
-                onBolusOut={this.handleBolusOut}
-                onSMBGHover={this.handleSMBGHover}
-                onSMBGOut={this.handleSMBGOut}
-                onCBGHover={this.handleCBGHover}
-                onCBGOut={this.handleCBGOut}
-                onCarbHover={this.handleCarbHover}
-                onCarbOut={this.handleCarbOut}
-                ref="chart" />
+              {this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -380,6 +355,40 @@ class Daily extends Component {
       );
   };
 
+  renderChart = () => {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+
+    return (
+      <DailyChart
+        bgClasses={bgPrefs.bgClasses}
+        bgUnits={bgPrefs.bgUnits}
+        bolusRatio={this.props.chartPrefs.bolusRatio}
+        dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+        initialDatetimeLocation={this.props.initialDatetimeLocation}
+        data={this.props.data}
+        timePrefs={timePrefs}
+        // message handlers
+        onCreateMessage={this.props.onCreateMessage}
+        onShowMessageThread={this.props.onShowMessageThread}
+        // other handlers
+        onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onHideBasalSettings={this.handleHideBasalSettings}
+        onMostRecent={this.handleMostRecent}
+        onShowBasalSettings={this.handleShowBasalSettings}
+        onTransition={this.handleInTransition}
+        onBolusHover={this.handleBolusHover}
+        onBolusOut={this.handleBolusOut}
+        onSMBGHover={this.handleSMBGHover}
+        onSMBGOut={this.handleSMBGOut}
+        onCBGHover={this.handleCBGHover}
+        onCBGOut={this.handleCBGOut}
+        onCarbHover={this.handleCarbHover}
+        onCarbOut={this.handleCarbOut}
+        ref="chart" />
+    );
+  }
+
   getTitle = datetime => {
     const { t } = this.props;
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
@@ -409,7 +418,7 @@ class Daily extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.getWrappedInstance().rerenderChart();
+    _.get(this.refs, 'chart.wrappedInstance') && this.refs.chart.getWrappedInstance().rerenderChart()
   };
 
   handleClickTrends = e => {
