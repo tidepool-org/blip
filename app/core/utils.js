@@ -20,6 +20,9 @@ import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
+import { utils as vizUtils } from '@tidepool/viz';
+
+const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 var utils = {};
 
@@ -340,9 +343,12 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
 utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
   var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
 
+  const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
+  const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
+
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(patientSettings.bgTarget.low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(patientSettings.bgTarget.high, bgUnits) },
+    low: { boundary: utils.roundBgTarget(low, bgUnits) },
+    target: { boundary: utils.roundBgTarget(high, bgUnits) },
   };
 
   // Allow overriding stored BG Unit preferences via query param
