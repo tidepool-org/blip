@@ -167,6 +167,7 @@ class BgLog extends Component {
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
     loading: React.PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: React.PropTypes.string,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
@@ -192,7 +193,6 @@ class BgLog extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
-      initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       showingValues: this.props.isClinicAccount,
       title: '',
@@ -226,7 +226,7 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
+              {this.isMissingSMBG() ? (this.props.loading ? null : this.renderMissingSMBGMessage()) : this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -369,10 +369,10 @@ class BgLog extends Component {
 
     const chartDays = _.get(this.refs, 'chart.chart.days', []);
 
-    if (_.includes(chartDays, this.state.initialDatetimeLocation.slice(0,10))) {
+    if (_.includes(chartDays, this.props.mostRecentDatetimeLocation.slice(0,10))) {
       this.refs.chart.goToMostRecent();
     } else {
-      this.props.onUpdateChartDateRange(this.state.initialDatetimeLocation, true)
+      this.props.onUpdateChartDateRange(this.props.mostRecentDatetimeLocation, true)
     }
   };
 

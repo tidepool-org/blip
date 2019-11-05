@@ -48,6 +48,7 @@ const Trends = translate()(class Trends extends PureComponent {
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -483,10 +484,11 @@ const Trends = translate()(class Trends extends PureComponent {
         smbgLines={this.props.chartPrefs.trends.smbgLines}
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // data
-        cbgByDate={this.props.data.cbgByDate}
-        cbgByDayOfWeek={this.props.data.cbgByDayOfWeek}
-        smbgByDate={this.props.data.smbgByDate}
-        smbgByDayOfWeek={this.props.data.smbgByDayOfWeek}
+        data={this.props.data}
+        // cbgByDate={this.props.data.cbgByDate}
+        // cbgByDayOfWeek={this.props.data.cbgByDayOfWeek}
+        // smbgByDate={this.props.data.smbgByDate}
+        // smbgByDayOfWeek={this.props.data.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}

@@ -206,6 +206,7 @@ class Daily extends Component {
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     loading: React.PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: React.PropTypes.string,
     pdf: React.PropTypes.object.isRequired,
     stats: React.PropTypes.array.isRequired,
     // refresh handler
@@ -436,10 +437,10 @@ class Daily extends Component {
 
     const latestFillDatum = _.findLast(this.refs.chart.wrappedInstance.chart.renderedData(), { type: 'fill' });
 
-    if (latestFillDatum.fillDate >= this.state.initialDatetimeLocation.slice(0,10)) {
+    if (latestFillDatum.fillDate >= this.props.mostRecentDatetimeLocation.slice(0,10)) {
       this.refs.chart.getWrappedInstance().goToMostRecent();
     } else {
-      this.props.onUpdateChartDateRange(this.state.initialDatetimeLocation, true)
+      this.props.onUpdateChartDateRange(this.props.mostRecentDatetimeLocation, true)
     }
   };
 

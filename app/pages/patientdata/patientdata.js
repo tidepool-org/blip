@@ -139,6 +139,7 @@ export let PatientData = translate()(React.createClass({
       createMessageDatetime: null,
       data: {},
       datetimeLocation: null,
+      queryDataCount: 0,
       fetchEarlierDataCount: 0,
       loading: true,
       showUploadOverlay: false,
@@ -150,15 +151,21 @@ export let PatientData = translate()(React.createClass({
   log: bows('PatientData'),
 
   isInitialProcessing: function() {
+    const isSettings = this.state.chartType === 'settings';
     const dataFetched = _.get(this.props.data, 'metaData.size');
-    const rangeDataLoaded = this.getCurrentData('endpoints.range.0', 0) !== 0;
-    return !dataFetched || !rangeDataLoaded;
+    const rangeDataLoaded = isSettings || this.getCurrentData('endpoints.range.0', 0) !== 0;
+
+    // First data call is to fetch latest upload and general metadata, which is sufficient for settings
+    // The other chart views require a subsequent data query in order to be able to render
+    const requiredQueryDataCount = isSettings ? 1 : 2;
+
+    return !dataFetched || !rangeDataLoaded || this.state.queryDataCount < requiredQueryDataCount;
   },
 
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const showLoader = this.isInitialProcessing() && this.state.loading;
+    const showLoader = this.isInitialProcessing();
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -170,7 +177,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.isInitialProcessing() && this.state.loading) {
+    if (this.isInitialProcessing()) {
       return this.renderInitialLoading();
     }
 
@@ -359,6 +366,7 @@ export let PatientData = translate()(React.createClass({
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -384,6 +392,7 @@ export let PatientData = translate()(React.createClass({
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -407,6 +416,7 @@ export let PatientData = translate()(React.createClass({
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicAccount={personUtils.isClinic(this.props.user)}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -656,12 +666,12 @@ export let PatientData = translate()(React.createClass({
 
     // Only query for additional data if we're not on the initial data
     // and we've scrolled to the end the current available data
-    const isOnInitialDay = newDatetimeLocation === this.state.initialDatetimeLocation;
+    const isOnMostRecentDay = newDatetimeLocation === this.state.mostRecentDatetimeLocation;
     const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
     const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1]
-    const updateChartData = forceChartDataUpdate || (!isOnInitialDay && (prevLimitReached || nextLimitReached));
+    const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
 
     const updateOpts = {
       showLoading: updateChartData,
@@ -764,7 +774,8 @@ export let PatientData = translate()(React.createClass({
       e.preventDefault();
     }
 
-    const dateCeiling = getLocalizedCeiling(this.state.endpoints[1], this.state.timePrefs);
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, 'basics');
+    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       .toISOString();
@@ -777,15 +788,24 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const chartType = 'daily';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
+      .tz(getTimezoneFromTimePrefs(this.state.timePrefs))
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
 
-    this.updateChart('daily', datetimeLocation);
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = {};
+    if (datetime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -793,12 +813,21 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const chartType = 'trends';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    this.updateChart('trends', datetimeLocation);
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = {};
+    if (datetime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -806,15 +835,23 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the datetimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
+    const chartType = 'bgLog';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
 
-    this.updateChart('bgLog', datetimeLocation);
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = {};
+    if (datetime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToSettings: function(e) {
@@ -863,11 +900,13 @@ export let PatientData = translate()(React.createClass({
 
       this.setState({
         bgPrefs: undefined,
-        datetimeLocation: this.state.initialDatetimeLocation,
+        chartType: undefined,
+        datetimeLocation: undefined,
+        mostRecentDatetimeLocation: undefined,
         endpoints: [],
         fetchEarlierDataCount: 0,
         loading: true,
-        chartType: undefined,
+        queryDataCount: 0,
         refreshChartType: this.state.chartType,
         timePrefs: undefined,
         title: this.DEFAULT_TITLE,
@@ -1056,9 +1095,61 @@ export let PatientData = translate()(React.createClass({
     return days;
   },
 
+  getMostRecentDatumTimeByChartType: function(props = this.props, chartType = this.state.chartType) {
+    let latestDatums;
+    const getLatestDatums = types => _.pick(_.get(props.data, 'metaData.latestDatumByType'), types);
+
+    switch (chartType) {
+      case 'basics':
+        latestDatums = getLatestDatums([
+          'basal',
+          'bolus',
+          'cbg',
+          'deviceEvent',
+          'pumpSettings',
+          'smbg',
+          'wizard',
+        ]);
+        break
+
+      case 'daily':
+        latestDatums = getLatestDatums([
+          'basal',
+          'bolus',
+          'cbg',
+          'deviceEvent',
+          'food',
+          'message',
+          'smbg',
+          'wizard',
+        ]);
+        break;
+
+      case 'bgLog':
+        latestDatums = getLatestDatums([
+          'smbg',
+        ]);
+        break;
+
+      case 'trends':
+        latestDatums = getLatestDatums([
+          'cbg',
+          'smbg',
+        ]);
+        break;
+
+      default:
+        latestDatums = [];
+        break;
+    }
+
+    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
+  },
+
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
       showLoading: true,
+      mostRecentDatetimeLocation: datetimeLocation,
     });
 
     const state = {
@@ -1071,15 +1162,10 @@ export let PatientData = translate()(React.createClass({
     const endpointsChanged = !_.isEqual(endpoints, this.state.endpoints);
     const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
 
-    if (!this.state.initialDatetimeLocation || chartTypeChanged) state.initialDatetimeLocation = datetimeLocation;
+    if (!this.state.mostRecentDatetimeLocation || chartTypeChanged) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, opts.showLoading) : _.noop;
-
-    if (datetimeLocationChanged) {
-      console.log('datetimeLocation', datetimeLocation);
-      console.log('this.state.datetimeLocation', this.state.datetimeLocation);
-    }
 
     this.setState(state, cb);
   },
@@ -1156,6 +1242,8 @@ export let PatientData = translate()(React.createClass({
         }
 
         if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
+          this.setState({ queryDataCount: this.state.queryDataCount + 1 });
+
           // With initial query for upload data completed, set the initial chart type
           if (!this.state.chartType) this.setInitialChartView(nextProps);
 
@@ -1209,7 +1297,6 @@ export let PatientData = translate()(React.createClass({
   },
 
   queryData: function (query, showLoading = true) {
-    console.log('queryData called');
     showLoading && this.setState({ loading: true });
     this.setState({ querying: true });
 
@@ -1267,7 +1354,6 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  // TODO: update as required to work with new data worker results
   deriveChartTypeFromLatestData: function(latestData, uploads) {
     let chartType = 'basics'; // Default to 'basics'
 
@@ -1337,7 +1423,8 @@ export let PatientData = translate()(React.createClass({
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
 
-      const latestDatumDateCeiling = getLocalizedCeiling(latestDatum.time, this.state.timePrefs);
+      const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
+      const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
 
       const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
