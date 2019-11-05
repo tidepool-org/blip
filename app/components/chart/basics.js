@@ -83,7 +83,7 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+              {this.isMissingBasics() ? (this.props.loading ? null : this.renderMissingBasicsMessage()) : this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
