@@ -34,6 +34,7 @@ const data = (state = {}, action) => {
       });
 
       if (combined.length === 0) combined.push.apply(combined, state.data.combined);
+      console.timeEnd('Process Combined Data');
 
       return update(state, {
         data: {
