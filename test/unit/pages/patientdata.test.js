@@ -2489,6 +2489,15 @@ describe('PatientData', function () {
       expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-02-15T00:00:00.000Z')).to.equal(1)
       expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-04-15T00:00:00.000Z')).to.equal(1)
     });
+
+    it('should not return the datum index with type food', () => {
+      const unprocessedDataWithFood = [
+        { id: 0, time: '2018-03-02T00:00:00.000Z', type: 'food' },
+        { id: 1, time: '2018-02-02T00:00:00.000Z', type: 'cbg' },
+        { id: 2, time: '2018-01-02T00:00:00.000Z', type: 'bolus' }
+      ];
+      expect(instance.getLastDatumToProcessIndex(unprocessedDataWithFood, '2018-03-01T00:00:00.000Z')).to.equal(1)
+    });
   });
 
   describe('processData', () => {
@@ -2781,7 +2790,6 @@ describe('PatientData', function () {
             ],
           );
         });
-
         it('should set the processedPatientData to state', () => {
           wrapper.setState({
             lastDatumProcessedIndex: -1, // no data has been processed

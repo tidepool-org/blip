@@ -61,6 +61,8 @@ const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
+const DiabetesDataTypesForDatum = _.filter(DIABETES_DATA_TYPES,t=>t!=='food');
+
 export let PatientData = translate()(React.createClass({
   propTypes: {
     addPatientNote: React.PropTypes.func.isRequired,
@@ -1119,7 +1121,7 @@ export let PatientData = translate()(React.createClass({
 
     // First, we get the index of the first diabetes datum that falls outside of our processing window.
     let targetIndex = _.findIndex(unprocessedData, datum => {
-      const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
+      const isDiabetesDatum = _.includes(DiabetesDataTypesForDatum, datum.type);
 
       if (isDiabetesDatum) {
         diabetesDataCount++;
@@ -1170,7 +1172,7 @@ export let PatientData = translate()(React.createClass({
       const processDataMaxDays = isInitialProcessing ? 30 : 56;
 
       // Grab the first diabetes datum time on first process in case upload date is much later
-      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
+      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DiabetesDataTypesForDatum, d.type));
       const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
 
       const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
@@ -1206,7 +1208,7 @@ export let PatientData = translate()(React.createClass({
       // We need to track the last processed indexes for diabetes and bg data to help determine when
       // we've reached the scroll limits of the daily and bgLog charts
       const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
-        return _.includes(DIABETES_DATA_TYPES, datum.type);
+        return _.includes(DiabetesDataTypesForDatum, datum.type);
       });
 
       // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
@@ -1242,7 +1244,7 @@ export let PatientData = translate()(React.createClass({
           props.queryParams,
           patientSettings,
         );
-
+        
         const timePrefs = processedData.timePrefs || this.state.timePrefs;
         const bgPrefs = {
           bgClasses: processedData.bgClasses,
