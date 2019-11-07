@@ -32,6 +32,7 @@ export const ERR_CONFIRMING_PASSWORD_RESET = t('We couldn\'t change your passwor
 export const ERR_CONFIRMING_SIGNUP = t('Something went wrong while confirming your sign-up.');
 export const ERR_DSA_SETUP = t('Something went wrong while setting up data storage.');
 export const ERR_FETCHING_MESSAGE_THREAD = t('Something went wrong while fetching a message thread.');
+export const ERR_CREATING_MESSAGE_THREAD = t('Something went wrong while creating a message thread.');
 export const ERR_FETCHING_PATIENT = t('Something went wrong while fetching patient.');
 export const ERR_FETCHING_PATIENT_DATA = t('Something went wrong while fetching data for the current patient.');
 export const ERR_FETCHING_LATEST_PUMP_SETTINGS = t('Something went wrong while fetching latest pump settings for the current patient.');

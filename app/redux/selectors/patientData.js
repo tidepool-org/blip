@@ -21,13 +21,13 @@ import utils from '../../core/utils'
 
 const getPatientData = (state, props) => _.get(
   state,
-  `blip.patientDataMap[${_.get(props, 'routeParams.id')}]`,
+  'blip.data.combined',
   []
 );
 
 const getPatientDataFetchedUntil = (state, props) => _.get(
   state,
-  `blip.patientDataMap[${_.get(props, 'routeParams.id')}_fetchedUntil]`
+  'blip.data.fetchedUntil'
 );
 
 export const getfetchedPatientDataRange = createSelector(

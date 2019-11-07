@@ -40,8 +40,6 @@ import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
-import nurseShark from 'tideline/plugins/nurseshark/';
-
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
@@ -85,8 +83,6 @@ export let PatientData = translate()(React.createClass({
     onRefresh: React.PropTypes.func.isRequired,
     onSaveComment: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
-    patientDataMap: React.PropTypes.object.isRequired,
-    patientNotesMap: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
@@ -1187,12 +1183,15 @@ export let PatientData = translate()(React.createClass({
 
   componentWillUnmount: function() {
     this.props.removeGeneratedPDFS();
+
+    // We only force removal of the data from the redux store at this point, and not the data worker
+    // so that we don't need to refetch if the user is going to their profile page and coming back
     this.props.dataWorkerRemoveDataSuccess();
   },
 
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
-    const patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    const patientData = _.get(nextProps, 'data.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
     const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
@@ -1263,7 +1262,6 @@ export let PatientData = translate()(React.createClass({
           if (this.state.loading) this.hideLoading();
         }
       }
-
 
       // Handle data range fetch that yeilds no new data
       if (!newDiabetesDataReturned && newDataRangeFetched) {
@@ -1681,9 +1679,7 @@ export function mapStateToProps(state, props) {
     user: user,
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
-    patientDataMap: state.blip.patientDataMap,
     fetchedPatientDataRange: getfetchedPatientDataRange(state, props),
-    patientNotesMap: state.blip.patientNotesMap,
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
@@ -1703,10 +1699,12 @@ export function mapStateToProps(state, props) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
+  dataWorkerAddDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
   dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
+  createMessageThread: actions.async.createMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
@@ -1742,7 +1740,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
-    onCreateMessage: api.team.startMessageThread.bind(api),
+    onCreateMessage: dispatchProps.createMessageThread.bind(api),
     onEditMessage: api.team.editMessage.bind(api),
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,

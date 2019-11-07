@@ -449,8 +449,7 @@ export function mapStateToProps(state) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
 
-      let data = _.get(state.blip.patientDataMap, state.blip.loggedInUserId, null);
-      userHasData = !!(data && !!data.length); // convert null or empty array val to boolean
+      userHasData = _.get(state, 'blip.data.patientId') === state.blip.loggedInUserId && _.get(state, 'blip.data.metaData.size', 0) > 0;
 
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;

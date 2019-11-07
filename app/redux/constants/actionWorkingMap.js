@@ -37,6 +37,11 @@ export default (type) => {
     case types.FETCH_MESSAGE_THREAD_FAILURE:
       return 'fetchingMessageThread';
 
+    case types.CREATE_MESSAGE_THREAD_REQUEST:
+    case types.CREATE_MESSAGE_THREAD_SUCCESS:
+    case types.CREATE_MESSAGE_THREAD_FAILURE:
+      return 'creatingMessageThread';
+
     case types.LOGIN_REQUEST:
     case types.LOGIN_SUCCESS:
     case types.LOGIN_FAILURE:

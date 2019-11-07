@@ -42,8 +42,6 @@ const initialState = {
   permissionsOfMembersInTargetCareTeam: {},
   membershipPermissionsInOtherCareTeams: {},
   allUsersMap: {},
-  patientDataMap: {},
-  patientNotesMap: {},
   pdf: {},
   data: {
     data: {
@@ -55,6 +53,9 @@ const initialState = {
     timePrefs: {},
     bgPrefs: {},
     metaData: {},
+    patientId: null,
+    fetchedUntil: null,
+    cacheUntil: null,
   },
   pendingReceivedInvites: [],
   pendingSentInvites: [],
@@ -73,6 +74,7 @@ const initialState = {
     fetchingDataSources: Object.assign({}, working),
     fetchingServerTime: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
+    creatingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
     fetchingAssociatedAccounts: Object.assign({}, working),

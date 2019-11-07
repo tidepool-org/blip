@@ -825,14 +825,11 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData, patientNotes, fetchedUntil) {
+export function fetchPatientDataSuccess(patientId) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
       patientId,
-      patientData,
-      patientNotes,
-      fetchedUntil,
     },
   };
 }
@@ -865,6 +862,31 @@ export function fetchMessageThreadSuccess(messageThread) {
 export function fetchMessageThreadFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createMessageThreadRequest() {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_REQUEST,
+  };
+}
+
+export function createMessageThreadSuccess(message) {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_SUCCESS,
+    payload: {
+      message: message,
+    },
+  };
+}
+
+export function createMessageThreadFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

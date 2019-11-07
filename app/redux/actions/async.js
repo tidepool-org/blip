@@ -44,7 +44,7 @@ function createActionError(usrErrMessage, apiError) {
  * cacheByIdOptions
  *
  * Sets the options used by redux-cache for a given id. This allows us to selectively cache parts of
- * a nested data store, such as our patientDataMap, which stores nested data by patient ID
+ * a nested data store, such as our allUsersMap, which stores nested data by patient ID
  *
  * @param {String} id - The ID to use for the cache key
  * @returns {Object} The options object
@@ -280,6 +280,7 @@ export function login(api, credentials, options, postLoginAction) {
 export function logout(api) {
   return (dispatch) => {
     dispatch(sync.logoutRequest());
+    dispatch(worker.dataWorkerRemoveDataRequest());
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
       dispatch(routeActions.push('/'));
@@ -911,7 +912,7 @@ export function fetchPatientData(api, options, id) {
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
-    if(options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
+    if(options.useCache && checkCacheValid(getState, 'data', { cacheKey: 'cacheUntil' })) {
       return null;
     }
 
@@ -1020,8 +1021,8 @@ export function fetchPatientData(api, options, id) {
         fetchData(refetchOptions);
       } else {
         // We have enough data for the initial rendering.
-        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
+        dispatch(sync.fetchPatientDataSuccess(id));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
       }
     }
 
@@ -1038,8 +1039,8 @@ export function fetchPatientData(api, options, id) {
         fetchData(refetchOptions);
       } else {
         // There either aren't any pump settings, or we have both the pumpSettings and upload. Dispatch results
-        dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
+        dispatch(sync.fetchPatientDataSuccess(id));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
       }
     }
 
@@ -1095,8 +1096,8 @@ export function fetchPatientData(api, options, id) {
             handlePumpSettingsFetchResults(patientData, options)
           } else {
             // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
-            dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
-            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes]));
+            dispatch(sync.fetchPatientDataSuccess(id));
+            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
           }
         }
       });
@@ -1121,6 +1122,30 @@ export function fetchMessageThread(api, id ) {
         ));
       } else {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
+      }
+    });
+  };
+}
+
+/**
+ * Create Message Thread Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param {String|Number} id
+ */
+export function createMessageThread(api, message ) {
+  return (dispatch) => {
+    dispatch(sync.createMessageThreadRequest());
+
+    api.team.startMessageThread(message, (err, messageId) => {
+      if (err) {
+        dispatch(sync.createMessageThreadFailure(
+          createActionError(ErrorMessages.ERR_CREATING_MESSAGE_THREAD, err), err
+        ));
+      } else {
+        const messageWithId = { ...message, id: messageId };
+        dispatch(sync.createMessageThreadSuccess(messageWithId));
+        dispatch(worker.dataWorkerAddDataRequest([messageWithId]));
       }
     });
   };
