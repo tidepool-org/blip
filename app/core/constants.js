@@ -36,18 +36,18 @@ export const CONFIG = {
     support:'http://support.tidepool.org/',
     legal:'http://tidepool.org/legal/',
     terms: URL_TERMS_OF_USE,
-    termsText: t('Tidepool Applications Terms of Use'),
+    get termsText() { return t('Tidepool Applications Terms of Use'); },
     privacy: URL_PRIVACY_POLICY,
-    privacyText: t('Privacy Policy')
+    get privacyText() { return t('Privacy Policy'); }
   },
   'diabeloop': {
     name: 'YourLoops',
     support: 'https://www.diabeloop.com',
     legal: config.ASSETS_URL + 'terms.pdf',
     terms: config.ASSETS_URL + 'terms.pdf',
-    termsText: t('Diabeloop Applications Terms of Use'),
+    get termsText() {  return t('Diabeloop Applications Terms of Use'); },
     privacy: config.ASSETS_URL + 'data-privacy.pdf',
-    privacyText: t('Privacy Policy')
+    get privacyText() { return t('Privacy Policy'); }
   }
 };
 
@@ -66,12 +66,12 @@ export const DATA_DONATION_NONPROFITS = () => [
 ];
 
 export const DIABETES_TYPES = () => [
-  { value: 'type1', label: t('Type 1') },
-  { value: 'type2', label: t('Type 2') },
-  { value: 'gestational', label: t('Gestational') },
-  { value: 'prediabetes', label: t('Pre-diabetes') },
-  { value: 'lada', label: t('LADA (Type 1.5)') },
-  { value: 'other', label: t('Other') },
+  { value: 'type1', get label() { return t('Type 1'); } },
+  { value: 'type2', get label() { return t('Type 2'); } },
+  { value: 'gestational', get label() { return t('Gestational'); } },
+  { value: 'prediabetes', get label() { return t('Pre-diabetes'); } },
+  { value: 'lada', get label() { return t('LADA (Type 1.5)'); } },
+  { value: 'other', get label() { return t('Other'); } },
 ];
 
 export const BG_DATA_TYPES = [
