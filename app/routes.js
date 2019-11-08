@@ -283,6 +283,14 @@ export const onOtherRouteEnter = (api) => (nextState, replace) => {
   }
 }
 
+const trackPage = (api, next) => (nextState, replace, cb) => {
+  api.metrics.track('setCustomUrl', nextState.location.pathname, () => {
+    if (typeof next === 'function') {
+      next(nextState, replace, cb);
+    }
+  });
+}
+
 /**
  * Creates the route map with authentication associated with each route built in.
  *
@@ -307,26 +315,26 @@ export const getRoutes = (appContext, store) => {
 
   return (
     <Route path='/' component={AppComponent} {...props}>
-      <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
-      <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
-      <Route path='terms' components={Terms} />
-      <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
-      <Route path='signup/personal' component={Signup} onEnter={requireNoAuthAndPatientSignupAllowed(api)} />
-      <Route path='signup/clinician' component={Signup} onEnter={requireNoAuth(api)} />
-      <Route path='clinician-details' component={ClinicianDetails} onEnter={requireAuth(api, store)} />
-      <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
-      <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
-      <Route path='patients/:id/share' component={Share} onEnter={requiresChrome(utils, requireAuth(api, store))} />
-      <Route path='patients/:id/data' component={PatientData} onEnter={requiresChrome(utils, requireAuth(api, store))} />
-      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={ensureNoAuth(api)} />
-      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
-      <Route path='verification-with-password' component={VerificationWithPassword} onEnter={requireNoAuth(api)} />
-      <Route path='browser-warning' component={BrowserWarning} />
-      <Route path='*' onEnter={onOtherRouteEnter(api)} />
+      <IndexRoute component={Login} onEnter={trackPage(api, onIndexRouteEnter(api, store))} />
+      <Route path='login' component={Login} onEnter={trackPage(api, requireNoAuth(api))} />
+      <Route path='terms' components={Terms} onEnter={trackPage(api, null)} />
+      <Route path='signup' component={Signup} onEnter={trackPage(api, requireNoAuth(api))} />
+      <Route path='signup/personal' component={Signup} onEnter={trackPage(api, requireNoAuthAndPatientSignupAllowed(api))} />
+      <Route path='signup/clinician' component={Signup} onEnter={trackPage(api, requireNoAuth(api))} />
+      <Route path='clinician-details' component={ClinicianDetails} onEnter={trackPage(api, requireAuth(api, store))} />
+      <Route path='email-verification' component={EmailVerification} onEnter={trackPage(api, requireNotVerified(api, store))} />
+      <Route path='profile' component={UserProfile} onEnter={trackPage(api, requireAuth(api, store))} />
+      <Route path='patients' component={Patients} onEnter={trackPage(api, requireAuth(api, store))} />
+      <Route path='patients/new' component={PatientNew} onEnter={trackPage(api, requireAuthAndNoPatient(api, store))} />
+      <Route path='patients/:id/profile' component={PatientProfile} onEnter={trackPage(api, requiresChrome(utils, requireAuth(api, store)))} />
+      <Route path='patients/:id/share' component={Share} onEnter={trackPage(api, requiresChrome(utils, requireAuth(api, store)))} />
+      <Route path='patients/:id/data' component={PatientData} onEnter={trackPage(api, requiresChrome(utils, requireAuth(api, store)))} />
+      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={trackPage(api, requireNoAuth(api))} />
+      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={trackPage(api, ensureNoAuth(api))} />
+      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={trackPage(api, onUploaderPasswordReset(api))} />
+      <Route path='verification-with-password' component={VerificationWithPassword} onEnter={trackPage(api, requireNoAuth(api))} />
+      <Route path='browser-warning' component={BrowserWarning} onEnter={trackPage(api, null)} />
+      <Route path='*' onEnter={trackPage(api, onOtherRouteEnter(api))} />
     </Route>
   );
 }

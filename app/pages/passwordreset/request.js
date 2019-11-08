@@ -126,6 +126,8 @@ export let RequestPasswordReset = translate()(React.createClass({
       return;
     }
 
+    this.props.trackMetric('Request password reset', formValues.email);
+
     this.resetFormStateBeforeSubmit(formValues);
 
     var validationErrors = this.validateFormValues(formValues);

@@ -13,7 +13,7 @@ class DblpHtmlWebpackPlugin {
         (data, cb) => {
           // Manipulate the content
           if (typeof process.env.HELP_LINK === 'string') {
-            if (process.env.HELP_LINK === "disable") {
+            if (process.env.HELP_LINK === 'disable') {
               console.log('\nRemoving zendesk javascript link...');
               data.html = data.html.replace(/(<script id="ze-snippet".*<\/script>)/, '');
             } else {

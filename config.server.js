@@ -17,7 +17,7 @@ var fs = require('fs');
 
 function maybeReplaceWithContentsOfFile(obj, field) {
   var potentialFile = obj[field];
-  if (potentialFile != null && fs.existsSync(potentialFile)) {
+  if (potentialFile !== null && fs.existsSync(potentialFile)) {
     obj[field] = fs.readFileSync(potentialFile).toString();
   }
 }
@@ -43,17 +43,25 @@ if (config.httpsPort && !config.httpsConfig) {
   throw new Error('No https config provided, please set HTTPS_CONFIG with at least the certificate to use.');
 }
 
+config.apiHost = process.env.API_HOST || 'localhost';
+
 // The host to contact for discovery
 if (process.env.SKIP_HAKKEN) {
   config.discovery = {
     skipHakken: true,
   };
-} else if (process.env.DISCOVERY_HOST != null) {
+} else if (process.env.DISCOVERY_HOST !== null) {
   config.discovery = {
     host: process.env.DISCOVERY_HOST,
   };
   config.serviceName = process.env.SERVICE_NAME;
   config.publishHost = process.env.PUBLISH_HOST;
+}
+
+if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disabled') {
+  config.matomoUrl = process.env.MATOMO_TRACKER_URL;
+} else {
+  config.matomoUrl = null;
 }
 
 module.exports = config;

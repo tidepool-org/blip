@@ -133,7 +133,8 @@ export let Login = translate()(React.createClass({
           containerClasses="login-cookieConsent-container"
           contentClasses="login-cookieConsent-content"
           buttonClasses="simple-form-submit btn btn-primary js-form-submit"
-          expires={365}>
+          expires={365}
+          onAccept={() => { this.props.trackMetric('CookieConsent', 365 * 24); }}>
           {cookieText}
         </CookieConsent>
       </div>

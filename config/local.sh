@@ -8,3 +8,5 @@ export HIDE_DEXCOM_BANNER=false
 export HIDE_DONATE=false
 export BRANDING='tidepool'
 export SERVICE_NAME='blip'
+# Matomo tracking URL (use disable to desactivate tracking)
+export MATOMO_TRACKER_URL='disable'

@@ -21,7 +21,9 @@ export BRANDING='diabeloop'
 export PASSWORD_MIN_LENGTH=10
 export PASSWORD_MAX_LENGTH=72
 # url to HELP system
-export HELP_LINK='https://url.com'
+export HELP_LINK='disable'
 # url to web server hosting the asset files
 # such as terms of use, data privacy, etc.
 export ASSETS_URL='https://url.com'
+# Matomo tracking URL (use disable to desactivate tracking)
+export MATOMO_TRACKER_URL='disable'

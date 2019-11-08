@@ -23,6 +23,7 @@ var createTidepoolClient = require('tidepool-platform-client');
 var tidepool;
 
 var config = require('../config');
+var constants = require('./constants').CONFIG;
 
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
@@ -51,7 +52,14 @@ api.init = function(cb) {
 
   tidepool.initialize(function() {
     api.log('Initialized');
-    cb();
+    if (document.cookie.indexOf('CookieConsent') >= 0) {
+      api.metrics.track('CookieConsent', 24);
+    }
+    if (typeof config.BRANDING === 'string') {
+      api.metrics.track('setDocumentTitle', constants[config.BRANDING].name, cb);
+    } else if (cb) {
+      cb();
+    }
   });
 };
 
@@ -93,10 +101,18 @@ api.user.login = function(user, options, cb) {
 
   tidepool.login(user, options, function(err, data) {
     if (err) {
+      api.metrics.track('Login failed');
       return cb(err);
     }
 
-    cb();
+    let userProfile = 'patient';
+    if (typeof data.user === 'object' && Array.isArray(data.user.roles) && data.user.roles.includes('clinic')) {
+      userProfile = 'clinical';
+    }
+
+    api.metrics.track('setUserId', data.userid, () => {
+      api.metrics.track('Login succeed', userProfile, cb);
+    });
   });
 };
 
@@ -105,9 +121,12 @@ api.user.oauthLogin = function(accessToken, cb) {
 
   tidepool.oauthLogin(accessToken, function(err, data) {
     if (err) {
+      api.metrics.track('OAuth login failed');
       return cb(err);
     }
-    cb(null, data);
+    api.metrics.track('OAuth login succeed', null, () => {
+      cb(null, data);
+    });
   });
 };
 
@@ -120,6 +139,7 @@ api.user.signup = function(user, cb) {
   // First, create user account
   tidepool.signup(newAccount, function(err, account) {
     if (err) {
+      api.metrics.track('Signup failed');
       return cb(err);
     }
 
@@ -132,6 +152,7 @@ api.user.signup = function(user, cb) {
      * TODO: consider when refactoring platform client
      */
     if(account.code && account.code === 409) {
+      api.metrics.track('Signup failed', account.reason);
       return cb({
         status: account.code,
         error: account.reason
@@ -151,16 +172,19 @@ api.user.signup = function(user, cb) {
     if (newProfile) {
       tidepool.addOrUpdateProfile(userId, newProfile, function(err, results) {
         if (err) {
+          api.metrics.track('Signup failed');
           return cb(err);
         }
 
         api.log('added profile info to signup', results);
+        api.metrics.track('Signup succeed');
         cb(null, userFromAccountAndProfile({
           account: account,
           profile: results
         }));
       });
     } else {
+      api.metrics.track('Signup succeed');
       cb(null, userFromAccountAndProfile({
         account: account,
       }));
@@ -185,10 +209,8 @@ api.user.logout = function(cb) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
     }
-    if (cb) {
-      cb();
-    }
-    return;
+
+    api.metrics.track('resetUserId', null, cb);
   });
 };
 
@@ -753,9 +775,32 @@ api.getUploadUrl = function() {
 api.metrics = {};
 
 api.metrics.track = function(eventName, properties, cb) {
-  api.log('GET /metrics/' + window.encodeURIComponent(eventName));
-
-  return tidepool.trackMetric(eventName, properties, cb);
+  if (typeof window._paq !== 'undefined') {
+    // Using Matomo Tracker
+    api.log(`Matomo trackEvent ${eventName}:`, properties);
+    if (eventName === 'CookieConsent') {
+      window._paq.push(['setConsentGiven', properties]);
+    } else if (eventName === 'setCustomUrl') {
+      window._paq.push(['setCustomUrl', properties]);
+    } else if (eventName === 'setUserId') {
+      window._paq.push(['setUserId', properties]);
+    } else if (eventName === 'resetUserId') {
+      window._paq.push(['resetUserId']);
+    } else if (eventName === 'setDocumentTitle' && typeof properties === 'string') {
+      window._paq.push(['setDocumentTitle', properties]);
+    } else if (typeof properties === 'undefined') {
+      window._paq.push(['trackEvent', eventName]);
+    } else {
+      window._paq.push(['trackEvent', eventName, JSON.stringify(properties)]);
+    }
+  } else {
+    // using highwater
+    api.log('GET /metrics/' + window.encodeURIComponent(eventName));
+    tidepool.trackMetric(eventName, properties);
+  }
+  if (cb) {
+    cb();
+  }
 };
 
 // ----- Errors -----

@@ -8,6 +8,9 @@ var reTitle = /<title>([^<]*)<\/title>/;
 var reConfig = /(<!-- config -->)|(<script [^>]*src="config(\.[\w]*)*\.js"[^>]*><\/script>)/m;
 var reZendesk = /(<!-- Zendesk disabled -->)|(<script id="ze-snippet" type="text\/javascript" src="[^"]+">\s*<\/script>)/m;
 var zendeskDisable = '<!-- Zendesk disabled -->';
+var reTracker = /(<!-- Start of Tracker Code -->)(?:<!--)?((?:\n|.)+<\/script>\s+)(?:-->)?(<!-- End of Tracker Code -->)/;
+var reTrackerUrl = /const u = '(.*)';/;
+
 var start = new Date();
 
 // NOTE: Webpack's hash also uses the absolute path on the filesystem
@@ -43,13 +46,13 @@ if (reConfig.test(indexHtml)) {
   console.log(`Replace ${configStrOrig} by ${configStrRepl}`);
   indexHtml = indexHtml.replace(reConfig, configStrRepl);
 } else {
-  console.error("Missing config template part");
+  console.error('Missing config template part');
   process.exit(1);
 }
 
 // Replace ZenDesk Javascript
 if (typeof process.env.HELP_LINK === 'string') {
-  console.log("Using HELP_LINK: ", process.env.HELP_LINK);
+  console.log('Using HELP_LINK:', process.env.HELP_LINK);
 
   if (process.env.HELP_LINK === 'disable') {
     indexHtml = indexHtml.replace(reZendesk, zendeskDisable);
@@ -57,6 +60,24 @@ if (typeof process.env.HELP_LINK === 'string') {
   } else {
     indexHtml = indexHtml.replace(reZendesk, `<script id="ze-snippet" type="text/javascript" src="${process.env.HELP_LINK}"></script>`);
   }
+}
+
+// Replace tracker Javascript
+if (reTracker.test(indexHtml)) {
+  indexHtml = indexHtml.replace(reTracker, (match, stc, src, etc) => {
+    // stc: start tracker comment, src: script source, etc: end tracker comment
+    if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disable') {
+      console.info(`Setting up tracker code: ${process.env.MATOMO_TRACKER_URL}`);
+      const updatedSrc = src.replace(reTrackerUrl, (m, u) => {
+        return m.replace(u, process.env.MATOMO_TRACKER_URL);
+      });
+      return `${stc}${updatedSrc}${etc}`;
+    }
+    console.info('Tracker code is disabled');
+    return `${stc}<!--${src}-->${etc}`;
+  });
+} else {
+  console.warn('Tracker code is missing');
 }
 
 // Saving
