@@ -125,52 +125,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('addPatientNote', () => {
-      const note = {
-        groupid: 1234,
-      };
-      it('should be a TSA', () => {
-        let action = sync.addPatientNote(note);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal ADD_PATIENT_NOTE', () => {
-        let action = {
-          type: 'ADD_PATIENT_NOTE',
-          payload: {
-            note,
-            patientId: note.groupid,
-          },
-        };
-
-        expect(sync.addPatientNote(note)).to.deep.equal(action);
-      });
-    });
-
-    describe('updatePatientNote', () => {
-      const note = {
-        groupid: 1234,
-      };
-      it('should be a TSA', () => {
-        let action = sync.updatePatientNote(note);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_PATIENT_NOTE', () => {
-        let action = {
-          type: 'UPDATE_PATIENT_NOTE',
-          payload: {
-            note,
-            patientId: note.groupid,
-          },
-        };
-
-        expect(sync.updatePatientNote(note)).to.deep.equal(action);
-      });
-    });
-
     describe('clearPatientData', () => {
       const patientId = 'a1b2c3';
       it('should be a TSA', () => {

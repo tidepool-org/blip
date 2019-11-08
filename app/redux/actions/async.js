@@ -895,8 +895,8 @@ export function fetchAssociatedAccounts(api) {
  * Fetch Patient Data Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
- * @param {Object} options
- * @param {String|Number} id
+ * @param  {Object} options
+ * @param  {String|Number} id
  */
 export function fetchPatientData(api, options, id) {
   // Default to only selecting the most recent 8 weeks of data
@@ -1022,7 +1022,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // We have enough data for the initial rendering.
         dispatch(sync.fetchPatientDataSuccess(id));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
       }
     }
 
@@ -1040,7 +1040,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // There either aren't any pump settings, or we have both the pumpSettings and upload. Dispatch results
         dispatch(sync.fetchPatientDataSuccess(id));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
       }
     }
 
@@ -1097,7 +1097,7 @@ export function fetchPatientData(api, options, id) {
           } else {
             // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
             dispatch(sync.fetchPatientDataSuccess(id));
-            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], id, options.startDate));
+            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
           }
         }
       });
@@ -1109,7 +1109,7 @@ export function fetchPatientData(api, options, id) {
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
- * @param {String|Number} id
+ * @param  {String|Number} id
  */
 export function fetchMessageThread(api, id ) {
   return (dispatch) => {
@@ -1131,13 +1131,15 @@ export function fetchMessageThread(api, id ) {
  * Create Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
- * @param {String|Number} id
+ * @param  {Object} message to be created
  */
-export function createMessageThread(api, message ) {
+export function createMessageThread(api, message, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.createMessageThreadRequest());
 
     api.team.startMessageThread(message, (err, messageId) => {
+      cb(err, messageId);
+
       if (err) {
         dispatch(sync.createMessageThreadFailure(
           createActionError(ErrorMessages.ERR_CREATING_MESSAGE_THREAD, err), err
@@ -1145,7 +1147,32 @@ export function createMessageThread(api, message ) {
       } else {
         const messageWithId = { ...message, id: messageId };
         dispatch(sync.createMessageThreadSuccess(messageWithId));
-        dispatch(worker.dataWorkerAddDataRequest([messageWithId]));
+        dispatch(worker.dataWorkerAddDataRequest([messageWithId], true));
+      }
+    });
+  };
+}
+
+/**
+ * Edit Message Thread Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} updated message
+ */
+export function editMessageThread(api, message, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.editMessageThreadRequest());
+
+    api.team.editMessage(message, err => {
+      cb(err);
+
+      if (err) {
+        dispatch(sync.editMessageThreadFailure(
+          createActionError(ErrorMessages.ERR_EDITING_MESSAGE_THREAD, err), err
+        ));
+      } else {
+        dispatch(sync.editMessageThreadSuccess(message));
+        dispatch(worker.dataWorkerUpdateDatumRequest(message));
       }
     });
   };

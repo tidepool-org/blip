@@ -100,7 +100,7 @@ const DailyChart = translate()(class DailyChart extends Component {
 
   componentDidMount = () => {
     this.mountChart();
-    this.initializeChart(this.props.initialDatetimeLocation);
+    this.initializeChart(this.props, this.props.initialDatetimeLocation);
   };
 
   componentWillUnmount = () => {
@@ -127,14 +127,14 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
   };
 
-  initializeChart = datetime => {
-    const { t } = this.props;
+  initializeChart = (props = this.props, datetime) => {
+    const { t } = props;
     this.log('Initializing...');
-    if (_.isEmpty(this.props.data)) {
+    if (_.isEmpty(props.data)) {
       throw new Error(t('Cannot create new chart with no data'));
     }
 
-    this.chart.load(this.props.data);
+    this.chart.load(props.data);
     if (datetime) {
       this.chart.locate(datetime);
     }
@@ -162,11 +162,11 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = () => {
+  rerenderChart = (props = this.props) => {
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart();
-    this.initializeChart();
+    this.initializeChart(props);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -202,6 +202,7 @@ const DailyChart = translate()(class DailyChart extends Component {
 
 class Daily extends Component {
   static propTypes = {
+    addingData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -209,6 +210,7 @@ class Daily extends Component {
     mostRecentDatetimeLocation: React.PropTypes.string,
     pdf: React.PropTypes.object.isRequired,
     stats: React.PropTypes.array.isRequired,
+    updatingDatum: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -247,8 +249,12 @@ class Daily extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.loading && !nextProps.loading && this.refs.chart) {
-      this.refs.chart.getWrappedInstance().rerenderChart();
+    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+    const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
+
+    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated)) {
+      this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
     }
   };
 

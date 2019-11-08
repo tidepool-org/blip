@@ -134,69 +134,6 @@ describe('patientNotesMap', () => {
     });
   });
 
-  describe('addPatientNote', () => {
-    it('should add a new note to the hash map', () => {
-      const patientId = 'a1b2c3';
-      const existingPatientNotes = [
-        { message: 'Hello there' },
-        { message: 'This is fun!' },
-      ];
-
-      const initialStateForTest = {
-        [patientId]: existingPatientNotes,
-      };
-      const tracked = mutationTracker.trackObj(initialStateForTest);
-
-      const newPatientNote = {
-        message: 'Hi Again!',
-        groupid: patientId,
-      };
-
-      const action = actions.sync.addPatientNote(newPatientNote);
-      const state = reducer(initialStateForTest, action);
-
-      expect(Object.keys(state).length).to.equal(1);
-      expect(state[patientId].length).to.equal(3);
-      expect(state[patientId]).to.deep.equal([
-        ...existingPatientNotes,
-        newPatientNote,
-      ]);
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
-    });
-  });
-
-  describe('updatePatientNote', () => {
-    it('should update a note in the hash map', () => {
-      const patientId = 'a1b2c3';
-      const existingPatientNotes = [
-        { message: 'Hello there', id: 1 },
-        { message: 'This is fun!', id: 2 },
-      ];
-
-      const initialStateForTest = {
-        [patientId]: existingPatientNotes,
-      };
-      const tracked = mutationTracker.trackObj(initialStateForTest);
-
-      const updatedPatientNote = {
-        message: 'This is great!',
-        groupid: patientId,
-        id: 2,
-      };
-
-      const action = actions.sync.updatePatientNote(updatedPatientNote);
-      const state = reducer(initialStateForTest, action);
-
-      expect(Object.keys(state).length).to.equal(1);
-      expect(state[patientId].length).to.equal(2);
-      expect(state[patientId]).to.deep.equal([
-        existingPatientNotes[0],
-        updatedPatientNote,
-      ]);
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
-    });
-  });
-
   describe('logoutRequest', () => {
     it('should set state to empty hash map', () => {
       let initialStateForTest = {

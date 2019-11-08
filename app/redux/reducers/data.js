@@ -6,6 +6,8 @@ import * as actionTypes from '../constants/actionTypes';
 import initialState from './initialState';
 
 const data = (state = {}, action) => {
+  let combined;
+
   switch (action.type) {
     case actionTypes.DATA_WORKER_ADD_DATA_REQUEST:
       const {
@@ -21,6 +23,26 @@ const data = (state = {}, action) => {
 
     case actionTypes.DATA_WORKER_ADD_DATA_SUCCESS:
       return update(state, {
+        data: {
+          combined: { $push: action.payload.result.data || [] },
+          current: { $set: state.data.current },
+          next: { $set: state.data.next },
+          prev: { $set: state.data.prev },
+        },
+        metaData: { $merge: action.payload.result.metaData || {} },
+      });
+
+    case actionTypes.DATA_WORKER_UPDATE_DATUM_SUCCESS:
+      const datum = action.payload.result.datum;
+      const existingDatumIndex = _.findIndex(state.data.combined, { id: datum.id });
+
+      return update(state, {
+        data: {
+          combined: { $splice: [[existingDatumIndex, 1, datum]] },
+          current: { $set: state.data.current },
+          next: { $set: state.data.next },
+          prev: { $set: state.data.prev },
+        },
         metaData: { $merge: action.payload.result.metaData || {} },
       });
 
@@ -30,26 +52,30 @@ const data = (state = {}, action) => {
       return update(state, { $set: initialState.data });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
-      console.time('Process Combined Data');
-      const combined = [];
-
       const current = _.get(action.payload, 'result.data.current', {});
-      const currentData = current.data || {};
-
       const next = _.get(action.payload, 'result.data.next', {});
-      const nextData = next.data || {};
-
       const prev = _.get(action.payload, 'result.data.prev', {});
-      const prevData = prev.data || {};
 
-      _.each([prevData, currentData, nextData], (dataSet = {}) => {
-        _.forOwn(dataSet, datums => {
-          combined.push.apply(combined, datums);
+      // We only want to replace the combined data when data types are queried.
+      // This is to allow us to retain the combined data when, for instance, only querying for stats
+      const typesQueried = action.payload.result.query.types;
+      combined = typesQueried ? [] : state.data.combined;
+
+      if (typesQueried) {
+        console.time('Process Combined Data');
+        const currentData = current.data || {};
+        const nextData = next.data || {};
+        const prevData = prev.data || {};
+
+        _.each([prevData, currentData, nextData], (dataSet = {}) => {
+          _.forOwn(dataSet, datums => {
+            combined.push.apply(combined, datums);
+          });
         });
-      });
 
-      if (combined.length === 0) combined.push.apply(combined, state.data.combined);
-      console.timeEnd('Process Combined Data');
+        combined = _.uniqBy(combined, 'id');
+        console.timeEnd('Process Combined Data');
+      }
 
       return update(state, {
         data: {

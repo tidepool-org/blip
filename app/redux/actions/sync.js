@@ -68,26 +68,6 @@ export function closeMessageThread() {
   };
 }
 
-export function addPatientNote(note) {
-  return {
-    type: ActionTypes.ADD_PATIENT_NOTE,
-    payload: {
-      note: note,
-      patientId: note.groupid,
-    }
-  };
-}
-
-export function updatePatientNote(note) {
-  return {
-    type: ActionTypes.UPDATE_PATIENT_NOTE,
-    payload: {
-      note: note,
-      patientId: note.groupid,
-    }
-  };
-}
-
 export function clearPatientData(patientId) {
   return {
     type: ActionTypes.CLEAR_PATIENT_DATA,
@@ -887,6 +867,31 @@ export function createMessageThreadSuccess(message) {
 export function createMessageThreadFailure(error, apiError) {
   return {
     type: ActionTypes.CREATE_MESSAGE_THREAD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function editMessageThreadRequest() {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_REQUEST,
+  };
+}
+
+export function editMessageThreadSuccess(message) {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_SUCCESS,
+    payload: {
+      message: message,
+    },
+  };
+}
+
+export function editMessageThreadFailure(error, apiError) {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

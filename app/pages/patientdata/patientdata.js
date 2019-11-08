@@ -61,7 +61,7 @@ const { defineBasicsAggregations, processBasicsAggregations } = vizUtils.aggrega
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
-    addPatientNote: React.PropTypes.func.isRequired,
+    addingData: React.PropTypes.object.isRequired,
     clearPatientData: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
     data: React.PropTypes.object,
@@ -87,7 +87,7 @@ export let PatientData = translate()(React.createClass({
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updatePatientNote: React.PropTypes.func.isRequired,
+    updatingDatum: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
     viz: React.PropTypes.object.isRequired,
@@ -358,6 +358,7 @@ export let PatientData = translate()(React.createClass({
       case 'daily':
         return (
           <Daily
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
@@ -378,6 +379,7 @@ export let PatientData = translate()(React.createClass({
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
+            updatingDatum={this.props.updatingDatum}
             ref="tideline" />
           );
       case 'trends':
@@ -451,7 +453,7 @@ export let PatientData = translate()(React.createClass({
     } else if(this.props.messageThread) {
       return (
         <Messages
-          messages={this.props.messageThread}
+          messages={_.cloneDeep(this.props.messageThread)}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
@@ -725,8 +727,6 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleMessageCreation: function(message) {
-    this.refs.tideline.getWrappedInstance().createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
   },
 
@@ -739,12 +739,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleEditMessage: function(message, cb) {
-    var edit = this.props.onEditMessage;
-    if (edit) {
-      edit(message, cb);
-    }
-    this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updatePatientNote(message); // TODO: update in the data util after pushing to server
+    this.props.onEditMessage(message, cb);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -935,17 +930,18 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(updates) {
+  updateChartPrefs: function(updates, queryData = true) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
     };
 
+    const cb = queryData ? this.queryData : _.noop;
+
     this.setState({
       chartPrefs: newPrefs,
-    }, this.queryData);
+    }, cb);
   },
-
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts) {
     const {
@@ -1248,7 +1244,8 @@ export let PatientData = translate()(React.createClass({
 
           // When new data is loaded, set the range endpoints to state to allow us to know when
           // we've reached our chart limits.
-          const newDataLoaded = _.get(nextProps, 'data.data.current.data')
+          const newDataLoaded = _.get(nextProps, 'data.data.current.data');
+
           if (newDataLoaded) {
             this.setState({
               chartEndpoints: {
@@ -1296,13 +1293,15 @@ export let PatientData = translate()(React.createClass({
 
   queryData: function (query, showLoading = true) {
     showLoading && this.setState({ loading: true });
-    this.setState({ querying: true });
+
+    let chartQuery = {
+      bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
+      endpoints: this.state.endpoints,
+    };
 
     if (query) {
-      this.props.dataWorkerQueryDataRequest(query);
+      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
     } else {
-      let chartQuery = {}
-
       switch (this.state.chartType) {
         case 'basics':
           chartQuery.aggregationsByDate = 'basals,boluses,fingersticks,siteChanges';
@@ -1343,8 +1342,6 @@ export let PatientData = translate()(React.createClass({
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
       chartQuery.stats = this.getStatsByType();
-      chartQuery.bgSource = this.state.chartPrefs[this.state.chartType].bgSource;
-      chartQuery.endpoints = this.state.endpoints;
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
@@ -1440,7 +1437,7 @@ export let PatientData = translate()(React.createClass({
         basics: { ...this.state.chartPrefs.basics, bgSource },
         daily: { ...this.state.chartPrefs.daily, bgSource },
         trends: { ...this.state.chartPrefs.trends, bgSource },
-      });
+      }, false);
 
       this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
@@ -1688,6 +1685,7 @@ export function mapStateToProps(state, props) {
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
     addingData: state.blip.working.addingData,
+    updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
@@ -1697,7 +1695,6 @@ export function mapStateToProps(state, props) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  addPatientNote: actions.sync.addPatientNote,
   clearPatientData: actions.sync.clearPatientData,
   dataWorkerAddDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
@@ -1705,6 +1702,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
   createMessageThread: actions.async.createMessageThread,
+  editMessageThread: actions.async.editMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
@@ -1712,7 +1710,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
-  updatePatientNote: actions.sync.updatePatientNote,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -1722,7 +1719,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
-    'addPatientNote',
     'clearPatientData',
     'dataWorkerRemoveDataRequest',
     'dataWorkerRemoveDataSuccess',
@@ -1730,7 +1726,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
-    'updatePatientNote',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
@@ -1740,8 +1735,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
-    onCreateMessage: dispatchProps.createMessageThread.bind(api),
-    onEditMessage: api.team.editMessage.bind(api),
+    onCreateMessage: dispatchProps.createMessageThread.bind(null, api),
+    onEditMessage: dispatchProps.editMessageThread.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,

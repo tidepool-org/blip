@@ -32,7 +32,6 @@ import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/page
 
 describe('PatientData', function () {
   const defaultProps = {
-    addPatientNote: sinon.stub(),
     clearPatientData: sinon.stub(),
     currentPatientInViewId: 'somestring',
     fetchers: [],
@@ -55,7 +54,6 @@ describe('PatientData', function () {
     removeGeneratedPDFS: sinon.stub(),
     trackMetric: sinon.stub(),
     updateBasicsSettings: sinon.stub(),
-    updatePatientNote: sinon.stub(),
     uploadUrl: 'http://foo.com',
     viz: {},
     t
@@ -2202,7 +2200,6 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        addPatientNote: sinon.stub(),
         trackMetric: sinon.stub(),
       });
 
@@ -2214,12 +2211,6 @@ describe('PatientData', function () {
           },
         },
       });
-    });
-
-    it('should dispatch the message creation action', () => {
-      PatientData.WrappedComponent.prototype.handleMessageCreation.call(new BaseObject(), 'message');
-      sinon.assert.calledOnce(props.addPatientNote);
-      sinon.assert.calledWith(props.addPatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {
@@ -2235,7 +2226,6 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        updatePatientNote: sinon.stub(),
         trackMetric: sinon.stub(),
       });
 
@@ -2247,12 +2237,6 @@ describe('PatientData', function () {
           },
         },
       });
-    });
-
-    it('should dispatch the message creation action', () => {
-      PatientData.WrappedComponent.prototype.handleEditMessage.call(new BaseObject(), 'message');
-      sinon.assert.calledOnce(props.updatePatientNote);
-      sinon.assert.calledWith(props.updatePatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {

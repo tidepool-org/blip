@@ -38,7 +38,8 @@ export default class DataWorker {
       case actionTypes.DATA_WORKER_ADD_DATA_REQUEST: {
         try {
           const data = JSON.parse(action.payload.data);
-          const result = this.dataUtil.addData(data);
+          const returnData = action.payload.returnData;
+          const result = this.dataUtil.addData(data, returnData);
           postMessage(actions.dataWorkerAddDataSuccess(result));
         } catch (error) {
           postMessage(actions.dataWorkerAddDataFailure(error));
@@ -62,10 +63,10 @@ export default class DataWorker {
       case actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST: {
         try {
           const datum = JSON.parse(action.payload.datum);
-          this.dataUtil.updateDatum(datum);
-          postMessage(actions.dataWorkerRemoveDataSuccess({ success: true }));
+          const result = this.dataUtil.updateDatum(datum);
+          postMessage(actions.dataWorkerUpdateDatumSuccess(result));
         } catch (error) {
-          postMessage(actions.dataWorkerRemoveDataFailure(error));
+          postMessage(actions.dataWorkerUpdateDatumFailure(error));
         }
         break;
       }

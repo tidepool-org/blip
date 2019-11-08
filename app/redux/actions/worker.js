@@ -52,7 +52,7 @@ export function removeGeneratedPDFS() {
 }
 
 /* Data Worker */
-export function dataWorkerAddDataRequest(data = [], patientId, fetchedUntil) {
+export function dataWorkerAddDataRequest(data = [], returnData, patientId, fetchedUntil ) {
   return {
     type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
@@ -60,6 +60,7 @@ export function dataWorkerAddDataRequest(data = [], patientId, fetchedUntil) {
       data: JSON.stringify(data),
       fetchedUntil,
       patientId,
+      returnData,
     },
   };
 }
