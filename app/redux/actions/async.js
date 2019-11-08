@@ -901,10 +901,13 @@ export function fetchAssociatedAccounts(api) {
 export function fetchPatientData(api, options, id) {
   // Default to only selecting the most recent 8 weeks of data
   _.defaults(options, {
+    returnData: false,
     useCache: true,
     initial: true,
     getLatestPumpSettings: false,
   });
+
+  console.log('fetchPatientData options', options);
 
   // Container to persist all fetched data results between API calls until we're ready to
   // dispatch the success action
@@ -938,6 +941,7 @@ export function fetchPatientData(api, options, id) {
         // Will set the start and end dates based on the server time when available, or fall back to
         // browser time if server time is undefined. We allow falling back to a stubbed value to allow
         // our unit tests to remain determinate.
+        // serverTime = '2019-07-26T12:00:00.000Z';
         options.startDate = moment.utc(serverTime || options.browserTimeStub).subtract(8, 'weeks').startOf('day').toISOString();
         options.endDate = moment.utc(serverTime || options.browserTimeStub).add(1, 'days').toISOString();
 
@@ -1022,7 +1026,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // We have enough data for the initial rendering.
         dispatch(sync.fetchPatientDataSuccess(id));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], options.returnData, id, options.startDate));
       }
     }
 
@@ -1040,7 +1044,7 @@ export function fetchPatientData(api, options, id) {
       } else {
         // There either aren't any pump settings, or we have both the pumpSettings and upload. Dispatch results
         dispatch(sync.fetchPatientDataSuccess(id));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
+        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], options.returnData, id, options.startDate));
       }
     }
 
@@ -1097,7 +1101,7 @@ export function fetchPatientData(api, options, id) {
           } else {
             // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
             dispatch(sync.fetchPatientDataSuccess(id));
-            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], false, id, options.startDate));
+            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], options.returnData, id, options.startDate));
           }
         }
       });

@@ -28,7 +28,6 @@ import config from '../../config';
 
 import * as actions from '../../redux/actions';
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
-import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -385,6 +384,7 @@ export let PatientData = translate()(React.createClass({
       case 'trends':
         return (
           <Trends
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
@@ -409,6 +409,7 @@ export let PatientData = translate()(React.createClass({
       case 'bgLog':
         return (
           <BgLog
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
@@ -683,46 +684,15 @@ export let PatientData = translate()(React.createClass({
 
     this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
 
-    if (!this.props.fetchingPatientData && !this.state.processingData) {
-      // const patientID = this.props.currentPatientInViewId;
-      // const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(newEndpoints[0]).startOf('day');
-      const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
-
-      // const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-      // const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
-      // const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
-
-      // const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
-      // const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
-
-      const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
-      const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
-
-      // If we've reached the limit of our fetched data, we need to get some more
-      if (
-        // allFetchedDatumsProcessed && (
-          (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
-          // || (isScrollChart && chartLimitReached)
-        // )
-      ) {
-        if (allDataFetched) {
-          return;
-        }
-        return this.fetchEarlierData();
-      }
-
-      // If we've reached the limit of our processed data (since we process in smaller chunks than
-      // what we fetch), we need to process some more.
-      // if (
-      //   !allFetchedDatumsProcessed && (
-      //     (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
-      //     || (isScrollChart && chartLimitReached)
-      //   )
-      // ) {
-      //   this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
-      //   return this.processData(this.props);
-      // }
+    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+    const allDataFetched = fetchedUntil === 'start';
+    if (prevLimitReached && !allDataFetched && !this.props.fetchingPatientData && moment.utc(prevEndpoints[0]).startOf('day').toISOString() <= fetchedUntil ) {
+      // TODO: should also fetch when the earliest datetime visible in the chart is prior to the fetchedUntil date
+      // Also, need to determine if we want to still fetch in arbitrary 16 week blocks -- not sure...
+      const endDate = fetchedUntil;
+      const startDate = moment.utc(newEndpoints[0]).subtract(prevDays, 'days').startOf('day').toISOString();
+      this.fetchEarlierData({ startDate, endDate });
+      // this.fetchEarlierData({ startDate, endDate, returnData: true });
     }
   },
 
@@ -1190,12 +1160,12 @@ export let PatientData = translate()(React.createClass({
     const patientData = _.get(nextProps, 'data.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
-    const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
-    const currentFetchedDataRange = _.get(this.props, 'fetchedPatientDataRange', {});
+    const nextData = nextProps.data;
+    const currentData = this.props.data;
 
-    const newDataRangeFetched = nextFetchedDataRange.fetchedUntil !== currentFetchedDataRange.fetchedUntil;
-    const newDiabetesDataReturned = nextFetchedDataRange.count > (currentFetchedDataRange.count || 0);
-    const allDataFetched = nextFetchedDataRange.fetchedUntil === 'start';
+    const newDataRangeFetched = nextData.fetchedUntil !== currentData.fetchedUntil;
+    const newDiabetesDataReturned = nextData.metaData.size > (currentData.metaData.size || 0);
+    const allDataFetched = nextData.fetchedUntil === 'start';
 
     const dataAddedToWorker = _.get(nextProps, 'data.metaData.size', 0) > 0;
 
@@ -1256,19 +1226,31 @@ export let PatientData = translate()(React.createClass({
             });
           }
 
-          if (this.state.loading) this.hideLoading();
-        }
-      }
+          // if (this.state.loading) this.hideLoading();
 
-      // Handle data range fetch that yeilds no new data
-      if (!newDiabetesDataReturned && newDataRangeFetched) {
-        if (!allDataFetched) {
-          // Our latest data fetch yeilded no new data. We now request the remainder of the available
-          // data to make sure that we don't miss any.
-          this.fetchEarlierData({ startDate: null });
+          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
+            console.log('hide loading', 1);
+            this.hideLoading();
+          }
         }
-        else {
-          this.hideLoading();
+
+        // Handle data range fetches
+        if (newDataRangeFetched) {
+          // Handle data range fetches that yeilds no new data
+          if (!newDiabetesDataReturned) {
+            if (!allDataFetched) {
+              this.log('No new data returned in fetch');
+              // Our latest data fetch yeilded no new data. We now request the remainder of the available
+              // data to make sure that we don't miss any.
+              this.fetchEarlierData({ startDate: null });
+            }
+            else {
+              this.hideLoading();
+            }
+          } else {
+            // Data has been fetched. Let's query it to update the chart.
+            this.queryData();
+          }
         }
       }
     }
@@ -1446,13 +1428,13 @@ export let PatientData = translate()(React.createClass({
 
   fetchEarlierData: function(options = {}) {
     // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
+    if (_.get(this.props, 'data.fetchedUntil') === 'start') {
       return;
     };
 
     this.log('fetching');
 
-    const earliestRequestedData = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
+    const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
     const requestedPatientDataRange = {
       start: moment.utc(earliestRequestedData).subtract(16, 'weeks').toISOString(),
@@ -1676,7 +1658,6 @@ export function mapStateToProps(state, props) {
     user: user,
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
-    fetchedPatientDataRange: getfetchedPatientDataRange(state, props),
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,

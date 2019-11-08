@@ -19,6 +19,7 @@ const data = (state = {}, action) => {
         patientId: { $set: patientId },
         fetchedUntil: { $set: fetchedUntil ? fetchedUntil : 'start' },
         cacheUntil: { $set: generateCacheTTL(36e5) },
+        metaData: { $merge: { size: state.metaData.size + action.payload.fetchedCount } },
       });
 
     case actionTypes.DATA_WORKER_ADD_DATA_SUCCESS:

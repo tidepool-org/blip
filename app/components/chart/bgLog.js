@@ -162,6 +162,7 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
+    addingData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -207,7 +208,9 @@ class BgLog extends Component {
 
   componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
-    if (loadingJustCompleted && this.refs.chart) {
+    const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+
+    if (this.refs.chart && (loadingJustCompleted || newDataAdded)) {
       this.refs.chart.rerenderChart(nextProps);
     }
   };

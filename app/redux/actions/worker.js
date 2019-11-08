@@ -58,6 +58,7 @@ export function dataWorkerAddDataRequest(data = [], returnData, patientId, fetch
     meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
     payload: {
       data: JSON.stringify(data),
+      fetchedCount: data.length,
       fetchedUntil,
       patientId,
       returnData,
