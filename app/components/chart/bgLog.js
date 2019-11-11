@@ -423,7 +423,7 @@ class BgLog extends Component {
       .hours(12)
       .toISOString();
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 100);
+    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);
 
     this.setState({ debouncedDateRangeUpdate });
