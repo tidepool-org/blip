@@ -17,13 +17,13 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { utils } from '@tidepool/viz';
+import { utils as vizUtils } from '@tidepool/viz';
 import { translate, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
 
-import { roundBgTarget } from '../../core/utils';
+import utils from '../../core/utils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
@@ -126,8 +126,8 @@ export default translate()(class PatientSettings extends Component {
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
     let chartTargets = {
-      high: utils.bg.formatBgValue(roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
-      low: utils.bg.formatBgValue(roundBgTarget(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
+      high: vizUtils.bg.formatBgValue(utils.roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
+      low: vizUtils.bg.formatBgValue(utils.roundBgTarget(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
     };
 
     return (
@@ -164,7 +164,7 @@ export default translate()(class PatientSettings extends Component {
   }
 
   renderIncrementalInput(bound, settings) {
-    let value = roundBgTarget(settings.bgTarget[bound], settings.units.bg);
+    let value = utils.roundBgTarget(settings.bgTarget[bound], settings.units.bg);
 
     return (<IncrementalInput
       name={bound}
@@ -208,7 +208,7 @@ export default translate()(class PatientSettings extends Component {
   }
 
   onIncrementChange(inputName, newValue, newUnit) {
-    const value = parseFloat(utils.bg.formatBgValue(newValue, { bgUnits: newUnit }))
+    const value = parseFloat(vizUtils.bg.formatBgValue(newValue, { bgUnits: newUnit }))
 
     let lowError = false;
     let highError = false;

@@ -1,10 +1,10 @@
-var sundial = require('sundial');
-var getIn = require('../../core/utils').getIn;
+import sundial from 'sundial';
+import utils from '../../core/utils';
 
 var MessageMixins = {
   isTimezoneAware: function() {
-    if (getIn(this.props, ['timePrefs', 'timezoneAware'], false) &&
-      getIn(this.props, ['timePrefs', 'timezoneAware'], false)) {
+    if (utils.getIn(this.props, ['timePrefs', 'timezoneAware'], false) &&
+      utils.getIn(this.props, ['timePrefs', 'timezoneAware'], false)) {
       return true;
     }
     return false;
