@@ -88,6 +88,7 @@ const data = (state = {}, action) => {
         timePrefs: { $merge: action.payload.result.timePrefs || {} },
         bgPrefs: { $merge: action.payload.result.bgPrefs || {} },
         metaData: { $merge: action.payload.result.metaData || {} },
+        query: { $set: action.payload.result.query || {} }
       });
 
     default:
