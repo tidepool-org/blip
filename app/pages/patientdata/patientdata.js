@@ -1034,18 +1034,18 @@ export let PatientData = translate()(React.createClass({
 
     switch (this.state.chartType) {
       case 'daily':
-        days.next = 13;
-        days.prev = 13;
+        days.next = 6;
+        days.prev = 6;
         break;
 
       case 'bgLog':
-        days.next = 56;
-        days.prev = 56;
+        days.next = 14;
+        days.prev = 14;
         break;
 
       case 'trends':
-        days.next = 56;
-        days.prev = 56;
+        days.next = 28;
+        days.prev = 28;
         break;
 
       default:
