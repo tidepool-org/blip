@@ -57,6 +57,7 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object,
+    queryDataCount: React.PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     trendsState: PropTypes.object.isRequired,

@@ -178,6 +178,7 @@ class BgLog extends Component {
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     pdf: React.PropTypes.object.isRequired,
+    queryDataCount: React.PropTypes.number.isRequired,
     stats: React.PropTypes.array.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -208,9 +209,8 @@ class BgLog extends Component {
 
   componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
-    const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
-
-    if (this.refs.chart && (loadingJustCompleted || newDataAdded)) {
+    const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
       this.refs.chart.rerenderChart(nextProps);
     }
   };

@@ -130,7 +130,7 @@ const DailyChart = translate()(class DailyChart extends Component {
   initializeChart = (props = this.props, datetime) => {
     const { t } = props;
     this.log('Initializing...');
-    if (_.isEmpty(props.data)) {
+    if (_.isEmpty(_.get(props.data, 'data.combined', []))) {
       throw new Error(t('Cannot create new chart with no data'));
     }
 
@@ -209,6 +209,7 @@ class Daily extends Component {
     loading: React.PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: React.PropTypes.string,
     pdf: React.PropTypes.object.isRequired,
+    queryDataCount: React.PropTypes.number.isRequired,
     stats: React.PropTypes.array.isRequired,
     updatingDatum: React.PropTypes.object.isRequired,
     // refresh handler
@@ -252,8 +253,9 @@ class Daily extends Component {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
+    const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
 
-    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated)) {
+    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
       this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
     }
   };

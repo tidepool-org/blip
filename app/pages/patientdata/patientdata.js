@@ -137,6 +137,7 @@ export let PatientData = translate()(React.createClass({
       queryDataCount: 0,
       fetchEarlierDataCount: 0,
       loading: true,
+      transitioningChartType: false,
       showUploadOverlay: false,
     };
 
@@ -172,7 +173,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.isInitialProcessing()) {
+    if (this.isInitialProcessing() || this.state.transitioningChartType) {
       return this.renderInitialLoading();
     }
 
@@ -379,6 +380,7 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updatingDatum={this.props.updatingDatum}
+            queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
       case 'trends':
@@ -404,6 +406,7 @@ export let PatientData = translate()(React.createClass({
             trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
+            queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
       case 'bgLog':
@@ -431,6 +434,7 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
+            queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
       case 'settings':
@@ -668,12 +672,13 @@ export let PatientData = translate()(React.createClass({
     const isOnMostRecentDay = newDatetimeLocation === this.state.mostRecentDatetimeLocation;
     const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
     const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
-    const prevLimitReached = newEndpoints[0] <= prevEndpoints[0]
-    const nextLimitReached = newEndpoints[1] >= nextEndpoints[1]
+    const prevLimitReached = newEndpoints[0] <= prevEndpoints[0];
+    const nextLimitReached = newEndpoints[1] >= nextEndpoints[1];
     const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
 
     const updateOpts = {
       showLoading: updateChartData,
+      updateChartEndpoints: updateChartData,
       query: updateChartData ? undefined : {
         endpoints: newEndpoints,
         nextDays,
@@ -682,18 +687,19 @@ export let PatientData = translate()(React.createClass({
       },
     };
 
-    this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
-
     const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
-    const allDataFetched = fetchedUntil === 'start';
-    if (prevLimitReached && !allDataFetched && !this.props.fetchingPatientData && moment.utc(prevEndpoints[0]).startOf('day').toISOString() <= fetchedUntil ) {
-      // TODO: should also fetch when the earliest datetime visible in the chart is prior to the fetchedUntil date
-      // Also, need to determine if we want to still fetch in arbitrary 16 week blocks -- not sure...
-      const endDate = fetchedUntil;
-      const startDate = moment.utc(newEndpoints[0]).subtract(prevDays, 'days').startOf('day').toISOString();
-      this.fetchEarlierData({ startDate, endDate });
-      // this.fetchEarlierData({ startDate, endDate, returnData: true });
+    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
+
+    if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
+      const options = {
+        showLoading: true,
+        returnData: false,
+      };
+
+      this.fetchEarlierData(options);
     }
+
+    this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
   },
 
   handleMessageCreation: function(message) {
@@ -761,8 +767,8 @@ export let PatientData = translate()(React.createClass({
     const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling)
 
-    const updateOpts = {};
-    if (datetime) {
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
@@ -783,8 +789,8 @@ export let PatientData = translate()(React.createClass({
     const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling)
 
-    const updateOpts = {};
-    if (datetime) {
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
@@ -803,12 +809,16 @@ export let PatientData = translate()(React.createClass({
       .hours(12)
       .toISOString();
 
+    // TODO: for all views, we will not be able to determine mostRecentDatumTime till after the data has been queried.
+    // It will currently be based on the current data, not the data for the upcoming view.
+    // This is likely what's causing all sorts of issues. In fact, we should likely not change the chartType till
+    // the new data has been loaded.
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
     const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling)
 
-    const updateOpts = {};
-    if (datetime) {
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
@@ -1039,8 +1049,8 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'bgLog':
-        days.next = 14;
-        days.prev = 14;
+        days.next = 28;
+        days.prev = 28;
         break;
 
       case 'trends':
@@ -1111,6 +1121,7 @@ export let PatientData = translate()(React.createClass({
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
       showLoading: true,
+      updateChartEndpoints: opts.updateChartEndpoints,
       mostRecentDatetimeLocation: datetimeLocation,
     });
 
@@ -1124,10 +1135,18 @@ export let PatientData = translate()(React.createClass({
     const endpointsChanged = !_.isEqual(endpoints, this.state.endpoints);
     const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
 
+    if (this.state.chartType && chartTypeChanged) {
+      state.transitioningChartType = true;
+    }
+
     if (!this.state.mostRecentDatetimeLocation || chartTypeChanged) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
-      ? this.queryData.bind(this, opts.query, opts.showLoading) : _.noop;
+      ? this.queryData.bind(this, opts.query, {
+        showLoading: opts.showLoading,
+        updateChartEndpoints: opts.updateChartEndpoints,
+        transitioningChartType: chartTypeChanged
+      }) : _.noop;
 
     this.setState(state, cb);
   },
@@ -1159,14 +1178,6 @@ export let PatientData = translate()(React.createClass({
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
-
-    const nextData = nextProps.data;
-    const currentData = this.props.data;
-
-    const newDataRangeFetched = nextData.fetchedUntil !== currentData.fetchedUntil;
-    const newDiabetesDataReturned = nextData.metaData.size > (currentData.metaData.size || 0);
-    const allDataFetched = nextData.fetchedUntil === 'start';
-
     const dataAddedToWorker = _.get(nextProps, 'data.metaData.size', 0) > 0;
 
     // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
@@ -1206,51 +1217,42 @@ export let PatientData = translate()(React.createClass({
           });
         }
 
-        if (this.props.queryingData.inProgress && nextProps.queryingData.completed) {
-          this.setState({ queryDataCount: this.state.queryDataCount + 1 });
+        if (nextProps.queryingData.completed) {
+          const state = { queryingData: false };
 
           // With initial query for upload data completed, set the initial chart type
           if (!this.state.chartType) this.setInitialChartView(nextProps);
 
-          // When new data is loaded, set the range endpoints to state to allow us to know when
-          // we've reached our chart limits.
-          const newDataLoaded = _.get(nextProps, 'data.data.current.data');
+          if (_.get(nextProps, 'data.query.types')) {
+            state.queryDataCount = this.state.queryDataCount + 1;
+          }
 
-          if (newDataLoaded) {
-            this.setState({
-              chartEndpoints: {
+          // Only update the chartEndpoints and transitioningChartType state immediately after querying
+          if (this.props.queryingData.inProgress) {
+            if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
+              state.chartEndpoints = {
                 current: _.get(nextProps, 'data.data.current.endpoints.range', []),
                 next: _.get(nextProps, 'data.data.next.endpoints.range', []),
                 prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
-              },
-            });
-          }
+              };
+            }
 
-          // if (this.state.loading) this.hideLoading();
+            if (_.get(nextProps, 'data.query.transitioningChartType')) {
+              state.transitioningChartType = false;
+            }
+          }
 
           if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
-            console.log('hide loading', 1);
             this.hideLoading();
           }
+
+          this.setState(state);
         }
 
-        // Handle data range fetches
-        if (newDataRangeFetched) {
-          // Handle data range fetches that yeilds no new data
-          if (!newDiabetesDataReturned) {
-            if (!allDataFetched) {
-              this.log('No new data returned in fetch');
-              // Our latest data fetch yeilded no new data. We now request the remainder of the available
-              // data to make sure that we don't miss any.
-              this.fetchEarlierData({ startDate: null });
-            }
-            else {
-              this.hideLoading();
-            }
-          } else {
-            // Data has been fetched. Let's query it to update the chart.
-            this.queryData();
-          }
+        const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+        if (newDataAdded) {
+          // New data has been added. Let's query it to update the chart.
+          this.queryData();
         }
       }
     }
@@ -1273,8 +1275,15 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  queryData: function (query, showLoading = true) {
-    showLoading && this.setState({ loading: true });
+  queryData: function (query, options = {}) {
+    _.defaults(options, {
+      showLoading: true,
+      updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
+      transitioningChartType: false,
+    });
+
+    if (this.state.queryingData) return;
+    this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
@@ -1283,7 +1292,7 @@ export let PatientData = translate()(React.createClass({
 
     if (query) {
       this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
-    } else {
+    } else if (this.state.chartType) {
       switch (this.state.chartType) {
         case 'basics':
           chartQuery.aggregationsByDate = 'basals,boluses,fingersticks,siteChanges';
@@ -1326,6 +1335,9 @@ export let PatientData = translate()(React.createClass({
       chartQuery.stats = this.getStatsByType();
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
+
+      chartQuery.updateChartEndpoints = options.updateChartEndpoints;
+      chartQuery.transitioningChartType = options.transitioningChartType;
 
       this.props.dataWorkerQueryDataRequest(chartQuery);
     }
@@ -1428,9 +1440,13 @@ export let PatientData = translate()(React.createClass({
 
   fetchEarlierData: function(options = {}) {
     // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'data.fetchedUntil') === 'start') {
+    if (_.get(this.props, 'data.fetchedUntil') === 'start' && !this.props.fetchingPatientData) {
       return;
     };
+
+    _.defaults(options, {
+      showLoading: true,
+    })
 
     this.log('fetching');
 
@@ -1444,7 +1460,7 @@ export let PatientData = translate()(React.createClass({
     const count = this.state.fetchEarlierDataCount + 1;
 
     this.setState({
-      loading: true,
+      loading: options.showLoading,
       requestedPatientDataRange,
       fetchEarlierDataCount: count,
     });
