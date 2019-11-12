@@ -295,7 +295,7 @@ class Daily extends Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {this.renderChart()}
             </div>
           </div>

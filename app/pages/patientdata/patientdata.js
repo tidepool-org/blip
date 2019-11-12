@@ -161,7 +161,7 @@ export let PatientData = translate()(React.createClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const showLoader = this.isInitialProcessing();
+    const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -191,7 +191,7 @@ export let PatientData = translate()(React.createClass({
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t('Data')}
+        title={t('Preparing Chart')}
         ref="header" />
       );
   },
@@ -1044,6 +1044,7 @@ export let PatientData = translate()(React.createClass({
 
     switch (this.state.chartType) {
       case 'daily':
+        // TODO: set larger for non-automated basal delivery uploads? Need way to identify Loop.
         days.next = 6;
         days.prev = 6;
         break;

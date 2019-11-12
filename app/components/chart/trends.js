@@ -379,7 +379,7 @@ const Trends = translate()(class Trends extends PureComponent {
           <div className="container-box-inner patient-data-content-inner">
             {this.renderSubNav()}
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {this.renderChart()}
               </div>
