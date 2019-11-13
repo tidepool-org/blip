@@ -149,13 +149,16 @@ export let PatientData = translate()(React.createClass({
   isInitialProcessing: function() {
     const isSettings = this.state.chartType === 'settings';
     const dataFetched = _.get(this.props.data, 'metaData.size');
+    const isEmptyDataSet = dataFetched === 0;
     const rangeDataLoaded = isSettings || this.getCurrentData('endpoints.range.0', 0) !== 0;
 
     // First data call is to fetch latest upload and general metadata, which is sufficient for settings
     // The other chart views require a subsequent data query in order to be able to render
     const requiredQueryDataCount = isSettings ? 1 : 2;
 
-    return !dataFetched || !rangeDataLoaded || this.state.queryDataCount < requiredQueryDataCount;
+    return isEmptyDataSet
+      ? false
+      : !dataFetched || !rangeDataLoaded || this.state.queryDataCount < requiredQueryDataCount;
   },
 
   render: function() {
@@ -184,14 +187,14 @@ export let PatientData = translate()(React.createClass({
     return this.renderChart();
   },
 
-  renderEmptyHeader: function() {
+  renderEmptyHeader: function(title = 'Preparing Chart Data') {
     const { t } = this.props;
     return (
       <Header
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t('Preparing Chart')}
+        title={t(title)}
         ref="header" />
       );
   },
@@ -213,7 +216,7 @@ export let PatientData = translate()(React.createClass({
   renderNoData: function() {
     const { t } = this.props;
     var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
-    var header = this.renderEmptyHeader();
+    var header = this.renderEmptyHeader('No Data Available');
     var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
 
     var self = this;
