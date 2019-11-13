@@ -73,7 +73,6 @@ const Trends = translate()(class Trends extends PureComponent {
 
     this.state = {
       atMostRecent: true,
-      endpoints: [],
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -117,17 +116,17 @@ const Trends = translate()(class Trends extends PureComponent {
     }
   };
 
-  componentWillReceiveProps(nextProps) {
-    const newDataLoaded = this.props.loading && !nextProps.loading;
+  // componentWillReceiveProps(nextProps) {
+  //   const newDataLoaded = this.props.loading && !nextProps.loading;
 
-    if (newDataLoaded) {
-      // Trigger a reset of the endpoints state so that the stats will know to update
-      const endpoints = this.state.endpoints;
-      this.setState({
-        endpoints: []
-      }, this.setState({ endpoints }))
-    }
-  }
+  //   if (newDataLoaded) {
+  //     // Trigger a reset of the endpoints state so that the stats will know to update
+  //     const endpoints = this.state.endpoints;
+  //     this.setState({
+  //       endpoints: []
+  //     }, this.setState({ endpoints }))
+  //   }
+  // }
 
   formatDate(datetime) {
     const { t } = this.props;
@@ -272,14 +271,10 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
-  handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent) {
+  handleDatetimeLocationChange(datetimeLocationEndpoints) {
     this.setState({
-      atMostRecent: atMostRecent,
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints: datetimeLocationEndpoints,
     });
-
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
 
     // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
@@ -287,8 +282,12 @@ const Trends = translate()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
+    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf()).toISOString();
+
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints);
+    debouncedDateRangeUpdate(datetimeLocation);
 
     this.setState({ debouncedDateRangeUpdate });
   }

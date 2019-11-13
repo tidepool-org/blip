@@ -659,6 +659,7 @@ export let PatientData = translate()(React.createClass({
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
+    const isTrends = this.state.chartType === 'trends';
 
     const newEndpoints = this.getChartEndpoints(datetimeLocation, {
       setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
@@ -693,7 +694,9 @@ export let PatientData = translate()(React.createClass({
     const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
-    if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
+    // TODO: re-enable fetching for trends once the viz is stable
+    // if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
+    if (!isTrends && !this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
       const options = {
         showLoading: true,
         returnData: false,
