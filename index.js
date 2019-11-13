@@ -451,6 +451,8 @@ module.exports = function (config, deps) {
         'latest',
         'type',
         'uploadId',
+        'deviceId',
+        'subType',
       ];
 
       // Generate url with any valid provided params
@@ -1039,6 +1041,7 @@ module.exports = function (config, deps) {
      * Get URL for data export for a given user
      *
      * @param {String} userId of the user to get data for
+     * @param {String} loggedInUserId the userId of the logged in user
      * @param {Object} options
      * @param {String} options.format 'json'|'excel'
      * @param {String} options.startDate
@@ -1046,9 +1049,9 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb} cb(err, response)
      */
-    getExportDataURL: function (userId, options, cb){
-      common.assertArgumentsSize(arguments, 3);
-      user.createRestrictedTokenForUser(userId, {}, function(err, response){
+    getExportDataURL: function (userId, loggedInUserId, options, cb){
+      common.assertArgumentsSize(arguments, 4);
+      user.createRestrictedTokenForUser(loggedInUserId, {}, function(err, response){
         if (err) {
           cb(err);
         }
