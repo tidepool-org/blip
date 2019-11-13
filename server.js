@@ -65,7 +65,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     frameSrc: ['https://docs.google.com'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
-      'https://api.github.com/repos/tidepool-org/chrome-uploader/releases',
+      'https://api.github.com/repos/tidepool-org/uploader/releases',
       'https://static.zdassets.com',
       'https://ekr.zdassets.com',
       'https://tidepoolsupport.zendesk.com',

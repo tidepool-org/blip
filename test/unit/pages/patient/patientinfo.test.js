@@ -1038,7 +1038,7 @@ describe('PatientInfo', function () {
     });
   });
 
-  describe('renderExport', function() {
+  describe.skip('renderExport', function() {
     it('should render the export UI', function(){
       expect(wrapper.find('.PatientPage-export')).to.have.length(1);
     })
