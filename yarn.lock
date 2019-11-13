@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.9.0-rc.2":
-  version "1.9.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.9.0-rc.2.tgz#c9c30f45b8f200e16f3578f30258dc966b98a501"
-  integrity sha512-1OqNgwSGAqW7v/lLCfD6huBGdJh+XLd3n3F4/VJPc3xav/rsl+kAKLS5xDT4qBluS49R1aDxuZ34P3bYVLMwsg==
+"@tidepool/viz@1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.9.0.tgz#314d0e7f72827b1171e867e599f2545b492c811b"
+  integrity sha512-aOEgOQclP9yd3UklaB8HqmmiGx2Ltj0ezQoaQg8Hk0gAmOwtBkr9+i+sHtHCPXE7OdVOMHF4D6irWJsV/FmacA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -11451,10 +11451,10 @@ tideline@1.14.0:
     react-sizeme "2.5.2"
     sundial "1.6.0"
 
-tidepool-platform-client@0.42.0-rc.2:
-  version "0.42.0-rc.2"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.42.0-rc.2.tgz#aa30ebd6289338d8cb0a58031c32ec45d78eb071"
-  integrity sha512-QtuFjxt73Y4imbpiN4gwh5fjTqGo7YLvZL9FjgTPIwa1llHHJsyxXX52NjLeN+xG5pZ94sU7UQjaoKw4LnXh3Q==
+tidepool-platform-client@0.42.0:
+  version "0.42.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.42.0.tgz#9cec70d0731b2a9794583e3510dbf1f3a26157b8"
+  integrity sha512-ibr3NgOoKQTa2c4jNdhhl1RiTuaOSquvgxk7P4wVLvKg4pgQO8HOLbg+LWAo23k9GvzCo9QtikvxDD4pQpZ1rw==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
