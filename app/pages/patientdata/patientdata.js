@@ -919,7 +919,7 @@ export let PatientData = translate()(React.createClass({
       ...updates,
     };
 
-    const cb = queryData ? this.queryData : _.noop;
+    const cb = queryData ? this.queryData.bind(this, undefined, { metaData: 'bgSources', showLoading: false }) : _.noop;
 
     this.setState({
       chartPrefs: newPrefs,
@@ -1292,6 +1292,7 @@ export let PatientData = translate()(React.createClass({
     let chartQuery = {
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       endpoints: this.state.endpoints,
+      metaData: options.metaData,
     };
 
     if (query) {
