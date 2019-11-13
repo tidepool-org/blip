@@ -154,6 +154,23 @@ describe('Basics', () => {
       expect(props.onClickPrint.callCount).to.equal(1);
     });
 
+    it('should render the clipboard copy button', () => {
+      var props = _.assign({}, baseProps, {
+        patientData: {
+          basicsData: {
+            data: {},
+            dateRange: [
+              '2018-01-15T05:00:00.000Z',
+              '2018-01-30T03:46:52.000Z',
+            ],
+          },
+        },
+      });
+      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      const button = wrapper.find('ClipboardButton');
+      expect(button.length).to.equal(1);
+    });
+
     it('should render the bg toggle', () => {
       var props = _.assign({}, baseProps, {
         patientData: {
@@ -272,6 +289,24 @@ describe('Basics', () => {
         '2018-03-05T08:00:00.000Z',
         '2018-03-13T07:00:00.000Z', // 7 hour offset on post-DST date
       ]);
+    });
+  });
+
+  describe('handleStatsChange', () => {
+    it('should set the stats to state state', () => {
+      const instance = wrapper.instance();
+      expect(wrapper.state('stats')).to.be.undefined;
+      instance.handleStatsChange([{ id: 'newstat' }]);
+      expect(wrapper.state('stats')).to.eql([{ id: 'newstat' }]);
+    });
+  });
+
+  describe('handleCopyBasicsClicked', () => {
+    it('should track metric with source param when called', () => {
+      const instance = wrapper.instance();
+      instance.handleCopyBasicsClicked();
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Basics' });
     });
   });
 

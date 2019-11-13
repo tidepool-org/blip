@@ -603,6 +603,39 @@ describe('PatientInfo', function () {
       expect(formValues.diagnosisType).to.equal('type1');
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
+
+    it('should return object containing fullName, birthday, diagnosisDate, diagnosisType, about, mrn and email', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            emails: ['joeyBlaags@example.com'],
+            fullName: 'Joe Bloggs',
+            patient: {
+              birthday: '1995-05-01',
+              diagnosisDate: '2006-06-05',
+              diagnosisType: 'type1',
+              about: 'I have a wonderful coffee mug.',
+              mrn: '123abc456',
+            }
+          }
+        }
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(7);
+      expect(formValues.fullName).to.equal('Joe Bloggs');
+      expect(formValues.birthday).to.equal('05/01/1995');
+      expect(formValues.diagnosisDate).to.equal('06/05/2006');
+      expect(formValues.diagnosisType).to.equal('type1');
+      expect(formValues.about).to.equal('I have a wonderful coffee mug.');
+      expect(formValues.mrn).to.equal('123abc456');
+      expect(formValues.email).to.equal('joeyBlaags@example.com');
+    });
   });
 
   describe('prepareFormValuesForSubmit', function() {
@@ -658,7 +691,9 @@ describe('PatientInfo', function () {
     it('should convert valid birthday to YYYY-MM-DD equivalent', function() {
       var props = {
         patient: {
-          profile : {}
+          profile : {
+            patient: {}
+          }
         }
       };
 
@@ -689,7 +724,9 @@ describe('PatientInfo', function () {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
-          profile : {}
+          profile : {
+            patient: {}
+          }
         }
       };
 
@@ -713,7 +750,9 @@ describe('PatientInfo', function () {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
-          profile : {}
+          profile : {
+            patient: {}
+          }
         }
       };
 
@@ -736,8 +775,10 @@ describe('PatientInfo', function () {
     it('should convert valid diagnosisDate to YYYY-MM-DD equivalent', function() {
       var props = {
         patient: {
-          profile : {}
-        }
+          profile : {
+            patient: {},
+          },
+        },
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -766,7 +807,9 @@ describe('PatientInfo', function () {
     it('should remove empty diagnosisType field', function() {
       var props = {
         patient: {
-          profile : {},
+          profile : {
+            patient: {},
+          },
         },
       };
 
@@ -783,8 +826,10 @@ describe('PatientInfo', function () {
     it('should remove empty about field', function() {
       var props = {
         patient: {
-          profile : {}
-        }
+          profile : {
+            patient: {},
+          },
+        },
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -800,8 +845,10 @@ describe('PatientInfo', function () {
     it('should prepare full form and return expected values', function() {
       var props = {
         patient: {
-          profile : {}
-        }
+          profile : {
+            patient: {},
+          },
+        },
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -811,6 +858,8 @@ describe('PatientInfo', function () {
         birthday: '02-02-1990',
         diagnosisDate: '04-05-2001',
         diagnosisType: 'type1',
+        mrn: '123abc456',
+        email: 'exampleEmail@example.com',
       };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
@@ -818,6 +867,13 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.birthday).to.equal('1990-02-02');
       expect(result.profile.patient.diagnosisDate).to.equal('2001-04-05');
       expect(result.profile.patient.diagnosisType).to.equal('type1');
+      expect(result.profile.patient.mrn).to.equal('123abc456');
+      expect(result.emails).to.have.length(1);
+      expect(result.emails[0]).to.equal('exampleEmail@example.com');
+      expect(result.username).to.equal('exampleEmail@example.com');
+      expect(result.profile.emails).to.have.length(1)
+      expect(result.profile.emails[0]).to.equal('exampleEmail@example.com');
+      expect(result.profile.patient.email).to.equal('exampleEmail@example.com');
     });
   });
 
@@ -918,6 +974,67 @@ describe('PatientInfo', function () {
       wrapper.setProps({ patient: { userid: 5678 }});
       expect(wrapper.instance().getWrappedInstance().isSamePersonUserAndPatient()).to.equal(true);
       expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(1);
+    });
+  });
+
+  describe('renderMRNInput', function(){
+    let props = {
+      user: { userid: 5678 },
+      patient: { userid: 1234 },
+      permsOfLoggedInUser: {},
+    };
+
+    let wrapper;
+
+    beforeEach(() => {
+      wrapper = mount(<PatientInfo {...props} />);
+      wrapper.instance().getWrappedInstance().setState({ editing: true });
+      wrapper.update();
+    });
+
+    it('should not render the MRN input if editing is not allowed', function() {
+      const mrnInput = wrapper.find('#mrn');
+      expect(mrnInput).to.have.length(0);
+    });
+
+    it('should render the MRN input if user is custodial', function() {
+      wrapper.setProps({
+        permsOfLoggedInUser: { custodian: {} },
+      });
+
+      const mrnInput = wrapper.find('#mrn');
+      expect(mrnInput).to.have.length(1);
+    });
+  });
+
+  describe('renderEmailInput', function(){
+    let props = {
+      user: { userid: 5678 },
+      patient: { userid: 1234 },
+      permsOfLoggedInUser: {},
+    };
+
+    let wrapper;
+
+    beforeEach(() => {
+      wrapper = mount(<PatientInfo {...props} />);
+      wrapper.instance().getWrappedInstance().setState({ editing: true });
+      wrapper.update();
+    });
+
+    it('should not render the email input if editing is not allowed', function() {
+      const bgUnitSettings = wrapper.find('input#email');
+
+      expect(bgUnitSettings).to.have.length(0);
+    });
+
+    it('should render the email input if user is custodial', function() {
+      wrapper.setProps({
+        permsOfLoggedInUser: { custodian: true },
+      });
+
+      const bgUnitSettings = wrapper.find('input#email');
+      expect(bgUnitSettings).to.have.length(1);
     });
   });
 

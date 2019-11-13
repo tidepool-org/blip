@@ -511,6 +511,19 @@ describe('personutils', () => {
       expect(Object.keys(error).length).to.equal(0);
     });
 
+    it('should return error message when email is invalid', () => {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '01/05/1984',
+        about: null,
+        email: 'notAnEmailaddress',
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(error.email).to.equal('Email address is invalid');
+    });
+
     it('should return multiple error messages when multiple validation problems', () => {
       var formValues = {
         fullName: 'Joe Bloggs',

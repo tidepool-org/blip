@@ -10,9 +10,10 @@ import tidelineBlip from 'tideline/plugins/blip';
 const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const Loader = vizComponents.Loader;
+const { ClipboardButton, Loader } = vizComponents;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+const basicsText = vizUtils.text.basicsText;
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -77,6 +78,8 @@ class Basics extends Component {
   };
 
   render = () => {
+    const { t } = this.props;
+
     return (
       <div id="tidelineMain" className="basics">
         <Header
@@ -104,6 +107,11 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBasicsClicked}
+                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
+                />
                 <BgSourceToggle
                   bgSource={this.props.dataUtil.bgSource}
                   bgSources={this.props.dataUtil.bgSources}
@@ -119,6 +127,7 @@ class Basics extends Component {
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
                   onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
+                  onStatsChange={this.handleStatsChange}
                 />
               </div>
             </div>
@@ -230,6 +239,20 @@ class Basics extends Component {
     this.props.updateChartPrefs(prefs);
   };
 
+  handleStatsChange = stats => {
+    this.setState({ stats });
+
+    window.downloadStatData = () => {
+      console.save({
+        bgPrefs: this.props.bgPrefs,
+        data: this.props.patientData.basicsData,
+        endpoints: this.props.endpoints,
+        stats: stats,
+        timePrefs: this.props.timePrefs,
+      }, 'stats-basics.json');
+    };
+  };
+
   handleClickBasics = e => {
     if (e) {
       e.preventDefault();
@@ -271,6 +294,10 @@ class Basics extends Component {
 
   handleSelectDay = (date, title) => {
     this.props.onSwitchToDaily(date, title);
+  };
+
+  handleCopyBasicsClicked = () => {
+    this.props.trackMetric('Clicked Copy Settings', { source: 'Basics' });
   };
 };
 

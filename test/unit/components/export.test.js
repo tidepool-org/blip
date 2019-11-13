@@ -12,6 +12,7 @@ import _ from 'lodash';
 
 import Export from '../../../app/components/export';
 import moment from 'moment';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../app/core/constants';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 const expect = chai.expect;
@@ -21,13 +22,33 @@ describe('Export', () => {
     api: {
       tidepool: {
         getExportDataURL: sinon.stub()
-      }
+      },
     },
     patient: {
       userId: 'abc123'
-    }
+    },
+    user: {
+      userID: 'def456'
+    },
   };
-  const expectedInitialFormValues = {};
+  const mmollProps = {
+    api: {
+      tidepool: {
+        getExportDataURL: sinon.stub()
+      }
+    },
+    patient: {
+      userId: 'abc123',
+      settings: {
+        units: {
+          bg: MMOLL_UNITS,
+        },
+      },
+    },
+    user: {
+      userID: 'def456'
+    },
+  };
   const expectedInitialState = {
     allTime: false,
     endDate: moment().format(JS_DATE_FORMAT),
@@ -37,7 +58,20 @@ describe('Export', () => {
     anonymizeData: false,
     format: 'json',
     extraExpanded: false,
-    error: false
+    error: false,
+    bgUnits: MGDL_UNITS,
+  };
+  const expectedInitialStateMmoll = {
+    allTime: false,
+    endDate: moment().format(JS_DATE_FORMAT),
+    startDate: moment()
+      .subtract(30, 'd')
+      .format(JS_DATE_FORMAT),
+    anonymizeData: false,
+    format: 'json',
+    extraExpanded: false,
+    error: false,
+    bgUnits: MMOLL_UNITS,
   };
 
   let wrapper;
@@ -63,6 +97,13 @@ describe('Export', () => {
   it('should set the initial state', () => {
     expect(wrapper.instance().getWrappedInstance().state).to.eql(
       expectedInitialState
+    );
+  });
+
+  it('should accept bgUnits as prop', () => {
+    wrapper = mount(<Export {...mmollProps} />);
+    expect(wrapper.instance().getWrappedInstance().state).to.eql(
+      expectedInitialStateMmoll
     );
   });
 
@@ -195,7 +236,7 @@ describe('Export', () => {
 
     it('should set error state if callback errors', () => {
       let errMessage = 'get data url error';
-      props.api.tidepool.getExportDataURL.callsArgWith(2, errMessage);
+      props.api.tidepool.getExportDataURL.callsArgWith(3, errMessage);
       button.simulate('submit');
       sinon.assert.calledOnce(props.api.tidepool.getExportDataURL);
       expect(wrapper.instance().getWrappedInstance().state.error).to.equal(
