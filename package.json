@@ -129,7 +129,7 @@
     "source-map-loader": "0.2.4",
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
-    "tideline": "1.14.0",
+    "tideline": "1.15.0-info-icon.1",
     "tidepool-platform-client": "0.42.0",
     "tidepool-standard-action": "0.1.1",
     "uglify-es": "3.3.9",
