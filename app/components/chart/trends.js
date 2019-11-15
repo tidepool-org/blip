@@ -31,15 +31,23 @@ import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
 
-import * as viz from '@tidepool/viz';
-const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
-const FocusedRangeLabels = viz.components.FocusedRangeLabels;
-const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
-const TrendsContainer = viz.containers.TrendsContainer;
-const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
-const trendsText = viz.utils.text.trendsText;
-const {ClipboardButton, Loader} = viz.components;
+import {
+  components as vizComponents,
+  containers as vizContainers,
+  utils as vizUtils,
+} from '@tidepool/viz';
+
+const TrendsContainer = vizContainers.TrendsContainer;
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+const trendsText = vizUtils.text.trendsText;
+const {
+  ClipboardButton,
+  Loader,
+  CBGDateTraceLabel,
+  FocusedRangeLabels,
+  FocusedSMBGPointLabel,
+} = vizComponents;
 
 const Trends = translate()(class Trends extends PureComponent {
   static propTypes = {
@@ -60,7 +68,6 @@ const Trends = translate()(class Trends extends PureComponent {
     queryDataCount: React.PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
-    trendsState: PropTypes.object.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
   };
@@ -309,7 +316,7 @@ const Trends = translate()(class Trends extends PureComponent {
     prefs.trends.showingCbg = showingCbg;
     prefs.trends.showingSmbg = !showingCbg;
     prefs.trends.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false, true);
   }
 
   toggleBoxOverlay() {
@@ -369,7 +376,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   render() {
-    const { currentPatientInViewId, bgSources, t } = this.props;
+    const { currentPatientInViewId, t } = this.props;
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -419,7 +426,7 @@ const Trends = translate()(class Trends extends PureComponent {
          showingLines={this.props.chartPrefs.trends.smbgLines}
          showingCbg={this.props.chartPrefs.trends.showingCbg}
          showingSmbg={this.props.chartPrefs.trends.showingSmbg}
-         displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
+         displayFlags={this.props.chartPrefs.trends.cbgFlags}
          currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
          <WindowSizeListener onResize={this.handleWindowResize} />
@@ -485,10 +492,6 @@ const Trends = translate()(class Trends extends PureComponent {
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // data
         data={this.props.data}
-        // cbgByDate={this.props.data.cbgByDate}
-        // cbgByDayOfWeek={this.props.data.cbgByDayOfWeek}
-        // smbgByDate={this.props.data.smbgByDate}
-        // smbgByDayOfWeek={this.props.data.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
@@ -499,8 +502,7 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   renderFocusedCbgDateTraceLabel() {
-    const { currentPatientInViewId, trendsState } = this.props;
-    const focusedCbgDateTrace = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDateTrace']);
+    const focusedCbgDateTrace = _.get(this.props, 'chartPrefs.trends.focusedCbgDateTrace');
     if (focusedCbgDateTrace) {
       return (
         <CBGDateTraceLabel focusedDateTrace={focusedCbgDateTrace} />
@@ -510,15 +512,21 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   renderFocusedRangeLabels() {
-    const { currentPatientInViewId, trendsState } = this.props;
-    const { chartPrefs: { trends: { showingCbg, showingSmbg } } } = this.props;
+    const { chartPrefs: { trends: {
+      showingCbg,
+      showingSmbg,
+      focusedCbgSliceKeys,
+      focusedCbgSlice,
+      focusedSmbgRangeAvg,
+    } } } = this.props;
+
     if (showingCbg) {
       return (
         <FocusedRangeLabels
           bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
           dataType={'cbg'}
-          focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-          focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+          focusedKeys={focusedCbgSliceKeys}
+          focusedSlice={focusedCbgSlice}
           timePrefs={_.get(this.props, 'data.timePrefs', {})} />
       );
     } else if (showingSmbg) {
@@ -526,7 +534,7 @@ const Trends = translate()(class Trends extends PureComponent {
         <FocusedRangeLabels
           bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
           dataType={'smbg'}
-          focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
+          focusedRange={focusedSmbgRangeAvg}
           timePrefs={_.get(this.props, 'data.timePrefs', {})} />
       );
     }
@@ -537,14 +545,13 @@ const Trends = translate()(class Trends extends PureComponent {
     if (!this.props.chartPrefs.trends.showingSmbg) {
       return null;
     }
-    const { currentPatientInViewId } = this.props;
     return (
       <FocusedSMBGPointLabel
         bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         grouped={this.props.chartPrefs.trends.smbgGrouped}
         lines={this.props.chartPrefs.trends.smbgLines}
-        focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg} />
+        focusedPoint={_.get(this.props, 'chartPrefs.trends.focusedSmbg')} />
     );
   }
 
