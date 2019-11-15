@@ -25,6 +25,7 @@ const data = (state = {}, action) => {
     case actionTypes.DATA_WORKER_ADD_DATA_SUCCESS:
       return update(state, {
         data: {
+          aggregationsByDate: { $set: state.data.aggregationsByDate },
           combined: { $push: action.payload.result.data || [] },
           current: { $set: state.data.current },
           next: { $set: state.data.next },
@@ -39,6 +40,7 @@ const data = (state = {}, action) => {
 
       return update(state, {
         data: {
+          aggregationsByDate: { $set: state.data.aggregationsByDate },
           combined: { $splice: [[existingDatumIndex, 1, datum]] },
           current: { $set: state.data.current },
           next: { $set: state.data.next },
@@ -80,6 +82,7 @@ const data = (state = {}, action) => {
 
       return update(state, {
         data: {
+          aggregationsByDate: { $set: current.aggregationsByDate || state.data.aggregationsByDate },
           combined: { $set: combined },
           current: { $set: current },
           next: { $set: next },

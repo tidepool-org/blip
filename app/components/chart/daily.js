@@ -423,7 +423,7 @@ class Daily extends Component {
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.daily.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false, true);
   };
 
   handleWindowResize = () => {

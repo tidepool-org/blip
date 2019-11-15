@@ -45,6 +45,7 @@ const initialState = {
   pdf: {},
   data: {
     data: {
+      aggregationsByDate: {},
       combined: [],
       current: {},
       next: {},

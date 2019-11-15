@@ -15,6 +15,10 @@ class BgSourceToggle extends PureComponent {
       smbg: PropTypes.bool.isRequired,
       current: PropTypes.string,
     }).isRequired,
+    chartPrefs: PropTypes.shape({
+      bgSource: PropTypes.string,
+    }),
+    chartType: PropTypes.string,
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
 
@@ -23,12 +27,13 @@ class BgSourceToggle extends PureComponent {
   render = () => {
     const showToggle = this.props.bgSources.cbg || this.props.bgSources.smbg;
     const disabled = !(this.props.bgSources.cbg && this.props.bgSources.smbg);
+    const currentBgSource = this.getBgSource();
 
     return (
       <div className="toggle-container">
         {showToggle ? <TwoOptionToggle
-          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSources.current === 'smbg' }}
-          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSources.current === 'cbg' }}
+          left={{ label: statBgSourceLabels.smbg, state: currentBgSource === 'smbg' }}
+          right={{ label: statBgSourceLabels.cbg, state: currentBgSource === 'cbg' }}
           toggleFn={this.handleBgToggle}
           disabled={disabled}
         /> : null}
@@ -36,13 +41,20 @@ class BgSourceToggle extends PureComponent {
     );
   };
 
+  getBgSource = () => {
+    return _.get(this.props, `chartPrefs[${this.props.chartType}].bgSource`, _.get(this.props, 'bgSources.current'));;
+  };
+
   handleBgToggle = (e) => {
     if (e) {
       e.preventDefault();
     }
 
-    if (this.props.bgSources.current) {
-      const bgSource = this.props.bgSources.current === 'cbg' ? 'smbg' : 'cbg';
+    const currentBgSource = this.getBgSource();
+    console.log('currentBgSource', currentBgSource);
+
+    if (currentBgSource) {
+      const bgSource = currentBgSource === 'cbg' ? 'smbg' : 'cbg';
       this.props.onClickBgSourceToggle(e, bgSource);
     }
   };

@@ -89,7 +89,6 @@ export let PatientData = translate()(React.createClass({
     updatingDatum: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
-    viz: React.PropTypes.object.isRequired,
   },
 
   getInitialState: function() {
@@ -118,6 +117,13 @@ export let PatientData = translate()(React.createClass({
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
+
+          // TODO: initialize with suitable values
+          focusedCbgSliceKeys: null,
+          focusedCbgSlice: null,
+          focusedCbgDateTrace: null,
+          focusedSmbgRangeAvg: null,
+          focusedSmbg: null,
         },
         bgLog: {
           bgSource: 'smbg',
@@ -406,7 +412,6 @@ export let PatientData = translate()(React.createClass({
             patient={this.props.patient}
             stats={stats}
             trackMetric={this.props.trackMetric}
-            trendsState={this.props.viz.trends}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.state.queryDataCount}
@@ -687,7 +692,7 @@ export let PatientData = translate()(React.createClass({
         endpoints: newEndpoints,
         nextDays,
         prevDays,
-        stats: this.getStatsByType(),
+        stats: this.getStatsByChartType(),
       },
     };
 
@@ -916,17 +921,28 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(updates, queryData = true) {
+  updateChartPrefs: function(updates, queryData = true, queryStats = false) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
     };
 
-    const cb = queryData ? this.queryData.bind(this, undefined, { showLoading: false }) : _.noop;
-
     this.setState({
       chartPrefs: newPrefs,
-    }, cb);
+    }, () => {
+      const queryOpts = { showLoading: false };
+
+      if (queryData) {
+        this.queryData(undefined, queryOpts);
+      } else if (queryStats) {
+        const statsQuery = {
+          endpoints: _.get(this.state, 'chartEndpoints.current'),
+          stats: this.getStatsByChartType(),
+        }
+
+        this.queryData(statsQuery, queryOpts);
+      }
+    });
   },
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts) {
@@ -971,11 +987,7 @@ export let PatientData = translate()(React.createClass({
 
   getBasicsAggregations: function() {
     const {
-      data: {
-        current: {
-          aggregationsByDate = {},
-        },
-      },
+      data: { aggregationsByDate },
       bgPrefs,
       metaData: { latestPumpUpload },
     } = this.props.data;
@@ -993,7 +1005,7 @@ export let PatientData = translate()(React.createClass({
     );
   },
 
-  getStatsByType: function() {
+  getStatsByChartType: function() {
     const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
     const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
@@ -1228,7 +1240,16 @@ export let PatientData = translate()(React.createClass({
           const state = { queryingData: false };
 
           // With initial query for upload data completed, set the initial chart type
-          if (!this.state.chartType) this.setInitialChartView(nextProps);
+          if (!this.state.chartType) {
+            this.setInitialChartView(nextProps);
+          } else if (_.get(nextProps, 'data.metaData.bgSource')) {
+            this.updateChartPrefs({
+              [this.state.chartType]: {
+                ...this.state.chartPrefs[this.state.chartType],
+                bgSource: _.get(nextProps, 'data.metaData.bgSource'),
+              },
+            }, false);
+          }
 
           if (_.get(nextProps, 'data.query.types')) {
             state.queryDataCount = this.state.queryDataCount + 1;
@@ -1299,6 +1320,22 @@ export let PatientData = translate()(React.createClass({
       metaData: options.metaData,
     };
 
+    const activeDays = _.get(['chartPrefs', this.state.chartType, 'activeDays']);
+
+    if (activeDays) {
+      const activeDaysMap = {
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
+      };
+
+      chartQuery.activeDays = _.map(_.keys(_.pickBy(activeDays, value => !!value)), day => activeDaysMap[day]);
+    }
+
     if (query) {
       this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
     } else if (this.state.chartType) {
@@ -1341,7 +1378,7 @@ export let PatientData = translate()(React.createClass({
 
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
-      chartQuery.stats = this.getStatsByType();
+      chartQuery.stats = this.getStatsByChartType();
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
@@ -1696,7 +1733,6 @@ export function mapStateToProps(state, props) {
     generatingPDF: state.blip.working.generatingPDF.inProgress,
     pdf: state.blip.pdf,
     data: state.blip.data,
-    viz: state.viz,
   };
 }
 
