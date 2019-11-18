@@ -79,7 +79,6 @@ const Trends = translate()(class Trends extends PureComponent {
     this.log = bows('Trends');
 
     this.state = {
-      atMostRecent: true,
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -101,20 +100,15 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
+    this.markTrendsViewed = this.markTrendsViewed.bind(this);
     this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
     this.toggleBoxOverlay = this.toggleBoxOverlay.bind(this);
     this.toggleDay = this.toggleDay.bind(this);
     this.toggleGrouping = this.toggleGrouping.bind(this);
     this.toggleLines = this.toggleLines.bind(this);
+    this.toggleDisplayFlags = this.toggleDisplayFlags.bind(this);
     this.toggleWeekdays = this.toggleWeekdays.bind(this);
     this.toggleWeekends = this.toggleWeekends.bind(this);
-  }
-
-  componentDidMount() {
-    if (this.refs.chart) {
-      // necessary to get a ref from the redux connect()ed TrendsContainer
-      this.chart = this.refs.chart.getWrappedInstance();
-    }
   }
 
   componentWillUnmount = () => {
@@ -122,18 +116,6 @@ const Trends = translate()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
   };
-
-  // componentWillReceiveProps(nextProps) {
-  //   const newDataLoaded = this.props.loading && !nextProps.loading;
-
-  //   if (newDataLoaded) {
-  //     // Trigger a reset of the endpoints state so that the stats will know to update
-  //     const endpoints = this.state.endpoints;
-  //     this.setState({
-  //       endpoints: []
-  //     }, this.setState({ endpoints }))
-  //   }
-  // }
 
   formatDate(datetime) {
     const { t } = this.props;
@@ -163,21 +145,21 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   handleWindowResize(windowSize) {
-    this.chart.mountData();
+    this.refs.chart.mountData();
   }
 
   handleClickBack(e) {
     if (e) {
       e.preventDefault();
     }
-    this.chart.goBack();
+    this.refs.chart.goBack();
   }
 
   handleClickDaily(e) {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
+    const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToDaily(datetime);
   }
 
@@ -185,38 +167,10 @@ const Trends = translate()(class Trends extends PureComponent {
     if (e) {
       e.preventDefault();
     }
-    if (this.state.atMostRecent) {
+    if (this.isAtMostRecent()) {
       return;
     }
-    this.chart.goForward();
-  }
-
-  handleClickFourWeeks(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    // no change, return early
-    if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
-      return;
-    }
-    const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
-    prefs.trends.activeDomain = '4 weeks';
-    prefs.trends.extentSize = 28;
-    this.props.updateChartPrefs(prefs);
-    const newDomain = this.getNewDomain(current, 28);
-    this.chart.setExtent(newDomain, oldDomain);
-  }
-
-  handleClickMostRecent(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    if (this.state.atMostRecent) {
-      return;
-    }
-    this.chart.goToMostRecent();
+    this.refs.chart.goForward();
   }
 
   handleClickOneWeek(e) {
@@ -228,13 +182,56 @@ const Trends = translate()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '1 week' && prefs.trends.extentSize === 7) {
       return;
     }
-    const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
+    const current = new Date(this.refs.chart.getCurrentDay());
     prefs.trends.activeDomain = '1 week';
     prefs.trends.extentSize = 7;
     this.props.updateChartPrefs(prefs);
     const newDomain = this.getNewDomain(current, 7);
-    this.chart.setExtent(newDomain, oldDomain);
+    this.refs.chart.setExtent(newDomain);
+  }
+
+  handleClickTwoWeeks(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    // no change, return early
+    if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
+      return;
+    }
+    const current = new Date(this.refs.chart.getCurrentDay());
+    prefs.trends.activeDomain = '2 weeks';
+    prefs.trends.extentSize = 14;
+    this.props.updateChartPrefs(prefs);
+    const newDomain = this.getNewDomain(current, 14);
+    this.refs.chart.setExtent(newDomain);
+  }
+
+  handleClickFourWeeks(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    // no change, return early
+    if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
+      return;
+    }
+    const current = new Date(this.refs.chart.getCurrentDay());
+    prefs.trends.activeDomain = '4 weeks';
+    prefs.trends.extentSize = 28;
+    this.props.updateChartPrefs(prefs);
+    const newDomain = this.getNewDomain(current, 28);
+    this.refs.chart.setExtent(newDomain);
+  }
+
+  handleClickMostRecent(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    if (this.isAtMostRecent()) {
+      return;
+    }
+    this.refs.chart.goToMostRecent();
   }
 
   handleClickSettings(e) {
@@ -252,29 +249,11 @@ const Trends = translate()(class Trends extends PureComponent {
     return;
   }
 
-  handleClickTwoWeeks(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    // no change, return early
-    if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
-      return;
-    }
-    const current = new Date(this.chart.getCurrentDay());
-    const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
-    prefs.trends.activeDomain = '2 weeks';
-    prefs.trends.extentSize = 14;
-    this.props.updateChartPrefs(prefs);
-    const newDomain = this.getNewDomain(current, 14);
-    this.chart.setExtent(newDomain, oldDomain);
-  }
-
   handleClickBgLog(e) {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
+    const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
 
@@ -303,6 +282,19 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.onSwitchToDaily(date);
   }
 
+  isAtMostRecent() {
+    console.log('this.props.mostRecentDatetimeLocation', this.props.mostRecentDatetimeLocation);
+    console.log('_.get(this.refs, \'chart.state.dateDomain.end\')', _.get(this.refs, 'chart.state.dateDomain.end'));
+
+    return this.props.mostRecentDatetimeLocation === _.get(this.refs, 'chart.state.dateDomain.end');
+  }
+
+  markTrendsViewed() {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.trends.touched = true;
+    this.props.updateChartPrefs(prefs, false);
+  }
+
   toggleBgDataSource(e, bgSource) {
     if (e) {
       e.preventDefault();
@@ -322,7 +314,7 @@ const Trends = translate()(class Trends extends PureComponent {
   toggleBoxOverlay() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgRangeOverlay = prefs.trends.smbgRangeOverlay ? false : true;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false);
   }
 
   toggleDay(day) {
@@ -338,13 +330,19 @@ const Trends = translate()(class Trends extends PureComponent {
   toggleGrouping() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgGrouped = prefs.trends.smbgGrouped ? false : true;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false);
   }
 
   toggleLines() {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.trends.smbgLines = prefs.trends.smbgLines ? false : true;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false);
+  }
+
+  toggleDisplayFlags(flag, value) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.trends.cbgFlags[flag] = value;
+    this.props.updateChartPrefs(prefs, false);
   }
 
   toggleWeekdays(allActive) {
@@ -427,6 +425,7 @@ const Trends = translate()(class Trends extends PureComponent {
          showingCbg={this.props.chartPrefs.trends.showingCbg}
          showingSmbg={this.props.chartPrefs.trends.showingSmbg}
          displayFlags={this.props.chartPrefs.trends.cbgFlags}
+         toggleDisplayFlags={this.toggleDisplayFlags}
          currentPatientInViewId={currentPatientInViewId}
          ref="footer" />
          <WindowSizeListener onResize={this.handleWindowResize} />
@@ -440,7 +439,7 @@ const Trends = translate()(class Trends extends PureComponent {
         chartType={this.chartType}
         patient={this.props.patient}
         inTransition={this.state.inTransition}
-        atMostRecent={this.state.atMostRecent}
+        atMostRecent={this.isAtMostRecent()}
         title={this.state.title}
         iconBack={'icon-back'}
         iconNext={'icon-next'}
@@ -484,8 +483,18 @@ const Trends = translate()(class Trends extends PureComponent {
         extentSize={this.props.chartPrefs.trends.extentSize}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         loading={this.props.loading}
+        mostRecentDatetimeLocation={this.props.mostRecentDatetimeLocation}
+        queryDataCount={this.props.queryDataCount}
         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
         showingCbg={this.props.chartPrefs.trends.showingCbg}
+        cbgFlags={this.props.chartPrefs.trends.cbgFlags}
+        focusedCbgDateTrace={this.props.chartPrefs.trends.focusedCbgDateTrace}
+        focusedCbgSlice={this.props.chartPrefs.trends.focusedCbgSlice}
+        focusedCbgSliceKeys={this.props.chartPrefs.trends.focusedCbgSliceKeys}
+        focusedSmbg={this.props.chartPrefs.trends.focusedSmbg}
+        focusedSmbgRangeAvg={this.props.chartPrefs.trends.focusedSmbgRangeAvg}
+        showingCbgDateTraces={this.props.chartPrefs.trends.showingCbgDateTraces}
+        touched={this.props.chartPrefs.trends.touched}
         smbgRangeOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
         smbgGrouped={this.props.chartPrefs.trends.smbgGrouped}
         smbgLines={this.props.chartPrefs.trends.smbgLines}
@@ -496,6 +505,10 @@ const Trends = translate()(class Trends extends PureComponent {
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
+        markTrendsViewed={this.markTrendsViewed}
+        unfocusCbgSlice={_.noop}
+        unfocusSmbg={_.noop}
+        unfocusSmbgRangeAvg={_.noop}
         ref="chart"
       />
     );

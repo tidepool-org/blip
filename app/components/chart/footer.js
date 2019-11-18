@@ -38,6 +38,7 @@ var TidelineFooter = translate()(React.createClass({
     showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
     displayFlags: React.PropTypes.object,
+    toggleDisplayFlags: React.PropTypes.func,
     currentPatientInViewId: React.PropTypes.string,
   },
   render: function() {
@@ -89,7 +90,7 @@ var TidelineFooter = translate()(React.createClass({
       } else {
         rightSide = <RangeSelect
           displayFlags={this.props.displayFlags}
-          currentPatientInViewId={this.props.currentPatientInViewId}
+          updateCbgRange={this.props.toggleDisplayFlags}
         />;
       }
     }

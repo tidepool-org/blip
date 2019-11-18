@@ -118,12 +118,20 @@ export let PatientData = translate()(React.createClass({
           smbgLines: false,
           smbgRangeOverlay: true,
 
-          // TODO: initialize with suitable values
-          focusedCbgSliceKeys: null,
-          focusedCbgSlice: null,
+          // Formerly in viz.trends redux store
+          cbgFlags: {
+            cbg100Enabled: true,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
           focusedCbgDateTrace: null,
-          focusedSmbgRangeAvg: null,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
           focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgDateTraces: false,
+          touched: false,
         },
         bgLog: {
           bgSource: 'smbg',
@@ -687,8 +695,8 @@ export let PatientData = translate()(React.createClass({
 
     const updateOpts = {
       showLoading: updateChartData,
-      updateChartEndpoints: updateChartData,
-      query: updateChartData ? undefined : {
+      updateChartEndpoints: isTrends || updateChartData,
+      query: isTrends || updateChartData ? undefined : {
         endpoints: newEndpoints,
         nextDays,
         prevDays,
@@ -699,9 +707,7 @@ export let PatientData = translate()(React.createClass({
     const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
-    // TODO: re-enable fetching for trends once the viz is stable
-    // if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
-    if (!isTrends && !this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
+    if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
       const options = {
         showLoading: true,
         returnData: false,
@@ -1072,10 +1078,10 @@ export let PatientData = translate()(React.createClass({
         days.prev = 28;
         break;
 
-      case 'trends':
-        days.next = 28;
-        days.prev = 28;
-        break;
+      // case 'trends':
+      //   days.next = 28;
+      //   days.prev = 28;
+      //   break;
 
       default:
         days.next = 0;
@@ -1320,7 +1326,7 @@ export let PatientData = translate()(React.createClass({
       metaData: options.metaData,
     };
 
-    const activeDays = _.get(['chartPrefs', this.state.chartType, 'activeDays']);
+    const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
 
     if (activeDays) {
       const activeDaysMap = {
