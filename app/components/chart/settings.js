@@ -43,6 +43,7 @@ const Settings = translate()(React.createClass({
     patient: React.PropTypes.object,
     pdf: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
 
@@ -99,7 +100,6 @@ const Settings = translate()(React.createClass({
         copySettingsClicked={this.handleCopySettingsClicked}
         bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         manufacturerKey={latestPumpUpload.manufacturer}
-        markSettingsViewed={this.markSettingsViewed}
         toggleSettingsSection={this.toggleSettingsSection}
         settingsState={_.get(this.props, ['chartPrefs', this.chartType])}
         pumpSettings={latestPumpSettings}
@@ -182,20 +182,16 @@ const Settings = translate()(React.createClass({
     this.props.onSwitchToBgLog();
   },
 
-  markSettingsViewed: function() {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.settings.touched = true;
-    this.props.updateChartPrefs(prefs, false);
-  },
-
   toggleSettingsSection: function(deviceKey, scheduleOrProfileKey) {
     const prefs = _.cloneDeep(this.props.chartPrefs);
 
     if (!prefs.settings[deviceKey]) {
       prefs.settings[deviceKey] = { [scheduleOrProfileKey]: true };
     } else {
-      prefs.settings[deviceKey] = { [scheduleOrProfileKey]: !prefs.settings[deviceKey][scheduleOrProfileKey] };
+      prefs.settings[deviceKey][scheduleOrProfileKey] = !prefs.settings[deviceKey][scheduleOrProfileKey];
     }
+
+    prefs.settings.touched = true;
 
     this.props.updateChartPrefs(prefs, false);
   },

@@ -136,7 +136,9 @@ export let PatientData = translate()(React.createClass({
         bgLog: {
           bgSource: 'smbg',
         },
-        settings: {},
+        settings: {
+          touched: false,
+        },
       },
       printOpts: {
         numDays: {
@@ -319,6 +321,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
