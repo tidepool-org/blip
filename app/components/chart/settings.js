@@ -20,8 +20,6 @@ import bows from 'bows';
 import React from 'react';
 import { Trans, translate } from 'react-i18next';
 
-import utils from '../../core/utils';
-
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
@@ -101,6 +99,9 @@ const Settings = translate()(React.createClass({
         copySettingsClicked={this.handleCopySettingsClicked}
         bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         manufacturerKey={latestPumpUpload.manufacturer}
+        markSettingsViewed={this.markSettingsViewed}
+        toggleSettingsSection={this.toggleSettingsSection}
+        settingsState={_.get(this.props, ['chartPrefs', this.chartType])}
         pumpSettings={latestPumpSettings}
         timePrefs={_.get(this.props, 'data.timePrefs', {})}
         view='display'
@@ -179,7 +180,25 @@ const Settings = translate()(React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToBgLog();
-  }
+  },
+
+  markSettingsViewed: function() {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.settings.touched = true;
+    this.props.updateChartPrefs(prefs, false);
+  },
+
+  toggleSettingsSection: function(deviceKey, scheduleOrProfileKey) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (!prefs.settings[deviceKey]) {
+      prefs.settings[deviceKey] = { [scheduleOrProfileKey]: true };
+    } else {
+      prefs.settings[deviceKey] = { [scheduleOrProfileKey]: !prefs.settings[deviceKey][scheduleOrProfileKey] };
+    }
+
+    this.props.updateChartPrefs(prefs, false);
+  },
 }));
 
 module.exports = Settings;
