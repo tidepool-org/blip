@@ -23,7 +23,7 @@ import { translate } from 'react-i18next';
 import { components } from '@tidepool/viz';
 const RangeSelect = components.RangeSelect;
 
-var TidelineFooter = translate()(React.createClass({
+var Footer = translate()(React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
     onClickBoxOverlay: React.PropTypes.func,
@@ -110,4 +110,4 @@ var TidelineFooter = translate()(React.createClass({
   }
 }));
 
-module.exports = TidelineFooter;
+module.exports = Footer;

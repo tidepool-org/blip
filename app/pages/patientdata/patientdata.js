@@ -297,7 +297,7 @@ export let PatientData = translate()(React.createClass({
     var latestDataByType = _.values(_.get(this.props.data, 'metaData.latestDatumByType', {}));
 
     if (_.reject(latestDataByType, function(d) { return d.type === 'message'; }).length === 0) {
-      this.log('Sorry, tideline is kind of pointless with only messages.');
+      this.log('Sorry, Tidepool Web is kind of pointless with only messages.');
       return true;
     }
     return false;

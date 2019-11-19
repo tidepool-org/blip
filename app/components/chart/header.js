@@ -24,11 +24,7 @@ import { translate } from 'react-i18next';
 
 import printPng from './img/print-icon-2x.png';
 
-const tideline = {
-  log: bows('Header'),
-};
-
-const TidelineHeader = translate()(class TidelineHeader extends Component {
+const Header = translate()(class Header extends Component {
   static propTypes = {
     patient: React.PropTypes.object,
     printReady: React.PropTypes.bool,
@@ -221,4 +217,4 @@ const TidelineHeader = translate()(class TidelineHeader extends Component {
   };
 });
 
-module.exports = TidelineHeader;
+module.exports = Header;

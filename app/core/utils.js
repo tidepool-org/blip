@@ -17,9 +17,8 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
-import TidelineData from 'tideline/js/tidelinedata';
-import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
+
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
 
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
@@ -365,47 +364,6 @@ utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
     bgClasses,
   };
 }
-
-utils.filterPatientData = (data, bgUnits) => {
-  return nurseShark.processData(data, bgUnits);
-}
-
-utils.processPatientData = (data, queryParams, settings) => {
-  if (!(data && data.length >= 0)) {
-    return null;
-  }
-
-  const timePrefsForTideline = utils.getTimePrefsForDataProcessing(data, queryParams);
-  const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
-
-  console.time('Nurseshark Total');
-  const res = utils.filterPatientData(data, bgPrefs.bgUnits);
-  console.timeEnd('Nurseshark Total');
-
-  console.time('TidelineData Total');
-  let tidelineData = new TidelineData(res.processedData, {
-    timePrefs: timePrefsForTideline,
-    bgUnits: bgPrefs.bgUnits,
-    bgClasses: bgPrefs.bgClasses,
-  });
-
-  if (!_.isEmpty(timePrefsForTideline)) {
-    tidelineData.timePrefs = timePrefsForTideline;
-  }
-
-  console.timeEnd('TidelineData Total');
-
-  window.tidelineData = tidelineData;
-  window.downloadProcessedData = () => {
-    console.save(res.processedData, 'nurseshark-output.json');
-  };
-  window.downloadErroredData = () => {
-    console.save(res.erroredData, 'errored.json');
-  };
-
-  return tidelineData;
-};
-
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
