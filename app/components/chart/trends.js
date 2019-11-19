@@ -100,6 +100,8 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
+    this.handleFocusCbgDateTrace = this.handleFocusCbgDateTrace.bind(this);
+    this.handleFocusCbgSlice = this.handleFocusCbgSlice.bind(this);
     this.handleFocusSmbg = this.handleFocusSmbg.bind(this);
     this.handleFocusSmbgRange = this.handleFocusSmbgRange.bind(this);
     this.markTrendsViewed = this.markTrendsViewed.bind(this);
@@ -290,6 +292,35 @@ const Trends = translate()(class Trends extends PureComponent {
 
   handleSelectDate(date) {
     this.props.onSwitchToDaily(date);
+  }
+
+  handleFocusCbgSlice(data, position, focusedKeys) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (data) {
+      prefs.trends.focusedCbgSlice = { data, position };
+      prefs.trends.focusedCbgSliceKeys = focusedKeys;
+      prefs.trends.showingCbgDateTraces = true; // TODO: do this async as currently done for perf reasons?
+    } else {
+      prefs.trends.focusedCbgSlice = null;
+      prefs.trends.focusedCbgSliceKeys = null;
+      prefs.trends.focusedCbgDateTrace = null;
+      prefs.trends.showingCbgDateTraces = false;
+    }
+
+    this.props.updateChartPrefs(prefs, false);
+  }
+
+  handleFocusCbgDateTrace(data, position) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (data) {
+      prefs.trends.focusedCbgDateTrace = { data, position };
+    } else {
+      prefs.trends.focusedCbgDateTrace = null;
+    }
+
+    this.props.updateChartPrefs(prefs, false);
   }
 
   handleFocusSmbg(datum, position, allSmbgsOnDate, allPositions, date) {
@@ -540,11 +571,14 @@ const Trends = translate()(class Trends extends PureComponent {
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
         markTrendsViewed={this.markTrendsViewed}
+        focusCbgDateTrace={this.handleFocusCbgDateTrace}
+        unfocusCbgDateTrace={this.handleFocusCbgDateTrace.bind(this, null)}
+        focusCbgSlice={this.handleFocusCbgSlice}
+        unfocusCbgSlice={this.handleFocusCbgSlice.bind(this, null)}
         focusSmbg={this.handleFocusSmbg}
         unfocusSmbg={this.handleFocusSmbg.bind(this, null)}
         focusSmbgRange={this.handleFocusSmbgRange}
         unfocusSmbgRange={this.handleFocusSmbgRange.bind(this, null)}
-        unfocusCbgSlice={_.noop}
         unfocusSmbgRangeAvg={_.noop}
         ref="chart"
       />
