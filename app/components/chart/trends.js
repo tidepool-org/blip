@@ -100,6 +100,8 @@ const Trends = translate()(class Trends extends PureComponent {
     this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
+    this.handleFocusSmbg = this.handleFocusSmbg.bind(this);
+    this.handleFocusSmbgRange = this.handleFocusSmbgRange.bind(this);
     this.markTrendsViewed = this.markTrendsViewed.bind(this);
     this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
     this.toggleBoxOverlay = this.toggleBoxOverlay.bind(this);
@@ -115,6 +117,14 @@ const Trends = translate()(class Trends extends PureComponent {
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.trends.focusedCbgDateTrace = null;
+    prefs.trends.focusedCbgSlice = null;
+    prefs.trends.focusedCbgSliceKeys = null;
+    prefs.trends.focusedSmbg = null;
+    prefs.trends.focusedSmbgRangeAvg = null;
+    this.props.updateChartPrefs(prefs, false);
   };
 
   formatDate(datetime) {
@@ -280,6 +290,30 @@ const Trends = translate()(class Trends extends PureComponent {
 
   handleSelectDate(date) {
     this.props.onSwitchToDaily(date);
+  }
+
+  handleFocusSmbg(datum, position, allSmbgsOnDate, allPositions, date) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (datum) {
+      prefs.trends.focusedSmbg = { datum, position, allSmbgsOnDate, allPositions, date };
+    } else {
+      prefs.trends.focusedSmbg = null;
+    }
+
+    this.props.updateChartPrefs(prefs, false);
+  }
+
+  handleFocusSmbgRange(data, position) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (data) {
+      prefs.trends.focusedSmbgRangeAvg = { data, position };
+    } else {
+      prefs.trends.focusedSmbgRangeAvg = null;
+    }
+
+    this.props.updateChartPrefs(prefs, false);
   }
 
   isAtMostRecent() {
@@ -506,8 +540,11 @@ const Trends = translate()(class Trends extends PureComponent {
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
         markTrendsViewed={this.markTrendsViewed}
+        focusSmbg={this.handleFocusSmbg}
+        unfocusSmbg={this.handleFocusSmbg.bind(this, null)}
+        focusSmbgRange={this.handleFocusSmbgRange}
+        unfocusSmbgRange={this.handleFocusSmbgRange.bind(this, null)}
         unfocusCbgSlice={_.noop}
-        unfocusSmbg={_.noop}
         unfocusSmbgRangeAvg={_.noop}
         ref="chart"
       />
