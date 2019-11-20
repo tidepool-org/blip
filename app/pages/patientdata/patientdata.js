@@ -960,6 +960,8 @@ export let PatientData = translate()(React.createClass({
       setEndToLocalCeiling = true,
     } = opts;
 
+    const timezoneName = getTimezoneFromTimePrefs(this.state.timePrefs);
+
     let start;
     const end = setEndToLocalCeiling
       ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
@@ -967,7 +969,7 @@ export let PatientData = translate()(React.createClass({
 
     switch (chartType) {
       case 'basics':
-        start = findBasicsStart(datetimeLocation, getTimezoneFromTimePrefs(this.state.timePrefs)).valueOf();
+        start = findBasicsStart(datetimeLocation, timezoneName).valueOf();
         break;
 
       case 'daily':
@@ -975,11 +977,11 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'bgLog':
-        start = moment.utc(end).subtract(14, 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(14, 'days').valueOf();
         break;
 
       case 'trends':
-        start = moment.utc(end).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
         break;
     }
 
