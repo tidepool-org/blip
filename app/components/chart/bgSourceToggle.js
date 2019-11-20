@@ -51,7 +51,6 @@ class BgSourceToggle extends PureComponent {
     }
 
     const currentBgSource = this.getBgSource();
-    console.log('currentBgSource', currentBgSource);
 
     if (currentBgSource) {
       const bgSource = currentBgSource === 'cbg' ? 'smbg' : 'cbg';

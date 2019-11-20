@@ -908,8 +908,6 @@ export function fetchPatientData(api, options, id) {
     getLatestPumpSettings: false,
   });
 
-  console.log('fetchPatientData options', options);
-
   // Container to persist all fetched data results between API calls until we're ready to
   // dispatch the success action
   const fetched = {};

@@ -348,9 +348,6 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   isAtMostRecent() {
-    console.log('this.props.mostRecentDatetimeLocation', this.props.mostRecentDatetimeLocation);
-    console.log('_.get(this.refs, \'chart.state.dateDomain.end\')', _.get(this.refs, 'chart.state.dateDomain.end'));
-
     return this.props.mostRecentDatetimeLocation === _.get(this.refs, 'chart.state.dateDomain.end');
   }
 
