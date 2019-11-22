@@ -53,6 +53,7 @@ const data = (state = {}, action) => {
       return update(state, { $set: {
         ...initialState.data,
         cacheUntil: _.get(action.payload, 'preserveCache') ? state.cacheUntil : null,
+        fetchedUntil: _.get(action.payload, 'preserveCache') ? state.fetchedUntil : null,
         metaData: _.get(action.payload, 'preserveCache') ? { patientId: _.get(state, 'metaData.patientId') } : {},
       } });
 
