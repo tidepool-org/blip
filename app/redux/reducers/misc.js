@@ -210,7 +210,10 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       let patientsMap = {};
 
       [...patients, ...careTeam].forEach((patient) => {
-        patientsMap[patient.userid] = _.omit(patient, ['permissions']);
+        patientsMap[patient.userid] = {
+          ..._.omit(patient, ['permissions']),
+          settings: patient.settings || _.get(state, [patient.userid, 'settings']),
+        };
         patientsMap[`${patient.userid}_cacheUntil`] = generateCacheTTL(36e5); // Cache for 60 mins
       });
 
