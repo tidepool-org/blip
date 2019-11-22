@@ -1086,7 +1086,7 @@ export function fetchMessageThread(api, id ) {
  * @param  {Object} message to be created
  */
 export function createMessageThread(api, message, cb = _.noop) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.createMessageThreadRequest());
 
     api.team.startMessageThread(message, (err, messageId) => {
@@ -1098,8 +1098,9 @@ export function createMessageThread(api, message, cb = _.noop) {
         ));
       } else {
         const messageWithId = { ...message, id: messageId };
+        const { blip: { currentPatientInViewId } } = getState();
         dispatch(sync.createMessageThreadSuccess(messageWithId));
-        dispatch(worker.dataWorkerAddDataRequest([messageWithId], true));
+        dispatch(worker.dataWorkerAddDataRequest([messageWithId], true, currentPatientInViewId));
       }
     });
   };
