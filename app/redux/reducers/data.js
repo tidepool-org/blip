@@ -15,7 +15,7 @@ const data = (state = {}, action) => {
       } = action.payload;
 
       return update(state, {
-        fetchedUntil: { $set: fetchedUntil ? fetchedUntil : 'start' },
+        fetchedUntil: { $set: fetchedUntil ? fetchedUntil : state.fetchedUntil },
         cacheUntil: { $set: generateCacheTTL(36e5) },
         metaData: { $merge: { size: _.get(state, 'metaData.size', 0) + action.payload.fetchedCount } },
       });

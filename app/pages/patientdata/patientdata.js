@@ -1482,8 +1482,8 @@ export let PatientData = translate()(React.createClass({
   },
 
   fetchEarlierData: function(options = {}) {
-    // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'data.fetchedUntil') === 'start' && !this.props.fetchingPatientData) {
+    // Return if we are currently fetching data
+    if (this.props.fetchingPatientData) {
       return;
     };
 
