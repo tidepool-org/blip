@@ -38,8 +38,8 @@ export default class DataWorker {
       case actionTypes.DATA_WORKER_ADD_DATA_REQUEST: {
         try {
           const data = JSON.parse(action.payload.data);
-          const returnData = action.payload.returnData;
-          const result = this.dataUtil.addData(data, returnData);
+          const { patientId, returnData } = action.payload;
+          const result = this.dataUtil.addData(data, patientId, returnData);
           postMessage(actions.dataWorkerAddDataSuccess(result));
         } catch (error) {
           postMessage(actions.dataWorkerAddDataFailure(error));

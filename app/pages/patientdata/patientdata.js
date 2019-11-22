@@ -1206,93 +1206,90 @@ export let PatientData = translate()(React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
-    const patientData = _.get(nextProps, 'data.patientId') === userId;
+    const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
-    const dataAddedToWorker = _.get(nextProps, 'data.metaData.size', 0) > 0;
 
     // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
     if (patientSettings && patientData) {
-      if (dataAddedToWorker) {
-        // Set bgPrefs to state
-        let bgPrefs = this.state.bgPrefs;
-        if (!bgPrefs) {
-          bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
-          bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-          this.setState({
-            bgPrefs,
-          });
-        }
+      // Set bgPrefs to state
+      let bgPrefs = this.state.bgPrefs;
+      if (!bgPrefs) {
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+        bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+        this.setState({
+          bgPrefs,
+        });
+      }
 
-        // Set timePrefs to state
-        let timePrefs = this.state.timePrefs;
-        if (!timePrefs) {
-          const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
-          timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
-          this.setState({
-            timePrefs,
-          });
-        }
+      // Set timePrefs to state
+      let timePrefs = this.state.timePrefs;
+      if (!timePrefs) {
+        const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
+        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+        this.setState({
+          timePrefs,
+        });
+      }
 
-        // Perform initial query of upload data to prepare for setting inital chart type
-        if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
-          this.queryData({
-            types: {
-              upload: {
-                select: 'id,deviceId,deviceTags',
-              },
+      // Perform initial query of upload data to prepare for setting inital chart type
+      if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
+        this.queryData({
+          types: {
+            upload: {
+              select: 'id,deviceId,deviceTags',
             },
-            metaData: 'latestDatumByType,latestPumpUpload',
-            timePrefs,
-            bgPrefs,
-          });
+          },
+          metaData: 'latestDatumByType,latestPumpUpload',
+          timePrefs,
+          bgPrefs,
+        });
+      }
+
+      if (nextProps.queryingData.completed) {
+        const state = { queryingData: false };
+
+        // With initial query for upload data completed, set the initial chart type
+        if (!this.state.chartType) {
+          this.setInitialChartView(nextProps);
+        } else if (_.get(nextProps, 'data.metaData.bgSource')) {
+          this.updateChartPrefs({
+            [this.state.chartType]: {
+              ...this.state.chartPrefs[this.state.chartType],
+              bgSource: _.get(nextProps, 'data.metaData.bgSource'),
+            },
+          }, false);
         }
 
-        if (nextProps.queryingData.completed) {
-          const state = { queryingData: false };
-
-          // With initial query for upload data completed, set the initial chart type
-          if (!this.state.chartType) {
-            this.setInitialChartView(nextProps);
-          } else if (_.get(nextProps, 'data.metaData.bgSource')) {
-            this.updateChartPrefs({
-              [this.state.chartType]: {
-                ...this.state.chartPrefs[this.state.chartType],
-                bgSource: _.get(nextProps, 'data.metaData.bgSource'),
-              },
-            }, false);
-          }
-
-          if (_.get(nextProps, 'data.query.types')) {
-            state.queryDataCount = this.state.queryDataCount + 1;
-          }
-
-          // Only update the chartEndpoints and transitioningChartType state immediately after querying
-          if (this.props.queryingData.inProgress) {
-            if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
-              state.chartEndpoints = {
-                current: _.get(nextProps, 'data.data.current.endpoints.range', []),
-                next: _.get(nextProps, 'data.data.next.endpoints.range', []),
-                prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
-              };
-            }
-
-            if (_.get(nextProps, 'data.query.transitioningChartType')) {
-              state.transitioningChartType = false;
-            }
-          }
-
-          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
-            this.hideLoading();
-          }
-
-          this.setState(state);
+        if (_.get(nextProps, 'data.query.types')) {
+          state.queryDataCount = this.state.queryDataCount + 1;
         }
 
-        const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
-        if (newDataAdded) {
-          // New data has been added. Let's query it to update the chart.
-          this.queryData();
+        // Only update the chartEndpoints and transitioningChartType state immediately after querying
+        if (this.props.queryingData.inProgress) {
+          if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
+            state.chartEndpoints = {
+              current: _.get(nextProps, 'data.data.current.endpoints.range', []),
+              next: _.get(nextProps, 'data.data.next.endpoints.range', []),
+              prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
+            };
+          }
+
+          if (_.get(nextProps, 'data.query.transitioningChartType')) {
+            state.transitioningChartType = false;
+          }
         }
+
+        if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
+          this.hideLoading();
+        }
+
+        this.setState(state);
+      }
+
+      const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+      if (newDataAdded) {
+        // New data has been added. Let's query it to update the chart.
+        this.queryData();
       }
     }
   },

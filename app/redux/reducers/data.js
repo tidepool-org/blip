@@ -11,12 +11,10 @@ const data = (state = {}, action) => {
   switch (action.type) {
     case actionTypes.DATA_WORKER_ADD_DATA_REQUEST:
       const {
-        patientId = state.patientId,
         fetchedUntil = state.fetchedUntil,
       } = action.payload;
 
       return update(state, {
-        patientId: { $set: patientId },
         fetchedUntil: { $set: fetchedUntil ? fetchedUntil : 'start' },
         cacheUntil: { $set: generateCacheTTL(36e5) },
         metaData: { $merge: { size: state.metaData.size + action.payload.fetchedCount } },

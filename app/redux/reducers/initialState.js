@@ -55,7 +55,6 @@ const initialState = {
     bgPrefs: {},
     metaData: {},
     query: {},
-    patientId: null,
     fetchedUntil: null,
     cacheUntil: null,
   },
