@@ -25,9 +25,9 @@ import * as actionTypes from '../redux/constants/actionTypes';
 import { DataUtil } from '@tidepool/viz/dist/data';
 
 export default class DataWorker {
-  constructor(data = [], Worker = DataUtil) {
+  constructor(Worker = DataUtil) {
     this.log = __DEV__ ? bows('DataWorker') : _.noop;
-    this.dataUtil = new Worker(data);
+    this.dataUtil = new Worker();
     this.log('Ready!');
   }
 

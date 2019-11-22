@@ -17,7 +17,7 @@ const data = (state = {}, action) => {
       return update(state, {
         fetchedUntil: { $set: fetchedUntil ? fetchedUntil : 'start' },
         cacheUntil: { $set: generateCacheTTL(36e5) },
-        metaData: { $merge: { size: state.metaData.size + action.payload.fetchedCount } },
+        metaData: { $merge: { size: _.get(state, 'metaData.size', 0) + action.payload.fetchedCount } },
       });
 
     case actionTypes.DATA_WORKER_ADD_DATA_SUCCESS:
@@ -50,7 +50,11 @@ const data = (state = {}, action) => {
     case actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS:
     case actionTypes.LOGOUT_REQUEST:
     case actionTypes.FETCH_PATIENT_DATA_FAILURE:
-      return update(state, { $set: initialState.data });
+      return update(state, { $set: {
+        ...initialState.data,
+        cacheUntil: _.get(action.payload, 'preserveCache') ? state.cacheUntil : null,
+        metaData: _.get(action.payload, 'preserveCache') ? { patientId: _.get(state, 'metaData.patientId') } : {},
+      } });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
       const current = _.get(action.payload, 'result.data.current', {});

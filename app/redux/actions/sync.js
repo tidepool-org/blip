@@ -799,9 +799,12 @@ export function fetchAssociatedAccountsFailure(error, apiError) {
   };
 }
 
-export function fetchPatientDataRequest() {
+export function fetchPatientDataRequest(patientId) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_REQUEST,
+    payload: {
+      patientId,
+    },
   };
 }
 

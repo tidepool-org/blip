@@ -84,15 +84,28 @@ export default (state = initialWorkingState, action) => {
     case types.DISCONNECT_DATA_SOURCE_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
-        return update(state, {
-          [key]: {
-            $set: {
-              inProgress: true,
-              notification: null,
-              completed: state[key].completed,
+        if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
+          return update(initialWorkingState, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: state[key].completed,
+                patientId: _.get(action, ['payload', 'patientId'], null),
+              }
             }
-          }
-        });
+          });
+        } else {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: state[key].completed,
+              }
+            }
+          });
+        }
       } else {
         return state;
       }

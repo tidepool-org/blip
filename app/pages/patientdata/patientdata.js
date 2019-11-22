@@ -166,15 +166,11 @@ export let PatientData = translate()(React.createClass({
     const isSettings = this.state.chartType === 'settings';
     const dataFetched = _.get(this.props.data, 'metaData.size');
     const isEmptyDataSet = dataFetched === 0;
-    const rangeDataLoaded = isSettings || this.getCurrentData('endpoints.range.0', 0) !== 0;
-
-    // First data call is to fetch latest upload and general metadata, which is sufficient for settings
-    // The other chart views require a subsequent data query in order to be able to render
-    const requiredQueryDataCount = isSettings ? 1 : 2;
+    const rangeDataLoaded = isSettings || _.get(this.state, 'chartEndpoints.current.0', 0) !== 0;
 
     return isEmptyDataSet
       ? false
-      : !dataFetched || !rangeDataLoaded || this.state.queryDataCount < requiredQueryDataCount;
+      : !dataFetched || !rangeDataLoaded;
   },
 
   render: function() {
@@ -1201,7 +1197,7 @@ export let PatientData = translate()(React.createClass({
 
     // We only force removal of the data from the redux store at this point, and not the data worker
     // so that we don't need to refetch if the user is going to their profile page and coming back
-    this.props.dataWorkerRemoveDataSuccess();
+    this.props.dataWorkerRemoveDataSuccess(undefined, true);
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -1232,14 +1228,14 @@ export let PatientData = translate()(React.createClass({
       }
 
       // Perform initial query of upload data to prepare for setting inital chart type
-      if (!nextProps.queryingData.inProgress && !nextProps.queryingData.completed) {
+      if (this.state.queryDataCount < 1) {
         this.queryData({
           types: {
             upload: {
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources',
           timePrefs,
           bgPrefs,
         });
@@ -1251,13 +1247,6 @@ export let PatientData = translate()(React.createClass({
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
           this.setInitialChartView(nextProps);
-        } else if (_.get(nextProps, 'data.metaData.bgSource')) {
-          this.updateChartPrefs({
-            [this.state.chartType]: {
-              ...this.state.chartPrefs[this.state.chartType],
-              bgSource: _.get(nextProps, 'data.metaData.bgSource'),
-            },
-          }, false);
         }
 
         if (_.get(nextProps, 'data.query.types')) {

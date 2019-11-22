@@ -90,10 +90,10 @@ export function dataWorkerRemoveDataRequest(predicate) {
   };
 }
 
-export function dataWorkerRemoveDataSuccess(result) {
+export function dataWorkerRemoveDataSuccess(result, preserveCache = false) {
   return {
     type: actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS,
-    payload: { result },
+    payload: { result, preserveCache },
   };
 }
 

@@ -916,7 +916,14 @@ export function fetchPatientData(api, options, id) {
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
-    if(options.useCache && checkCacheValid(getState, 'data', { cacheKey: 'cacheUntil' })) {
+    const cacheOptions = {
+      accessStrategy: (state, reducerKey, cacheKey) => {
+        return _.get(state.blip, [reducerKey, cacheKey], null);
+      },
+      cacheKey: 'cacheUntil',
+    };
+
+    if (options.useCache && checkCacheValid(getState, 'data', cacheOptions)) {
       return null;
     }
 
@@ -969,6 +976,19 @@ export function fetchPatientData(api, options, id) {
       }
     }
 
+    function handleFetchSuccess(data, patientId, options) {
+      const { blip: { working }, routing: { location } } = getState();
+      const fetchingPatientId = _.get(working, 'fetchingPatientData.patientId');
+
+      dispatch(sync.fetchPatientDataSuccess(id));
+
+      // We only add the data to the worker if another patient id has not been fetched
+      // while we waited on this one, and we are still on an app view specific to that patient
+      if (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id)) {
+        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate));
+      }
+    }
+
     function handleInitialFetchResults(patientData, options) {
       const refetchOptions = _.assign({}, options, {
         initial: false,
@@ -984,13 +1004,12 @@ export function fetchPatientData(api, options, id) {
         fetchData(refetchOptions);
       } else {
         // We have all available data required for the initial rendering.
-        dispatch(sync.fetchPatientDataSuccess(id));
-        dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], options.returnData, id, options.startDate));
+        handleFetchSuccess([...patientData, ...fetched.teamNotes], id, options);
       }
     }
 
     function fetchData(options) {
-      dispatch(sync.fetchPatientDataRequest());
+      dispatch(sync.fetchPatientDataRequest(id));
 
       const fetchers = {
         patientData: api.patientData.get.bind(api, id, options),
@@ -1030,8 +1049,7 @@ export function fetchPatientData(api, options, id) {
           if (options.initial) {
             handleInitialFetchResults(patientData, options)
           } else {
-            dispatch(sync.fetchPatientDataSuccess(id));
-            dispatch(worker.dataWorkerAddDataRequest([...patientData, ...fetched.teamNotes], options.returnData, id, options.startDate));
+            handleFetchSuccess([...patientData, ...fetched.teamNotes], id, options);
           }
         }
       });
