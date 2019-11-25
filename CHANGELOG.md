@@ -6,6 +6,7 @@ It is based on Tidepool Blip 1.27.
 
 ### Fixed
  - PT-808 fix minor bugs identified after the release of blip 0.9.0
+ - PT-814 distinguish matomo data origin (preview vs clinical vs commercial)
 
 ## [0.9.0] 2019-11-08
 ### Changed

@@ -17,20 +17,7 @@
   <script id="ze-snippet" type="text/javascript" src="https://static.zdassets.com/ekr/snippet.js?key=d1aad8b3-67d8-4f44-9d87-9e8a0ed8149d"></script>
   <!-- End of support Zendesk Widget script -->
   <!-- Start of Tracker Code -->
-  <script id="tracker-script" type="text/javascript">
-    var _paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(['requireConsent']);
-    _paq.push(['trackPageView']);
-    (function () {
-      const u = '//localhost:8091/';
-      _paq.push(['setTrackerUrl', u + 'matomo.php']);
-      _paq.push(['setSiteId', '1']);
-      const d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
-      g.type = 'text/javascript'; g.async = true; g.defer = true; g.src = u + 'matomo.js';
-      s.parentNode.insertBefore(g, s);
-    })();
-  </script>
+  <script type="text/javascript" src="matomo.js"></script>
   <!-- End of Tracker Code -->
 </body>
 

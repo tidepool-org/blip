@@ -8,8 +8,8 @@ var reTitle = /<title>([^<]*)<\/title>/;
 var reConfig = /(<!-- config -->)|(<script [^>]*src="config(\.[\w]*)*\.js"[^>]*><\/script>)/m;
 var reZendesk = /(<!-- Zendesk disabled -->)|(<script id="ze-snippet" type="text\/javascript" src="[^"]+">\s*<\/script>)/m;
 var zendeskDisable = '<!-- Zendesk disabled -->';
-var reTracker = /(<!-- Start of Tracker Code -->)(?:<!--)?((?:\n|.)+<\/script>\s+)(?:-->)?(<!-- End of Tracker Code -->)/;
 var reTrackerUrl = /const u = '(.*)';/;
+var reTrackerSiteId = /const id = ([0-9]);/;
 
 var start = new Date();
 
@@ -61,26 +61,23 @@ if (typeof process.env.HELP_LINK === 'string') {
     indexHtml = indexHtml.replace(reZendesk, `<script id="ze-snippet" type="text/javascript" src="${process.env.HELP_LINK}"></script>`);
   }
 }
-
+var matomoJs = fs.readFileSync('matomo.js', 'utf8');
 // Replace tracker Javascript
-if (reTracker.test(indexHtml)) {
-  indexHtml = indexHtml.replace(reTracker, (match, stc, src, etc) => {
-    // stc: start tracker comment, src: script source, etc: end tracker comment
-    if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disable') {
-      console.info(`Setting up tracker code: ${process.env.MATOMO_TRACKER_URL}`);
-      const updatedSrc = src.replace(reTrackerUrl, (m, u) => {
-        return m.replace(u, process.env.MATOMO_TRACKER_URL);
-      });
-      return `${stc}${updatedSrc}${etc}`;
-    }
-    console.info('Tracker code is disabled');
-    return `${stc}<!--${src}-->${etc}`;
+if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disable') {
+  console.info(`Setting up tracker code: ${process.env.MATOMO_TRACKER_URL}`);
+  const updatedSrc = matomoJs.replace(reTrackerUrl, (m, u) => {
+    return m.replace(u, process.env.MATOMO_TRACKER_URL);
+  });
+  matomoJs = updatedSrc.replace(reTrackerSiteId, (m, u) => {
+    return m.replace(u, process.env.MATOMO_TRACKER_SITEID !== null ? process.env.MATOMO_TRACKER_SITEID : 1);
   });
 } else {
-  console.warn('Tracker code is missing');
+    console.info('Tracker code is disabled');
+    matomoJs = '/* MaToMo tracker is disabled */';
 }
 
 // Saving
+matomoJs.to('dist/matomo.js')
 indexHtml.to('dist/index.html');
 
 var end = new Date();
