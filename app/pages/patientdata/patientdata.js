@@ -1075,14 +1075,9 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'bgLog':
-        days.next = 28;
-        days.prev = 28;
+        days.next = 14;
+        days.prev = 14;
         break;
-
-      // case 'trends':
-      //   days.next = 28;
-      //   days.prev = 28;
-      //   break;
 
       default:
         days.next = 0;
