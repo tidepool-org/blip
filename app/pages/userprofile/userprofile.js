@@ -74,7 +74,7 @@ export var UserProfile = translate()(React.createClass({
         items: [
           {value: 'en', label: 'English'},
           {value: 'fr', label: 'Français'},
-          {value: 'de', label: 'Deutsche'},
+          {value: 'de', label: 'Deutsch'},
         ],
         placeholder: t('Select language...')
       });
