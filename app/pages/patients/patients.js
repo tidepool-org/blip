@@ -34,6 +34,9 @@ import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
+
 export let Patients = translate()(React.createClass({
   propTypes: {
     clearPatientData: React.PropTypes.func.isRequired,
@@ -61,26 +64,6 @@ export let Patients = translate()(React.createClass({
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
-
-    if (this.props.loading) {
-      if (this.props.location.query.justLoggedIn) {
-        return (
-          <div>
-            {welcomeTitle}
-            {this.renderLoadingIndicator()}
-          </div>
-        );
-      } else {
-        return (
-          <div className="container-box-outer">
-            <div className="patients js-patients-page">
-              {this.renderLoadingIndicator()}
-            </div>
-          </div>
-        );
-      }
-    }
-
     var welcomeSetup = this.renderWelcomeSetup();
     var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
     var invites = this.renderInvitations();
@@ -101,6 +84,7 @@ export let Patients = translate()(React.createClass({
           {invites}
           {noPatientsSetupStorage}
           {patients}
+          <Loader show={this.props.loading} overlay={true} />
         </div>
       </div>
     );
@@ -263,15 +247,6 @@ export let Patients = translate()(React.createClass({
     return (
       <div className="patients-welcome-title">
         {t('Welcome!')}
-      </div>
-    );
-  },
-
-  renderLoadingIndicator: function() {
-    const { t } = this.props;
-    return (
-      <div className="patients-message patients-message-loading">
-        {t('Loading...')}
       </div>
     );
   },
