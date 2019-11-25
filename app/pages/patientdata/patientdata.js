@@ -1243,6 +1243,7 @@ export let PatientData = translate()(React.createClass({
 
       if (nextProps.queryingData.completed) {
         const state = { queryingData: false };
+        let hideLoadingTimeout;
 
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
@@ -1265,14 +1266,15 @@ export let PatientData = translate()(React.createClass({
 
           if (_.get(nextProps, 'data.query.transitioningChartType')) {
             state.transitioningChartType = false;
+            hideLoadingTimeout = 250;
           }
         }
 
-        if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
-          this.hideLoading();
-        }
-
-        this.setState(state);
+        this.setState(state, () => {
+          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
+            this.hideLoading(hideLoadingTimeout);
+          }
+        });
       }
 
       const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
@@ -1524,7 +1526,7 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
-  hideLoading: function(timeout = 250) {
+  hideLoading: function(timeout = 0) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
     // so that child components can be aware of the change in processing states. It also serves
     // to ensure the loading indicator shows long enough for the user to make sense of it.
