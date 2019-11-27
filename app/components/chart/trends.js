@@ -348,7 +348,11 @@ const Trends = translate()(class Trends extends PureComponent {
   }
 
   isAtMostRecent() {
-    return this.props.mostRecentDatetimeLocation === _.get(this.refs, 'chart.state.dateDomain.end');
+    const mostRecentCeiling = getLocalizedCeiling(
+      this.props.mostRecentDatetimeLocation,
+      _.get(this.props, 'data.timePrefs', {})
+    ).toISOString();
+    return mostRecentCeiling === _.get(this.refs, 'chart.state.dateDomain.end');
   }
 
   markTrendsViewed() {
