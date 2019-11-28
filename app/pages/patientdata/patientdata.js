@@ -496,6 +496,7 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
+  // Commenting out for now. Will revisit when updating the print views to leverage the new data worker
   // generatePDFStats: function (data, state) {
   //   const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
   //   const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
@@ -900,17 +901,6 @@ export let PatientData = translate()(React.createClass({
       }, () => refresh(this.props.currentPatientInViewId));
     }
   },
-
-  // TODO: hopefully we can eliminate this altogether
-  // only called from componentWillUnmount of chartbasicsfactory in tideline
-  // updateBasicsData: function(basicsData) {
-  //   // only attempt to update data if there's already data present to update
-  //   if(this.state.processedPatientData){
-  //     this.setState({
-  //       processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
-  //     });
-  //   }
-  // },
 
   updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
     if (canUpdateSettings) {
@@ -1530,6 +1520,7 @@ export let PatientData = translate()(React.createClass({
     }, timeout);
   },
 
+  // Commenting out for now. Will revisit when updating the print views to leverage the new data worker
   // handleInitialProcessedData: function(props, processedData, patientSettings) {
   //   const userId = props.currentPatientInViewId;
   //   const patientData = _.get(props, ['patientDataMap', userId], []);
