@@ -30,6 +30,9 @@ import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
 let personUtils = {};
 
+personUtils.INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
+personUtils.OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
+
 personUtils.fullName = (person) => {
   return utils.getIn(person, ['profile', 'fullName']);
 };
@@ -150,9 +153,6 @@ personUtils.togglePatientBgUnits = (settings) => {
 personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, currentDateObj) => {
   let validationErrors = {};
 
-  const INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
-  const OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
-
   // Legacy: revisit when proper "child accounts" are implemented
   if (isNameRequired && !formValues.fullName) {
     validationErrors.fullName = t('Full name is required');
@@ -160,13 +160,13 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
 
   const birthday = formValues.birthday;
   if (!(birthday && sundial.isValidDateForMask(birthday, dateFormat))) {
-    validationErrors.birthday = INVALID_DATE_TEXT;
+    validationErrors.birthday = personUtils.INVALID_DATE_TEXT;
   }
 
   // moving to make diagnosisDate optional so we can use this to verify custodial accounts
   const diagnosisDate = formValues.diagnosisDate;
   if (diagnosisDate && !(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
-    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
+    validationErrors.diagnosisDate = personUtils.INVALID_DATE_TEXT;
   }
 
   const now = new Date();
@@ -175,15 +175,15 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
   var diagnosisDateObj = diagnosisDate && sundial.parseFromFormat(diagnosisDate, dateFormat);
 
   if (!validationErrors.birthday && birthdayDateObj > currentDateObj) {
-    validationErrors.birthday = INVALID_DATE_TEXT;
+    validationErrors.birthday = personUtils.INVALID_DATE_TEXT;
   }
 
   if (!validationErrors.diagnosisDate && diagnosisDateObj > currentDateObj) {
-    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
+    validationErrors.diagnosisDate = personUtils.INVALID_DATE_TEXT;
   }
 
   if (!validationErrors.diagnosisDate && birthdayDateObj > diagnosisDateObj) {
-    validationErrors.diagnosisDate = OUT_OF_ORDER_TEXT;
+    validationErrors.diagnosisDate = personUtils.OUT_OF_ORDER_TEXT;
   }
 
   const maxLength = 256;
