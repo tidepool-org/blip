@@ -56,25 +56,34 @@ describe('Basics', () => {
   };
 
   let baseProps = {
-    bgPrefs,
-    bgSource: 'cbg',
+    aggregations: {},
     chartPrefs: { basics: {} },
-    dataUtil: new DataUtilStub(),
+    data: {
+      bgPrefs,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: 'US/Pacific',
+      }
+    },
+    initialDatetimeLocation: '2019-11-27T00:00:00.000Z',
+    loading: false,
+    onClickRefresh: sinon.stub(),
+    onClickNoDataRefresh: sinon.stub(),
+    onSwitchToBasics: sinon.stub(),
+    onSwitchToDaily: sinon.stub(),
     onClickPrint: sinon.stub(),
+    onSwitchToSettings: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
-    patientData: {
-      basicsData: {
-        data: {},
-      },
-    },
+    patient: React.PropTypes.object,
     pdf: {},
-    timePrefs: {
-      timezoneAware: false,
-      timezoneName: 'US/Pacific',
-    },
-    t: i18next.t.bind(i18next),
+    stats: [],
+    permsOfLoggedInUser: { root: {} },
     trackMetric: sinon.stub(),
+    updateBasicsSettings: sinon.stub(),
     updateChartPrefs: sinon.stub(),
+    uploadUrl: 'http://uploadUrl',
+    t: i18next.t.bind(i18next),
   };
 
   let wrapper;
@@ -101,19 +110,19 @@ describe('Basics', () => {
 
     it('should render the basics chart if any data is uploaded', () => {
       wrapper.setProps({
-        patientData: {
-          basicsData: _.assign({}, baseProps.patientData.basicsData, {
-            data: {
-              smbg: {
-                data: [
-                  { type: 'smbg' }
-                ],
+        ...baseProps,
+        data: {
+          data: {
+            aggregationsByDate: {
+              basals: {
+                byDate: {
+                  '2019-11-27': [
+                    { type: 'smbg' },
+                  ],
+                },
               },
             },
-            days: [{
-              type: 'mostRecent',
-            }],
-          }),
+          },
         }
       });
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
@@ -155,52 +164,19 @@ describe('Basics', () => {
     });
 
     it('should render the clipboard copy button', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
-          },
-        },
-      });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       const button = wrapper.find('ClipboardButton');
       expect(button.length).to.equal(1);
     });
 
     it('should render the bg toggle', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
-          },
-        },
-      });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       const toggle = wrapper.find('BgSourceToggle');
       expect(toggle.length).to.equal(1);
     });
 
     it('should render the stats', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
-          },
-        },
-      });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       const stats = wrapper.find('Stats');
       expect(stats.length).to.equal(1);
     });
@@ -212,92 +188,6 @@ describe('Basics', () => {
       expect(wrapper.state('atMostRecent')).to.be.true;
       expect(wrapper.state('inTransition')).to.be.false;
       expect(wrapper.state('title')).to.be.a('string');
-    });
-  });
-
-  describe('componentWillMount', () => {
-    it('should not call the `onUpdateChartDateRange` method when dateRange is not set', () => {
-      sinon.assert.notCalled(baseProps.onUpdateChartDateRange);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with the end set to the start of the next day when dateRange is set', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T00:00:00.000Z',
-              '2018-01-30T12:46:52.000Z',
-            ],
-          },
-        },
-      });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-31T00:00:00.000Z',
-      ]);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for timezone offset when present', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-01-15T08:00:00.000Z',
-              '2018-01-30T12:46:52.000Z',
-            ],
-          },
-        },
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        },
-      });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-01-15T08:00:00.000Z',
-        '2018-01-31T08:00:00.000Z',
-      ]);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for DST offset when applicable', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-03-05T08:00:00.000Z',
-              '2018-03-12T12:46:52.000Z', // DST changeover was March 11
-            ],
-          },
-        },
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        },
-      });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-03-05T08:00:00.000Z',
-        '2018-03-13T07:00:00.000Z', // 7 hour offset on post-DST date
-      ]);
-    });
-  });
-
-  describe('handleStatsChange', () => {
-    it('should set the stats to state state', () => {
-      const instance = wrapper.instance();
-      expect(wrapper.state('stats')).to.be.undefined;
-      instance.handleStatsChange([{ id: 'newstat' }]);
-      expect(wrapper.state('stats')).to.eql([{ id: 'newstat' }]);
     });
   });
 
@@ -336,21 +226,6 @@ describe('Basics', () => {
       sinon.assert.callCount(baseProps.updateChartPrefs, 2);
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         basics: { bgSource: 'smbg' },
-      });
-    });
-  });
-
-  describe('handleAverageDailyDoseInputChange', () => {
-    it('should call the `updateChartPrefs` handler to update the input and input suffix values', () => {
-      const instance = wrapper.instance();
-      instance.handleAverageDailyDoseInputChange('input!', 'suffix!');
-
-      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
-      sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        basics: { averageDailyDose: {
-          inputValue: 'input!',
-          suffixValue: 'suffix!',
-        } },
       });
     });
   });
