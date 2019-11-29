@@ -162,7 +162,6 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
-    addingData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
