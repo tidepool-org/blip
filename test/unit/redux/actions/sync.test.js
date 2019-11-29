@@ -125,21 +125,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('clearPatientData', () => {
-      const patientId = 'a1b2c3';
-      it('should be a TSA', () => {
-        let action = sync.clearPatientData(patientId);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should expect CLEAR_PATIENT_DATA', () => {
-        let action = { type: 'CLEAR_PATIENT_DATA', payload: { patientId } };
-
-        expect(sync.clearPatientData(patientId)).to.deep.equal(action);
-      });
-    });
-
     describe('clearPatientInView', () => {
       it('should be a TSA', () => {
         let action = sync.clearPatientInView();

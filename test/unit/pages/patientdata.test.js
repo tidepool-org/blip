@@ -31,7 +31,7 @@ import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/page
 
 describe('PatientData', function () {
   const defaultProps = {
-    clearPatientData: sinon.stub(),
+    dataWorkerRemoveDataRequest: sinon.stub(),
     currentPatientInViewId: 'somestring',
     fetchers: [],
     fetchingPatient: false,
@@ -863,16 +863,16 @@ describe('PatientData', function () {
   describe('handleRefresh', function() {
     const props = {
       onRefresh: sinon.stub(),
-      clearPatientData: sinon.stub(),
+      dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
     };
 
     it('should clear patient data upon refresh', function() {
       const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      const callCount = props.clearPatientData.callCount;
+      const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.handleRefresh();
 
-      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+      expect(props.dataWorkerRemoveDataRequest.callCount).to.equal(callCount + 1);
     });
 
     it('should clear generated pdfs upon refresh', function() {
@@ -1152,7 +1152,7 @@ describe('PatientData', function () {
 
   describe('componentWillUnmount', function() {
     const props = {
-      clearPatientData: sinon.stub(),
+      dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
     };
 
@@ -1166,7 +1166,7 @@ describe('PatientData', function () {
 
   describe('componentWillReceiveProps', function() {
     const props = {
-      clearPatientData: sinon.stub(),
+      dataWorkerRemoveDataRequest: sinon.stub(),
     };
 
     describe('data processing and fetching', () => {

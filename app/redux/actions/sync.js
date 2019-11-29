@@ -68,15 +68,6 @@ export function closeMessageThread() {
   };
 }
 
-export function clearPatientData(patientId) {
-  return {
-    type: ActionTypes.CLEAR_PATIENT_DATA,
-    payload: {
-      patientId: patientId,
-    },
-  };
-}
-
 export function clearPatientInView() {
   return {
     type: ActionTypes.CLEAR_PATIENT_IN_VIEW,

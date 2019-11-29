@@ -61,7 +61,6 @@ const { defineBasicsAggregations, processBasicsAggregations } = vizUtils.aggrega
 export let PatientData = translate()(React.createClass({
   propTypes: {
     addingData: React.PropTypes.object.isRequired,
-    clearPatientData: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
     data: React.PropTypes.object,
     dataWorkerRemoveDataRequest: React.PropTypes.func.isRequired,
@@ -882,7 +881,6 @@ export let PatientData = translate()(React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.props.clearPatientData(this.props.currentPatientInViewId);
       this.props.dataWorkerRemoveDataRequest();
       this.props.removeGeneratedPDFS();
 
@@ -1722,7 +1720,6 @@ export function mapStateToProps(state, props) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  clearPatientData: actions.sync.clearPatientData,
   dataWorkerAddDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
@@ -1746,7 +1743,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
-    'clearPatientData',
     'dataWorkerRemoveDataRequest',
     'dataWorkerRemoveDataSuccess',
     'dataWorkerQueryDataRequest',
