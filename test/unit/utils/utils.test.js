@@ -10,7 +10,7 @@ import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
-describe('utils', () => {
+describe.only('utils', () => {
 
   describe('capitalize', () => {
     it('should return a capitalized string', () => {

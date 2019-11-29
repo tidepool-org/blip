@@ -15,7 +15,6 @@ import { shallow, mount } from 'enzyme';
 import { translate } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
-import DataUtilStub from '../../../helpers/DataUtil';
 import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';

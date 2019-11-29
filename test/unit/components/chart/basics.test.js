@@ -28,7 +28,6 @@ import React from 'react';
 import _ from 'lodash';
 import { mount, shallow } from 'enzyme';
 
-import DataUtilStub from '../../../helpers/DataUtil';
 import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
