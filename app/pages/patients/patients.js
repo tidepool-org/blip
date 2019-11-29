@@ -39,7 +39,6 @@ const { Loader } = vizComponents;
 
 export let Patients = translate()(React.createClass({
   propTypes: {
-    clearPatientData: React.PropTypes.func.isRequired,
     clearPatientInView: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
@@ -300,10 +299,7 @@ export let Patients = translate()(React.createClass({
   },
 
   componentWillMount: function() {
-    if (this.props.currentPatientInViewId) {
-      this.props.clearPatientData(this.props.currentPatientInViewId);
-      this.props.dataWorkerRemoveDataRequest();
-    }
+    this.props.dataWorkerRemoveDataRequest();
 
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
@@ -420,7 +416,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
-  clearPatientData: actions.sync.clearPatientData,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
@@ -432,7 +427,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return _.assign(
     {},
     _.pick(dispatchProps, [
-      'clearPatientData',
       'dataWorkerRemoveDataRequest',
       'clearPatientInView',
       'showWelcomeMessage',

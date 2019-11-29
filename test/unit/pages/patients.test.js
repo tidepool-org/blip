@@ -23,30 +23,19 @@ describe('Patients', () => {
   describe('componentWillMount', () => {
     it('should clear previously viewed patient data', () => {
       var props = {
-        clearPatientData: sinon.stub(),
-        currentPatientInViewId: 1234,
+        dataWorkerRemoveDataRequest: sinon.stub(),
       };
 
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      sinon.assert.calledOnce(props.clearPatientData);
-    });
-
-    it('should not clear previously viewed patient data if `currentPatientInViewId` prop not set', () => {
-      var props = {
-        clearPatientData: sinon.stub(),
-      };
-
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      sinon.assert.notCalled(props.clearPatientData);
+      sinon.assert.calledOnce(props.dataWorkerRemoveDataRequest);
     });
 
     it('should call the `clearPatientInView` prop when provided', () => {
       var props = {
         clearPatientInView: sinon.stub(),
+        dataWorkerRemoveDataRequest: sinon.stub(),
       };
 
       var elem = React.createElement(Patients, props);
@@ -58,7 +47,9 @@ describe('Patients', () => {
 
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
-      var props = {};
+      var props = {
+        dataWorkerRemoveDataRequest: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
@@ -79,7 +70,9 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
-      var props = {};
+      var props = {
+        dataWorkerRemoveDataRequest: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       var currentPath = window.location.pathname;
@@ -100,7 +93,8 @@ describe('Patients', () => {
 
     it('should not redirect to patient data when justLogged query param is set and zero patients available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub()
+        dataWorkerRemoveDataRequest: sinon.stub(),
+        showWelcomeMessage: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
@@ -123,7 +117,8 @@ describe('Patients', () => {
 
     it('should trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients and zero invites available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub()
+        dataWorkerRemoveDataRequest: sinon.stub(),
+        showWelcomeMessage: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
@@ -146,7 +141,8 @@ describe('Patients', () => {
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub()
+        dataWorkerRemoveDataRequest: sinon.stub(),
+        showWelcomeMessage: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
@@ -169,7 +165,8 @@ describe('Patients', () => {
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients but one invite available', () => {
       var props = {
-        showWelcomeMessage: sinon.stub()
+        dataWorkerRemoveDataRequest: sinon.stub(),
+        showWelcomeMessage: sinon.stub(),
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
@@ -191,7 +188,9 @@ describe('Patients', () => {
     });
 
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
-      var props = {};
+      var props = {
+        dataWorkerRemoveDataRequest: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
@@ -216,7 +215,9 @@ describe('Patients', () => {
 
     // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
-      var props = {};
+      var props = {
+        dataWorkerRemoveDataRequest: sinon.stub(),
+      };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
