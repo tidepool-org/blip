@@ -31,32 +31,32 @@ import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
-import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
 describe('Trends', () => {
-  let baseProps = {
-    bgPrefs: {
-      bgClasses: {
-        'very-low': {
-          boundary: 60
-        },
-        'low': {
-          boundary: 80
-        },
-        'target': {
-          boundary: 180
-        },
-        'high': {
-          boundary: 200
-        },
-        'very-high': {
-          boundary: 300
-        }
+  const bgPrefs = {
+    bgClasses: {
+      'very-low': {
+        boundary: 60
       },
-      bgUnits: MGDL_UNITS
+      'low': {
+        boundary: 80
+      },
+      'target': {
+        boundary: 180
+      },
+      'high': {
+        boundary: 200
+      },
+      'very-high': {
+        boundary: 300
+      }
     },
+    bgUnits: MGDL_UNITS
+  };
+
+  let baseProps = {
     chartPrefs: {
       trends: {
         activeDays: {
@@ -74,12 +74,21 @@ describe('Trends', () => {
         extentSize: 14,
         boxOverlay: true,
         grouped: true,
-        showingLines: false
+        showingLines: false,
+        cbgFlags: {},
       },
     },
     currentPatientInViewId: '1234',
-    dataUtil: new DataUtilStub(),
+    data: {
+      bgPrefs,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: 'US/Pacific',
+      },
+    },
+    initialDatetimeLocation: '2019-11-27T16:00:00.000Z',
     loading: false,
+    mostRecentDatetimeLocation: '2019-11-27T16:00:00.000Z',
     onClickRefresh: sinon.stub(),
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
@@ -88,34 +97,26 @@ describe('Trends', () => {
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
-    patientData: {
-      TrendsData: {
-        data: {},
-      },
-    },
+    stats: [],
     t: i18next.t.bind(i18next),
-    timePrefs: {
-      timezoneAware: false,
-      timezoneName: 'US/Pacific'
-    },
     trackMetric: sinon.stub(),
-    trendsState: {
-      1234: {},
-    },
     updateChartPrefs: sinon.stub(),
-    updateDatetimeLocation: sinon.stub(),
     uploadUrl: '',
   };
 
   let wrapper;
+  let instance
   beforeEach(() => {
     wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
+    instance = wrapper.instance();
+    instance.refs = {
+      chart: {},
+    };
   })
 
   afterEach(() => {
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateChartPrefs.reset();
-    baseProps.updateDatetimeLocation.reset();
     baseProps.trackMetric.reset();
   });
 
@@ -147,25 +148,6 @@ describe('Trends', () => {
   });
 
   describe('handleDatetimeLocationChange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should set the `atMostRecent` state', () => {
-      expect(wrapper.state().atMostRecent).to.be.true;
-
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ], false);
-
-      expect(wrapper.state().atMostRecent).to.equal(false);
-    });
-
     it('should set the `title` state', () => {
       expect(wrapper.state().title).to.equal('');
 
@@ -221,89 +203,6 @@ describe('Trends', () => {
       expect(wrapper.state().title).to.equal('Mar 11, 2018 - Mar 17, 2018');
     });
 
-    it('should set the `endpoints` state', () => {
-      expect(wrapper.state().endpoints).to.eql([]);
-
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      expect(wrapper.state().endpoints).to.eql([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-    });
-
-    it('should call componentWillReceiveProps', () => {
-      const loadingProps = {
-        ...baseProps,
-        loading: true,
-      }
-      wrapper = shallow(<Trends.WrappedComponent { ...loadingProps }/>)
-      instance = wrapper.instance()
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      expect(instance.props.loading).to.be.true;
-      expect(wrapper.state().endpoints).to.eql([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      sinon.spy(instance, 'componentWillReceiveProps')
-      wrapper.setProps({loading: false})
-      sinon.assert.calledOnce(instance.componentWillReceiveProps)
-    });
-
-    it('should update the endpoints correctly when it is finished loading', () => {
-      const loadingProps = {
-        ...baseProps,
-        loading: true,
-      }
-      wrapper = shallow(<Trends.WrappedComponent { ...loadingProps }/>)
-      instance = wrapper.instance()
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      expect(instance.props.loading).to.be.true;
-      expect(wrapper.state().endpoints).to.eql([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      let spy = sinon.spy(instance, 'setState')
-
-      wrapper.setProps({loading: false})
-      sinon.assert.calledTwice(spy)
-      sinon.assert.calledWith(spy, {endpoints: []})
-      sinon.assert.calledWith(spy, {endpoints: ['2018-01-15T00:00:00.000Z', '2018-01-29T00:00:00.000Z',]})
-    });
-
-    it('should not update the endpoints if data has not been loaded', () => {
-      wrapper = shallow(<Trends.WrappedComponent { ...baseProps }/>)
-      instance = wrapper.instance()
-
-      let spy = sinon.spy(instance, 'setState')
-      expect(spy.notCalled).to.be.true;
-    });
-
-    it('should call the `updateDatetimeLocation` prop method', () => {
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
-
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ]);
-
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 1);
-      sinon.assert.calledWith(baseProps.updateDatetimeLocation, '2018-01-29T00:00:00.000Z');
-    });
-
     it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
       sinon.spy(_, 'debounce');
       sinon.assert.callCount(_.debounce, 0);
@@ -323,18 +222,146 @@ describe('Trends', () => {
     });
   });
 
-  describe('handleStatsChange', () => {
-    it('should set the stats to state state', () => {
-      const instance = wrapper.instance();
-      expect(wrapper.state('stats')).to.be.undefined;
-      instance.handleStatsChange([{ id: 'newstat' }]);
-      expect(wrapper.state('stats')).to.eql([{ id: 'newstat' }]);
+  describe('handleFocusCbgSlice', () => {
+    it('should update the chart prefs with the focused cbg slice state', () => {
+      instance.handleFocusCbgSlice('focusedData', 'focusedPosition', 'focusedKeys');
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedCbgSlice: { data: 'focusedData', position: 'focusedPosition' },
+          focusedCbgSliceKeys: 'focusedKeys',
+          showingCbgDateTraces: true,
+        },
+      }, false);
+    });
+
+    it('should update the chart prefs with the unfocused cbg slice state', () => {
+      instance.handleFocusCbgSlice();
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedCbgDateTrace: null,
+          showingCbgDateTraces: false,
+        },
+      }, false);
+    });
+  });
+
+  describe('handleFocusCbgDateTrace', () => {
+    it('should update the chart prefs with the focused cbg date trace state', () => {
+      instance.handleFocusCbgDateTrace('focusedData', 'focusedPosition');
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedCbgDateTrace: { data: 'focusedData', position: 'focusedPosition' },
+        },
+      }, false);
+    });
+
+    it('should update the chart prefs with the unfocused cbg date trace state', () => {
+      instance.handleFocusCbgDateTrace();
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedCbgDateTrace: null,
+        },
+      }, false);
+    });
+  });
+
+  describe('handleFocusSmbg', () => {
+    it('should update the chart prefs with the focused smbg state', () => {
+      instance.handleFocusSmbg('focusedDatum', 'focusedPosition', 'allSmbgsOnDate', 'allPositions', 'date');
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedSmbg: { datum: 'focusedDatum', position: 'focusedPosition', allSmbgsOnDate: 'allSmbgsOnDate', allPositions: 'allPositions', date: 'date' },
+        },
+      }, false);
+    });
+
+    it('should update the chart prefs with the unfocused smbg state', () => {
+      instance.handleFocusSmbg();
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedSmbg: null,
+        },
+      }, false);
+    });
+  });
+
+  describe('handleFocusSmbgRange', () => {
+    it('should update the chart prefs with the focused smbg state', () => {
+      instance.handleFocusSmbgRange('focusedData', 'focusedPosition');
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedSmbgRangeAvg: { data: 'focusedData', position: 'focusedPosition' },
+        },
+      }, false);
+    });
+
+    it('should update the chart prefs with the unfocused smbg state', () => {
+      instance.handleFocusSmbgRange();
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          focusedSmbgRangeAvg: null,
+        },
+      }, false);
+    });
+  });
+
+  describe('isAtMostRecent', () => {
+    it('should return `true` if current chart domain end matches the `mostRecentDatetimeLocation` ceiling', () => {
+      instance.refs = {
+        chart: {
+          state: {
+            dateDomain: { end: '2019-11-28T00:00:00.000Z'}
+          },
+        },
+      };
+      expect(instance.isAtMostRecent()).to.be.true;
+    });
+
+    it('should return `false` if current chart domain end does not match the `mostRecentDatetimeLocation` ceiling', () => {
+      instance.refs = {
+        chart: {
+          state: {
+            dateDomain: { end: '2019-11-27T00:00:00.000Z'}
+          },
+        },
+      };
+      expect(instance.isAtMostRecent()).to.be.false;
+    });
+  });
+
+  describe('markTrendsViewed', () => {
+    it('should set the trends `touched` chartPrefs state to `true`', () => {
+      instance.markTrendsViewed();
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          touched: true,
+        },
+      }, false);
     });
   });
 
   describe('handleCopyTrendsClicked', () => {
     it('should track metric with source param when called', () => {
-      const instance = wrapper.instance();
       instance.handleCopyTrendsClicked();
       sinon.assert.callCount(baseProps.trackMetric, 1);
       sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Trends' });
@@ -343,7 +370,6 @@ describe('Trends', () => {
 
   describe('toggleBgDataSource', () => {
     it('should track metric when toggled', () => {
-      const instance = wrapper.instance();
       instance.toggleBgDataSource(null, 'cbg');
       sinon.assert.callCount(baseProps.trackMetric, 1);
       sinon.assert.calledWith(baseProps.trackMetric, 'Trends Click to CGM');
@@ -354,7 +380,6 @@ describe('Trends', () => {
     });
 
     it('should call the `updateChartPrefs` handler to update the bgSource', () => {
-      const instance = wrapper.instance();
       instance.toggleBgDataSource(null, 'cbg');
 
       sinon.assert.callCount(baseProps.updateChartPrefs, 1);
@@ -368,6 +393,19 @@ describe('Trends', () => {
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         trends: sinon.match({ bgSource: 'smbg' }),
       });
+    });
+  });
+
+  describe('toggleDisplayFlags', () => {
+    it('should set the provided the trends `cbgFlags` chartPrefs state to the provided value', () => {
+      instance.toggleDisplayFlags('cbg100', true);
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        trends: {
+          ...baseProps.chartPrefs.trends,
+          cbgFlags: { cbg100: true },
+        },
+      }, false);
     });
   });
 });

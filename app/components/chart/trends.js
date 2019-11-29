@@ -300,7 +300,7 @@ const Trends = translate()(class Trends extends PureComponent {
     if (data) {
       prefs.trends.focusedCbgSlice = { data, position };
       prefs.trends.focusedCbgSliceKeys = focusedKeys;
-      prefs.trends.showingCbgDateTraces = true; // TODO: do this async as currently done for perf reasons?
+      prefs.trends.showingCbgDateTraces = true;
     } else {
       prefs.trends.focusedCbgSlice = null;
       prefs.trends.focusedCbgSliceKeys = null;
