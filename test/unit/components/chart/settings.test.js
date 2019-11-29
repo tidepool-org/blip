@@ -39,26 +39,41 @@ describe('Settings', function () {
   };
 
   const baseProps = {
-    bgPrefs,
-    chartPrefs: {},
-    patientData: {},
+    chartPrefs: {
+      settings: {
+        animas: {
+          basal1: true,
+        },
+      },
+    },
+    data: {
+      bgPrefs,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: 'US/Pacific',
+      },
+    },
     printReady: false,
     trackMetric: sinon.stub(),
+    updateChartPrefs: sinon.stub(),
     pdf: {},
   };
 
   afterEach(() => {
     baseProps.trackMetric.reset();
+    baseProps.updateChartPrefs.reset();
   });
 
   describe('render', function() {
     it('should render without problems', function () {
       var props = {
-        bgPrefs: {},
         chartPrefs: {},
-        timePrefs: {},
-        patientData: {
-          grouped: { pumpSettings: [{ source: 'animas' }]}
+        data: {
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
         },
         onClickRefresh: function() {},
         onClickNoDataRefresh: function() {},
@@ -81,10 +96,13 @@ describe('Settings', function () {
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
       var props = {
-        bgPrefs: {},
         chartPrefs: {},
-        patientData: {
-          grouped: { foo: 'bar' }
+        data: {
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
         },
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
@@ -106,9 +124,13 @@ describe('Settings', function () {
 
     it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
-        bgPrefs: {},
         chartPrefs: {},
-        patientData: {
+        data: {
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
         },
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
@@ -132,9 +154,14 @@ describe('Settings', function () {
 
     it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
       var props = {
-        bgPrefs,
         chartPrefs: {},
-        patientData: {},
+        data: {
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
         printReady: false,
         pdf: {},
       };
@@ -144,13 +171,21 @@ describe('Settings', function () {
 
       var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
       var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
+
+      expect(printLink).to.be.ok;
+      expect(spinner).to.be.ok;
     });
 
     it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
       var props = {
-        bgPrefs,
         chartPrefs: {},
-        patientData: {},
+        data: {
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
         printReady: true,
         pdf: {
           url: 'blobURL',
@@ -163,9 +198,34 @@ describe('Settings', function () {
       var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
       var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
 
+      expect(printLink).to.be.ok;
+      expect(printIcon).to.be.ok;
+
       expect(props.onClickPrint.callCount).to.equal(0);
       TestUtils.Simulate.click(printLink);
       expect(props.onClickPrint.callCount).to.equal(1);
+    });
+  });
+
+  describe('toggleSettingsSection', () => {
+    it('should update the toggle state of a section in chartPrefs state and set touched state to `true`', () => {
+      const wrapper = shallow(<Settings.WrappedComponent {...baseProps} />);
+      const instance = wrapper.instance();
+      expect(instance.props.chartPrefs.settings.animas.basal1).to.be.true;
+      expect(instance.props.chartPrefs.settings.touched).to.be.undefined;
+      instance.toggleSettingsSection('animas', 'basal1');
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(
+        baseProps.updateChartPrefs,
+        {
+          ...baseProps.chartPrefs,
+          settings: {
+            animas: { basal1: false},
+            touched: true,
+          },
+        },
+        false
+      );
     });
   });
 
