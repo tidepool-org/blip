@@ -54,8 +54,7 @@ import {
 
 const { Loader } = vizComponents;
 const { addDuration, findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
-const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
-const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
+const { commonStats, getStatDefinition } = vizUtils.stat;
 const { defineBasicsAggregations, processBasicsAggregations } = vizUtils.aggregation;
 
 export let PatientData = translate()(React.createClass({
@@ -82,9 +81,11 @@ export let PatientData = translate()(React.createClass({
     onSaveComment: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
     pdf: React.PropTypes.object,
+    queryingData: React.PropTypes.object.isRequired,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updateBasicsSettings: React.PropTypes.func.isRequired,
     updatingDatum: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
@@ -153,6 +154,7 @@ export let PatientData = translate()(React.createClass({
       fetchEarlierDataCount: 0,
       loading: true,
       transitioningChartType: false,
+      timePrefs: {},
       showUploadOverlay: false,
     };
 
@@ -894,7 +896,7 @@ export let PatientData = translate()(React.createClass({
         loading: true,
         queryDataCount: 0,
         refreshChartType: this.state.chartType,
-        timePrefs: undefined,
+        timePrefs: {},
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
     }
@@ -1190,24 +1192,23 @@ export let PatientData = translate()(React.createClass({
 
     // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
     if (patientSettings && patientData) {
+      let stateUpdates = {};
+      let stateUpdateCallback;
+
       // Set bgPrefs to state
       let bgPrefs = this.state.bgPrefs;
       if (!bgPrefs) {
         bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-        this.setState({
-          bgPrefs,
-        });
+        stateUpdates.bgPrefs = bgPrefs;
       }
 
       // Set timePrefs to state
       let timePrefs = this.state.timePrefs;
-      if (!timePrefs) {
+      if (_.isEmpty(timePrefs)) {
         const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
         timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
-        this.setState({
-          timePrefs,
-        });
+        stateUpdates.timePrefs = timePrefs;
       }
 
       // Perform initial query of upload data to prepare for setting inital chart type
@@ -1225,7 +1226,7 @@ export let PatientData = translate()(React.createClass({
       }
 
       if (nextProps.queryingData.completed) {
-        const state = { queryingData: false };
+        stateUpdates.queryingData = false;
         let hideLoadingTimeout;
 
         // With initial query for upload data completed, set the initial chart type
@@ -1234,13 +1235,13 @@ export let PatientData = translate()(React.createClass({
         }
 
         if (_.get(nextProps, 'data.query.types')) {
-          state.queryDataCount = this.state.queryDataCount + 1;
+          stateUpdates.queryDataCount = this.state.queryDataCount + 1;
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
         if (this.props.queryingData.inProgress) {
           if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
-            state.chartEndpoints = {
+            stateUpdates.chartEndpoints = {
               current: _.get(nextProps, 'data.data.current.endpoints.range', []),
               next: _.get(nextProps, 'data.data.next.endpoints.range', []),
               prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
@@ -1248,16 +1249,20 @@ export let PatientData = translate()(React.createClass({
           }
 
           if (_.get(nextProps, 'data.query.transitioningChartType')) {
-            state.transitioningChartType = false;
+            stateUpdates.transitioningChartType = false;
             hideLoadingTimeout = 250;
           }
         }
 
-        this.setState(state, () => {
+        stateUpdateCallback = () => {
           if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
             this.hideLoading(hideLoadingTimeout);
           }
-        });
+        };
+      }
+
+      if (!_.isEmpty(stateUpdates)) {
+        this.setState(stateUpdates, stateUpdateCallback);
       }
 
       const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
