@@ -136,7 +136,9 @@ describe('allUsersMap', () => {
 
   describe('fetchAssociatedAccountsSuccess', () => {
     it('should add and cache fetched patients and care team members to state when they do not currently exist in state', () => {
-      let initialStateForTest = {};
+      let initialStateForTest = {
+        d4e5f6: {userid: 'd4e5f6', settings: {foo: 'bar'}},
+      };
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let patients = [
@@ -161,6 +163,7 @@ describe('allUsersMap', () => {
       expect(state[patients[0].userid]).to.exist;
       expect(state[`${patients[0].userid}_cacheUntil`]).to.be.a('number');
       expect(state[patients[1].userid]).to.exist;
+      expect(state[patients[1].userid].settings).to.eql({foo: 'bar'}); // should persist existing settings
       expect(state[`${patients[1].userid}_cacheUntil`]).to.be.a('number');
       expect(state[careTeam[0].userid]).to.exist;
       expect(state[`${careTeam[0].userid}_cacheUntil`]).to.be.a('number');

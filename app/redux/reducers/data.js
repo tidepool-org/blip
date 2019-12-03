@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as actionTypes from '../constants/actionTypes';
 import initialState from './initialState';
 
-const data = (state = {}, action) => {
+const data = (state = initialState.data, action) => {
   let combined;
 
   switch (action.type) {
@@ -44,7 +44,6 @@ const data = (state = {}, action) => {
           next: { $set: state.data.next },
           prev: { $set: state.data.prev },
         },
-        metaData: { $merge: action.payload.result.metaData || {} },
       });
 
     case actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS:

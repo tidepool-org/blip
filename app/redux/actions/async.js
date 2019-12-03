@@ -905,14 +905,7 @@ export function fetchPatientData(api, options, id) {
     returnData: false,
     useCache: true,
     initial: true,
-    getLatestPumpSettings: false,
   });
-
-  // Container to persist all fetched data results between API calls until we're ready to
-  // dispatch the success action
-  const fetched = {};
-
-  let latestPumpSettings;
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
@@ -930,7 +923,7 @@ export function fetchPatientData(api, options, id) {
     if (options.initial) {
       // On the initial fetch, we want to first find the latest diabetes datum time, and use that to
       // determine the ideal start and end date ranges for our data fetch
-      const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings'];
+      const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload'];
 
       api.patientData.get(id, {
         type: datumTypesToFetch.join(','),
@@ -941,11 +934,19 @@ export function fetchPatientData(api, options, id) {
             createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
           ));
         } else {
-          latestPumpSettings = _.find(results, { type: 'pumpSettings' });
-
           const latestDatumTime = _.max(_.map(results, d => (d.time)));
           options.startDate = moment.utc(latestDatumTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
           options.endDate = moment.utc(latestDatumTime || options.browserTimeStub).add(1, 'days').toISOString();
+
+          const latestPumpSettings = _.find(results, { type: 'pumpSettings' });
+          const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
+          const uploadRecord = _.find(results, { type: 'upload', latestPumpSettingsUploadId });
+
+          if (latestPumpSettingsUploadId && !uploadRecord) {
+            // If we have pump settings, but we don't have the corresponing upload record used
+            // to get the device source, we need to fetch it
+            options.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
+          }
 
           fetchData(options);
         }
@@ -989,25 +990,6 @@ export function fetchPatientData(api, options, id) {
       }
     }
 
-    function handleInitialFetchResults(patientData, options) {
-      const refetchOptions = _.assign({}, options, {
-        initial: false,
-      });
-
-      const uploadId = _.get(latestPumpSettings || {}, 'uploadId');
-      const uploadRecord = _.find(patientData, { type: 'upload', uploadId });
-
-      if (_.get(latestPumpSettings, 'uploadId') && !uploadRecord) {
-        // If we have pump settings, but we don't have the corresponing upload record used
-        // to get the device source, we need to fetch it
-        refetchOptions.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
-        fetchData(refetchOptions);
-      } else {
-        // We have all available data required for the initial rendering.
-        handleFetchSuccess([...patientData, ...fetched.teamNotes], id, options);
-      }
-    }
-
     function fetchData(options) {
       dispatch(sync.fetchPatientDataRequest(id));
 
@@ -1026,11 +1008,7 @@ export function fetchPatientData(api, options, id) {
         });
       }
 
-      // Only fetch data that we don't already have. i.e. if we may already have our patientData and
-      // teamNotes results, and only need to fetch the latest pumpSettings or upload record.
-      const runFetchers = _.omitBy(fetchers, (value, key) => !!fetched[key]);
-
-      async.parallel(async.reflectAll(runFetchers), (err, results) => {
+      async.parallel(async.reflectAll(fetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
         const hasError = _.some(resultsErr, err => !_.isUndefined(err));
@@ -1039,18 +1017,13 @@ export function fetchPatientData(api, options, id) {
           handleFetchErrors(resultsErr);
         }
         else {
-          _.defaults(fetched, resultsVal);
-
-          const patientData = [
-            ...fetched.patientData || [],
-            ...fetched.latestPumpSettingsUpload || [],
+          const combinedData = [
+            ...resultsVal.patientData,
+            ...resultsVal.latestPumpSettingsUpload || [],
+            ...resultsVal.teamNotes,
           ];
 
-          if (options.initial) {
-            handleInitialFetchResults(patientData, options)
-          } else {
-            handleFetchSuccess([...patientData, ...fetched.teamNotes], id, options);
-          }
+          handleFetchSuccess(combinedData, id, options);
         }
       });
     };

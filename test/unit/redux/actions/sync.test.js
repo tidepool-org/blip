@@ -1489,50 +1489,32 @@ describe('Actions', () => {
 
     describe('fetchPatientDataRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchPatientDataRequest();
+        let patientId = 400;
+        let action = sync.fetchPatientDataRequest(patientId);
 
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_DATA_REQUEST', () => {
-        let action = sync.fetchPatientDataRequest();
+        let patientId = 400;
+        let action = sync.fetchPatientDataRequest(patientId);
         expect(action.type).to.equal('FETCH_PATIENT_DATA_REQUEST');
+        expect(action.payload.patientId).to.equal(patientId);
       });
     });
 
     describe('fetchPatientDataSuccess', () => {
       it('should be a TSA', () => {
-        let patientData = [
-          {
-            id: 24,
-            value: 500
-          },
-          {
-            id: 4567,
-            value: 300
-          }
-        ];
-        let action = sync.fetchPatientDataSuccess(patientData);
+        let patientId = 400;
+        let action = sync.fetchPatientDataSuccess(patientId);
 
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_DATA_SUCCESS', () => {
         let patientId = 400;
-        let patientData = [
-          {
-            id: 24,
-            value: 500
-          },
-          {
-            id: 4567,
-            value: 400
-          }
-        ];
-        let action = sync.fetchPatientDataSuccess(patientId, patientData);
-
+        let action = sync.fetchPatientDataSuccess(patientId);
         expect(action.type).to.equal('FETCH_PATIENT_DATA_SUCCESS');
-        expect(action.payload.patientData).to.equal(patientData);
         expect(action.payload.patientId).to.equal(patientId);
       });
     });
@@ -1666,6 +1648,113 @@ describe('Actions', () => {
         let action = sync.fetchMessageThreadFailure(error);
 
         expect(action.type).to.equal('FETCH_MESSAGE_THREAD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('createMessageThreadRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createMessageThreadRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_MESSAGE_THREAD_REQUEST', () => {
+        let action = sync.createMessageThreadRequest();
+        expect(action.type).to.equal('CREATE_MESSAGE_THREAD_REQUEST');
+      });
+    });
+
+    describe('createMessageThreadSuccess', () => {
+      it('should be a TSA', () => {
+        let message = {
+          id: 47,
+          message: 'Good Morning'
+        };
+        let action = sync.createMessageThreadSuccess(message);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_MESSAGE_THREAD_SUCCESS', () => {
+        let message = {
+          id: 47,
+          message: 'Good Morning'
+        };
+
+        let action = sync.createMessageThreadSuccess(message);
+
+        expect(action.type).to.equal('CREATE_MESSAGE_THREAD_SUCCESS');
+        expect(action.payload.message).to.equal(message);
+      });
+    });
+
+    describe('createMessageThreadFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.createMessageThreadFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_MESSAGE_THREAD_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.createMessageThreadFailure(error);
+
+        expect(action.type).to.equal('CREATE_MESSAGE_THREAD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('editMessageThreadRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.editMessageThreadRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal EDIT_MESSAGE_THREAD_REQUEST', () => {
+        let action = sync.editMessageThreadRequest();
+        expect(action.type).to.equal('EDIT_MESSAGE_THREAD_REQUEST');
+      });
+    });
+
+    describe('editMessageThreadSuccess', () => {
+      it('should be a TSA', () => {
+        let message = {
+          id: 47,
+          message: 'Good Morning (edited)'
+        };
+        let action = sync.editMessageThreadSuccess(message);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal EDIT_MESSAGE_THREAD_SUCCESS', () => {
+        let message = {
+          id: 47,
+          message: 'Good Morning (edited)'
+        };
+        let action = sync.editMessageThreadSuccess(message);
+
+        expect(action.type).to.equal('EDIT_MESSAGE_THREAD_SUCCESS');
+        expect(action.payload.message).to.equal(message);
+      });
+    });
+
+    describe('editMessageThreadFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.editMessageThreadFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal EDIT_MESSAGE_THREAD_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.editMessageThreadFailure(error);
+
+        expect(action.type).to.equal('EDIT_MESSAGE_THREAD_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

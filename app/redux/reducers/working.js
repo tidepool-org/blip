@@ -171,6 +171,13 @@ export default (state = initialWorkingState, action) => {
           return update(initialWorkingState, {
             [queryingDataWorkingKey]: {
               $set: initialState.working[queryingDataWorkingKey],
+            },
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+              }
             }
           });
         } else {
