@@ -298,7 +298,7 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
     browserTimezone = false;
   }
 
-  function setNewTimePrefs(timezoneName) {
+  function setNewTimePrefs(timezoneName, fallbackToBrowserTimeZone = true) {
     try {
       sundial.checkTimezoneName(timezoneName);
       timePrefsForTideline = {
@@ -306,7 +306,7 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
         timezoneName: timezoneName
       };
     } catch(err) {
-      if (browserTimezone) {
+      if (fallbackToBrowserTimeZone && browserTimezone) {
         console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
         timePrefsForTideline = {
           timezoneAware: true,
@@ -315,14 +315,16 @@ utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
       }
       else {
         console.log('Not a valid timezone! Defaulting to timezone-naive display.');
-        timePrefsForTideline = {};
+        timePrefsForTideline = {
+          timezoneAware: false,
+        };
       }
     }
   }
 
   // a timezone in the queryParams always overrides any other timePrefs
   if (!_.isEmpty(queryParams.timezone)) {
-    setNewTimePrefs(queryParams.timezone);
+    setNewTimePrefs(queryParams.timezone, false);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
   else if (!_.isEmpty(latestUpload) && !_.isEmpty(latestUpload.timezone)) {
