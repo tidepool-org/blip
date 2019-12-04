@@ -1320,6 +1320,48 @@ describe('PatientData', function () {
     });
   });
 
+  describe.only('getChartEndpoints', () => {
+    it('should return endpoints for basics chart', () => {
+
+    });
+  });
+
+  describe.only('getCurrentData', () => {
+    it('should do something', () => {
+
+    });
+  });
+
+  describe.only('getMetaData', () => {
+    it('should do something', () => {
+
+    });
+  });
+
+  describe.only('getBasicsAggregations', () => {
+    it('should do something', () => {
+
+    });
+  });
+
+  describe.only('getStatsByChartType', () => {
+    it('should do something', () => {
+
+    });
+  });
+
+  describe.only('getDaysByType', () => {
+    it('should do something', () => {
+
+    });
+  });
+
+  describe.only('updateChart', () => {
+    it('should do something', () => {
+
+    });
+  });
+
   describe('componentWillUnmount', function() {
     const props = {
       dataWorkerRemoveDataSuccess: sinon.stub(),
@@ -1940,6 +1982,12 @@ describe('PatientData', function () {
       wrapper.update();
 
       expect(elem.generatePDF.callCount).to.equal(0);
+    });
+  });
+
+  describe.only('queryData', () => {
+    it('should do something', () => {
+
     });
   });
 
