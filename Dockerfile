@@ -1,6 +1,7 @@
 ### Stage 0 - Base image
 FROM node:10.14.2-alpine as base
 WORKDIR /app
+RUN mkdir -p dist node_modules && chown -R node:node .
 
 
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
