@@ -1321,7 +1321,41 @@ describe('PatientData', function () {
   });
 
   describe.only('getChartEndpoints', () => {
-    it('should return endpoints for basics chart', () => {
+    it('should accept `datetimeLocation` as an argument', () => {
+
+    });
+
+    it('should default to `datetimeLocation` state when not provided as an argument', () => {
+
+    });
+
+    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
+
+    });
+
+    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
+
+    });
+
+    it('should set end to parsed `datetimeLocation` value if `setEndToLocalCeiling` option is `false`', () => {
+
+    });
+
+    context('basics view', () => {
+      it('should do something', () => {
+
+      });
+    });
+
+    context('daily view', () => {
+
+    });
+
+    context('bgLog view', () => {
+
+    });
+
+    context('trends view', () => {
 
     });
   });
