@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-export-data-worker.2":
-  version "1.10.0-export-data-worker.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-export-data-worker.2.tgz#9b6d61b8dabd6e76714adc8f54829d7fbdd6eeb7"
-  integrity sha512-pCF19j5aUyDhpzgJ4rtw3awy2PdUcW06qh0azrm49iWDAqPmXDZP/zQ935vQoKLuRG/0W7PdQ69ESdmKJ+qMkg==
+"@tidepool/viz@1.10.0-export-data-worker.5":
+  version "1.10.0-export-data-worker.5"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-export-data-worker.5.tgz#261ab32168c7d637a32ec77e05852c4dcc0a3ae5"
+  integrity sha512-7UOtSv6Ji/cvLTaNzxgNgmK3o328xZkKa7/4dWI7eG+vawWfuZpwh+fRXfpj3kq5BvXrXG7j4Yek1w79lHnNTQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -3032,7 +3032,7 @@ crossfilter2@^1.4.0:
   dependencies:
     "@ranfdev/deepobj" "1.0.2"
 
-crossfilter2@crossfilter/crossfilter#cb4588dc16:
+"crossfilter2@github:crossfilter/crossfilter#cb4588dc16":
   version "1.4.7"
   resolved "https://codeload.github.com/crossfilter/crossfilter/tar.gz/cb4588dc16e11fd705ddb7a330f94627179c9eb1"
   dependencies:
@@ -10017,7 +10017,7 @@ reduce-component@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
 
-reductio@crossfilter/reductio#0c45b03559:
+"reductio@github:crossfilter/reductio#0c45b03559":
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
