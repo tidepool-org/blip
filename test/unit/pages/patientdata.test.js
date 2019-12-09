@@ -61,22 +61,8 @@ describe('PatientData', function () {
     updatingDatum: { inProgress: false, completed: false },
     uploadUrl: 'http://foo.com',
     user: { id: 'loggedInUserId'},
-    t
+    t,
   };
-
-  const commonStats = {
-    averageGlucose: 'averageGlucose',
-    averageDailyDose: 'averageDailyDose',
-    carbs: 'carbs',
-    coefficientOfVariation: 'coefficientOfVariation',
-    glucoseManagementIndicator: 'glucoseManagementIndicator',
-    readingsInRange: 'readingsInRange',
-    sensorUsage: 'sensorUsage',
-    standardDev: 'standardDev',
-    timeInAuto: 'timeInAuto',
-    timeInRange: 'timeInRange',
-    totalInsulin: 'totalInsulin',
-  }
 
   before(() => {
     PD.__Rewire__('Basics', React.createClass({
@@ -100,12 +86,12 @@ describe('PatientData', function () {
         selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
       },
       bg: {
-        reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds')
+        reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
       },
-      stat: {
-        commonStats,
-        getStatDefinition: sinon.stub().callsFake((data, type) => `stubbed ${type} definition`),
-      }
+      aggregation: {
+        defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
+        processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
+      },
     });
   });
 
@@ -1320,79 +1306,642 @@ describe('PatientData', function () {
     });
   });
 
-  describe.only('getChartEndpoints', () => {
-    it('should accept `datetimeLocation` as an argument', () => {
+  describe('getChartEndpoints', () => {
+    let wrapper;
+    let instance;
+    const datetimeLocation = '2019-11-27T12:00:00.000Z';
 
-    });
+    const useProvidedDatetimeOpts = {
+      setEndToLocalCeiling: false,
+    };
 
-    it('should default to `datetimeLocation` state when not provided as an argument', () => {
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
 
-    });
-
-    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
-
-    });
-
-    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
-
-    });
-
-    it('should set end to parsed `datetimeLocation` value if `setEndToLocalCeiling` option is `false`', () => {
-
-    });
-
-    context('basics view', () => {
-      it('should do something', () => {
-
+      wrapper.setState({
+        chartType: 'daily',
+        timePrefs: {
+          timezoneAware: false,
+        },
       });
     });
 
-    context('daily view', () => {
+    it('should use provided `datetimeLocation` arg to set the end range, and get from state if not provided', () => {
+      const result = instance.getChartEndpoints(datetimeLocation, useProvidedDatetimeOpts);
+      expect(result[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-27T12:00:00.000Z'));
 
+      wrapper.setState({ datetimeLocation: '2019-11-28T12:00:00.000Z' });
+      const resultWithNoDatetimeArg = instance.getChartEndpoints(undefined, useProvidedDatetimeOpts);
+      expect(resultWithNoDatetimeArg[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-28T12:00:00.000Z'));
     });
 
-    context('bgLog view', () => {
-
+    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
+      const result = instance.getChartEndpoints(datetimeLocation, undefined);
+      expect(result[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-28T00:00:00.000Z'));
     });
 
-    context('trends view', () => {
+    context('basics view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'basics',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
 
+      it('should return the valueOf `findBasicsStart` for the start value when timezone not set', () => {
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `findBasicsStart` for the start value when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+
+    context('daily view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'daily',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf 1 day prior to the endpoint', () => {
+        const result = instance.getChartEndpoints(datetimeLocation, useProvidedDatetimeOpts);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-26T12:00:00.000Z'));
+      });
+    });
+
+    context('bgLog view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'bgLog',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf 14 days prior to the endpoint', () => {
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf 14 days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+
+    context('trends view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'trends',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { trends: { extentSize: 14 } } });
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { trends: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+          chartPrefs: { trends: { extentSize: 14 } }
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
     });
   });
 
-  describe.only('getCurrentData', () => {
-    it('should do something', () => {
+  describe('getCurrentData', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          data: {
+            current: {
+              nested: {
+                foo: 'bar'
+              },
+              value: 'baz'
+            },
+          },
+        },
+      });
+    });
+
+    it('should get current data from the data prop at the requested property path', () => {
+      expect(instance.getCurrentData('value')).to.equal('baz');
+      expect(instance.getCurrentData('nested.foo')).to.equal('bar');
+    });
+
+    context('path not found', () => {
+      it('should fall back to a provided empty value when set', () => {
+        expect(instance.getCurrentData('badPath', 'my fallback value')).to.equal('my fallback value');
+      });
+
+      it('should fall back to an empty object when empty value not set', () => {
+        expect(instance.getCurrentData('badPath')).to.eql({});
+      });
     });
   });
 
-  describe.only('getMetaData', () => {
-    it('should do something', () => {
+  describe('getMetaData', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          metaData: {
+            nested: {
+              foo: 'bar'
+            },
+            value: 'baz'
+          },
+        },
+      });
+    });
+
+    it('should get meta data from the data prop at the requested property path', () => {
+      expect(instance.getMetaData('value')).to.equal('baz');
+      expect(instance.getMetaData('nested.foo')).to.equal('bar');
+    });
+
+    context('path not found', () => {
+      it('should fall back to a provided empty value when set', () => {
+        expect(instance.getMetaData('badPath', 'my fallback value')).to.equal('my fallback value');
+      });
+
+      it('should fall back to an empty object when empty value not set', () => {
+        expect(instance.getMetaData('badPath')).to.eql({});
+      });
     });
   });
 
-  describe.only('getBasicsAggregations', () => {
-    it('should do something', () => {
+  describe('getBasicsAggregations', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PD.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should return an empty object if `data.aggregationsByDate` prop is empty', () => {
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: undefined },
+      } });
+      expect(instance.getBasicsAggregations()).to.eql({});
+    });
+
+    it('should return processed aggregrations if `data.aggregationsByDate` prop is present', () => {
+      const processBasicsAggregationsStub = PD.__get__('vizUtils').aggregation.processBasicsAggregations;
+
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: 'my aggregations' },
+        metaData: { latestPumpUpload: { manufacturer: 'animas' } },
+      } });
+
+      expect(instance.getBasicsAggregations()).to.equal('stubbed processed aggregations');
+      sinon.assert.calledWith(
+        processBasicsAggregationsStub,
+        'stubbed aggregations definitions',
+        'my aggregations',
+        defaultProps.patient,
+        'animas',
+      );
     });
   });
 
-  describe.only('getStatsByChartType', () => {
-    it('should do something', () => {
+  describe('getStatsByChartType', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    context('basics', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'basics' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'sensorUsage',
+          'totalInsulin',
+          'carbs',
+          'averageDailyDose',
+          'glucoseManagementIndicator',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+          'averageDailyDose',
+        ]);
+      });
+
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInAuto',
+          'carbs',
+          'averageDailyDose',
+        ]);
+      });
+    });
+
+    context('daily', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'daily' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+        ]);
+      });
+
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInAuto',
+          'carbs',
+        ]);
+      });
+    });
+
+    context('bgLog', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'bgLog' });
+      });
+
+      it('should add appropriate stats', () => {
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+    });
+
+    context('trends', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'trends' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'sensorUsage',
+          'glucoseManagementIndicator',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+    });
+
+    context('chartType undefined', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: undefined });
+      });
+
+      it('should return an empty array', () => {
+        expect(instance.getStatsByChartType()).to.eql([]);
+      });
     });
   });
 
-  describe.only('getDaysByType', () => {
-    it('should do something', () => {
+  describe('getDaysByType', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    context('daily', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'daily' });
+      });
+
+      it('should return 6 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 6,
+          prev: 6,
+        });
+      });
+    });
+
+    context('bgLog', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'bgLog' });
+      });
+
+      it('should return 14 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 14,
+          prev: 14,
+        });
+      });
+    });
+
+    context('chartType undefined', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: undefined });
+      });
+
+      it('should return 0 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 0,
+          prev: 0,
+        });
+      });
     });
   });
 
-  describe.only('updateChart', () => {
-    it('should do something', () => {
+  describe('getMostRecentDatumTimeByChartType', () => {
+    let wrapper;
+    let instance;
 
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          metaData: {
+            latestDatumByType: {
+              basal: { type: 'basal', normalTime: 1, normalEnd: 10 },
+              bolus: { type: 'bolus', normalTime: 2 },
+              smbg: { type: 'cbg', normalTime: 3 },
+              deviceEvent: { type: 'deviceEvent', normalTime: 4 },
+              food: { type: 'food', normalTime: 5 },
+              message: { type: 'message', normalTime: 6 },
+              pumpSettings: { type: 'pumpSettings', normalTime: 7 },
+              cbg: { type: 'smbg', normalTime: 8 },
+              wizard: { type: 'wizard', normalTime: 9 },
+            }
+          }
+        }
+      });
+    });
+
+    it('should return the latest datum time for basics', () => {
+      // should return the basal normalEnd
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'basics')).to.equal(10);
+    });
+
+    it('should return the latest datum time for daily', () => {
+      // should return the basal normalEnd
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'daily')).to.equal(10);
+    });
+
+    it('should return the latest datum time for bgLog', () => {
+      // should return the smbg normalTime
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'bgLog')).to.equal(3);
+    });
+
+    it('should return the latest datum time for trends', () => {
+      // should return the smbg normalTime
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'trends')).to.equal(8);
+    });
+  });
+
+  describe('updateChart', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
+
+    const defaultChartType = 'basics';
+    const defaultDatetimeLocation = '2019-11-27T00:00:00.000Z';
+    const defaultEndpoints = [100, 200];
+
+    const defaultOpts = { query: 'my query', updateChartEndpoints: true };
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setState({
+        endpoints: defaultEndpoints,
+        datetimeLocation: defaultDatetimeLocation,
+        mostRecentDatetimeLocation: undefined,
+      });
+
+      instance.queryData = sinon.stub();
+
+      setStateSpy = sinon.spy(instance, 'setState');
+    });
+
+    context('`chartType` changed', () => {
+      beforeEach(() => {
+        instance.updateChart('daily', defaultDatetimeLocation, defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          chartType: 'daily',
+          mostRecentDatetimeLocation: defaultDatetimeLocation,
+          transitioningChartType: false
+        });
+
+        instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { mostRecentDatetimeLocation: '2019-11-28T00:00:00.000Z' });
+        sinon.assert.calledWith(setStateSpy, {
+          chartType: 'basics',
+          mostRecentDatetimeLocation: '2019-11-28T00:00:00.000Z',
+          transitioningChartType: true,
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: true,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: true,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`datetimeLocation` changed', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: defaultDatetimeLocation });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, '2019-11-28T00:00:00.000Z', defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          datetimeLocation: '2019-11-28T00:00:00.000Z',
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: false,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: false,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`endpoints` changed', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: defaultDatetimeLocation });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, [200,300], defaultOpts);
+      });
+
+      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          endpoints: [200,300],
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: false,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: false,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`mostRecentDatetimeLocation` state not set', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: undefined });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          mostRecentDatetimeLocation: defaultDatetimeLocation,
+        });
+      });
+
+      it('should set setState callback to `undefined`', () => {
+        sinon.assert.calledWith(setStateSpy, sinon.match.object, undefined);
+      });
     });
   });
 
@@ -2019,9 +2568,229 @@ describe('PatientData', function () {
     });
   });
 
-  describe.only('queryData', () => {
-    it('should do something', () => {
+  describe('queryData', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
 
+    const emptyQuery = {};
+
+    beforeEach(() => {
+      defaultProps.dataWorkerQueryDataRequest.reset();
+
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      instance.getDaysByType = sinon.stub().returns({ next: 'next stub', prev: 'prev stub' });
+      instance.getStatsByChartType = sinon.stub().returns(['stat 1', 'stat 2']);
+
+      setStateSpy = sinon.spy(instance, 'setState');
+    });
+
+    it('should should return without doing anything if `state.queryingData` is `true`', () => {
+      wrapper.setState({ queryingData: true });
+      setStateSpy.resetHistory();
+      instance.queryData();
+      sinon.assert.notCalled(setStateSpy);
+    });
+
+    it('should set the `loading` state to `options.showLoading` arg', () => {
+      instance.queryData(emptyQuery, { showLoading: false });
+      sinon.assert.calledWithMatch(setStateSpy, { loading: false });
+    });
+
+    it('should set the `loading` state to `true` if arg not provided', () => {
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(setStateSpy, { loading: true });
+    });
+
+    it('should set the `metaData` query to `options.metaData` arg', () => {
+      instance.queryData(emptyQuery, { metaData: 'latestDatumByType, size' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'latestDatumByType, size' });
+    });
+
+    it('should set the `metaData` query to `bgSources` if arg not provided', () => {
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources' });
+    });
+
+    it('should set the `activeDays` query from `chartPrefs`', () => {
+      wrapper.setState({
+        chartType: 'trends',
+        chartPrefs: { trends: { activeDays: {
+          sunday: true,
+          monday: true,
+          tuesday: false,
+          wednesday: false,
+          thursday: true,
+          friday: true,
+          saturday: true,
+        } } },
+      });
+
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { activeDays: [0,1,4,5,6] });
+    });
+
+    it('should not set the `activeDays` query if not available in `chartPrefs`', () => {
+      wrapper.setState({
+        chartType: 'trends',
+        chartPrefs: { trends: { activeDays: undefined } },
+      });
+
+      instance.queryData(emptyQuery);
+      sinon.assert.neverCalledWithMatch(defaultProps.dataWorkerQueryDataRequest, { activeDays: sinon.match.array });
+    });
+
+    context('query is provided', () => {
+      it('should assign the provided query to the generated `chartQuery`', () => {
+        wrapper.setState({
+          endpoints: [100,200],
+          chartType: 'trends',
+          chartPrefs: { trends: { bgSource: 'smbg' } },
+        });
+
+        instance.queryData({ metaData: 'bar', types: 'cbg,smbg' }, { metaData: 'foo' });
+        sinon.assert.calledWith(defaultProps.dataWorkerQueryDataRequest, {
+          bgSource: 'smbg',
+          endpoints: [100,200],
+          types: 'cbg,smbg',
+          metaData: 'bar',
+        });
+      });
+    });
+
+    context('query is not provided', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'foo' });
+      });
+
+      it('should set `nextDays` and `prevDays` to result of `getDaysByType`', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          nextDays: 'next stub',
+          prevDays: 'prev stub',
+        });
+      });
+
+      it('should set `stats` to result of `getStatsByChartType`', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          stats: ['stat 1', 'stat 2'],
+        });
+      });
+
+      it('should set `updateChartEndpoints` to `options.updateChartEndpoints` arg', () => {
+        instance.queryData(undefined, { updateChartEndpoints: false } );
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          updateChartEndpoints: false,
+        });
+      });
+
+      it('should set `updateChartEndpoints` to `true` if not provided by arg and `state.chartEndpoints` not set', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          updateChartEndpoints: true,
+        });
+      });
+
+      it('should set `transitioningChartType` to `options.transitioningChartType` arg', () => {
+        instance.queryData(undefined, { transitioningChartType: true } );
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          transitioningChartType: true,
+        });
+      });
+
+      it('should set `transitioningChartType` to `false` if not provided by arg', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          transitioningChartType: false,
+        });
+      });
+
+      context('basics chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'basics' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `aggregationsByDate` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            aggregationsByDate: 'basals,boluses,fingersticks,siteChanges',
+          });
+        });
+      });
+
+      context('daily chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'daily' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              basal: {},
+              bolus: {},
+              cbg: {},
+              deviceEvent: {},
+              food: {},
+              message: {},
+              smbg: {},
+              wizard: {},
+            },
+          });
+        });
+
+        it('should set the `fillData.adjustForDSTChanges` query to `true`', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            fillData: { adjustForDSTChanges: true },
+          });
+        });
+      });
+
+      context('bgLog chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'bgLog' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              smbg: {},
+            },
+          });
+        });
+
+        it('should set the `fillData.adjustForDSTChanges` query to `false`', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            fillData: { adjustForDSTChanges: false },
+          });
+        });
+      });
+
+      context('trends chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'trends' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              cbg: {},
+              smbg: {},
+            },
+          });
+        });
+      });
     });
   });
 

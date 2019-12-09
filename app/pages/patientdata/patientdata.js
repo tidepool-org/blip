@@ -55,7 +55,6 @@ import {
 const { Loader } = vizComponents;
 const { addDuration, findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
-const { defineBasicsAggregations, processBasicsAggregations } = vizUtils.aggregation;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -940,7 +939,7 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts) {
+  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
@@ -984,15 +983,15 @@ export let PatientData = translate()(React.createClass({
 
   getBasicsAggregations: function() {
     const {
-      data: { aggregationsByDate },
+      data: { aggregationsByDate } = {},
       bgPrefs,
-      metaData: { latestPumpUpload },
+      metaData: { latestPumpUpload } = {},
     } = this.props.data;
 
     const manufacturer = _.get(latestPumpUpload, 'manufacturer');
 
-    return _.isEmpty(aggregationsByDate) ? {} : processBasicsAggregations(
-      defineBasicsAggregations(
+    return _.isEmpty(aggregationsByDate) ? {} : vizUtils.aggregation.processBasicsAggregations(
+      vizUtils.aggregation.defineBasicsAggregations(
         bgPrefs,
         manufacturer,
       ),
@@ -1132,32 +1131,32 @@ export let PatientData = translate()(React.createClass({
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
       showLoading: true,
-      updateChartEndpoints: opts.updateChartEndpoints,
       mostRecentDatetimeLocation: datetimeLocation,
     });
 
-    const state = {
-      chartType: chartType || this.state.chartType,
-      endpoints: endpoints || this.state.endpoints,
-      datetimeLocation: datetimeLocation || this.state.datetimeLocation,
-    };
+    const chartTypeChanged = chartType && !_.isEqual(chartType, this.state.chartType);
+    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.state.endpoints);
+    const datetimeLocationChanged = datetimeLocation && !_.isEqual(datetimeLocation, this.state.datetimeLocation);
 
-    const chartTypeChanged = !_.isEqual(chartType, this.state.chartType);
-    const endpointsChanged = !_.isEqual(endpoints, this.state.endpoints);
-    const datetimeLocationChanged = !_.isEqual(datetimeLocation, this.state.datetimeLocation);
+    const state = {};
 
-    if (this.state.chartType && chartTypeChanged) {
-      state.transitioningChartType = true;
+    if (endpointsChanged) state.endpoints = endpoints;
+    if (datetimeLocationChanged) state.datetimeLocation = datetimeLocation;
+
+    if (chartTypeChanged) {
+      state.chartType = chartType;
+      state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
+      state.transitioningChartType = this.state.chartType ? true : false;
     }
 
-    if (!this.state.mostRecentDatetimeLocation || chartTypeChanged) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
+    if (!this.state.mostRecentDatetimeLocation) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, {
         showLoading: opts.showLoading,
         updateChartEndpoints: opts.updateChartEndpoints,
-        transitioningChartType: chartTypeChanged
-      }) : _.noop;
+        transitioningChartType: chartTypeChanged,
+      }) : undefined;
 
     this.setState(state, cb);
   },
@@ -1349,7 +1348,6 @@ export let PatientData = translate()(React.createClass({
         case 'bgLog':
           chartQuery.types = {
             smbg: {},
-            fill: {},
           };
 
           chartQuery.fillData = { adjustForDSTChanges: false };
