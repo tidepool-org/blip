@@ -25,10 +25,12 @@ import * as actionTypes from '../redux/constants/actionTypes';
 import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
 
 export default class PDFWorker {
-  constructor(importer, renderer) {
+  constructor(dataUtil, importer, renderer) {
     this.log = __DEV__ ? bows('PDFWorker') : _.noop;
     this.importer = importer;
     this.renderer = renderer;
+    this.dataUtil = dataUtil;
+
     this.log('Ready!');
   }
 
@@ -37,9 +39,18 @@ export default class PDFWorker {
 
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, opts } = action.payload;
-        const data = JSON.parse(action.payload.data);
+        const { type, opts, queries } = action.payload;
         const { origin } = action.meta;
+        const data = {};
+
+        if (queries) {
+          _.each(queries, (query, key) => {
+            this.log(key, query);
+            data[key] = this.dataUtil.query(query);
+          });
+        }
+
+        this.log('data', data);
 
         const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
         const renderLib = typeof this.renderer !== 'undefined' ?

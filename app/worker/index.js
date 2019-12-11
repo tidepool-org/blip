@@ -21,8 +21,8 @@ import _ from 'lodash';
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
 
-const pdfWorker = new PDFWorker();
 const dataWorker = new DataWorker();
+const pdfWorker = new PDFWorker(dataWorker.dataUtil);
 
 // eslint-disable-next-line no-native-reassign
 onmessage = (msg) => {

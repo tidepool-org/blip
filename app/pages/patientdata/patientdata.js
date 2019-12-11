@@ -96,7 +96,9 @@ export let PatientData = translate()(React.createClass({
         basics: {
           sections: {},
         },
-        daily: {},
+        daily: {
+          extentSize: 1,
+        },
         trends: {
           activeDays: {
             monday: true,
@@ -134,6 +136,7 @@ export let PatientData = translate()(React.createClass({
         },
         bgLog: {
           bgSource: 'smbg',
+          extentSize: 14,
         },
         settings: {
           touched: false,
@@ -611,63 +614,67 @@ export let PatientData = translate()(React.createClass({
   },
 
   generatePDF: function (props, state) {
-    // TODO: All data selection here to use new data worker
-    const data = state.processedPatientData;
-    const diabetesData = data.diabetesData;
-
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    if (diabetesData.length > 0) {
-      const mostRecent = diabetesData[diabetesData.length - 1].normalTime; // TODO: Get from data.metaData.latestDatumByType
-      const opts = {
-        bgPrefs: state.bgPrefs,
-        numDays: state.printOpts.numDays,
-        patient: pdfPatient,
-        timePrefs: state.timePrefs,
-        mostRecent,
-      };
+    const opts = {
+      bgPrefs: state.bgPrefs,
+      numDays: state.printOpts.numDays,
+      patient: pdfPatient,
+      timePrefs: state.timePrefs,
+    };
 
-      const dailyData = vizUtils.data.selectDailyViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
+    const queries = {
+      basics: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
+          { chartType: 'basics' }
         ),
-        state.printOpts.numDays.daily,
-        state.timePrefs,
-      );
-
-      const bgLogData = vizUtils.data.selectBgLogViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['smbg']
+        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+        stats: this.getStatsByChartType('basics'),
+      },
+      daily: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
+          { chartType: 'daily', extentSize: opts.numDays.daily }
         ),
-        state.printOpts.numDays.bgLog,
-        state.timePrefs,
-      );
+        aggregationsByDate: 'dataByDate, statsByDate',
+        stats: this.getStatsByChartType('daily'),
+        types: {
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        },
+      },
+      bgLog: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
+          { chartType: 'bgLog', extentSize: opts.numDays.bgLog }
+        ),
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} }
+      },
+      settings: {
+        metaData: 'latestPumpUpload, bgSources',
+      },
+    };
 
-      const pdfData = {
-        basics: data.basicsData,
-        daily: dailyData,
-        settings: _.last(data.grouped.pumpSettings),
-        bgLog: bgLogData,
-      }
+    this.log('Generating PDF with', queries, opts);
 
-      // this.generatePDFStats(pdfData, state);
-
-      this.log('Generating PDF with', pdfData, opts);
-
-      props.generatePDFRequest(
-        'combined',
-        pdfData,
-        opts,
-      );
-    }
+    props.generatePDFRequest(
+      'combined',
+      queries,
+      opts,
+    );
   },
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
@@ -945,6 +952,8 @@ export let PatientData = translate()(React.createClass({
       setEndToLocalCeiling = true,
     } = opts;
 
+    const extentSize = opts.extentSize || _.get(this.state.chartPrefs, [chartType, 'extentSize']);
+
     const timezoneName = getTimezoneFromTimePrefs(this.state.timePrefs);
 
     let start;
@@ -958,15 +967,15 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'daily':
-        start = moment.utc(end).subtract(1, 'day').valueOf();
+        start = moment.utc(end).subtract(extentSize, 'days').valueOf();
         break;
 
       case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(14, 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
 
       case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
     }
 
@@ -1001,14 +1010,14 @@ export let PatientData = translate()(React.createClass({
     );
   },
 
-  getStatsByChartType: function() {
-    const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
-    const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
+  getStatsByChartType: function(chartType = this.state.chartType) {
+    const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
+    const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
 
     let stats = [];
 
-    switch (this.state.chartType) {
+    switch (chartType) {
       case 'basics':
         cbgSelected && stats.push(commonStats.timeInRange);
         smbgSelected && stats.push(commonStats.readingsInRange);
@@ -1273,18 +1282,15 @@ export let PatientData = translate()(React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
-    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
-    const userFetched = !nextProps.fetchingUser;
-
-    // TODO: might want to derive this in data worker and add to metaData
-    const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
+    const pdfGenerating = nextProps.generatingPDF.inProgress;
+    const pdfGenerated = nextProps.generatingPDF.completed;
+    const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
+    // const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -1297,7 +1303,7 @@ export let PatientData = translate()(React.createClass({
       metaData: 'bgSources',
     });
 
-    if (this.state.queryingData) return;
+    if (this.state.queryingData || this.props.generatingPDF.inProgress) return;
     this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
@@ -1716,7 +1722,7 @@ export function mapStateToProps(state, props) {
     addingData: state.blip.working.addingData,
     updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
-    generatingPDF: state.blip.working.generatingPDF.inProgress,
+    generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
   };
