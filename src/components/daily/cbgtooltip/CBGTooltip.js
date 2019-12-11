@@ -23,7 +23,7 @@ import {
   getOutOfRangeThreshold,
 } from '../../../utils/bloodglucose';
 import { formatBgValue } from '../../../utils/format';
-import { formatLocalizedFromUTC, HOUR_MINUTE_FORMAT } from '../../../utils/datetime';
+import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
 import { getOutOfRangeAnnotationMessage } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
@@ -76,7 +76,7 @@ class CBGTooltip extends PureComponent {
           formatLocalizedFromUTC(
             this.props.cbg.normalTime,
             this.props.timePrefs,
-            HOUR_MINUTE_FORMAT)
+            getHourMinuteFormat())
           }
       </div>
     );

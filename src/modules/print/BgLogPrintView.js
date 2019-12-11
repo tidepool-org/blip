@@ -26,7 +26,7 @@ import moment from 'moment';
 import PrintView from './PrintView';
 import { formatBgValue } from '../../utils/format';
 import { classifyBgValue, getOutOfRangeThreshold } from '../../utils/bloodglucose';
-import { formatClocktimeFromMsPer24, THREE_HRS } from '../../utils/datetime';
+import { formatClocktimeFromMsPer24, THREE_HRS, getSimpleHourFormatSpace } from '../../utils/datetime';
 import { MS_IN_HOUR } from '../../utils/constants';
 
 const t = i18next.t.bind(i18next);
@@ -94,7 +94,7 @@ class BgLogPrintView extends PrintView {
     _.each(this.bgChart.columns, ({ id }) => {
       if (id === 'date') {
         row[id] = {
-          text: dateMoment.format('ddd, MMM D'),
+          text: dateMoment.format(t('ddd, MMM D')),
         };
       } else {
         row[id] = {
@@ -127,7 +127,7 @@ class BgLogPrintView extends PrintView {
       range(0, 8),
       i => ({
         id: i * THREE_HRS,
-        text: formatClocktimeFromMsPer24(i * THREE_HRS, 'h a'),
+        text: formatClocktimeFromMsPer24(i * THREE_HRS, getSimpleHourFormatSpace()),
       }),
     );
 

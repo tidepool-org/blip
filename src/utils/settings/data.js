@@ -198,7 +198,7 @@ export function getTimedSchedules(settingsData) {
 export function getDeviceMeta(settingsData, timePrefs) {
   const utc = datetime.getHammertimeFromDatumWithTimePrefs(settingsData, timePrefs);
   const uploadedTime = utc ?
-    datetime.formatLocalizedFromUTC(utc, timePrefs, datetime.LONG_DAY_FORMAT) :
+    datetime.formatLocalizedFromUTC(utc, timePrefs, datetime.getLongDayFormat()) :
     false;
   return {
     schedule: settingsData.activeSchedule || 'unknown',

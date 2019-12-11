@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import i18next from 'i18next';
 
 import BasicsPrintView from '../../../src/modules/print/BasicsPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -362,12 +363,13 @@ describe('BasicsPrintView', () => {
 
     it('should render the sitechange calendar section with the appropriate data', () => {
       sinon.stub(Renderer, 'renderCalendarSection');
+      const t = i18next.t.bind(i18next);
 
       Renderer.renderCenterColumn();
       sinon.assert.calledWithMatch(Renderer.renderCalendarSection, {
         title: {
           text: Renderer.data.sections.siteChanges.title,
-          subText: `from '${Renderer.data.sections.siteChanges.subTitle}'`,
+          subText: `${t('from ')}${Renderer.data.sections.siteChanges.subTitle}`,
         },
         data: Renderer.data.data.cannulaPrime.infusionSiteHistory,
         type: 'siteChange',

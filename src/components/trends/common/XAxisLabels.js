@@ -22,7 +22,7 @@ import React, { PropTypes } from 'react';
 import {
   formatClocktimeFromMsPer24,
   THREE_HRS,
-  SIMPLE_HOUR_FORMAT_SPACE,
+  getSimpleHourFormatSpace,
 } from '../../../utils/datetime';
 
 import styles from './XAxisLabels.css';
@@ -34,7 +34,7 @@ const XAxisLabels = (props) => {
   return (
     <g id="xAxisLabels">
       {_.map(data, (msInDay) => {
-        const displayTime = formatClocktimeFromMsPer24(msInDay, SIMPLE_HOUR_FORMAT_SPACE);
+        const displayTime = formatClocktimeFromMsPer24(msInDay, getSimpleHourFormatSpace());
         return (
           <text
             className={styles.text}

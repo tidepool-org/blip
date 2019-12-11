@@ -21,6 +21,7 @@ import _ from 'lodash';
 import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 import i18next from 'i18next';
+import moment from 'moment';
 
 import {
   getTimezoneFromTimePrefs,
@@ -52,6 +53,7 @@ const logo = require('./images/diabeloop/ylp_logo_small.png');
 
 class PrintView {
   constructor(doc, data = {}, opts) {
+    moment.locale(i18next.language);
     this.doc = doc;
 
     this.title = opts.title;
@@ -304,9 +306,7 @@ class PrintView {
   }
 
   getDateRange(startDate, endDate, format) {
-    return t('Date range: {{dateRange}}', {
-      dateRange: formatDateRange(startDate, endDate, format),
-    });
+    return t('Date range: ') + formatDateRange(startDate, endDate, format);
   }
 
   setFill(color = 'black', opacity = 1) {
@@ -856,7 +856,7 @@ class PrintView {
     const helpText = t('Questions or feedback? Please email support@tidepool.org' +
     ' or visit support.tidepool.org.');
 
-    const printDateText = `Printed on: ${formatCurrentDate()}`;
+    const printDateText = t('Printed on: ') + formatCurrentDate();
     const printDateWidth = this.doc.widthOfString(printDateText);
 
     const pageCountWidth = this.doc.widthOfString('Page 1 of 1');
