@@ -18,6 +18,8 @@
 var _ = require('lodash');
 var React = require('react');
 var cx = require('classnames');
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var constants = require('../../logic/constants');
 
@@ -31,7 +33,7 @@ var Change = React.createClass({
     var daysText = null;
     var daysSinceNum = null;
     if (!_.isNaN(this.props.daysSince)){
-      daysText = (this.props.daysSince === 1) ? 'day' : 'days';
+      daysText = (this.props.daysSince === 1) ? t('day') : t('days');
       daysSinceNum = this.props.daysSince;
     }
     var countElement = null;
@@ -46,7 +48,7 @@ var Change = React.createClass({
       'Change': true,
       'Change--cannula': (this.props.type === constants.SITE_CHANGE_CANNULA),
       'Change--tubing': (this.props.type === constants.SITE_CHANGE_TUBING),
-      'Change--reservoir': (this.props.type === constants.SITE_CHANGE_RESERVOIR),
+      'Change--reservoir--diabeloop': (this.props.type === constants.SITE_CHANGE_RESERVOIR),
     });
 
     return (
@@ -55,11 +57,8 @@ var Change = React.createClass({
           <span className='Change-daysSince-count'>{daysSinceNum}</span>
           {daysText}
         </div>
-        <div className='Change-line-end'></div>
         <div className='Change-line-stop'></div>
         {countElement}
-        <div className='Change-line-start'></div>
-        <div className='Change-line-mark'></div>
       </div>
     );
   },

@@ -8,7 +8,7 @@
     display: block;
     position: absolute;
     font-size: 12px;
-    left: calc(25% + @infusion-line-stop-size);
+    left: calc(@infusion-line-stop-size);
     top: calc(40% - 8px);
     color: @infusion-line-color;
   }
@@ -66,7 +66,7 @@
     width: @infusion-line-stop-size;
     background-color: transparent;
     background-image: url(../../components/sitechange/sitechange.png);
-    background-size: cover;
+    background-size: contain;
     background-repeat: no-repeat;
     top: calc(40% - (@infusion-line-stop-size / 2));
     left: calc(35% - (@infusion-line-stop-size / 2));
@@ -83,6 +83,11 @@
   &.Change--reservoir .Change-line-stop {
     background-image: url(../../components/sitechange/sitechange_omnipod.png);
   }
+
+  &.Change--reservoir--diabeloop .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_diabeloop.png);
+  }
+
 
   .Change-line-mark {
     top: calc(40% - (@infusion-line-mark-size / 2) + (@infusion-line-height / 2));

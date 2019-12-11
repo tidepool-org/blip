@@ -2,6 +2,8 @@ var React = require('react');
 var moment = require('moment-timezone');
 var cx = require('classnames');
 var _ = require('lodash');
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var BasicsUtils = require('../BasicsUtils');
 var constants = require('../../logic/constants');
@@ -63,7 +65,7 @@ var HoverDay = React.createClass({
       <div className={containerClass} onClick={this.handleClickDay}
         onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
-          {moment(this.props.date).format(this.props.dayAbbrevMask)}
+          {moment(this.props.date).format(t(this.props.dayAbbrevMask))}
         </p>
         {display}
       </div>

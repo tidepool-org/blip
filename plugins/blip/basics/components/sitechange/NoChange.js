@@ -22,7 +22,6 @@ var NoChange = React.createClass({
   render: function() {
     return (
       <div className='NoChange'>
-        <div className='NoChange-line'></div>
       </div>
     );
   },

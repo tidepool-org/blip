@@ -1,6 +1,8 @@
 var React = require('react');
 var moment = require('moment-timezone');
 var cx = require('classnames');
+var i18next = require('i18next');
+var t = i18next.t.bind(i18next);
 
 var constants = require('../../logic/constants');
 
@@ -83,7 +85,7 @@ var ADay = React.createClass({
 
     if (drawMonthLabel) {
       monthLabel = (
-        <span className='Calendar-monthlabel'>{date.format(this.props.monthAbbrevMask)}</span>
+        <span className='Calendar-monthlabel'>{date.format(t(this.props.monthAbbrevMask))}</span>
       );
     }
 
@@ -100,7 +102,7 @@ var ADay = React.createClass({
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
-          {(monthLabel) ? monthLabel : date.format(this.props.dayAbbrevMask)}
+          {(monthLabel) ? monthLabel : date.format(t(this.props.dayAbbrevMask))}
         </p>
         {this.props.future ? null: chart}
       </div>
