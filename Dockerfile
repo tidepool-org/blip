@@ -6,6 +6,7 @@ RUN \
   && chown -R node:node . \
   && apk --no-cache  update \
   && apk --no-cache  upgrade \
+  && npm config set unsafe-perm true \
   && apk add --no-cache git openssh-client wget \
   && npm install --global npm@latest
 
