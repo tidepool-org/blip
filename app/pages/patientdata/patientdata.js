@@ -514,14 +514,11 @@ export let PatientData = translate()(React.createClass({
     const stats = [];
 
     _.forOwn(statsData, (data, statType) => {
-      const chartStatOpts = _.get(chartPrefs, [chartType, statType]);
-
       const stat = getStatDefinition(data, statType, {
         bgSource,
         days: endpoints.activeDays || endpoints.days,
         bgPrefs,
         manufacturer,
-        ...chartStatOpts,
       });
 
       if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
@@ -543,9 +540,12 @@ export let PatientData = translate()(React.createClass({
     });
 
     const opts = {
-      bgPrefs: state.bgPrefs,
-      numDays: state.printOpts.numDays,
       patient: pdfPatient,
+    };
+
+    const commonQueries = {
+      bgPrefs: state.bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
       timePrefs: state.timePrefs,
     };
 
@@ -557,11 +557,13 @@ export let PatientData = translate()(React.createClass({
         ),
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         stats: this.getStatsByChartType('basics'),
+        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        ...commonQueries,
       },
       daily: {
         endpoints: this.getChartEndpoints(
           moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
-          { chartType: 'daily', extentSize: opts.numDays.daily }
+          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
         ),
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
@@ -575,18 +577,22 @@ export let PatientData = translate()(React.createClass({
           smbg: {},
           wizard: {},
         },
+        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+        ...commonQueries,
       },
       bgLog: {
         endpoints: this.getChartEndpoints(
           moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-          { chartType: 'bgLog', extentSize: opts.numDays.bgLog }
+          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
         ),
         aggregationsByDate: 'dataByDate',
         stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} }
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
       },
       settings: {
-        metaData: 'latestPumpUpload, bgSources',
+        ...commonQueries,
       },
     };
 
@@ -874,13 +880,14 @@ export let PatientData = translate()(React.createClass({
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
+      applyTimeZoneToStart = (this.state.chartType !== 'daily'),
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
     } = opts;
 
     const extentSize = opts.extentSize || _.get(this.state.chartPrefs, [chartType, 'extentSize']);
 
-    const timezoneName = getTimezoneFromTimePrefs(this.state.timePrefs);
+    const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
     let start;
     const end = setEndToLocalCeiling
@@ -893,7 +900,7 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'daily':
-        start = moment.utc(end).subtract(extentSize, 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
 
       case 'bgLog':
@@ -1380,7 +1387,7 @@ export let PatientData = translate()(React.createClass({
 
       const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
-          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'utc')
+          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
