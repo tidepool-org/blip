@@ -23,6 +23,7 @@ import _ from 'lodash';
 import * as actions from '../redux/actions/worker';
 import * as actionTypes from '../redux/constants/actionTypes';
 import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
+import { isMissingBasicsData } from '../core/data';
 
 export default class PDFWorker {
   constructor(dataUtil, importer, renderer) {
@@ -47,10 +48,30 @@ export default class PDFWorker {
           _.each(queries, (query, key) => {
             this.log(key, query);
             data[key] = this.dataUtil.query(query);
+            opts[key] = {};
+
+            switch(key) {
+              case 'basics':
+                opts[key].disabled = isMissingBasicsData(_.get(data, 'basics.data.current.aggregationsByDate'));
+                break;
+
+              case 'daily':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'daily.data.current.data', {}))).length > 0;
+                break;
+
+              case 'bgLog':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'bgLog.data.current.data', {}))).length > 0;
+                break;
+
+              case 'settings':
+                opts[key].disabled = !_.get(data, 'settings.metaData.latestPumpUpload.settings');
+                break
+            }
           });
         }
 
         this.log('data', data);
+        this.log('opts', opts);
 
         const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
         const renderLib = typeof this.renderer !== 'undefined' ?
