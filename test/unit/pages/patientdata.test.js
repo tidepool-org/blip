@@ -1795,7 +1795,7 @@ describe('PatientData', function () {
     });
 
     it('should return the latest datum time for trends', () => {
-      // should return the smbg normalTime
+      // should return the cbg normalTime
       expect(instance.getMostRecentDatumTimeByChartType(undefined, 'trends')).to.equal(8);
     });
   });
@@ -1871,7 +1871,7 @@ describe('PatientData', function () {
         instance.updateChart(defaultChartType, '2019-11-28T00:00:00.000Z', defaultEndpoints, defaultOpts);
       });
 
-      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+      it('should set `datetimeLocation` state', () => {
         sinon.assert.calledWith(setStateSpy, {
           datetimeLocation: '2019-11-28T00:00:00.000Z',
         });
@@ -1902,7 +1902,7 @@ describe('PatientData', function () {
         instance.updateChart(defaultChartType, defaultDatetimeLocation, [200,300], defaultOpts);
       });
 
-      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+      it('should set `endpoints` state', () => {
         sinon.assert.calledWith(setStateSpy, {
           endpoints: [200,300],
         });
@@ -1933,7 +1933,7 @@ describe('PatientData', function () {
         instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, defaultOpts);
       });
 
-      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+      it('should set `mostRecentDatetimeLocation` state', () => {
         sinon.assert.calledWith(setStateSpy, {
           mostRecentDatetimeLocation: defaultDatetimeLocation,
         });
@@ -3613,6 +3613,7 @@ describe('PatientData', function () {
 
       instance.handleSwitchToBasics();
 
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'basics' });
       sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-28T00:00:00.000Z', 'endpoints stub')
     });
@@ -3665,7 +3666,7 @@ describe('PatientData', function () {
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToDaily();
-      console.log(instance.getChartEndpoints.getCall(0).args)
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'daily');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'daily' });
       sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
@@ -3731,7 +3732,7 @@ describe('PatientData', function () {
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
-      console.log(instance.getChartEndpoints.getCall(0).args)
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'trends' });
       sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-28T00:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
@@ -3805,7 +3806,7 @@ describe('PatientData', function () {
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBgLog();
-      console.log(instance.getChartEndpoints.getCall(0).args)
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'bgLog');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'bgLog' });
       sinon.assert.calledWith(instance.updateChart, 'bgLog', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
@@ -4025,7 +4026,7 @@ describe('PatientData', function () {
         expect(result.queryingData).to.equal(state.working.queryingData);
       });
 
-      it('should map blip.data to data', () => {
+      it('should map working.data to data', () => {
         expect(result.data).to.equal(state.working.data);
       });
     });
@@ -4123,7 +4124,7 @@ describe('PatientData', function () {
         expect(result.queryingData).to.equal(state.working.queryingData);
       });
 
-      it('should map blip.data to data', () => {
+      it('should map working.data to data', () => {
         expect(result.data).to.equal(state.working.data);
       });
     });

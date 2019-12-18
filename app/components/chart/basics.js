@@ -131,7 +131,6 @@ class Basics extends Component {
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={_.get(this.props, 'data.timePrefs', {})}
-          // updateBasicsData={this.props.updateBasicsData}
           updateBasicsSettings={this.props.updateBasicsSettings}
           ref="chart"
           trackMetric={this.props.trackMetric} />
