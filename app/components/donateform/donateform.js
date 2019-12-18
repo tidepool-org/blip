@@ -17,7 +17,6 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { translate, Trans } from 'react-i18next';
 
-import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
 
 import {
@@ -26,7 +25,7 @@ import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
 } from '../../core/constants';
 
-import { getDonationAccountCodeFromEmail } from '../../core/utils';
+import utils from '../../core/utils';
 
 export default translate()(class DonateForm extends Component {
   static propTypes = {
@@ -135,7 +134,7 @@ export default translate()(class DonateForm extends Component {
       selectedNonprofits = [];
 
       _.forEach(nonprofitAccounts, account => {
-        let code = getDonationAccountCodeFromEmail(account.email);
+        let code = utils.getDonationAccountCodeFromEmail(account.email);
         code && selectedNonprofits.push(code);
       });
 
@@ -228,12 +227,12 @@ export default translate()(class DonateForm extends Component {
 
     if (this.props.trackMetric) {
       _.forEach(filteredAddAccounts, email => {
-        const source = getDonationAccountCodeFromEmail(email) || 'none';
+        const source = utils.getDonationAccountCodeFromEmail(email) || 'none';
         this.props.trackMetric('web - big data sign up', { source, location: 'settings' });
       });
 
       _.forEach(removeAccounts, account => {
-        const source = getDonationAccountCodeFromEmail(account.email) || 'none';
+        const source = utils.getDonationAccountCodeFromEmail(account.email) || 'none';
         this.props.trackMetric('web - big data cancellation', { source });
       });
     }

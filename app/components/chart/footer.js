@@ -23,7 +23,7 @@ import { translate } from 'react-i18next';
 import { components } from '@tidepool/viz';
 const RangeSelect = components.RangeSelect;
 
-var TidelineFooter = translate()(React.createClass({
+var Footer = translate()(React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
     onClickBoxOverlay: React.PropTypes.func,
@@ -38,6 +38,7 @@ var TidelineFooter = translate()(React.createClass({
     showingSmbg: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
     displayFlags: React.PropTypes.object,
+    toggleDisplayFlags: React.PropTypes.func,
     currentPatientInViewId: React.PropTypes.string,
   },
   render: function() {
@@ -89,7 +90,7 @@ var TidelineFooter = translate()(React.createClass({
       } else {
         rightSide = <RangeSelect
           displayFlags={this.props.displayFlags}
-          currentPatientInViewId={this.props.currentPatientInViewId}
+          updateCbgRange={this.props.toggleDisplayFlags}
         />;
       }
     }
@@ -109,4 +110,4 @@ var TidelineFooter = translate()(React.createClass({
   }
 }));
 
-module.exports = TidelineFooter;
+module.exports = Footer;

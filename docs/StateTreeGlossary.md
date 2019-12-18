@@ -119,6 +119,6 @@ Many of these state tree branches are simple arrays of user IDs or hash maps wit
 
 ### patient data & notes
 
-When any logged-in user—whether a PWD or not—navigates to view a particular PWD's data, we fetch the diabetes device data and notes for that PWD and store each of these under the PWD's user ID as a key in the state tree objects `patientDataMap` and `patientNotesMap`. Presently we do *not* use these branches of the state tree to perform any client-side caching of patient data and notes: whenever the logged-in user navigates away from `/patients/:id/data`, we immediately clear the data stored under the PWD's ID in `patientDataMap` and `patientNotesMap`. (See also: [the brief discussion of data caching](./Architecture.md#data-caching) on the "Architecture" page.)
+When any logged-in user—whether a PWD or not—navigates to view a particular PWD's data, we fetch the diabetes device data and notes for that PWD and store each of these under the state tree objects `data` key.
 
 [^a]: Or is a caregiver of a PWD who set up data storage using the radio choice "This is for someone I care for who has type 1 diabetes"—what we call a ["fake child account"](./FakeChildAccounts.md).

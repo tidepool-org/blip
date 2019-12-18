@@ -68,35 +68,6 @@ export function closeMessageThread() {
   };
 }
 
-export function addPatientNote(note) {
-  return {
-    type: ActionTypes.ADD_PATIENT_NOTE,
-    payload: {
-      note: note,
-      patientId: note.groupid,
-    }
-  };
-}
-
-export function updatePatientNote(note) {
-  return {
-    type: ActionTypes.UPDATE_PATIENT_NOTE,
-    payload: {
-      note: note,
-      patientId: note.groupid,
-    }
-  };
-}
-
-export function clearPatientData(patientId) {
-  return {
-    type: ActionTypes.CLEAR_PATIENT_DATA,
-    payload: {
-      patientId: patientId,
-    },
-  };
-}
-
 export function clearPatientInView() {
   return {
     type: ActionTypes.CLEAR_PATIENT_IN_VIEW,
@@ -819,20 +790,20 @@ export function fetchAssociatedAccountsFailure(error, apiError) {
   };
 }
 
-export function fetchPatientDataRequest() {
+export function fetchPatientDataRequest(patientId) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_REQUEST,
+    payload: {
+      patientId,
+    },
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData, patientNotes, fetchedUntil) {
+export function fetchPatientDataSuccess(patientId) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
       patientId,
-      patientData,
-      patientNotes,
-      fetchedUntil,
     },
   };
 }
@@ -865,6 +836,56 @@ export function fetchMessageThreadSuccess(messageThread) {
 export function fetchMessageThreadFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createMessageThreadRequest() {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_REQUEST,
+  };
+}
+
+export function createMessageThreadSuccess(message) {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_SUCCESS,
+    payload: {
+      message: message,
+    },
+  };
+}
+
+export function createMessageThreadFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_MESSAGE_THREAD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function editMessageThreadRequest() {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_REQUEST,
+  };
+}
+
+export function editMessageThreadSuccess(message) {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_SUCCESS,
+    payload: {
+      message: message,
+    },
+  };
+}
+
+export function editMessageThreadFailure(error, apiError) {
+  return {
+    type: ActionTypes.EDIT_MESSAGE_THREAD_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

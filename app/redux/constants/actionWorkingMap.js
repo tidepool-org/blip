@@ -37,6 +37,16 @@ export default (type) => {
     case types.FETCH_MESSAGE_THREAD_FAILURE:
       return 'fetchingMessageThread';
 
+    case types.CREATE_MESSAGE_THREAD_REQUEST:
+    case types.CREATE_MESSAGE_THREAD_SUCCESS:
+    case types.CREATE_MESSAGE_THREAD_FAILURE:
+      return 'creatingMessageThread';
+
+    case types.EDIT_MESSAGE_THREAD_REQUEST:
+    case types.EDIT_MESSAGE_THREAD_SUCCESS:
+    case types.EDIT_MESSAGE_THREAD_FAILURE:
+      return 'editingMessageThread';
+
     case types.LOGIN_REQUEST:
     case types.LOGIN_SUCCESS:
     case types.LOGIN_FAILURE:
@@ -140,6 +150,26 @@ export default (type) => {
     case types.GENERATE_PDF_SUCCESS:
     case types.GENERATE_PDF_FAILURE:
       return 'generatingPDF';
+
+    case types.DATA_WORKER_ADD_DATA_REQUEST:
+    case types.DATA_WORKER_ADD_DATA_SUCCESS:
+    case types.DATA_WORKER_ADD_DATA_FAILURE:
+      return 'addingData';
+
+    case types.DATA_WORKER_REMOVE_DATA_REQUEST:
+    case types.DATA_WORKER_REMOVE_DATA_SUCCESS:
+    case types.DATA_WORKER_REMOVE_DATA_FAILURE:
+      return 'removingData';
+
+    case types.DATA_WORKER_UPDATE_DATUM_REQUEST:
+    case types.DATA_WORKER_UPDATE_DATUM_SUCCESS:
+    case types.DATA_WORKER_UPDATE_DATUM_FAILURE:
+      return 'updatingDatum';
+
+    case types.DATA_WORKER_QUERY_DATA_REQUEST:
+    case types.DATA_WORKER_QUERY_DATA_SUCCESS:
+    case types.DATA_WORKER_QUERY_DATA_FAILURE:
+      return 'queryingData';
 
     case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:

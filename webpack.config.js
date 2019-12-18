@@ -1,11 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const uglifyJS = require('uglify-es');
+const terser = require('terser');
 const fs = require('fs');
 
 const isDev = (process.env.NODE_ENV === 'development');
@@ -147,7 +147,7 @@ const plugins = [
         }
 
         const code = fs.readFileSync(path, 'utf8');
-        const result = uglifyJS.minify(code);
+        const result = terser.minify(code);
         return result.code;
       }
     }
@@ -222,18 +222,14 @@ module.exports = {
       }
     },
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          ie8: false,
+      new TerserPlugin({
+        terserOptions: {
           output: { comments: false },
           compress: {
             inline: false,
             conditionals: false,
-          },
-        },
-        cache: true,
-        parallel: true,
-        sourceMap: false, // set to true if you want JS source maps
+          }
+        }
       }),
       new OptimizeCSSAssetsPlugin({}),
     ],

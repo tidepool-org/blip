@@ -18,10 +18,10 @@ import { translate } from 'react-i18next'
 import _ from 'lodash';
 import cx from 'classnames';
 
-var ModalOverlay = require('../../components/modaloverlay');
-var InputGroup = require('../../components/inputgroup');
-var personUtils = require('../../core/personutils');
-var utils = require('../../core/utils');
+import ModalOverlay from '../../components/modaloverlay';
+import InputGroup from '../../components/inputgroup';
+import personUtils from '../../core/personutils';
+import utils from '../../core/utils';
 
 var PermissionInputGroup = translate()(React.createClass({
   propTypes: {
