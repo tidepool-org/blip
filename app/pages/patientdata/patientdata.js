@@ -1723,7 +1723,6 @@ export function mapStateToProps(state, props) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  dataWorkerAddDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
   dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
