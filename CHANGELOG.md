@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## UNRELEASED
+### Fixed
+- PT-869 Fix labelling issue in validation errors
+
 ## 0.10.0 - 2019-12-09 
 ### Added
  - PT-844 Integrate Tideline 1.4.0 with new logo/picto for insulin sites
