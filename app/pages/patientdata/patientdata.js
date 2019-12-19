@@ -45,10 +45,6 @@ import UploaderButton from '../../components/uploaderbutton';
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import {
-  MGDL_UNITS,
-  MMOLL_UNITS,
-  MGDL_PER_MMOLL,
-  DIABETES_DATA_TYPES,
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
 
