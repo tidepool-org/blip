@@ -6,6 +6,9 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - PT-869 Fix labelling issue in validation errors
 
+### Changed
+ - PT-836 Display list of patients to clinician as a default behaviour
+
 ## 0.10.0 - 2019-12-09 
 ### Added
  - PT-844 Integrate Tideline 1.4.0 with new logo/picto for insulin sites

@@ -19,6 +19,7 @@
 /* global sinon */
 /* global it */
 /* global beforeEach */
+/* global afterEach */
 
 import React from 'react';
 import { mount } from 'enzyme';
@@ -105,19 +106,20 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.peopletable-names-toggle')).to.have.length(1);
     });
 
-    it('should have instructions displayed by default', function () {
-      expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(1);
+    // by default, patients list is displayed
+    // and instructions are not
+    it('should not have instructions displayed by default', function () {
+      expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(0);
     });
 
-    it('should default searching and showNames to be false', function () {
+    it('should default searching and showNames to be respectively false and true', function () {
       expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(false);
-      expect(wrapper.instance().getWrappedInstance().state.showNames).to.equal(false);
+      expect(wrapper.instance().getWrappedInstance().state.showNames).to.equal(true);
     });
   });
 
   describe('showNames', function () {
     it('should show a row of data for each person', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
       wrapper.setState({ showNames: true });
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
@@ -125,13 +127,13 @@ describe('PeopleTable', () => {
 
     it('should trigger a call to trackMetric', function () {
       wrapper.find('.peopletable-names-toggle').simulate('click');
-      expect(props.trackMetric.calledWith('Clicked Show All')).to.be.true;
+      expect(props.trackMetric.calledWith('Clicked Hide All')).to.be.true;
       expect(props.trackMetric.callCount).to.equal(1);
     });
 
-    it('should not have instructions displayed', function () {
+    it('should have instructions displayed', function () {
       wrapper.find('.peopletable-names-toggle').simulate('click');
-      expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
+      expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(1);
     });
   });
 
@@ -166,7 +168,7 @@ describe('PeopleTable', () => {
   });
 
   describe('patient removal link', function () {
-    beforeEach(() => {
+    afterEach(() => {
       wrapper.find('.peopletable-names-toggle').simulate('click');
     });
 
@@ -216,11 +218,14 @@ describe('PeopleTable', () => {
     let overlay;
 
     beforeEach(() => {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
       overlay = () => wrapper.find('.ModalOverlay');
 
       removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
       removeLink.simulate('click');
+    });
+
+    afterEach(() => {
+      wrapper.find('.peopletable-names-toggle').simulate('click');
     });
 
     it('should close the modal when the background overlay is clicked', function () {

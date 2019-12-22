@@ -78,7 +78,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     this.state = {
       currentRowIndex: -1,
       searching: false,
-      showNames: false,
+      showNames: true,
       dataList: this.buildDataList(),
       colSortDirs: {
         fullNameOrderable: SortTypes.ASC,
