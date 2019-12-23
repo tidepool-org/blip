@@ -841,15 +841,15 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-export-data-worker.5":
-  version "1.10.0-export-data-worker.5"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-export-data-worker.5.tgz#261ab32168c7d637a32ec77e05852c4dcc0a3ae5"
-  integrity sha512-7UOtSv6Ji/cvLTaNzxgNgmK3o328xZkKa7/4dWI7eG+vawWfuZpwh+fRXfpj3kq5BvXrXG7j4Yek1w79lHnNTQ==
+"@tidepool/viz@1.10.0-data-worker-pdf.1":
+  version "1.10.0-data-worker-pdf.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-data-worker-pdf.1.tgz#6d1f2ed5e06f12d241fa5ae9b00cc809c3eefe92"
+  integrity sha512-dRjzHluUHt6k+fzV6SXhjOQ8uyc3axX+ZDh4AnzBl/xO+GGJAvXMG5fBJJgRey4J8dNChOYrrzQo6upV/js3zg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
     classnames "2.2.6"
-    crossfilter2 crossfilter/crossfilter#cb4588dc16
+    crossfilter2 "1.4.8"
     d3-array "1.2.4"
     d3-format "1.3.2"
     d3-scale "2.1.2"
@@ -3025,18 +3025,19 @@ cross-spawn@^5.0.1:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
+crossfilter2@1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/crossfilter2/-/crossfilter2-1.4.8.tgz#a723bc47d91560bc93e43ad4444c7aa37ea36980"
+  integrity sha512-H3D2AyRGpRYK0pKs6kgwALuNb3J6/PuW/sIckPDxPi2wz+TX1Cp/1+BC7sKkMUF12RGPjV/PNANF/W4TQ+4BLg==
+  dependencies:
+    lodash.result "^4.4.0"
+
 crossfilter2@^1.4.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/crossfilter2/-/crossfilter2-1.5.0.tgz#6dcbd2add9ae3dd6c2be11fcf0b85d458cbade4a"
   integrity sha512-ia2jwcYSqlAg75kCU89QlHKk9dYyxk5ODX5s4Rd09sUkopE99wz0Bzmty8tmKmEX+5RU4guRio/uPKXfDqkj2w==
   dependencies:
     "@ranfdev/deepobj" "1.0.2"
-
-"crossfilter2@github:crossfilter/crossfilter#cb4588dc16":
-  version "1.4.7"
-  resolved "https://codeload.github.com/crossfilter/crossfilter/tar.gz/cb4588dc16e11fd705ddb7a330f94627179c9eb1"
-  dependencies:
-    lodash.result "^4.4.0"
 
 crossfilter@1.3.12:
   version "1.3.12"
