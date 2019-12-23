@@ -235,6 +235,16 @@ svg {
   text-anchor: middle;
 }
 
+.d3-pa {
+  &.d3-rect-picto {
+    fill: @physicalactivity;
+    opacity: 0.20;
+  }  
+  &.d3-rect-pa {
+    fill: @physicalactivity;
+    opacity: 0.25;
+  }
+}
 // boluses
 .d3-bolus {
   &.d3-rect-bolus {
@@ -801,6 +811,7 @@ text.d3-tabular-ui {
 }
 
 .d3-wizard-group,
+.d3-pa-group,
 .d3-bolus-group,
 .d3-carb-group {
   cursor: default;

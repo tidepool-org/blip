@@ -364,6 +364,10 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
+    physicalActivity: function(d) {
+      d = cloneDeep(d);
+      return d;
+    },
     pumpSettings: function(d) {
       d = cloneDeep(d);
       if (bgUnits === MGDL_UNITS) {

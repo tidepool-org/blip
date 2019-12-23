@@ -35,7 +35,7 @@ var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
 function TidelineData(data, opts) {
-  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
+  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings', 'physicalActivity'];
 
   opts = opts || {};
   var bgUnits = opts.bgUnits || MGDL_UNITS;
@@ -565,6 +565,7 @@ function TidelineData(data, opts) {
         case 'bolus':
         case 'cbg':
         case 'smbg':
+        case 'physicalActivity':
         case 'upload':
           return true;
         case 'deviceEvent':

@@ -39,6 +39,7 @@ var schemas = {
   food: schema(),
   message: require('./message'),
   pumpSettings: require('./pumpSettings'),
+  physicalActivity: schema(),
   smbg: require('./bg'),
   upload: require('./upload'),
   wizard: require('./wizard')
