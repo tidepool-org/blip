@@ -59,6 +59,7 @@ module.exports = {
     wizard: require('./plot/wizard'),
     carb: require('./plot/carb'),
     physicalActivity: require('./plot/physicalActivity'),
+    reservoirChange: require('./plot/reservoir'),
     stats: {
       puddle: require('./plot/stats/puddle'),
     },
