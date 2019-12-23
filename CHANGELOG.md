@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.8.0 - 2019-12-20 
+### Added
+- PT-865 Display physical activity in CGM section
+
 ## 0.7.0 - 2019-12-09
 ### Added
 - PT-847 Change logo in pdf for infusion site. Fix date formats in pdf.
