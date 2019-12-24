@@ -28,6 +28,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import { MGDL_UNITS } from '../../../app/core/constants';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -338,7 +339,8 @@ describe('PatientData', function () {
           var props = {
             isUserPatient: true,
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -363,7 +365,8 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -389,6 +392,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
             trackMetric: sinon.stub(),
           };
 
@@ -423,6 +427,7 @@ describe('PatientData', function () {
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
             trackMetric: sinon.stub()
           };
 
@@ -478,6 +483,7 @@ describe('PatientData', function () {
         },
         fetchingPatient: false,
         fetchingPatientData: false,
+        generatingPDF: { inProgress: false },
       });
 
       beforeEach(() => {
@@ -1008,7 +1014,9 @@ describe('PatientData', function () {
         basics: {
           sections: {},
         },
-        daily: {},
+        daily: {
+          extentSize: 1,
+        },
         trends: {
           activeDays: {
             monday: true,
@@ -1042,6 +1050,7 @@ describe('PatientData', function () {
         },
         bgLog: {
           bgSource: 'smbg',
+          extentSize: 14,
         },
         settings: {
           touched: false,
@@ -1055,6 +1064,7 @@ describe('PatientData', function () {
       onRefresh: sinon.stub(),
       dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
+      generatingPDF: { inProgress: false },
     };
 
     it('should clear patient data upon refresh', function() {
@@ -1379,9 +1389,27 @@ describe('PatientData', function () {
         });
       });
 
-      it('should return the valueOf 1 day prior to the endpoint', () => {
-        const result = instance.getChartEndpoints(datetimeLocation, useProvidedDatetimeOpts);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-26T12:00:00.000Z'));
+      it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { daily: { extentSize: 14 } } });
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { daily: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+          chartPrefs: { daily: { extentSize: 14 } }
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
       });
     });
 
@@ -1395,17 +1423,23 @@ describe('PatientData', function () {
         });
       });
 
-      it('should return the valueOf 14 days prior to the endpoint', () => {
+      it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { bgLog: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
         expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { bgLog: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
       });
 
-      it('should return the valueOf 14 days prior to the endpoint when timezone is set', () => {
+      it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint when timezone is set', () => {
         wrapper.setState({
           timePrefs: {
             timezoneAware: true,
             timezoneName: 'US/Eastern',
           },
+          chartPrefs: { bgLog: { extentSize: 14 } }
         });
 
         const result = instance.getChartEndpoints(datetimeLocation);
@@ -2316,7 +2350,7 @@ describe('PatientData', function () {
   });
 
   describe('componentWillUpdate', function() {
-    it('should generate a pdf when view is basics and patient data is processed', function () {
+    it('should generate a pdf when patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -2326,138 +2360,17 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'basics', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is daily and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
+        data: {
+          metaData: { size: 1 },
         },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
+        generatingPDF: { inProgress: false },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is bgLog and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'bgLog', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is settings and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'settings', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is trends and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'trends', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -2476,15 +2389,18 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: true,
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: true },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
@@ -2499,22 +2415,23 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
+        data: {
+          metaData: { size: undefined },
+        },
+        generatingPDF: { inProgress: false },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: false });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
 
-    it('should not generate a pdf when patient data exists, but new patient data is processing', function () {
+    it('should not generate a pdf when patient data exists, but new data query is processing', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -2524,20 +2441,23 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: true, processedPatientData: true });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ queryingData: true, chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
 
-    it('should not generate a pdf when one already exists for the current view', function () {
+    it('should not generate a pdf when one has already been generated', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -2547,22 +2467,44 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
-        pdf: {
-          combined: {
-            url: 'someUrl'
-          }
-        }
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false, completed: true },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
-      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when a previous attempt to generate has failed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false, notification: { type: 'error' } },
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance().getWrappedInstance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
@@ -2589,6 +2531,15 @@ describe('PatientData', function () {
 
     it('should should return without doing anything if `state.queryingData` is `true`', () => {
       wrapper.setState({ queryingData: true });
+      setStateSpy.resetHistory();
+      instance.queryData();
+      sinon.assert.notCalled(setStateSpy);
+    });
+
+    it('should should return without doing anything if `props.generatingPDF.inProgress` is `true`', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        generatingPDF: { inProgress: true },
+      }));
       setStateSpy.resetHistory();
       instance.queryData();
       sinon.assert.notCalled(setStateSpy);
@@ -2794,168 +2745,214 @@ describe('PatientData', function () {
     });
   });
 
-  describe.skip('generatePDFStats', () => {
+  describe('generatePDF', () => {
     let wrapper;
     let instance;
-    let data;
+
+    const bgPrefs = { units: MGDL_UNITS };
+    const timePrefs = { timezoneAware: true, timezoneName: 'US/Eastern' };
+    const mostRecentDatumTimeStub = '2019-11-27T12:00:00.000Z';
+    const queryEndpointsStub = [100, 200];
+
+    const commonQueries = {
+      bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs,
+    };
 
     beforeEach(() => {
-      data = {
-        basics: {},
-        daily: {},
-        bgLog: {},
-      },
-
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper.setState({ bgPrefs, timePrefs });
       instance = wrapper.instance();
+      defaultProps.generatePDFRequest.resetHistory();
     });
 
-    it('should add basics stats to the provided data object if a `dateRange` property exists', () => {
-      instance.generatePDFStats(data, instance.state);
-      expect(data.basics.stats).to.be.undefined;
-
-      data.basics.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
-      instance.generatePDFStats(data, instance.state);
-      expect(data.basics.stats).to.be.an('object').and.have.keys([
-        'timeInRange',
-        'readingsInRange',
-        'totalInsulin',
-        'timeInAuto',
-        'carbs',
-        'averageDailyDose',
-      ]);
-    });
-
-    it('should add daily stats to the provided data object if the `dataByDate` object map is not empty', () => {
-      data.daily.dataByDate = {};
-      instance.generatePDFStats(data, instance.state);
-      expect(data.daily.dataByDate).to.be.eql({});
-
-      data.daily.dataByDate['2019-01-01'] = { bounds: [12345678, 23456789] };
-      instance.generatePDFStats(data, instance.state);
-      expect(data.daily.dataByDate['2019-01-01'].stats).to.be.an('object').and.have.keys([
-        'timeInRange',
-        'averageGlucose',
-        'totalInsulin',
-        'timeInAuto',
-        'carbs',
-      ]);
-    });
-
-    it('should add bgLog stats to the provided data object if a `dateRange` property exists', () => {
-      instance.generatePDFStats(data, instance.state);
-      expect(data.bgLog.stats).to.be.undefined;
-
-      data.bgLog.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
-      instance.generatePDFStats(data, instance.state);
-      expect(data.bgLog.stats).to.be.an('object').and.have.keys([
-        'averageGlucose',
-      ]);
-    });
-  });
-
-  describe.skip('generatePDF', () => {
-    it('should filter the daily and bgLog view data before dispatching the generate pdf action', () => {
-      const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
-      const bgLogFilterStub = PD.__get__('vizUtils').data.selectBgLogViewData;
-      const pickSpy = sinon.spy(_, 'pick');
-
-      const props = _.assign({}, defaultProps, {
-        generatePDFRequest: sinon.stub(),
-      });
-
-      const state = {
-        processedPatientData: {
-          diabetesData: [{
-            normalTime: '2018-02-02T00:00:00.000Z',
-          }],
-          grouped: {
-            pumpSettings: {},
-          },
-        },
-        printOpts: {
-          numDays: {
-            daily: 6,
-          },
-        },
-      };
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
-      const instance = wrapper.instance();
-
-      sinon.assert.callCount(dailyFilterStub, 0);
-      sinon.assert.callCount(bgLogFilterStub, 0);
-      sinon.assert.callCount(props.generatePDFRequest, 0);
-
-      instance.generatePDFStats = sinon.stub().returns({});
-      instance.generatePDF(props, state);
-
-      sinon.assert.callCount(dailyFilterStub, 1);
-      sinon.assert.callCount(bgLogFilterStub, 1);
-      sinon.assert.callCount(props.generatePDFRequest, 1);
-
-      sinon.assert.callCount(pickSpy, 2);
-      assert(dailyFilterStub.calledBefore(bgLogFilterStub));
-      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
-      expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
-
-      assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
-      sinon.assert.calledWithMatch(props.generatePDFRequest,
+    it('should call `props.generatePDFRequest` with appropriate args', () => {
+      instance.generatePDF();
+      sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
-          daily: 'stubbed filtered daily data',
-          bgLog: 'stubbed filtered bgLog data',
+          basics: sinon.match.object,
+          daily: sinon.match.object,
+          bgLog: sinon.match.object,
+          settings: sinon.match.object,
         },
+        { patient: sinon.match(defaultProps.patient) }
       );
-
-      pickSpy.restore();
     });
 
-    it('should add stats to the pdf data object by passing it to `generatePDFStats`', () => {
-      const props = _.assign({}, defaultProps, {
-        generatePDFRequest: sinon.stub(),
+    context('generating basics query', () => {
+      it('should set the `endpoints` query based on the latest basics data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'basics');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'basics' });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.endpoints).to.eql(queryEndpointsStub);
       });
 
-      const state = {
-        processedPatientData: {
-          diabetesData: [{
-            normalTime: '2018-02-02T00:00:00.000Z',
-          }],
-          grouped: {
-            pumpSettings: {},
-          },
-        },
-        printOpts: {
-          numDays: {
-            daily: 6,
-          },
-        },
-      };
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
-      const instance = wrapper.instance();
-
-      sinon.assert.callCount(props.generatePDFRequest, 0);
-
-
-      instance.generatePDFStats = sinon.stub().callsFake((data) => {
-        data.basics = { stats: 'stubbed basics stats' };
-        return data;
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.aggregationsByDate).to.equal('basals, boluses, fingersticks, siteChanges');
       });
 
-      instance.generatePDF(props, state);
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('basics stats');
 
-      sinon.assert.callCount(props.generatePDFRequest, 1);
-      sinon.assert.callCount(instance.generatePDFStats, 1);
+        instance.generatePDF();
 
-      sinon.assert.calledWithMatch(props.generatePDFRequest,
-        'combined',
-        {
-          daily: 'stubbed filtered daily data',
-          bgLog: 'stubbed filtered bgLog data',
-          basics: { stats: 'stubbed basics stats' },
-        },
-      );
+        sinon.assert.calledWith(instance.getStatsByChartType, 'basics');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.stats).to.eql('basics stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.basics.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'basics bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.bgSource).to.equal('basics bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.basics.metaData).to.equal(commonQueries.metaData);
+        expect(query.basics.timePrefs).to.eql(commonQueries.timePrefs);
+      });
+    });
+
+    context('generating daily query', () => {
+      it('should set the `endpoints` query based on the latest daily data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'daily');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { applyTimeZoneToStart: true, chartType: 'daily', extentSize: 15 });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.endpoints).to.eql(queryEndpointsStub);
+      });
+
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.aggregationsByDate).to.equal('dataByDate, statsByDate');
+      });
+
+      it('should query the required `types`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.types).to.eql({
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        });
+      });
+
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('daily stats');
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'daily');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.stats).to.eql('daily stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.daily.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'daily bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.bgSource).to.equal('daily bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.daily.metaData).to.equal(commonQueries.metaData);
+        expect(query.daily.timePrefs).to.eql(commonQueries.timePrefs);
+      });
+    });
+
+    context('generating bgLog query', () => {
+      it('should set the `endpoints` query based on the latest bgLog data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'bgLog');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'bgLog', extentSize: 30 });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.endpoints).to.eql(queryEndpointsStub);
+      });
+
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.aggregationsByDate).to.equal('dataByDate');
+      });
+
+      it('should query the required `types`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.types).to.eql({
+          smbg: {},
+        });
+      });
+
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('bgLog stats');
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'bgLog');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.stats).to.eql('bgLog stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.bgLog.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { bgLog: { bgSource: 'bgLog bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.bgSource).to.equal('bgLog bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.bgLog.metaData).to.equal(commonQueries.metaData);
+        expect(query.bgLog.timePrefs).to.eql(commonQueries.timePrefs);
+      });
+    });
+
+    context('generating settings query', () => {
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.settings.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.settings.metaData).to.equal(commonQueries.metaData);
+        expect(query.settings.timePrefs).to.eql(commonQueries.timePrefs);
+      });
     });
   });
 
@@ -3582,7 +3579,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3635,7 +3633,8 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
-        t
+        t,
+        generatingPDF: { inProgress: false },
       };
 
       var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
@@ -3701,7 +3700,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3775,7 +3775,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3841,7 +3842,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);

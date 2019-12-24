@@ -65,7 +65,7 @@ export let PatientData = translate()(React.createClass({
     fetchingPatientData: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     generatePDFRequest: React.PropTypes.func.isRequired,
-    generatingPDF: React.PropTypes.bool.isRequired,
+    generatingPDF: React.PropTypes.object.isRequired,
     isUserPatient: React.PropTypes.bool.isRequired,
     messageThread: React.PropTypes.array,
     onCloseMessageThread: React.PropTypes.func.isRequired,
@@ -528,7 +528,7 @@ export let PatientData = translate()(React.createClass({
     return stats;
   },
 
-  generatePDF: function (props, state) {
+  generatePDF: function (props = this.props, state = this.state) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
@@ -1214,7 +1214,6 @@ export let PatientData = translate()(React.createClass({
     const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = nextProps.generatingPDF.completed;
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
-    // const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
