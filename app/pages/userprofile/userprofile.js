@@ -57,12 +57,14 @@ export var UserProfile = translate()(React.createClass({
       inputs.push({
         name: 'password',
         label: t('Password'),
-        type: 'password'
+        type: 'passwordShowHide',
+        placeholder: t('Password'),
       });
       inputs.push({
         name: 'passwordConfirm',
-        label: t('Confirm password'),
-        type: 'password'
+        label: t('Password'),
+        type: 'passwordShowHide',
+        placeholder: t('Password'),
       });
     }
 

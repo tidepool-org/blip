@@ -62,12 +62,12 @@ export let Signup = translate()(React.createClass({
       {
         name: 'password',
         label: t('Password'),
-        type: 'password',
+        type: 'passwordShowHide',
       },
       {
         name: 'passwordConfirm',
         label: t('Confirm password'),
-        type: 'password',
+        type: 'passwordShowHide',
       },
     ];
 

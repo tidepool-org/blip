@@ -20,6 +20,7 @@ import cx from 'classnames';
 import Select from 'react-select';
 
 import DatePicker from '../datepicker';
+import ShowHidePassword from '../showHidePassword';
 
 // Input with label and validation error message
 const InputGroup = React.createClass({
@@ -86,6 +87,10 @@ const InputGroup = React.createClass({
   renderInput: function() {
     var type = this.props.type;
 
+    if (type === 'passwordShowHide') {
+      return this.renderPasswordShowHide();
+    }
+
     if (type === 'textarea') {
       return this.renderTextArea();
     }
@@ -121,6 +126,18 @@ const InputGroup = React.createClass({
         onChange={this.handleChange}
         disabled={this.props.disabled}
         ref="control"/>
+    );
+  },
+
+  renderPasswordShowHide: function(){
+    return (
+      <ShowHidePassword
+        className="input-group-control form-control"
+        id={this.props.name}
+        name={this.props.name}
+        value={this.props.value}
+        placeholder={this.props.placeholder}
+        onChange={this.handleChange}/>
     );
   },
 

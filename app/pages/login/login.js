@@ -53,9 +53,11 @@ export let Login = translate()(React.createClass({
   formInputs: function() {
     const { t } = this.props;
 
+    let pwdType = Config.CAN_SEE_PWD_LOGIN ? 'passwordShowHide' : 'password';
+
     return [
       { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', placeholder: t('Password'), type: 'password' },
+      { name: 'password', placeholder: t('Password'), type: pwdType },
       { name: 'remember', label: t('Remember me'), type: 'checkbox' }
     ];
   },

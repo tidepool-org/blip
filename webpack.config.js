@@ -135,6 +135,7 @@ const plugins = [
     __ALLOW_SIGNUP_PATIENT__: JSON.stringify(process.env.ALLOW_SIGNUP_PATIENT || true),
     __ALLOW_PATIENT_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_EMAIL || true),
     __ALLOW_PATIENT_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_PASSWORD || true),
+    __CAN_SEE_PWD_LOGIN__: JSON.stringify(process.env.CAN_SEE_PWD_LOGIN || true),
     __HELP_LINK__: JSON.stringify(process.env.HELP_LINK || null),
     __ASSETS_URL__: JSON.stringify(process.env.ASSETS_URL || null),
     __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || false),

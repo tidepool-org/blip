@@ -58,6 +58,7 @@ const config = {
   ALLOW_SIGNUP_PATIENT: booleanFromText(__ALLOW_SIGNUP_PATIENT__, true),
   ALLOW_PATIENT_CHANGE_EMAIL: booleanFromText(__ALLOW_PATIENT_CHANGE_EMAIL__, true),
   ALLOW_PATIENT_CHANGE_PASSWORD: booleanFromText(__ALLOW_PATIENT_CHANGE_PASSWORD__, true),
+  CAN_SEE_PWD_LOGIN: booleanFromText(__CAN_SEE_PWD_LOGIN__, true),
   HELP_LINK: __HELP_LINK__ || null,
   ASSETS_URL: __ASSETS_URL__ || null,
   HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),

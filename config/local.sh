@@ -3,6 +3,7 @@ export I18N_ENABLED=false
 export ALLOW_SIGNUP_PATIENT=true
 export ALLOW_PATIENT_CHANGE_EMAIL=true
 export ALLOW_PATIENT_CHANGE_PASSWORD=true
+export CAN_SEE_PWD_LOGIN=true
 export HIDE_UPLOAD_LINK=false
 export HIDE_DEXCOM_BANNER=false
 export HIDE_DONATE=false
