@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## Unreleased
+### Added
+- PT-882 Display reservoir change in Glycemia section
+
 ## 1.5.0 - 2019-12-20
 ### Added
 - PT-865 Display physical activity in Glycemia section

@@ -262,6 +262,18 @@ function chartDailyFactory(el, options) {
       onPhysicalOut: options.onPhysicalOut,
     }), true, true);
 
+    poolBG.addPlotType('deviceEvent', tideline.plot.reservoirChange(poolBG, {
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      yScale: scaleBG,
+      emitter: emitter,
+      subdueOpacity: 0.4,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      // to be changed
+      onReservoirHover: options.onReservoirHover,
+      onReservoirOut: options.onReservoirOut,
+    }), true, true);
+
     // add CBG data to BG pool
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
       bgUnits: chart.options.bgUnits,
