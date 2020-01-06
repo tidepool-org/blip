@@ -2,6 +2,9 @@
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
 ## Unreleased 
+
+## 0.9.0 - 2020-01-06
+
 ### Added
 - PT-884 Add ToolTip for reservoir change
 
