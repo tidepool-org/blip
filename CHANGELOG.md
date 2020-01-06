@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## Unreleased 
+### Added
+- PT-884 Add ToolTip for reservoir change
+
 ## 0.8.0 - 2019-12-20 
 ### Added
 - PT-865 Display physical activity in CGM section

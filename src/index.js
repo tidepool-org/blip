@@ -35,6 +35,7 @@ import Stat from './components/common/stat/Stat';
 import CBGTooltip from './components/daily/cbgtooltip/CBGTooltip';
 import FoodTooltip from './components/daily/foodtooltip/FoodTooltip';
 import PhysicalTooltip from './components/daily/physicaltooltip/PhysicalTooltip';
+import ReservoirTooltip from './components/daily/reservoirtooltip/ReservoirTooltip';
 
 import reducers from './redux/reducers/';
 
@@ -74,6 +75,7 @@ const components = {
   CBGTooltip,
   FoodTooltip,
   PhysicalTooltip,
+  ReservoirTooltip,
 };
 
 const containers = {
