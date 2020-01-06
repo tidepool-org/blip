@@ -2,21 +2,19 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## UNRELEASED
+## 0.11.0 - 2020-01-06
 ### Fixed
 - PT-869 Fix labelling issue in validation errors
-  
-### Added
-- PN-10 Add Show/hide password in Signup page
-- PN-9 Add Show/hide password in Login page
-- PT-412 Add option to display password when changing password
-- PT-865 Display physical activity in Bolus/Food section
 
 ### Changed
  - PT-836 Display list of patients to clinician as a default behaviour
 
 ### Added
  - PT-883 Display reservoir change in daily BG section
+ - PN-10 Add Show/hide password in Signup page
+ - PN-9 Add Show/hide password in Login page
+ - PT-412 Add option to display password when changing password
+ - PT-865 Display physical activity in Bolus/Food section
 
 ## 0.10.0 - 2019-12-09 
 ### Added
