@@ -2,6 +2,9 @@
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
 ## Unreleased
+
+## 1.6.0 - 2020-01-06
+
 ### Added
 - PT-882 Display reservoir change in Glycemia section
 
