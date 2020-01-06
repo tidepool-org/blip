@@ -14,6 +14,9 @@ It is based on Tidepool Blip 1.27.
 ### Changed
  - PT-836 Display list of patients to clinician as a default behaviour
 
+### Added
+ - PT-883 Display reservoir change in daily BG section
+
 ## 0.10.0 - 2019-12-09 
 ### Added
  - PT-844 Integrate Tideline 1.4.0 with new logo/picto for insulin sites
