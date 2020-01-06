@@ -1714,7 +1714,7 @@ describe('PatientData', function () {
 
       sinon.assert.callCount(pickSpy, 2);
       assert(dailyFilterStub.calledBefore(bgLogFilterStub));
-      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
+      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']);
       expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
 
       assert(dailyFilterStub.calledBefore(props.generatePDFRequest));

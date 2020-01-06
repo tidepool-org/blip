@@ -10,6 +10,7 @@ It is based on Tidepool Blip 1.27.
 - PN-10 Add Show/hide password in Signup page
 - PN-9 Add Show/hide password in Login page
 - PT-412 Add option to display password when changing password
+- PT-865 Display physical activity in Bolus/Food section
 
 ### Changed
  - PT-836 Display list of patients to clinician as a default behaviour

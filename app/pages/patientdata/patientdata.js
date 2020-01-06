@@ -599,7 +599,7 @@ export let PatientData = translate()(React.createClass({
         mostRecent,
         _.pick(
           data.grouped,
-          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
+          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']
         ),
         state.printOpts.numDays.daily,
         state.timePrefs,

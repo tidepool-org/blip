@@ -85,6 +85,7 @@ describe('constants', function() {
       'bolus',
       'wizard',
       'food',
+      'physicalActivity',
     ]);
   });
 
