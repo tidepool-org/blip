@@ -841,15 +841,15 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-export-data-worker.5":
-  version "1.10.0-export-data-worker.5"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-export-data-worker.5.tgz#261ab32168c7d637a32ec77e05852c4dcc0a3ae5"
-  integrity sha512-7UOtSv6Ji/cvLTaNzxgNgmK3o328xZkKa7/4dWI7eG+vawWfuZpwh+fRXfpj3kq5BvXrXG7j4Yek1w79lHnNTQ==
+"@tidepool/viz@1.10.0-web-709-csp-validation-fix.1":
+  version "1.10.0-web-709-csp-validation-fix.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-web-709-csp-validation-fix.1.tgz#53056c166c11230e3caad3b1e5fc66ee278d1cde"
+  integrity sha512-oJjktO8yn04+4Lc2maqh0KQ5NfFxSzk0cBv9vmEDT/9LcFI/0492fmBKbuBOqKQvAoK9ojGzrSG0MuNCFcKvrQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
     classnames "2.2.6"
-    crossfilter2 crossfilter/crossfilter#cb4588dc16
+    crossfilter2 "1.4.8"
     d3-array "1.2.4"
     d3-format "1.3.2"
     d3-scale "2.1.2"
@@ -857,7 +857,7 @@
     d3-time "1.0.10"
     d3-time-format "2.1.3"
     emotion "9.2.9"
-    fastest-validator "0.6.17"
+    fastest-validator "0.6.10"
     gsap "2.0.2"
     i18next "11.9.0"
     intl "1.2.5"
@@ -3025,18 +3025,19 @@ cross-spawn@^5.0.1:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
+crossfilter2@1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/crossfilter2/-/crossfilter2-1.4.8.tgz#a723bc47d91560bc93e43ad4444c7aa37ea36980"
+  integrity sha512-H3D2AyRGpRYK0pKs6kgwALuNb3J6/PuW/sIckPDxPi2wz+TX1Cp/1+BC7sKkMUF12RGPjV/PNANF/W4TQ+4BLg==
+  dependencies:
+    lodash.result "^4.4.0"
+
 crossfilter2@^1.4.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/crossfilter2/-/crossfilter2-1.5.0.tgz#6dcbd2add9ae3dd6c2be11fcf0b85d458cbade4a"
   integrity sha512-ia2jwcYSqlAg75kCU89QlHKk9dYyxk5ODX5s4Rd09sUkopE99wz0Bzmty8tmKmEX+5RU4guRio/uPKXfDqkj2w==
   dependencies:
     "@ranfdev/deepobj" "1.0.2"
-
-"crossfilter2@github:crossfilter/crossfilter#cb4588dc16":
-  version "1.4.7"
-  resolved "https://codeload.github.com/crossfilter/crossfilter/tar.gz/cb4588dc16e11fd705ddb7a330f94627179c9eb1"
-  dependencies:
-    lodash.result "^4.4.0"
 
 crossfilter@1.3.12:
   version "1.3.12"
@@ -4444,10 +4445,10 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
-fastest-validator@0.6.17:
-  version "0.6.17"
-  resolved "https://registry.yarnpkg.com/fastest-validator/-/fastest-validator-0.6.17.tgz#15a8eef2c7c5a3268e4689dfd4a4b6553f0ff8b1"
-  integrity sha512-XkdrjNbXwFJSn8s8dceofnA2ZHppfXtbTHP2dO2jXHZfm2GWP55VQBx/0UKWxfFfdWqmJv4ppBzuf342h5bahw==
+fastest-validator@0.6.10:
+  version "0.6.10"
+  resolved "https://registry.yarnpkg.com/fastest-validator/-/fastest-validator-0.6.10.tgz#1d120c2fa9afd73612911db099ff707c028f8461"
+  integrity sha512-vef5q97XgY3RWUPGDmt/y0Brxuig/mg1Hctl1BG5roPMVeEiSzaGbSPPPNELGxUkDmAzmhS1f0I7aSxqSu2vzQ==
 
 fastparse@^1.1.1:
   version "1.1.1"
