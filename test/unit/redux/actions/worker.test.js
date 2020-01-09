@@ -29,17 +29,17 @@ describe('worker action creators', () => {
   describe('generatePDFRequest', () => {
     const payload = {
       type: 'combined',
-      data: [],
+      queries: {},
       opts: {},
     };
 
     const {
       type,
-      data,
+      queries,
       opts,
     } = payload;
 
-    const action = worker.generatePDFRequest(type, data, opts);
+    const action = worker.generatePDFRequest(type, queries, opts);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -51,7 +51,7 @@ describe('worker action creators', () => {
         meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin },
         payload: {
           type,
-          data: JSON.stringify(data),
+          queries,
           opts,
         },
       });

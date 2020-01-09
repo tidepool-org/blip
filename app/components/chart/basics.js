@@ -12,6 +12,8 @@ import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { ClipboardButton, Loader } = vizComponents;
 const { basicsText } = vizUtils.text;
 
+import { isMissingBasicsData } from '../../core/data';
+
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
@@ -177,20 +179,8 @@ class Basics extends Component {
   }
 
   isMissingBasics = () => {
-    const {
-      basals = {},
-      boluses = {},
-      fingersticks = {},
-      siteChanges = {},
-    } = _.get(this.props, 'data.data.aggregationsByDate', {});
-
-    const {
-      calibration = {},
-      smbg = {},
-    } = fingersticks;
-
-    const basicsData = [basals, boluses, siteChanges, calibration, smbg];
-    return !_.some(basicsData, d => _.keys(d.byDate).length > 0);
+    const aggregationsByDate = _.get(this.props, 'data.data.aggregationsByDate', {});
+    return isMissingBasicsData(aggregationsByDate);
   };
 
   // handlers

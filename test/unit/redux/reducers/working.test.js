@@ -1673,6 +1673,20 @@ describe('working', () => {
     });
   });
 
+  describe('removingGeneratedPDFS', () => {
+    describe('success', () => {
+      it('should set generatingPDF to it\'s original state', () => {
+        let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: false, completed: true } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.worker.removeGeneratedPDFS();
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.generatingPDF).to.eql(initialState.generatingPDF);
+      });
+    });
+  });
+
   describe('dataWorkerAddData', () => {
     describe('request', () => {
       it('should leave addingData.completed unchanged', () => {

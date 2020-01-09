@@ -145,6 +145,7 @@ export default (state = initialWorkingState, action) => {
     case types.UPDATE_USER_SUCCESS:
     case types.VERIFY_CUSTODIAL_SUCCESS:
     case types.GENERATE_PDF_SUCCESS:
+    case types.REMOVE_GENERATED_PDFS:
     case types.DATA_WORKER_ADD_DATA_SUCCESS:
     case types.DATA_WORKER_REMOVE_DATA_SUCCESS:
     case types.DATA_WORKER_UPDATE_DATUM_SUCCESS:
@@ -179,6 +180,14 @@ export default (state = initialWorkingState, action) => {
                 completed: true,
               }
             }
+          });
+        } else if (action.type === types.REMOVE_GENERATED_PDFS) {
+          const generatingPDFWorkingKey = actionWorkingMap(types.GENERATE_PDF_SUCCESS);
+          console.log('generatingPDFWorkingKey', generatingPDFWorkingKey, initialState.working[generatingPDFWorkingKey]);
+          return update(initialWorkingState, {
+            [generatingPDFWorkingKey]: {
+              $set: initialState.working[generatingPDFWorkingKey],
+            },
           });
         } else {
           return update(state, {
