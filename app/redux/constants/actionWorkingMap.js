@@ -151,6 +151,9 @@ export default (type) => {
     case types.GENERATE_PDF_FAILURE:
       return 'generatingPDF';
 
+    case types.REMOVE_GENERATED_PDFS:
+      return 'removingGeneratedPDFS';
+
     case types.DATA_WORKER_ADD_DATA_REQUEST:
     case types.DATA_WORKER_ADD_DATA_SUCCESS:
     case types.DATA_WORKER_ADD_DATA_FAILURE:

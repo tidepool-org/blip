@@ -45,15 +45,11 @@ import UploaderButton from '../../components/uploaderbutton';
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import {
-  MGDL_UNITS,
-  MMOLL_UNITS,
-  MGDL_PER_MMOLL,
-  DIABETES_DATA_TYPES,
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { addDuration, findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
 export let PatientData = translate()(React.createClass({
@@ -69,7 +65,7 @@ export let PatientData = translate()(React.createClass({
     fetchingPatientData: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     generatePDFRequest: React.PropTypes.func.isRequired,
-    generatingPDF: React.PropTypes.bool.isRequired,
+    generatingPDF: React.PropTypes.object.isRequired,
     isUserPatient: React.PropTypes.bool.isRequired,
     messageThread: React.PropTypes.array,
     onCloseMessageThread: React.PropTypes.func.isRequired,
@@ -96,7 +92,9 @@ export let PatientData = translate()(React.createClass({
         basics: {
           sections: {},
         },
-        daily: {},
+        daily: {
+          extentSize: 1,
+        },
         trends: {
           activeDays: {
             monday: true,
@@ -134,6 +132,7 @@ export let PatientData = translate()(React.createClass({
         },
         bgLog: {
           bgSource: 'smbg',
+          extentSize: 14,
         },
         settings: {
           touched: false,
@@ -496,84 +495,6 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  // Commenting out for now. Will revisit when updating the print views to leverage the new data worker
-  // generatePDFStats: function (data, state) {
-  //   const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
-  //   const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
-
-  //   const getStat = (statType) => {
-  //     const { bgSource, days } = this.dataUtil;
-
-  //     return getStatDefinition(this.dataUtil[statFetchMethods[statType]](), statType, {
-  //       bgSource,
-  //       days,
-  //       bgPrefs: {
-  //         bgBounds,
-  //         bgUnits,
-  //       },
-  //       manufacturer,
-  //     });
-  //   };
-
-  //   const basicsDateRange = _.get(data, 'basics.dateRange');
-  //   if (basicsDateRange) {
-  //     data.basics.endpoints = [
-  //       basicsDateRange[0],
-  //       getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString(),
-  //     ];
-
-  //     this.dataUtil.endpoints = data.basics.endpoints;
-  //     this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-
-  //     data.basics.stats = {
-  //       [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-  //       [commonStats.readingsInRange]: getStat(commonStats.readingsInRange),
-  //       [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-  //       [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-  //       [commonStats.carbs]: getStat(commonStats.carbs),
-  //       [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
-  //     }
-  //   }
-
-  //   const dailyDateRanges = _.get(data, 'daily.dataByDate');
-  //   if (dailyDateRanges) {
-  //     _.forIn(dailyDateRanges, _.bind(function(value, key) {
-  //       data.daily.dataByDate[key].endpoints = [
-  //         getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
-  //         getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
-  //       ];
-
-  //       this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
-  //       this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
-
-  //       data.daily.dataByDate[key].stats = {
-  //         [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-  //         [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-  //         [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-  //         [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-  //         [commonStats.carbs]: getStat(commonStats.carbs),
-  //       };
-  //     }, this));
-  //   }
-
-  //   const bgLogDateRange = _.get(data, 'bgLog.dateRange');
-  //   if (bgLogDateRange) {
-  //     data.bgLog.endpoints = [
-  //       getLocalizedCeiling(bgLogDateRange[0], state.timePrefs).toISOString(),
-  //       addDuration(getLocalizedCeiling(bgLogDateRange[1], state.timePrefs).toISOString(), 864e5),
-  //     ];
-
-  //     this.dataUtil.endpoints = data.bgLog.endpoints;
-  //     this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
-
-  //     data.bgLog.stats = {
-  //       [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-  //     };
-  //   }
-
-  //   return data;
-  // },
-
   generateStats: function (props = this.props, state = this.state) {
     const {
       chartType,
@@ -589,14 +510,11 @@ export let PatientData = translate()(React.createClass({
     const stats = [];
 
     _.forOwn(statsData, (data, statType) => {
-      const chartStatOpts = _.get(chartPrefs, [chartType, statType]);
-
       const stat = getStatDefinition(data, statType, {
         bgSource,
         days: endpoints.activeDays || endpoints.days,
         bgPrefs,
         manufacturer,
-        ...chartStatOpts,
       });
 
       if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
@@ -610,64 +528,81 @@ export let PatientData = translate()(React.createClass({
     return stats;
   },
 
-  generatePDF: function (props, state) {
-    // TODO: All data selection here to use new data worker
-    const data = state.processedPatientData;
-    const diabetesData = data.diabetesData;
-
+  generatePDF: function (props = this.props, state = this.state) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    if (diabetesData.length > 0) {
-      const mostRecent = diabetesData[diabetesData.length - 1].normalTime; // TODO: Get from data.metaData.latestDatumByType
-      const opts = {
-        bgPrefs: state.bgPrefs,
-        numDays: state.printOpts.numDays,
-        patient: pdfPatient,
-        timePrefs: state.timePrefs,
-        mostRecent,
-      };
+    const opts = {
+      patient: pdfPatient,
+    };
 
-      const dailyData = vizUtils.data.selectDailyViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
+    const commonQueries = {
+      bgPrefs: state.bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs: state.timePrefs,
+    };
+
+    const queries = {
+      basics: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
+          { chartType: 'basics' }
         ),
-        state.printOpts.numDays.daily,
-        state.timePrefs,
-      );
-
-      const bgLogData = vizUtils.data.selectBgLogViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['smbg']
+        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+        stats: this.getStatsByChartType('basics'),
+        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        ...commonQueries,
+      },
+      daily: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
+          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
         ),
-        state.printOpts.numDays.bgLog,
-        state.timePrefs,
-      );
+        aggregationsByDate: 'dataByDate, statsByDate',
+        stats: this.getStatsByChartType('daily'),
+        types: {
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        },
+        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+        ...commonQueries,
+      },
+      bgLog: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
+          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
+        ),
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      },
+      settings: {
+        ...commonQueries,
+      },
+    };
 
-      const pdfData = {
-        basics: data.basicsData,
-        daily: dailyData,
-        settings: _.last(data.grouped.pumpSettings),
-        bgLog: bgLogData,
-      }
+    this.log('Generating PDF with', queries, opts);
 
-      // this.generatePDFStats(pdfData, state);
+    window.downloadPDFDataQueries = () => {
+      console.save(queries, 'PDFDataQueries.json');
+    };
 
-      this.log('Generating PDF with', pdfData, opts);
-
-      props.generatePDFRequest(
-        'combined',
-        pdfData,
-        opts,
-      );
-    }
+    props.generatePDFRequest(
+      'combined',
+      queries,
+      opts,
+    );
   },
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
@@ -941,11 +876,14 @@ export let PatientData = translate()(React.createClass({
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
+      applyTimeZoneToStart = (this.state.chartType !== 'daily'),
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
     } = opts;
 
-    const timezoneName = getTimezoneFromTimePrefs(this.state.timePrefs);
+    const extentSize = opts.extentSize || _.get(this.state.chartPrefs, [chartType, 'extentSize']);
+
+    const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
     let start;
     const end = setEndToLocalCeiling
@@ -958,15 +896,15 @@ export let PatientData = translate()(React.createClass({
         break;
 
       case 'daily':
-        start = moment.utc(end).subtract(1, 'day').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
 
       case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(14, 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
 
       case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(_.get(this.state.chartPrefs, 'trends.extentSize'), 'days').valueOf();
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
         break;
     }
 
@@ -1001,14 +939,14 @@ export let PatientData = translate()(React.createClass({
     );
   },
 
-  getStatsByChartType: function() {
-    const cbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'cbg';
-    const smbgSelected = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']) === 'smbg';
+  getStatsByChartType: function(chartType = this.state.chartType) {
+    const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
+    const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
 
     let stats = [];
 
-    switch (this.state.chartType) {
+    switch (chartType) {
       case 'basics':
         cbgSelected && stats.push(commonStats.timeInRange);
         smbgSelected && stats.push(commonStats.readingsInRange);
@@ -1273,18 +1211,14 @@ export let PatientData = translate()(React.createClass({
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
-    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
-    const userFetched = !nextProps.fetchingUser;
-
-    // TODO: might want to derive this in data worker and add to metaData
-    const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
+    const pdfGenerating = nextProps.generatingPDF.inProgress;
+    const pdfGenerated = nextProps.generatingPDF.completed;
+    const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
       this.generatePDF(nextProps, nextState);
     }
   },
@@ -1297,7 +1231,7 @@ export let PatientData = translate()(React.createClass({
       metaData: 'bgSources',
     });
 
-    if (this.state.queryingData) return;
+    if (this.state.queryingData || this.props.generatingPDF.inProgress) return;
     this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
@@ -1448,7 +1382,7 @@ export let PatientData = translate()(React.createClass({
 
       const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
-          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'utc')
+          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
@@ -1520,99 +1454,6 @@ export let PatientData = translate()(React.createClass({
       this.setState({ loading: false });
     }, timeout);
   },
-
-  // Commenting out for now. Will revisit when updating the print views to leverage the new data worker
-  // handleInitialProcessedData: function(props, processedData, patientSettings) {
-  //   const userId = props.currentPatientInViewId;
-  //   const patientData = _.get(props, ['patientDataMap', userId], []);
-  //   const patientNotes = _.get(props, ['patientNotesMap', userId], []);
-
-  //   if (!this.state.chartType) {
-  //     this.setInitialChartView(processedData);
-  //   }
-
-  //   let combinedData = patientData.concat(patientNotes);
-
-  //   window.downloadPrintViewData = () => {
-  //     // const initialBgUnits = this.dataUtil.bgUnits;
-
-  //     const prepareProcessedData = (bgUnits) => {
-  //       const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
-
-  //       return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
-  //         combinedData,
-  //         props.queryParams,
-  //         _.assign({}, patientSettings, {
-  //           bgTarget: {
-  //             low: patientSettings.bgTarget.low * multiplier,
-  //             high: patientSettings.bgTarget.high * multiplier,
-  //           },
-  //           units: { bg: bgUnits }
-  //         }),
-  //       );
-  //     };
-
-  //     const data = {
-  //       [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
-  //       [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
-  //     };
-
-  //     const bgPrefs = {
-  //       [MGDL_UNITS]: {
-  //         bgClasses: data[MGDL_UNITS].bgClasses,
-  //         bgUnits: data[MGDL_UNITS].bgUnits
-  //       },
-  //       [MMOLL_UNITS]: {
-  //         bgClasses: data[MMOLL_UNITS].bgClasses,
-  //         bgUnits: data[MMOLL_UNITS].bgUnits
-  //       },
-  //     };
-
-  //     const dData = {
-  //       [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
-  //       [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
-  //     };
-
-  //     const preparePrintData = (bgUnits) => {
-  //       // this.dataUtil.bgPrefs = bgPrefs[bgUnits];
-  //       // this.dataUtil.removeData();
-  //       // this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
-  //       // TODO: query data worker for this data
-
-  //       return this.generatePDFStats({
-  //         basics: data[bgUnits].basicsData,
-  //         daily: vizUtils.data.selectDailyViewData(
-  //           dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-  //           _.pick(
-  //             data[bgUnits].grouped,
-  //             ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
-  //           ),
-  //           this.state.printOpts.numDays.daily,
-  //           this.state.timePrefs,
-  //         ),
-  //         settings: _.last(data[bgUnits].grouped.pumpSettings),
-  //         bgLog: vizUtils.data.selectBgLogViewData(
-  //           dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-  //           _.pick(
-  //             data[bgUnits].grouped,
-  //             ['smbg']
-  //           ),
-  //           this.state.printOpts.numDays.bgLog,
-  //           this.state.timePrefs,
-  //         ),
-  //       }, this.state);
-  //     };
-
-  //     console.save({
-  //       [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
-  //       [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
-  //     }, 'print-view.json');
-
-  //     // this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
-  //     // this.dataUtil.removeData();
-  //     // this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
-  //   };
-  // },
 
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
@@ -1716,7 +1557,7 @@ export function mapStateToProps(state, props) {
     addingData: state.blip.working.addingData,
     updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
-    generatingPDF: state.blip.working.generatingPDF.inProgress,
+    generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
   };
