@@ -2529,14 +2529,14 @@ describe('PatientData', function () {
       setStateSpy = sinon.spy(instance, 'setState');
     });
 
-    it('should should return without doing anything if `state.queryingData` is `true`', () => {
+    it('should return without doing anything if `state.queryingData` is `true`', () => {
       wrapper.setState({ queryingData: true });
       setStateSpy.resetHistory();
       instance.queryData();
       sinon.assert.notCalled(setStateSpy);
     });
 
-    it('should should return without doing anything if `props.generatingPDF.inProgress` is `true`', () => {
+    it('should return without doing anything if `props.generatingPDF.inProgress` is `true`', () => {
       wrapper.setProps(_.assign({}, defaultProps, {
         generatingPDF: { inProgress: true },
       }));
