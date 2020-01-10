@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-web-709-csp-validation-fix.2":
-  version "1.10.0-web-709-csp-validation-fix.2"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-web-709-csp-validation-fix.2.tgz#9efef5dea65324d1285613b17e33d68d8e6b7003"
-  integrity sha512-1oH+CnRNkzuIcpBv2841XglymqNQVGCBzFIl1OUBFWBg4eA3fd6j1t/GfILOH8uW247VU7CxlHHmMnNrL7Stiw==
+"@tidepool/viz@1.10.0-new-data-util.1":
+  version "1.10.0-new-data-util.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-new-data-util.1.tgz#2ddf19ad7290db9dbd7e9feed4899f2467dc33fe"
+  integrity sha512-KEPV9N8komroMVg1Zsqh1e4ZwDFXEeyqA+pjGW2/A4A9Gx5+Bct+Y3ePUx5H/nUwsREqCsz4lKUWDFKHH/hGmg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
