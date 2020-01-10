@@ -17,11 +17,13 @@
 
 import _  from 'lodash';
 import sundial from 'sundial';
-import TidelineData from 'tideline/js/tidelinedata';
-import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
 
-var utils = {};
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
+import { utils as vizUtils } from '@tidepool/viz';
+
+const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
+
+const utils = {};
 
 /**
  * Convenience function for capitalizing a string
@@ -286,9 +288,8 @@ utils.roundBgTarget = (value, units) => {
   return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
 }
 
-utils.getTimezoneForDataProcessing = (data, queryParams) => {
+utils.getTimePrefsForDataProcessing = (latestUpload, queryParams) => {
   var timePrefsForTideline;
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   try {
@@ -297,7 +298,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
     browserTimezone = false;
   }
 
-  function setNewTimePrefs(timezoneName) {
+  function setNewTimePrefs(timezoneName, fallbackToBrowserTimeZone = true) {
     try {
       sundial.checkTimezoneName(timezoneName);
       timePrefsForTideline = {
@@ -305,7 +306,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
         timezoneName: timezoneName
       };
     } catch(err) {
-      if (browserTimezone) {
+      if (fallbackToBrowserTimeZone && browserTimezone) {
         console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
         timePrefsForTideline = {
           timezoneAware: true,
@@ -314,19 +315,21 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
       }
       else {
         console.log('Not a valid timezone! Defaulting to timezone-naive display.');
-        timePrefsForTideline = {};
+        timePrefsForTideline = {
+          timezoneAware: false,
+        };
       }
     }
   }
 
   // a timezone in the queryParams always overrides any other timePrefs
   if (!_.isEmpty(queryParams.timezone)) {
-    setNewTimePrefs(queryParams.timezone);
+    setNewTimePrefs(queryParams.timezone, false);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-    setNewTimePrefs(mostRecentUpload.timezone);
-    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  else if (!_.isEmpty(latestUpload) && !_.isEmpty(latestUpload.timezone)) {
+    setNewTimePrefs(latestUpload.timezone);
+    console.log('Defaulting to display in timezone of most recent upload at', latestUpload.normalTime, latestUpload.timezone);
   }
   else if (browserTimezone) {
     setNewTimePrefs(browserTimezone);
@@ -338,19 +341,23 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
-  var bgUnits = _.get(settings, 'units.bg', MGDL_UNITS);
+utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
+  var bgUnits = _.get(patientSettings, 'units.bg', MGDL_UNITS);
+
+  const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
+  const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
+
   var bgClasses = {
-    low: { boundary: utils.roundBgTarget(settings.bgTarget.low, bgUnits) },
-    target: { boundary: utils.roundBgTarget(settings.bgTarget.high, bgUnits) },
+    low: { boundary: utils.roundBgTarget(low, bgUnits) },
+    target: { boundary: utils.roundBgTarget(high, bgUnits) },
   };
 
   // Allow overriding stored BG Unit preferences via query param
   const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
   if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
     bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
-    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.low, bgUnits), bgUnits);
-    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.high, bgUnits), bgUnits);
+    bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.low, bgUnits), bgUnits);
+    bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(patientSettings.bgTarget.high, bgUnits), bgUnits);
     console.log(`Displaying BG in ${bgUnits} from query params`);
   }
 
@@ -359,47 +366,6 @@ utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
     bgClasses,
   };
 }
-
-utils.filterPatientData = (data, bgUnits) => {
-  return nurseShark.processData(data, bgUnits);
-}
-
-utils.processPatientData = (data, queryParams, settings) => {
-  if (!(data && data.length >= 0)) {
-    return null;
-  }
-
-  const timePrefsForTideline = utils.getTimezoneForDataProcessing(data, queryParams);
-  const bgPrefs = utils.getBGPrefsForDataProcessing(queryParams, settings);
-
-  console.time('Nurseshark Total');
-  const res = utils.filterPatientData(data, bgPrefs.bgUnits);
-  console.timeEnd('Nurseshark Total');
-
-  console.time('TidelineData Total');
-  let tidelineData = new TidelineData(res.processedData, {
-    timePrefs: timePrefsForTideline,
-    bgUnits: bgPrefs.bgUnits,
-    bgClasses: bgPrefs.bgClasses,
-  });
-
-  if (!_.isEmpty(timePrefsForTideline)) {
-    tidelineData.timePrefs = timePrefsForTideline;
-  }
-
-  console.timeEnd('TidelineData Total');
-
-  window.tidelineData = tidelineData;
-  window.downloadProcessedData = () => {
-    console.save(res.processedData, 'nurseshark-output.json');
-  };
-  window.downloadErroredData = () => {
-    console.save(res.erroredData, 'errored.json');
-  };
-
-  return tidelineData;
-};
-
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
@@ -443,45 +409,4 @@ utils.getLatestGithubRelease = (releases) => {
   };
 }
 
-/**
- * Get the earliest and latest dates, span in days, and count of
- * diabetes data in a raw data set
- * @param {Array} data - The raw unprocessed data
- * @returns {Object}
- */
-utils.getDiabetesDataRange = (data) => {
-  const sortedData = _.sortBy(_.filter(data, d => _.includes(DIABETES_DATA_TYPES, d.type)), 'time');
-
-  const start = _.get(_.head(sortedData), 'time');
-  const end = _.get(_.last(sortedData), 'time');
-  const spanInDays = (start && end) ? sundial.dateDifference(end, start, 'days') : null;
-  const count = sortedData.length;
-
-  return {
-    start,
-    end,
-    spanInDays,
-    count,
-  };
-}
-
-/**
- * Get the latest pump settings data in a raw data set
- * @param {Array} data - The raw unprocessed data
- * @returns {Object} An object with the following shape:
- *    @property {Object} latestPumpSettings - The most recent pumpSettings datum found, else undefined
- *    @property {Object} uploadRecord - upload record matching latestPumpSettings.uploadId, else undefined
- */
-utils.getLatestPumpSettings = (data) => {
-  const sortedData = _.sortBy(data, ['time']).reverse();
-  const latestPumpSettings = _.find(sortedData, { type: 'pumpSettings' });
-  const uploadId = _.get(latestPumpSettings, 'uploadId');
-  const uploadRecord = _.find(sortedData, { type: 'upload', uploadId });
-
-  return {
-    latestPumpSettings,
-    uploadRecord,
-  }
-}
-
-module.exports = utils;
+export default utils;

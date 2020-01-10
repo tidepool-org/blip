@@ -23,22 +23,55 @@ import _ from 'lodash';
 import * as actions from '../redux/actions/worker';
 import * as actionTypes from '../redux/constants/actionTypes';
 import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
+import { isMissingBasicsData } from '../core/data';
 
 export default class PDFWorker {
-  constructor(importer, renderer) {
+  constructor(dataUtil, importer, renderer) {
     this.log = __DEV__ ? bows('PDFWorker') : _.noop;
-    this.log('Ready!');
     this.importer = importer;
     this.renderer = renderer;
+    this.dataUtil = dataUtil;
+
+    this.log('Ready!');
   }
 
   handleMessage(msg, postMessage) {
     const { data: action } = msg;
+
     switch (action.type) {
       case actionTypes.GENERATE_PDF_REQUEST: {
-        const { type, opts } = action.payload;
-        const data = JSON.parse(action.payload.data);
+        const { type, opts, queries } = action.payload;
         const { origin } = action.meta;
+        const data = {};
+
+        if (queries) {
+          _.each(queries, (query, key) => {
+            this.log(key, query);
+            data[key] = this.dataUtil.query(query);
+            opts[key] = {};
+
+            switch(key) {
+              case 'basics':
+                opts[key].disabled = isMissingBasicsData(_.get(data, 'basics.data.current.aggregationsByDate'));
+                break;
+
+              case 'daily':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'daily.data.current.data', {}))).length > 0;
+                break;
+
+              case 'bgLog':
+                opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'bgLog.data.current.data', {}))).length > 0;
+                break;
+
+              case 'settings':
+                opts[key].disabled = !_.get(data, 'settings.metaData.latestPumpUpload.settings');
+                break
+            }
+          });
+        }
+
+        this.log('data', data);
+        this.log('opts', opts);
 
         const importLib = typeof this.importer !== 'undefined' ? this.importer : importScripts;
         const renderLib = typeof this.renderer !== 'undefined' ?

@@ -28,7 +28,6 @@ import config from '../../config';
 
 import * as actions from '../../redux/actions';
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
-import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
@@ -40,38 +39,33 @@ import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
-import nurseShark from 'tideline/plugins/nurseshark/';
-
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
 import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import {
-  MGDL_UNITS,
-  MMOLL_UNITS,
-  MGDL_PER_MMOLL,
-  DIABETES_DATA_TYPES,
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { DataUtil } = vizUtils.data;
-const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
-const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
-const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
+const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { commonStats, getStatDefinition } = vizUtils.stat;
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
-    addPatientNote: React.PropTypes.func.isRequired,
-    clearPatientData: React.PropTypes.func.isRequired,
+    addingData: React.PropTypes.object.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
+    data: React.PropTypes.object,
+    dataWorkerRemoveDataRequest: React.PropTypes.func.isRequired,
+    dataWorkerRemoveDataSuccess: React.PropTypes.func.isRequired,
+    dataWorkerQueryDataRequest: React.PropTypes.func.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
     generatePDFRequest: React.PropTypes.func.isRequired,
-    generatingPDF: React.PropTypes.bool.isRequired,
+    generatingPDF: React.PropTypes.object.isRequired,
     isUserPatient: React.PropTypes.bool.isRequired,
     messageThread: React.PropTypes.array,
     onCloseMessageThread: React.PropTypes.func.isRequired,
@@ -81,22 +75,26 @@ export let PatientData = translate()(React.createClass({
     onRefresh: React.PropTypes.func.isRequired,
     onSaveComment: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
-    patientDataMap: React.PropTypes.object.isRequired,
-    patientNotesMap: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object,
+    queryingData: React.PropTypes.object.isRequired,
     queryParams: React.PropTypes.object.isRequired,
     removeGeneratedPDFS: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updatePatientNote: React.PropTypes.func.isRequired,
+    updateBasicsSettings: React.PropTypes.func.isRequired,
+    updatingDatum: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
     user: React.PropTypes.object,
-    viz: React.PropTypes.object.isRequired,
   },
 
   getInitialState: function() {
     var state = {
       chartPrefs: {
-        basics: {},
-        daily: {},
+        basics: {
+          sections: {},
+        },
+        daily: {
+          extentSize: 1,
+        },
         trends: {
           activeDays: {
             monday: true,
@@ -116,9 +114,28 @@ export let PatientData = translate()(React.createClass({
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
+
+          // Formerly in viz.trends redux store
+          cbgFlags: {
+            cbg100Enabled: true,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
+          focusedCbgDateTrace: null,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgDateTraces: false,
+          touched: false,
         },
         bgLog: {
           bgSource: 'smbg',
+          extentSize: 14,
+        },
+        settings: {
+          touched: false,
         },
       },
       printOpts: {
@@ -129,19 +146,13 @@ export let PatientData = translate()(React.createClass({
       },
       createMessage: null,
       createMessageDatetime: null,
+      data: {},
       datetimeLocation: null,
-      endpoints: [],
+      queryDataCount: 0,
       fetchEarlierDataCount: 0,
-      lastDatumProcessedIndex: -1,
-      lastDiabetesDatumProcessedIndex: -1,
       loading: true,
-      processingData: false,
-      processEarlierDataCount: 0,
-      processedPatientData: null,
-      timePrefs: {
-        timezoneAware: false,
-        timezoneName: null
-      },
+      transitioningChartType: false,
+      timePrefs: {},
       showUploadOverlay: false,
     };
 
@@ -150,13 +161,21 @@ export let PatientData = translate()(React.createClass({
 
   log: bows('PatientData'),
 
+  isInitialProcessing: function() {
+    const isSettings = this.state.chartType === 'settings';
+    const dataFetched = _.get(this.props.data, 'metaData.size');
+    const isEmptyDataSet = dataFetched === 0;
+    const rangeDataLoaded = isSettings || _.get(this.state, 'chartEndpoints.current.0', 0) !== 0;
+
+    return isEmptyDataSet
+      ? false
+      : !dataFetched || !rangeDataLoaded;
+  },
+
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
-    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
-    const patientID = this.props.currentPatientInViewId;
-    const missingPatientData = !_.get(this.props, ['patientDataMap', patientID]);
-    const showLoader = initialProcessing && missingPatientData;
+    const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
     return (
       <div className="patient-data js-patient-data-page">
@@ -168,9 +187,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderPatientData: function() {
-    const initialProcessing = this.state.lastDatumProcessedIndex < 0;
-
-    if (initialProcessing && this.state.loading) {
+    if (this.isInitialProcessing() || this.state.transitioningChartType) {
       return this.renderInitialLoading();
     }
 
@@ -181,14 +198,14 @@ export let PatientData = translate()(React.createClass({
     return this.renderChart();
   },
 
-  renderEmptyHeader: function() {
+  renderEmptyHeader: function(title = 'Preparing Chart Data') {
     const { t } = this.props;
     return (
       <Header
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t('Data')}
+        title={t(title)}
         ref="header" />
       );
   },
@@ -210,7 +227,7 @@ export let PatientData = translate()(React.createClass({
   renderNoData: function() {
     const { t } = this.props;
     var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
-    var header = this.renderEmptyHeader();
+    var header = this.renderEmptyHeader('No Data Available');
     var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
 
     var self = this;
@@ -268,15 +285,14 @@ export let PatientData = translate()(React.createClass({
   },
 
   isEmptyPatientData: function() {
-    return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
+    return (!_.get(this.props, 'patient.userid', false) || _.get(this.props.data, 'metaData.size', 0) <= 0);
   },
 
   isInsufficientPatientData: function() {
-    var data = _.get(this.state.processedPatientData, 'data', {});
-    // add additional checks against data and return false iff:
-    // only messages data
-    if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
-      this.log('Sorry, tideline is kind of pointless with only messages.');
+    var latestDataByType = _.values(_.get(this.props.data, 'metaData.latestDatumByType', {}));
+
+    if (_.reject(latestDataByType, function(d) { return d.type === 'message'; }).length === 0) {
+      this.log('Sorry, Tidepool Web is kind of pointless with only messages.');
       return true;
     }
     return false;
@@ -287,12 +303,10 @@ export let PatientData = translate()(React.createClass({
       <div>
         <div className="app-no-print">
           <Settings
-            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            timePrefs={this.state.timePrefs}
+            data={this.props.data}
             patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -302,6 +316,7 @@ export let PatientData = translate()(React.createClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
+            updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             ref="tideline" />
@@ -311,19 +326,29 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
+    const isBasics = this.state.chartType === 'basics';
+    const stats = this.generateStats();
+    let aggregations;
+
+    if (isBasics) aggregations = this.getBasicsAggregations();
+
+    window.downloadChartData = () => {
+      console.save({
+        chartPrefs: this.state.chartPrefs[this.state.chartType],
+        data: this.props.data,
+        aggregations,
+        stats,
+      }, `data-${this.state.chartType}.json`);
+    };
+
     switch (this.state.chartType) {
       case 'basics':
         return (
           <Basics
-            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.dataUtil}
-            endpoints={this.state.endpoints}
-            timePrefs={this.state.timePrefs}
-            patient={this.props.patient}
-            patientData={this.state.processedPatientData}
+            data={this.props.data}
+            initialDatetimeLocation={this.state.datetimeLocation}
             loading={this.state.loading}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -333,25 +358,27 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
-            updateBasicsData={this.updateBasicsData}
+            patient={this.props.patient}
+            pdf={this.props.pdf.combined || {}}
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            aggregations={aggregations}
+            stats={stats}
+            // updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
         return (
           <Daily
-            bgPrefs={this.state.bgPrefs}
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.dataUtil}
-            timePrefs={this.state.timePrefs}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -362,24 +389,25 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            pdf={this.props.pdf.combined || {}}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.pdf.combined || {}}
+            updatingDatum={this.props.updatingDatum}
+            queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
       case 'trends':
         return (
           <Trends
-            bgPrefs={this.state.bgPrefs}
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
-            dataUtil={this.dataUtil}
-            timePrefs={this.state.timePrefs}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
-            patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -387,24 +415,24 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
-            trendsState={this.props.viz.trends}
+            queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
       case 'bgLog':
         return (
           <BgLog
-            bgPrefs={this.state.bgPrefs}
+            addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
-            dataUtil={this.dataUtil}
-            timePrefs={this.state.timePrefs}
+            data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
-            patient={this.props.patient}
-            patientData={this.state.processedPatientData}
+            isClinicAccount={personUtils.isClinic(this.props.user)}
             loading={this.state.loading}
+            mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -414,13 +442,14 @@ export let PatientData = translate()(React.createClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            patient={this.props.patient}
+            stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
-            ref="tideline"
-            isClinicAccount={personUtils.isClinic(this.props.user)} />
+            queryDataCount={this.state.queryDataCount}
+            ref="tideline" />
           );
       case 'settings':
         return this.renderSettings();
@@ -443,7 +472,7 @@ export let PatientData = translate()(React.createClass({
     } else if(this.props.messageThread) {
       return (
         <Messages
-          messages={this.props.messageThread}
+          messages={_.cloneDeep(this.props.messageThread)}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
@@ -466,206 +495,166 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  generatePDFStats: function (data, state) {
-    const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
-    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
+  generateStats: function (props = this.props, state = this.state) {
+    const {
+      chartType,
+      chartPrefs,
+      bgPrefs = {},
+    } = this.state;
 
-    const getStat = (statType) => {
-      const { bgSource, days } = this.dataUtil;
+    const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
+    const bgSource = this.getMetaData('bgSources.current');
+    const endpoints = this.getCurrentData('endpoints');
+    const statsData = this.getCurrentData('stats');
 
-      return getStatDefinition(this.dataUtil[statFetchMethods[statType]](), statType, {
+    const stats = [];
+
+    _.forOwn(statsData, (data, statType) => {
+      const stat = getStatDefinition(data, statType, {
         bgSource,
-        days,
-        bgPrefs: {
-          bgBounds,
-          bgUnits,
-        },
+        days: endpoints.activeDays || endpoints.days,
+        bgPrefs,
         manufacturer,
       });
-    };
 
-    const basicsDateRange = _.get(data, 'basics.dateRange');
-    if (basicsDateRange) {
-      data.basics.endpoints = [
-        basicsDateRange[0],
-        getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString(),
-      ];
-
-      this.dataUtil.endpoints = data.basics.endpoints;
-      this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-
-      data.basics.stats = {
-        [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-        [commonStats.readingsInRange]: getStat(commonStats.readingsInRange),
-        [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-        [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-        [commonStats.carbs]: getStat(commonStats.carbs),
-        [commonStats.averageDailyDose]: getStat(commonStats.averageDailyDose),
+      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
+        stat.onInputChange = props.onAverageDailyDoseInputChange;
       }
-    }
 
-    const dailyDateRanges = _.get(data, 'daily.dataByDate');
-    if (dailyDateRanges) {
-      _.forIn(dailyDateRanges, _.bind(function(value, key) {
-        data.daily.dataByDate[key].endpoints = [
-          getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
-          getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
-        ];
+      stats.push(stat);
+    });
 
-        this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
-        this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
-
-        data.daily.dataByDate[key].stats = {
-          [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-          [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-          [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-          [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-          [commonStats.carbs]: getStat(commonStats.carbs),
-        };
-      }, this));
-    }
-
-    const bgLogDateRange = _.get(data, 'bgLog.dateRange');
-    if (bgLogDateRange) {
-      data.bgLog.endpoints = [
-        getLocalizedCeiling(bgLogDateRange[0], state.timePrefs).toISOString(),
-        addDuration(getLocalizedCeiling(bgLogDateRange[1], state.timePrefs).toISOString(), 864e5),
-      ];
-
-      this.dataUtil.endpoints = data.bgLog.endpoints;
-      this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
-
-      data.bgLog.stats = {
-        [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-      };
-    }
-
-    return data;
+    this.log('stats', stats);
+    return stats;
   },
 
-  generatePDF: function (props, state) {
-    const data = state.processedPatientData;
-    const diabetesData = data.diabetesData;
-
+  generatePDF: function (props = this.props, state = this.state) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    if (diabetesData.length > 0) {
-      const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
-      const opts = {
-        bgPrefs: state.bgPrefs,
-        numDays: state.printOpts.numDays,
-        patient: pdfPatient,
-        timePrefs: state.timePrefs,
-        mostRecent,
+    const opts = {
+      patient: pdfPatient,
+    };
+
+    const commonQueries = {
+      bgPrefs: state.bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs: state.timePrefs,
+    };
+
+    const queries = {
+      basics: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
+          { chartType: 'basics' }
+        ),
+        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+        stats: this.getStatsByChartType('basics'),
+        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        ...commonQueries,
+      },
+      daily: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
+          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
+        ),
+        aggregationsByDate: 'dataByDate, statsByDate',
+        stats: this.getStatsByChartType('daily'),
+        types: {
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        },
+        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+        ...commonQueries,
+      },
+      bgLog: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
+          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
+        ),
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      },
+      settings: {
+        ...commonQueries,
+      },
+    };
+
+    this.log('Generating PDF with', queries, opts);
+
+    window.downloadPDFDataQueries = () => {
+      console.save(queries, 'PDFDataQueries.json');
+    };
+
+    props.generatePDFRequest(
+      'combined',
+      queries,
+      opts,
+    );
+  },
+
+  handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
+    const isDaily = this.state.chartType === 'daily';
+    const isTrends = this.state.chartType === 'trends';
+
+    const newEndpoints = this.getChartEndpoints(datetimeLocation, {
+      setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
+    });
+
+    const newDatetimeLocation = isDaily
+      ? moment.utc(datetimeLocation).subtract(12, 'hours').toISOString()
+      : datetimeLocation;
+
+    const { next: nextDays, prev: prevDays } = this.getDaysByType();
+
+    // Only query for additional data if we're not on the initial data
+    // and we've scrolled to the end the current available data
+    const isOnMostRecentDay = newDatetimeLocation === this.state.mostRecentDatetimeLocation;
+    const prevEndpoints = _.get(this.state, 'chartEndpoints.prev', []);
+    const nextEndpoints = _.get(this.state, 'chartEndpoints.next', []);
+    const prevLimitReached = newEndpoints[0] <= prevEndpoints[0];
+    const nextLimitReached = newEndpoints[1] >= nextEndpoints[1];
+    const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
+
+    const updateOpts = {
+      showLoading: updateChartData,
+      updateChartEndpoints: isTrends || updateChartData,
+      query: isTrends || updateChartData ? undefined : {
+        endpoints: newEndpoints,
+        nextDays,
+        prevDays,
+        stats: this.getStatsByChartType(),
+      },
+    };
+
+    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
+
+    if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
+      const options = {
+        showLoading: true,
+        returnData: false,
       };
 
-      const dailyData = vizUtils.data.selectDailyViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
-        ),
-        state.printOpts.numDays.daily,
-        state.timePrefs,
-      );
-
-      const bgLogData = vizUtils.data.selectBgLogViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['smbg']
-        ),
-        state.printOpts.numDays.bgLog,
-        state.timePrefs,
-      );
-
-      const pdfData = {
-        basics: data.basicsData,
-        daily: dailyData,
-        settings: _.last(data.grouped.pumpSettings),
-        bgLog: bgLogData,
-      }
-
-      this.generatePDFStats(pdfData, state);
-
-      this.log('Generating PDF with', pdfData, opts);
-
-      props.generatePDFRequest(
-        'combined',
-        pdfData,
-        opts,
-      );
-    }
-  },
-
-  subtractTimezoneOffset: function(datetime, timezoneSettings = this.state.timePrefs) {
-    const dateMoment = moment.utc(datetime);
-
-    if (dateMoment.isValid()) {
-      let timezoneOffset = 0;
-
-      if (_.get(timezoneSettings, 'timezoneAware')) {
-        timezoneOffset = sundial.getOffsetFromZone(dateMoment.toISOString(), timezoneSettings.timezoneName);
-      }
-      return dateMoment.subtract(timezoneOffset, 'minutes').toISOString();
+      this.fetchEarlierData(options);
     }
 
-    return datetime;
-  },
-
-  handleChartDateRangeUpdate: function(endpoints) {
-    this.updateChartEndpoints(endpoints);
-
-    if (!this.props.fetchingPatientData && !this.state.processingData) {
-      const patientID = this.props.currentPatientInViewId;
-      const patientData = _.get(this.props, ['patientDataMap', patientID], []);
-      const dateRangeStart = moment.utc(endpoints[0]).startOf('day');
-      const allDataFetched = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
-
-      const lastProcessedDateTarget = this.state.lastProcessedDateTarget;
-      const lastDiabetesDatumProcessedTime = _.get(patientData, `${this.state.lastDiabetesDatumProcessedIndex}.time`);
-      const allFetchedDatumsProcessed = this.state.lastDatumProcessedIndex === patientData.length - 1;
-
-      const isScrollChart = _.includes(['daily', 'bgLog'], this.state.chartType);
-      const chartLimitReached = lastDiabetesDatumProcessedTime && dateRangeStart.isSameOrBefore(moment.utc(lastDiabetesDatumProcessedTime), 'day');
-
-      const comparator = this.state.chartType === 'trends' ? 'isBefore' : 'isSameOrBefore';
-      const comparatorPrecision = this.state.chartType === 'trends' ? 'day' : 'millisecond';
-
-      // If we've reached the limit of our fetched data, we need to get some more
-      if (
-        allFetchedDatumsProcessed && (
-          (dateRangeStart[comparator](this.props.fetchedPatientDataRange.start, comparatorPrecision))
-          || (isScrollChart && chartLimitReached)
-        )
-      ) {
-        if (allDataFetched) {
-          return;
-        }
-        return this.fetchEarlierData();
-      }
-
-      // If we've reached the limit of our processed data (since we process in smaller chunks than
-      // what we fetch), we need to process some more.
-      if (
-        !allFetchedDatumsProcessed && (
-          (lastProcessedDateTarget && dateRangeStart[comparator](lastProcessedDateTarget, comparatorPrecision))
-          || (isScrollChart && chartLimitReached)
-        )
-      ) {
-        this.log(`Limit of processed data reached, ${(patientData.length - 1) - this.state.lastDatumProcessedIndex} unprocessed remain. Processing more.`)
-        return this.processData(this.props);
-      }
-    }
+    this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
   },
 
   handleMessageCreation: function(message) {
-    this.refs.tideline.getWrappedInstance().createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
   },
 
@@ -678,18 +667,11 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleEditMessage: function(message, cb) {
-    var edit = this.props.onEditMessage;
-    if (edit) {
-      edit(message, cb);
-    }
-    this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updatePatientNote(message);
+    this.props.onEditMessage(message, cb);
     this.props.trackMetric('Edit To Message');
   },
 
   handleShowMessageThread: function(messageThread) {
-    var self = this;
-
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread);
@@ -711,10 +693,13 @@ export let PatientData = translate()(React.createClass({
       e.preventDefault();
     }
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-    this.setState({
-      chartType: 'basics'
-    });
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, 'basics');
+    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .toISOString();
+
+    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType: 'basics' }));
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -722,21 +707,24 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    const chartType = 'daily';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
+      .tz(getTimezoneFromTimePrefs(this.state.timePrefs))
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
-    this.setState({
-      chartType: 'daily',
-      datetimeLocation,
-    });
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -744,19 +732,21 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    const chartType = 'trends';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
-    this.setState({
-      chartType: 'trends',
-      datetimeLocation,
-    });
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -764,21 +754,27 @@ export let PatientData = translate()(React.createClass({
       fromChart: this.state.chartType
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    const chartType = 'bgLog';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
       .subtract(1, 'day')
       .hours(12)
       .toISOString();
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
-    this.setState({
-      chartType: 'bgLog',
-      datetimeLocation,
-    });
+    // TODO: for all views, we will not be able to determine mostRecentDatumTime till after the data has been queried.
+    // It will currently be based on the current data, not the data for the upcoming view.
+    // This is likely what's causing all sorts of issues. In fact, we should likely not change the chartType till
+    // the new data has been loaded.
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling)
+
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToSettings: function(e) {
@@ -788,9 +784,8 @@ export let PatientData = translate()(React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({
-      chartType: 'settings'
-    });
+
+    this.updateChart('settings');
   },
 
   handleClickPrint: function(pdf = {}) {
@@ -822,29 +817,22 @@ export let PatientData = translate()(React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.props.clearPatientData(this.props.currentPatientInViewId);
+      this.props.dataWorkerRemoveDataRequest();
       this.props.removeGeneratedPDFS();
 
       this.setState({
+        bgPrefs: undefined,
+        chartType: undefined,
+        datetimeLocation: undefined,
+        mostRecentDatetimeLocation: undefined,
         endpoints: [],
-        datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
-        lastDatumProcessedIndex: -1,
-        lastProcessedDateTarget: null,
         loading: true,
-        processEarlierDataCount: 0,
-        processedPatientData: null,
+        queryDataCount: 0,
+        refreshChartType: this.state.chartType,
+        timePrefs: {},
         title: this.DEFAULT_TITLE,
       }, () => refresh(this.props.currentPatientInViewId));
-    }
-  },
-
-  updateBasicsData: function(basicsData) {
-    // only attempt to update data if there's already data present to update
-    if(this.state.processedPatientData){
-      this.setState({
-        processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
-      });
     }
   },
 
@@ -862,28 +850,253 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  updateChartPrefs: function(updates) {
+  updateChartPrefs: function(updates, queryData = true, queryStats = false) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
     };
 
-    this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
     this.setState({
       chartPrefs: newPrefs,
+    }, () => {
+      const queryOpts = { showLoading: false };
+
+      if (queryData) {
+        this.queryData(undefined, queryOpts);
+      } else if (queryStats) {
+        const statsQuery = {
+          endpoints: _.get(this.state, 'chartEndpoints.current'),
+          stats: this.getStatsByChartType(),
+        }
+
+        this.queryData(statsQuery, queryOpts);
+      }
     });
   },
 
-  updateDatetimeLocation: function(datetime) {
-    this.setState({
-      datetimeLocation: datetime,
-    });
+  getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
+    const {
+      applyTimeZoneToStart = (this.state.chartType !== 'daily'),
+      chartType = this.state.chartType,
+      setEndToLocalCeiling = true,
+    } = opts;
+
+    const extentSize = opts.extentSize || _.get(this.state.chartPrefs, [chartType, 'extentSize']);
+
+    const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
+
+    let start;
+    const end = setEndToLocalCeiling
+      ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
+      : Date.parse(datetimeLocation);
+
+    switch (chartType) {
+      case 'basics':
+        start = findBasicsStart(datetimeLocation, timezoneName).valueOf();
+        break;
+
+      case 'daily':
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
+        break;
+
+      case 'bgLog':
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
+        break;
+
+      case 'trends':
+        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
+        break;
+    }
+
+    return (start && end ? [start, end] : []);
   },
 
-  updateChartEndpoints: function(endpoints) {
-    this.setState({
-      endpoints,
+  getCurrentData: function(path, emptyValue = {}) {
+    return _.get(this.props, `data.data.current.${path}`, emptyValue);
+  },
+
+  getMetaData: function(path, emptyValue = {}) {
+    return _.get(this.props, `data.metaData.${path}`, emptyValue);
+  },
+
+  getBasicsAggregations: function() {
+    const {
+      data: { aggregationsByDate } = {},
+      bgPrefs,
+      metaData: { latestPumpUpload } = {},
+    } = this.props.data;
+
+    const manufacturer = _.get(latestPumpUpload, 'manufacturer');
+
+    return _.isEmpty(aggregationsByDate) ? {} : vizUtils.aggregation.processBasicsAggregations(
+      vizUtils.aggregation.defineBasicsAggregations(
+        bgPrefs,
+        manufacturer,
+      ),
+      aggregationsByDate,
+      this.props.patient,
+      manufacturer
+    );
+  },
+
+  getStatsByChartType: function(chartType = this.state.chartType) {
+    const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
+    const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
+    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+
+    let stats = [];
+
+    switch (chartType) {
+      case 'basics':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        cbgSelected && stats.push(commonStats.sensorUsage);
+        stats.push(commonStats.totalInsulin);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        stats.push(commonStats.carbs);
+        stats.push(commonStats.averageDailyDose);
+        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        break;
+
+      case 'daily':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.totalInsulin);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        stats.push(commonStats.carbs);
+        cbgSelected && stats.push(commonStats.standardDev);
+        cbgSelected && stats.push(commonStats.coefficientOfVariation);
+        break;
+
+      case 'bgLog':
+        stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        stats.push(commonStats.standardDev);
+        stats.push(commonStats.coefficientOfVariation);
+        break;
+
+      case 'trends':
+        cbgSelected && stats.push(commonStats.timeInRange);
+        smbgSelected && stats.push(commonStats.readingsInRange);
+        stats.push(commonStats.averageGlucose);
+        cbgSelected && stats.push(commonStats.sensorUsage);
+        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.standardDev);
+        stats.push(commonStats.coefficientOfVariation);
+        break;
+    }
+
+    return stats;
+  },
+
+  getDaysByType: function() {
+    const days = {};
+
+    switch (this.state.chartType) {
+      case 'daily':
+        // TODO: set larger for non-automated basal delivery uploads? Need way to identify Loop.
+        days.next = 6;
+        days.prev = 6;
+        break;
+
+      case 'bgLog':
+        days.next = 14;
+        days.prev = 14;
+        break;
+
+      default:
+        days.next = 0;
+        days.prev = 0;
+        break;
+    }
+
+    return days;
+  },
+
+  getMostRecentDatumTimeByChartType: function(props = this.props, chartType = this.state.chartType) {
+    let latestDatums;
+    const getLatestDatums = types => _.pick(_.get(props.data, 'metaData.latestDatumByType'), types);
+
+    switch (chartType) {
+      case 'basics':
+        latestDatums = getLatestDatums([
+          'basal',
+          'bolus',
+          'cbg',
+          'deviceEvent',
+          'pumpSettings',
+          'smbg',
+          'wizard',
+        ]);
+        break
+
+      case 'daily':
+        latestDatums = getLatestDatums([
+          'basal',
+          'bolus',
+          'cbg',
+          'deviceEvent',
+          'food',
+          'message',
+          'smbg',
+          'wizard',
+        ]);
+        break;
+
+      case 'bgLog':
+        latestDatums = getLatestDatums([
+          'smbg',
+        ]);
+        break;
+
+      case 'trends':
+        latestDatums = getLatestDatums([
+          'cbg',
+          'smbg',
+        ]);
+        break;
+
+      default:
+        latestDatums = [];
+        break;
+    }
+
+    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
+  },
+
+  updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
+    _.defaults(opts, {
+      showLoading: true,
+      mostRecentDatetimeLocation: datetimeLocation,
     });
+
+    const chartTypeChanged = chartType && !_.isEqual(chartType, this.state.chartType);
+    const endpointsChanged = endpoints && !_.isEqual(endpoints, this.state.endpoints);
+    const datetimeLocationChanged = datetimeLocation && !_.isEqual(datetimeLocation, this.state.datetimeLocation);
+
+    const state = {};
+
+    if (endpointsChanged) state.endpoints = endpoints;
+    if (datetimeLocationChanged) state.datetimeLocation = datetimeLocation;
+
+    if (chartTypeChanged) {
+      state.chartType = chartType;
+      state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
+      state.transitioningChartType = this.state.chartType ? true : false;
+    }
+
+    if (!this.state.mostRecentDatetimeLocation) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
+
+    const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
+      ? this.queryData.bind(this, opts.query, {
+        showLoading: opts.showLoading,
+        updateChartEndpoints: opts.updateChartEndpoints,
+        transitioningChartType: chartTypeChanged,
+      }) : undefined;
+
+    this.setState(state, cb);
   },
 
   componentWillMount: function() {
@@ -903,54 +1116,195 @@ export let PatientData = translate()(React.createClass({
 
   componentWillUnmount: function() {
     this.props.removeGeneratedPDFS();
+
+    // We only force removal of the data from the redux store at this point, and not the data worker
+    // so that we don't need to refetch if the user is going to their profile page and coming back
+    this.props.dataWorkerRemoveDataSuccess(undefined, true);
   },
 
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
-    const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-    const currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
+    const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
 
-    const nextFetchedDataRange = _.get(nextProps, 'fetchedPatientDataRange', {});
-    const currentFetchedDataRange = _.get(this.props, 'fetchedPatientDataRange', {});
+    // Hold processing until patient is fetched (ensuring settings are accessible) AND patient data exists
+    if (patientSettings && patientData) {
+      let stateUpdates = {};
+      let stateUpdateCallback;
 
-    const newDataRangeFetched = nextFetchedDataRange.fetchedUntil !== currentFetchedDataRange.fetchedUntil;
-    const newDiabetesDataReturned = nextFetchedDataRange.count > (currentFetchedDataRange.count || 0);
-    const allDataFetched = nextFetchedDataRange.fetchedUntil === 'start';
-
-    // Hold processing until patient is fetched (ensuring settings are accessible), AND
-    // processing hasn't already taken place (this should be cleared already when switching patients), AND
-    // nextProps patient data exists
-    if (patientSettings && nextPatientData) {
-      if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
-        this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
-        this.processData(nextProps);
+      // Set bgPrefs to state
+      let bgPrefs = this.state.bgPrefs;
+      if (!bgPrefs) {
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, this.props.queryParams);
+        bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+        stateUpdates.bgPrefs = bgPrefs;
       }
-      else if (!newDiabetesDataReturned && newDataRangeFetched) {
-        if (!allDataFetched) {
-          // Our latest data fetch yeilded no new data. We now request the remainder of the available
-          // data to make sure that we don't miss any.
-          this.fetchEarlierData({ startDate: null });
+
+      // Set timePrefs to state
+      let timePrefs = this.state.timePrefs;
+      if (_.isEmpty(timePrefs)) {
+        const latestUpload = _.get(nextProps, 'data.metaData.latestDatumByType.upload');
+        timePrefs = utils.getTimePrefsForDataProcessing(latestUpload, this.props.queryParams);
+        stateUpdates.timePrefs = timePrefs;
+      }
+
+      // Perform initial query of upload data to prepare for setting inital chart type
+      if (this.state.queryDataCount < 1) {
+        this.queryData({
+          types: {
+            upload: {
+              select: 'id,deviceId,deviceTags',
+            },
+          },
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources',
+          timePrefs,
+          bgPrefs,
+        });
+      }
+
+      if (nextProps.queryingData.completed) {
+        stateUpdates.queryingData = false;
+        let hideLoadingTimeout;
+
+        // With initial query for upload data completed, set the initial chart type
+        if (!this.state.chartType) {
+          this.setInitialChartView(nextProps);
         }
-        else {
-          this.setState({ loading: false });
+
+        if (_.get(nextProps, 'data.query.types')) {
+          stateUpdates.queryDataCount = this.state.queryDataCount + 1;
         }
+
+        // Only update the chartEndpoints and transitioningChartType state immediately after querying
+        if (this.props.queryingData.inProgress) {
+          if (_.get(nextProps, 'data.query.updateChartEndpoints')) {
+            stateUpdates.chartEndpoints = {
+              current: _.get(nextProps, 'data.data.current.endpoints.range', []),
+              next: _.get(nextProps, 'data.data.next.endpoints.range', []),
+              prev: _.get(nextProps, 'data.data.prev.endpoints.range', []),
+            };
+          }
+
+          if (_.get(nextProps, 'data.query.transitioningChartType')) {
+            stateUpdates.transitioningChartType = false;
+            hideLoadingTimeout = 250;
+          }
+        }
+
+        stateUpdateCallback = () => {
+          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
+            this.hideLoading(hideLoadingTimeout);
+          }
+        };
+      }
+
+      if (!_.isEmpty(stateUpdates)) {
+        this.setState(stateUpdates, stateUpdateCallback);
+      }
+
+      const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+      if (newDataAdded) {
+        // New data has been added. Let's query it to update the chart.
+        this.queryData();
       }
     }
   },
 
   componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
-    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
-    const userFetched = !nextProps.fetchingUser;
-    const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
+    const pdfGenerating = nextProps.generatingPDF.inProgress;
+    const pdfGenerated = nextProps.generatingPDF.completed;
+    const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
+    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
       this.generatePDF(nextProps, nextState);
+    }
+  },
+
+  queryData: function (query, options = {}) {
+    _.defaults(options, {
+      showLoading: true,
+      updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
+      transitioningChartType: false,
+      metaData: 'bgSources',
+    });
+
+    if (this.state.queryingData || this.props.generatingPDF.inProgress) return;
+    this.setState({ loading: options.showLoading, queryingData: true });
+
+    let chartQuery = {
+      bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
+      endpoints: this.state.endpoints,
+      metaData: options.metaData,
+    };
+
+    const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
+
+    if (activeDays) {
+      const activeDaysMap = {
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
+      };
+
+      chartQuery.activeDays = _.map(_.keys(_.pickBy(activeDays, value => !!value)), day => activeDaysMap[day]);
+    }
+
+    if (query) {
+      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
+    } else if (this.state.chartType) {
+      switch (this.state.chartType) {
+        case 'basics':
+          chartQuery.aggregationsByDate = 'basals,boluses,fingersticks,siteChanges';
+          break;
+
+        case 'daily':
+          chartQuery.types = {
+            basal: {},
+            bolus: {},
+            cbg: {},
+            deviceEvent: {},
+            food: {},
+            message: {},
+            smbg: {},
+            wizard: {},
+          };
+
+          chartQuery.fillData = { adjustForDSTChanges: true };
+          break;
+
+        case 'bgLog':
+          chartQuery.types = {
+            smbg: {},
+          };
+
+          chartQuery.fillData = { adjustForDSTChanges: false };
+          break;
+
+        case 'trends':
+          chartQuery.types = {
+            cbg: {},
+            smbg: {},
+          };
+          break;
+      }
+
+      const { next: nextDays, prev: prevDays } = this.getDaysByType();
+
+      chartQuery.stats = this.getStatsByChartType();
+      chartQuery.nextDays = nextDays;
+      chartQuery.prevDays = prevDays;
+
+      chartQuery.updateChartEndpoints = options.updateChartEndpoints;
+      chartQuery.transitioningChartType = options.transitioningChartType;
+
+      this.props.dataWorkerQueryDataRequest(chartQuery);
     }
   },
 
@@ -1007,53 +1361,61 @@ export let PatientData = translate()(React.createClass({
     return chartType;
   },
 
-  setInitialChartType: function(processedData) {
+  setInitialChartView: function(props = this.props) {
     // Determine default chart type and date from latest data
-    const uploads = _.get(processedData.grouped, 'upload', []);
-    const latestData = _.last(processedData.diabetesData);
+    const uploads = _.get(props.data, 'data.current.data.upload', []);
+    const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
+    const bgSource = this.getMetaData('bgSources.current');
 
-    if (uploads && latestData) {
+    if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
-      const chartType = _.get(
-        this.props, 'queryParams.chart',
-        this.deriveChartTypeFromLatestData(latestData, uploads)
+      const chartType = this.state.refreshChartType || _.get(
+        props, 'queryParams.chart',
+        this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
 
-      const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
-      const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+      const isDaily = chartType === 'daily';
+      const isBgLog = chartType === 'bgLog';
 
-      const datetimeLocation = _.get(this.props, 'queryParams.datetime', _.includes(['daily', 'bgLog'], chartType)
-        ? moment.utc(latestDataDateCeiling.valueOf())
-          .tz(timezone)
+      const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
+      const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+
+      const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
+        ? moment.utc(latestDatumDateCeiling.valueOf())
+          .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(1, 'day')
           .hours(12)
           .toISOString()
-        : moment.utc(latestDataDateCeiling.valueOf())
-          .tz(timezone)
+        : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
 
-      let state = {
-        chartType,
-        datetimeLocation,
-        initialDatetimeLocation: datetimeLocation,
-      };
+      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
 
-      this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
+      // Set the default bgSource for basics, daily, and trends charts
+      this.updateChartPrefs({
+        basics: { ...this.state.chartPrefs.basics, bgSource },
+        daily: { ...this.state.chartPrefs.daily, bgSource },
+        trends: { ...this.state.chartPrefs.trends, bgSource },
+      }, false);
 
-      this.setState(state);
-      this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
+      this.updateChart(chartType, datetimeLocation, endpoints);
+      props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
   },
 
   fetchEarlierData: function(options = {}) {
-    // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
+    // Return if we are currently fetching data
+    if (this.props.fetchingPatientData) {
       return;
     };
 
+    _.defaults(options, {
+      showLoading: true,
+    })
+
     this.log('fetching');
 
-    const earliestRequestedData = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
+    const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
     const requestedPatientDataRange = {
       start: moment.utc(earliestRequestedData).subtract(16, 'weeks').toISOString(),
@@ -1063,7 +1425,7 @@ export let PatientData = translate()(React.createClass({
     const count = this.state.fetchEarlierDataCount + 1;
 
     this.setState({
-      loading: true,
+      loading: options.showLoading,
       requestedPatientDataRange,
       fetchEarlierDataCount: count,
     });
@@ -1084,298 +1446,13 @@ export let PatientData = translate()(React.createClass({
     this.props.trackMetric('Fetched earlier patient data', { patientID, count });
   },
 
-  getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
-    let diabetesDataCount = 0;
-
-    // First, we get the index of the first diabetes datum that falls outside of our processing window.
-    let targetIndex = _.findIndex(unprocessedData, datum => {
-      const isDiabetesDatum = _.includes(DIABETES_DATA_TYPES, datum.type);
-
-      if (isDiabetesDatum) {
-        diabetesDataCount++;
-      }
-
-      return targetDatetime > datum.time && isDiabetesDatum;
-    });
-
-    if (targetIndex === -1) {
-      // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
-      // we process all the remaining fetched, unprocessed data.
-      targetIndex = unprocessedData.length;
-      this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
-    } else if (diabetesDataCount === 1) {
-      // If the first diabetes datum found was outside of our processing window, we need to include it.
-      targetIndex++;
-      this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
-    }
-
-    // Because targetIndex was set to the first one outside of our processing window, and we're
-    // looking for the last datum to process, we decrement by one and return
-    return --targetIndex;
-  },
-
-  processData: function(props = this.props) {
-    const patientID = props.currentPatientInViewId;
-    const patientData = _.get(props, ['patientDataMap', patientID], []);
-    const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
-
-    // Return if currently processing or we've already fetched and processed all data
-    if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
-      if (!this.state.processingData) {
-        this.setState({
-          loading: false,
-        });
-      }
-      return;
-    };
-
-    if (patientData.length) {
-      this.setState({
-        loading: true,
-        processingData: true,
-      });
-
-      const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
-      const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
-      const processDataMaxDays = isInitialProcessing ? 30 : 56;
-
-      // Grab the first diabetes datum time on first process in case upload date is much later
-      const firstDiabetesDatum = _.find(patientData, (d) => _.includes(DIABETES_DATA_TYPES, d.type));
-      const lastProcessedDatetime = moment.utc(isInitialProcessing ? _.get(firstDiabetesDatum, 'time', patientData[0].time) : this.state.lastProcessedDateTarget);
-
-      const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
-      let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
-      _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
-
-      // Determine how far back into the unprocessed patient data we want to process.
-      const timezoneSettings = this.state.timePrefs.timezoneAware
-        ? this.state.timePrefs
-        : utils.getTimezoneForDataProcessing(unprocessedPatientData, props.queryParams);
-
-      const targetDatetime = this.subtractTimezoneOffset(
-        lastProcessedDatetime.subtract(processDataMaxDays, 'days').startOf('day').toISOString(),
-        timezoneSettings
-      );
-
-      // If there's only a week or less data to process, and not all the data has been fetched,
-      // we just fetch instead of a tiny processing cycle followed by an immediate fetch
-      const timeOfLastUnprocessedDatum = _.get(_.last(unprocessedPatientData), 'time');
-      const remainingDataIsLessThanAWeek = timeOfLastUnprocessedDatum &&  moment(targetDatetime).subtract(1, 'week').isSameOrBefore(moment(timeOfLastUnprocessedDatum));
-      if (!isInitialProcessing && !allDataFetched && remainingDataIsLessThanAWeek) {
-        return this.setState({
-          processingData: false,
-        }, this.fetchEarlierData);
-      }
-
-      // Find a cutoff point for processing unprocessed diabetes data
-      const lastDatumToProcessIndex = this.getLastDatumToProcessIndex(unprocessedPatientData, targetDatetime);
-      const dataToProcess = unprocessedPatientData.slice(0, lastDatumToProcessIndex + 1); // add 1 because the end index of the slice is not included
-      this.log(`Processing ${dataToProcess.length} of ${unprocessedPatientData.length}`);
-      this.log(`Processing window was set to ${targetDatetime}.  Actual time of last datum to process: ${_.get(_.last(dataToProcess), 'time')}`);
-
-      // We need to track the last processed indexes for diabetes and bg data to help determine when
-      // we've reached the scroll limits of the daily and bgLog charts
-      const lastDiabetesDatumProcessedIndex = _.findLastIndex(patientData.slice(0, (this.state.lastDatumProcessedIndex + dataToProcess.length + 1)), datum => {
-        return _.includes(DIABETES_DATA_TYPES, datum.type);
-      });
-
-      // We will set `lastProcessedDateTarget` to the earliest of either the last processed datum
-      // time, or the `targetDateTime`. We can't just use `targetDateTime` because there are times
-      // where we include and process datums that are outside of the scheduled processing time frame
-      // when no diabetes data is found within it.
-      const lastProcessedDateTargets = [
-        _.get(patientData, [lastDiabetesDatumProcessedIndex, 'time']),
-        targetDatetime,
-      ];
-
-      const sortedDateTargets = lastProcessedDateTargets.sort((a, b) => (a < b) ? -1 : ((a > b) ? 1 : 0));
-
-      const lastProcessedDateTarget = sortedDateTargets[0]
-      this.log('Setting lastProcessedDateTarget to:', lastProcessedDateTarget);
-
-      window.downloadInputData = () => {
-        console.save(patientData.concat(patientNotes), 'blip-input.json');
-      };
-
-      // Process data fetched after the initial processing
-      if (isInitialProcessing) {
-        // Kick off the processing of the initial data fetch
-        const combinedData = dataToProcess.concat(patientNotes);
-
-        // Ensure that the latest pump settings and upload datums, which may be outside of the
-        // processed date target, are included in the initial processing
-        const latestPumpSettings = utils.getLatestPumpSettings(unprocessedPatientData);
-        combinedData.push(..._.filter(_.values(latestPumpSettings), _.isPlainObject));
-
-        const processedData = utils.processPatientData(
-          combinedData,
-          props.queryParams,
-          patientSettings,
-        );
-
-        const timePrefs = processedData.timePrefs || this.state.timePrefs;
-        const bgPrefs = {
-          bgClasses: processedData.bgClasses,
-          bgUnits: processedData.bgUnits
-        };
-
-        this.dataUtil = new DataUtil(
-          processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
-          { bgPrefs, timePrefs }
-        );
-
-        // Set default bgSource for basics based on whether there is any cbg data in the current view.
-        const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {
-          bgSource: _.get(processedData, 'basicsData.data.cbg.data.length') ? 'cbg' : 'smbg',
-        });
-
-        this.setState({
-          bgPrefs,
-          chartPrefs: _.assign({}, this.state.chartPrefs, { basics: basicsChartPrefs }),
-          lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex: lastDatumToProcessIndex,
-          lastProcessedDateTarget,
-          loading: false,
-          processedPatientData: processedData,
-          processingData: false,
-          timePrefs,
-        }, () => {
-          this.handleInitialProcessedData(props, processedData, patientSettings);
-          props.trackMetric('Processed initial patient data', { patientID });
-        });
-      }
-      else {
-        // We don't need full processing for subsequent data. We just add and preprocess the new datums.
-        const bgUnits = _.get(this.state, 'processedPatientData.bgUnits');
-
-        // Need to have all of the upload data present when filtering data or else the `source` and
-        // `deviceSerialNumber` properties will not be mapped. This will not result in duplication
-        // of upload records, as deduplication will happen when `addData` is called.
-        const previousUploadData = _.filter(patientData.slice(0, this.state.lastDatumProcessedIndex + 1), { type: 'upload' });
-        const newData = utils.filterPatientData(dataToProcess.concat(previousUploadData), bgUnits).processedData;
-
-        // Add and process the new data
-        const addData = this.state.processedPatientData.addData.bind(this.state.processedPatientData);
-        const combinedNewData = newData.concat(_.map(patientNotes, nurseShark.reshapeMessage))
-        const processedPatientData = addData(combinedNewData);
-        this.dataUtil.addData(combinedNewData);
-
-        const lastDatumProcessedIndex = this.state.lastDatumProcessedIndex + dataToProcess.length;
-        const count = this.state.processEarlierDataCount + 1;
-
-        this.setState({
-          lastDiabetesDatumProcessedIndex,
-          lastDatumProcessedIndex,
-          lastProcessedDateTarget,
-          processEarlierDataCount: count,
-          processedPatientData,
-          processingData: false,
-        }, () => {
-          this.hideLoading();
-          props.trackMetric('Processed earlier patient data', { patientID, count });
-        });
-      }
-    }
-  },
-
-  hideLoading: function(timeout = 250) {
+  hideLoading: function(timeout = 0) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
     // so that child components can be aware of the change in processing states. It also serves
     // to ensure the loading indicator shows long enough for the user to make sense of it.
     setTimeout(() => {
       this.setState({ loading: false });
     }, timeout);
-  },
-
-  handleInitialProcessedData: function(props, processedData, patientSettings) {
-    const userId = props.currentPatientInViewId;
-    const patientData = _.get(props, ['patientDataMap', userId], []);
-    const patientNotes = _.get(props, ['patientNotesMap', userId], []);
-
-    if (!this.state.chartType) {
-      this.setInitialChartType(processedData);
-    }
-
-    let combinedData = patientData.concat(patientNotes);
-
-    window.downloadPrintViewData = () => {
-      const initialBgUnits = this.dataUtil.bgUnits;
-
-      const prepareProcessedData = (bgUnits) => {
-        const multiplier = bgUnits === MGDL_UNITS ? MGDL_PER_MMOLL : (1 / MGDL_PER_MMOLL);
-
-        return (bgUnits === processedData.bgUnits) ? processedData : utils.processPatientData(
-          combinedData,
-          props.queryParams,
-          _.assign({}, patientSettings, {
-            bgTarget: {
-              low: patientSettings.bgTarget.low * multiplier,
-              high: patientSettings.bgTarget.high * multiplier,
-            },
-            units: { bg: bgUnits }
-          }),
-        );
-      };
-
-      const data = {
-        [MGDL_UNITS]: prepareProcessedData(MGDL_UNITS),
-        [MMOLL_UNITS]: prepareProcessedData(MMOLL_UNITS),
-      };
-
-      const bgPrefs = {
-        [MGDL_UNITS]: {
-          bgClasses: data[MGDL_UNITS].bgClasses,
-          bgUnits: data[MGDL_UNITS].bgUnits
-        },
-        [MMOLL_UNITS]: {
-          bgClasses: data[MMOLL_UNITS].bgClasses,
-          bgUnits: data[MMOLL_UNITS].bgUnits
-        },
-      };
-
-      const dData = {
-        [MGDL_UNITS]: data[MGDL_UNITS].diabetesData,
-        [MMOLL_UNITS]: data[MMOLL_UNITS].diabetesData,
-      };
-
-      const preparePrintData = (bgUnits) => {
-        this.dataUtil.bgPrefs = bgPrefs[bgUnits];
-        this.dataUtil.removeData();
-        this.dataUtil.addData(data[bgUnits].data.concat(_.get(data[bgUnits], 'grouped.upload', [])))
-
-        return this.generatePDFStats({
-          basics: data[bgUnits].basicsData,
-          daily: vizUtils.data.selectDailyViewData(
-            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-            _.pick(
-              data[bgUnits].grouped,
-              ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']
-            ),
-            this.state.printOpts.numDays.daily,
-            this.state.timePrefs,
-          ),
-          settings: _.last(data[bgUnits].grouped.pumpSettings),
-          bgLog: vizUtils.data.selectBgLogViewData(
-            dData[bgUnits][dData[bgUnits].length - 1].normalTime,
-            _.pick(
-              data[bgUnits].grouped,
-              ['smbg']
-            ),
-            this.state.printOpts.numDays.bgLog,
-            this.state.timePrefs,
-          ),
-        }, this.state);
-      };
-
-      console.save({
-        [MGDL_UNITS]: preparePrintData(MGDL_UNITS),
-        [MMOLL_UNITS]: preparePrintData(MMOLL_UNITS),
-      }, 'print-view.json');
-
-      this.dataUtil.bgPrefs = bgPrefs[initialBgUnits];
-      this.dataUtil.removeData();
-      this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
-    };
   },
 
   doFetching: function(nextProps) {
@@ -1413,7 +1490,6 @@ export let PatientData = translate()(React.createClass({
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-
 export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
@@ -1471,9 +1547,6 @@ export function mapStateToProps(state, props) {
     user: user,
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
-    patientDataMap: state.blip.patientDataMap,
-    fetchedPatientDataRange: getfetchedPatientDataRange(state, props),
-    patientNotesMap: state.blip.patientNotesMap,
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
@@ -1481,16 +1554,22 @@ export function mapStateToProps(state, props) {
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
-    generatingPDF: state.blip.working.generatingPDF.inProgress,
+    addingData: state.blip.working.addingData,
+    updatingDatum: state.blip.working.updatingDatum,
+    queryingData: state.blip.working.queryingData,
+    generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
-    viz: state.viz,
+    data: state.blip.data,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  addPatientNote: actions.sync.addPatientNote,
-  clearPatientData: actions.sync.clearPatientData,
+  dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
+  dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
+  dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
   closeMessageThread: actions.sync.closeMessageThread,
+  createMessageThread: actions.async.createMessageThread,
+  editMessageThread: actions.async.editMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
@@ -1498,7 +1577,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
-  updatePatientNote: actions.sync.updatePatientNote,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
 
@@ -1508,12 +1586,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.routes[0].api;
   const assignedDispatchProps = [
-    'addPatientNote',
-    'clearPatientData',
+    'dataWorkerRemoveDataRequest',
+    'dataWorkerRemoveDataSuccess',
+    'dataWorkerQueryDataRequest',
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
-    'updatePatientNote',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
@@ -1523,8 +1601,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
-    onCreateMessage: api.team.startMessageThread.bind(api),
-    onEditMessage: api.team.editMessage.bind(api),
+    onCreateMessage: dispatchProps.createMessageThread.bind(null, api),
+    onEditMessage: dispatchProps.editMessageThread.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.routeParams.id,

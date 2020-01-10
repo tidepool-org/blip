@@ -20,8 +20,6 @@ import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
-import { reducers as vizReducers } from '@tidepool/viz';
-
 // eslint-disable-next-line import/no-unresolved
 import Worker from 'worker-loader?inline!./../../worker/index';
 
@@ -37,7 +35,6 @@ const reduxRouterMiddleware = syncHistory(browserHistory);
 const reducer = combineReducers({
   blip: reducers,
   routing: routeReducer,
-  viz: vizReducers,
 });
 
 const worker = new Worker;

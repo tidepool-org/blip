@@ -874,6 +874,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/TRANSITION', payload: { args: [ '/' ], method: 'push' } }
         ];
@@ -884,6 +885,8 @@ describe('Actions', () => {
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
+        actions[1].meta.origin = 'originStub';
+
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
         expect(trackMetric.calledWith('Logged Out')).to.be.true;
@@ -2810,54 +2813,18 @@ describe('Actions', () => {
 
     describe('fetchPatientData', () => {
       const patientId = 300;
-      const serverTime = '2018-01-28T00:00:11.000Z';
-      const serverTimePlusOneDay = moment.utc(serverTime).add(1, 'days').toISOString();
-
-      const latestPumpSettings = { uploadId: 'abc123', time: '2017-11-15T00:00:00.000Z', type: 'pumpSettings' };
-      const latestUpload = { uploadId: 'abc123', time: '2017-11-01T00:00:00.000Z', type: 'upload' };
-
-      const diabetesDataRangeSufficient = {
-        spanInDays: 30,
-        start: '2018-01-01T00:00:00.000Z',
-        end: '2018-01-30T00:00:00.000Z',
-      };
-
-      const diabetesDataRangeInsufficient = {
-        spanInDays: 29,
-        start: '2018-01-01T00:00:00.000Z',
-        end: '2018-01-29T00:00:00.000Z',
-      };
-
-      const diabetesDataMissing = {
-        spanInDays: null,
-        start: undefined,
-        end: undefined,
-      };
-
-      const latestPumpSettingsSufficient = {
-        latestPumpSettings,
-        uploadRecord: latestUpload,
-      };
-
-      const latestPumpSettingsMissing = {
-        latestPumpSettings: undefined,
-        uploadRecord: undefined,
-      };
-
-      const latestPumpSettingsMissingUpload = {
-        latestPumpSettings,
-        uploadRecord: undefined,
-      };
 
       let options;
       let patientData;
       let teamNotes;
+      let uploadRecord;
       let api;
 
       beforeEach(() => {
         options = {
           startDate: '2018-01-01T00:00:00.000Z',
           endDate: '2018-01-30T00:00:00.000Z',
+          returnData: false,
           useCache: true,
           initial: true,
         };
@@ -2871,32 +2838,27 @@ describe('Actions', () => {
           { id: 28, note: 'foo' }
         ];
 
+        uploadRecord = [
+          { type: 'upload', id: 'upload123' }
+        ];
+
         api = {
           patientData: {
             get: sinon.stub().callsArgWith(2, null, patientData),
-          },
-          server: {
-            getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } }),
           },
           team: {
             getNotes: sinon.stub().callsArgWith(2, null, teamNotes)
           },
         };
-
-        async.__Rewire__('utils', {
-          getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-          getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
-        });
       });
 
       context('data is available in cache', () => {
         it('should not trigger FETCH_PATIENT_DATA_REQUEST by default', () => {
           let store = mockStore({ blip: {
             ...initialState,
-            patientDataMap: {
-              [patientId]: [{ foo: 'bar' }],
-              [`${patientId}_cacheUntil`]: 9999999999999,
-            }
+            data: {
+              cacheUntil: 9999999999999,
+            },
           } });
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
@@ -2907,10 +2869,9 @@ describe('Actions', () => {
         it('should not trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is true', () => {
           let store = mockStore({ blip: {
             ...initialState,
-            patientDataMap: {
-              [patientId]: [{ foo: 'bar' }],
-              [`${patientId}_cacheUntil`]: 9999999999999,
-            }
+            data: {
+              cacheUntil: 9999999999999,
+            },
           } });
           store.dispatch(async.fetchPatientData(api, { ...options, useCache: true }, patientId));
 
@@ -2921,435 +2882,19 @@ describe('Actions', () => {
         it('should still trigger FETCH_PATIENT_DATA_REQUEST if options.useCache is false', () => {
           let store = mockStore({ blip: {
             ...initialState,
-            patientDataMap: {
-              [patientId]: [],
-              [`${patientId}_cacheUntil`]: 9999999999999,
-            }
-          } });
+            data: {
+              cacheUntil: 9999999999999,
+            },
+          }, routing: { location: { pathname: `data/${patientId}` } } });
           store.dispatch(async.fetchPatientData(api, { ...options, useCache: false }, patientId));
 
           const actions = store.getActions();
-          expect(actions).to.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST' });
+          expect(actions).to.deep.include({ type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } });
         });
       });
 
       context('initial data fetch', () => {
-        context('enough data returned', () => {
-          it('should trigger FETCH_PATIENT_DATA_REQUEST once for a successful request when enough data is returned', () => {
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData,
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-        });
-
-        context('not enough data returned', () => {
-          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when not enough data is returned on first call', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeInsufficient),
-              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
-            });
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData,
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-30T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-
-            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-
-            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-              startDate: '2017-12-30T00:00:00.000Z',
-              endDate: serverTimePlusOneDay,
-              initial: false,
-            }));
-
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-              start: options.startDate,
-              end: options.endDate,
-            }));
-            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-              startDate: '2017-12-30T00:00:00.000Z',
-              endDate: serverTimePlusOneDay,
-              start: '2017-12-30T00:00:00.000Z',
-              end: serverTimePlusOneDay,
-              initial: false,
-            }));
-
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-
-          it('should trigger FETCH_PATIENT_DATA_REQUEST twice for a successful request when no data is returned on first call', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataMissing),
-              getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsSufficient),
-            });
-
-            api.patientData = {
-              get: sinon.stub().callsArgWith(2, null, []),
-            };
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: [],
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: null,
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-
-            expect(api.patientData.get.withArgs(patientId).callCount).to.equal(2);
-            expect(api.patientData.get.firstCall.args[1]).to.eql(options);
-            expect(api.patientData.get.secondCall.args[1]).to.eql(_.assign({}, options, {
-              startDate: null, // should fetch to the beginning by not specifying a start date
-              endDate: serverTimePlusOneDay,
-              initial: false,
-            }));
-
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(2);
-            expect(api.team.getNotes.firstCall.args[1]).to.eql(_.assign({}, options, {
-              start: options.startDate,
-              end: options.endDate,
-            }));
-            expect(api.team.getNotes.secondCall.args[1]).to.eql(_.assign({}, options, {
-              startDate: null,
-              endDate: serverTimePlusOneDay,
-              start: null,
-              end: serverTimePlusOneDay,
-              initial: false,
-            }));
-          });
-        });
-
-        context('server time fetch fails', () => {
-          it('should trigger FETCH_SERVER_TIME_FAILURE and when unable to fetch the server time, but continue on with fetching patientData', () => {
-            options = _.assign({}, options, {
-              browserTimeStub: '2018-01-28T00:01:00.000Z',
-            });
-
-            api.server = {
-              getTime: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null)
-            };
-
-            let err = new Error(ErrorMessages.ERR_FETCHING_SERVER_TIME);
-            err.status = 500;
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              { type: 'FETCH_SERVER_TIME_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData,
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z',
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_SERVER_TIME });
-            expectedActions[1].error = actions[1].error;
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-          });
-        });
-
-        context('missing pump settings', () => {
-          it('should trigger FETCH_PATIENT_DATA_REQUEST only twice if the upload record is present after fetching pump settings', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-              getLatestPumpSettings: sinon.stub()
-                .onFirstCall().returns(latestPumpSettingsMissing)
-                .onSecondCall().returns(latestPumpSettingsSufficient)
-            });
-
-            api.patientData.get= sinon.stub()
-              .onFirstCall().callsArgWith(2, null, patientData)
-              .onSecondCall().callsArgWith(2, null, [latestPumpSettings]);
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData.concat(latestPumpSettings),
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-
-          it('should trigger FETCH_PATIENT_DATA_REQUEST three times if the upload record is missing after fetching pump settings', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-              getLatestPumpSettings: sinon.stub()
-                .onFirstCall().returns(latestPumpSettingsMissing)
-                .onSecondCall().returns(latestPumpSettingsMissingUpload),
-            });
-
-            api.patientData.get= sinon.stub()
-              .onFirstCall().callsArgWith(2, null, patientData)
-              .onSecondCall().callsArgWith(2, null, [latestPumpSettings])
-              .onThirdCall().callsArgWith(2, null, [latestUpload]);
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-        });
-
-        context('missing pump settings upload record', () => {
-          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is present after fetching', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-              getLatestPumpSettings: sinon.stub()
-                .onFirstCall().returns(latestPumpSettingsMissingUpload)
-                .onSecondCall().returns(latestPumpSettingsSufficient)
-            });
-
-            api.patientData.get= sinon.stub()
-              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
-              .onSecondCall().callsArgWith(2, null, [latestUpload]);
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData.concat(latestPumpSettings).concat(latestUpload),
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-
-          it('should trigger FETCH_PATIENT_DATA_REQUEST twice if an upload record is missing after fetching, but still dispatch success', () => {
-            async.__Rewire__('utils', {
-              getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-              getLatestPumpSettings: sinon.stub()
-                .onFirstCall().returns(latestPumpSettingsMissingUpload)
-                .onSecondCall().returns(latestPumpSettingsSufficient)
-            });
-
-            api.patientData.get= sinon.stub()
-              .onFirstCall().callsArgWith(2, null, patientData.concat(latestPumpSettings))
-              .onSecondCall().callsArgWith(2, null, []); // no upload found -- oh well we tried
-
-            let expectedActions = [
-              { type: 'FETCH_SERVER_TIME_REQUEST' },
-              {
-                type: 'FETCH_SERVER_TIME_SUCCESS',
-                payload: { serverTime },
-              },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              { type: 'FETCH_PATIENT_DATA_REQUEST' },
-              {
-                type: 'FETCH_PATIENT_DATA_SUCCESS',
-                payload: {
-                  patientData: patientData.concat(latestPumpSettings),
-                  patientNotes: teamNotes,
-                  patientId: patientId,
-                  fetchedUntil: '2017-12-03T00:00:00.000Z'
-                },
-              },
-            ];
-            _.each(expectedActions, (action) => {
-              expect(isTSA(action)).to.be.true;
-            });
-
-            let store = mockStore({ blip: initialState });
-            store.dispatch(async.fetchPatientData(api, options, patientId));
-
-            const actions = store.getActions();
-            expect(actions).to.eql(expectedActions);
-            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-            sinon.assert.calledOnce(async.__get__('utils').getDiabetesDataRange);
-          });
-        });
-      });
-
-      context('subsequent data fetch', () => {
-        it('should not consider the data range and trigger FETCH_PATIENT_DATA_REQUEST only once', () => {
-          options = _.assign({}, options, {
-            initial: false,
-          });
-
-          let expectedActions = [
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
-            {
-              type: 'FETCH_PATIENT_DATA_SUCCESS',
-              payload: {
-                patientData: patientData,
-                patientNotes: teamNotes,
-                patientId: patientId,
-                fetchedUntil: '2018-01-01T00:00:00.000Z'
-              },
-            },
-          ];
-          _.each(expectedActions, (action) => {
-            expect(isTSA(action)).to.be.true;
-          });
-
-          let store = mockStore({ blip: initialState });
-          store.dispatch(async.fetchPatientData(api, options, patientId));
-
-          const actions = store.getActions();
-          expect(actions).to.eql(expectedActions);
-          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
-          sinon.assert.notCalled(async.__get__('utils').getDiabetesDataRange);
-        });
-      });
-
-      context('handleFetchErrors', () => {
-        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
+        it('trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to intial patient data call returning error', () => {
           api.patientData = {
             get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
@@ -3358,12 +2903,6 @@ describe('Actions', () => {
           err.status = 500;
 
           let expectedActions = [
-            { type: 'FETCH_SERVER_TIME_REQUEST' },
-            {
-              type: 'FETCH_SERVER_TIME_SUCCESS',
-              payload: { serverTime },
-            },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
           _.each(expectedActions, (action) => {
@@ -3373,94 +2912,192 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
-          expectedActions[3].error = actions[3].error;
+          expect(actions[0].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[0].error = actions[0].error;
           expect(actions).to.eql(expectedActions);
-          expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
-          expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
-        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings call returning error', () => {
-          async.__Rewire__('utils', {
-            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissing),
+        it('should fetch the latest data for all diabetes types and pumpSettings', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.patientData.get.withArgs(patientId, {
+            type: [
+              'cbg',
+              'smbg',
+              'basal',
+              'bolus',
+              'wizard',
+              'food',
+              'pumpSettings',
+              'upload',
+            ].join(','),
+            latest: 1,
+          }).callCount).to.equal(1);
+        });
+
+        it('should fetch the patient data 30 days prior to the latest datum time returned', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.patientData.get.callCount).to.equal(2);
+          expect(api.patientData.get.withArgs(patientId, {
+            ...options,
+            startDate: '2017-12-31T00:00:00.000Z',
+            endDate: '2018-01-31T00:00:00.000Z',
+          }).callCount).to.equal(1);
+        });
+      });
+
+      context('handleFetchSuccess', () => {
+        beforeEach(() => {
+          options.initial = false;
+        });
+
+        context('fetching data for current patient in view', () => {
+          it('should trigger FETCH_PATIENT_DATA_SUCCESS and DATA_WORKER_ADD_DATA_REQUEST', () => {
+            options.getPumpSettingsUploadRecordById = 'upload123';
+
+            api.patientData = {
+              get: sinon.stub()
+                .onFirstCall().callsArgWith(2, null, patientData)
+                .onSecondCall().callsArgWith(2, null, [ uploadRecord ]),
+            };
+
+            let expectedActions = [
+              { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
+              { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
+              {
+                type: 'DATA_WORKER_ADD_DATA_REQUEST',
+                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub' },
+                payload: {
+                  data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
+                  fetchedCount: 4,
+                  patientId: patientId,
+                  fetchedUntil: '2018-01-01T00:00:00.000Z',
+                  returnData: false,
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, routing: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            actions[2].meta.origin = 'http://originStub';
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
           });
+        });
+
+        context('not fetching data for current patient in view (i.e. stale request)', () => {
+          it('should only trigger FETCH_PATIENT_DATA_SUCCESS and not DATA_WORKER_ADD_DATA_REQUEST', () => {
+            const otherPatientId = 'xyz123';
+            let expectedActions = [
+              { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
+              { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, routing: { location: { pathname: `data/${otherPatientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+        });
+      });
+
+      context('handleFetchErrors', () => {
+        it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', () => {
+          options.initial = false;
 
           api.patientData = {
-            get: sinon.stub(),
+            get: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
-
-          api.patientData.get
-            .onFirstCall().callsArgWith(2, null, [])
-            .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null);
 
           let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
           err.status = 500;
 
           let expectedActions = [
-            { type: 'FETCH_SERVER_TIME_REQUEST' },
-            {
-              type: 'FETCH_SERVER_TIME_SUCCESS',
-              payload: { serverTime },
-            },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
           _.each(expectedActions, (action) => {
             expect(isTSA(action)).to.be.true;
           });
-          let store = mockStore({ blip: initialState });
+
+          let store = mockStore({
+            blip: initialState,
+            routing: { location: { pathname: `data/${patientId}` } }
+          });
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS });
-          expectedActions[4].error = actions[4].error;
+          expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[1].error = actions[1].error;
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
         it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to latest pump settings upload call returning error', () => {
-          async.__Rewire__('utils', {
-            getDiabetesDataRange: sinon.stub().returns(diabetesDataRangeSufficient),
-            getLatestPumpSettings: sinon.stub().returns(latestPumpSettingsMissingUpload),
-          });
+          options.initial = true;
 
           api.patientData = {
             get: sinon.stub()
-              .onFirstCall().callsArgWith(2, null, [])
-              .onSecondCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+              .onFirstCall().callsArgWith(2, null, [ ...patientData, { type: 'pumpSettings', uploadId: 'upload123' }])
+              .onSecondCall().callsArgWith(2, null, patientData)
+              .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
 
-          let err = new Error(ErrorMessages.ERR_FETCHING_PATIENT_DATA);
+          let err = new Error(ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD);
           err.status = 500;
 
           let expectedActions = [
-            { type: 'FETCH_SERVER_TIME_REQUEST' },
-            {
-              type: 'FETCH_SERVER_TIME_SUCCESS',
-              payload: { serverTime },
-            },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
           _.each(expectedActions, (action) => {
             expect(isTSA(action)).to.be.true;
           });
-          let store = mockStore({ blip: initialState });
+
+          let store = mockStore({
+            blip: initialState,
+            routing: { location: { pathname: `data/${patientId}` } }
+          });
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[4].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
-          expectedActions[4].error = actions[4].error;
+          expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expectedActions[1].error = actions[1].error;
+
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
         });
 
         it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request due to team notes call returning error', () => {
+          options.initial = false;
+
           api.team = {
             getNotes: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null)
           };
@@ -3469,12 +3106,7 @@ describe('Actions', () => {
           err.status = 500;
 
           let expectedActions = [
-            { type: 'FETCH_SERVER_TIME_REQUEST' },
-            {
-              type: 'FETCH_SERVER_TIME_SUCCESS',
-              payload: { serverTime },
-            },
-            { type: 'FETCH_PATIENT_DATA_REQUEST' },
+            { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
             { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
           _.each(expectedActions, (action) => {
@@ -3485,8 +3117,8 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
-          expectedActions[3].error = actions[3].error;
+          expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_MESSAGE_THREAD });
+          expectedActions[1].error = actions[1].error;
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
