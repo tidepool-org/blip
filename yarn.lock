@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-new-data-util.1":
-  version "1.10.0-new-data-util.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-new-data-util.1.tgz#2ddf19ad7290db9dbd7e9feed4899f2467dc33fe"
-  integrity sha512-KEPV9N8komroMVg1Zsqh1e4ZwDFXEeyqA+pjGW2/A4A9Gx5+Bct+Y3ePUx5H/nUwsREqCsz4lKUWDFKHH/hGmg==
+"@tidepool/viz@1.11.0-rc.1":
+  version "1.11.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.0-rc.1.tgz#82cf77600509558307c5dd9b545c661364e7d18b"
+  integrity sha512-6nEYpXE0HMah/lc3JuQbenOeMuKM2XoW52dsM1wWij++J4NL128i7i7w5XmtIcVMdrOexY67zVYL8CdqCTQkRw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -11666,10 +11666,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.15.0-data-worker.1:
-  version "1.15.0-data-worker.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.15.0-data-worker.1.tgz#dbf90964bb9ae28c2d279e0fca47bdac560b78f9"
-  integrity sha512-+SBsmI2IXjXaQEPArFHQ+rQzlFqB/aHYLt5JypWEoZxlITarVwFITvNQn/CRiGyD6OdPNMaiDn08E58+oxS52w==
+tideline@1.16.0-rc.1:
+  version "1.16.0-rc.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.16.0-rc.1.tgz#49974deed1b140ac6be5f1b73c929c20d2e3c6af"
+  integrity sha512-Spj2p9JRaq7Xu+roZxCwOe0l0EzGz4+lKawZa6j9UiyPu8WXhkCid5Ftknb/lT11tqb1FqoIicTl2B0QE6kAQQ==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
