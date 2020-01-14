@@ -2536,15 +2536,6 @@ describe('PatientData', function () {
       sinon.assert.notCalled(setStateSpy);
     });
 
-    it('should return without doing anything if `props.generatingPDF.inProgress` is `true`', () => {
-      wrapper.setProps(_.assign({}, defaultProps, {
-        generatingPDF: { inProgress: true },
-      }));
-      setStateSpy.resetHistory();
-      instance.queryData();
-      sinon.assert.notCalled(setStateSpy);
-    });
-
     it('should set the `loading` state to `options.showLoading` arg', () => {
       instance.queryData(emptyQuery, { showLoading: false });
       sinon.assert.calledWithMatch(setStateSpy, { loading: false });

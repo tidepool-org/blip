@@ -20,25 +20,10 @@
 import _ from 'lodash';
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
+import Queue from '../core/Queue';
 
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
-
-class Queue {
-  constructor() {
-    this.items = [];
-    this.processing = false;
-  }
-
-  add = item => this.items.push(item);
-
-  getNext = () => this.items.shift();
-
-  setProcessing = processing => {
-    this.processing = processing;
-  };
-}
-
 const queue = new Queue();
 
 onmessage = (msg) => {
