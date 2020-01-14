@@ -11,7 +11,6 @@ export default class Queue {
 
   clear = () => {
     this.items = [];
-    this.setId();
   };
 
   setId = (id = null) => this.id = id;
