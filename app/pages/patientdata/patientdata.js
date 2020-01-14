@@ -602,6 +602,7 @@ export let PatientData = translate()(React.createClass({
       'combined',
       queries,
       opts,
+      this.props.currentPatientInViewId,
     );
   },
 
@@ -817,7 +818,7 @@ export let PatientData = translate()(React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.props.dataWorkerRemoveDataRequest();
+      this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
       this.props.removeGeneratedPDFS();
 
       this.setState({
@@ -1257,7 +1258,7 @@ export let PatientData = translate()(React.createClass({
     }
 
     if (query) {
-      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
+      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query }, this.props.currentPatientInViewId);
     } else if (this.state.chartType) {
       switch (this.state.chartType) {
         case 'basics':
@@ -1304,7 +1305,7 @@ export let PatientData = translate()(React.createClass({
       chartQuery.updateChartEndpoints = options.updateChartEndpoints;
       chartQuery.transitioningChartType = options.transitioningChartType;
 
-      this.props.dataWorkerQueryDataRequest(chartQuery);
+      this.props.dataWorkerQueryDataRequest(chartQuery, this.props.currentPatientInViewId);
     }
   },
 

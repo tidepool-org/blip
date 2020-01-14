@@ -18,6 +18,8 @@
 /* global postMessage */
 
 import _ from 'lodash';
+import bows from 'bows';
+
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
 import Queue from '../core/Queue';
@@ -25,9 +27,20 @@ import Queue from '../core/Queue';
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
 const queue = new Queue();
+const log = bows('Worker');
 
 onmessage = (msg) => {
   if (msg) {
+    const { patientId } = _.get(msg, 'data.meta', {});
+
+    // Clear queue if queries are for a different patientId
+    if (queue.id !== patientId) {
+      log('Queue: Set patientId', patientId);
+      queue.clear();
+      queue.setId(patientId);
+    }
+
+    // Add message to queue and process if queue is clear
     queue.add(msg);
     if (!queue.processing) processNextMessage();
   }
