@@ -1231,7 +1231,7 @@ export let PatientData = translate()(React.createClass({
       metaData: 'bgSources',
     });
 
-    if (this.state.queryingData || this.props.generatingPDF.inProgress) return;
+    if (this.state.queryingData) return;
     this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
