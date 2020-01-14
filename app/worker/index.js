@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, onmessage, postMessage */
+/* global postMessage */
 
 import _ from 'lodash';
 import PDFWorker from './PDFWorker';
@@ -24,8 +24,34 @@ import DataWorker from './DataWorker';
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
 
-// eslint-disable-next-line no-native-reassign
+class Queue {
+  constructor() {
+    this.items = [];
+    this.processing = false;
+  }
+
+  add = item => this.items.push(item);
+
+  getNext = () => this.items.shift();
+
+  setProcessing = processing => {
+    this.processing = processing;
+  };
+}
+
+const queue = new Queue();
+
 onmessage = (msg) => {
+  if (msg) {
+    queue.add(msg);
+    if (!queue.processing) processNextMessage();
+  }
+};
+
+function processNextMessage() {
+  queue.setProcessing(true);
+  const msg = queue.getNext();
+
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);
@@ -35,4 +61,7 @@ onmessage = (msg) => {
       dataWorker.handleMessage(msg, postMessage);
       break;
   }
-};
+
+  queue.setProcessing(false);
+  if (queue.items.length) processNextMessage();
+}
