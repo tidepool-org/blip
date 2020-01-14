@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, postMessage, __DEV__ */
+/* global importScripts, __DEV__ */
 import '../core/language'; // Needed to load i18next config in the web worker
 import bows from 'bows';
 import _ from 'lodash';
