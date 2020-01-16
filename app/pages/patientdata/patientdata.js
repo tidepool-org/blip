@@ -877,7 +877,7 @@ export let PatientData = translate()(React.createClass({
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
-      applyTimeZoneToStart = (_.get(opts, 'chartType', this.state.chartType) !== 'daily'), // TODO: this causes a problem over DST changeovers.  Better to get the offset and apply it
+      applyTimeZoneToStart = (_.get(opts, 'chartType', this.state.chartType) !== 'daily'),
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
     } = opts;
