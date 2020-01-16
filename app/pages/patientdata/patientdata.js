@@ -1216,7 +1216,7 @@ export let PatientData = translate()(React.createClass({
 
   componentWillUpdate: function (nextProps, nextState) {
     const pdfGenerating = nextProps.generatingPDF.inProgress;
-    const pdfGenerated = nextProps.generatingPDF.completed;
+    const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
@@ -1422,7 +1422,7 @@ export let PatientData = translate()(React.createClass({
     const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
     const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).subtract(16, 'weeks').toISOString(),
+      start: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
       end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
     };
 
