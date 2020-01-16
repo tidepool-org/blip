@@ -1186,7 +1186,10 @@ export let PatientData = translate()(React.createClass({
             };
           }
 
-          if (_.get(nextProps, 'data.query.transitioningChartType')) {
+          const isTransitioning = _.get(nextProps, 'data.query.transitioningChartType');
+          const wasTransitioning = _.get(this.props, 'data.query.transitioningChartType');
+
+          if (isTransitioning || wasTransitioning) {
             stateUpdates.transitioningChartType = false;
             hideLoadingTimeout = 250;
           }

@@ -42,7 +42,7 @@ class BgSourceToggle extends PureComponent {
   };
 
   getBgSource = () => {
-    return _.get(this.props, `chartPrefs[${this.props.chartType}].bgSource`, _.get(this.props, 'bgSources.current'));;
+    return _.get(this.props, `chartPrefs[${this.props.chartType}].bgSource`, _.get(this.props, 'bgSources.current'));
   };
 
   handleBgToggle = (e) => {
