@@ -700,7 +700,7 @@ export let PatientData = translate()(React.createClass({
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       .toISOString();
 
-    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType: 'basics', setEndToLocalCeiling: false }));
+    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType: 'basics' }));
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -877,7 +877,7 @@ export let PatientData = translate()(React.createClass({
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
-      applyTimeZoneToStart = (_.get(opts, 'chartType', this.state.chartType) !== 'daily'),
+      applyTimeZoneToStart = (_.get(opts, 'chartType', this.state.chartType) !== 'daily'), // TODO: this causes a problem over DST changeovers.  Better to get the offset and apply it
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
     } = opts;
@@ -1393,7 +1393,7 @@ export let PatientData = translate()(React.createClass({
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
 
-      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false });
+      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
 
       // Set the default bgSource for basics, daily, and trends charts
       this.updateChartPrefs({
