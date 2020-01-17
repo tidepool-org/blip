@@ -627,9 +627,11 @@ export let PatientData = translate()(React.createClass({
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0];
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1];
     const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
+    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     const updateOpts = {
-      showLoading: updateChartData,
+      showLoading: isTrends || newChartRangeNeedsDataFetch || updateChartData,
       updateChartEndpoints: isTrends || updateChartData,
       query: isTrends || updateChartData ? undefined : {
         endpoints: newEndpoints,
@@ -638,9 +640,6 @@ export let PatientData = translate()(React.createClass({
         stats: this.getStatsByChartType(),
       },
     };
-
-    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
-    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
       const options = {
@@ -856,7 +855,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       chartPrefs: newPrefs,
     }, () => {
-      const queryOpts = { showLoading: false };
+      const queryOpts = { showLoading: queryData && this.state.chartType === 'trends' };
 
       if (queryData) {
         this.queryData(undefined, queryOpts);
