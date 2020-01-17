@@ -146,7 +146,6 @@ export let PatientData = translate()(React.createClass({
       },
       createMessage: null,
       createMessageDatetime: null,
-      data: {},
       datetimeLocation: null,
       queryDataCount: 0,
       fetchEarlierDataCount: 0,
@@ -819,21 +818,20 @@ export let PatientData = translate()(React.createClass({
     var refresh = this.props.onRefresh;
     if (refresh) {
       this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
-      this.props.removeGeneratedPDFS();
 
       this.setState({
+        ...this.getInitialState(),
         bgPrefs: undefined,
         chartType: undefined,
+        chartEndpoints: undefined,
         datetimeLocation: undefined,
         mostRecentDatetimeLocation: undefined,
-        endpoints: [],
-        fetchEarlierDataCount: 0,
-        loading: true,
-        queryDataCount: 0,
+        endpoints: undefined,
         refreshChartType: this.state.chartType,
-        timePrefs: {},
-        title: this.DEFAULT_TITLE,
-      }, () => refresh(this.props.currentPatientInViewId));
+      }, () => {
+        refresh(this.props.currentPatientInViewId);
+        this.props.removeGeneratedPDFS();
+      });
     }
   },
 
