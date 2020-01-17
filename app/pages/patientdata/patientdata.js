@@ -764,7 +764,7 @@ export let PatientData = translate()(React.createClass({
     // This is likely what's causing all sorts of issues. In fact, we should likely not change the chartType till
     // the new data has been loaded.
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling)
 
     const updateOpts = { updateChartEndpoints: true };
