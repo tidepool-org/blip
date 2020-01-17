@@ -711,8 +711,7 @@ export let PatientData = translate()(React.createClass({
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .tz(getTimezoneFromTimePrefs(this.state.timePrefs))
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
@@ -757,8 +756,7 @@ export let PatientData = translate()(React.createClass({
     const chartType = 'bgLog';
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     // TODO: for all views, we will not be able to determine mostRecentDatumTime till after the data has been queried.
@@ -771,7 +769,7 @@ export let PatientData = translate()(React.createClass({
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
-      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs))
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
@@ -1385,8 +1383,7 @@ export let PatientData = translate()(React.createClass({
       const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
-          .subtract(1, 'day')
-          .hours(12)
+          .subtract(12, 'hours')
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());

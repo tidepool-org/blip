@@ -418,8 +418,7 @@ class BgLog extends Component {
     const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
