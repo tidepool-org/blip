@@ -9,13 +9,9 @@ export default class Queue {
 
   getNext = () => this.items.shift();
 
-  clear = () => {
-    this.items = [];
-  };
+  clear = () => this.items = [];
 
   setId = (id = null) => this.id = id;
 
-  setProcessing = processing => {
-    this.processing = processing;
-  };
+  setProcessing = processing => this.processing = processing;
 }
