@@ -34,7 +34,7 @@ describe('Queue', () => {
     expect(queue.items).to.eql(['foo', 'bar']);
   });
 
-  it('should clear the items queue and id', () => {
+  it('should clear the items queue', () => {
     queue.items = ['foo', 'bar', 'baz'];
     queue.clear();
     expect(queue.items).to.eql([]);
@@ -57,7 +57,7 @@ describe('Queue', () => {
     expect(queue.processing).to.eql(false);
   });
 
-  it('should set the `id` property', () => {
+  it('should set the `id` property, defaulting to `null` if no arg provided', () => {
     queue.setId('abc');
     expect(queue.id).to.eql('abc');
 
