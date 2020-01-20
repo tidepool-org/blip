@@ -855,7 +855,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       chartPrefs: newPrefs,
     }, () => {
-      const queryOpts = { showLoading: queryData && this.state.chartType === 'trends' };
+      const queryOpts = { showLoading: false };
 
       if (queryData) {
         this.queryData(undefined, queryOpts);

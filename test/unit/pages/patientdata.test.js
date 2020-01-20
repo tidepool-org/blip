@@ -43,7 +43,7 @@ describe('PatientData', function () {
     fetchingPatientData: false,
     fetchingUser: false,
     generatePDFRequest: sinon.stub(),
-    generatingPDF: false,
+    generatingPDF: {},
     isUserPatient: false,
     messageThread: [],
     onCloseMessageThread: sinon.stub(),
@@ -341,6 +341,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -367,6 +368,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -393,6 +395,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
             trackMetric: sinon.stub(),
           };
 
@@ -428,6 +431,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
             trackMetric: sinon.stub()
           };
 
@@ -1065,6 +1069,7 @@ describe('PatientData', function () {
       dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
       generatingPDF: { inProgress: false },
+      pdf: {},
     };
 
     it('should clear patient data upon refresh', function() {
@@ -1097,17 +1102,14 @@ describe('PatientData', function () {
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
       sinon.assert.calledWithMatch(setStateSpy, {
+        ...instance.getInitialState(),
         bgPrefs: undefined,
         chartType: undefined,
+        chartEndpoints: undefined,
         datetimeLocation: undefined,
         mostRecentDatetimeLocation: undefined,
-        endpoints: [],
-        fetchEarlierDataCount: 0,
-        loading: true,
-        queryDataCount: 0,
+        endpoints: undefined,
         refreshChartType: 'currentChartType',
-        timePrefs: {},
-        title: 'defaultTitle',
       });
 
       PatientData.WrappedComponent.prototype.setState.restore();
@@ -2364,6 +2366,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2393,6 +2396,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: true },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2419,6 +2423,7 @@ describe('PatientData', function () {
           metaData: { size: undefined },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2445,6 +2450,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2471,6 +2477,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false, completed: true },
+        pdf: { combined: {} },
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2497,6 +2504,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false, notification: { type: 'error' } },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -3252,7 +3260,7 @@ describe('PatientData', function () {
           instance.handleChartDateRangeUpdate('2019-11-24T00:00:00.000Z');
 
           sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-24T00:00:00.000Z', nextLimitReachedEndpoints, sinon.match({
-            showLoading: false,
+            showLoading: true,
             updateChartEndpoints: true,
             query: undefined,
           }));
@@ -3572,6 +3580,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3626,6 +3635,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub(),
         t,
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
@@ -3693,6 +3703,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3768,6 +3779,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3835,6 +3847,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
