@@ -15,17 +15,43 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, onmessage, postMessage */
+/* global postMessage */
 
 import _ from 'lodash';
+import bows from 'bows';
+
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
+import queue from 'async/queue';
 
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
+const log = bows('Worker');
 
-// eslint-disable-next-line no-native-reassign
+let q;
+
 onmessage = (msg) => {
+  if (msg) {
+    const { patientId } = _.get(msg, 'data.meta', {});
+
+    // Instantiate a new queue if not set or patientId changes
+    if (!q || q.id !== patientId) q = newQueue(patientId);
+
+    // Add message to queue
+    q.push(msg);
+    log('Pushed msg to queue:', msg);
+  }
+};
+
+function newQueue(patientId) {
+  const _queue = queue(processMessage, 1);
+  _queue.id = patientId;
+
+  log('New queue with patientId:', patientId, _queue);
+  return _queue;
+}
+
+function processMessage(msg, cb) {
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);
@@ -34,5 +60,7 @@ onmessage = (msg) => {
     case 'data':
       dataWorker.handleMessage(msg, postMessage);
       break;
-  }
-};
+    }
+
+  cb();
+}

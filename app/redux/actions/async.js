@@ -279,9 +279,10 @@ export function login(api, credentials, options, postLoginAction) {
  * @param  {Object} api an instance of the API wrapper
  */
 export function logout(api) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { currentPatientInViewId } } = getState();
     dispatch(sync.logoutRequest());
-    dispatch(worker.dataWorkerRemoveDataRequest());
+    dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
       dispatch(routeActions.push('/'));
@@ -1086,7 +1087,7 @@ export function createMessageThread(api, message, cb = _.noop) {
  * @param  {Object} updated message
  */
 export function editMessageThread(api, message, cb = _.noop) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.editMessageThreadRequest());
 
     api.team.editMessage(message, err => {
@@ -1097,8 +1098,9 @@ export function editMessageThread(api, message, cb = _.noop) {
           createActionError(ErrorMessages.ERR_EDITING_MESSAGE_THREAD, err), err
         ));
       } else {
+        const { blip: { currentPatientInViewId } } = getState();
         dispatch(sync.editMessageThreadSuccess(message));
-        dispatch(worker.dataWorkerUpdateDatumRequest(message));
+        dispatch(worker.dataWorkerUpdateDatumRequest(message, currentPatientInViewId));
       }
     });
   };

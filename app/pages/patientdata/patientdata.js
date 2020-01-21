@@ -146,7 +146,6 @@ export let PatientData = translate()(React.createClass({
       },
       createMessage: null,
       createMessageDatetime: null,
-      data: {},
       datetimeLocation: null,
       queryDataCount: 0,
       fetchEarlierDataCount: 0,
@@ -602,6 +601,7 @@ export let PatientData = translate()(React.createClass({
       'combined',
       queries,
       opts,
+      this.props.currentPatientInViewId,
     );
   },
 
@@ -627,9 +627,11 @@ export let PatientData = translate()(React.createClass({
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0];
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1];
     const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
+    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     const updateOpts = {
-      showLoading: updateChartData,
+      showLoading: isTrends || newChartRangeNeedsDataFetch || updateChartData,
       updateChartEndpoints: isTrends || updateChartData,
       query: isTrends || updateChartData ? undefined : {
         endpoints: newEndpoints,
@@ -638,9 +640,6 @@ export let PatientData = translate()(React.createClass({
         stats: this.getStatsByChartType(),
       },
     };
-
-    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
-    const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
       const options = {
@@ -711,8 +710,7 @@ export let PatientData = translate()(React.createClass({
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .tz(getTimezoneFromTimePrefs(this.state.timePrefs))
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
@@ -757,8 +755,7 @@ export let PatientData = translate()(React.createClass({
     const chartType = 'bgLog';
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     // TODO: for all views, we will not be able to determine mostRecentDatumTime till after the data has been queried.
@@ -766,12 +763,12 @@ export let PatientData = translate()(React.createClass({
     // This is likely what's causing all sorts of issues. In fact, we should likely not change the chartType till
     // the new data has been loaded.
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling)
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
-      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs))
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
@@ -817,22 +814,21 @@ export let PatientData = translate()(React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.props.dataWorkerRemoveDataRequest();
-      this.props.removeGeneratedPDFS();
+      this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
       this.setState({
+        ...this.getInitialState(),
         bgPrefs: undefined,
         chartType: undefined,
+        chartEndpoints: undefined,
         datetimeLocation: undefined,
         mostRecentDatetimeLocation: undefined,
-        endpoints: [],
-        fetchEarlierDataCount: 0,
-        loading: true,
-        queryDataCount: 0,
+        endpoints: undefined,
         refreshChartType: this.state.chartType,
-        timePrefs: {},
-        title: this.DEFAULT_TITLE,
-      }, () => refresh(this.props.currentPatientInViewId));
+      }, () => {
+        refresh(this.props.currentPatientInViewId);
+        this.props.removeGeneratedPDFS();
+      });
     }
   },
 
@@ -876,7 +872,7 @@ export let PatientData = translate()(React.createClass({
 
   getChartEndpoints: function(datetimeLocation = this.state.datetimeLocation, opts = {}) {
     const {
-      applyTimeZoneToStart = (this.state.chartType !== 'daily'),
+      applyTimeZoneToStart = (_.get(opts, 'chartType', this.state.chartType) !== 'daily'),
       chartType = this.state.chartType,
       setEndToLocalCeiling = true,
     } = opts;
@@ -1185,7 +1181,10 @@ export let PatientData = translate()(React.createClass({
             };
           }
 
-          if (_.get(nextProps, 'data.query.transitioningChartType')) {
+          const isTransitioning = _.get(nextProps, 'data.query.transitioningChartType');
+          const wasTransitioning = _.get(this.props, 'data.query.transitioningChartType');
+
+          if (isTransitioning || wasTransitioning) {
             stateUpdates.transitioningChartType = false;
             hideLoadingTimeout = 250;
           }
@@ -1212,7 +1211,7 @@ export let PatientData = translate()(React.createClass({
 
   componentWillUpdate: function (nextProps, nextState) {
     const pdfGenerating = nextProps.generatingPDF.inProgress;
-    const pdfGenerated = nextProps.generatingPDF.completed;
+    const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
@@ -1231,7 +1230,7 @@ export let PatientData = translate()(React.createClass({
       metaData: 'bgSources',
     });
 
-    if (this.state.queryingData || this.props.generatingPDF.inProgress) return;
+    if (this.state.queryingData) return;
     this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
@@ -1257,7 +1256,7 @@ export let PatientData = translate()(React.createClass({
     }
 
     if (query) {
-      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query });
+      this.props.dataWorkerQueryDataRequest({ ...chartQuery, ...query }, this.props.currentPatientInViewId);
     } else if (this.state.chartType) {
       switch (this.state.chartType) {
         case 'basics':
@@ -1304,7 +1303,7 @@ export let PatientData = translate()(React.createClass({
       chartQuery.updateChartEndpoints = options.updateChartEndpoints;
       chartQuery.transitioningChartType = options.transitioningChartType;
 
-      this.props.dataWorkerQueryDataRequest(chartQuery);
+      this.props.dataWorkerQueryDataRequest(chartQuery, this.props.currentPatientInViewId);
     }
   },
 
@@ -1383,8 +1382,7 @@ export let PatientData = translate()(React.createClass({
       const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
-          .subtract(1, 'day')
-          .hours(12)
+          .subtract(12, 'hours')
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
@@ -1418,7 +1416,7 @@ export let PatientData = translate()(React.createClass({
     const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
     const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).subtract(16, 'weeks').toISOString(),
+      start: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
       end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
     };
 

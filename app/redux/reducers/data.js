@@ -46,6 +46,7 @@ const data = (state = initialState.data, action) => {
         },
       });
 
+    case actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST:
     case actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS:
     case actionTypes.LOGOUT_REQUEST:
     case actionTypes.FETCH_PATIENT_DATA_FAILURE:

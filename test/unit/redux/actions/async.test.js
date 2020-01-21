@@ -874,14 +874,14 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/TRANSITION', payload: { args: [ '/' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState });
+        let store = mockStore({ blip: { ...initialState, currentPatientInViewId: 'abc123' } });
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
@@ -2975,7 +2975,7 @@ describe('Actions', () => {
               { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
               {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
-                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub' },
+                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub', patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
                   fetchedCount: 4,
