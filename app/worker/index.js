@@ -22,34 +22,36 @@ import bows from 'bows';
 
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
-import Queue from '../core/Queue';
+import queue from 'async/queue';
 
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
-const queue = new Queue();
 const log = bows('Worker');
+
+let q;
 
 onmessage = (msg) => {
   if (msg) {
     const { patientId } = _.get(msg, 'data.meta', {});
 
-    // Clear queue if queries are for a different patientId
-    if (queue.id !== patientId) {
-      log('Queue: Set patientId', patientId);
-      queue.clear();
-      queue.setId(patientId);
-    }
+    // Instantiate a new queue if not set or patientId changes
+    if (!q || q.id !== patientId) q = newQueue(patientId);
 
-    // Add message to queue and process if queue is clear
-    queue.add(msg);
-    if (!queue.processing) processNextMessage();
+    // Add message to queue
+    q.push(msg);
+    log('Pushed msg to queue:', msg, q);
   }
 };
 
-function processNextMessage() {
-  queue.setProcessing(true);
-  const msg = queue.getNext();
+function newQueue(patientId) {
+  const _queue = queue(processMessage, 1);
+  _queue.id = patientId;
 
+  log('New queue with patientId:', patientId, _queue);
+  return _queue;
+}
+
+function processMessage(msg, cb) {
   switch(_.get(msg, 'data.meta.worker')) {
     case 'pdf':
       pdfWorker.handleMessage(msg, postMessage);
@@ -58,8 +60,7 @@ function processNextMessage() {
     case 'data':
       dataWorker.handleMessage(msg, postMessage);
       break;
-  }
+    }
 
-  queue.setProcessing(false);
-  if (queue.items.length) processNextMessage();
+  cb();
 }
