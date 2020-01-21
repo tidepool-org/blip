@@ -39,7 +39,7 @@ onmessage = (msg) => {
 
     // Add message to queue
     q.push(msg);
-    log('Pushed msg to queue:', msg, q);
+    log('Pushed msg to queue:', msg);
   }
 };
 
