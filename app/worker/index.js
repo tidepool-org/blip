@@ -31,9 +31,9 @@ const log = bows('Worker');
 let q;
 
 onmessage = (msg) => {
-  if (msg) {
-    const { patientId } = _.get(msg, 'data.meta', {});
+  const { patientId } = _.get(msg, 'data.meta', {});
 
+  if (patientId) {
     // Instantiate a new queue if not set or patientId changes
     if (!q || q.id !== patientId) q = newQueue(patientId);
 
