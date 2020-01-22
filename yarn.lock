@@ -836,10 +836,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.10.0-rc.1":
-  version "1.10.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-rc.1.tgz#db5444cd9fa16ece32aa970d7622ab90b0b981f1"
-  integrity sha512-0YrFZEltMRtMVSHnCsVNKOme6ZbYsLxXJlwAUH4Y8vAhcmXyDXeWbkP60j6t+crSfKZyY96CQ4bVLQ6htrqqKQ==
+"@tidepool/viz@1.10.0":
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0.tgz#6b73da0722d77aa7c7522576e9c1c76e8fa387da"
+  integrity sha512-ZjpBsyDeoo0Fu3tWlSUV3SN50igVWxUzE7CfsHoQBvro8C/5IIIs3ZQZLt4MGiOiBwIHG++Ewp2dj7u3E3IWug==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -6991,14 +6991,14 @@ lodash@4.17.11, lodash@^4.17.0:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
 
-lodash@4.17.15, lodash@^4.17.11:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
-
 lodash@4.17.4:
   version "4.17.4"
   resolved "http://registry.npmjs.org/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
+
+lodash@^4.17.11:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
 log-symbols@^2.1.0:
   version "2.2.0"
@@ -11430,10 +11430,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.15.0-rc.1:
-  version "1.15.0-rc.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.15.0-rc.1.tgz#6e5fb141a293db794998a576c2ddabea94219f9f"
-  integrity sha512-xeYlibAuTQ8kk48r9u8D+Ibx+kavIVi6XGOmTTspUqBMx+XbJx85Ww/FIN4s5Ez7WrpSzXzNi5wpe3YLSi3PQA==
+tideline@1.15.0:
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.15.0.tgz#b34ee7b2a087a29701e7bdb8417eb20ae6a3eadb"
+  integrity sha512-diuXTi7KFSovLlMOyHodvVi/zHCygtaLQmnU25dCszgxLnFhQsaDGK0VB78pzWIM4rVtz27ZMbYUNs3Gmf7JBQ==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
@@ -11443,7 +11443,7 @@ tideline@1.15.0-rc.1:
     duration-js "4.0.0"
     i18next "11.9.0"
     intl "1.2.5"
-    lodash "4.17.15"
+    lodash "4.17.11"
     moment-timezone "0.5.21"
     react "15.6.2"
     react-addons-pure-render-mixin "15.6.2"
