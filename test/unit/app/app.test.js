@@ -916,8 +916,11 @@ describe('App', () => {
             const state = _.assign({}, loggedIn, {
               loggedInUserId: '1234',
               currentPatientInViewId: '5678',
-              patientDataMap: {
-                '1234': [ 'one', 'two' ],
+              data: {
+                metaData: {
+                  patientId: '1234',
+                  size: 2,
+                },
               },
             });
 
@@ -933,8 +936,11 @@ describe('App', () => {
             const state = _.assign({}, loggedIn, {
               loggedInUserId: '1234',
               currentPatientInViewId: '1234',
-              patientDataMap: {
-                '1234': [ 'one', 'two' ],
+              data: {
+                metaData: {
+                  patientId: '1234',
+                  size: 2,
+                },
               },
             });
 

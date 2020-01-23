@@ -210,7 +210,10 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       let patientsMap = {};
 
       [...patients, ...careTeam].forEach((patient) => {
-        patientsMap[patient.userid] = _.omit(patient, ['permissions']);
+        patientsMap[patient.userid] = {
+          ..._.omit(patient, ['permissions']),
+          settings: patient.settings || _.get(state, [patient.userid, 'settings']),
+        };
         patientsMap[`${patient.userid}_cacheUntil`] = generateCacheTTL(36e5); // Cache for 60 mins
       });
 
@@ -426,81 +429,6 @@ export const messageThread = (state = initialState.messageThread, action) => {
     case types.CLOSE_MESSAGE_THREAD:
     case types.LOGOUT_REQUEST:
       return null;
-    default:
-      return state;
-  }
-};
-
-export const patientDataMap = (state = initialState.patientDataMap, action) => {
-  switch(action.type) {
-    case types.FETCH_PATIENT_DATA_SUCCESS: {
-      const { patientId, patientData, fetchedUntil } = action.payload;
-      const sortedData = _.filter(_.orderBy(patientData, 'time', 'desc'), datum => (
-        fetchedUntil
-          ? _.includes(['pumpSettings', 'upload'], datum.type) || datum.time >= fetchedUntil
-          : true
-        )
-      );
-      const method = state[patientId] ? '$push' : '$set';
-      return update(state, {
-        [patientId]: { [method]: sortedData },
-        [`${patientId}_cacheUntil`]: { $set: generateCacheTTL(36e5) }, // Cache for 60 mins
-        [`${patientId}_fetchedUntil`]: { $set: fetchedUntil ? fetchedUntil : 'start' },
-      });
-    }
-    case types.CLEAR_PATIENT_DATA: {
-      const { patientId } = action.payload;
-      return update(state, {
-        [patientId]: { $set: null },
-        [`${patientId}_cacheUntil`]: { $set: null },
-        [`${patientId}_fetchedUntil`]: { $set: null },
-      });
-    }
-    case types.LOGOUT_REQUEST:
-    case types.FETCH_PATIENT_DATA_FAILURE:
-      return {};
-    default:
-      return state;
-  }
-};
-
-export const patientNotesMap = (state = initialState.patientNotesMap, action) => {
-  switch(action.type) {
-    case types.FETCH_PATIENT_DATA_SUCCESS: {
-      const { patientId, patientNotes } = action.payload;
-      const method = state[patientId] ? '$push' : '$set';
-      return update(state, {
-        [patientId]: { [method]: patientNotes },
-      });
-    }
-    case types.CLEAR_PATIENT_DATA: {
-      const { patientId } = action.payload;
-      return update(state, {
-        [patientId]: { $set: null }
-      });
-    }
-    case types.ADD_PATIENT_NOTE: {
-      const { patientId, note } = action.payload;
-      const method = state[patientId] ? '$push' : '$set';
-      return update(state, {
-        [patientId]: { [method]: [note] },
-      });
-    }
-    case types.UPDATE_PATIENT_NOTE: {
-      const { patientId, note } = action.payload;
-      const newState = state[patientId].map(item => {
-        if (item.id === note.id) {
-          return note;
-        }
-        return item;
-      })
-      return update(state, {
-        [patientId]: { $set: newState },
-      });
-    }
-    case types.LOGOUT_REQUEST:
-    case types.FETCH_PATIENT_DATA_FAILURE:
-      return {};
     default:
       return state;
   }

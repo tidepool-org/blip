@@ -58,8 +58,8 @@ const createWorkerMiddleware = (worker, errActionCreators) => {
             // dispatch(errActionCreators[action.type](action.payload.userId, e));
           };
 
-          worker.onmessage = ({ data: successAction }) => { // eslint-disable-line no-param-reassign
-            dispatch(successAction);
+          worker.onmessage = ({ data: responseAction }) => { // eslint-disable-line no-param-reassign
+            dispatch(responseAction);
           };
         } catch (e) {
           console.error(e);

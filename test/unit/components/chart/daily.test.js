@@ -15,7 +15,6 @@ import { shallow, mount } from 'enzyme';
 import { translate } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
-import DataUtilStub from '../../../helpers/DataUtil';
 import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
@@ -49,12 +48,19 @@ describe('Daily', () => {
   };
 
   const baseProps = {
-    bgPrefs,
+    addingData: { inProgress: false, complete: false },
     chartPrefs: {
       daily: {},
     },
-    dataUtil: new DataUtilStub(),
+    data: {
+      bgPrefs,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: 'US/Pacific',
+      },
+    },
     initialDateTimeLocation: '2014-03-13T12:00:00.000Z',
+    mostRecentDatetimeLocation: '2014-03-13T12:00:00.000Z',
     loading: false,
     onClickRefresh: () => {},
     onClickPrint: sinon.stub(),
@@ -76,18 +82,13 @@ describe('Daily', () => {
         view: {}
       }
     },
-    patientData: {
-      grouped: { foo: 'bar' }
-    },
     pdf: {},
-    timePrefs: {
-      timezoneAware: false,
-      timezoneName: 'US/Pacific'
-    },
+    queryDataCount: 1,
+    stats: [],
     t: i18next.t.bind(i18next),
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
-    updateDatetimeLocation: sinon.stub(),
+    updatingDatum: { inProgress: false, complete: false },
   };
 
   let wrapper;
@@ -103,7 +104,6 @@ describe('Daily', () => {
     baseProps.onUpdateChartDateRange.reset();
     baseProps.trackMetric.reset();
     baseProps.updateChartPrefs.reset();
-    baseProps.updateDatetimeLocation.reset();
   });
 
   describe('render', () => {
@@ -199,20 +199,12 @@ describe('Daily', () => {
   describe('handleDatetimeLocationChange', () => {
     const endpoints = [
       {
-        start: '2018-01-15T00:00:00.000Z',
-        center: '2018-01-15T12:00:00.000Z',
-        end: '2018-01-16T00:00:00.000Z',
+        start: new Date('2018-01-15T00:00:00.000Z'),
+        center: new Date('2018-01-15T12:00:00.000Z'),
+        end: new Date('2018-01-16T00:00:00.000Z'),
       },
       '2018-01-16T05:00:00.000Z',
     ];
-
-    it('should set the `datetimeLocation` state', () => {
-      expect(wrapper.state().datetimeLocation).to.be.undefined;
-
-      instance.handleDatetimeLocationChange(endpoints);
-
-      expect(wrapper.state().datetimeLocation).to.equal('2018-01-16T05:00:00.000Z');
-    });
 
     it('should set the `title` state', () => {
       expect(wrapper.state().title).to.equal('');
@@ -220,25 +212,6 @@ describe('Daily', () => {
       instance.handleDatetimeLocationChange(endpoints);
 
       expect(wrapper.state().title).to.equal('Tue, Jan 16, 2018');
-    });
-
-    it('should set the `endpoints` state', () => {
-      expect(wrapper.state().endpoints).to.eql([]);
-
-      instance.handleDatetimeLocationChange(endpoints);
-      expect(wrapper.state().endpoints).to.eql([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-16T00:00:00.000Z',
-      ]);
-    });
-
-    it('should call the `updateDatetimeLocation` prop method', () => {
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
-
-      instance.handleDatetimeLocationChange(endpoints);
-
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 1);
-      sinon.assert.calledWith(baseProps.updateDatetimeLocation, '2018-01-16T05:00:00.000Z');
     });
 
     it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {

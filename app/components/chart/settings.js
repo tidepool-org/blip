@@ -18,10 +18,7 @@
 import _ from 'lodash';
 import bows from 'bows';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Trans, translate } from 'react-i18next';
-
-import utils from '../../core/utils';
 
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
@@ -29,20 +26,12 @@ const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 import Header from './header';
 import Footer from './footer';
 
-const tideline = {
-  log: bows('Settings')
-};
-
 const Settings = translate()(React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
-    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -51,7 +40,10 @@ const Settings = translate()(React.createClass({
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
+    pdf: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
 
@@ -99,16 +91,19 @@ const Settings = translate()(React.createClass({
   },
 
   renderChart: function() {
-    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
+    const latestPumpUpload = _.get(this.props, 'data.metaData.latestPumpUpload', {});
+    const latestPumpSettings = _.get(latestPumpUpload, 'settings', {});
 
     return (
       <PumpSettingsContainer
         currentPatientInViewId={this.props.currentPatientInViewId}
         copySettingsClicked={this.handleCopySettingsClicked}
-        bgUnits={this.props.bgPrefs.bgUnits}
-        manufacturerKey={_.get(mostRecentSettings, 'source', '').toLowerCase()}
-        pumpSettings={mostRecentSettings}
-        timePrefs={this.props.timePrefs}
+        bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
+        manufacturerKey={latestPumpUpload.manufacturer}
+        toggleSettingsSection={this.toggleSettingsSection}
+        settingsState={_.get(this.props, ['chartPrefs', this.chartType])}
+        pumpSettings={latestPumpSettings}
+        timePrefs={_.get(this.props, 'data.timePrefs', {})}
         view='display'
       />
     );
@@ -136,18 +131,7 @@ const Settings = translate()(React.createClass({
   },
 
   isMissingSettings: function() {
-    const data = this.props.patientData;
-    const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
-    if (pumpSettings === false) {
-      return true;
-    }
-    // the TidelineData constructor currently replaces missing data with
-    // an empty array, so we also have to check for content
-    else if (_.isEmpty(pumpSettings)) {
-      return true;
-    }
-
-    return false;
+    return !_.get(this.props, 'data.metaData.latestPumpUpload.settings');
   },
 
   // handlers
@@ -196,7 +180,21 @@ const Settings = translate()(React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToBgLog();
-  }
+  },
+
+  toggleSettingsSection: function(deviceKey, scheduleOrProfileKey) {
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+
+    if (!prefs.settings[deviceKey]) {
+      prefs.settings[deviceKey] = { [scheduleOrProfileKey]: true };
+    } else {
+      prefs.settings[deviceKey][scheduleOrProfileKey] = !prefs.settings[deviceKey][scheduleOrProfileKey];
+    }
+
+    prefs.settings.touched = true;
+
+    this.props.updateChartPrefs(prefs, false);
+  },
 }));
 
 module.exports = Settings;

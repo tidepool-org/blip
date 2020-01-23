@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
@@ -11,28 +10,22 @@ const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { ClipboardButton, Loader } = vizComponents;
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
-const basicsText = vizUtils.text.basicsText;
+const { basicsText } = vizUtils.text;
+
+import { isMissingBasicsData } from '../../core/data';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
-import { BG_DATA_TYPES } from '../../core/constants';
 
 class Basics extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
+    aggregations: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
-    endpoints: React.PropTypes.arrayOf(React.PropTypes.string),
-    timePrefs: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
+    loading: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -41,8 +34,11 @@ class Basics extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object.isRequired,
+    pdf: React.PropTypes.object.isRequired,
+    stats: React.PropTypes.array.isRequired,
+    permsOfLoggedInUser: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updateBasicsData: React.PropTypes.func.isRequired,
     updateBasicsSettings: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
@@ -63,19 +59,6 @@ class Basics extends Component {
     inTransition: false,
     title: this.getTitle(),
   });
-
-  componentWillMount = () => {
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-
-    if (dateRange) {
-      const endpoints = [
-        dateRange[0],
-        getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString(),
-      ];
-
-      this.props.onUpdateChartDateRange(endpoints);
-    }
-  };
 
   render = () => {
     const { t } = this.props;
@@ -100,8 +83,8 @@ class Basics extends Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              {this.isMissingBasics() ? (this.props.loading ? null : this.renderMissingBasicsMessage()) : this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -110,33 +93,28 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.state.stats, this.props.endpoints, this.props.bgPrefs, this.props.timePrefs, this.props.patientData.basicsData)}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
                 />
                 <BgSourceToggle
-                  bgSource={this.props.dataUtil.bgSource}
-                  bgSources={this.props.dataUtil.bgSources}
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   onClickBgSourceToggle={this.toggleBgDataSource}
                 />
                 <Stats
-                  bgPrefs={this.props.bgPrefs}
-                  bgSource={this.props.dataUtil.bgSource}
+                  bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  dataUtil={this.props.dataUtil}
-                  endpoints={this.props.endpoints}
-                  onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
-                  onStatsChange={this.handleStatsChange}
+                  stats={this.props.stats}
                 />
               </div>
             </div>
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-        ref="footer" />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          ref="footer"
+        />
       </div>
       );
   };
@@ -145,14 +123,14 @@ class Basics extends Component {
     return (
       <div id="tidelineContainer" className="patient-data-chart-growing">
         <BasicsChart
-          bgClasses={this.props.bgPrefs.bgClasses}
-          bgUnits={this.props.bgPrefs.bgUnits}
+          aggregations={this.props.aggregations}
+          bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
+          bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
+          data={this.props.data}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
-          patientData={this.props.patientData}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-          timePrefs={this.props.timePrefs}
-          updateBasicsData={this.props.updateBasicsData}
+          timePrefs={_.get(this.props, 'data.timePrefs', {})}
           updateBasicsSettings={this.props.updateBasicsSettings}
           ref="chart"
           trackMetric={this.props.trackMetric} />
@@ -185,7 +163,8 @@ class Basics extends Component {
     if (this.isMissingBasics()) {
       return '';
     }
-    const timePrefs = this.props.timePrefs
+
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
     let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -193,27 +172,15 @@ class Basics extends Component {
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    const basicsData = this.props.patientData.basicsData;
-    const dtMask = t('MMM D, YYYY');
 
-    return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
+    const dtMask = t('MMM D, YYYY');
+    return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1], timezone, dtMask);
   }
 
   isMissingBasics = () => {
-    const basicsData = _.get(this.props, 'patientData.basicsData', {});
-    let data;
-
-    if (basicsData.data) {
-      data = basicsData.data;
-    }
-    else {
-      return true;
-    }
-
-    // require at least one relevant data point to show The Basics
-    const basicsDataLength = _.flatten(_.map(_.values(data), 'data')).length;
-    return basicsDataLength === 0;
+    const aggregationsByDate = _.get(this.props, 'data.data.aggregationsByDate', {});
+    return isMissingBasicsData(aggregationsByDate);
   };
 
   // handlers
@@ -227,30 +194,7 @@ class Basics extends Component {
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.basics.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
-  };
-
-  handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.basics.averageDailyDose = {
-      inputValue,
-      suffixValue,
-    };
-    this.props.updateChartPrefs(prefs);
-  };
-
-  handleStatsChange = stats => {
-    this.setState({ stats });
-
-    window.downloadStatData = () => {
-      console.save({
-        bgPrefs: this.props.bgPrefs,
-        data: this.props.patientData.basicsData,
-        endpoints: this.props.endpoints,
-        stats: stats,
-        timePrefs: this.props.timePrefs,
-      }, 'stats-basics.json');
-    };
+    this.props.updateChartPrefs(prefs, false, true);
   };
 
   handleClickBasics = e => {
@@ -264,16 +208,14 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToTrends(dateRange[1]);
+    this.props.onSwitchToTrends(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleClickOneDay = e => {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToDaily(dateRange[1]);
+    this.props.onSwitchToDaily(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleClickPrint = e => {
@@ -288,8 +230,7 @@ class Basics extends Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToBgLog(dateRange[1]);
+    this.props.onSwitchToBgLog(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
   };
 
   handleSelectDay = (date, title) => {

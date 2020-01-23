@@ -1057,6 +1057,17 @@ describe('working', () => {
         expect(state.fetchingPatientData.inProgress).to.be.true;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
+
+      it('should set fetchingPatientData.patientId', () => {
+        const patientId = 'abc123';
+        let action = actions.sync.fetchPatientDataRequest(patientId);
+
+        expect(initialState.fetchingPatientData.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.fetchingPatientData.patientId).to.equal(patientId);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
     });
 
     describe('failure', () => {
@@ -1394,6 +1405,184 @@ describe('working', () => {
     });
   });
 
+  describe('createMessageThread', () => {
+    describe('request', () => {
+      it('should leave creatingMessageThread.completed unchanged', () => {
+        expect(initialState.creatingMessageThread.completed).to.be.null;
+
+        let requestAction = actions.sync.createMessageThreadRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingMessageThread.completed).to.be.null;
+
+        let successAction = actions.sync.createMessageThreadSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingMessageThread.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingMessageThread.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingMessageThread.inProgress to be true', () => {
+        let action = actions.sync.createMessageThreadRequest();
+
+        expect(initialState.creatingMessageThread.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.creatingMessageThread.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingMessageThread.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingMessageThread.completed).to.be.null;
+
+        let failureAction = actions.sync.createMessageThreadFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingMessageThread.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingMessageThread.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingMessageThread: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createMessageThreadFailure(error);
+
+        expect(initialStateForTest.creatingMessageThread.inProgress).to.be.true;
+        expect(initialStateForTest.creatingMessageThread.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingMessageThread.inProgress).to.be.false;
+        expect(state.creatingMessageThread.notification.type).to.equal('error');
+        expect(state.creatingMessageThread.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingMessageThread.completed to be true', () => {
+        expect(initialState.creatingMessageThread.completed).to.be.null;
+
+        let successAction = actions.sync.createMessageThreadSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingMessageThread.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingMessageThread.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingMessageThread: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let messageThread = 'some message thread';
+        let action = actions.sync.createMessageThreadSuccess(messageThread);
+
+        expect(initialStateForTest.creatingMessageThread.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingMessageThread.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('editMessageThread', () => {
+    describe('request', () => {
+      it('should leave editingMessageThread.completed unchanged', () => {
+        expect(initialState.editingMessageThread.completed).to.be.null;
+
+        let requestAction = actions.sync.editMessageThreadRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.editingMessageThread.completed).to.be.null;
+
+        let successAction = actions.sync.editMessageThreadSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.editingMessageThread.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.editingMessageThread.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set editingMessageThread.inProgress to be true', () => {
+        let action = actions.sync.editMessageThreadRequest();
+
+        expect(initialState.editingMessageThread.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.editingMessageThread.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set editingMessageThread.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.editingMessageThread.completed).to.be.null;
+
+        let failureAction = actions.sync.editMessageThreadFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.editingMessageThread.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set editingMessageThread.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { editingMessageThread: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.editMessageThreadFailure(error);
+
+        expect(initialStateForTest.editingMessageThread.inProgress).to.be.true;
+        expect(initialStateForTest.editingMessageThread.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.editingMessageThread.inProgress).to.be.false;
+        expect(state.editingMessageThread.notification.type).to.equal('error');
+        expect(state.editingMessageThread.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set editingMessageThread.completed to be true', () => {
+        expect(initialState.editingMessageThread.completed).to.be.null;
+
+        let successAction = actions.sync.editMessageThreadSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.editingMessageThread.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set editingMessageThread.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { editingMessageThread: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let messageThread = 'some message thread';
+        let action = actions.sync.editMessageThreadSuccess(messageThread);
+
+        expect(initialStateForTest.editingMessageThread.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.editingMessageThread.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('generatePDF', () => {
     describe('request', () => {
       it('should leave generatingPDF.completed unchanged', () => {
@@ -1479,6 +1668,388 @@ describe('working', () => {
         let state = reducer(initialStateForTest, action);
 
         expect(state.generatingPDF.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('removingGeneratedPDFS', () => {
+    describe('success', () => {
+      it('should set generatingPDF to it\'s original state', () => {
+        let initialStateForTest = _.merge({}, initialState, { generatingPDF: { inProgress: false, completed: true } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.worker.removeGeneratedPDFS();
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.generatingPDF).to.eql(initialState.generatingPDF);
+      });
+    });
+  });
+
+  describe('dataWorkerAddData', () => {
+    describe('request', () => {
+      it('should leave addingData.completed unchanged', () => {
+        expect(initialState.addingData.completed).to.be.null;
+
+        let requestAction = actions.worker.dataWorkerAddDataRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.addingData.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerAddDataSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.addingData.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.addingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set addingData.inProgress to be true', () => {
+        let action = actions.worker.dataWorkerAddDataRequest();
+
+        expect(initialState.addingData.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.addingData.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set addingData.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.addingData.completed).to.be.null;
+
+        let failureAction = actions.worker.dataWorkerAddDataFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.addingData.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set addingData.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { addingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.worker.dataWorkerAddDataFailure(error);
+
+        expect(initialStateForTest.addingData.inProgress).to.be.true;
+        expect(initialStateForTest.addingData.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.addingData.inProgress).to.be.false;
+        expect(state.addingData.notification.type).to.equal('error');
+        expect(state.addingData.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set addingData.completed to be true', () => {
+        expect(initialState.addingData.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerAddDataSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.addingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set addingData.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { addingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let result = 'some results';
+        let action = actions.worker.dataWorkerAddDataSuccess(result);
+
+        expect(initialStateForTest.addingData.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.addingData.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('dataWorkerRemoveData', () => {
+    describe('request', () => {
+      it('should leave removingData.completed unchanged', () => {
+        expect(initialState.removingData.completed).to.be.null;
+
+        let requestAction = actions.worker.dataWorkerRemoveDataRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.removingData.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerRemoveDataSuccess();
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.removingData.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.removingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set removingData.inProgress to be true', () => {
+        let action = actions.worker.dataWorkerRemoveDataRequest();
+
+        expect(initialState.removingData.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.removingData.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set removingData.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.removingData.completed).to.be.null;
+
+        let failureAction = actions.worker.dataWorkerRemoveDataFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.removingData.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set removingData.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { removingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.worker.dataWorkerRemoveDataFailure(error);
+
+        expect(initialStateForTest.removingData.inProgress).to.be.true;
+        expect(initialStateForTest.removingData.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.removingData.inProgress).to.be.false;
+        expect(state.removingData.notification.type).to.equal('error');
+        expect(state.removingData.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set removingData.completed to be true', () => {
+        expect(initialState.removingData.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerRemoveDataSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.removingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set removingData.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { removingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let result = 'some results';
+        let action = actions.worker.dataWorkerRemoveDataSuccess(result);
+
+        expect(initialStateForTest.removingData.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.removingData.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set queryingData to it\'s initial working state', () => {
+        let initialStateForTest = _.merge({}, initialState, { queryingData: { inProgress : true, completed: true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let result = 'some results';
+        let action = actions.worker.dataWorkerRemoveDataSuccess(result);
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.queryingData).to.be.eql(initialState.queryingData);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('dataWorkerUpdateDatum', () => {
+    describe('request', () => {
+      it('should leave updatingDatum.completed unchanged', () => {
+        expect(initialState.updatingDatum.completed).to.be.null;
+
+        let requestAction = actions.worker.dataWorkerUpdateDatumRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingDatum.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerUpdateDatumSuccess();
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingDatum.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingDatum.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingDatum.inProgress to be true', () => {
+        let action = actions.worker.dataWorkerUpdateDatumRequest();
+
+        expect(initialState.updatingDatum.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.updatingDatum.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingDatum.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingDatum.completed).to.be.null;
+
+        let failureAction = actions.worker.dataWorkerUpdateDatumFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingDatum.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingDatum.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { updatingDatum: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.worker.dataWorkerUpdateDatumFailure(error);
+
+        expect(initialStateForTest.updatingDatum.inProgress).to.be.true;
+        expect(initialStateForTest.updatingDatum.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingDatum.inProgress).to.be.false;
+        expect(state.updatingDatum.notification.type).to.equal('error');
+        expect(state.updatingDatum.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingDatum.completed to be true', () => {
+        expect(initialState.updatingDatum.completed).to.be.null;
+
+        let successAction = actions.worker.dataWorkerUpdateDatumSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingDatum.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingDatum.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { updatingDatum: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let result = 'some results';
+        let action = actions.worker.dataWorkerUpdateDatumSuccess(result);
+
+        expect(initialStateForTest.updatingDatum.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingDatum.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+describe('dataWorkerQueryData', () => {
+    describe('request', () => {
+      it('should leave queryingData.completed unchanged', () => {
+        expect(initialState.queryingData.completed).to.be.null;
+
+      let requestAction = actions.worker.dataWorkerQueryDataRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.queryingData.completed).to.be.null;
+
+      let successAction = actions.worker.dataWorkerQueryDataSuccess();
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.queryingData.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.queryingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set queryingData.inProgress to be true', () => {
+      let action = actions.worker.dataWorkerQueryDataRequest();
+
+        expect(initialState.queryingData.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.queryingData.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set queryingData.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.queryingData.completed).to.be.null;
+
+      let failureAction = actions.worker.dataWorkerQueryDataFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.queryingData.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set queryingData.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { queryingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+      let action = actions.worker.dataWorkerQueryDataFailure(error);
+
+        expect(initialStateForTest.queryingData.inProgress).to.be.true;
+        expect(initialStateForTest.queryingData.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.queryingData.inProgress).to.be.false;
+        expect(state.queryingData.notification.type).to.equal('error');
+        expect(state.queryingData.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set queryingData.completed to be true', () => {
+        expect(initialState.queryingData.completed).to.be.null;
+
+      let successAction = actions.worker.dataWorkerQueryDataSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.queryingData.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set queryingData.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { queryingData: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let result = 'some results';
+      let action = actions.worker.dataWorkerQueryDataSuccess(result);
+
+        expect(initialStateForTest.queryingData.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.queryingData.inProgress).to.be.false;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
     });
