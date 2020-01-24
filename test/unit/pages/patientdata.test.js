@@ -3260,7 +3260,7 @@ describe('PatientData', function () {
           instance.handleChartDateRangeUpdate('2019-11-24T00:00:00.000Z');
 
           sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-24T00:00:00.000Z', nextLimitReachedEndpoints, sinon.match({
-            showLoading: true,
+            showLoading: false,
             updateChartEndpoints: true,
             query: undefined,
           }));
