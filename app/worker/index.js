@@ -22,7 +22,7 @@ import bows from 'bows';
 
 import PDFWorker from './PDFWorker';
 import DataWorker from './DataWorker';
-import queue from 'async/queue';
+import { queue } from 'async';
 
 const dataWorker = new DataWorker();
 const pdfWorker = new PDFWorker(dataWorker.dataUtil);
