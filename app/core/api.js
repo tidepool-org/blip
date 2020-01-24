@@ -27,6 +27,8 @@ var config = require('../config');
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
 
+var rollbar = require('../rollbar');
+
 var api = {
   log: bows('Api')
 };
@@ -86,6 +88,18 @@ api.user.login = function(user, options, cb) {
   tidepool.login(user, options, function(err, data) {
     if (err) {
       return cb(err);
+    }
+
+    if (rollbar) {
+      rollbar.configure && rollbar.configure({
+        payload: {
+          person: {
+            id: data.userid,
+            email: user.username,
+            username: user.username,
+          }
+        }
+      });
     }
 
     cb();
@@ -309,6 +323,18 @@ function userFromAccountAndProfile(results) {
   var user = account;
   user.profile = profile;
   user.preferences = results.preferences;
+
+  if (rollbar && !_.isEmpty(account)) {
+    rollbar.configure && rollbar.configure({
+      payload: {
+        person: {
+          id: user.userid,
+          email: user.username,
+          username: user.username,
+        }
+      }
+    });
+  }
 
   return user;
 }
@@ -799,6 +825,10 @@ api.errors = {};
 
 api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
+
+  if (rollbar) {
+    rollbar.error(error, properties);
+  }
 
   return tidepool.logAppError(error, message, properties, cb);
 };

@@ -36,6 +36,8 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     scriptSrc: [
       "'self'",
       "'strict-dynamic'",
+      "'unsafe-inline'", // TODO: obviously can't deploy this...
+      "'unsafe-eval'", // TODO: obviously can't deploy this...
       (req, res) => {
         return `'nonce-${res.locals.nonce}'`;
       },
@@ -70,6 +72,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://ekr.zdassets.com',
       'https://tidepoolsupport.zendesk.com',
       'wss://tidepoolsupport.zendesk.com',
+      'https://api.rollbar.com',
       'wss://*.zopim.com',
       '*.tidepool.org',
       '*.development.tidepool.org',
