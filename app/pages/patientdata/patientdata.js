@@ -692,13 +692,18 @@ export let PatientData = translate()(React.createClass({
       e.preventDefault();
     }
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, 'basics');
-    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+    const chartType = 'basics';
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+    const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    this.updateChart('basics', datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType: 'basics' }));
+    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
+
+    const updateOpts = { updateChartEndpoints: true };
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -715,7 +720,7 @@ export let PatientData = translate()(React.createClass({
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
     const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling)
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
@@ -737,7 +742,7 @@ export let PatientData = translate()(React.createClass({
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
     const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling)
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
@@ -764,7 +769,7 @@ export let PatientData = translate()(React.createClass({
     // the new data has been loaded.
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling)
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
