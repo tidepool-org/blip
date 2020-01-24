@@ -631,7 +631,7 @@ export let PatientData = translate()(React.createClass({
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     const updateOpts = {
-      showLoading: isTrends || newChartRangeNeedsDataFetch || updateChartData,
+      showLoading: newChartRangeNeedsDataFetch || updateChartData,
       updateChartEndpoints: isTrends || updateChartData,
       query: isTrends || updateChartData ? undefined : {
         endpoints: newEndpoints,
