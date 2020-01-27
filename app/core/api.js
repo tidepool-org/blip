@@ -27,7 +27,7 @@ var config = require('../config');
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
 
-var rollbar = require('../rollbar');
+var rollbar = require('../rollbar').default;
 
 var api = {
   log: bows('Api')
@@ -176,6 +176,14 @@ api.user.signup = function(user, cb) {
 
 api.user.logout = function(cb) {
   api.log('POST /user/logout');
+
+  if (rollbar) {
+    rollbar.configure && rollbar.configure({
+      payload: {
+        person: null,
+      },
+    });
+  }
 
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
@@ -827,7 +835,7 @@ api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
 
   if (rollbar) {
-    rollbar.error(error, properties);
+    rollbar.error && rollbar.error(error);
   }
 
   return tidepool.logAppError(error, message, properties, cb);
