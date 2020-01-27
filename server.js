@@ -36,8 +36,6 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     scriptSrc: [
       "'self'",
       "'strict-dynamic'",
-      "'unsafe-inline'", // TODO: obviously can't deploy this...
-      "'unsafe-eval'", // TODO: obviously can't deploy this...
       (req, res) => {
         return `'nonce-${res.locals.nonce}'`;
       },
