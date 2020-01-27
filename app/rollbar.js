@@ -1,18 +1,13 @@
 /* global __ROLLBAR_POST_TOKEN__, __VERSION__, __API_HOST__, __PROD__ */
-import Rollbar from 'rollbar/dist/rollbar.umd';
+import Rollbar from 'rollbar';
 
 let rollbar;
-
-console.log('__ROLLBAR_POST_TOKEN__', __ROLLBAR_POST_TOKEN__);
-console.log('__VERSION__', __VERSION__);
-console.log('__PROD__', __PROD__);
-console.log(__API_HOST__ || `${window.location.protocol}//${window.location.host}`);
-
 
 if (__PROD__) {
   rollbar = new Rollbar({
       accessToken: __ROLLBAR_POST_TOKEN__,
       captureUncaught: true,
+      captureUnhandledRejections: true,
       payload: {
           environment: __API_HOST__ || `${window.location.protocol}//${window.location.host}`,
           client: {
