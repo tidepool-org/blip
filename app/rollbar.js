@@ -1,7 +1,7 @@
 /* global __ROLLBAR_POST_TOKEN__, __VERSION__, __API_HOST__, __PROD__ */
 import Rollbar from 'rollbar';
 
-let rollbar;
+let rollbar = {};
 
 if (__PROD__) {
   rollbar = new Rollbar({

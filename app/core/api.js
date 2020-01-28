@@ -27,7 +27,7 @@ var config = require('../config');
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
 
-var rollbar = require('../rollbar').default || {};
+var rollbar = require('../rollbar').default;
 
 var api = {
   log: bows('Api')
