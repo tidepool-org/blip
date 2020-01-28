@@ -20,7 +20,7 @@ This README is focused on just the details of getting blip running locally. For 
 - [Debugging](#debugging)
 - [Running the tests](#running-the-tests)
 - [Build and deployment](#build-and-deployment)
-
+- [Using Storybook](#using-storybook)
 * * * * *
 
 ## Before you start
@@ -191,3 +191,7 @@ $ source config/local.sh
 $ npm run build
 $ npm run server
 ```
+
+## Using Storybook
+
+`yarn storybook` to run Storybook
