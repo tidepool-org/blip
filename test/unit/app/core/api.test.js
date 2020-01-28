@@ -15,6 +15,7 @@ const currentUserId = 'a1b2c3';
 
 describe('api', () => {
   let tidepool;
+  let rollbar;
 
   before(() => {
     tidepool = {
@@ -26,9 +27,20 @@ describe('api', () => {
       updateCustodialUser: sinon.stub(),
       addOrUpdateProfile: sinon.stub(),
       signupStart: sinon.stub(),
+      login: sinon.stub().callsArgWith(2, null, { userid: currentUserId }),
+      logout: sinon.stub().callsArgWith(0, null),
+      destroySession: sinon.stub(),
+      isLoggedIn: sinon.stub(),
+      logAppError: sinon.stub(),
     };
 
-    api.__Rewire__('tidepool', tidepool)
+    rollbar = {
+      configure: sinon.stub(),
+      error: sinon.stub(),
+    }
+
+    api.__Rewire__('tidepool', tidepool);
+    api.__Rewire__('rollbar', rollbar);
   });
 
   beforeEach(() => {
@@ -40,10 +52,19 @@ describe('api', () => {
     tidepool.updateCustodialUser.resetHistory();
     tidepool.addOrUpdateProfile.resetHistory();
     tidepool.signupStart.resetHistory();
+    tidepool.login.resetHistory();
+    tidepool.logout.resetHistory();
+    tidepool.destroySession.resetHistory();
+    tidepool.isLoggedIn.resetHistory();
+    tidepool.logAppError.resetHistory();
+
+    rollbar.configure.resetHistory();
+    rollbar.error.resetHistory();
   });
 
   after(() => {
     api.__ResetDependency__('tidepool');
+    api.__ResetDependency__('rollbar');
   });
 
   describe('user', () => {
@@ -194,6 +215,33 @@ describe('api', () => {
           userid: currentUserId,
         });
       });
+
+      it('should set the user config in Rollbar', () => {
+        tidepool.getCurrentUser.callsArgWith(0, null, {
+          userid: currentUserId,
+          username: 'user@account.com',
+        });
+
+        tidepool.findProfile.callsArgWith(1, null, { fullName: 'Doctor Jay' });
+
+        preferencesStub.callsArgWith(1, null, 'prefs');
+        settingsStub.callsArgWith(1, null, 'settings');
+
+        const cb = sinon.stub();
+
+        api.user.get(cb);
+
+        sinon.assert.calledOnce(rollbar.configure);
+        sinon.assert.calledWith(rollbar.configure, {
+          payload: {
+            person: {
+              id: currentUserId,
+              email: 'user@account.com',
+              username: 'user@account.com',
+            },
+          },
+        });
+      });
     });
 
     describe('getAssociatedAccounts', () => {
@@ -237,6 +285,43 @@ describe('api', () => {
           careTeam: [
             { userid: '5', username: 'careteam1@tidepool.org', permissions: { view: {}, upload: {} } },
           ],
+        });
+      });
+    });
+
+    describe('login', () => {
+      it('should set the user config in Rollbar', () => {
+        const cb = sinon.stub();
+        const user = {
+          username: 'user@account.com',
+        }
+
+        api.user.login(user, cb);
+
+        sinon.assert.calledOnce(rollbar.configure);
+        sinon.assert.calledWith(rollbar.configure, {
+          payload: {
+            person: {
+              id: currentUserId,
+              email: 'user@account.com',
+              username: 'user@account.com',
+            },
+          },
+        });
+      });
+    });
+
+    describe('logout', () => {
+      it('should clear the user config in Rollbar', () => {
+        const cb = sinon.stub();
+
+        api.user.logout(cb);
+
+        sinon.assert.calledOnce(rollbar.configure);
+        sinon.assert.calledWith(rollbar.configure, {
+          payload: {
+            person: null,
+          },
         });
       });
     });
@@ -341,7 +426,7 @@ describe('api', () => {
           emails: ['jdoe2@example.com']
         });
       });
-      
+
       it('should call `updateCustodialUser`, `addOrUpdateProfile` and `signupStart` if patient is not current user and email updated', () => {
         const cb = sinon.stub();
         const patient = {
@@ -381,6 +466,27 @@ describe('api', () => {
         });
         sinon.assert.calledOnce(tidepool.signupStart);
         sinon.assert.calledWith(tidepool.signupStart, 'abc1234');
+      });
+    });
+  });
+
+  describe('errors', () => {
+    describe('log', () => {
+      it('should log an error to Rollbar', () => {
+        const error = 'error';
+        api.errors.log(error);
+        sinon.assert.calledOnce(rollbar.error);
+        sinon.assert.calledWith(rollbar.error, error);
+      });
+
+      it('should log an error to Tidepool backend', () => {
+        const error = 'error';
+        const message = 'message';
+        const properties = 'properties';
+        const cb = sinon.stub();
+        api.errors.log(error, message, properties, cb);
+        sinon.assert.calledOnce(tidepool.logAppError);
+        sinon.assert.calledWith(tidepool.logAppError, error, message, properties, cb);
       });
     });
   });

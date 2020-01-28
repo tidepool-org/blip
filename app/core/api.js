@@ -27,6 +27,8 @@ var config = require('../config');
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
 
+var rollbar = require('../rollbar').default;
+
 var api = {
   log: bows('Api')
 };
@@ -87,6 +89,17 @@ api.user.login = function(user, options, cb) {
     if (err) {
       return cb(err);
     }
+
+    // Set account info in Rollbar config
+    _.isFunction(rollbar.configure) && rollbar.configure({
+      payload: {
+        person: {
+          id: data.userid,
+          email: user.username,
+          username: user.username,
+        }
+      }
+    });
 
     cb();
   });
@@ -162,6 +175,13 @@ api.user.signup = function(user, cb) {
 
 api.user.logout = function(cb) {
   api.log('POST /user/logout');
+
+  // Unset account info in Rollbar config
+  _.isFunction(rollbar.configure) && rollbar.configure({
+    payload: {
+      person: null,
+    },
+  });
 
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
@@ -244,6 +264,17 @@ api.user.get = function(cb) {
     }
 
     var user = userFromAccountAndProfile(results);
+
+    // Set account info in Rollbar config
+    _.isFunction(rollbar.configure) && rollbar.configure({
+      payload: {
+        person: {
+          id: user.userid,
+          email: user.username,
+          username: user.username,
+        }
+      }
+    });
 
     // Set permissions for patient profiles
     if (_.get(user, ['profile', 'patient'])) {
@@ -799,6 +830,9 @@ api.errors = {};
 
 api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
+
+  // Log error to Rollbar
+  _.isFunction(rollbar.error) && rollbar.error(error);
 
   return tidepool.logAppError(error, message, properties, cb);
 };
