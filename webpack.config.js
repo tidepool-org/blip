@@ -15,7 +15,8 @@ const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
 
 const VERSION = pkg.version;
-const ROLLBAR_POST_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -138,7 +139,7 @@ const plugins = [
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
     __VERSION__: JSON.stringify(VERSION),
-    __ROLLBAR_POST_TOKEN__: JSON.stringify(ROLLBAR_POST_TOKEN),
+    __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __DEV__: isDev,
     __TEST__: isTest,
     __PROD__: isProd,
@@ -173,7 +174,7 @@ if (isDev) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
     new RollbarSourceMapPlugin({
-      accessToken: ROLLBAR_POST_TOKEN,
+      accessToken: ROLLBAR_POST_SERVER_TOKEN,
       version: VERSION,
       publicPath: 'http://dynamichost/dist',
     })

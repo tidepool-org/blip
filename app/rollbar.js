@@ -1,11 +1,11 @@
-/* global __ROLLBAR_POST_TOKEN__, __VERSION__, __API_HOST__, __PROD__ */
+/* global __ROLLBAR_POST_CLIENT_TOKEN__, __VERSION__, __API_HOST__, __PROD__ */
 import Rollbar from 'rollbar';
 
 let rollbar = {};
 
 if (__PROD__) {
   rollbar = new Rollbar({
-      accessToken: __ROLLBAR_POST_TOKEN__,
+      accessToken: __ROLLBAR_POST_CLIENT_TOKEN__,
       captureUncaught: true,
       captureUnhandledRejections: true,
       payload: {
