@@ -70,6 +70,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://ekr.zdassets.com',
       'https://tidepoolsupport.zendesk.com',
       'wss://tidepoolsupport.zendesk.com',
+      'https://api.rollbar.com',
       'wss://*.zopim.com',
       '*.tidepool.org',
       '*.development.tidepool.org',
