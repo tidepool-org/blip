@@ -314,7 +314,7 @@ describe('worker action creators', () => {
     it('should create an action to query data from the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId, destination: 'redux' },
         payload: {
           query: JSON.stringify(query),
         },
@@ -336,6 +336,7 @@ describe('worker action creators', () => {
         type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
         payload: {
           result,
+          destination: 'redux',
         },
       });
     });
