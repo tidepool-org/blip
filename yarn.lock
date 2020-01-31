@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.11.0-rc.4":
-  version "1.11.0-rc.4"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.0-rc.4.tgz#c855c611d01efee0f9f65a919dd7dc5b21cfe4c8"
-  integrity sha512-aOL8Q8nRnZIg9/NosivIOKn09lHGTcq0Sl+aUSNumZccggoccWPcZDtk8eNj20h2vYqufljdoWvFHB+dzL0w+A==
+"@tidepool/viz@1.11.0-rc.5":
+  version "1.11.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.0-rc.5.tgz#b016e023a29333bde5e4aa0f9fe3b21827b4d926"
+  integrity sha512-YINKyr5Wc+i6h+FTOV+afbOnsQ4TpFah9pMBQ0wTxlCAxuJOLyL411U5//ir2YzDSHWJICDG2tBLzHAgSWnbZw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -10081,7 +10081,7 @@ reduce-component@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
 
-reductio@crossfilter/reductio#0c45b03559:
+"reductio@github:crossfilter/reductio#0c45b03559":
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
