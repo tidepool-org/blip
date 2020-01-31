@@ -21,10 +21,7 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import bows from 'bows';
 import moment from 'moment';
-import sundial from 'sundial';
 import launchCustomProtocol from 'custom-protocol-detection';
-
-import config from '../../config';
 
 import * as actions from '../../redux/actions';
 import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
@@ -41,8 +38,6 @@ import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
-
-import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
@@ -1067,6 +1062,24 @@ export let PatientData = translate()(React.createClass({
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
   },
 
+  // Called via `window.loadPatientData` to populate global `patientData` object
+  // Called via `window.downloadPatientData` to download data query result as `patientData.json`
+  saveDataToDestination: function(destination, { query, raw = false } = {}) {
+    const defaultQuery = {
+      metaData: [
+        'bgSources',
+        'latestDatumByType',
+        'latestPumpUpload',
+        'patientId',
+        'size',
+      ],
+      types: '*',
+      raw,
+    };
+
+    this.props.dataWorkerQueryDataRequest(query || defaultQuery, this.props.currentPatientInViewId, destination);
+  },
+
   updateChart: function(chartType, datetimeLocation, endpoints, opts = {}) {
     _.defaults(opts, {
       showLoading: true,
@@ -1170,6 +1183,9 @@ export let PatientData = translate()(React.createClass({
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
           this.setInitialChartView(nextProps);
+          window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
+          window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
+          window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
         }
 
         if (_.get(nextProps, 'data.query.types')) {
