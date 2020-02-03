@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 require('./images/jdrf.png');
 require('./images/jdrf_hover.png');
@@ -82,7 +84,7 @@ const FooterLinks = (props) => {
 };
 
 FooterLinks.propTypes = {
-  trackMetric: React.PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default FooterLinks;

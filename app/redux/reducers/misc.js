@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 import _ from 'lodash';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import { generateCacheTTL } from 'redux-cache';
 
 import initialState from './initialState';

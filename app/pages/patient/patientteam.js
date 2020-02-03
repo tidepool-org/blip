@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { translate } from 'react-i18next'
 import _ from 'lodash';
@@ -23,34 +25,35 @@ import InputGroup from '../../components/inputgroup';
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
 
-var PermissionInputGroup = translate()(React.createClass({
-  propTypes: {
-    value: React.PropTypes.bool,
-    working: React.PropTypes.bool,
-    onChange: React.PropTypes.func
-  },
-  getDefaultProps: function() {
-    return {
-      value: true,
-      working: false,
-    };
-  },
-  getInitialState: function() {
-    return {
-      name: 'permission' + parseInt(Math.random() * 10000)
-    };
-  },
-  handleChange: function(obj) {
+var PermissionInputGroup = translate()(class extends React.Component {
+  static propTypes = {
+    value: PropTypes.bool,
+    working: PropTypes.bool,
+    onChange: PropTypes.func
+  };
+
+  static defaultProps = {
+    value: true,
+    working: false,
+  };
+
+  state = {
+    name: 'permission' + parseInt(Math.random() * 10000)
+  };
+
+  handleChange = (obj) => {
     if(this.props.onChange) {
       this.props.onChange(obj.value);
     } else {
       this.setState({value: obj.value});
     }
-  },
-  getValue: function() {
+  };
+
+  getValue = () => {
     return this.props.value;
-  },
-  render: function() {
+  };
+
+  render() {
     const { t } = this.props;
     return (
       <InputGroup
@@ -62,32 +65,34 @@ var PermissionInputGroup = translate()(React.createClass({
         onChange={this.handleChange}/>
     );
   }
-}));
+});
 
-var MemberInviteForm = translate()(React.createClass({
-  propTypes: {
-    onSubmit: React.PropTypes.func,
-    onCancel: React.PropTypes.func,
-    working: React.PropTypes.bool.isRequired,
-    error: React.PropTypes.string,
-    trackMetric: React.PropTypes.func.isRequired
-  },
-  getInitialState: function() {
-    return {
-      //by default uploads are allowed
-      allowUpload: true,
-      error: null
-    };
-  },
-  onAllowUploadClick: function(value) {
+var MemberInviteForm = translate()(class extends React.Component {
+  static propTypes = {
+    onSubmit: PropTypes.func,
+    onCancel: PropTypes.func,
+    working: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    trackMetric: PropTypes.func.isRequired
+  };
+
+  state = {
+    //by default uploads are allowed
+    allowUpload: true,
+    error: null
+  };
+
+  onAllowUploadClick = (value) => {
     this.setState({allowUpload: value});
-  },
-  componentDidMount: function() {
+  };
+
+  componentDidMount() {
     // When invite form appears, automatically focus so user can start
     // typing email without clicking a second time
     this.refs.email.focus();
-  },
-  render: function() {
+  }
+
+  render() {
     const { t } = this.props;
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
@@ -117,9 +122,9 @@ var MemberInviteForm = translate()(React.createClass({
         </div>
       </li>
     );
-  },
+  }
 
-  handleSubmit: function(e) {
+  handleSubmit = (e) => {
     const { t } = this.props;
     if (e) {
       e.preventDefault();
@@ -156,19 +161,19 @@ var MemberInviteForm = translate()(React.createClass({
     self.setState({ allowUpload: allowUpload});
     self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
-  }
-}));
+  };
+});
 
-var ConfirmDialog = translate()(React.createClass({
-  propTypes: {
-    buttonText: React.PropTypes.string,
-    dismissText: React.PropTypes.string,
-    message: React.PropTypes.node,
-    onCancel: React.PropTypes.func,
-    onSubmit: React.PropTypes.func
-  },
+var ConfirmDialog = translate()(class extends React.Component {
+  static propTypes = {
+    buttonText: PropTypes.string,
+    dismissText: PropTypes.string,
+    message: PropTypes.node,
+    onCancel: PropTypes.func,
+    onSubmit: PropTypes.func
+  };
 
-  render: function() {
+  render() {
     const { t } = this.props;
     return (
       <div>
@@ -185,44 +190,42 @@ var ConfirmDialog = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  handleSubmit: function(e) {
+  handleSubmit = (e) => {
     if (e) {
       e.preventDefault();
     }
 
     this.props.onSubmit();
-  }
-}));
+  };
+});
 
-var PatientTeam = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    cancellingInvite: React.PropTypes.bool.isRequired,
-    changingMemberPermissions: React.PropTypes.bool.isRequired,
-    invitingMemberInfo: React.PropTypes.object.isRequired,
-    onCancelInvite: React.PropTypes.func.isRequired,
-    onChangeMemberPermissions: React.PropTypes.func.isRequired,
-    onInviteMember: React.PropTypes.func.isRequired,
-    onRemoveMember: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object.isRequired,
-    pendingSentInvites: React.PropTypes.array.isRequired,
-    removingMember: React.PropTypes.bool.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object.isRequired
-  },
+var PatientTeam = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    cancellingInvite: PropTypes.bool.isRequired,
+    changingMemberPermissions: PropTypes.bool.isRequired,
+    invitingMemberInfo: PropTypes.object.isRequired,
+    onCancelInvite: PropTypes.func.isRequired,
+    onChangeMemberPermissions: PropTypes.func.isRequired,
+    onInviteMember: PropTypes.func.isRequired,
+    onRemoveMember: PropTypes.func.isRequired,
+    patient: PropTypes.object.isRequired,
+    pendingSentInvites: PropTypes.array.isRequired,
+    removingMember: PropTypes.bool.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired
+  };
 
-  getInitialState: function() {
-    return {
-      showModalOverlay: false,
-      invite: false,
-      dialog: '',
-      editing: false
-    };
-  },
+  state = {
+    showModalOverlay: false,
+    invite: false,
+    dialog: '',
+    editing: false
+  };
 
-  renderRemoveTeamMemberDialog: function(member) {
+  renderRemoveTeamMemberDialog = (member) => {
     const { t } = this.props;
     var self = this;
 
@@ -241,9 +244,9 @@ var PatientTeam = translate()(React.createClass({
         onCancel={handleCancel}
         onSubmit={handleSubmit} />
     );
-  },
+  };
 
-  handleRemoveTeamMember: function(member) {
+  handleRemoveTeamMember = (member) => {
     var self = this;
 
     return function(e) {
@@ -255,9 +258,9 @@ var PatientTeam = translate()(React.createClass({
         dialog: self.renderRemoveTeamMemberDialog(member)
       });
     };
-  },
+  };
 
-  handlePermissionChange: function(member) {
+  handlePermissionChange = (member) => {
     var self = this;
 
     return function(allowUpload) {
@@ -277,9 +280,9 @@ var PatientTeam = translate()(React.createClass({
 
       self.setState({ showModalOverlay: false });
     };
-  },
+  };
 
-  renderTeamMember: function(member) {
+  renderTeamMember = (member) => {
     var classes = {
       'icon-permissions': true
     };
@@ -319,9 +322,9 @@ var PatientTeam = translate()(React.createClass({
         </div>
       </li>
     );
-  },
+  };
 
-  renderCancelInviteDialog: function(invite) {
+  renderCancelInviteDialog = (invite) => {
     const { t } = this.props;
     var self = this;
 
@@ -341,9 +344,9 @@ var PatientTeam = translate()(React.createClass({
         onCancel={handleCancel}
         onSubmit={handleSubmit} />
     );
-  },
+  };
 
-  handleCancelInvite: function(invite) {
+  handleCancelInvite = (invite) => {
     var self = this;
 
     return function(e) {
@@ -355,9 +358,9 @@ var PatientTeam = translate()(React.createClass({
         dialog: self.renderCancelInviteDialog(invite)
       });
     };
-  },
+  };
 
-  renderPendingInvite: function(invite) {
+  renderPendingInvite = (invite) => {
     const { t } = this.props;
     return (
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
@@ -374,9 +377,9 @@ var PatientTeam = translate()(React.createClass({
         </div>
       </li>
     );
-  },
+  };
 
-  renderInviteForm: function() {
+  renderInviteForm = () => {
     var self = this;
 
     var handleSubmit = function(email, permissions) {
@@ -411,9 +414,9 @@ var PatientTeam = translate()(React.createClass({
       />
     );
 
-  },
+  };
 
-  renderInvite: function() {
+  renderInvite = () => {
     const { t } = this.props;
     var isTeamEmpty = false;
     if (utils.getIn(this.props, ['patient', 'team'])) {
@@ -448,24 +451,24 @@ var PatientTeam = translate()(React.createClass({
         </div>
       </li>
     );
-  },
+  };
 
-  overlayClickHandler: function() {
+  overlayClickHandler = () => {
     this.setState({
       showModalOverlay: false
     });
-  },
+  };
 
-  renderModalOverlay: function() {
+  renderModalOverlay = () => {
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
     );
-  },
+  };
 
-  renderEditControls: function() {
+  renderEditControls = () => {
     const { t } = this.props;
     var key = 'edit';
     var text = t('Remove People');
@@ -479,15 +482,15 @@ var PatientTeam = translate()(React.createClass({
         <button key={key} onClick={this.toggleEdit} className="PatientInfo-button PatientInfo-button--secondary" type="button">{text}</button>
       </div>
     );
-  },
+  };
 
-  toggleEdit: function() {
+  toggleEdit = () => {
     this.setState({
       editing: !this.state.editing,
     });
-  },
+  };
 
-  render: function() {
+  render() {
     const { t } = this.props;
     var classes = cx({
       'PatientTeam': true,
@@ -542,7 +545,7 @@ var PatientTeam = translate()(React.createClass({
       </div>
     );
   }
-}));
+});
 
 module.exports = {
   PatientTeam,

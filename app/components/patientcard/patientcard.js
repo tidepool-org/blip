@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { translate } from 'react-i18next';
 import { Link } from 'react-router';
@@ -25,28 +27,26 @@ var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
-var PatientCard = translate()(React.createClass({
-  propTypes: {
-    href: React.PropTypes.string.isRequired,
-    currentPage: React.PropTypes.string,
-    isEditing: React.PropTypes.bool,
-    isNavbar: React.PropTypes.bool,
-    onClick: React.PropTypes.func,
-    onRemovePatient: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-  },
+var PatientCard = translate()(class extends React.Component {
+  static propTypes = {
+    href: PropTypes.string.isRequired,
+    currentPage: PropTypes.string,
+    isEditing: PropTypes.bool,
+    isNavbar: PropTypes.bool,
+    onClick: PropTypes.func,
+    onRemovePatient: PropTypes.func,
+    uploadUrl: PropTypes.string,
+    patient: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+  };
 
-  getInitialState: function() {
-    return {
-      showModalOverlay: false,
-      dialog: '',
-      showUploadOverlay: false,
-    };
-  },
+  state = {
+    showModalOverlay: false,
+    dialog: '',
+    showUploadOverlay: false,
+  };
 
-  render: function() {
+  render() {
     var patient = this.props.patient || {};
     var self = this;
     var classes = cx({
@@ -88,9 +88,9 @@ var PatientCard = translate()(React.createClass({
       </div>
     );
 
-  },
+  }
 
-  renderView: function() {
+  renderView = () => {
     const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
@@ -102,9 +102,9 @@ var PatientCard = translate()(React.createClass({
     return (
       <Link className={classes} to={this.props.href} onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} onClick={self.handleViewClick}>{t('View')}</Link>
     );
-  },
+  };
 
-  renderProfile: function(patient) {
+  renderProfile = (patient) => {
     if (!this.props.isNavbar) {
       return;
     }
@@ -130,9 +130,9 @@ var PatientCard = translate()(React.createClass({
         <i className={iconClass}></i>
       </Link>
     );
-  },
+  };
 
-  renderRemove: function(patient) {
+  renderRemove = (patient) => {
     var classes = cx({
       'patientcard-actions-remove': true,
       'patientcard-actions--highlight': this.state.highlight === 'remove',
@@ -148,9 +148,9 @@ var PatientCard = translate()(React.createClass({
         </a>
       );
     }
-  },
+  };
 
-  renderUpload: function(patient) {
+  renderUpload = (patient) => {
     const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
@@ -175,9 +175,9 @@ var PatientCard = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderShare: function(patient) {
+  renderShare = (patient) => {
     const { t } = this.props;
     var shareUrl = '';
     if (!_.isEmpty(patient.link)) {
@@ -201,9 +201,9 @@ var PatientCard = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderRemoveDialog: function(patient) {
+  renderRemoveDialog = (patient) => {
     const { t } = this.props;
     return (
       <div>
@@ -214,22 +214,22 @@ var PatientCard = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderModalOverlay: function() {
+  renderModalOverlay = () => {
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.modalDismissHandler}/>
     );
-  },
+  };
 
-  renderUploadOverlay: function() {
+  renderUploadOverlay = () => {
     return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
-  },
+  };
 
-  handleRemovePatient: function(patient) {
+  handleRemovePatient = (patient) => {
     var self = this;
 
     return function() {
@@ -240,9 +240,9 @@ var PatientCard = translate()(React.createClass({
         }
       );
     };
-  },
+  };
 
-  handleRemove: function(patient) {
+  handleRemove = (patient) => {
     var self = this;
 
     return function(e) {
@@ -257,40 +257,40 @@ var PatientCard = translate()(React.createClass({
 
       return false;
     };
-  },
+  };
 
-  modalDismissHandler: function() {
+  modalDismissHandler = () => {
     this.setState({
       showModalOverlay: false,
       showUploadOverlay: false,
       highlight: '',
     });
-  },
+  };
 
-  getFullName: function() {
+  getFullName = () => {
     return personUtils.patientFullName(this.props.patient);
-  },
+  };
 
-  setHighlight: function(highlight) {
+  setHighlight = (highlight) => {
     var self = this;
     return function() {
       self.setState({
         highlight: highlight,
       });
     };
-  },
+  };
 
-  stopPropagation: function(event) {
+  stopPropagation = (event) => {
     event.stopPropagation();
-  },
+  };
 
-  onClick: function() {
+  onClick = () => {
     this.props.onClick();
-  },
+  };
 
-  handleViewClick: function() {
+  handleViewClick = () => {
     this.props.trackMetric('Clicked VDF View Data');
-  },
-}));
+  };
+});
 
 module.exports = PatientCard;

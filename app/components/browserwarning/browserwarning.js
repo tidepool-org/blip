@@ -13,7 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+
+import React, { Component } from 'react';
 import { translate, Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
@@ -27,7 +29,7 @@ const appstoreImageUrl = require('./images/appstore-badge.svg');
 
 export default translate()(class BrowserWarning extends Component {
   static propTypes = {
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: PropTypes.func.isRequired
   };
 
   constructor(props) {

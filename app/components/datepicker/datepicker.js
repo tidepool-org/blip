@@ -14,21 +14,27 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { translate } from 'react-i18next';
 import _ from 'lodash';
 
 var DATE_FORMAT = 'YYYY-MM-DD';
 
-var DatePicker = translate()(React.createClass({
-  propTypes: {
-    name: React.PropTypes.string,
-    value: React.PropTypes.object,
-    disabled: React.PropTypes.bool,
-    onChange: React.PropTypes.func
-  },
+var DatePicker = translate()(class extends React.Component {
+  static propTypes = {
+    name: PropTypes.string,
+    value: PropTypes.object,
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func
+  };
 
-  months: function () {
+  state = {
+    value: this.props.value || {}
+  };
+
+  months = () => {
     const { t } = this.props;
     return [
       {value: '', label: t('Month')},
@@ -45,21 +51,15 @@ var DatePicker = translate()(React.createClass({
       {value: '10', label: t('November')},
       {value: '11', label: t('December')}
     ];
-  },
+  };
 
-  getInitialState: function() {
-    return {
-      value: this.props.value || {}
-    };
-  },
-
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       value: nextProps.value || {}
     });
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <div className="DatePicker" name={this.props.name}>
         {this.renderMonth()}
@@ -67,9 +67,9 @@ var DatePicker = translate()(React.createClass({
         {this.renderYear()}
       </div>
     );
-  },
+  }
 
-  renderMonth: function() {
+  renderMonth = () => {
     var options = _.map(this.months(), function(item) {
       return <option key={item.value} value={item.value}>{item.label}</option>;
     });
@@ -83,9 +83,9 @@ var DatePicker = translate()(React.createClass({
         {options}
       </select>
     );
-  },
+  };
 
-  renderDay: function() {
+  renderDay = () => {
     const { t } = this.props;
     return <input
       className="DatePicker-control DatePicker-control--day"
@@ -94,9 +94,9 @@ var DatePicker = translate()(React.createClass({
       placeholder={t('Day')}
       disabled={this.props.disabled}
       onChange={this.handleChange} />;
-  },
+  };
 
-  renderYear: function() {
+  renderYear = () => {
     const { t } = this.props;
     return <input
       className="DatePicker-control DatePicker-control--year"
@@ -105,9 +105,9 @@ var DatePicker = translate()(React.createClass({
       placeholder={t('Year')}
       disabled={this.props.disabled}
       onChange={this.handleChange} />;
-  },
+  };
 
-  handleChange: function(e) {
+  handleChange = (e) => {
     var target = e.target;
     var value = this.state.value;
     value[target.name] = target.value;
@@ -118,7 +118,7 @@ var DatePicker = translate()(React.createClass({
         value: value
       });
     }
-  }
-}));
+  };
+});
 
 module.exports = DatePicker;

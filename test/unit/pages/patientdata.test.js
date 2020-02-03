@@ -10,13 +10,15 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
+import createReactClass from 'create-react-class';
+
 
 const { Loader } = vizComponents;
 
@@ -66,17 +68,17 @@ describe('PatientData', function () {
   };
 
   before(() => {
-    PD.__Rewire__('Basics', React.createClass({
+    PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
       }
     }));
-    PD.__Rewire__('Trends', React.createClass({
+    PD.__Rewire__('Trends', createReactClass({
       render: function() {
         return (<div className='fake-trends-view'></div>);
       }
     }));
-    PD.__Rewire__('BgLog', React.createClass({
+    PD.__Rewire__('BgLog', createReactClass({
       render: function() {
         return (<div className='fake-bgLog-view'></div>);
       }
@@ -2155,9 +2157,8 @@ describe('PatientData', function () {
           });
 
           it('should call `setInitialChartView` if `chartType` not already set to state', () => {
-            const setInitialChartViewSpy = sinon.spy(instance, 'setInitialChartView');
-
             wrapper.setState({ chartType: 'basics' });
+            const setInitialChartViewSpy = sinon.spy(instance, 'setInitialChartView');
             wrapper.setProps(completedDataQueryProps);
 
             // With chartType set, it should not set it again

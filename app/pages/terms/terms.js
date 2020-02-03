@@ -13,7 +13,9 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-import React  from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -44,13 +46,13 @@ const TERMS_OF_USE_UPDATED = <Trans parent="span" i18nKey="html.terms-of-use-upd
 
 export const Terms = translate()(class Terms extends React.Component {
   static propTypes = {
-    ages: React.PropTypes.object.isRequired,
-    authenticated: React.PropTypes.bool.isRequired,
-    messages: React.PropTypes.object.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    termsAccepted: React.PropTypes.bool.isRequired,
-    acceptedLatestTerms: React.PropTypes.bool.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    ages: PropTypes.object.isRequired,
+    authenticated: PropTypes.bool.isRequired,
+    messages: PropTypes.object.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    termsAccepted: PropTypes.bool.isRequired,
+    acceptedLatestTerms: PropTypes.bool.isRequired,
+    trackMetric: PropTypes.func.isRequired
   };
 
   static get defaultProps () {
@@ -272,7 +274,7 @@ export function mapStateToProps(state) {
     termsAccepted: !_.isEmpty(termsAccepted),
     acceptedLatestTerms: new Date(latestTerms) < new Date(termsAccepted),
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptTerms: actions.async.acceptTerms,

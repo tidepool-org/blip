@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { scroller } from 'react-scroll';
@@ -28,13 +30,13 @@ const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
 export default translate()(class DataSources extends Component {
   static propTypes = {
-    dataSources: React.PropTypes.array.isRequired,
-    fetchDataSources: React.PropTypes.func.isRequired,
-    connectDataSource: React.PropTypes.func.isRequired,
-    disconnectDataSource: React.PropTypes.func.isRequired,
-    authorizedDataSource: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired,
-    queryParams: React.PropTypes.object.isRequired,
+    dataSources: PropTypes.array.isRequired,
+    fetchDataSources: PropTypes.func.isRequired,
+    connectDataSource: PropTypes.func.isRequired,
+    disconnectDataSource: PropTypes.func.isRequired,
+    authorizedDataSource: PropTypes.object,
+    trackMetric: PropTypes.func.isRequired,
+    queryParams: PropTypes.object.isRequired,
   };
 
   constructor(props) {

@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -22,28 +24,24 @@ import { translate } from 'react-i18next';
 var personUtils = require('../../core/personutils');
 var PatientCard = require('../../components/patientcard');
 
-var PeopleList = translate()(React.createClass({
-  propTypes: {
-    people: React.PropTypes.array,
-    uploadUrl: React.PropTypes.string,
-    onClickPerson: React.PropTypes.func,
-    onRemovePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired,
-  },
+var PeopleList = translate()(class extends React.Component {
+  static propTypes = {
+    people: PropTypes.array,
+    uploadUrl: PropTypes.string,
+    onClickPerson: PropTypes.func,
+    onRemovePatient: PropTypes.func,
+    trackMetric: PropTypes.func.isRequired,
+  };
 
-  getInitialState: function() {
-    return {
-      editing: false
-    };
-  },
+  static defaultProps = {
+    onClickPerson: function() {}
+  };
 
-  getDefaultProps: function() {
-    return {
-      onClickPerson: function() {}
-    };
-  },
+  state = {
+    editing: false
+  };
 
-  render: function() {
+  render() {
     var peopleNodes = [];
     if (!_.isEmpty(this.props.people)) {
 
@@ -89,13 +87,13 @@ var PeopleList = translate()(React.createClass({
       </div>
     );
 
-  },
+  }
 
-  removeablePersonExists: function(patients) {
+  removeablePersonExists = (patients) => {
     return Boolean(_.find(patients, personUtils.isRemoveable));
-  },
+  };
 
-  renderRemoveControls: function() {
+  renderRemoveControls = () => {
     const { t } = this.props;
     var key = 'edit';
     var text = t('Remove People');
@@ -109,15 +107,15 @@ var PeopleList = translate()(React.createClass({
         <button key={key} onClick={this.toggleEdit} className="patient-list-controls-button patient-list-controls-button--secondary" type="button">{text}</button>
       </div>
     );
-  },
+  };
 
-  toggleEdit: function() {
+  toggleEdit = () => {
     this.setState({
       editing: !this.state.editing,
     });
-  },
+  };
 
-  renderPeopleListItem: function(person, index) {
+  renderPeopleListItem = (person, index) => {
     var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
     var self = this;
@@ -137,9 +135,9 @@ var PeopleList = translate()(React.createClass({
           trackMetric={this.props.trackMetric}></PatientCard>
       </li>
     );
-  },
+  };
 
-  getPersonDisplayName: function(person) {
+  getPersonDisplayName = (person) => {
     const { t } = this.props;
     var fullName;
     fullName = personUtils.patientFullName(person);
@@ -149,7 +147,7 @@ var PeopleList = translate()(React.createClass({
     }
 
     return fullName;
-  }
-}));
+  };
+});
 
 module.exports = PeopleList;

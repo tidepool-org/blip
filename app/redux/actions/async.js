@@ -25,7 +25,7 @@ import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
 
 import { routeActions } from 'react-router-redux';
@@ -1019,7 +1019,7 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...resultsVal.latestPumpSettingsUpload || [],
+            ...(resultsVal.latestPumpSettingsUpload || []),
             ...resultsVal.teamNotes,
           ];
 
@@ -1027,7 +1027,7 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
-  }
+  };
 }
 
 /**

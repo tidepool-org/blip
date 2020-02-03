@@ -1,4 +1,7 @@
 
+import _ from 'lodash';
+import bows from 'bows';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -15,8 +18,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-import bows from 'bows';
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import cx from 'classnames';
 import Loading from 'react-loading';
@@ -26,24 +29,24 @@ import printPng from './img/print-icon-2x.png';
 
 const Header = translate()(class Header extends Component {
   static propTypes = {
-    patient: React.PropTypes.object,
-    printReady: React.PropTypes.bool,
-    title: React.PropTypes.string.isRequired,
-    chartType: React.PropTypes.string.isRequired,
-    inTransition: React.PropTypes.bool.isRequired,
-    atMostRecent: React.PropTypes.bool.isRequired,
-    iconBack: React.PropTypes.string,
-    iconNext: React.PropTypes.string,
-    iconMostRecent: React.PropTypes.string,
-    onClickBack: React.PropTypes.func,
-    onClickBasics: React.PropTypes.func,
-    onClickTrends: React.PropTypes.func,
-    onClickMostRecent: React.PropTypes.func,
-    onClickNext: React.PropTypes.func,
-    onClickOneDay: React.PropTypes.func,
-    onClickBgLog: React.PropTypes.func,
-    onClickSettings: React.PropTypes.func,
-    onClickPrint: React.PropTypes.func,
+    patient: PropTypes.object,
+    printReady: PropTypes.bool,
+    title: PropTypes.string.isRequired,
+    chartType: PropTypes.string.isRequired,
+    inTransition: PropTypes.bool.isRequired,
+    atMostRecent: PropTypes.bool.isRequired,
+    iconBack: PropTypes.string,
+    iconNext: PropTypes.string,
+    iconMostRecent: PropTypes.string,
+    onClickBack: PropTypes.func,
+    onClickBasics: PropTypes.func,
+    onClickTrends: PropTypes.func,
+    onClickMostRecent: PropTypes.func,
+    onClickNext: PropTypes.func,
+    onClickOneDay: PropTypes.func,
+    onClickBgLog: PropTypes.func,
+    onClickSettings: PropTypes.func,
+    onClickPrint: PropTypes.func,
   };
 
   static defaultProps = {

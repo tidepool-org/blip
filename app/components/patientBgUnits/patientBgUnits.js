@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 
@@ -27,11 +29,11 @@ import { togglePatientBgUnits } from '../../core/personutils';
 
 export default class PatientBgUnits extends Component {
   static propTypes = {
-    editingAllowed: React.PropTypes.bool.isRequired,
-    onUpdatePatientSettings: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
+    editingAllowed: PropTypes.bool.isRequired,
+    onUpdatePatientSettings: PropTypes.func.isRequired,
+    patient: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired,
   };
 
   constructor(props) {

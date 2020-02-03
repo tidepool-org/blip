@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
@@ -75,10 +77,10 @@ export const DEFAULT_BG_SETTINGS = {
 
 export default translate()(class PatientSettings extends Component {
   static propTypes = {
-    editingAllowed: React.PropTypes.bool.isRequired,
-    patient: React.PropTypes.object,
-    onUpdatePatientSettings: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    editingAllowed: PropTypes.bool.isRequired,
+    patient: PropTypes.object,
+    onUpdatePatientSettings: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {

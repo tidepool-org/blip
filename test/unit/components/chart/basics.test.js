@@ -27,6 +27,7 @@ var expect = chai.expect;
 import React from 'react';
 import _ from 'lodash';
 import { mount, shallow } from 'enzyme';
+import PropTypes from 'prop-types';
 
 import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
@@ -74,7 +75,7 @@ describe('Basics', () => {
     onSwitchToSettings: sinon.stub(),
     onSwitchToBgLog: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
-    patient: React.PropTypes.object,
+    patient: PropTypes.object,
     pdf: {},
     stats: [],
     permsOfLoggedInUser: { root: {} },

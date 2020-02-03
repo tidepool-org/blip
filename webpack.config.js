@@ -187,6 +187,9 @@ const resolve = {
     path.join(__dirname, 'node_modules'),
     'node_modules',
   ],
+  alias: {
+    'react-dom': '@hot-loader/react-dom',
+  },
 };
 
 let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';

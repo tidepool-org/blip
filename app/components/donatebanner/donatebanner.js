@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 
@@ -121,12 +123,12 @@ const DonateBanner = (props) => {
 };
 
 DonateBanner.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  onConfirm: React.PropTypes.func.isRequired,
-  processingDonation: React.PropTypes.bool.isRequired,
-  trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object.isRequired,
-  userIsDonor: React.PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  processingDonation: PropTypes.bool.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
+  userIsDonor: PropTypes.bool.isRequired,
 };
 
 export default translate()(DonateBanner);

@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans} from 'react-i18next';
@@ -34,22 +36,40 @@ import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
 
-export let Signup = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
-    configuredInviteKey: React.PropTypes.string.isRequired,
-    inviteEmail: React.PropTypes.string,
-    inviteKey: React.PropTypes.string,
-    roles: React.PropTypes.array,
-    notification: React.PropTypes.object,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
-    location: React.PropTypes.object.isRequired,
-  },
+export let Signup = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
+    configuredInviteKey: PropTypes.string.isRequired,
+    inviteEmail: PropTypes.string,
+    inviteKey: PropTypes.string,
+    roles: PropTypes.array,
+    notification: PropTypes.object,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired,
+    location: PropTypes.object.isRequired,
+  };
 
-  formInputs: function() {
+  constructor(props, context) {
+    super(props, context);
+    var formValues = {};
+
+    if (props.inviteEmail) {
+      formValues.username = props.inviteEmail;
+    }
+
+    this.state = _.assign({
+      loading: true,
+      formValues: formValues,
+      validationErrors: {},
+      notification: null,
+      selected: null,
+      madeSelection: false
+    }, this.getFormStateFromPath(props.location.pathname));
+  }
+
+  formInputs = () => {
     const { t } = this.props;
     let inputs = [
       {
@@ -88,37 +108,20 @@ export let Signup = translate()(React.createClass({
     }
 
     return inputs;
-  },
+  };
 
-  componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.setState({loading: false});
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!utils.isOnSamePage(this.props, nextProps)) {
       const state = this.getFormStateFromPath(nextProps.location.pathname)
       this.setState(state);
     }
-  },
+  }
 
-  getInitialState: function() {
-    var formValues = {};
-
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
-    }
-
-    return _.assign({
-      loading: true,
-      formValues: formValues,
-      validationErrors: {},
-      notification: null,
-      selected: null,
-      madeSelection: false
-    }, this.getFormStateFromPath(this.props.location.pathname));
-  },
-
-  getFormStateFromPath: function(pathname) {
+  getFormStateFromPath = (pathname) => {
     let state = {}
 
     switch (utils.stripTrailingSlash(pathname)) {
@@ -144,13 +147,13 @@ export let Signup = translate()(React.createClass({
     }
 
     return state;
-  },
+  };
 
-  handleSelectionClick: function(option){
+  handleSelectionClick = (option) => {
     this.setState({selected: option})
-  },
+  };
 
-  render: function() {
+  render() {
     let form = this.renderForm();
     let inviteIntro = this.renderInviteIntroduction();
     let typeSelection = this.renderTypeSelection();
@@ -168,9 +171,9 @@ export let Signup = translate()(React.createClass({
         </div>
       );
     }
-  },
+  }
 
-  renderInviteIntroduction: function() {
+  renderInviteIntroduction = () => {
     const { t } = this.props;
     if (!this.props.inviteEmail) {
       return null;
@@ -181,9 +184,9 @@ export let Signup = translate()(React.createClass({
         <p>You've been invited to Tidepool.</p><p>Sign up to view the invitation.</p>
       </Trans>
     );
-  },
+  };
 
-  renderFormIntroduction: function() {
+  renderFormIntroduction = () => {
     const { t } = this.props;
     const type = this.state.selected;
 
@@ -203,9 +206,9 @@ export let Signup = translate()(React.createClass({
         <div className="signup-subtitle">{subHeading[type]}</div>
       </div>
     );
-  },
+  };
 
-  renderFormTypeSwitch: function() {
+  renderFormTypeSwitch = () => {
     let content, href;
 
     switch (this.state.selected) {
@@ -236,9 +239,9 @@ export let Signup = translate()(React.createClass({
         {content}
       </div>
     );
-  },
+  };
 
-  renderForm: function() {
+  renderForm = () => {
     const { t } = this.props;
     let submitButtonText;
     let submitButtonWorkingText;
@@ -290,9 +293,9 @@ export let Signup = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderTypeSelection: function() {
+  renderTypeSelection = () => {
     const { t } = this.props;
     if(this.state.madeSelection){
       return null;
@@ -328,36 +331,36 @@ export let Signup = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderAcceptTermsLabel: function() {
+  renderAcceptTermsLabel = () => {
     return (
       <Trans parent="span" i18nKey="html.signup-terms-of-use">
         I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
       </Trans>
     );
-  },
+  };
 
-  handleContinueClick: function(e) {
+  handleContinueClick = (e) => {
     this.setState({madeSelection: true});
     browserHistory.push(`/signup/${this.state.selected}`);
-  },
+  };
 
-  handleTypeSwitchClick: function(type, e) {
+  handleTypeSwitchClick = (type, e) => {
     e.preventDefault();
     this.setState({selected: type});
     browserHistory.push(`/signup/${type}`);
-  },
+  };
 
-  handleChange: function(attributes) {
+  handleChange = (attributes) => {
     let formValues = _.merge({}, this.state.formValues, {
       [attributes.name]: attributes.value,
     });
 
     this.setState({formValues});
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     if (this.props.working) {
@@ -376,18 +379,18 @@ export let Signup = translate()(React.createClass({
     formValues = this.prepareFormValuesForSubmit(formValues);
 
     this.props.onSubmit(this.props.api, formValues);
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.props.acknowledgeNotification('signingUp');
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var form = [
       { type: 'email', name: 'username', label: t('email address'), value: formValues.username },
@@ -408,9 +411,9 @@ export let Signup = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     let roles = this.props.roles ? this.props.roles : [];
 
     let values = {
@@ -437,8 +440,8 @@ export let Signup = translate()(React.createClass({
     }
 
     return values;
-  }
-}));
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

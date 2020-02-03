@@ -1,4 +1,8 @@
 
+var bows = require('bows');
+var React = require('react');
+var cx = require('classnames');
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -15,33 +19,33 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var bows = require('bows');
-var React = require('react');
-var cx = require('classnames');
+import PropTypes from 'prop-types';
+
 import { translate } from 'react-i18next';
 
 import { components } from '@tidepool/viz';
 const RangeSelect = components.RangeSelect;
 
-var Footer = translate()(React.createClass({
-  propTypes: {
-    chartType: React.PropTypes.string.isRequired,
-    onClickBoxOverlay: React.PropTypes.func,
-    onClickGroup: React.PropTypes.func,
-    onClickLines: React.PropTypes.func,
-    onClickValues: React.PropTypes.func,
-    onClickRefresh: React.PropTypes.func,
-    boxOverlay: React.PropTypes.bool,
-    grouped: React.PropTypes.bool,
-    showingLines: React.PropTypes.bool,
-    showingCbg: React.PropTypes.bool,
-    showingSmbg: React.PropTypes.bool,
-    showingValues: React.PropTypes.bool,
-    displayFlags: React.PropTypes.object,
-    toggleDisplayFlags: React.PropTypes.func,
-    currentPatientInViewId: React.PropTypes.string,
-  },
-  render: function() {
+var Footer = translate()(class extends React.Component {
+  static propTypes = {
+    chartType: PropTypes.string.isRequired,
+    onClickBoxOverlay: PropTypes.func,
+    onClickGroup: PropTypes.func,
+    onClickLines: PropTypes.func,
+    onClickValues: PropTypes.func,
+    onClickRefresh: PropTypes.func,
+    boxOverlay: PropTypes.bool,
+    grouped: PropTypes.bool,
+    showingLines: PropTypes.bool,
+    showingCbg: PropTypes.bool,
+    showingSmbg: PropTypes.bool,
+    showingValues: PropTypes.bool,
+    displayFlags: PropTypes.object,
+    toggleDisplayFlags: PropTypes.func,
+    currentPatientInViewId: PropTypes.string,
+  };
+
+  render() {
     const { t } = this.props;
     var refreshLinkClass = cx({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
@@ -108,6 +112,6 @@ var Footer = translate()(React.createClass({
       </div>
     );
   }
-}));
+});
 
 module.exports = Footer;

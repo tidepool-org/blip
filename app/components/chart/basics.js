@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
@@ -21,27 +22,27 @@ import Footer from './footer';
 
 class Basics extends Component {
   static propTypes = {
-    aggregations: React.PropTypes.object.isRequired,
-    chartPrefs: React.PropTypes.object.isRequired,
-    data: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    loading: React.PropTypes.bool.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
-    onClickNoDataRefresh: React.PropTypes.func.isRequired,
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
-    stats: React.PropTypes.array.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    updateBasicsSettings: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
+    aggregations: PropTypes.object.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    loading: PropTypes.bool.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
+    onClickNoDataRefresh: PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    patient: PropTypes.object.isRequired,
+    pdf: PropTypes.object.isRequired,
+    stats: PropTypes.array.isRequired,
+    permsOfLoggedInUser: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    updateBasicsSettings: PropTypes.func.isRequired,
+    updateChartPrefs: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired,
   };
 
   static displayName = 'Basics';
@@ -240,6 +241,6 @@ class Basics extends Component {
   handleCopyBasicsClicked = () => {
     this.props.trackMetric('Clicked Copy Settings', { source: 'Basics' });
   };
-};
+}
 
 export default translate()(Basics);

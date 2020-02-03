@@ -1,3 +1,9 @@
+const d3 = window.d3;
+
+import _ from 'lodash';
+import bows from 'bows';
+import moment from 'moment';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -15,12 +21,9 @@
  * == BSD2 LICENSE ==
  */
 
-const d3 = window.d3;
+import PropTypes from 'prop-types';
 
-import _ from 'lodash';
-import bows from 'bows';
-import moment from 'moment';
-import React, { PropTypes, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
@@ -65,7 +68,7 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object,
-    queryDataCount: React.PropTypes.number.isRequired,
+    queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,

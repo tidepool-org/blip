@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -32,16 +34,16 @@ import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
 // A different namespace than the default can be specified in translate()
-export var UserProfile = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    history: React.PropTypes.object.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object
-  },
+export var UserProfile = translate()(class extends React.Component {
+  static propTypes = {
+    fetchingUser: PropTypes.bool.isRequired,
+    history: PropTypes.object.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    user: PropTypes.object
+  };
 
-  formInputs: function() {
+  formInputs = () => {
     const {t} = this.props;
     const inputs = [
       {name: 'fullName', label: t('Full name'), type: 'text'},
@@ -64,19 +66,11 @@ export var UserProfile = translate()(React.createClass({
     }
 
     return inputs;
-  },
+  };
 
-  MESSAGE_TIMEOUT: 2000,
+  MESSAGE_TIMEOUT = 2000;
 
-  getInitialState: function() {
-    return {
-      formValues: this.formValuesFromUser(this.props.user),
-      validationErrors: {},
-      notification: null
-    };
-  },
-
-  formValuesFromUser: function(user) {
+  formValuesFromUser = (user) => {
     if (!user) {
       return {};
     }
@@ -86,24 +80,24 @@ export var UserProfile = translate()(React.createClass({
       username: user.username,
       lang: _.get(user, 'preferences.displayLanguageCode', undefined)
     };
-  },
+  };
 
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Account Edit');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // Keep form values in sync with upstream changes
     this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-  },
+  }
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     clearTimeout(this.messageTimeoutId);
-  },
+  }
 
-  render: function() {
+  render() {
     const {t} = this.props;
     var form = this.renderForm();
     var self = this;
@@ -140,9 +134,9 @@ export var UserProfile = translate()(React.createClass({
       </div>
     );
 
-  },
+  }
 
-  renderForm: function() {
+  renderForm = () => {
     const {t} = this.props;
     var disabled = this.isResettingUserData();
 
@@ -158,13 +152,13 @@ export var UserProfile = translate()(React.createClass({
         disabled={disabled}/>
     );
 
-  },
+  };
 
-  isResettingUserData: function() {
+  isResettingUserData = () => {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     this.resetFormStateBeforeSubmit(formValues);
@@ -176,19 +170,18 @@ export var UserProfile = translate()(React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
     this.submitFormValues(formValues);
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
     clearTimeout(this.messageTimeoutId);
-  },
+  };
 
-
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     var form = [
       { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
       { type: 'email', name: 'username', label: 'email', value: formValues.username }
@@ -211,9 +204,9 @@ export var UserProfile = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     var result = {
       username: formValues.username,
       emails: [formValues.username],
@@ -231,9 +224,9 @@ export var UserProfile = translate()(React.createClass({
     }
 
     return result;
-  },
+  };
 
-  submitFormValues: function(formValues) {
+  submitFormValues = (formValues) => {
     const {t} = this.props;
     var self = this;
     var submit = this.props.onSubmit;
@@ -247,8 +240,14 @@ export var UserProfile = translate()(React.createClass({
     this.messageTimeoutId = setTimeout(function() {
       self.setState({notification: null});
     }, this.MESSAGE_TIMEOUT);
-  }
-}));
+  };
+
+  state = {
+    formValues: this.formValuesFromUser(this.props.user),
+    validationErrors: {},
+    notification: null
+  };
+});
 
 
 /**

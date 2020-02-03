@@ -1,4 +1,7 @@
 
+import _ from 'lodash';
+import bows from 'bows';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -15,9 +18,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-import bows from 'bows';
+import PropTypes from 'prop-types';
+
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { Trans, translate } from 'react-i18next';
 
 import * as viz from '@tidepool/viz';
@@ -26,25 +30,27 @@ const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 import Header from './header';
 import Footer from './footer';
 
-const Settings = translate()(React.createClass({
+const Settings = translate()(createReactClass({
+  displayName: 'Settings',
   chartType: 'settings',
   log: bows('Settings View'),
+
   propTypes: {
-    chartPrefs: React.PropTypes.object.isRequired,
-    data: React.PropTypes.object.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
-    onClickNoDataRefresh: React.PropTypes.func.isRequired,
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToTrends: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
-    pdf: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired
+    chartPrefs: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
+    onClickNoDataRefresh: PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    patient: PropTypes.object,
+    pdf: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    updateChartPrefs: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired
   },
 
   getInitialState: function() {

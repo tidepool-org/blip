@@ -13,12 +13,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { translate, Trans } from 'react-i18next';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
@@ -37,31 +39,31 @@ import BrowserWarning from '../../components/browserwarning';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
-export let Patients = translate()(React.createClass({
-  propTypes: {
-    clearPatientInView: React.PropTypes.func.isRequired,
-    currentPatientInViewId: React.PropTypes.string,
-    fetchers: React.PropTypes.array.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    fetchingPendingReceivedInvites: React.PropTypes.object.isRequired,
-    fetchingAssociatedAccounts: React.PropTypes.object.isRequired,
-    invites: React.PropTypes.array.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    location: React.PropTypes.object.isRequired,
-    loggedInUserId: React.PropTypes.string,
-    onAcceptInvitation: React.PropTypes.func.isRequired,
-    onDismissInvitation: React.PropTypes.func.isRequired,
-    onHideWelcomeSetup: React.PropTypes.func.isRequired,
-    onRemovePatient: React.PropTypes.func.isRequired,
-    patients: React.PropTypes.array.isRequired,
-    showWelcomeMessage: React.PropTypes.func.isRequired,
-    showingWelcomeMessage: React.PropTypes.bool,
-    trackMetric: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
-    user: React.PropTypes.object,
-  },
+export let Patients = translate()(class extends React.Component {
+  static propTypes = {
+    clearPatientInView: PropTypes.func.isRequired,
+    currentPatientInViewId: PropTypes.string,
+    fetchers: PropTypes.array.isRequired,
+    fetchingUser: PropTypes.bool.isRequired,
+    fetchingPendingReceivedInvites: PropTypes.object.isRequired,
+    fetchingAssociatedAccounts: PropTypes.object.isRequired,
+    invites: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired,
+    location: PropTypes.object.isRequired,
+    loggedInUserId: PropTypes.string,
+    onAcceptInvitation: PropTypes.func.isRequired,
+    onDismissInvitation: PropTypes.func.isRequired,
+    onHideWelcomeSetup: PropTypes.func.isRequired,
+    onRemovePatient: PropTypes.func.isRequired,
+    patients: PropTypes.array.isRequired,
+    showWelcomeMessage: PropTypes.func.isRequired,
+    showingWelcomeMessage: PropTypes.bool,
+    trackMetric: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired,
+    user: PropTypes.object,
+  };
 
-  render: function() {
+  render() {
     var welcomeTitle = this.renderWelcomeTitle();
     var welcomeSetup = this.renderWelcomeSetup();
     var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
@@ -87,9 +89,9 @@ export let Patients = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderWelcomeSetup: function() {
+  renderWelcomeSetup = () => {
     const { t } = this.props;
     if (!this.isShowingWelcomeSetup()) {
       return null;
@@ -119,9 +121,9 @@ export let Patients = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderInvitation: function(invitation, index) {
+  renderInvitation = (invitation, index) => {
     return (
       <Invitation
         key={invitation.key}
@@ -131,9 +133,9 @@ export let Patients = translate()(React.createClass({
         trackMetric={this.props.trackMetric}>
       </Invitation>
     );
-  },
+  };
 
-  renderInvitations: function() {
+  renderInvitations = () => {
     if (!this.hasInvites()) {
       return null;
     }
@@ -144,9 +146,9 @@ export let Patients = translate()(React.createClass({
         {invitations}
       </ul>
     );
-  },
+  };
 
-  renderNoPatientsOrInvitationsMessage: function() {
+  renderNoPatientsOrInvitationsMessage = () => {
     if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
       return null;
     }
@@ -157,9 +159,9 @@ export let Patients = translate()(React.createClass({
         Please ask someone to invite you to see their data.
       </Trans>
     );
-  },
+  };
 
-  renderNoPatientsSetupStorageLink: function() {
+  renderNoPatientsSetupStorageLink = () => {
     if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
       return null;
     }
@@ -168,9 +170,9 @@ export let Patients = translate()(React.createClass({
         You can also <Link to="/patients/new">setup data storage</Link> for someone’s diabetes data.
       </Trans>
     );
-  },
+  };
 
-  renderPatients: function() {
+  renderPatients = () => {
     const { t } = this.props;
     if (!this.hasPatients()) {
       return null;
@@ -216,9 +218,9 @@ export let Patients = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderAddDataStorage: function() {
+  renderAddDataStorage = () => {
     const { t } = this.props;
     // Until the "child accounts" feature,
     // don't allow additional data accounts once the primary one has been setup
@@ -235,9 +237,9 @@ export let Patients = translate()(React.createClass({
         <i className="icon-add"></i>
       </Link>
     );
-  },
+  };
 
-  renderWelcomeTitle: function() {
+  renderWelcomeTitle = () => {
     const { t } = this.props;
     if (!this.isShowingWelcomeTitle()) {
       return null;
@@ -248,13 +250,13 @@ export let Patients = translate()(React.createClass({
         {t('Welcome!')}
       </div>
     );
-  },
+  };
 
-  handleClickCreateProfile: function() {
+  handleClickCreateProfile = () => {
     this.props.trackMetric('Clicked Create Profile');
-  },
+  };
 
-  addLinkToPatients: function(patients) {
+  addLinkToPatients = (patients) => {
     return _.map(patients, function(patient) {
       patient = _.cloneDeep(patient);
       if (patient.userid) {
@@ -262,63 +264,63 @@ export let Patients = translate()(React.createClass({
       }
       return patient;
     });
-  },
+  };
 
-  handleClickPatient: function(patient) {
+  handleClickPatient = (patient) => {
     if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
     else {
       this.props.trackMetric('Clicked Other Care Team');
     }
-  },
+  };
 
-  isShowingWelcomeTitle: function() {
+  isShowingWelcomeTitle = () => {
     return this.props.showingWelcomeMessage;
-  },
+  };
 
-  hasInvites: function() {
+  hasInvites = () => {
     return !_.isEmpty(this.props.invites);
-  },
+  };
 
-  isShowingWelcomeSetup: function() {
+  isShowingWelcomeSetup = () => {
     return this.props.showingWelcomeMessage && !this.hasInvites();
-  },
+  };
 
-  hasPatients: function() {
+  hasPatients = () => {
     return !_.isEmpty(this.props.patients) || personUtils.isPatient(this.props.user);
-  },
+  };
 
-  doFetching: function(nextProps) {
+  doFetching = (nextProps) => {
     if (!nextProps.fetchers) {
       return
     }
     _.forEach(nextProps.fetchers, fetcher => {
       fetcher();
     });
-  },
+  };
 
-  componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.props.dataWorkerRemoveDataRequest();
 
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
     }
-  },
+  }
 
   /**
    * After rendering for first time
    * begin fetching any required data
    */
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Care Team List');
     }
 
     this.doFetching(this.props);
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
@@ -330,7 +332,7 @@ export let Patients = translate()(React.createClass({
       }
     }
   }
-}));
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -348,7 +350,7 @@ export function getFetchers(dispatchProps, stateProps, api) {
   }
 
   return fetchers;
-};
+}
 
 
 export function mapStateToProps(state) {
@@ -408,7 +410,7 @@ export function mapStateToProps(state) {
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user: user,
   }
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
