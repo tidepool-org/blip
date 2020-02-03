@@ -245,8 +245,6 @@ describe('data reducer', () => {
 
   describe('DATA_WORKER_QUERY_DATA_SUCCESS', () => {
     it('should not update state if `payload.destination` is not `redux`', () => {
-      tracked = mutationTracker.trackObj(initialStateForTest);
-
       const state = reducer(initialStateForTest, {
         type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
         payload: {
