@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## Unreleased 
+### Fixed
+- PT-570 Missing translations in viz
+
 ## 0.10.0 - 2020-01-30 
 ### Changed
 - PT-874 TrendsContainer - Remove the fixed extendSizes limits

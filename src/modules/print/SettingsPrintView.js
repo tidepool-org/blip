@@ -82,7 +82,7 @@ class SettingsPrintView extends PrintView {
       .fontSize(this.defaultFontSize)
       .text(device, { continued: true })
       .font(this.font)
-      .text(` › Serial Number: ${this.deviceMeta.serial}`)
+      .text(` › ${t('Serial Number')}: ${this.deviceMeta.serial}`)
       .moveDown();
 
     this.resetText();

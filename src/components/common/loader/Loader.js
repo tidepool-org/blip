@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
+import i18next from 'i18next';
 
 import styles from './Loader.css';
 
 const Loader = (props) => {
+  const t = i18next.t.bind(i18next);
   const { show, overlay, text } = props;
 
   const loaderOuterClasses = cx({
@@ -48,7 +51,7 @@ const Loader = (props) => {
         <div className={loaderDotClasses} />
         <div className={loaderDotClasses} />
 
-        <div className={styles.loaderText}>{text}</div>
+        <div className={styles.loaderText}>{t(text)}</div>
       </div>
     </div>
   );

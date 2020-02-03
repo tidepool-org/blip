@@ -18,6 +18,7 @@ packageConfig.externals = {
   'd3-shape': 'd3-shape',
   'd3-time': 'd3-time',
   i18next: 'i18next',
+  moment: 'moment',
   'moment-timezone': 'moment-timezone',
   pdfkit: 'pdfkit',
   react: 'react',
@@ -38,7 +39,5 @@ packageConfig.plugins = [
     debug: false,
   }),
 ];
-
-packageConfig.mode = 'production';
 
 module.exports = packageConfig;

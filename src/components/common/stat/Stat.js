@@ -4,6 +4,7 @@ import React, { PropTypes, PureComponent } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import cx from 'classnames';
+import i18next from 'i18next';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
 import { Collapse } from 'react-collapse';
@@ -26,6 +27,8 @@ import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
 import InputGroup from '../controls/InputGroup';
+
+const t = i18next.t.bind(i18next);
 
 const dataPathPropType = PropTypes.oneOfType([
   PropTypes.string,
@@ -592,6 +595,7 @@ class Stat extends PureComponent {
               barWidth={barWidth}
               isDisabled={() => this.state.isDisabled}
               domain={domain}
+              datum={{}}
               text={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
@@ -815,17 +819,17 @@ class Stat extends PureComponent {
       case statFormats.units:
         if (value >= 0) {
           value = formatDecimalNumber(value, 1);
-          suffix = 'U';
+          suffix = t('U');
         } else {
           disableStat();
         }
         break;
 
       case statFormats.unitsPerKg:
-        if (suffix === 'lb') {
+        if (suffix === t('lb')) {
           value = value * LBS_PER_KG;
         }
-        suffix = 'U/kg';
+        suffix = t('U/kg');
         if (value > 0 && _.isFinite(value)) {
           value = formatDecimalNumber(value, 2);
         } else {

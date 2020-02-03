@@ -16,10 +16,12 @@
  */
 
 import _ from 'lodash';
+import i18next from 'i18next';
 
 import * as datetime from '../datetime';
 import * as format from '../format';
 
+const t = i18next.t.bind(i18next);
 const DISPLAY_PRECISION_PLACES = 3;
 
 /**
@@ -158,8 +160,8 @@ export function getScheduleLabel(scheduleName, activeName, deviceKey, noUnits) {
   }
   return {
     main: displayName,
-    secondary: scheduleName === activeName ? 'Active at upload' : '',
-    units: noUnits ? '' : 'U/hr',
+    secondary: scheduleName === activeName ? t('Active at upload') : '',
+    units: noUnits ? '' : t('U/hr'),
   };
 }
 
@@ -201,9 +203,9 @@ export function getDeviceMeta(settingsData, timePrefs) {
     datetime.formatLocalizedFromUTC(utc, timePrefs, datetime.getLongDayFormat()) :
     false;
   return {
-    schedule: settingsData.activeSchedule || 'unknown',
-    uploaded: uploadedTime || 'unknown',
-    serial: settingsData.deviceSerialNumber || 'unknown',
+    schedule: settingsData.activeSchedule || t('unknown'),
+    uploaded: uploadedTime || t('unknown'),
+    serial: settingsData.deviceSerialNumber || t('unknown'),
   };
 }
 
@@ -367,7 +369,7 @@ export function processTimedSettings(pumpSettings, schedule, bgUnits) {
  */
 export function startTimeAndValue(valueKey) {
   return [
-    { key: 'start', label: 'Start time' },
-    { key: valueKey, label: 'Value' },
+    { key: 'start', label: t('Start time') },
+    { key: valueKey, label: t('Value') },
   ];
 }

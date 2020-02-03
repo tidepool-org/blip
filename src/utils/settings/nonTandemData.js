@@ -49,12 +49,16 @@ export function deviceMeta(settings, timePrefs) {
  * @return {String}              bolus title for given manufacturer
  */
 export function bolusTitle(manufacturer) {
-  const BOLUS_SETTINGS_LABEL_BY_MANUFACTURER = {
-    animas: t('ezCarb ezBG'),
-    insulet: t('Bolus Calculator'),
-    medtronic: t('Bolus Wizard'),
-  };
-  return BOLUS_SETTINGS_LABEL_BY_MANUFACTURER[manufacturer];
+  switch (manufacturer) {
+    case 'animas':
+      return t('ezCarb ezBG');
+    case 'insulet':
+      return t('Bolus Calculator');
+    case 'medtronic':
+      return t('Bolus Wizard');
+    default:
+      return t('Bolus Calculator');
+  }
 }
 
 /**
@@ -64,13 +68,18 @@ export function bolusTitle(manufacturer) {
  * @return {String}              name for given manufacturer
  */
 export function deviceName(manufacturer) {
-  const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
-    animas: 'Animas',
-    insulet: 'OmniPod',
-    medtronic: 'Medtronic',
-    diabeloop: 'Diabeloop',
-  };
-  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer];
+  switch (manufacturer) {
+    case 'animas':
+      return 'Animas';
+    case 'insulet':
+      return 'OmniPod';
+    case 'medtronic':
+      return 'Medtronic';
+    case 'diabeloop':
+      return 'Diabeloop';
+    default:
+      return t('Unknown');
+  }
 }
 
 /**

@@ -16,9 +16,7 @@
  */
 
 /* global PDFDocument, blobStream */
-import Promise from 'bluebird';
 import _ from 'lodash';
-
 import i18next from 'i18next';
 import PrintView from './PrintView';
 import BasicsPrintView from './BasicsPrintView';

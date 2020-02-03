@@ -11,6 +11,8 @@
     "browser-tests": "NODE_ENV=test karma start --browsers Chrome",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production webpack --config package.config.js",
+    "prebuild-dev": "rm -rf dist coverage",
+    "build-dev": "NODE_ENV=development webpack --progress --config package.config.js",
     "build-docs": "./update-gh-pages.sh",
     "build-storybooks": "build-storybook -c storybook -o web/stories && build-storybook -c storybookDatatypes -o web/diabetes-data-stories",
     "clean": "NODE_ENV=production rimraf ./dist/*",
@@ -41,7 +43,6 @@
   },
   "homepage": "https://github.com/tidepool-org/viz#readme",
   "dependencies": {
-    "bluebird": "3.5.2",
     "bows": "1.7.0",
     "classnames": "2.2.6",
     "crossfilter2": "1.4.7",

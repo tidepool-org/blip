@@ -111,14 +111,6 @@ export function getLongFormat() {
 }
 
 /**
- * getD3LongFormat
- * @returns string according to translation
- */
-export function getD3LongFormat() {
-  return t('%A, %B %-d');
-}
-
-/**
  * addDuration
  * @param {String} datetime - an ISO date string
  * @param {Number} duration - milliseconds to add to date

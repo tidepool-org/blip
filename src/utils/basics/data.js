@@ -99,13 +99,16 @@ export function determineBgDistributionSource(basicsData) {
  * @returns {String} status message
  */
 export function cgmStatusMessage(cgmStatus) {
-  const statusMessages = {
-    [NO_CGM]: 'Showing BGM data (no CGM)',
-    [NOT_ENOUGH_CGM]: 'Showing BGM data (not enough CGM)',
-    [CGM_CALCULATED]: 'Showing CGM data',
-  };
-
-  return statusMessages[cgmStatus] || '';
+  switch (cgmStatus) {
+    case NO_CGM:
+      return t('Showing BGM data (no CGM)');
+    case NOT_ENOUGH_CGM:
+      return t('Showing BGM data (not enough CGM)');
+    case CGM_CALCULATED:
+      return t('Showing CGM data');
+    default:
+      return '';
+  }
 }
 
 /**
