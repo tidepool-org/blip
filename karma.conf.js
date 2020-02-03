@@ -11,6 +11,7 @@ const testWebpackConf = _.assign({}, webpackConf, {
     new webpack.DefinePlugin({
       __DEV__: false,
       __TEST__: true,
+      __PROD__: false,
     }),
   ],
 });
