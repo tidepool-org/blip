@@ -128,20 +128,20 @@ export function dataWorkerUpdateDatumFailure(error) {
   };
 }
 
-export function dataWorkerQueryDataRequest(query = {}, patientId) {
+export function dataWorkerQueryDataRequest(query = {}, patientId, destination = 'redux') {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId, destination },
     payload: {
       query: JSON.stringify(query),
     },
   };
 }
 
-export function dataWorkerQueryDataSuccess(result) {
+export function dataWorkerQueryDataSuccess(result, destination = 'redux') {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
-    payload: { result },
+    payload: { result, destination },
   };
 }
 

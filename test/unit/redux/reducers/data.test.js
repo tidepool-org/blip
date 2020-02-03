@@ -244,6 +244,59 @@ describe('data reducer', () => {
   });
 
   describe('DATA_WORKER_QUERY_DATA_SUCCESS', () => {
+    it('should not update state if `payload.destination` is not `redux`', () => {
+      const state = reducer(initialStateForTest, {
+        type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+        payload: {
+          destination: 'foo',
+          result: {
+            data: {
+              current: {
+                data: { smbg: [{ id: 2, value: 'current datum' }] },
+                aggregationsByDate: { foo: 'bar' },
+              },
+              next: {
+                data: { smbg: [{ id: 3, value: 'next datum' }] },
+              },
+              prev: {
+                data: { smbg: [{ id: 1, value: 'prev datum' }] },
+              },
+            },
+            timePrefs: { time: 'prefs' },
+            bgPrefs: { bg: 'prefs' },
+            metaData: { bar: 'baz' },
+            query: { types: 'smbg' },
+          },
+        },
+      });
+
+      expect(state).to.eql(initialStateForTest);
+    });
+
+    it('should save result to `window.patientData` if `destination` is `window`', () => {
+      reducer(initialStateForTest, {
+        type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+        payload: {
+          destination: 'window',
+          result: 'my data',
+        },
+      });
+      expect(window.patientData).to.equal('my data');
+    });
+
+    it('should trigger a download of result to `patientData.json` if `destination` is `download`', () => {
+      sinon.spy(console, 'save');
+      reducer(initialStateForTest, {
+        type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+        payload: {
+          destination: 'download',
+          result: 'my data',
+        },
+      });
+      sinon.assert.calledWith(console.save, 'my data', 'patientData.json');
+      console.save.restore();
+    });
+
     it('should set all resulting data and metaData to state, and set combined data with deduplicated ids', () => {
       initialStateForTest.data.combined = [ { id: 2, value: 'current datum' } ];
       tracked = mutationTracker.trackObj(initialStateForTest);

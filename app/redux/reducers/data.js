@@ -58,13 +58,21 @@ const data = (state = initialState.data, action) => {
       } });
 
     case actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS:
-      const current = _.get(action.payload, 'result.data.current', {});
-      const next = _.get(action.payload, 'result.data.next', {});
-      const prev = _.get(action.payload, 'result.data.prev', {});
+      const { destination = 'redux', result = {} } = action.payload
+
+      if (destination !== 'redux') {
+        if (destination === 'window') window.patientData = result;
+        if (destination === 'download') console.save(result, 'patientData.json');
+        return state;
+      }
+
+      const current = _.get(result, 'data.current', {});
+      const next = _.get(result, 'data.next', {});
+      const prev = _.get(result, 'data.prev', {});
 
       // We only want to replace the combined data when data types are queried.
       // This is to allow us to retain the combined data when, for instance, only querying for stats
-      const typesQueried = action.payload.result.query.types;
+      const typesQueried = result.query.types;
       combined = typesQueried ? [] : state.data.combined;
 
       if (typesQueried) {
@@ -91,10 +99,10 @@ const data = (state = initialState.data, action) => {
           next: { $set: next },
           prev: { $set: prev },
         },
-        timePrefs: { $merge: action.payload.result.timePrefs || {} },
-        bgPrefs: { $merge: action.payload.result.bgPrefs || {} },
-        metaData: { $merge: action.payload.result.metaData || {} },
-        query: { $set: action.payload.result.query || {} }
+        timePrefs: { $merge: result.timePrefs || {} },
+        bgPrefs: { $merge: result.bgPrefs || {} },
+        metaData: { $merge: result.metaData || {} },
+        query: { $set: result.query || {} }
       });
 
     default:

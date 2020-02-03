@@ -75,7 +75,7 @@ export default class DataWorker {
         try {
           const query = JSON.parse(action.payload.query);
           const result = this.dataUtil.query(query);
-          postMessage(actions.dataWorkerQueryDataSuccess(result));
+          postMessage(actions.dataWorkerQueryDataSuccess(result, action.meta.destination));
         } catch (error) {
           postMessage(actions.dataWorkerQueryDataFailure(error));
         }
