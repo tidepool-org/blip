@@ -853,7 +853,6 @@ describe('PatientData', function () {
             saturday: true,
             sunday: true,
           },
-          activeDomain: '2 weeks',
           extentSize: 14,
           showingCbg: true,
           showingSmbg: false,

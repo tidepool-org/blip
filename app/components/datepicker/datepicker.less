@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+ /* Flat calendar */
 .DatePicker {
-  display: inline-block;
-  vertical-align: top;
+  display: flex;
 }
 
 .DatePicker-control {
@@ -41,4 +41,156 @@
 
 .DatePicker-control--year {
   width: 80px;
+}
+
+/* Popup calendar */
+/* Parent element must have: position: relative; */
+.datepicker-popup {
+  position: absolute;
+  top: 2em;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em;
+  background-color: white;
+  color: @black-color;
+  border-width: thin;
+  border-style: solid;
+  border-color: #ccc;
+  cursor: initial;
+}
+
+.datepicker-popup-head {
+  display: flex;
+  justify-content: space-between;
+  color: @gray-title;
+  font-weight: bold;
+  cursor: default;
+}
+
+.datepicker-popup-year {
+  color: #281946;
+}
+
+.datepicker-popup-monthdays {
+  display: grid;
+  grid-template-columns: repeat(7, 2rem);
+  margin-top: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.datepicker-popup-weekday {
+  color: #727375;
+  font-weight: bold;
+  cursor: default;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.datepicker-popup-change-month {
+  color: @black-color;
+  cursor: pointer;
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
+
+  &:hover {
+    color: @gray-dark;
+    text-decoration-line: underline;
+    font-weight: bold;
+  }
+}
+
+.datepicker-popup-day {
+  cursor: pointer;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 40%;
+  border-width: 0.2rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  color: #281946;
+
+  &:hover {
+    color: @gray-dark;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+}
+
+.datepicker-popup-day-disabled {
+  background-color: @purple-light;
+  cursor: default;
+}
+
+.datepicker-popup-day-out {
+  font-weight: lighter;
+  color: #ccc;
+}
+
+.datepicker-popup-day-selected {
+  font-weight: bold;
+  color: @white-color;
+  background-color: @gray-dark;
+  border-color: @gray-dark;
+
+  &:hover {
+    color: @white-color !important;
+    font-weight: normal !important;
+  }
+}
+
+/* Range calendar */
+.datepicker-popup-range {
+  left: -15em;
+}
+
+.datepicker-popup-calendars {
+  display: flex;
+  flex-direction: row;
+  margin-top: 0.6em;
+}
+
+.datepicker-popup-calendar {
+  display: flex;
+  flex-direction: column;
+
+  &.datepicker-popup-begin {
+    margin-right: 1.5em;
+  }
+  &.datepicker-popup-end {
+    margin-right: 1.5em;
+  }
+}
+
+.datepicker-popup-elem-invisible {
+  visibility: hidden;
+  cursor: default;
+}
+
+.datepicker-popup-validate {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+
+  .btn {
+    align-self: center;
+    min-width: 33%;
+    font-size: larger;
+    padding: 0px;
+    border-width: 0.5rem;
+    border-radius: 0.25rem;
+    border-color: @purple;
+    border-style: solid;
+
+    &:hover {
+      background-color: #4b4458;
+      border-color: #4b4458;
+    }
+    &:focus,
+    &:active {
+      background-color: #a1b0fa;
+      border-color: #a1b0fa;
+    }
+  }
 }

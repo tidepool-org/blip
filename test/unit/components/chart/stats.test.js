@@ -70,10 +70,9 @@ describe('Stats', () => {
           saturday: true,
           sunday: true
         },
+        extentSize: 14,
         showingCbg: true,
         showingSmbg: false,
-        activeDomain: '2 weeks',
-        extentSize: 14,
         boxOverlay: true,
         grouped: true,
         showingLines: false

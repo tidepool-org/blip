@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## Unreleased
+### Added
+- PT-875 Flexible period in Trending page
+
 ## 0.11.0 - 2020-01-06
 ### Fixed
 - PT-869 Fix labelling issue in validation errors
@@ -116,4 +120,3 @@ It is based on Tidepool Blip 1.27.
    - user automatically disconnected [PT-69]
    - Fix race condition [PT-17]
    - Fix Unknown DOM property class [PT-163]
-

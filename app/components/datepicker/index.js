@@ -13,4 +13,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./datepicker');
+import DatePicker from './datepicker';
+import RangeDatePicker from './range-datepicker';
+
+export default DatePicker;
+export {
+  DatePicker,
+  RangeDatePicker
+}

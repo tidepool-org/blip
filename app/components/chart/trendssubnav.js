@@ -15,19 +15,21 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
-var React = require('react');
-var cx = require('classnames');
+import React from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { translate } from 'react-i18next';
 
-var d3 = window.d3;
+const domains = ['1 week', '2 weeks', '4 weeks'];
+const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 var DaysGroup = React.createClass({
   propTypes: {
-    active: React.PropTypes.bool.isRequired,
-    category: React.PropTypes.string.isRequired,
-    days: React.PropTypes.array.isRequired,
-    onClickGroup: React.PropTypes.func.isRequired
+    active: PropTypes.bool.isRequired,
+    category: PropTypes.string.isRequired,
+    days: PropTypes.array.isRequired,
+    onClickGroup: PropTypes.func.isRequired
   },
   render: function() {
     var groupClass = cx({
@@ -52,13 +54,20 @@ var DaysGroup = React.createClass({
 
 var TrendsSubNav = translate()(React.createClass({
   propTypes: {
-    activeDays: React.PropTypes.object.isRequired,
-    activeDomain: React.PropTypes.string.isRequired,
-    extentSize: React.PropTypes.number.isRequired,
-    domainClickHandlers: React.PropTypes.object.isRequired,
-    onClickDay: React.PropTypes.func.isRequired,
-    toggleWeekdays: React.PropTypes.func.isRequired,
-    toggleWeekends: React.PropTypes.func.isRequired
+    activeDays: PropTypes.object.isRequired,
+    extentSize: PropTypes.number.isRequired,
+    domainClickHandlers: PropTypes.object.isRequired,
+    onClickDay: PropTypes.func.isRequired,
+    toggleWeekdays: PropTypes.func.isRequired,
+    toggleWeekends: PropTypes.func.isRequired
+  },
+  extentSizeToDomain: (extentSize) => {
+    switch (extentSize) {
+      case 7: return '1 week';
+      case 14: return '2 weeks';
+      case 28: return '4 weeks';
+      default: return 'custom';
+    }
   },
   renderDayAbbrev: function(day) {
     const { t } = this.props;
@@ -79,7 +88,7 @@ var TrendsSubNav = translate()(React.createClass({
       case '1 week': return t('1 week');
       case '2 weeks': return t('2 weeks');
       case '4 weeks': return t('4 weeks');
-      default: return domain;
+      default: return t('custom');
     }
   },
   componentWillMount: function() {
@@ -105,19 +114,19 @@ var TrendsSubNav = translate()(React.createClass({
 
   },
   renderDomainLinks: function() {
-    const { t } = this.props;
-    var domains = ['1 week', '2 weeks', '4 weeks'];
-    var domainLinks = [];
-    for (var i = 0; i < domains.length; ++i) {
+    const { t, activeDays, extentSize } = this.props;
+    const domainLinks = [];
+    for (let i = 0; i < domains.length; ++i) {
       domainLinks.push(this.renderDomainLink(domains[i]));
     }
-    var activeDays = this.props.activeDays, numActiveDays = 0;
-    for (var day in activeDays) {
+    let numActiveDays = 0;
+    for (const day in activeDays) {
       if (activeDays[day]) {
         numActiveDays += 1;
       }
     }
-    var visibleDaysText, numVisibleDays = this.props.extentSize/7 * numActiveDays;
+    const numVisibleDays = (numActiveDays * extentSize) / 7;
+    let visibleDaysText = null;
     if (numVisibleDays % 1 !== 0) {
       visibleDaysText = t('Approx {{numVisibleDays}} days in view', {numVisibleDays: Math.round(numVisibleDays)});
     }
@@ -125,29 +134,25 @@ var TrendsSubNav = translate()(React.createClass({
       visibleDaysText = t('{{numVisibleDays}} days in view', {numVisibleDays});
     }
 
-
     return (
       <div>
         <div className="domainContainer">{domainLinks}</div>
         <div className="visibleDays">{visibleDaysText}</div>
       </div>
-      );
-
+    );
   },
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
       'btn btn-chart-control' : true,
-      'active': domain === this.props.activeDomain
+      'active': domain === this.extentSizeToDomain(this.props.extentSize)
     });
 
     return (
       <button className={domainLinkClass} key={domain}
         onClick={this.props.domainClickHandlers[domain]}>{this.renderDomain(domain)}</button>
-      );
-
+    );
   },
   renderDayFilters: function() {
-    var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     var dayLinks = [];
     for (var i = 0; i < days.length; ++i) {
       dayLinks.push(this.renderDay(days[i]));
@@ -183,7 +188,6 @@ var TrendsSubNav = translate()(React.createClass({
 
   },
   areWeekdaysActive: function(props) {
-    var weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
     var active = true;
     var activeDays = props.activeDays;
     for (var i = 0; i < weekdays.length; ++i) {
@@ -213,4 +217,4 @@ var TrendsSubNav = translate()(React.createClass({
   }
 }));
 
-module.exports = TrendsSubNav;
+export default TrendsSubNav;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2020, Diabeloop
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -13,20 +13,16 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import Basics from './basics';
-import Daily from './daily';
-import BgLog from './bgLog';
-import Trends from './trends';
-import Settings from './settings';
-import Header from './header';
-import Footer from './footer';
+.chart-title-clickable {
+  cursor: pointer;
+  position: relative;
 
-export {
-  Basics,
-  Daily,
-  BgLog,
-  Trends,
-  Settings,
-  Header,
-  Footer
-};
+  &:hover {
+    color: @gray-darkest;
+  }
+  &.active {
+    color: @gray-darkest;
+    font-weight: bold;
+
+  }
+}

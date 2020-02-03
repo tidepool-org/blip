@@ -15,19 +15,15 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
-import sundial from 'sundial';
 import { validateForm } from '../../core/validation';
 
 import * as actions from '../../redux/actions';
 
-import InputGroup from '../../components/inputgroup';
-import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 import { getDonationAccountCodeFromEmail } from '../../core/utils';
@@ -38,8 +34,6 @@ import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
-
-var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let PatientNew = translate()(React.createClass({
   propTypes: {

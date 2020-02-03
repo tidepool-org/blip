@@ -26,8 +26,6 @@ import utils from '../../core/utils';
 import _ from 'lodash';
 import cx from 'classnames';
 
-import config from '../../config';
-
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
 import PeopleTable from '../../components/peopletable';
@@ -41,8 +39,8 @@ export let Patients = translate()(React.createClass({
     currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    fetchingPendingReceivedInvites: React.PropTypes.bool.isRequired,
-    fetchingAssociatedAccounts: React.PropTypes.bool.isRequired,
+    fetchingPendingReceivedInvites: React.PropTypes.object.isRequired,
+    fetchingAssociatedAccounts: React.PropTypes.object.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
