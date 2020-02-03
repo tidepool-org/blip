@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 import React from 'react';
-import TransitionGroupPlus from 'react-transition-group-plus';
+import TransitionGroupPlus from '../../../../src/components/common/ReactTransitionGroupPlus';
 import { shallow } from 'enzyme';
 
 import bgBounds from '../../../helpers/bgBounds';

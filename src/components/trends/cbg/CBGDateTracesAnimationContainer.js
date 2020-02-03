@@ -16,13 +16,14 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import TransitionGroupPlus from 'react-transition-group-plus';
+import React from 'react';
+import PropTypes from 'prop-types';
+import TransitionGroupPlus from '../../common/ReactTransitionGroupPlus';
 
 import CBGDateTraceAnimated from './CBGDateTraceAnimated';
 
 const CBGDateTracesAnimationContainer = (props) => {
-  const { bgBounds, data, dates, topMargin, xScale, yScale } = props;
+  const { bgBounds, data, dates, onSelectDate, topMargin, xScale, yScale } = props;
   return (
     <TransitionGroupPlus component="g" id="cbgDateTraces" transitionMode="simultaneous">
       {_.map(dates, (localDate) => (
@@ -31,7 +32,7 @@ const CBGDateTracesAnimationContainer = (props) => {
           data={data[localDate]}
           date={localDate}
           key={localDate}
-          onSelectDate={props.onSelectDate}
+          onSelectDate={onSelectDate}
           topMargin={topMargin}
           xScale={xScale}
           yScale={yScale}

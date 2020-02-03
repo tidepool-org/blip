@@ -42,12 +42,6 @@ export const MGDL_PER_MMOLL = 18.01559;
 
 export const LBS_PER_KG = 2.2046226218;
 
-const ONE_WEEK = 7;
-const TWO_WEEKS = 14;
-const FOUR_WEEKS = 28;
-
-export const trends = { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } };
-
 export const MS_IN_DAY = 864e5;
 export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;

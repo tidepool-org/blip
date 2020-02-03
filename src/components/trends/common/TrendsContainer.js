@@ -21,7 +21,9 @@ import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { utcDay } from 'd3-time';
 import moment from 'moment-timezone';
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -34,15 +36,12 @@ import {
   MMOLL_CLAMP_TOP,
   MGDL_UNITS,
   MMOLL_UNITS,
-  trends,
   CGM_DATA_KEY,
   BGM_DATA_KEY,
 } from '../../../utils/constants';
 
 import * as datetime from '../../../utils/datetime';
 import { weightedCGMCount } from '../../../utils/bloodglucose';
-
-const { extentSizes: { ONE_WEEK, TWO_WEEKS, FOUR_WEEKS } } = trends;
 
 /**
  * getAllDatesInRange
@@ -106,7 +105,7 @@ export function getLocalizedOffset(utc, offset, timePrefs) {
     .toDate();
 }
 
-export class TrendsContainer extends PureComponent {
+export class TrendsContainer extends React.Component {
   static propTypes = {
     activeDays: PropTypes.shape({
       monday: PropTypes.bool.isRequired,
@@ -127,7 +126,7 @@ export class TrendsContainer extends PureComponent {
       bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     }).isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
-    extentSize: PropTypes.oneOf([ONE_WEEK, TWO_WEEKS, FOUR_WEEKS]).isRequired,
+    extentSize: PropTypes.number.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     showingSmbg: PropTypes.bool.isRequired,
@@ -263,9 +262,10 @@ export class TrendsContainer extends PureComponent {
     };
 
     this.selectDate = this.selectDate.bind(this);
+    this.determineDataToShow = this.determineDataToShow.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.mountData();
   }
 
@@ -278,21 +278,13 @@ export class TrendsContainer extends PureComponent {
    * smbg version of trends view and thus only remains
    * as a temporary compatibility interface
    */
-  componentWillReceiveProps(nextProps) {
-    const newDataLoaded = this.props.loading && !nextProps.loading;
+  componentDidUpdate(prevProps) {
+    const newDataLoaded = prevProps.loading && !this.props.loading;
 
     if (newDataLoaded) {
-      this.mountData(nextProps);
-    }
-
-    if (!_.isEqual(nextProps.activeDays, this.props.activeDays)) {
-      const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = nextProps;
-      this.refilterByDayOfWeek(cbgByDayOfWeek, nextProps.activeDays);
-      this.refilterByDayOfWeek(smbgByDayOfWeek, nextProps.activeDays);
-      this.setState({
-        currentCbgData: cbgByDate.top(Infinity).reverse(),
-        currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      });
+      this.mountData();
+    } else if (!_.isEqual(prevProps.activeDays, this.props.activeDays)) {
+      this.filterCurrentData();
     }
   }
 
@@ -315,13 +307,13 @@ export class TrendsContainer extends PureComponent {
     }
   }
 
-  mountData(props = this.props) {
+  mountData() {
     // find BG domain (for yScale construction)
-    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = props;
+    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = this.props;
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
 
-    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = props;
+    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = this.props;
     const upperBound = yScaleClampTop[bgUnits];
     const yScaleDomain = [bgDomain[0], upperBound];
     if (bgDomain[0] > bgBounds.veryLowThreshold) {
@@ -330,7 +322,7 @@ export class TrendsContainer extends PureComponent {
     const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
     // find initial date domain (based on initialDatetimeLocation or current time)
-    const { extentSize, initialDatetimeLocation, timePrefs } = props;
+    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
     const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timePrefs);
     const end = initialDatetimeLocation
@@ -355,12 +347,26 @@ export class TrendsContainer extends PureComponent {
     };
 
     this.setState(state, this.determineDataToShow);
-    props.onDatetimeLocationChange(dateDomain, end === mostRecent);
+    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent);
+  }
+
+  filterCurrentData() {
+    const { cbgByDayOfWeek, smbgByDayOfWeek, smbgByDate, cbgByDate } = this.props;
+    this.refilterByDayOfWeek(cbgByDayOfWeek, this.props.activeDays);
+    this.refilterByDayOfWeek(smbgByDayOfWeek, this.props.activeDays);
+    this.setState({
+      currentCbgData: cbgByDate.top(Infinity).reverse(),
+      currentSmbgData: smbgByDate.top(Infinity).reverse(),
+    });
   }
 
   getCurrentDay() {
-    const { dateDomain: { end } } = this.state;
-    return getLocalizedNoonBeforeUTC(end, this.props.timePrefs).toISOString();
+    const { dateDomain } = this.state;
+    if (dateDomain) {
+      return getLocalizedNoonBeforeUTC(dateDomain.end, this.props.timePrefs).toISOString();
+    } else {
+      return null;
+    }
   }
 
   setExtent(newDomain, oldDomain) {
@@ -375,8 +381,9 @@ export class TrendsContainer extends PureComponent {
       previousDateDomain: oldDomain ?
         { start: oldDomain[0], end: oldDomain[1] } :
         null,
+    }, () => {
+      this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
     });
-    this.props.onDatetimeLocationChange(newDomain, newDomain[1] >= mostRecent);
   }
 
   selectDate() {
@@ -461,7 +468,15 @@ export class TrendsContainer extends PureComponent {
   }
 
   render() {
-    const { start: currentStart, end: currentEnd } = this.state.dateDomain;
+    const { dateDomain } = this.state;
+
+    if (_.isNull(dateDomain)) {
+      // Datas have not yet been mounted.
+      return (<div />);
+    }
+
+    const { start: currentStart, end: currentEnd } = dateDomain;
+
     const prevStart = _.get(this.state, ['previousDateDomain', 'start']);
     const prevEnd = _.get(this.state, ['previousDateDomain', 'end']);
     let start = currentStart;
@@ -473,6 +488,7 @@ export class TrendsContainer extends PureComponent {
         start = prevStart;
       }
     }
+
     return (
       <TrendsSVGContainer
         activeDays={this.props.activeDays}
