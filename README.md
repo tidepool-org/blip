@@ -14,7 +14,7 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 
 ### Front-end dependencies
 
-- [Crossfilter](http://square.github.io/crossfilter/ 'Crossfilter')
+- [Crossfilter](https://crossfilter.github.io/crossfilter/ 'Crossfilter2')
 - [D3.js](http://d3js.org/ 'D3')
 - [Duration.js](https://github.com/icholy/Duration.js 'Duration.js')
 - [Lo-Dash](http://lodash.com/ 'Lo-Dash')
@@ -86,7 +86,7 @@ $ npm run test-watch
 
 #### Lint
 
-Run JSHint with:
+Run ESLint with:
 
 ```bash
 $ npm run lint
@@ -123,7 +123,7 @@ Tideline uses [D3.js](http://d3js.org/ 'D3') to create an [SVG](http://www.w3.or
 
 ### Code Conventions
 
-Tideline makes every attempt to adhere to standard coding conventions. In development, we use the same `.jshintrc` file as tideline's parent application [blip](https://github.com/tidepool-org/blip 'blip').
+Tideline makes every attempt to adhere to standard coding conventions. In development, we use the same `.eslintrc` file as tideline's parent application [blip](https://github.com/tidepool-org/blip 'blip').
 
 The only coding conventions unique to tideline are conventions of HTML and CSS ID and class names. All of the SVG elements comprising tideline use `camelCase` for IDs, with different parts of the ID separated by an underscore `_`. Class names, in contrast, are all lowercase, prefixed with `d3` and employ hyphen `-` as a separator. These conventions help tideline developers to keep IDs and classes distinct.
 

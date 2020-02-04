@@ -1,16 +1,29 @@
-var webpackConf = require('./test.config.js');
 
-module.exports = function (config) {
+const webpackConf = require('./webpack.config.js');
+
+webpackConf.externals = {
+  cheerio: 'window',
+  'react/addons': true,
+  'react/lib/ExecutionEnvironment': true,
+  'react/lib/ReactContext': true,
+};
+
+webpackConf.devtool = 'inline-source-map';
+
+webpackConf.output = {
+  filename: '[name].js',
+};
+webpackConf.node = {
+  fs: 'empty',
+  module: 'empty'
+};
+
+module.exports = function karmaConfig(config) {
   config.set({
     autoWatch: true,
     browserNoActivityTimeout: 60000,
     browsers: ['CustomChromeHeadless'],
     captureTimeout: 60000,
-    client: {
-      mocha: {
-        timeout: 4000
-      },
-    },
     colors: true,
     concurrency: Infinity,
     customLaunchers: {
@@ -25,18 +38,18 @@ module.exports = function (config) {
       },
     },
     files: [
-      'test/index.js'
+      'test/index.js',
     ],
-    frameworks: [ 'mocha', 'sinon', 'chai', 'intl-shim' ],
+    frameworks: ['mocha', 'chai', 'sinon'],
     logLevel: config.LOG_INFO,
     preprocessors: {
-      'test/index.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
+      'test/index.js': ['webpack', 'sourcemap'],
     },
-    reporters: [ 'mocha' ],
+    reporters: ['mocha'],
     singleRun: true,
     webpack: webpackConf,
     webpackMiddleware: {
-      noInfo: true // We don't want webpack output
-    }
+      noInfo: true
+    },
   });
 };

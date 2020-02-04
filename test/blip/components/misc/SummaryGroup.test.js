@@ -97,7 +97,6 @@ describe('SummaryGroup', () => {
 
   describe('render', () => {
     it('should disable options that have a zero value', () => {
-      const option = wrapper.find('.SummaryGroup-info-primary');
       expect(wrapper.find('.SummaryGroup-info--disabled').length).to.equal(0);
 
       wrapper.setProps({

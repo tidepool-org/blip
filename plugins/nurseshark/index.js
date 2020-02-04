@@ -19,7 +19,7 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var crossfilter = require('crossfilter');
+var crossfilter = require('crossfilter2');
 var util = require('util');
 
 var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');

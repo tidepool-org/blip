@@ -1,0 +1,37 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "globals": {
+    "process": false,
+    "require": false,
+    "define": false,
+    "console": false
+  },
+  "rules": {
+    "quotes": [1, "single", {
+      "avoidEscape": true
+    }],
+    "strict": [1, "never"],
+    "eol-last": [0],
+    "no-mixed-requires": [0],
+    "no-underscore-dangle": [0],
+    "no-bitwise": 2,
+    "camelcase": 2,
+    "eqeqeq": 1,
+    "wrap-iife": [1, "inside"],
+    "no-use-before-define": [1, "nofunc"],
+    "no-caller": 2,
+    "no-undef": 1,
+    "new-cap": 2,
+    "react/jsx-uses-react": 2,
+    "react/jsx-uses-vars": 2,
+    "react/react-in-jsx-scope": 2
+  },
+  "plugins": [
+    "react"
+  ]
+}

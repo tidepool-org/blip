@@ -26,7 +26,7 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var crossfilter = require('crossfilter');
+var crossfilter = require('crossfilter2');
 var moment = require('moment-timezone');
 
 var types = require('../dev/testpage/types');
@@ -449,10 +449,10 @@ describe('TidelineData', function() {
       var thisTD = new TidelineData(origData);
       var origFill = thisTD.grouped.fill;
       var lastFill = origFill[origFill.length - 1];
-      var later = moment(lastFill.normalTime).add(6, 'hours').toISOString();
-      thisTD.addData([new types.SMBG({deviceTime: later.slice(0, -5)})]);
+      var later = moment(lastFill.normalTime).add(6, 'hours').toDate();
+      thisTD.addData([new types.SMBG({deviceTime: later.toISOString().slice(0, -5)})]);
       var newFill = thisTD.grouped.fill;
-      expect(newFill[newFill.length - 1].normalTime).to.be.at.least(later);
+      expect(moment(newFill[newFill.length - 1].normalTime).toDate()).to.be.at.least(later);
     });
 
     context('data munging', function() {
@@ -479,12 +479,12 @@ describe('TidelineData', function() {
       });
 
       afterEach(() => {
-        filterDataArraySpy.reset();
-        generateFillDataSpy.reset();
-        adjustFillsForTwoWeekViewSpy.reset();
-        deduplicateDataArraysSpy.reset();
-        setUtilitiesSpy.reset();
-        updateCrossFiltersSpy.reset();
+        filterDataArraySpy.resetHistory();
+        generateFillDataSpy.resetHistory();
+        adjustFillsForTwoWeekViewSpy.resetHistory();
+        deduplicateDataArraysSpy.resetHistory();
+        setUtilitiesSpy.resetHistory();
+        updateCrossFiltersSpy.resetHistory();
       });
 
       after(() => {
@@ -581,7 +581,9 @@ describe('TidelineData', function() {
       editedMessage.time = d.toISOString();
       toEdit.editDatum(editedMessage, 'time');
       var newFill = toEdit.grouped.fill;
-      expect(newFill[newFill.length - 1].normalTime).to.be.at.least(toEdit.grouped.message[0].normalTime);
+      var toEditDate = moment(toEdit.grouped.message[0].normalTime).toDate();
+      var newFillDate = moment(newFill[newFill.length - 1].normalTime).toDate();
+      expect(newFillDate).to.be.at.least(toEditDate);
     });
   });
 
@@ -666,13 +668,19 @@ describe('TidelineData', function() {
     });
 
     it('should extend beyond extent of data on either side', function() {
-      expect(fills[0].normalTime).to.be.below(thisTd.grouped.smbg[0].normalTime);
-      expect(fills[fills.length - 1].normalEnd).to.be.above(thisTd.grouped.smbg[0].normalTime);
+      var time1 = moment(fills[0].normalTime).toDate();
+      var time2 = moment(thisTd.grouped.smbg[0].normalTime).toDate();
+      expect(time1).to.be.below(time2);
+
+      time1 = moment(fills[fills.length - 1].normalEnd).toDate();
+      time2 = moment(thisTd.grouped.smbg[0].normalTime).toDate();
+      expect(time1).to.be.above(time2);
     });
 
     it('should always cover at least 24 hours, even if there is only one point-in-time datum', function() {
-      var first = fills[0], last = fills[fills.length - 1];
-      expect(last.normalEnd).to.be.at.least(moment(first.normalTime).add(1, 'days').toISOString());
+      var first = moment(fills[0].normalTime).add(1, 'days').toDate();
+      var last = moment(fills[fills.length - 1].normalEnd).toDate();
+      expect(last).to.be.at.least(first);
     });
 
     it('should be contiguous', function() {

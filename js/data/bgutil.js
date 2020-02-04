@@ -18,7 +18,7 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var crossfilter = require('crossfilter');
+var crossfilter = require('crossfilter2');
 
 var datetime = require('./util/datetime');
 var categorizer = require('./util/categorize');

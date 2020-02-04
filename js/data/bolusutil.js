@@ -16,14 +16,13 @@
  */
 
 var _ = require('lodash');
-var crossfilter = require('crossfilter');
+var crossfilter = require('crossfilter2');
 
 var commonbolus = require('../plot/util/commonbolus');
 var format = require('./util/format');
-var datetime = require('./util/datetime');
 
 function BolusUtil(data) {
-
+  var dataByDate;
   this.subtotal = function(s, e) {
     var dose = 0.0;
     var start = new Date(s).toISOString(), end = new Date(e).toISOString();
@@ -43,7 +42,7 @@ function BolusUtil(data) {
 
   this.data = data || [];
   var filterData = crossfilter(this.data);
-  var dataByDate = filterData.dimension(function(d) { return d.normalTime; });
+  dataByDate = filterData.dimension(function(d) { return d.normalTime; });
   if (this.data.length > 0) {
     this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
   }

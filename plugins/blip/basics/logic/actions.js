@@ -16,14 +16,7 @@
  */
 
 var _ = require('lodash');
-var bows = require('bows');
-var moment = require('moment-timezone');
-
-var sundial = require('sundial');
-
 var togglableState = require('../TogglableState');
-
-var debug = bows('basicsActions');
 
 var basicsActions = {};
 

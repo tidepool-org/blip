@@ -15,15 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-require('./polyfill/function.prototype.bind');
+
+const enzyme = require('enzyme');
+const Adapter = require('enzyme-adapter-react-15');
+
+enzyme.configure({
+  adapter: new Adapter(),
+  disableLifecycleMethods: true,
+});
 
 // DOM required
 // ====================================
 
 /* plugins/ */
 require('./chartbasicsfactory_test');
-require('intl/locale-data/jsonp/en.js');
-
 
 // DOM not required
 // ====================================

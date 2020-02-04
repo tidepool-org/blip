@@ -24,7 +24,6 @@ var t = i18next.t.bind(i18next);
 var tideline = require('../../../js/');
 
 var _ = require('lodash');
-var bows = require('bows');
 var React = require('react');
 
 require('./less/basics.less');

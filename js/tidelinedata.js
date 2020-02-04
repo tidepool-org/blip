@@ -19,7 +19,7 @@
 /* jshint esversion:6 */
 
 var _ = require('lodash');
-var crossfilter = require('crossfilter');
+var crossfilter = require('crossfilter2');
 var d3 = require('d3');
 
 var validate = require('./validation/validate');

@@ -1,36 +1,145 @@
 var path = require('path');
 var webpack = require('webpack');
 
-var definePlugin = new webpack.DefinePlugin({
-  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false')),
-  __TEST__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false'))
-});
+const appDirectory = path.resolve(__dirname);
+const isDev = (process.env.NODE_ENV === 'development');
+const isTest = (process.env.NODE_ENV === 'test');
+
+const plugins = [
+  // `process.env.NODE_ENV === 'production'` must be `true` for production
+  // builds to eliminate development checks and reduce build size. You may
+  // wish to include additional optimizations.
+  new webpack.DefinePlugin({
+    __DEV__: isDev || isTest,
+    __TEST__: isTest
+  }),
+  new webpack.LoaderOptionsPlugin({
+    debug: isDev || isTest,
+  }),
+];
+
+const output = {
+  filename: '[name].js',
+  path: path.join(__dirname, '/dist/'),
+};
+
+const babelLoaderConfiguration = {
+  test: /\.jsx?$/,
+  include: [
+    // Add every directory that needs to be compiled by babel during the build
+    path.resolve(appDirectory, 'js'),
+    path.resolve(appDirectory, 'plugins'),
+    path.resolve(appDirectory, 'example'),
+    path.resolve(appDirectory, 'test'),
+  ],
+  exclude: /(node_modules|bower_components)/,
+  use: {
+    loader: 'babel-loader',
+    options: {
+      cacheDirectory: true,
+      presets: ['@babel/preset-env', '@babel/preset-react'],
+    },
+  },
+};
+
+// Enzyme as of v2.4.1 has trouble with classes
+// that do not start and *end* with an alpha character
+// but that will sometimes happen with the base64 hashes
+// so we leave them off in the test env
+const localIdentName = isTest
+  ? '[name]--[local]'
+  : '[name]--[local]--[hash:base64:5]';
+
+const styleLoaderConfiguration = {
+  test: /\.less$/i,
+  use: [
+    {
+      loader: 'style-loader',
+    },
+    {
+      loader: 'css-loader',
+      options: {
+        url: true,
+        importLoaders: 2,
+        modules: {
+          localIdentName,
+        },
+        sourceMap: true,
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+      },
+    },
+    {
+      loader: 'less-loader',
+      options: {
+        sourceMap: true,
+        noIeCompat: true,
+        javascriptEnabled: true
+      },
+    },
+  ],
+};
+
+// This is needed for webpack to import static images in JavaScript files
+const imageLoaderConfiguration = {
+  test: /\.(gif|jpe?g|png|svg)$/,
+  use: {
+    loader: 'url-loader',
+    options: {
+      name: '[name].[ext]',
+    },
+  },
+};
+
+const fontLoaderConfiguration = [
+  {
+    test: /\.eot$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/vnd.ms-fontobject',
+      },
+    },
+  },
+  {
+    test: /\.woff$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/font-woff',
+      },
+    },
+  },
+  {
+    test: /\.ttf$/,
+    use: {
+      loader: 'url-loader',
+      query: {
+        limit: 10000,
+        mimetype: 'application/octet-stream',
+      },
+    },
+  },
+];
 
 module.exports = {
+  devtool: 'sourcemap',
   entry: './example/example.js',
-  output: {
-    path: path.join(__dirname, 'example'),
-    filename: 'bundle.js'
-  },
+  output,
+  mode: isDev || isTest ? 'development' : 'production',
   module: {
-    loaders: [
-      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
-      {test: /\.json$/, loader: 'json-loader'},
-      {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
-      {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
-      {test: /\.png/, loader: 'url-loader?mimetype=image/png'},
-      {test: /\.eot/, loader: 'url-loader?mimetype=application/vnd.ms-fontobject'},
-      {test: /\.woff/, loader: 'url-loader?mimetype=application/font-woff'},
-      {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'}
+    rules: [
+      babelLoaderConfiguration,
+      imageLoaderConfiguration,
+      styleLoaderConfiguration,
+      ...fontLoaderConfiguration,
     ]
   },
-  plugins: [
-    definePlugin,
-    new webpack.DefinePlugin({
-      'process.env': Object.keys(process.env).reduce(function(o, k) {
-        o[k] = JSON.stringify(process.env[k]);
-        return o;
-      }, {})
-    })
-  ]
+  plugins
 };
