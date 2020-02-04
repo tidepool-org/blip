@@ -1,7 +1,7 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
-## Unreleased 
+## 0.10.1 - 2020-02-04 
 ### Fixed
 - PT-570 Missing translations in viz
 
