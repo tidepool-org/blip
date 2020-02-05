@@ -1,11 +1,15 @@
-### Stage 0 - Base image
+### Stage: Base image
 FROM node:10.14.2-alpine as base
-WORKDIR /app
-RUN mkdir -p dist node_modules && chown -R node:node .
+USER node
+RUN mkdir -p /home/node/app
+WORKDIR /home/node/app
+RUN mkdir -p dist node_modules
 
 
-### Stage 1 - Development root with Chromium installed for unit tests
+### Stage: Development root with Chromium installed for unit tests
 FROM base as development
+ARG LINKED_PKGS=""
+USER root
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
@@ -18,29 +22,32 @@ RUN \
   && apk --no-cache upgrade \
   && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
+
 # Install package dependancies
-COPY package.json .
-COPY yarn.lock .
+COPY --chown=node:node package.json .
+COPY --chown=node:node yarn.lock .
+USER node
 RUN yarn install
 # Build all modules for mounted packages (used when npm linking in development containers)
-COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
-COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
-COPY packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
-RUN chown -R node .
-USER node
-ARG LINKED_PKGS=""
-RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done
-# Copy source files
+# COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /home/node/app/packageMounts/tideline/
+# COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /home/node/app/packageMounts/tidepool-platform-client/
 USER root
+COPY --chown=node:node packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /home/node/app/packageMounts/@tidepool/viz/
+RUN chown -R node:node /home/node/app
+
+USER node
+
+RUN ls -al /home/node/app/packageMounts/@tidepool/viz/
+RUN for i in ${LINKED_PKGS//,/ }; do cd /home/node/app/packageMounts/${i} && yarn install; done
+# Copy source files
 COPY --chown=node:node . .
 # Link any packages as needed
-USER node
-RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
+RUN for i in ${LINKED_PKGS//,/ }; do cd /home/node/app/packageMounts/${i} && yarn link && cd /home/node/app && yarn link ${i}; done
 CMD ["npm", "start"]
 
 
-### Stage 2 - Base image for builds to share args and environment variables
-FROM base as buildBase
+### Stage: Build production-ready release
+FROM base as build
 # ARGs
 ARG API_HOST
 ARG DISCOVERY_HOST=hakken:8000
@@ -55,34 +62,26 @@ ENV \
   PUBLISH_HOST=$PUBLISH_HOST \
   SERVICE_NAME=$SERVICE_NAME \
   NODE_ENV=production
-
-
-### Stage 3 - Build production-ready release
-FROM buildBase as build
 USER node
 # Copy all `node_modules` from `development` layer
-COPY --from=development /app/node_modules ./node_modules
+COPY --from=development /home/node/app/node_modules ./node_modules
 # Copy source files, and possibily invalidate so we have to rebuild
 COPY . .
 RUN npm run build
 
 
-### Stage 4 - Create cached `node_modules`
-# Only rebuild layer if `package.json` has changed
-FROM base as prodDependencies
+### Stage: Serve production-ready release
+FROM base as production
 RUN apk --no-cache update \
   && apk --no-cache upgrade \
   && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
+# Only install `node_modules` dependancies needed for production
 RUN yarn install --production
-
-### Stage 5 - Serve production-ready release
-FROM buildBase as production
 USER node
-# Copy only `node_modules` and files needed to run the server
-COPY --from=prodDependencies /app/node_modules ./node_modules
-COPY --from=build /app/dist dist
+# Copy only files needed to run the server
+COPY --from=build /home/node/app/dist dist
 COPY --from=build \
   /app/config.server.js \
   /app/package.json \
