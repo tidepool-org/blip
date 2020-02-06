@@ -23,6 +23,9 @@ install:
   - yarn install --frozen-lockfile
 
 addons:
+  apt:
+    packages:
+      - docker-ce
   artifacts:
     s3_region: us-west-2
     paths:
