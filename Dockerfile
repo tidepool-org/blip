@@ -1,8 +1,7 @@
 ### Stage: Base image
 FROM node:10.14.2-alpine as base
 USER node
-RUN mkdir -p /home/node/app
-WORKDIR /home/node/app
+WORKDIR /app
 RUN mkdir -p dist node_modules
 
 
@@ -22,27 +21,23 @@ RUN \
   && apk --no-cache upgrade \
   && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
-
 # Install package dependancies
 COPY --chown=node:node package.json .
 COPY --chown=node:node yarn.lock .
 USER node
 RUN yarn install
-# Build all modules for mounted packages (used when npm linking in development containers)
-# COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /home/node/app/packageMounts/tideline/
-# COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /home/node/app/packageMounts/tidepool-platform-client/
 USER root
-COPY --chown=node:node packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /home/node/app/packageMounts/@tidepool/viz/
-RUN chown -R node:node /home/node/app
-
+# Build all modules for mounted packages (used when npm linking in development containers)
+COPY --chown=node:node packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
+COPY --chown=node:node packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
+COPY --chown=node:node packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
 USER node
-
-RUN ls -al /home/node/app/packageMounts/@tidepool/viz/
-RUN for i in ${LINKED_PKGS//,/ }; do cd /home/node/app/packageMounts/${i} && yarn install; done
+RUN ls -al /app/packageMounts/@tidepool/viz/
+RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done
 # Copy source files
 COPY --chown=node:node . .
 # Link any packages as needed
-RUN for i in ${LINKED_PKGS//,/ }; do cd /home/node/app/packageMounts/${i} && yarn link && cd /home/node/app && yarn link ${i}; done
+RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 CMD ["npm", "start"]
 
 
@@ -64,7 +59,7 @@ ENV \
   NODE_ENV=production
 USER node
 # Copy all `node_modules` from `development` layer
-COPY --from=development /home/node/app/node_modules ./node_modules
+COPY --from=development /app/node_modules ./node_modules
 # Copy source files, and possibily invalidate so we have to rebuild
 COPY . .
 RUN npm run build
@@ -81,7 +76,7 @@ COPY yarn.lock .
 RUN yarn install --production
 USER node
 # Copy only files needed to run the server
-COPY --from=build /home/node/app/dist dist
+COPY --from=build /app/dist dist
 COPY --from=build \
   /app/config.server.js \
   /app/package.json \
