@@ -1,14 +1,12 @@
 ### Stage: Base image
 FROM node:10.14.2-alpine as base
-USER node
 WORKDIR /app
-RUN mkdir -p dist node_modules
+RUN mkdir -p dist node_modules && chown -R node:node .
 
 
 ### Stage: Development root with Chromium installed for unit tests
 FROM base as development
 ARG LINKED_PKGS=""
-USER root
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
