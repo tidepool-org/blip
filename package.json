@@ -7,7 +7,7 @@
     "pretest": "NODE_ENV=test npm run lint",
     "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
     "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
-    "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --browsers Chrome",
+    "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start--browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
     "watchViz": "export NODE_OPTIONS='--max-old-space-size=4096' && cd ./packageMounts/@tidepool/viz && npm run start",
