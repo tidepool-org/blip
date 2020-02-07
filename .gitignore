@@ -27,6 +27,7 @@ test/bin
 web/
 artifact_node.sh
 coverage/
+packageMounts/*/*
 packageMounts/*/*/*
 !packageMounts/*/stub
 !packageMounts/*/*/stub
