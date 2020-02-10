@@ -112,14 +112,6 @@ class Trends extends React.PureComponent {
     }
   }
 
-  componentDidUpdate() {
-    this.log('componentDidUpdate');
-  }
-
-  componentWillUnmount() {
-    this.log('componentWillUnmount');
-  }
-
   formatDate(datetime) {
     const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
@@ -466,6 +458,7 @@ class Trends extends React.PureComponent {
         '1 week': (e) => this.handleClickPresetWeeks(e, 7),
         '2 weeks': (e) => this.handleClickPresetWeeks(e, 14),
         '4 weeks': (e) => this.handleClickPresetWeeks(e, 28),
+        '3 months': (e) => this.handleClickPresetWeeks(e, 90),
        }}
        onClickDay={this.toggleDay}
        toggleWeekdays={this.toggleWeekdays}

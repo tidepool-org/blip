@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 
 ### Added
 - PT-875 Flexible period in Trending page
+- PT-1008 Add a 3 months button in Trending page
 
 ## 0.11.0 - 2020-01-06
 ### Fixed

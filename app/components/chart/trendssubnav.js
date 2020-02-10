@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { translate } from 'react-i18next';
 
-const domains = ['1 week', '2 weeks', '4 weeks'];
+const domains = ['1 week', '2 weeks', '4 weeks', '3 months'];
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -66,6 +66,7 @@ var TrendsSubNav = translate()(React.createClass({
       case 7: return '1 week';
       case 14: return '2 weeks';
       case 28: return '4 weeks';
+      case 90: return '3 months';
       default: return 'custom';
     }
   },
@@ -88,6 +89,7 @@ var TrendsSubNav = translate()(React.createClass({
       case '1 week': return t('1 week');
       case '2 weeks': return t('2 weeks');
       case '4 weeks': return t('4 weeks');
+      case '3 months': return t('3 months');
       default: return t('custom');
     }
   },
@@ -100,20 +102,18 @@ var TrendsSubNav = translate()(React.createClass({
     this.areWeekendsActive(nextProps);
   },
   render: function() {
-    var domainLinks = this.renderDomainLinks();
+    var domainContainer = this.renderDomainContainer();
     var dayFilters = this.renderDayFilters();
 
     return (
       <div id="trendsSubNav">
-        <div className="trendsSubNavContainer">
-          <div className="domainLinks">{domainLinks}</div>
-          <div className="dayFilters">{dayFilters}</div>
-        </div>
+        {domainContainer}
+        {dayFilters}
       </div>
       );
 
   },
-  renderDomainLinks: function() {
+  renderDomainContainer: function() {
     const { t, activeDays, extentSize } = this.props;
     const domainLinks = [];
     for (let i = 0; i < domains.length; ++i) {
@@ -135,9 +135,9 @@ var TrendsSubNav = translate()(React.createClass({
     }
 
     return (
-      <div>
-        <div className="domainContainer">{domainLinks}</div>
-        <div className="visibleDays">{visibleDaysText}</div>
+      <div className="domainContainer">
+        <div className="domainLinks">{domainLinks}</div>
+        <p className="visibleDays">{visibleDaysText}</p>
       </div>
     );
   },
