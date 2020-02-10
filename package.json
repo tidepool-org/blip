@@ -5,8 +5,6 @@
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
     "pretest": "NODE_ENV=test npm run lint",
-    "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
-    "nightwatch-single": "./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start--browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
@@ -18,7 +16,6 @@
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
     "lint": "./node_modules/.bin/eslint app test",
-    "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o ."
@@ -91,7 +88,6 @@
     "mocha": "5.2.0",
     "moment": "2.22.2",
     "ms": "2.1.1",
-    "nightwatch": "0.9.21",
     "object-invariant-test-helper": "0.1.1",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "optional": "0.1.4",
@@ -123,7 +119,6 @@
     "rollbar-sourcemap-webpack-plugin": "2.5.3",
     "salinity": "0.0.8",
     "script-loader": "0.7.2",
-    "selenium-standalone": "6.15.2",
     "shelljs": "0.8.3",
     "sinon": "6.2.0",
     "source-map-loader": "0.2.4",
