@@ -49,7 +49,7 @@ var LoginNav = translate()(React.createClass({
 
     var self = this;
     const {page, t} = this.props;
-    var href = '/signup';
+    var href = '/signup/clinician';
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = t('Sign up');

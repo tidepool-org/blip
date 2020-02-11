@@ -6,6 +6,9 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - PT-338 Fix some translations.
 
+### Changed
+- PT-1052 Rework sign up (direct link to clinician signup from home page + clinician option selected as default in signup page)
+
 ### Added
 - PT-875 Flexible period in Trending page
 - PT-1008 Add a 3 months button in Trending page

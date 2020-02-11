@@ -113,7 +113,7 @@ export let Signup = translate()(React.createClass({
       formValues: formValues,
       validationErrors: {},
       notification: null,
-      selected: null,
+      selected: 'clinician',
       madeSelection: false
     }, this.getFormStateFromPath(this.props.location.pathname));
   },
