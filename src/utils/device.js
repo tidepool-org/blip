@@ -19,10 +19,8 @@ export function getLatestPumpUpload(uploadData = []) {
  * @returns {Boolean}
  */
 export function isAutomatedBasalDevice(manufacturer, deviceModel) {
-  return _.includes(
-    _.get(AUTOMATED_BASAL_DEVICE_MODELS, deviceName(manufacturer), []),
-    deviceModel
-  );
+  const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, deviceName(manufacturer), false);
+  return (_.isBoolean(models) && models) || (_.isArray(models) && _.includes(models, deviceModel));
 }
 
 /**
