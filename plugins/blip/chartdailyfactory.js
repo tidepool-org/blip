@@ -89,15 +89,6 @@ function chartDailyFactory(el, options) {
       .heightRatio(0.65)
       .gutterWeight(0.0);
 
-    // messages pool
-    poolMessages = chart.newPool()
-      .id('poolMessages', chart.poolGroup())
-      .label('')
-      .labelBaseline(options.labelBaseline)
-      .index(chart.pools().indexOf(poolMessages))
-      .heightRatio(0.5)
-      .gutterWeight(0.0);
-
     // blood glucose data pool
     poolBG = chart.newPool()
       .id('poolBG', chart.poolGroup())
@@ -142,6 +133,18 @@ function chartDailyFactory(el, options) {
       .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
       .heightRatio(1.0)
+      .gutterWeight(1.0);
+
+    // messages pool
+    poolMessages = chart.newPool()
+      .id('poolMessages', chart.poolGroup())
+      .label([{
+        main: t('Your notes'),
+        light: t(' add any event.') 
+      }])
+      .labelBaseline(options.labelBaseline)
+      .index(chart.pools().indexOf(poolMessages))
+      .heightRatio(0.5)
       .gutterWeight(1.0);
 
     chart.arrangePools();

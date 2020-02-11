@@ -3,8 +3,11 @@ Library for Tidepool's timeline-style diabetes data visualization(s) used in Bli
 
 ## Unreleased
 
-## 1.6.0 - 2020-01-06
+## 1.6.1 - 2020-02-11
+### Changed
+- PT-1090 Moving message notes to the bottom of the page 
 
+## 1.6.0 - 2020-01-06
 ### Added
 - PT-882 Display reservoir change in Glycemia section
 

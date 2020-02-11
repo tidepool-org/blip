@@ -31,7 +31,7 @@ var t = i18next.t.bind(i18next);
 var NEW_NOTE_WIDTH = 36;
 var NEW_NOTE_HEIGHT = 29;
 var NEW_NOTE_X = 0;
-var NEW_NOTE_Y = 45;
+var NEW_NOTE_Y = 500;
 
 module.exports = function(pool, opts) {
 
