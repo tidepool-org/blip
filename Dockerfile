@@ -21,14 +21,14 @@ RUN \
 # Install package dependancies
 COPY --chown=node:node package.json yarn.lock ./
 USER node
-RUN yarn install --silent --frozen-lockfile
+RUN yarn install
 # Install package dependancies for mounted packages (used when npm linking in development containers)
 COPY --chown=node:node packageMounts/@tidepool/viz/stub  packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
-RUN test -f /app/packageMounts/@tidepool/viz/package.json && cd /app/packageMounts/@tidepool/viz && yarn install --silent --frozen-lockfile || true
+RUN test -f /app/packageMounts/@tidepool/viz/package.json && cd /app/packageMounts/@tidepool/viz && yarn install || true
 COPY --chown=node:node packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
-RUN test -f /app/packageMounts/tideline/package.json && cd /app/packageMounts/tideline && yarn install --silent --frozen-lockfile || true
+RUN test -f /app/packageMounts/tideline/package.json && cd /app/packageMounts/tideline && yarn install || true
 COPY --chown=node:node packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
-RUN test -f /app/packageMounts/tidepool-platform-client/package.json && cd /app/packageMounts/tidepool-platform-client && yarn install --silent --no-lockfile || true
+RUN test -f /app/packageMounts/tidepool-platform-client/package.json && cd /app/packageMounts/tidepool-platform-client && yarn install || true
 # Link any packages as needed
 ARG LINKED_PKGS=""
 RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
