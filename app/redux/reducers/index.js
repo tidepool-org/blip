@@ -18,6 +18,7 @@ import { combineReducers } from 'redux';
 
 import working from './working';
 import pdf from './pdf';
+import data from './data';
 
 import {
   bgPrefs,
@@ -33,8 +34,6 @@ import {
   permissionsOfMembersInTargetCareTeam,
   membershipPermissionsInOtherCareTeams,
   allUsersMap,
-  patientDataMap,
-  patientNotesMap,
   pendingSentInvites,
   pendingReceivedInvites,
   resentEmailVerification,
@@ -63,8 +62,6 @@ export default combineReducers({
   permissionsOfMembersInTargetCareTeam,
   membershipPermissionsInOtherCareTeams,
   allUsersMap,
-  patientDataMap,
-  patientNotesMap,
   pendingSentInvites,
   pendingReceivedInvites,
   resentEmailVerification,
@@ -78,5 +75,6 @@ export default combineReducers({
   dataSources,
   authorizedDataSource,
   pdf,
+  data,
   working,
 });

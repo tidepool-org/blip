@@ -101,7 +101,6 @@ var Messages = translate()(React.createClass({
     const { t } = this.props;
     var submitButtonText = t('Comment_submit');
 
-
     return (
       <div className='messages-form'>
         <MessageForm
@@ -115,7 +114,6 @@ var Messages = translate()(React.createClass({
   renderNewThreadForm: function() {
     const { t } = this.props;
     var submitButtonText = t('Post_submit');
-
 
     return (
       <div className='messages-form'>

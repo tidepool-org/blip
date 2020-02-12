@@ -26,20 +26,22 @@ import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import * as worker from '../../../../app/redux/actions/worker';
 
 describe('worker action creators', () => {
+  const patientId = 'abc123';
+
   describe('generatePDFRequest', () => {
     const payload = {
       type: 'combined',
-      data: [],
+      queries: {},
       opts: {},
     };
 
     const {
       type,
-      data,
+      queries,
       opts,
     } = payload;
 
-    const action = worker.generatePDFRequest(type, data, opts);
+    const action = worker.generatePDFRequest(type, queries, opts, patientId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -48,10 +50,10 @@ describe('worker action creators', () => {
     it('should create an action to request a PDF generation', () => {
       expect(action).to.deep.equal({
         type: actionTypes.GENERATE_PDF_REQUEST,
-        meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin, patientId },
         payload: {
           type,
-          data: JSON.stringify(data),
+          queries,
           opts,
         },
       });
@@ -107,6 +109,252 @@ describe('worker action creators', () => {
     it('should create an action to remove all generated PDFs', () => {
       expect(action).to.deep.equal({
         type: actionTypes.REMOVE_GENERATED_PDFS,
+      });
+    });
+  });
+
+  describe('dataWorkerAddDataRequest', () => {
+    const data = [{ foo: 'bar'}];
+    const returnData = false;
+    const patientId = 'abc123';
+    const fetchedUntil = '2019-11-27T00:00:00.000Z';
+
+    const action = worker.dataWorkerAddDataRequest(data, returnData, patientId, fetchedUntil);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to add data to the worker', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+        payload: {
+          data: JSON.stringify(data),
+          fetchedCount: 1,
+          returnData,
+          patientId,
+          fetchedUntil,
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerAddDataSuccess', () => {
+    const result = { success: true };
+
+    const action = worker.dataWorkerAddDataSuccess(result);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to handle results of successfully adding data', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
+        payload: {
+          result,
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerAddDataFailure', () => {
+    const error = new Error;
+
+    const action = worker.dataWorkerAddDataFailure(error);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action notify of an adding data failure', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_ADD_DATA_FAILURE,
+        error,
+      });
+    });
+  });
+
+  describe('dataWorkerRemoveDataRequest', () => {
+    const predicate = { foo: 'bar'};
+
+    const action = worker.dataWorkerRemoveDataRequest(predicate, patientId);
+    const actionWithUndefinedPredicate = worker.dataWorkerRemoveDataRequest(undefined, patientId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+      expect(isTSA(actionWithUndefinedPredicate)).to.be.true;
+    });
+
+    it('should create an action to remove data from the worker with a stringified predicate', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+        payload: {
+          predicate: JSON.stringify(predicate),
+        },
+      });
+    });
+
+    it('should create an action to remove data from the worker with an undefined predicate', () => {
+      expect(actionWithUndefinedPredicate).to.deep.equal({
+        type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+        payload: {
+          predicate: undefined,
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerRemoveDataSuccess', () => {
+    const result = { success: true };
+    const preserveCache = true;
+
+    const action = worker.dataWorkerRemoveDataSuccess(result, preserveCache);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to handle results of successfully removing data', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS,
+        payload: {
+          result,
+          preserveCache,
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerRemoveDataFailure', () => {
+    const error = new Error;
+
+    const action = worker.dataWorkerRemoveDataFailure(error);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action notify of an removing data failure', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_REMOVE_DATA_FAILURE,
+        error,
+      });
+    });
+  });
+
+  describe('dataWorkerUpdateDatumRequest', () => {
+    const datum = { foo: 'bar'};
+
+    const action = worker.dataWorkerUpdateDatumRequest(datum, patientId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to update a datum in the worker', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
+        payload: {
+          datum: JSON.stringify(datum),
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerUpdateDatumSuccess', () => {
+    const result = { success: true };
+
+    const action = worker.dataWorkerUpdateDatumSuccess(result);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to handle results of successfully updating a datum', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_UPDATE_DATUM_SUCCESS,
+        payload: {
+          result,
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerUpdateDatumFailure', () => {
+    const error = new Error;
+
+    const action = worker.dataWorkerUpdateDatumFailure(error);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action notify of a datum update failure', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_UPDATE_DATUM_FAILURE,
+        error,
+      });
+    });
+  });
+
+  describe('dataWorkerQueryDataRequest', () => {
+    const query = { foo: 'bar'};
+
+    const action = worker.dataWorkerQueryDataRequest(query, patientId);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to query data from the worker', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId, destination: 'redux' },
+        payload: {
+          query: JSON.stringify(query),
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerQueryDataSuccess', () => {
+    const result = { success: true };
+
+    const action = worker.dataWorkerQueryDataSuccess(result);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action to handle results of successfully querying data', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+        payload: {
+          result,
+          destination: 'redux',
+        },
+      });
+    });
+  });
+
+  describe('dataWorkerQueryDataFailure', () => {
+    const error = new Error;
+
+    const action = worker.dataWorkerQueryDataFailure(error);
+
+    it('should be a TSA', () => {
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('should create an action notify of a data query failure', () => {
+      expect(action).to.deep.equal({
+        type: actionTypes.DATA_WORKER_QUERY_DATA_FAILURE,
+        error,
       });
     });
   });

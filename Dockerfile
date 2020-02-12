@@ -12,7 +12,7 @@ RUN \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && apk --no-cache update \
   && apk --no-cache upgrade \
-  && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
+  && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -23,6 +23,9 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
+RUN apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
 RUN \
@@ -71,6 +74,7 @@ ARG DISCOVERY_HOST=hakken:8000
 ARG PORT=3000
 ARG PUBLISH_HOST=hakken
 ARG SERVICE_NAME=blip
+ARG ROLLBAR_POST_SERVER_TOKEN
 # Set ENV from ARGs
 ENV \
   API_HOST=$API_HOST \
@@ -78,6 +82,7 @@ ENV \
   PORT=$PORT \
   PUBLISH_HOST=$PUBLISH_HOST \
   SERVICE_NAME=$SERVICE_NAME \
+  ROLLBAR_POST_SERVER_TOKEN=$ROLLBAR_POST_SERVER_TOKEN \
   NODE_ENV=production
 
 

@@ -30,7 +30,7 @@ import InputGroup from '../../components/inputgroup';
 import DatePicker from '../../components/datepicker';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
-import { getDonationAccountCodeFromEmail } from '../../core/utils';
+import utils from '../../core/utils';
 
 import {
   DATA_DONATION_NONPROFITS,
@@ -282,7 +282,7 @@ export let PatientNew = translate()(React.createClass({
 
       if (this.props.trackMetric) {
         _.forEach(addAccounts, email => {
-          const source = getDonationAccountCodeFromEmail(email) || 'none';
+          const source = utils.getDonationAccountCodeFromEmail(email) || 'none';
           const location = 'sign-up';
           this.props.trackMetric('web - big data sign up', { source, location });
         });

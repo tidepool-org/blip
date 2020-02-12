@@ -29,7 +29,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -51,7 +51,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -78,7 +78,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -105,7 +105,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -132,7 +132,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -159,7 +159,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -185,7 +185,7 @@ describe('Footer', function () {
         onClickLines: sinon.stub(),
         onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
+        toggleDisplayFlags: sinon.stub(),
         boxOverlay: false,
         grouped: true,
         showingLines: false,
@@ -200,12 +200,8 @@ describe('Footer', function () {
         },
         currentPatientInViewId: 'abc123',
       };
-      // RangeSelect is a redux connect()ed component and needs a Provider/store
-      var footer = mount(
-        <Provider store={configureStore([])({})}>
-          <Footer {...props} />
-        </Provider>
-      );
+
+      var footer = mount(<Footer {...props} />);
 
       expect(footer.find(RangeSelect).length).to.equal(1);
     });

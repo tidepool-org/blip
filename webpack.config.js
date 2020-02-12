@@ -1,15 +1,22 @@
 const path = require('path');
 const webpack = require('webpack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const uglifyJS = require('uglify-es');
+const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
+const terser = require('terser');
 const fs = require('fs');
+const pkg = require('./package.json');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
+const isProd = (process.env.NODE_ENV === 'production');
+
+const VERSION = pkg.version;
+const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -131,8 +138,11 @@ const plugins = [
     __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
+    __VERSION__: JSON.stringify(VERSION),
+    __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __DEV__: isDev,
     __TEST__: isTest,
+    __PROD__: isProd,
     __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
   new MiniCssExtractPlugin({
@@ -147,7 +157,7 @@ const plugins = [
         }
 
         const code = fs.readFileSync(path, 'utf8');
-        const result = uglifyJS.minify(code);
+        const result = terser.minify(code);
         return result.code;
       }
     }
@@ -160,6 +170,15 @@ const plugins = [
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
+} else if (isProd) {
+  plugins.push(
+    /** Upload sourcemap to Rollbar */
+    new RollbarSourceMapPlugin({
+      accessToken: ROLLBAR_POST_SERVER_TOKEN,
+      version: VERSION,
+      publicPath: 'http://dynamichost/dist',
+    })
+  );
 }
 
 const devPublicPath = process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/';
@@ -222,18 +241,14 @@ module.exports = {
       }
     },
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          ie8: false,
+      new TerserPlugin({
+        terserOptions: {
           output: { comments: false },
           compress: {
             inline: false,
             conditionals: false,
-          },
-        },
-        cache: true,
-        parallel: true,
-        sourceMap: false, // set to true if you want JS source maps
+          }
+        }
       }),
       new OptimizeCSSAssetsPlugin({}),
     ],

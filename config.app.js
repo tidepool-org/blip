@@ -22,8 +22,7 @@
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
-
-const pkg = require('./package.json');
+/* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
   if (value === 'true') {
@@ -46,7 +45,7 @@ function integerFromText(value, defaultValue) {
 }
 
 const config = {
-  VERSION: pkg.version,
+  VERSION: __VERSION__,
   UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
   API_HOST: __API_HOST__ || `${window.location.protocol}//${window.location.host}`,
   INVITE_KEY: __INVITE_KEY__ || '',
@@ -54,7 +53,7 @@ const config = {
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   PASSWORD_MAX_LENGTH: integerFromText(__PASSWORD_MAX_LENGTH__, 72),
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
-  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false)
+  I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
 }
 
 if (__DEV__) {

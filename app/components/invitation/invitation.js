@@ -16,10 +16,9 @@
 import React from 'react';
 import _ from 'lodash';
 import { translate } from 'react-i18next';
-var utils = require('../../core/utils');
-var cx = require('classnames');
 
-var personUtils = require('../../core/personutils');
+import utils from '../../core/utils';
+import personUtils from '../../core/personutils';
 
 var Invitation = translate()(React.createClass({
   propTypes: {

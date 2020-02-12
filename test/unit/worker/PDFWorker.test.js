@@ -32,25 +32,49 @@ describe('PDFWorker', () => {
   const importer = sinon.stub();
   const renderer = sinon.stub().usingPromise(Promise);
 
+  const queryResults = {
+    basics: { data: { current: { aggregationsByDate: {
+      basals: {},
+      boluses: {},
+      fingersticks: {
+        calibration: {},
+        smbg: {},
+      },
+      siteChanges: {},
+    } } } },
+    daily: { data: { current: { data: ['foo'] } } },
+    bgLog: { data: { current: { data: [] } } },
+    settings: { metaData: { latestPumpUpload: { settings: 'settings data' } } },
+  };
+
+  const dataUtil = {
+    query: sinon.stub().callsFake(key => queryResults[key]),
+  };
+
   const pdf = {
     url: 'someURL',
     blob: 'someBlob',
   };
 
   const payload = {
-    type: 'daily',
-    data: {},
+    type: 'combined',
+    queries: {
+      basics: 'basics',
+      daily: 'daily',
+      bgLog: 'bgLog',
+      settings: 'settings',
+    },
     opts: {},
   };
 
   const {
     type,
-    data,
+    queries,
     opts,
   } = payload;
 
   beforeEach(() => {
-    Worker = new PDFWorker(importer, renderer);
+    Worker = new PDFWorker(dataUtil, importer, renderer);
   });
 
   afterEach(() => {
@@ -71,7 +95,7 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, data, opts);
+    const action = actions.generatePDFRequest(type, queries, opts);
     const origin = action.meta.origin;
 
     Worker.handleMessage({ data: action }, postMessage);
@@ -85,11 +109,17 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, data, opts);
+    const action = actions.generatePDFRequest(type, queries, opts);
     Worker.handleMessage({ data: action }, postMessage);
 
     sinon.assert.calledOnce(renderer);
-    sinon.assert.calledWithExactly(renderer, data, opts);
+    sinon.assert.calledWithExactly(renderer, queryResults, {
+      ...opts,
+      basics: { disabled: true },
+      daily: { disabled: false },
+      bgLog: { disabled: true },
+      settings: { disabled: false },
+    });
   });
 
   it('should fire a success action upon succesful rendering', () => {
@@ -97,8 +127,10 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, data, opts);
+    const action = actions.generatePDFRequest(type, queries, opts);
     Worker.handleMessage({ data: action }, postMessage);
+
+    const data = {};
 
     return Worker.renderer(data, opts).then(result => {
       sinon.assert.calledOnce(postMessage);
@@ -114,8 +146,10 @@ describe('PDFWorker', () => {
 
     const postMessage = sinon.stub();
 
-    const action = actions.generatePDFRequest(type, data, opts);
+    const action = actions.generatePDFRequest(type, queries, opts);
     Worker.handleMessage({ data: action }, postMessage);
+
+    const data = {};
 
     return Worker.renderer(data, opts).then().catch(error => {
       sinon.assert.calledOnce(postMessage);
