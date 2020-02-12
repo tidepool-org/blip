@@ -14,7 +14,6 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans} from 'react-i18next';

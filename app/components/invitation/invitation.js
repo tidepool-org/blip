@@ -14,7 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import _ from 'lodash';
 import { translate } from 'react-i18next';

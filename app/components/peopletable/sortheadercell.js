@@ -15,7 +15,6 @@
 * == BSD2 LICENSE ==
 */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import { Cell } from 'fixed-data-table-2';
 

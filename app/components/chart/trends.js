@@ -4,7 +4,6 @@ import _ from 'lodash';
 import bows from 'bows';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-
 import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';

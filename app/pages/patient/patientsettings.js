@@ -15,7 +15,6 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';

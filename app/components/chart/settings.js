@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import createReactClass from 'create-react-class';
 import { Trans, translate } from 'react-i18next';

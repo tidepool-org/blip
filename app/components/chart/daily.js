@@ -16,7 +16,6 @@
  * == BSD2 LICENSE ==
  */
 import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';

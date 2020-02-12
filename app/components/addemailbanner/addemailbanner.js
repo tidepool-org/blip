@@ -16,7 +16,6 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
