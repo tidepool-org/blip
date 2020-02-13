@@ -25,7 +25,6 @@
 }
 .invitation {
   margin: 10px;
-  background-color: @blue-green;
   padding: 15px;
 
   button {
@@ -42,33 +41,12 @@
   width: 290px;
   margin: 0 auto;
   padding-top: 10px;
+  display: flex;
+  flex-direction: row;
 }
 .invitation-message {
   text-align: center;
   font-size: @font-size-base;
-  color: white;
+  color: @gray-darker;
   font-weight: lighter;
-}
-
-.invitation-action-submit {
-  color: @blue-green;
-  background: @gray-light;
-  border-color: @gray-light;
-
-  &:hover, &:focus {
-    color: @gray-light;
-    background: @blue-green;
-    border-color: @blue-green;
-  }
-}
-
-.invitation-action-ignore {
-  color: white;
-  background: @blue-green;
-  border-color: @blue-green;
-
-  &:hover, &:focus {
-    background: @blue-green-light;
-    border-color: @blue-green-light;
-  }
 }

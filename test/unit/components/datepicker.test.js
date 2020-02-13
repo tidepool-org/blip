@@ -46,7 +46,6 @@ describe('DatePickers', function () {
       document.body.appendChild(container);
     });
     afterEach(() => {
-      // console.log(container);
       document.body.removeChild(container);
       container = null;
     });

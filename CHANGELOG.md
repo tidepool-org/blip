@@ -9,6 +9,7 @@ It is based on Tidepool Blip 1.27.
 ### Changed
 - PT-1052 Rework sign up (direct link to clinician signup from home page + clinician option selected as default in signup page)
 - PT-1100 Move message notes to the bottom of the daily page
+- PT-1041 Rework invitation page for clinicals users
 
 ### Added
 - PT-875 Flexible period in Trending page
