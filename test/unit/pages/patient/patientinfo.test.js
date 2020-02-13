@@ -6,7 +6,7 @@
 /* global afterEach */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 
@@ -68,7 +68,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
 
-      var initialState = elem.getInitialState();
+      var initialState = elem.state;
       expect(Object.keys(initialState).length).to.equal(3);
       expect(initialState.editing).to.equal(false);
       expect(Object.keys(initialState.validationErrors).length).length.to.equal(0);

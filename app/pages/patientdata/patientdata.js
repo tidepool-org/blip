@@ -13,7 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -52,38 +54,40 @@ const { Loader } = vizComponents;
 const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = translate()(React.createClass({
+export let PatientData = translate()(createReactClass({
+  displayName: 'PatientData',
+
   propTypes: {
-    addingData: React.PropTypes.object.isRequired,
-    currentPatientInViewId: React.PropTypes.string.isRequired,
-    data: React.PropTypes.object,
-    dataWorkerRemoveDataRequest: React.PropTypes.func.isRequired,
-    dataWorkerRemoveDataSuccess: React.PropTypes.func.isRequired,
-    dataWorkerQueryDataRequest: React.PropTypes.func.isRequired,
-    fetchers: React.PropTypes.array.isRequired,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingPatientData: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    generatePDFRequest: React.PropTypes.func.isRequired,
-    generatingPDF: React.PropTypes.object.isRequired,
-    isUserPatient: React.PropTypes.bool.isRequired,
-    messageThread: React.PropTypes.array,
-    onCloseMessageThread: React.PropTypes.func.isRequired,
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onEditMessage: React.PropTypes.func.isRequired,
-    onFetchMessageThread: React.PropTypes.func.isRequired,
-    onRefresh: React.PropTypes.func.isRequired,
-    onSaveComment: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
-    pdf: React.PropTypes.object,
-    queryingData: React.PropTypes.object.isRequired,
-    queryParams: React.PropTypes.object.isRequired,
-    removeGeneratedPDFS: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    updateBasicsSettings: React.PropTypes.func.isRequired,
-    updatingDatum: React.PropTypes.object.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
-    user: React.PropTypes.object,
+    addingData: PropTypes.object.isRequired,
+    currentPatientInViewId: PropTypes.string.isRequired,
+    data: PropTypes.object,
+    dataWorkerRemoveDataRequest: PropTypes.func.isRequired,
+    dataWorkerRemoveDataSuccess: PropTypes.func.isRequired,
+    dataWorkerQueryDataRequest: PropTypes.func.isRequired,
+    fetchers: PropTypes.array.isRequired,
+    fetchingPatient: PropTypes.bool.isRequired,
+    fetchingPatientData: PropTypes.bool.isRequired,
+    fetchingUser: PropTypes.bool.isRequired,
+    generatePDFRequest: PropTypes.func.isRequired,
+    generatingPDF: PropTypes.object.isRequired,
+    isUserPatient: PropTypes.bool.isRequired,
+    messageThread: PropTypes.array,
+    onCloseMessageThread: PropTypes.func.isRequired,
+    onCreateMessage: PropTypes.func.isRequired,
+    onEditMessage: PropTypes.func.isRequired,
+    onFetchMessageThread: PropTypes.func.isRequired,
+    onRefresh: PropTypes.func.isRequired,
+    onSaveComment: PropTypes.func.isRequired,
+    patient: PropTypes.object,
+    pdf: PropTypes.object,
+    queryingData: PropTypes.object.isRequired,
+    queryParams: PropTypes.object.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    updateBasicsSettings: PropTypes.func.isRequired,
+    updatingDatum: PropTypes.object.isRequired,
+    uploadUrl: PropTypes.string.isRequired,
+    user: PropTypes.object,
   },
 
   getInitialState: function() {
@@ -1099,7 +1103,7 @@ export let PatientData = translate()(React.createClass({
     this.setState(state, cb);
   },
 
-  componentWillMount: function() {
+  UNSAFE_componentWillMount: function() {
     this.doFetching(this.props);
     var params = this.props.queryParams;
 
@@ -1122,7 +1126,7 @@ export let PatientData = translate()(React.createClass({
     this.props.dataWorkerRemoveDataSuccess(undefined, true);
   },
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
@@ -1210,7 +1214,7 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  componentWillUpdate: function (nextProps, nextState) {
+  UNSAFE_componentWillUpdate: function (nextProps, nextState) {
     const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = nextProps.generatingPDF.completed;
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
@@ -1484,7 +1488,7 @@ export let PatientData = translate()(React.createClass({
     nextProps.fetchers.forEach(function(fetcher) {
       fetcher();
     });
-  }
+  },
 }));
 
 /**
@@ -1506,7 +1510,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   }
 
   return fetchers;
-};
+}
 
 export function mapStateToProps(state, props) {
   let user = null;

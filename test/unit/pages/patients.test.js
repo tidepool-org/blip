@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { browserHistory } from 'react-router';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 
 import mutationTracker from 'object-invariant-test-helper';
 
@@ -65,7 +65,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -87,7 +87,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -111,7 +111,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -135,7 +135,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
     });
 
@@ -159,7 +159,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -183,7 +183,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -209,7 +209,7 @@ describe('Patients', () => {
         }
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -233,7 +233,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal('/patients/1/data');
     });
   });

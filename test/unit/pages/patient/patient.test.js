@@ -6,7 +6,8 @@
 /* global after */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
+import createReactClass from 'create-react-class';
 
 var expect = chai.expect;
 
@@ -15,7 +16,7 @@ import { PatientTeam } from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
   before(() => {
-    Patient.__Rewire__('PatientInfo', React.createClass({
+    Patient.__Rewire__('PatientInfo', createReactClass({
       render: function() {
         return (<div className='fake-patient-info-view'></div>);
       }

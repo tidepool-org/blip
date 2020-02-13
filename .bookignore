@@ -23,8 +23,6 @@ index.html
 karma.conf.js
 LICENSE
 loadtests.js
-nightwatch-globals.js
-nightwatch.json
 package.json
 postcss.config.js
 server.js

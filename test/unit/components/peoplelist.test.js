@@ -5,7 +5,7 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var PeopleList = require('../../../app/components/peoplelist');
@@ -26,7 +26,7 @@ describe('PeopleList', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should return object with expected properties', function() {
       console.error = sinon.stub();
       var props = {
@@ -34,7 +34,7 @@ describe('PeopleList', function () {
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem).getWrappedInstance();
-      var state = elem.getInitialState();
+      var state = elem.state;
 
       expect(state.editing).to.equal(false);
     });

@@ -17,16 +17,14 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 
-var LogoutOverlay = translate()(React.createClass({
-  FADE_OUT_DELAY: 200,
+var LogoutOverlay = translate()(class extends React.Component {
+  state = {
+    fadeOut: false
+  };
 
-  getInitialState: function() {
-    return {
-      fadeOut: false
-    };
-  },
+  FADE_OUT_DELAY = 200;
 
-  render: function() {
+  render() {
     const { t } = this.props;
     var className = 'logout-overlay';
     if (this.state.fadeOut) {
@@ -40,13 +38,13 @@ var LogoutOverlay = translate()(React.createClass({
       </div>
 
     );
-  },
+  }
 
-  fadeOut: function(callback) {
+  fadeOut = (callback) => {
     callback = callback || function() {};
     this.setState({fadeOut: true});
     setTimeout(callback, this.FADE_OUT_DELAY);
-  }
-}));
+  };
+});
 
 module.exports = LogoutOverlay;

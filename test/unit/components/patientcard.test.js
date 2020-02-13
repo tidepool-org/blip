@@ -6,7 +6,7 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 import {shallow} from 'enzyme';
 import i18next from '../../../app/core/language';

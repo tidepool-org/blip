@@ -18,6 +18,7 @@ import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import createReactClass from 'create-react-class';
 
 const { Loader } = vizComponents;
 
@@ -108,7 +109,7 @@ describe('Daily', () => {
 
   describe('render', () => {
     before(() => {
-      Daily.__Rewire__('DailyChart', translate()(React.createClass({
+      Daily.__Rewire__('DailyChart', translate()(createReactClass({
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
       })));

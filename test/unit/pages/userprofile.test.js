@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 import mutationTracker from 'object-invariant-test-helper';
 
 var expect = chai.expect;
@@ -35,7 +35,7 @@ describe('UserProfile', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should return expected initial state', function() {
       var props = {
         user: {
@@ -47,7 +47,7 @@ describe('UserProfile', function () {
       };
       var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().getInitialState();
+      var state = render.getWrappedInstance().state;
 
       expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');

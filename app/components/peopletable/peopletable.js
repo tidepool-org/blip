@@ -14,6 +14,7 @@
 * not, you can obtain one from Tidepool Project at tidepool.org.
 * == BSD2 LICENSE ==
 */
+import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -39,10 +40,10 @@ const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
 );
 
 TextCell.propTypes = {
-  col: React.PropTypes.string,
-  data: React.PropTypes.array,
-  rowIndex: React.PropTypes.number,
-  icon: React.PropTypes.object,
+  col: PropTypes.string,
+  data: PropTypes.array,
+  rowIndex: PropTypes.number,
+  icon: PropTypes.object,
 };
 
 const RemoveLinkCell = ({ rowIndex, data, handleClick, ...props }) => (
@@ -54,9 +55,9 @@ const RemoveLinkCell = ({ rowIndex, data, handleClick, ...props }) => (
 );
 
 RemoveLinkCell.propTypes = {
-  data: React.PropTypes.array,
-  rowIndex: React.PropTypes.number,
-  handleClick: React.PropTypes.func,
+  data: PropTypes.array,
+  rowIndex: PropTypes.number,
+  handleClick: PropTypes.func,
 };
 
 RemoveLinkCell.displayName = 'RemoveLinkCell';
@@ -97,7 +98,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
   }
   
   //nextProps contains list of people being watched
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
     if (nextProps.people !== this.props.people) {
       this.setState( {dataList: this.buildDataList()} );
@@ -406,9 +407,9 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
 });
 
 PeopleTable.propTypes = {
-  people: React.PropTypes.array,
-  trackMetric: React.PropTypes.func.isRequired,
-  onRemovePatient: React.PropTypes.func.isRequired,
+  people: PropTypes.array,
+  trackMetric: PropTypes.func.isRequired,
+  onRemovePatient: PropTypes.func.isRequired,
 };
 
 module.exports = PeopleTable;

@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -32,16 +33,16 @@ import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let ClinicianDetails = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object,
-    working: React.PropTypes.bool.isRequired
-  },
+export let ClinicianDetails = translate()(class extends React.Component {
+  static propTypes = {
+    fetchingUser: PropTypes.bool.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    user: PropTypes.object,
+    working: PropTypes.bool.isRequired
+  };
 
-  formInputs: function () {
+  formInputs = () => {
     const { t } = this.props;
     return [
     {
@@ -79,39 +80,28 @@ export let ClinicianDetails = translate()(React.createClass({
       label: t('Clinic Phone Number (optional)'),
       type: 'text'
     }
-  ]},
+  ]};
 
-  getInitialState: function() {
-    return {
-      working: false,
-      formValues: {
-        fullName: this.getUserFullName(),
-        clinicalRole: ''
-      },
-      validationErrors: {},
-    };
-  },
-
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Web - Clinician Details Setup');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       formValues: _.assign(this.state.formValues, {
         fullName: this.getUserFullName(nextProps)
       })
     });
-  },
+  }
 
-  getUserFullName: function(props) {
+  getUserFullName = (props) => {
     props = props || this.props;
     return personUtils.fullName(props.user) || '';
-  },
+  };
 
-  canSubmit: function() {
+  canSubmit = () => {
     if (
       _.get(this,'state.formValues.fullName.length') &&
       _.get(this,'state.formValues.clinicalRole.length') &&
@@ -122,9 +112,9 @@ export let ClinicianDetails = translate()(React.createClass({
       } else {
         return false;
       }
-  },
+  };
 
-  render: function() {
+  render() {
     const { t } = this.props;
     var form = this.renderForm();
 
@@ -148,9 +138,9 @@ export let ClinicianDetails = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderForm: function() {
+  renderForm = () => {
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -162,21 +152,21 @@ export let ClinicianDetails = translate()(React.createClass({
         onChange={this.handleInputChange}
       />
     );
-  },
+  };
 
-  getSubmitButtonText: function() {
+  getSubmitButtonText = () => {
     const { t } = this.props;
     if (this.props.working) {
       return t('Saving...');
     }
     return t('Continue');
-  },
+  };
 
-  isFormDisabled: function() {
+  isFormDisabled = () => {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  };
 
-  handleInputChange: function(attributes) {
+  handleInputChange = (attributes) => {
     var key = attributes.name;
     var value = attributes.value;
     if (!key) {
@@ -188,9 +178,9 @@ export let ClinicianDetails = translate()(React.createClass({
     formValues[key] = value;
 
     this.setState({formValues: formValues});
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     this.resetFormStateBeforeSubmit(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
@@ -211,9 +201,9 @@ export let ClinicianDetails = translate()(React.createClass({
       }
     };
     this.props.onSubmit(user);
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     var form = [
       { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
       { type: 'clinicName', name: 'clinicName', label: 'clinic name', value: formValues.clinicName },
@@ -229,16 +219,25 @@ export let ClinicianDetails = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.setState({
       working: true,
       formValues: formValues,
       validationErrors: {}
     });
-  }
-}));
+  };
+
+  state = {
+    working: false,
+    formValues: {
+      fullName: this.getUserFullName(),
+      clinicalRole: ''
+    },
+    validationErrors: {},
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

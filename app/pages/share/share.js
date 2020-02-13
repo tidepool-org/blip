@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 
 import * as actions from '../../redux/actions';
 

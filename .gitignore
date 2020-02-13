@@ -27,8 +27,10 @@ test/bin
 web/
 artifact_node.sh
 coverage/
-packageMounts/*
-!packageMounts/stub
+packageMounts/*/*
+packageMounts/*/*/*
+!packageMounts/*/stub
+!packageMounts/*/*/stub
 
 # GitBook
 _book/
