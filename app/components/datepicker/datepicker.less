@@ -48,6 +48,7 @@
 .datepicker-popup {
   position: absolute;
   top: 2em;
+  left: -162px; // Approx value to center the popup
   z-index: 99;
   display: flex;
   flex-direction: column;
@@ -58,139 +59,166 @@
   border-style: solid;
   border-color: #ccc;
   cursor: initial;
-}
 
-.datepicker-popup-head {
-  display: flex;
-  justify-content: space-between;
-  color: @gray-title;
-  font-weight: bold;
-  cursor: default;
-}
-
-.datepicker-popup-year {
-  color: #281946;
-}
-
-.datepicker-popup-monthdays {
-  display: grid;
-  grid-template-columns: repeat(7, 2rem);
-  margin-top: 0.4rem;
-  margin-bottom: 0.2rem;
-}
-
-.datepicker-popup-weekday {
-  color: #727375;
-  font-weight: bold;
-  cursor: default;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-}
-
-.datepicker-popup-change-month {
-  color: @black-color;
-  cursor: pointer;
-  margin-left: 0.2rem;
-  margin-right: 0.2rem;
-
-  &:hover {
-    color: @gray-dark;
-    text-decoration-line: underline;
-    font-weight: bold;
+  @media (max-width: (@screen-md-lg-min - 1)) {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: calc(100% - 1px);
+    align-items: center;
+    position: fixed;
   }
-}
 
-.datepicker-popup-day {
-  cursor: pointer;
-  border-style: solid;
-  border-color: transparent;
-  border-radius: 40%;
-  border-width: 0.2rem;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-  color: #281946;
+  /* Range calendar */
+  .range {
+    left: -15em;
+    display: flex;
+    flex-direction: row;
+    padding-top: 0.5em;
 
-  &:hover {
-    color: @gray-dark;
-    text-decoration: underline;
-    font-weight: bold;
-  }
-}
 
-.datepicker-popup-day-disabled {
-  background-color: @purple-light;
-  cursor: default;
-}
+    .change-month {
+      color: @black-color;
+      cursor: pointer;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      margin-left: 0.2rem;
+      margin-right: 0.2rem;
 
-.datepicker-popup-day-out {
-  font-weight: lighter;
-  color: #ccc;
-}
-
-.datepicker-popup-day-selected {
-  font-weight: bold;
-  color: @white-color;
-  background-color: @gray-dark;
-  border-color: @gray-dark;
-
-  &:hover {
-    color: @white-color !important;
-    font-weight: normal !important;
-  }
-}
-
-/* Range calendar */
-.datepicker-popup-range {
-  left: -15em;
-}
-
-.datepicker-popup-calendars {
-  display: flex;
-  flex-direction: row;
-  margin-top: 0.6em;
-}
-
-.datepicker-popup-calendar {
-  display: flex;
-  flex-direction: column;
-
-  &.datepicker-popup-begin {
-    margin-right: 1.5em;
-  }
-  &.datepicker-popup-end {
-    margin-right: 1.5em;
-  }
-}
-
-.datepicker-popup-elem-invisible {
-  visibility: hidden;
-  cursor: default;
-}
-
-.datepicker-popup-validate {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.8em;
-  margin-bottom: 0.8em;
-
-  .btn {
-    align-self: center;
-    min-width: 33%;
-    font-size: larger;
-    padding: 0px;
-    border-width: 0.5rem;
-    border-radius: 0.25rem;
-    border-color: @purple;
-    border-style: solid;
-
-    &:hover {
-      background-color: #4b4458;
-      border-color: #4b4458;
+      &:hover {
+        color: @gray-dark;
+        text-decoration-line: underline;
+        font-weight: bold;
+      }
     }
-    &:focus,
-    &:active {
-      background-color: #a1b0fa;
-      border-color: #a1b0fa;
+
+    .calendars {
+      display: flex;
+      flex-direction: row;
+
+      @media (max-width: @screen-md-min) {
+        flex-direction: column;
+      }
+
+      .calendar {
+        display: flex;
+        flex-direction: column;
+        margin-right: 0.7em;
+        margin-left: 0.7em;
+
+        .year {
+          color: #281946;
+          margin: 0px;
+        }
+
+        .monthdays {
+          display: grid;
+          grid-template-columns: repeat(7, 2rem);
+          margin-top: 0.4rem;
+          margin-bottom: 0.2rem;
+
+          .weekday {
+            color: #727375;
+            font-weight: bold;
+            cursor: default;
+            margin-top: 0.2rem;
+            margin-bottom: 0.2rem;
+          }
+
+          .day {
+            cursor: pointer;
+            border-style: solid;
+            border-color: transparent;
+            border-width: 0.2rem;
+            margin-top: 0.2rem;
+            margin-bottom: 0.2rem;
+            color: #281946;
+            transition: color 50ms linear, background-color 50ms linear, border-color 50ms linear, opacity 30ms linear;
+
+            &:hover {
+              text-decoration-line: underline;
+            }
+
+            &:active {
+              font-weight: bold;
+              opacity: 0.7;
+            }
+
+            &.day-invisible {
+              // Day outside the currently displayed month
+              cursor: default;
+              visibility: hidden;
+            }
+
+            &.day-disable {
+              font-weight: lighter;
+              color: #ccc;
+              cursor: default;
+            }
+
+            &.day-in {
+              // Day in the selected range
+              background-color: @purple-success;
+              color: @white-color;
+            }
+
+            &.day-out {
+              font-weight: lighter;
+              color: #ccc;
+            }
+
+            &.day-selected {
+              // Selected day (first or last in the range)
+              font-weight: bold;
+              color: @white-color;
+              background-color: @gray-dark;
+              border-color: @gray-dark;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .popup-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    font-weight: initial;
+    color: @gray-darker;
+    font-size: 14px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    @media (max-width: @screen-sm-max) {
+      flex-direction: column-reverse;
+      align-content: center;
+    }
+
+    @media (max-width: (@screen-md-lg-min - 1)) {
+      width: 80%;
+    }
+
+    #datepicker-popup-btn-cancel:hover {
+      text-decoration-line: underline;
+    }
+
+    #datepicker-popup-nbdays {
+      visibility: hidden;
+      text-align: center;
+      width: 40%;
+      @media (max-width: @screen-sm-max) {
+        width: 100%;
+      }
+    }
+
+    button {
+      width: 40%;
+
+      @media (max-width: @screen-sm-max) {
+        margin-top: 0.3em;
+        align-self: center;
+      }
     }
   }
 }

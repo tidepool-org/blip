@@ -21,11 +21,16 @@ import _ from 'lodash';
 import moment from 'moment';
 import bows from 'bows';
 
+const SELECT_BEGIN = 0;
+const SELECT_END = 1;
+
 /**
  * A date picker pop-up for a range of dates.
  */
 class RangeDatePicker extends React.Component {
   static propTypes = {
+    /** Timezone */
+    timezone: PropTypes.string,
     /** Default date for the first calendar: begining of the range. Date as an ISO string, a Date object or a moment object. */
     begin: PropTypes.oneOfType([ PropTypes.object, PropTypes.string ]).isRequired,
     /** Default date for the second calendar: end of the range. Date as an ISO string, a Date object or a moment object. */
@@ -55,6 +60,7 @@ class RangeDatePicker extends React.Component {
   };
 
   static defaultProps = {
+    timezone: 'UTC',
     min: null,
     max: null,
     beforeMinDateMessage: null,
@@ -69,10 +75,10 @@ class RangeDatePicker extends React.Component {
     onCancel: _.noop,
   };
 
-  static reIdPrevNextMonth = /datepicker-popup-(begin|end)-(prev|next)-month/;
-  static reDayValue = /^(begin|end)-(\d+)$/;
+  static reIdPrevNextMonth = /datepicker-popup-(prev|next)-month/;
 
-  static toMoment(value, isRequired = false) {
+  toMoment(value, isRequired = false) {
+    const { timezone } = this.props;
     if (value === null) {
       if (isRequired) {
         throw new Error('Value is required');
@@ -80,35 +86,52 @@ class RangeDatePicker extends React.Component {
       return null;
     }
     if (typeof value === 'string') {
-      return moment.utc(value).startOf('day');
+      return moment.utc(value).tz(timezone).startOf('day');
     }
-    return moment(value).startOf('day');
+    return moment.utc(value).tz(timezone).startOf('day');
   }
 
   constructor(props) {
     super(props);
 
-    const begin = RangeDatePicker.toMoment(props.begin, true);
-    const end = RangeDatePicker.toMoment(props.end, true);
-    const displayMonthBegin = moment(begin).date(1);
-    const displayMonthEnd = moment(end).date(1);
+    const { timezone } = props;
+    this.t = i18next.t.bind(i18next);
+    this.log = bows('RangeDatePicker');
+
+    let selectedBegin = this.toMoment(props.begin, true);
+    let selectedEnd = this.toMoment(props.end, true);
+
+    if (selectedBegin.isSameOrAfter(selectedEnd, 'day')) {
+      this.log.error('begin date is after end date!');
+      const tmp = selectedBegin;
+      selectedBegin = selectedEnd;
+      selectedEnd = tmp;
+    }
+
+    const hoverDate = moment.utc(selectedBegin).tz(timezone);
+    const displayMonth = moment.utc(selectedBegin).tz(timezone).date(1);
+    if (selectedBegin.get('month') !== selectedEnd.get('month')) {
+      // When 2 month (or more) are displayed, the start displayed
+      // date should be on the left calendar side
+      displayMonth.add(1, 'months');
+    }
 
     this.state = {
       hidden: false,
-      begin,
-      end,
-      displayMonthBegin,
-      displayMonthEnd,
+      hoverDate,
+      selectedBegin,
+      selectedEnd,
+      displayMonth,
+      nextSelection: SELECT_BEGIN,
     };
 
-    this.t = i18next.t.bind(i18next);
-    this.log = bows('RangeDatePicker');
-    this.minDate = RangeDatePicker.toMoment(props.min);
-    this.maxDate = RangeDatePicker.toMoment(props.max);
+    this.minDate = this.toMoment(props.min);
+    this.maxDate = this.toMoment(props.max);
 
     this.handlePrevNextMonth = this.handlePrevNextMonth.bind(this);
-    this.handleSelectDay = this.handleSelectDay.bind(this);
+    this.handleHoverDay = this.handleHoverDay.bind(this);
     this.handleApply = this.handleApply.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
@@ -122,95 +145,99 @@ class RangeDatePicker extends React.Component {
     // Unregister the event to close this calendar when click outside of it.
     const body = document.getElementsByTagName('body');
     body[0].removeEventListener('click', this.handleClickOutside);
-
-    this.minDate = null;
-    this.maxDate = null;
   }
 
   render() {
-    const { hidden } = this.state;
+    const { timezone } = this.props;
+    const {
+      hidden,
+      hoverDate,
+      selectedBegin,
+      selectedEnd,
+      displayMonth,
+      nextSelection,
+    } = this.state;
 
     if (hidden) {
       return null;
     }
 
-    const startCalendar = this.renderSingleCalendar('begin');
-    const endCalendar = this.renderSingleCalendar('end');
+    const months = [
+      this.renderMonth(moment.utc(displayMonth).tz(timezone).subtract(1, 'month')),
+      this.renderMonth(displayMonth)
+    ];
+
+    let first = selectedBegin;
+    let last = selectedEnd;
+    if (nextSelection === SELECT_END) {
+      last = hoverDate;
+    }
+    if (first.isAfter(last, 'day')) {
+      // Swap first & last date
+      let tmp = first;
+      first = last;
+      last = tmp;
+    }
+
+    const nDays = last.diff(first, 'days') + 1;
+    const numberOfDays = this.t('Number of days: {{nDays}}', { nDays });
 
     return (
-      <div className="datepicker-popup datepicker-popup-range">
-        <div className="datepicker-popup-calendars">
-          {startCalendar}
-          {endCalendar}
+      <div className="datepicker-popup">
+        <div className="range">
+          <p id="datepicker-popup-prev-month" className="change-month icon-back" onClick={this.handlePrevNextMonth} />
+          <div className="calendars">
+            {months}
+          </div>
+          <p id="datepicker-popup-next-month" className="change-month icon-next" onClick={this.handlePrevNextMonth}  />
         </div>
-        <div className="datepicker-popup-validate">
+        <div className="popup-footer">
+          <button id="datepicker-popup-btn-cancel" type="button" className="btn btn-secondary" onClick={this.handleCancel}>{this.t('Cancel')}</button>
           <button type="button" className="btn btn-primary" onClick={this.handleApply}>{this.t('Apply')}</button>
+          <p id="datepicker-popup-nbdays">{numberOfDays}</p>
         </div>
       </div>
     );
   }
 
   /**
-   * Render a single calendar
-   * @param {string} which 'begin' or 'end'
-   * @returns JSX.Element
+   * Render a month
+   * @param {moment} month The month to render
    */
-  renderSingleCalendar(which) {
-    const date = which === 'begin' ? this.state.begin : this.state.end;
-    const displayMonth = which === 'begin' ? this.state.displayMonthBegin : this.state.displayMonthEnd;
-
+  renderMonth(month) {
+    const { timezone } = this.props;
     // Build the weekdays (Su Mo Tu We Th Fr Sa)
     const weekDays = [];
-    const weekDaysLabel = [];
     for (let i=0; i<7; i++) {
       const weekDay = moment().weekday(i);
       const weekDayLabel = weekDay.format('dd');
-      weekDaysLabel.push(weekDayLabel);
-      weekDays.push(<span className="datepicker-popup-weekday" key={weekDayLabel}>{weekDayLabel}</span>);
+      weekDays.push(<span className="weekday" key={weekDayLabel}>{weekDayLabel}</span>);
     }
 
     // Build days
     const monthDays = []; // Array of JSX.Element
-    const day = moment(displayMonth).weekday(0); // First day to display
-
-    // Check if the user can see to the previous month
-    let prevMonthClassname = 'datepicker-popup-change-month icon-back';
-    if (this.minDate !== null && moment(displayMonth).subtract(1, 'months').isBefore(this.minDate)) {
-      prevMonthClassname = `${prevMonthClassname} datepicker-popup-elem-invisible`;
-    }
-    // Check if the user can see to the next month
-    let nextMonthClassname = 'datepicker-popup-change-month icon-next';
-    if (this.maxDate !== null && moment(displayMonth).add(1, 'months').isSameOrAfter(this.maxDate)) {
-      nextMonthClassname = `${prevMonthClassname} datepicker-popup-elem-invisible`;
-    }
+    const day = moment.utc(month).tz(timezone).weekday(0); // First day to display
 
     // Previous month
-    while (day.get('month') !== displayMonth.get('month')) {
-      const isSameDay = date.isSame(day, 'day');
-      monthDays.push(this.getNextSpanDay(day, which, isSameDay, true));
+    while (day.get('month') !== month.get('month')) {
+      monthDays.push(this.renderDay(day, false));
+      day.add(1, 'days');
     }
     // Current month
-    while (day.get('month') === displayMonth.get('month')) {
-      const isSameDay = date.isSame(day, 'day');
-      monthDays.push(this.getNextSpanDay(day, which, isSameDay));
+    while (day.get('month') === month.get('month')) {
+      monthDays.push(this.renderDay(day, true));
+      day.add(1, 'days');
     }
     // Last week days in the next month
-    if (day.format('dd') !== weekDaysLabel[weekDaysLabel.length - 1]) {
-      const isSameDay = date.isSame(day, 'day');
-      while (day.format('dd') !== weekDaysLabel[weekDaysLabel.length - 1]) {
-        monthDays.push(this.getNextSpanDay(day, which, isSameDay, true));
-      }
-      monthDays.push(this.getNextSpanDay(day, which, isSameDay, true));
+    while (day.weekday() > 0) {
+      monthDays.push(this.renderDay(day, false));
+      day.add(1, 'days');
     }
 
     return (
-      <div className={`datepicker-popup-calendar datepicker-popup-${which}`}>
-        <div className="datepicker-popup-head">
-          <span id={`datepicker-popup-${which}-prev-month`} className={prevMonthClassname} onClick={this.handlePrevNextMonth}></span>
-          <span className="datepicker-popup-year">{displayMonth.format('MMMM YYYY')}</span>
-          <span id={`datepicker-popup-${which}-next-month`} className={nextMonthClassname} onClick={this.handlePrevNextMonth}></span>
-        </div>
-        <div className="datepicker-popup-monthdays">
+      <div className="calendar" key={month.toISOString()}>
+        <p className="year">{month.format('MMMM YYYY')}</p>
+        <div className="monthdays">
           {weekDays}
           {monthDays}
         </div>
@@ -219,72 +246,68 @@ class RangeDatePicker extends React.Component {
   }
 
   /**
-   * private function.
-   *
-   * The day moment value will be incremented by 1 day after a call of this function.
-   * @param {moment} day the current day.
-   * @param {string} which Which calendar: 'begin' | 'end'
-   * @param {boolean} isSelected true to set the class 'datepicker-popup-day-selected'
-   * @param {boolean} wrongMonth true if outside the current displayed month
+   * Render a single day of the calendar
+   * @param {moment} day The day to display
+   * @param {boolean} sameMonth if false the day will not be displayed: using CSS class `day-invisible`,
+   * and no event possible on that day
    */
-  getNextSpanDay(day, which, isSelected = false, wrongMonth = false) {
-    const { minDuration, maxDuration, allowSelectDateOutsideDuration } = this.props;
+  renderDay(day, sameMonth) {
+    const { maxDuration, aboveMaxDurationMessage } = this.props;
+    const { selectedBegin, selectedEnd, hoverDate, nextSelection } = this.state;
+    const key = day.unix().toString(10);
     const dayOfMonth = day.get('date');
-    const key = `${which}-${day.unix()}`;
-    const isBefore = this.minDate !== null && day.isBefore(this.minDate);
-    const isAfter = this.maxDate !== null && day.isAfter(this.maxDate);
-    let isDisabled = isBefore || isAfter || wrongMonth;
-    let isBelowMinRange = false;
-    let isAboveMaxRange = false;
 
-    // Range min/max duration
-    if (minDuration > 0 || maxDuration > 0) {
-      let duration;
-      if (which === 'begin') {
-        duration = moment.duration(day.diff(this.state.end)).asDays();
-        isBelowMinRange = minDuration > 0 && duration <= 0 && Math.abs(duration) < minDuration;
-        isAboveMaxRange = maxDuration > 0 && duration < 0 && Math.abs(duration) > maxDuration;
-      } else {
-        duration = moment.duration(day.diff(this.state.begin)).asDays();
-        isBelowMinRange = minDuration > 0 && duration >= 0 && duration < minDuration;
-        isAboveMaxRange = maxDuration > 0 && duration > 0 && duration > maxDuration;
+    let className = 'day';
+    let tooltip = null;
+    let clickEvent = null;
+    let hoverEvent = null;
+
+    if (sameMonth) {
+      hoverEvent = this.handleHoverDay;
+      clickEvent = this.handleHoverDay; // Use the same event for touch screen
+
+      let first = selectedBegin;
+      let last = selectedEnd;
+
+      if (nextSelection === SELECT_END) {
+        last = hoverDate;
+        // Honored the max duration
+        // Can only be done after the first date selection.
+        if (maxDuration > 0 && Math.abs(first.diff(day, 'days')) > maxDuration) {
+          tooltip = aboveMaxDurationMessage;
+          className = `${className} day-out`;
+        }
       }
 
-      isDisabled = isDisabled || (!allowSelectDateOutsideDuration && (isBelowMinRange || isAboveMaxRange));
+      if (first.isAfter(last, 'day')) {
+        const tmp = first;
+        first = last;
+        last = tmp;
+      }
+
+      if (day.isBetween(first, last, 'days')) {
+        className = `${className} day-in`;
+      } else if (day.isSame(first, 'day') || day.isSame(last, 'day')) {
+        className = `${className} day-selected`;
+      } else if (moment.isMoment(this.minDate) && day.isSameOrBefore(this.minDate, 'day')) {
+        const { beforeMinDateMessage } = this.props;
+        className = `${className} day-disable`;
+        hoverEvent = null;
+        clickEvent = null;
+        tooltip = beforeMinDateMessage;
+      } else if (moment.isMoment(this.maxDate) && day.isSameOrAfter(this.maxDate, 'day')) {
+        const { afterMaxDateMessage } = this.props;
+        className = `${className} day-disable`;
+        hoverEvent = null;
+        clickEvent = null;
+        tooltip = afterMaxDateMessage;
+      }
+
+    } else {
+      className = `${className} day-invisible`;
     }
 
-    // Increment day
-    day.add(1, 'days');
-
-    let className = isDisabled ? 'datepicker-popup-day-disabled' : 'datepicker-popup-day';
-    if (isSelected) {
-      className = `${className} datepicker-popup-day-selected`;
-    }
-    if (wrongMonth) {
-      className = `${className} datepicker-popup-elem-invisible`;
-    }
-    if (isAboveMaxRange || isBelowMinRange) {
-      className = `${className} datepicker-popup-day-out`;
-    }
-
-    const clickEvent = isDisabled ? _.noop : this.handleSelectDay;
-
-    let tooltip = null;
-    if (isBefore) {
-      const { beforeMinDateMessage } = this.props;
-      tooltip = beforeMinDateMessage;
-    } else if (isAfter) {
-      const { afterMaxDateMessage } = this.props;
-      tooltip = afterMaxDateMessage;
-    } else if (isBelowMinRange) {
-      const { belowMinDurationMessage } = this.props;
-      tooltip = belowMinDurationMessage;
-    } else if (isAboveMaxRange) {
-      const { aboveMaxDurationMessage } = this.props;
-      tooltip = aboveMaxDurationMessage;
-    }
-
-    return (<span id={`datepicker-popup-day-${key}`} className={className} key={key} value={key} onClick={clickEvent} title={tooltip}>{dayOfMonth}</span>);
+    return (<span id={`datepicker-popup-day-${key}`} className={className} key={key} value={key} onClick={clickEvent} onMouseOver={hoverEvent} title={tooltip}>{dayOfMonth}</span>);
   }
 
   /**
@@ -292,80 +315,104 @@ class RangeDatePicker extends React.Component {
    * @param {Event} e click event
    */
   handlePrevNextMonth(e) {
+    const { timezone } = this.props;
+    const { displayMonth } = this.state;
     const { target } = e;
     const id = target.getAttribute('id');
-    const re = RangeDatePicker.reIdPrevNextMonth.exec(id);
 
-    if (_.isArray(re)) {
-      const which = re[1];
-      const direction = re[2];
-      const month = which === 'begin' ? moment(this.state.displayMonthBegin) : moment(this.state.displayMonthEnd);
-
-      if (direction === 'prev') {
-        month.subtract(1, 'months');
-      } else {
-        month.add(1, 'months');
-      }
-      if (which === 'begin') {
-        this.setState({ displayMonthBegin: month });
-      } else {
-        this.setState({ displayMonthEnd: month });
-      }
-    }
-  }
-
-  handleSelectDay(e) {
-    const { maxDuration, minDuration, allowSelectDateOutsideDuration } = this.props;
-    const value = e.target.getAttribute('value');
-    const exValue = RangeDatePicker.reDayValue.exec(value);
-    const which = exValue[1];
-    const unixDate = Number.parseInt(exValue[2], 10);
-    const date = moment.unix(unixDate).utc();
-
-    this.log(`Selected date: ${date.toISOString()}`);
-
-    if (which === 'begin') {
-      const duration = Math.abs(moment.duration(date.diff(this.state.end)).asDays());
-
-      if (maxDuration > 0 && maxDuration < duration) {
-        if (allowSelectDateOutsideDuration) {
-          const end = moment(date).add(maxDuration, 'days');
-          this.setState({ begin: date, end });
-        }
-      } else if (minDuration > 0 && (minDuration > duration || date.isAfter(this.state.end))) {
-        if (allowSelectDateOutsideDuration) {
-          const end = moment(date).add(minDuration, 'days');
-          this.setState({ begin: date, end });
-        }
-      } else {
-        this.setState({ begin: date });
-      }
-
+    if (id === 'datepicker-popup-prev-month') {
+      this.setState({ displayMonth: moment(displayMonth).tz(timezone).subtract(1, 'month') });
+    } else if (id === 'datepicker-popup-next-month') {
+      this.setState({ displayMonth: moment.utc(displayMonth).tz(timezone).add(1, 'month') });
     } else {
-      const duration = Math.abs(moment.duration(date.diff(this.state.begin)).asDays());
-
-      if (maxDuration > 0 && maxDuration < duration) {
-        if (allowSelectDateOutsideDuration) {
-          const begin = moment(date).subtract(maxDuration, 'days');
-          this.setState({begin, end: date});
-        }
-      } else if (minDuration > 0 && (minDuration > duration || date.isBefore(this.state.begin))) {
-        if (allowSelectDateOutsideDuration) {
-          const begin = moment(date).subtract(minDuration, 'days');
-          this.setState({ begin, end: date });
-        }
-      } else {
-        this.setState({ end: date });
-      }
+      // ignore: error somewhere ?
+      this.log.error('handlePrevNextMonth(): Invalid event target');
     }
   }
 
-  handleApply() {
-    const begin = moment(this.state.begin);
-    const end = moment(this.state.end);
+  /**
+   * Mouse hover a date.
+   * @param {MouseEvent} e The mouse event
+   */
+  handleHoverDay(e) {
+    const { timezone } = this.props;
+    const { type, target } = e;
+    const value = target.getAttribute('value');
+    const unixDate = Number.parseInt(value, 10);
+    const date = moment.unix(unixDate).tz(timezone);
+
+    this.setState({ hoverDate: date }, () => {
+      if (type === 'click') {
+        this.handleSelectDay();
+      }
+    });
+  }
+
+  /**
+   * Click on a date.
+   */
+  handleSelectDay() {
+    const { timezone, minDuration, maxDuration } = this.props;
+    const { nextSelection, hoverDate, selectedBegin } = this.state;
+
+    if (nextSelection === SELECT_BEGIN || nextSelection > SELECT_END) {
+      this.log(`selectedBegin: ${hoverDate.toISOString()}`);
+      this.setState({
+        nextSelection: SELECT_END,
+        selectedBegin: moment.utc(hoverDate).tz(timezone),
+      });
+
+    } else if (nextSelection === SELECT_END) {
+      let begin = moment.utc(selectedBegin).tz(timezone);
+      let end = moment.utc(hoverDate).tz(timezone);
+
+      let diffDays = Math.abs(end.diff(begin, 'days'));
+      this.log(`diffDays: ${diffDays}`);
+
+      if (minDuration > 0 && diffDays < minDuration) {
+        begin = moment.utc(end).tz(timezone).subtract(minDuration, 'days');
+        diffDays = end.diff(begin, 'days');
+        this.log(`diffDays adjusted: ${diffDays}`);
+      } else if (maxDuration > 0 && diffDays > maxDuration) {
+        if (begin.isBefore(end)) {
+          begin = moment.utc(end).tz(timezone).subtract(maxDuration, 'days');
+        } else {
+          begin = moment.utc(end).tz(timezone).add(maxDuration, 'days');
+        }
+        diffDays = end.diff(begin, 'days');
+        this.log(`diffDays adjusted: ${diffDays}`);
+      }
+
+      this.log(`selectedBegin: ${begin.toISOString()} selectedEnd: ${end.toISOString()}`);
+      this.setState({ nextSelection: SELECT_END + 1, selectedBegin: begin, selectedEnd: end });
+    }
+  }
+
+  /**
+   * Accept the range
+   * @param {Event} e click event
+   */
+  handleApply(e) {
+    const { timezone } = this.props;
+    const { selectedBegin, selectedEnd } = this.state;
+
+    let begin = moment.utc(selectedBegin).tz(timezone);
+    let end = moment.utc(selectedEnd).tz(timezone);
+    if (begin.isAfter(end)) {
+      const tmp = begin;
+      begin = end;
+      end = tmp;
+    }
+
     this.setState({ hidden: true }, () => {
-      this.log(`Date range: ${begin.toISOString()} - ${end.toISOString()}`);
-      this.props.onChange(begin, end);
+      // Use _.defer() (setTimeout() shortcut) to let the pop-up hide itself before continuing
+      _.defer(this.props.onChange, begin, end);
+    });
+  }
+
+  handleCancel() {
+    this.setState({ hidden: true }, () => {
+      _.defer(this.props.onCancel);
     });
   }
 
@@ -386,7 +433,7 @@ class RangeDatePicker extends React.Component {
       // Click outside the datepicker popup, cancel the action, hide the popup.
       this.log('Hide the popup & cancel the event');
       this.setState({ hidden: true }, () => {
-        this.props.onCancel();
+        _.defer(this.props.onCancel);
       });
     }
   }

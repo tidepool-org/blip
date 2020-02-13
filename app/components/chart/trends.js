@@ -83,8 +83,6 @@ class Trends extends React.PureComponent {
       displayCalendar: false,
     };
 
-    this.formatDate = this.formatDate.bind(this);
-    this.getNewDomain = this.getNewDomain.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
@@ -105,7 +103,6 @@ class Trends extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.log('componentDidMount');
     if (this.refs.chart) {
       // necessary to get a ref from the redux connect()ed TrendsContainer
       this.chart = this.refs.chart.getWrappedInstance();
@@ -143,11 +140,11 @@ class Trends extends React.PureComponent {
     }
 
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const startDate = moment(endpoints[0]).tz(timezone);
-    const endDate = moment(endpoints[1]).tz(timezone).subtract(1, 'days');
+    const startDate = moment.utc(endpoints[0]).tz(timezone);
+    // endpoint is exclusive, so need to subtract a day:
+    const endDate = moment.utc(endpoints[1]).tz(timezone).subtract(1, 'days');
 
     const displayStartDate = this.formatDate(startDate);
-    // endpoint is exclusive, so need to subtract a day
     const displayEndDate = this.formatDate(endDate);
 
     const handleClickTitle = (e) => {
@@ -161,9 +158,7 @@ class Trends extends React.PureComponent {
         const extentSize = this.getExtendSize(newDomain);
         prefs.trends.extentSize = extentSize;
         this.props.updateChartPrefs(prefs, () => {
-          this.props.onUpdateChartDateRange(newDomain, () => {
-            this.chart.setExtent(newDomain);
-          });
+          this.chart.setExtent(newDomain);
         });
       });
     };
@@ -177,11 +172,12 @@ class Trends extends React.PureComponent {
     if (displayCalendar) {
       calendar = (
         <RangeDatePicker
+          timezone={timezone}
           begin={startDate}
           end={endDate}
-          max={moment.utc().add(1, 'days')}
+          max={moment().add(1, 'days').utc().startOf('day')}
           minDuration={1}
-          maxDuration={89}
+          maxDuration={90}
           aboveMaxDurationMessage={t('The period must be less than {{days}} days', {days: 90})}
           allowSelectDateOutsideDuration={true}
           onChange={handleChange}
@@ -245,7 +241,7 @@ class Trends extends React.PureComponent {
     // no change, return early
     if (this.props.chartPrefs.trends.extentSize !== extentSize) {
       const prefs = _.cloneDeep(this.props.chartPrefs);
-      const current = new Date(this.chart.getCurrentDay());
+      const current = moment.utc(this.chart.getCurrentDay());
       const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
       const newDomain = this.getNewDomain(current, extentSize);
       prefs.trends.extentSize = extentSize;
@@ -280,13 +276,17 @@ class Trends extends React.PureComponent {
 
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent, cb) {
     if (typeof atMostRecent !== 'boolean') {
-      this.log('handleDatetimeLocationChange: Invalid parameter atMostRecent');
+      this.log.error('handleDatetimeLocationChange: Invalid parameter atMostRecent');
       atMostRecent = false;
     }
 
     this.props.onUpdateChartDateRange(datetimeLocationEndpoints, () => {
       this.props.updateDatetimeLocation(datetimeLocationEndpoints[1], () => {
-        this.setState({ atMostRecent });
+        this.setState({ atMostRecent }, () => {
+          if (_.isFunction(cb)) {
+            cb();
+          }
+        });
       });
     });
   }

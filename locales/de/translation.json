@@ -1,5 +1,5 @@
-  {
-    " I am 12 years old or younger.": "Ich bin 12 Jahre alt oder jünger.",
+{
+  " I am 12 years old or younger.": "Ich bin 12 Jahre alt oder jünger.",
   " I am 18 years old or older.": "Ich bin 18 Jahre alt oder älter.",
   " I am between 13 and 17 years old. You'll need to have a parent or guardian agree to the terms below.": "Ich bin zwischen 13 und 17 Jahre alt. Du musst einen Elternteil oder Erziehungsberechtigten haben, der den folgenden Bedingungen zustimmt.",
   " reports the data.": "meldet die Daten.",
@@ -250,6 +250,7 @@
   "Done": "Erledigt",
   "Download for Mac": "",
   "Download for PC": "",
+  "Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:": "",
   "Duration": "",
   "Edit": "Bearbeiten",
   "Email": "E-Mail",
@@ -429,6 +430,7 @@
   "Not set": "Nicht gesetzt",
   "note": "notiz",
   "November": "November",
+  "Number of days: {{nDays}}": "",
   "Nurse/Nurse Practitioner": "Krankenschwester/Arzthelferin",
   "October": "Oktober",
   "Other": "Sonstiges",
@@ -685,6 +687,7 @@
   "You have not specified a valid birthday!": "Du hast keinen gültigen Geburtstag angegeben!",
   "You have not specified your birthday!": "Du hast deinen Geburtstag nicht angegeben!",
   "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how {{source}} reports the data, we can't be 100% certain of your basal rate here.": "",
+  "You must be at least 13 years old.": "",
   "You want to manage your diabetes data. You are caring for or supporting someone with diabetes.": "Sie möchten Ihre Diabetes-Daten verwalten. Sie betreuen oder unterstützen jemanden mit Diabetes.",
   "You've been invited to Tidepool.": "Du wurdest zu YourLoops eingeladen.",
   "Your password was changed successfully. You can now log in with your new password.": "Dein Passwort wurde erfolgreich geändert. Sie können sich nun mit Ihrem neuen Passwort anmelden.",

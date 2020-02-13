@@ -51,55 +51,84 @@ describe('DatePickers', function () {
       container = null;
     });
 
-    it('should render without problems', () => {
+    it('should render without problems', (done) => {
       const handleChange = sinon.spy();
 
       ReactDOM.render((<RangeDatePicker
         begin="2020-01-01T22:44:30.652Z"
         end={moment.utc('2020-01-07')}
         onChange={ handleChange } />), container, () => {
-          const button = container.querySelector('button');
-          expect(button.textContent, 'button text is Apply').to.equal('Apply');
+          let button = container.querySelector('.btn-secondary');
+          expect(button.textContent, 'secondary button text is Cancel').to.equal('Cancel');
+          button = container.querySelector('.btn-primary');
+          expect(button.textContent, 'primary button text is Apply').to.equal('Apply');
           TestUtils.Simulate.click(button);
-          checkChangeArgs(handleChange, '2020-01-01T00:00:00.000Z', '2020-01-07T00:00:00.000Z');
+          setTimeout(() => {
+            try {
+              checkChangeArgs(handleChange, '2020-01-01T00:00:00.000Z', '2020-01-07T00:00:00.000Z');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          }, 2);
         }
       );
     });
 
-    it('should pick a day', () => {
+    it('should pick a day', (done) => {
       const handleChange = sinon.spy();
 
       ReactDOM.render((<RangeDatePicker
         begin="2020-01-01T22:44:30.652Z"
-        end={moment.utc('2020-01-07')}
+        end={'2020-01-07T00:00:00.000Z'}
         onChange={ handleChange } />), container, () => {
-          // span id="datepicker-popup-day-begin-1577923200" class="datepicker-popup-day" value="begin-1577923200">2</span>
-          const spanDay = document.getElementById('datepicker-popup-day-begin-1577923200');
-          expect(spanDay.textContent).to.equal('2');
+          let spanDay = document.getElementById('datepicker-popup-day-1577750400');
+          expect(spanDay.textContent).to.equal('31'); // 2019-12-31
           TestUtils.Simulate.click(spanDay);
-          const button = container.querySelector('button');
+          spanDay = document.getElementById('datepicker-popup-day-1578441600');
+          expect(spanDay.textContent).to.equal('8'); // 2020-01-08
+          TestUtils.Simulate.click(spanDay);
+
+          const button = container.querySelector('.btn-primary');
           TestUtils.Simulate.click(button);
-          checkChangeArgs(handleChange, '2020-01-02T00:00:00.000Z', '2020-01-07T00:00:00.000Z');
+          setTimeout(() => {
+            try {
+              checkChangeArgs(handleChange, '2019-12-31T00:00:00.000Z', '2020-01-08T00:00:00.000Z');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          }, 2);
         }
       );
     });
 
-    it('should change month', () => {
+    it('should change month', (done) => {
       const handleChange = sinon.spy();
 
       ReactDOM.render((<RangeDatePicker
-        begin="2020-01-01T22:44:30.652Z"
-        end={moment.utc('2020-01-07')}
+        begin={new Date('2020-01-01T22:44:30.652Z')}
+        end="2020-01-07T00:00:00.000Z"
         onChange={ handleChange } />), container, () => {
           // <span id="datepicker-popup-end-next-month" class="datepicker-popup-change-month icon-next"></span>
-          const spanNextMonth = document.getElementById('datepicker-popup-end-next-month');
+          const spanNextMonth = document.getElementById('datepicker-popup-prev-month');
           TestUtils.Simulate.click(spanNextMonth);
-          const spanDay = document.getElementById('datepicker-popup-day-end-1581292800'); // 2020-02-10
+          let spanDay = document.getElementById('datepicker-popup-day-1576454400'); // 2019-12-16
           expect(spanDay).to.be.not.null;
           TestUtils.Simulate.click(spanDay);
-          const button = container.querySelector('button');
+          spanDay = document.getElementById('datepicker-popup-day-1574294400'); // 2019-11-21
+          expect(spanDay).to.be.not.null;
+          TestUtils.Simulate.click(spanDay);
+          const button = container.querySelector('.btn-primary');
           TestUtils.Simulate.click(button);
-          checkChangeArgs(handleChange, '2020-01-01T00:00:00.000Z', '2020-02-10T00:00:00.000Z');
+          setTimeout(() => {
+            try {
+              checkChangeArgs(handleChange, '2019-11-21T00:00:00.000Z', '2019-12-16T00:00:00.000Z');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          }, 2);
         }
       );
     });
