@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { VictoryLabel, VictoryTooltip, TextSize } from 'victory';
 
@@ -101,8 +102,9 @@ export const HoverBarLabel = props => {
 HoverBarLabel.propTypes = {
   datum: PropTypes.object.isRequired,
   domain: PropTypes.object.isRequired,
+  isDisabled: PropTypes.func.isRequired,
+  text: PropTypes.func.isRequired,
   scale: PropTypes.object,
-  text: PropTypes.func,
   y: PropTypes.number,
 };
 

@@ -1,6 +1,9 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.10.3 - 2020-02-13
+- PT-1114 Regression on viz widgets, some stats are nor displayed correctly
+
 ## 0.10.2 - 2020-02-11 
 ### Fixed
 - PT-1105 All Diabeloop devices are considered as _automated basal_ models

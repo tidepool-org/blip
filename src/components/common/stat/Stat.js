@@ -1,6 +1,7 @@
 /* global document */
 
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
 import cx from 'classnames';
@@ -43,7 +44,7 @@ const datumPropType = PropTypes.shape({
 
 const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
 
-class Stat extends PureComponent {
+class Stat extends React.PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
     alwaysShowSummary: PropTypes.bool,
@@ -595,7 +596,6 @@ class Stat extends PureComponent {
               barWidth={barWidth}
               isDisabled={() => this.state.isDisabled}
               domain={domain}
-              datum={{}}
               text={(datum = {}) => {
                 const { value, suffix } = this.formatDatum(
                   _.get(props.data, ['data', datum.eventKey]),
