@@ -23,7 +23,7 @@ const MMM_D_H_MM_A_FORMAT = t('MMM D, h:mm a');
 module.exports = {
   AUTOMATED_BASAL_DEVICE_MODELS: {
     Medtronic: ['1580', '1581', '1582', '1780', '1781', '1782'],
-    Diabeloop: ['DBLG1'],
+    Diabeloop: true,
   },
   AUTOMATED_BASAL_LABELS: {
     Medtronic: t('Auto Mode'),

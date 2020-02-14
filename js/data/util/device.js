@@ -27,6 +27,7 @@ module.exports = {
   },
 
   isAutomatedBasalDevice: (pumpUpload = {}) => {
-    return _.includes(_.get(AUTOMATED_BASAL_DEVICE_MODELS, pumpUpload.source, []), pumpUpload.deviceModel);
+    const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, pumpUpload.source, false);
+    return (_.isBoolean(models) && models) || (_.isArray(models) && _.includes(models, pumpUpload.deviceModel));
   },
 };

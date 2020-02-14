@@ -28,9 +28,8 @@ var EventEmitter = require('events').EventEmitter;
 var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var scalesutil = tideline.plot.util.scales;
-var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/data/util/device');
 var dt = tideline.data.util.datetime;
-var { MGDL_UNITS, AUTOMATED_BASAL_DEVICE_MODELS } = require('../../js/data/util/constants');
+var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
@@ -140,7 +139,7 @@ function chartDailyFactory(el, options) {
       .id('poolMessages', chart.poolGroup())
       .label([{
         main: t('Your notes'),
-        light: t(' add any event.') 
+        light: t(' add any event.')
       }])
       .labelBaseline(options.labelBaseline)
       .index(chart.pools().indexOf(poolMessages))
