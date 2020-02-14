@@ -3,7 +3,7 @@
 ### Stage: Base image
 FROM node:10.14.2-alpine as base
 WORKDIR /app
-RUN mkdir -p dist node_modules cache && chown -R node:node .
+RUN mkdir -p dist node_modules .yarn-cache && chown -R node:node .
 
 
 ### Stage: Development root with Chromium installed for unit tests
@@ -20,20 +20,26 @@ RUN \
   && apk --no-cache upgrade \
   && apk add --no-cache git fontconfig bash udev ttf-opensans chromium rsync \
   && rm -rf /var/cache/apk/* /tmp/*
-# Install package dependancies
-COPY --chown=node:node package.json yarn.lock build-cache.sh ./
+# Install package dependancies for blip and mounted packages if present
 USER node
-RUN --mount=type=cache,target=cache,id=yarn,uid=1000,gid=1000 sh build-cache.sh .
-# Install package dependancies for mounted packages (used when npm linking in development containers)
+RUN mkdir -p /home/node/.yarn-cache /home/node/.cache/yarn
+# viz
 COPY --chown=node:node packageMounts/@tidepool/viz/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* packageMounts/@tidepool/viz/
-RUN --mount=type=cache,target=cache,id=yarn,uid=1000,gid=1000 sh build-cache.sh packageMounts/@tidepool/viz
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/@tidepool/viz && yarn install --cache-folder /home/node/.yarn-cache
+# blip
+COPY --chown=node:node package.json yarn.lock ./
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 yarn install --cache-folder /home/node/.yarn-cache
+# tideline
 COPY --chown=node:node packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* packageMounts/tideline/
-RUN --mount=type=cache,target=cache,id=yarn,uid=1000,gid=1000 sh build-cache.sh packageMounts/tideline
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tideline && yarn install --cache-folder /home/node/.yarn-cache
+# platform-client
 COPY --chown=node:node packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json* packageMounts/tidepool-platform-client/
-RUN --mount=type=cache,target=cache,id=yarn,uid=1000,gid=1000 sh build-cache.sh packageMounts/tidepool-platform-client
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tidepool-platform-client && yarn install --cache-folder /home/node/.yarn-cache
+# Copy the yarn cache mount to the standard yarn cache directory for quicker installs within running containers
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 (cd /home/node/.yarn-cache; tar cf - .) | (cd /home/node/.cache/yarn; tar xpf -)
 # Link any packages as needed
 ARG LINKED_PKGS=""
-# RUN for i in ${LINKED_PKGS//,/ }; do cd packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
+RUN for i in ${LINKED_PKGS//,/ }; do cd packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 # Copy source files
 COPY --chown=node:node . .
 CMD ["npm", "start"]
