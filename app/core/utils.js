@@ -301,7 +301,8 @@ utils.roundBgTarget = (value, units) => {
 
 utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
+  // workaround a bug in upload timezone
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'undefined'}), (d) => Date.parse(d.time)).reverse()[0];
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   try {
