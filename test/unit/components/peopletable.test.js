@@ -102,12 +102,9 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.peopletable-search-box')).to.have.length(1);
     });
 
-    it('should have provided toggle to show or hide names', function () {
-      expect(wrapper.find('.peopletable-names-toggle')).to.have.length(1);
-    });
-
     // by default, patients list is displayed
     // and instructions are not
+    // following PT-1111 there is actually no scenario where these instructions would be displayed
     it('should not have instructions displayed by default', function () {
       expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(0);
     });
@@ -124,16 +121,19 @@ describe('PeopleTable', () => {
       // 5 people plus one row for the header
       expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
+  });
 
-    it('should trigger a call to trackMetric', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
-      expect(props.trackMetric.calledWith('Clicked Hide All')).to.be.true;
-      expect(props.trackMetric.callCount).to.equal(1);
+  describe('sorting', function () {
+    it('should find 2 sort links', function () {
+      const links = wrapper.find('.peopletable-search-icon');
+      expect(links).to.have.length(2);
     });
 
-    it('should have instructions displayed', function () {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
-      expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(1);
+    it('should trigger a call to trackMetric with correct parameters', function () {
+      const link = wrapper.find('.peopletable-search-icon').first();
+      link.simulate('click');
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(props.trackMetric.calledWith('Sort by Name desc')).to.be.true;
     });
   });
 
@@ -168,9 +168,6 @@ describe('PeopleTable', () => {
   });
 
   describe('patient removal link', function () {
-    afterEach(() => {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
-    });
 
     it('should have a remove icon for each patient', function () {
       expect(wrapper.find('.peopletable-icon-remove')).to.have.length(5);
@@ -222,10 +219,6 @@ describe('PeopleTable', () => {
 
       removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
       removeLink.simulate('click');
-    });
-
-    afterEach(() => {
-      wrapper.find('.peopletable-names-toggle').simulate('click');
     });
 
     it('should close the modal when the background overlay is clicked', function () {

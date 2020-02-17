@@ -71,18 +71,26 @@
   }
 }
 
+.input {
+  outline: none;
+  border: none;
+  font-size: @font-size-small;
+  width: 85%;
+}
+
 .peopletable-search-box {
   background-image: url('images/search_icon_2x_gray.png');
   background-size: 25px 25px;
   background-repeat: no-repeat;
   background-color: @white-color;
   background-position: 7px center;
-  border: 1px solid @gray-dark;
   font-size: 18px;
   height: @spacing-large;
   margin-bottom: @spacing-small;
   padding-left: 55px;
   width: 60%;
+  display: flex;
+  align-items: center;
 
   &:hover, &:active {
     border-color: @purple;
@@ -98,6 +106,27 @@
   width: 100%;
   padding: 80px 0 30px;
   text-align: center;
+}
+
+.search {
+  border:none;
+}
+
+.peopletable-reset-image {
+  cursor: pointer;
+  width:25px;
+  height: 25px;    
+  text-align: center;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .peopletable-icon-profile {
