@@ -25,16 +25,16 @@ USER node
 RUN mkdir -p /home/node/.yarn-cache /home/node/.cache/yarn
 # viz
 COPY --chown=node:node packageMounts/@tidepool/viz/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* packageMounts/@tidepool/viz/
-RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/@tidepool/viz && yarn install --cache-folder /home/node/.yarn-cache
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/@tidepool/viz && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
 # blip
 COPY --chown=node:node package.json yarn.lock ./
-RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 yarn install --cache-folder /home/node/.yarn-cache
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
 # tideline
 COPY --chown=node:node packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* packageMounts/tideline/
-RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tideline && yarn install --cache-folder /home/node/.yarn-cache
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tideline && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
 # platform-client
 COPY --chown=node:node packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json* packageMounts/tidepool-platform-client/
-RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tidepool-platform-client && yarn install --cache-folder /home/node/.yarn-cache
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tidepool-platform-client && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
 # Copy the yarn cache mount to the standard yarn cache directory for quicker installs within running containers
 RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 (cd /home/node/.yarn-cache; tar cf - .) | (cd /home/node/.cache/yarn; tar xpf -)
 # Link any packages as needed
