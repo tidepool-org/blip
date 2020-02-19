@@ -1,8 +1,7 @@
-sudo: false
-
 language: node_js
 
-dist: trusty
+os: linux
+dist: xenial
 
 node_js:
   - "10.14.2"
@@ -18,13 +17,21 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH="$HOME/.yarn/bin:$PATH"
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-cache madison docker-ce
+  - sudo apt-get -y install docker-ce=5:19.03.5~3-0~ubuntu-xenial
+  - docker version
+  - docker pull docker.io/docker/dockerfile:experimental
+  - docker pull docker.io/library/node:10.14.2-alpine
 
 install:
   - yarn install --frozen-lockfile
 
 addons:
   artifacts:
-    s3_region: us-west-2
+    region: us-west-2
     paths:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
@@ -38,6 +45,6 @@ script:
   - npm test
   - ./artifact.sh
 
-matrix:
+jobs:
   allow_failures:
     - node_js: node
