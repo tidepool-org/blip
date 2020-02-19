@@ -176,7 +176,7 @@ if (isDev) {
     new RollbarSourceMapPlugin({
       accessToken: ROLLBAR_POST_SERVER_TOKEN,
       version: VERSION,
-      publicPath: 'http://dynamichost/dist',
+      publicPath: 'https://dynamichost/dist',
     })
   );
 }
