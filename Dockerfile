@@ -5,7 +5,7 @@ RUN mkdir -p dist node_modules && chown -R node:node .
 
 
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
-FROM base as developBase
+FROM base as develop-base
 RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -44,7 +44,7 @@ RUN \
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
-FROM developBase as development
+FROM develop-base as development
 ENV NODE_ENV=development
 WORKDIR /app
 # Copy all `node_modules` dependencies
@@ -67,7 +67,7 @@ CMD ["npm", "test"]
 
 
 ### Stage 5 - Base image for builds to share args and environment variables
-FROM base as buildBase
+FROM base as build-base
 # ARGs
 ARG API_HOST
 ARG DISCOVERY_HOST=hakken:8000
@@ -87,7 +87,7 @@ ENV \
 
 
 ### Stage 6 - Build production-ready release
-FROM buildBase as build
+FROM build-base as build
 USER node
 # Copy all `node_modules` from `dependancies` layer
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -97,7 +97,7 @@ RUN npm run build
 
 
 ### Stage 7 - Serve production-ready release
-FROM buildBase as production
+FROM build-base as production
 USER node
 # Copy only `node_modules` and files needed to run the server
 COPY --from=dependencies /app/production_node_modules ./node_modules
