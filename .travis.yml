@@ -27,6 +27,7 @@ addons:
   apt:
     packages:
       - docker-ce
+      - docker-ce-cli
   artifacts:
     s3_region: us-west-2
     paths:
