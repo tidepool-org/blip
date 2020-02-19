@@ -1,7 +1,6 @@
-sudo: false
-
 language: node_js
 
+os: linux
 dist: xenial
 
 node_js:
@@ -28,7 +27,7 @@ addons:
     packages:
       - docker-ce
   artifacts:
-    s3_region: us-west-2
+    region: us-west-2
     paths:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
@@ -42,6 +41,6 @@ script:
   - npm test
   - ./artifact.sh
 
-matrix:
+jobs:
   allow_failures:
     - node_js: node
