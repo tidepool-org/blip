@@ -107,8 +107,8 @@ FoodTooltip.defaultProps = {
   side: 'right',
   tailWidth: 9,
   tailHeight: 17,
-  tailColor: colors.bolus,
-  borderColor: colors.bolus,
+  tailColor: colors.rescuecarbs,
+  borderColor: colors.rescuecarbs,
   borderWidth: 2,
 };
 
