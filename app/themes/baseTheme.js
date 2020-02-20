@@ -12,6 +12,7 @@ export default {
     coral: '#f9706b',
     orange: '#f95f3b',
     green: '#4ce791',
+    indigo: '#91A3FF',
     lightestGrey: '#f9f9f9',
     lightGrey: '#EDEDED',
     mediumGrey: '#979797',

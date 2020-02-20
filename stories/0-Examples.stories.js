@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import { withDesign } from 'storybook-addon-designs';
 
-import Button from '../app/components/componentlibrary/elements/Button';
+import Button from '../app/components/elements/Button';
 
 const TidepoolButton = styled.button`
   background: #6582FF;
@@ -23,7 +23,7 @@ export default {
 };
 
 export const Tidepool = () => (
-<TidepoolButton onClick={action('Styled Components Button Clicked')}>Styled Components Button</TidepoolButton>
+  <TidepoolButton onClick={action('Styled Components Button Clicked')}>Styled Components Button</TidepoolButton>
 );
 
 Tidepool.story = {
@@ -38,8 +38,7 @@ Tidepool.story = {
 
 export const RebassButton = () => (
   <Button>Rebass Button</Button>
-  );
-
+);
 
 RebassButton.story = {
   name: 'Rebass Button',
