@@ -237,6 +237,7 @@ describe('data reducer', () => {
           fetchedUntil: '2019-11-27T00:00:00.000Z',
           metaData: {
             patientId: 'abc123',
+            foo: 'bar',
           },
         });
       });
