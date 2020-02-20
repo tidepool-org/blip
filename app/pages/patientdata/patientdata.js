@@ -491,8 +491,6 @@ export let PatientData = translate()(React.createClass({
 
   generateStats: function (props = this.props, state = this.state) {
     const {
-      chartType,
-      chartPrefs,
       bgPrefs = {},
     } = this.state;
 
