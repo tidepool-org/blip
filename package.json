@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
-    "pretest": "NODE_ENV=test npm run lint",
+    "pretest": "NODE_ENV=test npm run lint && npm run lint:css",
     "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start--browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
@@ -20,7 +20,8 @@
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o .",
     "storybook": "./node_modules/.bin/start-storybook -p 6006 --ci",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "lint:css": "stylelint './app/components/**/*.js'"
   },
   "engines": {
     "node": ">=10.x",
@@ -68,7 +69,11 @@
     "custom-protocol-detection": "1.0.1",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.2",
-    "eslint": "5.6.0",
+    "eslint": "6.8.0",
+    "eslint-config-airbnb": "18.0.1",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-lodash": "6.0.0",
     "eslint-plugin-react": "7.11.1",
     "file-loader": "2.0.0",
     "fixed-data-table-2": "1.0.2",
@@ -133,6 +138,10 @@
     "source-map-loader": "0.2.4",
     "storybook-addon-designs": "5.2.0",
     "style-loader": "0.23.0",
+    "stylelint": "13.2.0",
+    "stylelint-config-recommended": "3.0.0",
+    "stylelint-config-styled-components": "0.1.1",
+    "stylelint-processor-styled-components": "1.10.0",
     "sundial": "1.6.0",
     "terser": "4.4.2",
     "terser-webpack-plugin": "2.2.1",

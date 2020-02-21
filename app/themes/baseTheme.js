@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+
 export default {
   breakpoints: ['512px', '768px', '1024px', '1280px'],
   space: [0, 4, 8, 16, 24, 32, 64, 128],
