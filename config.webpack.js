@@ -9,7 +9,7 @@ const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
 
 const VERSION_SHA = process.env.TRAVIS_COMMIT
-  || cp.execSync('git rev-parse HEAD', { cwd: __dirname, encoding: 'utf8' });
+  || cp.execSync('git rev-parse HEAD || true', { cwd: __dirname, encoding: 'utf8' });
 
 // these values are required in the config.app.js file -- we can't use
 // process.env with webpack, we have to create these magic constants
