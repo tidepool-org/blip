@@ -1,12 +1,13 @@
+# syntax=docker/dockerfile:experimental
+
 ### Stage: Base image
 FROM node:10.14.2-alpine as base
 WORKDIR /app
-RUN mkdir -p dist node_modules && chown -R node:node .
+RUN mkdir -p dist node_modules .yarn-cache && chown -R node:node .
 
 
 ### Stage: Development root with Chromium installed for unit tests
 FROM base as development
-ARG LINKED_PKGS=""
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
@@ -17,25 +18,30 @@ RUN \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && apk --no-cache update \
   && apk --no-cache upgrade \
-  && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
+  && apk add --no-cache git fontconfig bash udev ttf-opensans chromium rsync \
   && rm -rf /var/cache/apk/* /tmp/*
-# Install package dependancies
-COPY --chown=node:node package.json .
-COPY --chown=node:node yarn.lock .
+# Install package dependancies for blip and mounted packages if present
 USER node
-RUN yarn install
-USER root
-# Build all modules for mounted packages (used when npm linking in development containers)
-COPY --chown=node:node packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
-COPY --chown=node:node packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
-COPY --chown=node:node packageMounts/@tidepool/viz/stub  packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
-USER node
-RUN ls -al /app/packageMounts/@tidepool/viz/
-RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn install; done
+RUN mkdir -p /home/node/.yarn-cache /home/node/.cache/yarn
+# viz
+COPY --chown=node:node packageMounts/@tidepool/viz/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* packageMounts/@tidepool/viz/
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/@tidepool/viz && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
+# blip
+COPY --chown=node:node package.json yarn.lock ./
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
+# tideline
+COPY --chown=node:node packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* packageMounts/tideline/
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tideline && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
+# platform-client
+COPY --chown=node:node packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json* packageMounts/tidepool-platform-client/
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 cd packageMounts/tidepool-platform-client && yarn install --cache-folder /home/node/.yarn-cache --silent --no-progress
+# Copy the yarn cache mount to the standard yarn cache directory for quicker installs within running containers
+RUN --mount=type=cache,target=/home/node/.yarn-cache,id=yarn,uid=1000,gid=1000 (cd /home/node/.yarn-cache; tar cf - .) | (cd /home/node/.cache/yarn; tar xpf -)
+# Link any packages as needed
+ARG LINKED_PKGS=""
+RUN for i in ${LINKED_PKGS//,/ }; do cd packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 # Copy source files
 COPY --chown=node:node . .
-# Link any packages as needed
-RUN for i in ${LINKED_PKGS//,/ }; do cd /app/packageMounts/${i} && yarn link && cd /app && yarn link ${i}; done
 CMD ["npm", "start"]
 
 
@@ -71,7 +77,7 @@ RUN apk --no-cache update \
 COPY package.json .
 COPY yarn.lock .
 # Only install `node_modules` dependancies needed for production
-RUN yarn install --production
+RUN yarn install --production --frozen-lockfile
 USER node
 # Copy only files needed to run the server
 COPY --from=build /app/dist dist
