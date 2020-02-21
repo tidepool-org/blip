@@ -20,7 +20,8 @@
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o .",
     "storybook": "./node_modules/.bin/start-storybook -p 6006 --ci",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "lint:css":"stylelint './app/components/**/*.js'"
   },
   "engines": {
     "node": ">=10.x",
@@ -133,6 +134,10 @@
     "source-map-loader": "0.2.4",
     "storybook-addon-designs": "5.2.0",
     "style-loader": "0.23.0",
+    "stylelint": "^13.2.0",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.10.0",
     "sundial": "1.6.0",
     "terser": "4.4.2",
     "terser-webpack-plugin": "2.2.1",

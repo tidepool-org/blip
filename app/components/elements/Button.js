@@ -8,7 +8,6 @@ import { ButtonFont } from './FontStyles';
 
 const ButtonComponent = Styled(Base)`
 color: #fff;
-pointer: cursor;
 border-radius: 4px;
 padding-right: ${baseTheme.space[4]}px;
 padding-left: ${baseTheme.space[4]}px;
@@ -16,7 +15,7 @@ padding-bottom: ${baseTheme.space[2]}px;
 padding-top: ${baseTheme.space[2]}px;
 font-size: ${baseTheme.fontSizes[0]}px;
 line-height: 14px;
-font-family: BasisMedium;
+font-family: BasisMedium, Helvetica, Ariel, sans-serif;
 background-color: ${baseTheme.colors.mediumPurple};
 height: 32px;
 transition: ${baseTheme.transition};
