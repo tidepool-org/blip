@@ -1,4 +1,4 @@
-/* global __ROLLBAR_POST_CLIENT_TOKEN__, __VERSION__, __API_HOST__, __PROD__ */
+/* global __ROLLBAR_POST_CLIENT_TOKEN__, __VERSION_SHA__, __API_HOST__, __PROD__ */
 import Rollbar from 'rollbar';
 
 let rollbar = {};
@@ -13,7 +13,7 @@ if (__PROD__) {
           client: {
             javascript: {
               /* eslint-disable camelcase */
-              code_version: __VERSION__,
+              code_version: __VERSION_SHA__,
               guess_uncaught_frames: true
               /* eslint-enable camelcase */
             }
