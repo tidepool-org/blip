@@ -68,6 +68,9 @@ CMD ["npm", "test"]
 
 ### Stage 5 - Base image for builds to share args and environment variables
 FROM base as build-base
+RUN apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk add --no-cache git
 # ARGs
 ARG API_HOST
 ARG DISCOVERY_HOST=hakken:8000
@@ -75,6 +78,7 @@ ARG PORT=3000
 ARG PUBLISH_HOST=hakken
 ARG SERVICE_NAME=blip
 ARG ROLLBAR_POST_SERVER_TOKEN
+ARG TRAVIS_COMMIT
 # Set ENV from ARGs
 ENV \
   API_HOST=$API_HOST \
@@ -83,6 +87,7 @@ ENV \
   PUBLISH_HOST=$PUBLISH_HOST \
   SERVICE_NAME=$SERVICE_NAME \
   ROLLBAR_POST_SERVER_TOKEN=$ROLLBAR_POST_SERVER_TOKEN \
+  TRAVIS_COMMIT=$TRAVIS_COMMIT \
   NODE_ENV=production
 
 
