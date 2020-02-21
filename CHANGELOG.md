@@ -1,7 +1,7 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
-## unreleased
+## 0.10.4 - 2020-02-20
 - PT-1112 change the color of RescueCarb tool tip to be consistent with the other tool tips
 
 ## 0.10.3 - 2020-02-13
