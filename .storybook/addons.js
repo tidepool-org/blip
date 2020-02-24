@@ -1,1 +1,1 @@
-import 'storybook-addon-designs/register'
+import 'storybook-addon-designs/register';
