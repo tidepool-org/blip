@@ -6,8 +6,8 @@ import baseTheme from '../../themes/baseTheme';
 import { SingleDatePicker } from 'react-dates';
 
 export const DatePicker = (props) => {
-  const [date, setDate] = useState(props.date)
-  const [focused, setFocused] = useState(props.focused)
+  const [date, setDate] = useState(props.date);
+  const [focused, setFocused] = useState(props.focused);
   return <SingleDatePicker
     date={date}
     onDateChange={date => setDate(date)}
