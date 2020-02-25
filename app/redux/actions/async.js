@@ -908,6 +908,8 @@ export function fetchPatientData(api, options, id) {
     initial: true,
   });
 
+  let latestUpload;
+
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
     const cacheOptions = {
@@ -935,18 +937,24 @@ export function fetchPatientData(api, options, id) {
             createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
           ));
         } else {
-          const latestDatumTime = _.max(_.map(results, d => (d.time)));
+          // We determine the date range to fetch data for by first finding the latest
+          // diabetes datum time and going back 30 days
+          const diabetesDatums = _.reject(results, d => _.includes(['food', 'upload'], d.type));
+          const latestDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
           options.startDate = moment.utc(latestDatumTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
           options.endDate = moment.utc(latestDatumTime || options.browserTimeStub).add(1, 'days').toISOString();
 
+          // We want to make sure the latest upload, which may be beyond the data range we'll be
+          // fetching, is stored so we can include it with the fetched results
+          latestUpload = _.find(results, { type: 'upload' });
           const latestPumpSettings = _.find(results, { type: 'pumpSettings' });
           const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
-          const uploadRecord = _.find(results, { type: 'upload', latestPumpSettingsUploadId });
+          const latestPumpSettingsUpload = _.find(results, { type: 'upload', uploadId: latestPumpSettingsUploadId });
 
-          if (latestPumpSettingsUploadId && !uploadRecord) {
+          if (latestPumpSettingsUploadId && !latestPumpSettingsUpload) {
             // If we have pump settings, but we don't have the corresponing upload record used
             // to get the device source, we need to fetch it
-            options.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
+            options.getPumpSettingsUploadRecordById = latestPumpSettingsUploadId;
           }
 
           fetchData(options);
@@ -1023,6 +1031,12 @@ export function fetchPatientData(api, options, id) {
             ...resultsVal.latestPumpSettingsUpload || [],
             ...resultsVal.teamNotes,
           ];
+
+          // If the latest upload is later than the latest diabetes datum, it would have been
+          // outside of the fetched data range, and needs to be added.
+          if (latestUpload && !_.find(combinedData, { id: latestUpload.id })) {
+            combinedData.push(latestUpload);
+          }
 
           handleFetchSuccess(combinedData, id, options);
         }
