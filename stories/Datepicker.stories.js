@@ -4,8 +4,6 @@ import moment from 'moment';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, date, optionsKnob as options } from '@storybook/addon-knobs';
 
-import { styled } from '@storybook/theming';
-
 import 'react-dates/lib/css/_datepicker.css';
 import 'react-dates/initialize';
 
@@ -56,7 +54,6 @@ export const MultiDatePicker = () => {
     return moment.utc(stringTimestamp);
   }
 
-  const getFocusedInput = () => boolean('Focused', true);
   const focusedInputKnob = () => {
     const label = 'Initially Focused Input';
     const valuesObj = {
