@@ -62,12 +62,12 @@ export const MultiDatePicker = () => {
     const valuesObj = {
       'Start Date': 'startDate',
       'End Date': 'endDate',
-      'None': '',
+      'None': null,
     };
 
-    const defaultValue = '';
+    const defaultValue = null;
     const optionsObj = {
-      display: 'inline-radio'
+      display: 'select'
     };
 
     return options(label, valuesObj, defaultValue, optionsObj);
