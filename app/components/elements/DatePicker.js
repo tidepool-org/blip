@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
-import baseTheme from '../../themes/baseTheme';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import omit from 'lodash/omit';
 import noop from 'lodash/noop';
+import styled from 'styled-components';
+import baseTheme from '../../themes/baseTheme';
 
 export const DatePicker = (props) => {
   const [date, setDate] = useState(props.initialDate);
-  const [focused, setFocused] = useState(props.autoFocus);
+  const [focused, setFocused] = useState(props.initialFocused);
 
   return (
     <SingleDatePicker
       {...omit(props, [
-        'autoFocus',
+        'initialFocused',
         'initialDate',
       ])}
       date={date}
@@ -29,12 +28,12 @@ export const DatePicker = (props) => {
 DatePicker.propTypes = {
   ...SingleDatePickerShape,
   initialDate: momentPropTypes.momentObj,
-  autoFocus: PropTypes.bool.isRequired,
+  initialFocused: SingleDatePickerShape.focused,
 };
 
 DatePicker.defaultProps = {
   initialDate: null,
-  autoFocus: false,
+  initialFocused: false,
   onDateChange: noop,
   onFocusChange: noop,
 }

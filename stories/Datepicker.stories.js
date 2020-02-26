@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean, date } from '@storybook/addon-knobs';
+import { withKnobs, boolean, date, optionsKnob as options } from '@storybook/addon-knobs';
 
 import { styled } from '@storybook/theming';
 
@@ -10,6 +10,7 @@ import 'react-dates/lib/css/_datepicker.css';
 import 'react-dates/initialize';
 
 import DatePicker from '../app/components/elements/DatePicker';
+import DateRangePicker from '../app/components/elements/DateRangePicker';
 
 const withWrapper = Story => <Story />;
 
@@ -26,17 +27,63 @@ export const SingleDatePicker = () => {
     return moment.utc(stringTimestamp);
   }
 
-  const getFocused = () => boolean('Focused', true);
+  const getFocused = () => boolean('Initially Focused', false);
 
   return <DatePicker
     id="singleDatePicker"
-    autoFocus={getFocused()}
+    initialFocused={getFocused()}
     initialDate={initialDateKnob('Initial Date', initialDate)}
   />;
 };
 
 SingleDatePicker.story = {
   name: 'Single Date',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A379'
+    },
+  },
+};
+
+export const MultiDatePicker = () => {
+  const initialStartDate = new Date();
+  const initialEndDate = new Date();
+  initialEndDate.setDate(initialEndDate.getDate() + 7)
+
+  const initialDateKnob = (name, defaultValue) => {
+    const stringTimestamp = date(name, defaultValue);
+    return moment.utc(stringTimestamp);
+  }
+
+  const getFocusedInput = () => boolean('Focused', true);
+  const focusedInputKnob = () => {
+    const label = 'Initially Focused Input';
+    const valuesObj = {
+      'Start Date': 'startDate',
+      'End Date': 'endDate',
+      'None': '',
+    };
+
+    const defaultValue = '';
+    const optionsObj = {
+      display: 'inline-radio'
+    };
+
+    return options(label, valuesObj, defaultValue, optionsObj);
+  }
+
+  return <DateRangePicker
+    startDateId="dateRangeStart"
+    endDateId="dateRangeEnd"
+    initialFocusedInput={focusedInputKnob()}
+    initialStartDate={initialDateKnob('Initial Start Date', initialStartDate)}
+    initialEndDate={initialDateKnob('Initial End Date', initialEndDate)}
+  />;
+};
+
+MultiDatePicker.story = {
+  name: 'Date Range',
   parameters: {
     design: {
       type: 'figma',
