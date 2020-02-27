@@ -10,6 +10,7 @@ import 'react-dates/initialize';
 import DatePicker from '../app/components/elements/DatePicker';
 import DateRangePicker from '../app/components/elements/DateRangePicker';
 
+// This silly decorator allows the components to properly re-render when knob values are changed
 const withWrapper = Story => <Story />;
 
 export default {

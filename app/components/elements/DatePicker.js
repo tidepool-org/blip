@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import momentPropTypes from 'react-moment-proptypes';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
+import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
+import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 import { Box } from 'rebass';
 import styled from 'styled-components';
+
 import {
   fonts,
   fontSizes,
@@ -58,6 +61,9 @@ export const DatePicker = (props) => {
         placeholder='mm/dd/yyyy'
         displayFormat='MMM D, YYYY'
         verticalSpacing={0}
+        navNext={<NavigateNextRoundedIcon />}
+        navPrev={<NavigateBeforeRoundedIcon />}
+        isOutsideRange={props.isOutsideRange}
       />
     </StyledDatePicker>
   );
@@ -74,6 +80,7 @@ DatePicker.defaultProps = {
   initialFocused: false,
   onDateChange: noop,
   onFocusChange: noop,
+  isOutsideRange: noop,
 };
 
 export default DatePicker;
