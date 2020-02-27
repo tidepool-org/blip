@@ -793,6 +793,10 @@ export let PatientData = translate()(React.createClass({
   },
 
   handleSwitchToBgLog: function(datetime) {
+    if (config.BRANDING === 'diabeloop') {
+      return this.handleSwitchToDaily(datetime, 'BgLog');
+    }
+
     this.props.trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
     });
@@ -1009,7 +1013,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case (_.includes(tags, 'bgm')):
-            chartType = 'bgLog';
+            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
             break;
         }
       }
@@ -1030,7 +1034,7 @@ export let PatientData = translate()(React.createClass({
             break;
 
           case 'smbg':
-            chartType = 'bgLog';
+            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
             break;
         }
       }

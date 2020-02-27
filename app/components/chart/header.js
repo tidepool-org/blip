@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Loading from 'react-loading';
 import { translate } from 'react-i18next';
+import config from '../../config';
 
 import printPng from './img/print-icon-2x.png';
 
@@ -77,6 +78,7 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
 
     const bgLogLinkClass = cx({
       'js-bgLog': true,
+      'd-none': config.BRANDING === 'diabeloop',
       'patient-data-subnav-active': this.props.chartType === 'bgLog',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
