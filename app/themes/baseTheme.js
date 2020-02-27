@@ -75,4 +75,4 @@ export default {
   space,
   transitions,
   zIndices,
-}
+};

@@ -3,7 +3,7 @@ import momentPropTypes from 'react-moment-proptypes';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import omit from 'lodash/omit';
 import noop from 'lodash/noop';
-import { Box, Flex } from 'rebass';
+import { Box } from 'rebass';
 import styled from 'styled-components';
 import {
   fonts,
@@ -13,8 +13,6 @@ import {
   shadows,
   space,
 } from '../../themes/baseTheme';
-
-console.log('fonts', fonts);
 
 const StyledDatePicker = styled(Box)`
   font-family: ${fonts.default};
@@ -63,7 +61,7 @@ export const DatePicker = (props) => {
       />
     </StyledDatePicker>
   );
-}
+};
 
 DatePicker.propTypes = {
   ...SingleDatePickerShape,
@@ -76,6 +74,6 @@ DatePicker.defaultProps = {
   initialFocused: false,
   onDateChange: noop,
   onFocusChange: noop,
-}
+};
 
 export default DatePicker;
