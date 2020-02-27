@@ -35,8 +35,8 @@ export default {
   borderNav: 'solid 2px #6582FF',
   transition: 'all .2s ease-out',
   boxShadow: '0 6px 10px 4px rgba(60,64,67,0.08)',
-  phone: `(max-width: 512px)`,
-  tablet: `(max-width: 767px)`,
-  laptop: `(max-width: 1024px)`,
-  desktop: `(min-width: 1280px)`
+  phone: '(max-width: 512px)',
+  tablet: '(max-width: 767px)',
+  laptop: '(max-width: 1024px)',
+  desktop: '(min-width: 1280px)'
 };

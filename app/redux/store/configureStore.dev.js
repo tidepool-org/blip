@@ -25,7 +25,6 @@ import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 import mutationTracker from 'redux-immutable-state-invariant';
 
-// eslint-disable-next-line import/no-unresolved
 import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
