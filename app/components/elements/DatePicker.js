@@ -5,24 +5,37 @@ import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
-import theme from '../../themes/baseTheme';
+import {
+  fonts,
+  fontSizes,
+  fontWeights,
+  radii,
+  shadows,
+  space,
+} from '../../themes/baseTheme';
+
+console.log('fonts', fonts);
 
 const StyledDatePicker = styled(Box)`
-  font-family: ${theme.font};
+  font-family: ${fonts.default};
 
   .SingleDatePickerInput__withBorder {
-    border-radius: ${theme.radii.input}px;
-    box-shadow: inset ${theme.shadows.small};
+    border-radius: ${radii.input}px;
+  }
+
+  .SingleDatePicker_picker {
+    box-shadow: ${shadows.small};
+    margin-top: ${space[3]}px;
   }
 
   .DayPicker__withBorder {
-    border-radius: ${theme.radii.input}px;
-    box-shadow: ${theme.shadows.large};
+    border-radius: ${radii.input}px;
+    box-shadow: ${shadows.large};
   }
 
   input {
-    font: ${theme.weights[0]} ${theme.fontSizes[1]}px ${theme.font};
-    padding: ${theme.space[3]}px;
+    font: ${fontWeights.regular} ${fontSizes[1]}px ${fonts.default};
+    padding: ${space[3]}px;
     border-bottom: 0;
   }
 `;
@@ -46,6 +59,7 @@ export const DatePicker = (props) => {
         numberOfMonths={1}
         placeholder='mm/dd/yyyy'
         displayFormat='MMM D, YYYY'
+        verticalSpacing={0}
       />
     </StyledDatePicker>
   );
