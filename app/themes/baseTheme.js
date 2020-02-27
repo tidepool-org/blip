@@ -15,7 +15,7 @@ export const colors = {
   mediumGrey: '#979797',
   darkGrey: '#606060',
   lightPurple: '#DCE0F9',
-  mediumPurple: '#6582FF',
+  mediumPurple: '#617DFF',
   darkPurple: '#271B46',
   background: '#FFFFFF',
   primaryFont: '#4F6A92',
@@ -23,7 +23,7 @@ export const colors = {
   primaryFontDisabled: '#A6B1BB',
   linkFont: '#6582FF',
   buttonColor: '#F9706B',
-  borderColor: '#DADADA'
+  borderColor: '#DADADA',
 };
 
 export const fonts = {
@@ -37,7 +37,7 @@ export const fontWeights = {
   regular: 400,
   medium: 500,
   bold: 700,
-  black: 900
+  black: 900,
 };
 
 export const mediaQueries = {

@@ -24,7 +24,7 @@ export const SingleDatePicker = () => {
   const initialDateKnob = (name, defaultValue) => {
     const stringTimestamp = date(name, defaultValue);
     return moment.utc(stringTimestamp);
-  }
+  };
 
   const getFocused = () => boolean('Initially Focused', true);
 
@@ -40,7 +40,7 @@ SingleDatePicker.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=198%3A6'
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=198%3A6',
     },
   },
 };
@@ -53,7 +53,7 @@ export const MultiDatePicker = () => {
   const initialDateKnob = (name, defaultValue) => {
     const stringTimestamp = date(name, defaultValue);
     return moment.utc(stringTimestamp);
-  }
+  };
 
   const focusedInputKnob = () => {
     const label = 'Initially Focused Input';
@@ -65,11 +65,11 @@ export const MultiDatePicker = () => {
 
     const defaultValue = null;
     const optionsObj = {
-      display: 'select'
+      display: 'select',
     };
 
     return options(label, valuesObj, defaultValue, optionsObj);
-  }
+  };
 
   return <DateRangePicker
     startDateId="dateRangeStart"
@@ -85,7 +85,7 @@ MultiDatePicker.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=198%3A6'
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=198%3A6',
     },
   },
 };
