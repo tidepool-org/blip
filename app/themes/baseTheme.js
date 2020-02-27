@@ -19,9 +19,10 @@ export const colors = {
   darkPurple: '#271B46',
   background: '#FFFFFF',
   primaryFont: '#4F6A92',
+  primaryFontSubdued: '#7E98C3',
+  primaryFontDisabled: '#A6B1BB',
   linkFont: '#6582FF',
   buttonColor: '#F9706B',
-  primaryTextSubdued: '#7E98C3',
   borderColor: '#DADADA'
 };
 
