@@ -9,6 +9,7 @@ import { Box } from 'rebass';
 import styled from 'styled-components';
 
 import {
+  colors,
   fonts,
   fontSizes,
   fontWeights,
@@ -20,8 +21,24 @@ import {
 const StyledDatePicker = styled(Box)`
   font-family: ${fonts.default};
 
+  .MuiSvgIcon-root {
+    color: ${colors.primaryFont};
+  }
+
   .SingleDatePickerInput__withBorder {
     border-radius: ${radii.input}px;
+    border-color: ${colors.borderColor};
+
+    input {
+      font: ${fontWeights.regular} ${fontSizes[1]}px ${fonts.default};
+      padding: ${space[3]}px;
+      border-bottom: 0;
+      color: ${colors.primaryFont};
+    }
+
+    input::placeholder {
+      color: ${colors.primaryTextSubdued};
+    }
   }
 
   .SingleDatePicker_picker {
@@ -34,10 +51,26 @@ const StyledDatePicker = styled(Box)`
     box-shadow: ${shadows.large};
   }
 
-  input {
-    font: ${fontWeights.regular} ${fontSizes[1]}px ${fonts.default};
-    padding: ${space[3]}px;
-    border-bottom: 0;
+  .DayPickerNavigation_button {
+    position: absolute;
+    top: 20px;
+
+    &:first-child {
+      left: 14px;
+    }
+
+    &:last-child {
+      right: 14px;
+    }
+  }
+
+  .CalendarMonth_caption {
+    color: ${colors.primaryFont};
+
+    strong {
+      font-weight: ${fontWeights.regular};
+      font-size: ${fontSizes[2]}
+    }
   }
 `;
 
@@ -64,6 +97,7 @@ export const DatePicker = (props) => {
         navNext={<NavigateNextRoundedIcon />}
         navPrev={<NavigateBeforeRoundedIcon />}
         isOutsideRange={props.isOutsideRange}
+        enableOutsideDays={props.enableOutsideDays}
       />
     </StyledDatePicker>
   );
@@ -81,6 +115,7 @@ DatePicker.defaultProps = {
   onDateChange: noop,
   onFocusChange: noop,
   isOutsideRange: noop,
+  enableOutsideDays: true,
 };
 
 export default DatePicker;

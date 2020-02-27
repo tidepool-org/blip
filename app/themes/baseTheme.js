@@ -1,27 +1,28 @@
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
-  black: '#000',
+  black: '#000000',
   superBlack: '#00000',
-  white: '#fff',
+  white: '#FFFFFF',
   blue: '#40EBF9',
-  peach: '#fcce9f',
-  coral: '#f9706b',
-  orange: '#f95f3b',
-  green: '#4ce791',
+  peach: '#FCCE9F',
+  coral: '#F9706B',
+  orange: '#F95F3B',
+  green: '#4CE791',
   indigo: '#91A3FF',
-  lightestGrey: '#f9f9f9',
+  lightestGrey: '#F9F9F9',
   lightGrey: '#EDEDED',
   mediumGrey: '#979797',
   darkGrey: '#606060',
   lightPurple: '#DCE0F9',
   mediumPurple: '#6582FF',
   darkPurple: '#271B46',
-  background: '#ffffff',
-  primaryFont: '#4f6a92',
+  background: '#FFFFFF',
+  primaryFont: '#4F6A92',
   linkFont: '#6582FF',
-  buttonColor: '#f9706b',
+  buttonColor: '#F9706B',
   primaryTextSubdued: '#7E98C3',
+  borderColor: '#DADADA'
 };
 
 export const fonts = {

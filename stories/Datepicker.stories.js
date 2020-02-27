@@ -26,7 +26,7 @@ export const SingleDatePicker = () => {
     return moment.utc(stringTimestamp);
   }
 
-  const getFocused = () => boolean('Initially Focused', false);
+  const getFocused = () => boolean('Initially Focused', true);
 
   return <DatePicker
     id="singleDatePicker"
