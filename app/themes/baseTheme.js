@@ -25,8 +25,8 @@ export const colors = {
 };
 
 export const fonts = {
-  default: 'Basis, sans-serif',
-  monospace: '"Basis Mono", monospace',
+  default: 'Basis, "Helvetica Neue", Helvetica, Arial, sans-serif',
+  monospace: '"Basis Mono", "Andale Mono", monospace',
 };
 export const fontSizes = [12, 14, 16, 20, 24, 36, 48];
 
