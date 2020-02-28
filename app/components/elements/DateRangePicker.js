@@ -9,10 +9,11 @@ import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 
-import { StyledDatePickerBase } from './DatePicker';
+import { DatePicker as StyledDatePickerBase } from './InputStyles';
 
 import {
   colors,
+  fontSizes,
   radii,
   shadows,
   space,
@@ -34,7 +35,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
     display: flex;
 
     .MuiSvgIcon-root {
-      width: 20px;
+      width: ${fontSizes[3]}px;
     }
   }
 
@@ -63,7 +64,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
     &.CalendarDay__selected_span,
     &.CalendarDay__selected_span:active,
     &.CalendarDay__selected_span:hover {
-      background: ${colors.lightPurple};
+      background: ${colors.purpleLight};
       border-radius: 0;
     }
   }

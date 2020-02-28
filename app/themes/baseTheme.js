@@ -1,35 +1,40 @@
+import colorPalette from './colorPalette';
+
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
-  black: '#000000',
-  superBlack: '#00000',
-  white: '#FFFFFF',
-  blue: '#40EBF9',
-  peach: '#FCCE9F',
-  coral: '#F9706B',
-  orange: '#F95F3B',
-  green: '#4CE791',
-  indigo: '#91A3FF',
-  lightestGrey: '#F9F9F9',
-  lightGrey: '#EDEDED',
-  mediumGrey: '#979797',
-  darkGrey: '#606060',
-  lightPurple: '#DCE0F9',
-  mediumPurple: '#617DFF',
-  darkPurple: '#271B46',
-  background: '#FFFFFF',
-  primaryFont: '#4F6A92',
-  primaryFontSubdued: '#7E98C3',
-  primaryFontDisabled: '#A6B1BB',
-  linkFont: '#6582FF',
-  buttonColor: '#F9706B',
-  borderColor: '#DADADA',
+  ...colorPalette.primary,
+  ...colorPalette.secondary,
+  ...colorPalette.neutrals,
+  ...colorPalette.extended,
+  text: {
+    primary: '#4F6A92',
+    primaryDisabled: '#A6B1BB',
+    primarySubdued: '#7E98C3',
+    link: '#6582FF',
+  },
+  border: {
+    default: colorPalette.extended.grays[1],
+  },
+  button: {
+    default: {
+      background: colorPalette.primary.purpleMedium,
+      color: colorPalette.neutrals.white,
+    },
+  },
+};
+
+export const borders = {
+  default: `1px solid ${colors.border.default}`,
+  input: `1px solid ${colors.border.default}`,
+  modal: `1px solid ${colors.border.default}`,
 };
 
 export const fonts = {
   default: 'Basis, "Helvetica Neue", Helvetica, Arial, sans-serif',
   monospace: '"Basis Mono", "Andale Mono", monospace',
 };
+
 export const fontSizes = [12, 14, 16, 20, 24, 36, 48];
 
 export const fontWeights = {
@@ -57,7 +62,7 @@ export const shadows = {
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
 };
 
-export const space = [0, 4, 8, 16, 24, 32, 64, 128];
+export const space = [0, 4, 8, 16, 24, 32, 48, 64, 96, 128];
 
 export const transitions = {
   easeOut: 'all .2s ease-out',
