@@ -141,13 +141,16 @@ export const DatePicker = (props) => {
           'initialDate',
         ])}
         date={date}
-        onDateChange={date => setDate(date) && props.onDateChange(date)}
+        onDateChange={newDate => setDate(newDate) && props.onDateChange(newDate)}
         focused={focused}
-        onFocusChange={({ focused }) => setFocused(focused) && props.onFocusChange(focused)}
+        onFocusChange={({ focused: newFocused }) => {
+          setFocused(newFocused);
+          props.onFocusChange(newFocused);
+        }}
         id={props.id}
         numberOfMonths={1}
-        placeholder='mm/dd/yyyy'
-        displayFormat='MMM D, YYYY'
+        placeholder="mm/dd/yyyy"
+        displayFormat="MMM D, YYYY"
         verticalSpacing={0}
         navNext={<NavigateNextRoundedIcon />}
         navPrev={<NavigateBeforeRoundedIcon />}

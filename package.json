@@ -15,7 +15,7 @@
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
-    "lint": "./node_modules/.bin/eslint app test",
+    "lint": "./node_modules/.bin/eslint app stories test",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json -o .",
