@@ -201,3 +201,11 @@ To run storybook, use:
 ```bash
 $ yarn storybook
 ```
+
+## Stylelint
+
+To run stylelint
+
+```bash
+$ npm run lint:css
+```

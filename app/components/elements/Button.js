@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button as Base, Flex } from 'rebass';
-import { Link } from 'react-router-dom';
 import Styled from 'styled-components';
 import PropTypes from 'prop-types';
 import baseTheme from '../../themes/baseTheme';
@@ -8,7 +7,6 @@ import { ButtonFont } from './FontStyles';
 
 const ButtonComponent = Styled(Base)`
 color: #fff;
-pointer: cursor;
 border-radius: 4px;
 padding-right: ${baseTheme.space[4]}px;
 padding-left: ${baseTheme.space[4]}px;
@@ -16,7 +14,7 @@ padding-bottom: ${baseTheme.space[2]}px;
 padding-top: ${baseTheme.space[2]}px;
 font-size: ${baseTheme.fontSizes[0]}px;
 line-height: 14px;
-font-family: BasisMedium;
+font-family: BasisMedium, Helvetica, Ariel, sans-serif;
 background-color: ${baseTheme.colors.mediumPurple};
 height: 32px;
 transition: ${baseTheme.transition};
@@ -92,14 +90,14 @@ a {
 class Button extends React.PureComponent {
   render() {
     return (
-        <Flex>
-          <ButtonComponent width={[1, 1, 1, 'auto']} className={this.props.className}>
-            <Flex width={1} justifyContent="center" alignItems="center">
-              <Flex>
-                <ButtonFont>{this.props.text !== 'Default' ? this.props.text : this.props.children}</ButtonFont>
-              </Flex>
+      <Flex>
+        <ButtonComponent width={[1, 1, 1, 'auto']} className={this.props.className}>
+          <Flex width={1} justifyContent="center" alignItems="center">
+            <Flex>
+              <ButtonFont>{this.props.text !== 'Default' ? this.props.text : this.props.children}</ButtonFont>
             </Flex>
-          </ButtonComponent>
+          </Flex>
+        </ButtonComponent>
       </Flex>
     );
   }
@@ -108,13 +106,13 @@ class Button extends React.PureComponent {
 Button.propTypes = {
   text: PropTypes.string,
   className: PropTypes.string,
-  to: PropTypes.string
+  to: PropTypes.string,
 };
 
 Button.defaultProps = {
   text: 'Default',
   className: '',
-  to: '/'
+  to: '/',
 };
 
 /** @component */

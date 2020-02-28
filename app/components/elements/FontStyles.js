@@ -167,11 +167,12 @@ export const BlockQuote = Styled.blockquote`
     margin-bottom: 0;
   }
 `;
+
 export const BadgeFont = Styled(Text)`
   font-size: ${baseTheme.fontSizes[0]}px;
   font-weight: 500;
   line-height: 12px;
-  font-family: BasisMono;
+  font-family: BasisMono, monospace;
   padding: 2px ${baseTheme.space[1]}px 3px ${baseTheme.space[1]}px ;
   height: auto;
   text-transform: uppercase;
