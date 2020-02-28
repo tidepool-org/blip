@@ -46,11 +46,11 @@ export const DatePicker = styled(Box)`
     }
 
     &:first-child {
-      left: 14px;
+      left: ${space[3]}px;
     }
 
     &:last-child {
-      right: 14px;
+      right: ${space[3]}px;
     }
   }
 
