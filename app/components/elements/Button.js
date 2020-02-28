@@ -9,7 +9,7 @@ import {
   space,
   colors,
   fontSizes,
-  transitions
+  transitions,
 } from '../../themes/baseTheme';
 
 const ButtonComponent = Styled(Base)`
