@@ -18,7 +18,7 @@ export default {
   decorators: [withDesign, withKnobs, withWrapper],
 };
 
-export const SingleDatePicker = () => {
+export const _DatePicker = () => {
   const initialDate = new Date();
 
   const initialDateKnob = (name, defaultValue) => {
@@ -35,7 +35,7 @@ export const SingleDatePicker = () => {
   />;
 };
 
-SingleDatePicker.story = {
+_DatePicker.story = {
   name: 'Single Date',
   parameters: {
     design: {
@@ -45,7 +45,7 @@ SingleDatePicker.story = {
   },
 };
 
-export const MultiDatePicker = () => {
+export const _DateRangePicker = () => {
   const initialStartDate = new Date();
   const initialEndDate = new Date();
   initialEndDate.setDate(initialEndDate.getDate() + 7)
@@ -63,7 +63,7 @@ export const MultiDatePicker = () => {
       'None': null,
     };
 
-    const defaultValue = null;
+    const defaultValue = 'startDate';
     const optionsObj = {
       display: 'select',
     };
@@ -80,7 +80,7 @@ export const MultiDatePicker = () => {
   />;
 };
 
-MultiDatePicker.story = {
+_DateRangePicker.story = {
   name: 'Date Range',
   parameters: {
     design: {

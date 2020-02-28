@@ -19,17 +19,14 @@ import {
   space,
 } from '../../themes/baseTheme';
 
-const StyledDatePicker = styled(Box)`
+export const StyledDatePickerBase = styled(Box)`
   font-family: ${fonts.default};
 
   .MuiSvgIcon-root {
     color: ${colors.primaryFont};
   }
 
-  .SingleDatePickerInput__withBorder {
-    border-radius: ${radii.input}px;
-    border-color: ${colors.borderColor};
-
+  .DateInput {
     input {
       font: ${fontWeights.regular} ${fontSizes[1]}px ${fonts.default};
       padding: ${space[3]}px;
@@ -40,22 +37,9 @@ const StyledDatePicker = styled(Box)`
     input::placeholder {
       color: ${colors.primaryFontSubdued};
     }
-
-    .SingleDatePickerInput_clearDate {
-      padding: 0;
-
-      .MuiSvgIcon-root {
-        width: 20px;
-      }
-    }
   }
 
-  .SingleDatePicker_picker {
-    box-shadow: ${shadows.small};
-    margin-top: ${space[3]}px;
-  }
-
-  .DayPicker__withBorder {
+  .DayPicker {
     border-radius: ${radii.input}px;
     box-shadow: ${shadows.large};
   }
@@ -124,6 +108,27 @@ const StyledDatePicker = styled(Box)`
   }
 `;
 
+const StyledDatePicker = styled(StyledDatePickerBase)`
+  .SingleDatePickerInput {
+    border-radius: ${radii.input}px;
+    border-color: ${colors.borderColor};
+  }
+
+  .SingleDatePicker_picker {
+    box-shadow: ${shadows.small};
+    margin-top: ${space[3]}px;
+  }
+
+  .SingleDatePickerInput_clearDate {
+    padding: 0;
+    display: flex;
+
+    .MuiSvgIcon-root {
+      width: 20px;
+    }
+  }
+`;
+
 export const DatePicker = (props) => {
   const [date, setDate] = useState(props.initialDate);
   const [focused, setFocused] = useState(props.initialFocused);
@@ -148,8 +153,8 @@ export const DatePicker = (props) => {
         navPrev={<NavigateBeforeRoundedIcon />}
         customCloseIcon={<CloseRoundedIcon />}
         isOutsideRange={props.isOutsideRange}
-        enableOutsideDays={props.enableOutsideDays}
         daySize={36}
+        enableOutsideDays
         hideKeyboardShortcutsPanel
         showClearDate
       />
@@ -169,7 +174,6 @@ DatePicker.defaultProps = {
   onDateChange: noop,
   onFocusChange: noop,
   isOutsideRange: noop,
-  enableOutsideDays: true,
 };
 
 export default DatePicker;
