@@ -20,6 +20,8 @@ const YYYY_MM_DD_FORMAT = t('YYYY-MM-DD');
 const MMM_D_YYYY_H_MM_A_FORMAT = t('MMM D, YYYY h:mm a');
 const MMM_D_H_MM_A_FORMAT = t('MMM D, h:mm a');
 
+const DEVICE_PARAMS_OFFSET = 30 * 60 * 1000;
+
 module.exports = {
   AUTOMATED_BASAL_DEVICE_MODELS: {
     Medtronic: ['1580', '1581', '1582', '1780', '1781', '1782'],
@@ -67,4 +69,5 @@ module.exports = {
   DDD_FORMAT,
   MMM_FORMAT,
   MMM_D_FORMAT,
+  DEVICE_PARAMS_OFFSET,
 };

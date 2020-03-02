@@ -234,6 +234,25 @@ svg {
   dominant-baseline: central;
   text-anchor: middle;
 }
+// deviceParameter
+.d3-param-carbs {
+  fill: @carbs;
+}
+.d3-param-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+.d3-circle-param {
+  fill: @parameter;
+}
+.d3-param-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
 
 .d3-pa {
   &.d3-rect-picto {
@@ -813,6 +832,7 @@ text.d3-tabular-ui {
 .d3-wizard-group,
 .d3-pa-group,
 .d3-reservoir-group,
+.d3-parameter-group,
 .d3-bolus-group,
 .d3-carb-group {
   cursor: default;

@@ -60,6 +60,7 @@ module.exports = {
     carb: require('./plot/carb'),
     physicalActivity: require('./plot/physicalActivity'),
     reservoirChange: require('./plot/reservoir'),
+    deviceParameterChange: require('./plot/deviceParameterChange'),
     stats: {
       puddle: require('./plot/stats/puddle'),
     },

@@ -28,14 +28,14 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS } = require('./data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS,DEVICE_PARAMS_OFFSET } = require('./data/util/constants');
 
 var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
 var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
 var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
 
 function TidelineData(data, opts) {
-  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings', 'physicalActivity'];
+  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings', 'physicalActivity', 'deviceEvent'];
 
   opts = opts || {};
   var bgUnits = opts.bgUnits || MGDL_UNITS;
@@ -526,6 +526,37 @@ function TidelineData(data, opts) {
   });
   endTimer('diabetesData');
 
+  startTimer('deviceEvents');
+  var parameters = _.filter( data,  {type: 'deviceEvent', subType: 'deviceParameter'});
+  var sortedParameters =_.orderBy(parameters,['normaltime'], ['desc']);
+
+  this.deviceParameters = [];
+  if (sortedParameters.length > 1) {
+    var first = sortedParameters[0];
+    var group = { 
+      normalTime: first.normalTime,
+      id: first.id,
+      params: [first]
+    }
+    for (let i = 1; i < sortedParameters.length; ++i) {      
+      const item = sortedParameters[i];
+      if (dt.difference(item.normalTime, group.normalTime) < DEVICE_PARAMS_OFFSET) {
+        // add to current group
+        group.params.push(item);
+      } else {
+        this.deviceParameters.push(group);
+        group = { 
+          normalTime: item.normalTime,
+          id: item.id,
+          params: [item]
+        }
+      }
+    }
+    this.deviceParameters.push(group);
+  }
+  // this.deviceParameters = parameters.slice(0,parameters.length-1);
+  endTimer('deviceEvents');
+
   this.setBGPrefs();
 
   this.activeScheduleIsAutomated = function() {
@@ -573,6 +604,7 @@ function TidelineData(data, opts) {
             'reservoirChange',
             'prime',
             'calibration',
+            'deviceParameter'
           ];
           if (_.includes(includedSubtypes, d.subType)) {
             return true;
