@@ -3,6 +3,9 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Fixed
+- PT-1128 Refresh button is automatically switching to BGM 
+
 ### Changed
 - PT-1112 Upgrade Viz to 0.10.4: change the color of RescueCarb tool tip to be consistent with the other tool tips
 - PT-1135 Remove BGLog page

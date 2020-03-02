@@ -522,7 +522,6 @@ export let PatientData = translate()(React.createClass({
       ];
 
       this.dataUtil.endpoints = data.basics.endpoints;
-      this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
 
       data.basics.stats = {
         [commonStats.timeInRange]: getStat(commonStats.timeInRange),
@@ -543,7 +542,6 @@ export let PatientData = translate()(React.createClass({
         ];
 
         this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
-        this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
 
         data.daily.dataByDate[key].stats = {
           [commonStats.timeInRange]: getStat(commonStats.timeInRange),
@@ -563,7 +561,6 @@ export let PatientData = translate()(React.createClass({
       ];
 
       this.dataUtil.endpoints = data.bgLog.endpoints;
-      this.dataUtil.chartPrefs = this.state.chartPrefs['bgLog'];
 
       data.bgLog.stats = {
         [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
