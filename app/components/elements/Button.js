@@ -2,89 +2,96 @@ import React from 'react';
 import { Button as Base, Flex } from 'rebass';
 import Styled from 'styled-components';
 import PropTypes from 'prop-types';
-import baseTheme from '../../themes/baseTheme';
+
 import { ButtonFont } from './FontStyles';
 
+import {
+  space,
+  colors,
+  fontSizes,
+  transitions,
+} from '../../themes/baseTheme';
+
 const ButtonComponent = Styled(Base)`
-color: #fff;
-border-radius: 4px;
-padding-right: ${baseTheme.space[4]}px;
-padding-left: ${baseTheme.space[4]}px;
-padding-bottom: ${baseTheme.space[2]}px;
-padding-top: ${baseTheme.space[2]}px;
-font-size: ${baseTheme.fontSizes[0]}px;
-line-height: 14px;
-font-family: BasisMedium, Helvetica, Ariel, sans-serif;
-background-color: ${baseTheme.colors.mediumPurple};
-height: 32px;
-transition: ${baseTheme.transition};
-border: 1px solid ${baseTheme.colors.mediumPurple};
-cursor: pointer;
-white-space: nowrap;
-
-a {
   color: #fff;
-}
+  border-radius: 4px;
+  padding-right: ${space[4]}px;
+  padding-left: ${space[4]}px;
+  padding-bottom: ${space[2]}px;
+  padding-top: ${space[2]}px;
+  font-size: ${fontSizes[0]}px;
+  line-height: 14px;
+  font-family: BasisMedium, Helvetica, Ariel, sans-serif;
+  background-color: ${colors.purpleMedium};
+  height: 32px;
+  transition: ${transitions.easeOut};
+  border: 1px solid ${colors.purpleMedium};
+  cursor: pointer;
+  white-space: nowrap;
 
-&:hover {
-  background-color: #fff;
-   ${ButtonFont} {
-    color: ${baseTheme.colors.mediumPurple};
+  a {
+    color: #fff;
   }
-}
 
-&:focus {
-  box-shadow: none;
-}
+  &:hover {
+    background-color: #fff;
+    ${ButtonFont} {
+      color: ${colors.purpleMedium};
+    }
+  }
 
-&.active {
-  border: none;
-  box-shadow: none;
-}
+  &:focus {
+    box-shadow: none;
+  }
 
-&:active {
-  border: solid 1px ${baseTheme.colors.lightGrey};
-  background-color: transparent;
-}
+  &.active {
+    border: none;
+    box-shadow: none;
+  }
 
-&.outline {
-  border: solid 1px ${baseTheme.colors.lightGrey};
-  background-color: transparent;
-}
+  &:active {
+    border: solid 1px ${colors.lightGrey};
+    background-color: transparent;
+  }
 
-&.outline:hover {
-  border-color: ${baseTheme.colors.mediumPurple};
-}
+  &.outline {
+    border: solid 1px ${colors.lightGrey};
+    background-color: transparent;
+  }
 
-&.outline ${ButtonFont} {
-  color: ${baseTheme.colors.mediumPurple};
-}
+  &.outline:hover {
+    border-color: ${colors.purpleMedium};
+  }
 
-&.bold {
-  border: solid 1px ${baseTheme.colors.coral};
-  background-color: ${baseTheme.colors.coral};
-}
+  &.outline ${ButtonFont} {
+    color: ${colors.purpleMedium};
+  }
 
-&.bold:hover{
-  background-color: ${baseTheme.colors.orange};
-}
+  &.bold {
+    border: solid 1px ${colors.coral};
+    background-color: ${colors.coral};
+  }
 
-&.bold ${ButtonFont} {
-  color: ${baseTheme.colors.white};
-}
+  &.bold:hover{
+    background-color: ${colors.orange};
+  }
 
-&.bold:hover ${ButtonFont} {
-  color: #fff;
-}
+  &.bold ${ButtonFont} {
+    color: ${colors.white};
+  }
 
-&.small {
-  padding-right: ${baseTheme.space[2]}px;
-  padding-left: ${baseTheme.space[2]}px;
-}
+  &.bold:hover ${ButtonFont} {
+    color: #fff;
+  }
 
-&.large {
-  height: 44px;
-}
+  &.small {
+    padding-right: ${space[2]}px;
+    padding-left: ${space[2]}px;
+  }
+
+  &.large {
+    height: 44px;
+  }
 `;
 
 class Button extends React.PureComponent {

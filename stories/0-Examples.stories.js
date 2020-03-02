@@ -14,12 +14,12 @@ const TidepoolButton = styled.button`
   height: 50px;
   width: 200px;
   font-size: 1em;
-`
+`;
 
 export default {
   title: 'Examples',
   component: Button,
-  decorators: [withDesign]
+  decorators: [withDesign],
 };
 
 export const Tidepool = () => (
@@ -31,10 +31,10 @@ Tidepool.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153'
-    }
-  }
-}
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
+    },
+  },
+};
 
 export const RebassButton = () => (
   <Button>Rebass Button</Button>
@@ -45,7 +45,7 @@ RebassButton.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153'
-    }
-  }
-}
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
+    },
+  },
+};
