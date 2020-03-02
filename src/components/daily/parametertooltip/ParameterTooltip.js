@@ -21,18 +21,38 @@ import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/date
 
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
-import styles from './ReservoirTooltip.css';
+import styles from './ParameterTooltip.css';
 import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
-class ReservoirTooltip extends PureComponent {
-  renderReservoir() {
-    const rows = [
-      <div key={'title'} className={styles.pa}>
-        <div className={styles.label}>{t('Reservoir Change')}</div>
-      </div>,
-    ];
+class ParameterTooltip extends PureComponent {
+  renderParameter(parameter) {
+    const prev = (parameter.previousValue !== undefined)
+      ? <div className={styles.previous}>{parameter.previousValue}&rarr;</div>
+      : <div>&nbsp;</div>;
+    return (
+      <div className={styles.pa} key={parameter.id}>
+        <div className={styles.date}>{
+          formatLocalizedFromUTC(
+            parameter.normalTime,
+            this.props.timePrefs,
+            getHourMinuteFormat())
+          }
+        </div>
+        <div className={styles.label}>{t(`params:::${parameter.name}`)} </div>
+        {prev}
+        <div className={styles.value}>{parameter.value}</div>
+        <div className={styles.units}>{t(`${parameter.units}`)}</div>
+      </div>
+    );
+  }
+
+  renderParameters(parameters) {
+    const rows = [];
+    for (let i = 0; i < parameters.length; ++i) {
+      rows.push(this.renderParameter(parameters[i]));
+    }
 
     return <div className={styles.container}>{rows}</div>;
   }
@@ -42,7 +62,7 @@ class ReservoirTooltip extends PureComponent {
       <div className={styles.title}>
         {
           formatLocalizedFromUTC(
-            this.props.reservoir.normalTime,
+            this.props.parameter.normalTime,
             this.props.timePrefs,
             getHourMinuteFormat())
           }
@@ -52,13 +72,13 @@ class ReservoirTooltip extends PureComponent {
       <Tooltip
         {...this.props}
         title={title}
-        content={this.renderReservoir()}
+        content={this.renderParameters(this.props.parameter.params)}
       />
     );
   }
 }
 
-ReservoirTooltip.propTypes = {
+ParameterTooltip.propTypes = {
   position: PropTypes.shape({
     top: PropTypes.number.isRequired,
     left: PropTypes.number.isRequired,
@@ -69,19 +89,30 @@ ReservoirTooltip.propTypes = {
     horizontal: PropTypes.number,
   }),
   title: PropTypes.node,
-  tail: PropTypes.bool.isRequired,
-  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
-  tailColor: PropTypes.string.isRequired,
-  tailWidth: PropTypes.number.isRequired,
-  tailHeight: PropTypes.number.isRequired,
+  tail: PropTypes.bool,
+  side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']),
+  tailColor: PropTypes.string,
+  tailWidth: PropTypes.number,
+  tailHeight: PropTypes.number,
   backgroundColor: PropTypes.string,
-  borderColor: PropTypes.string.isRequired,
-  borderWidth: PropTypes.number.isRequired,
-  reservoir: PropTypes.number.isRequired,
+  borderColor: PropTypes.string,
+  borderWidth: PropTypes.number,
+  parameter: PropTypes.shape({
+    normalTime: PropTypes.string.isRequired,
+    params: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        normalTime: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        value: PropTypes.string.isRequired,
+        previousValue: PropTypes.string,
+        units: PropTypes.string.isRequired,
+      })).isRequired,
+  }).isRequired,
   timePrefs: PropTypes.object.isRequired,
 };
 
-ReservoirTooltip.defaultProps = {
+ParameterTooltip.defaultProps = {
   tail: true,
   side: 'right',
   tailWidth: 9,
@@ -91,4 +122,4 @@ ReservoirTooltip.defaultProps = {
   borderWidth: 2,
 };
 
-export default ReservoirTooltip;
+export default ParameterTooltip;

@@ -63,6 +63,7 @@
   --bg-history-updated-soft:rgba(255,211,130,0.1);
   --bg-history-deleted-plain:rgba(251,89,81,1);
   --bg-history-deleted-soft:rgba(251,89,81,0.1);
+  --activeValue: #45A39A;
 }
 
 
@@ -83,4 +84,6 @@
   axis: #e7e9ee;
   muted: #c1c9d6;
   rescuecarbs: #fa9494;
+  deviceEvent: #727375;
+  physicalActivity: #00D3E6;
 }

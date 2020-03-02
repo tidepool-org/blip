@@ -101,7 +101,7 @@ PhysicalTooltip.propTypes = {
     left: PropTypes.number,
     horizontal: PropTypes.number,
   }),
-  titls: PropTypes.node,
+  title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailColor: PropTypes.string.isRequired,
@@ -125,8 +125,8 @@ PhysicalTooltip.defaultProps = {
   side: 'right',
   tailWidth: 9,
   tailHeight: 17,
-  tailColor: colors.bolus,
-  borderColor: colors.bolus,
+  tailColor: colors.physicalActivity,
+  borderColor: colors.physicalActivity,
   borderWidth: 2,
 };
 

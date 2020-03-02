@@ -1,0 +1,74 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+@import '../../../styles/colors.css';
+
+.container {
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 80px;
+  margin: 2px 0;
+  max-width: 300px;
+}
+
+.row {
+  composes: smallSize from '../../../styles/typography.css';
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  line-height: 20px;
+}
+
+.date {
+  /* flex-grow: 1; */
+  padding-right: 5px;
+  width: 50px;
+  max-width: 50px;
+}
+
+.label {
+  flex-grow: 1;
+  font-weight: bold;
+  text-align: left;
+}
+
+.previous {
+  margin-left: 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.value {
+  margin-left: 2px;
+  font-weight: bold;
+  color: var(--activeValue);
+  text-align: left;
+}
+
+.units {
+  min-width: 0.7em;
+  margin-left: 2px;
+}
+
+.title {
+  composes: smallSize from '../../../styles/typography.css';
+  text-align: right;
+}
+
+.pa {
+  composes: row;
+}
