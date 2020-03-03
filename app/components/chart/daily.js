@@ -40,6 +40,7 @@ const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
 const ReservoirTooltip = vizComponents.ReservoirTooltip;
 const PhysicalTooltip = vizComponents.PhysicalTooltip;
+const ParameterTooltip = vizComponents.ParameterTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -73,6 +74,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     onReservoirOut: React.PropTypes.func.isRequired,
     onPhysicalHover: React.PropTypes.func.isRequired,
     onPhysicalOut: React.PropTypes.func.isRequired,
+    onParameterHover: React.PropTypes.func.isRequired,
+    onParameterOut: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -96,6 +99,8 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onReservoirOut',
       'onPhysicalHover',
       'onPhysicalOut',
+      'onParameterHover',
+      'onParameterOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -326,6 +331,8 @@ class Daily extends Component {
                 onReservoirOut={this.handleReservoirOut}
                 onPhysicalHover={this.handlePhysicalHover}
                 onPhysicalOut={this.handlePhysicalOut}
+                onParameterHover={this.handleParameterHover}
+                onParameterOut={this.handleParameterOut}
                 ref="chart" />
             </div>
           </div>
@@ -413,6 +420,17 @@ class Daily extends Component {
           bgPrefs={this.props.bgPrefs}
           timePrefs={this.props.timePrefs}
         />}
+        {this.state.hoveredParameter && <ParameterTooltip
+          position={{
+            top: this.state.hoveredParameter.top,
+            left: this.state.hoveredParameter.left
+          }}
+          side={this.state.hoveredParameter.side}
+          parameter={this.state.hoveredParameter.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={this.props.timePrefs}
+        />}
+       
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
@@ -654,6 +672,29 @@ class Daily extends Component {
   handlePhysicalOut = () => {
     this.setState({
       hoveredPhysical: false
+    });
+  };
+
+  handleParameterHover = parameter => {
+    const { rect } = parameter;
+    // range here is -12 to 12
+    const hoursOffset = sundial.dateDifference(parameter.data.normalTime, this.state.datetimeLocation, 'h');
+    parameter.top = rect.top + (rect.height / 2)
+    if (hoursOffset > 5) {
+      parameter.side = 'left';
+      parameter.left = rect.left;
+    } else {
+      parameter.side = 'right';
+      parameter.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredParameter: parameter
+    });
+  }
+
+  handleParameterOut = () => {
+    this.setState({
+      hoveredParameter: false
     });
   };
 

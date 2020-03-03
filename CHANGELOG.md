@@ -3,6 +3,9 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Added
+- PT-880 Display Parameter object change in Daily view
+
 ### Fixed
 - PT-1128 Refresh button is automatically switching to BGM 
 
