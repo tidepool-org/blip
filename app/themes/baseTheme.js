@@ -78,6 +78,7 @@ export default {
   fonts,
   fontSizes,
   fontWeights,
+  lineHeights,
   mediaQueries,
   radii,
   shadows,
