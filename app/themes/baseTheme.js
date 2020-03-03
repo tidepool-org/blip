@@ -45,6 +45,8 @@ export const fontWeights = {
   black: 900,
 };
 
+export const lineHeights = [1, 1.25, 1.33, 1.5, 1.75, 2];
+
 export const mediaQueries = {
   phone: '@media screen and (max-width: 512px)',
   tablet: '@media screen and (max-width: 767px)',
@@ -76,6 +78,7 @@ export default {
   fonts,
   fontSizes,
   fontWeights,
+  lineHeights,
   mediaQueries,
   radii,
   shadows,
