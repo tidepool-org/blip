@@ -48,6 +48,7 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
+    "@quickbaseoss/babel-plugin-styled-components-css-namespace": "1.0.0-rc4",
     "@storybook/addon-actions": "5.3.13",
     "@storybook/addon-knobs": "5.3.13",
     "@storybook/addon-links": "5.3.13",
