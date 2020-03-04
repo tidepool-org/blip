@@ -9,6 +9,8 @@ import { Dialog, DialogActions, DialogContent, DialogTitle } from '../app/compon
 import Button from '../app/components/elements/Button';
 import { Body1, Title } from '../app/components/elements/FontStyles';
 
+/* eslint-disable max-len */
+
 // Wrap each story component with the base theme
 const withTheme = Story => (
   <ThemeProvider theme={baseTheme}>
@@ -52,13 +54,7 @@ export const DialogStory = () => {
 
         <DialogContent>
           <Body1>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          </Body1>
-          <Body1>
-             Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-             ea commodo consequat.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
           </Body1>
         </DialogContent>
 
