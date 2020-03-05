@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import buttons from './base/buttons';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -66,33 +67,9 @@ export const transitions = {
 
 export const zIndices = [0, 10, 100, 1000];
 
-/* Element Theming */
-export const buttons = {
-  primary: {
-    backgroundColor: colors.purpleMedium,
-    border: borders.input,
-    borderColor: colors.purpleMedium,
-    color: colors.white,
-    '&:hover,&:active,&:focus': {
-      backgroundColor: colors.text.primary,
-      borderColor: colors.text.primary,
-    },
-  },
-  secondary: {
-    bg: colors.white,
-    color: colors.text.primary,
-    border: borders.input,
-    '&:hover,&:active,&:focus': {
-      color: colors.white,
-      backgroundColor: colors.text.primary,
-      borderColor: colors.text.primary,
-    },
-  },
-};
-
 export default {
   breakpoints,
-  buttons,
+  buttons: buttons({ colors, borders }),
   colors,
   fonts,
   fontSizes,
