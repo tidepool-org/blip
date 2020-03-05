@@ -13,10 +13,14 @@ const StyledButton = styled(Base)`
   transition: ${transitions.easeOut};
 `;
 
-export const Button = props => (
-  <StyledButton {...props}>
-    <ButtonFont {...props} />
-  </StyledButton>
-);
+export const Button = props => {
+  const { children, ...buttonProps } = props;
+
+  return (
+    <StyledButton {...buttonProps}>
+      <ButtonFont>{children}</ButtonFont>
+    </StyledButton>
+  );
+};
 
 export default Button;
