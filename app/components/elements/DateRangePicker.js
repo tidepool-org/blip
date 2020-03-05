@@ -71,7 +71,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const DateRangePicker = (props) => {
+export const DateRangePicker = props => {
   const [dates, setDates] = useState({
     startDate: props.initialStartDate,
     endDate: props.initialEndDate,

@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import buttons from './base/buttons';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -15,12 +16,6 @@ export const colors = {
   },
   border: {
     default: colorPalette.extended.grays[1],
-  },
-  button: {
-    default: {
-      background: colorPalette.primary.purpleMedium,
-      color: colorPalette.neutrals.white,
-    },
   },
 };
 
@@ -74,6 +69,7 @@ export const zIndices = [0, 10, 100, 1000];
 
 export default {
   breakpoints,
+  buttons: buttons({ colors, borders }),
   colors,
   fonts,
   fontSizes,

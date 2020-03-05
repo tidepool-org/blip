@@ -40,7 +40,7 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const DatePicker = (props) => {
+export const DatePicker = props => {
   const [date, setDate] = useState(props.initialDate);
   const [focused, setFocused] = useState(props.initialFocused);
 
