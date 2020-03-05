@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import momentPropTypes from 'react-moment-proptypes';
 import { DateRangePicker as DateRangePickerBase, DateRangePickerShape } from 'react-dates';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 
@@ -72,20 +70,22 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
 `;
 
 export const DateRangePicker = props => {
-  const [dates, setDates] = useState({
-    startDate: props.initialStartDate,
-    endDate: props.initialEndDate,
-  });
-  const [focusedInput, setFocusedInput] = useState(props.initialFocusedInput);
+  const {
+    startDate,
+    endDate,
+    focusedInput: focusedInputProp,
+    isOutsideRange,
+    onDateChange,
+    onFocusChange,
+    ...datePickerProps
+  } = props;
+
+  const [dates, setDates] = useState({ startDate, endDate });
+  const [focusedInput, setFocusedInput] = useState(focusedInputProp);
 
   return (
     <StyledDateRangePicker>
       <DateRangePickerBase
-        {...omit(props, [
-          'initialStartDate',
-          'initialEndDate',
-          'initialFocusedInput',
-        ])}
         startDate={dates.startDate}
         startDateId={props.startDateId}
         endDate={dates.endDate}
@@ -103,27 +103,21 @@ export const DateRangePicker = props => {
         navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
         customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
         customArrowIcon={<IconButton label="to" icon={ArrowRightAltRoundedIcon} />}
-        isOutsideRange={props.isOutsideRange}
-        enableOutsideDays={props.enableOutsideDays}
         daySize={36}
         hideKeyboardShortcutsPanel
         showClearDates
+        {...datePickerProps}
       />
     </StyledDateRangePicker>
   );
 };
 
-DateRangePicker.propTypes = {
-  ...DateRangePickerShape,
-  initialStartDate: momentPropTypes.momentObj,
-  initialEndDate: momentPropTypes.momentObj,
-  initialFocusedInput: DateRangePickerShape.focusedInput,
-};
+DateRangePicker.propTypes = DateRangePickerShape;
 
 DateRangePicker.defaultProps = {
-  initialStartDate: null,
-  initialEndDate: null,
-  initialFocusedInput: null,
+  startDate: null,
+  endDate: null,
+  focusedInput: null,
   onDatesChange: noop,
   onFocusChange: noop,
   isOutsideRange: noop,
