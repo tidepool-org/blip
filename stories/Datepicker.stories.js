@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
+import WindowSizeListener from 'react-window-size-listener';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, date, optionsKnob as options } from '@storybook/addon-knobs';
@@ -21,7 +22,7 @@ export default {
 export const DatePickerStory = () => {
   const initialDate = new Date();
 
-  const initialDateKnob = (name, defaultValue) => {
+  const dateKnob = (name, defaultValue) => {
     const stringTimestamp = date(name, defaultValue);
     return moment.utc(stringTimestamp);
   };
@@ -30,8 +31,8 @@ export const DatePickerStory = () => {
 
   return <DatePicker
     id="singleDatePicker"
-    initialFocused={getFocused()}
-    initialDate={initialDateKnob('Initial Date', initialDate)}
+    focused={getFocused()}
+    date={dateKnob('Initial Date', initialDate)}
   />;
 };
 
@@ -50,7 +51,7 @@ export const DateRangePickerStory = () => {
   const initialEndDate = new Date();
   initialEndDate.setDate(initialEndDate.getDate() + 7);
 
-  const initialDateKnob = (name, defaultValue) => {
+  const dateKnob = (name, defaultValue) => {
     const stringTimestamp = date(name, defaultValue);
     return moment.utc(stringTimestamp);
   };
@@ -71,13 +72,25 @@ export const DateRangePickerStory = () => {
     return options(label, valuesObj, defaultValue, optionsObj);
   };
 
-  return <DateRangePicker
-    startDateId="dateRangeStart"
-    endDateId="dateRangeEnd"
-    initialFocusedInput={focusedInputKnob()}
-    initialStartDate={initialDateKnob('Initial Start Date', initialStartDate)}
-    initialEndDate={initialDateKnob('Initial End Date', initialEndDate)}
-  />;
+  const [orientation, setOrientation] = useState('horizontal');
+
+  const handleWindowResize = size => {
+    setOrientation(size.windowWidth > 550 ? 'horizontal' : 'vertical');
+  };
+
+  return (
+    <React.Fragment>
+      <DateRangePicker
+        startDateId="dateRangeStart"
+        endDateId="dateRangeEnd"
+        orientation={orientation}
+        focusedInput={focusedInputKnob()}
+        startDate={dateKnob('Initial Start Date', initialStartDate)}
+        endDate={dateKnob('Initial End Date', initialEndDate)}
+      />
+      <WindowSizeListener onResize={handleWindowResize} />
+    </React.Fragment>
+  );
 };
 
 DateRangePickerStory.story = {
