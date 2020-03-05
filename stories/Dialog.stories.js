@@ -81,6 +81,7 @@ export const DialogStory = () => {
 
       <Dialog
         id="confirmDialog"
+        aria-labelledby="dialog-title"
         open={open}
         onClose={handleClose}
         // Disabled focus to allow DialogTitle text knob to focus. Should not disable in regular use
@@ -90,7 +91,7 @@ export const DialogStory = () => {
       >
         {showTitle() && (
           <DialogTitle onClose={handleClose} closeIcon={showTitleClose()}>
-            <Title>{titleText()}</Title>
+            <Title id="dialog-title">{titleText()}</Title>
           </DialogTitle>
         )}
 
