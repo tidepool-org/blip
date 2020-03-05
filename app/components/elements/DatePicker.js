@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import momentPropTypes from 'react-moment-proptypes';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 
@@ -41,22 +39,26 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
 `;
 
 export const DatePicker = props => {
-  const [date, setDate] = useState(props.initialDate);
-  const [focused, setFocused] = useState(props.initialFocused);
+  const {
+    date: dateProp,
+    focused: focusedProp,
+    isOutsideRange,
+    onDateChange,
+    onFocusChange,
+    ...datePickerProps
+  } = props;
+  const [date, setDate] = useState(dateProp);
+  const [focused, setFocused] = useState(focusedProp);
 
   return (
     <StyledDatePicker>
       <SingleDatePicker
-        {...omit(props, [
-          'initialFocused',
-          'initialDate',
-        ])}
         date={date}
-        onDateChange={newDate => setDate(newDate) && props.onDateChange(newDate)}
+        onDateChange={newDate => setDate(newDate) && onDateChange(newDate)}
         focused={focused}
         onFocusChange={({ focused: newFocused }) => {
           setFocused(newFocused);
-          props.onFocusChange(newFocused);
+          onFocusChange(newFocused);
         }}
         id={props.id}
         numberOfMonths={1}
@@ -66,25 +68,22 @@ export const DatePicker = props => {
         navNext={<IconButton label="next month" icon={NavigateNextRoundedIcon} />}
         navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
         customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
-        isOutsideRange={props.isOutsideRange}
+        isOutsideRange={isOutsideRange}
         daySize={36}
         enableOutsideDays
         hideKeyboardShortcutsPanel
         showClearDate
+        {...datePickerProps}
       />
     </StyledDatePicker>
   );
 };
 
-DatePicker.propTypes = {
-  ...SingleDatePickerShape,
-  initialDate: momentPropTypes.momentObj,
-  initialFocused: SingleDatePickerShape.focused,
-};
+DatePicker.propTypes = SingleDatePickerShape;
 
 DatePicker.defaultProps = {
-  initialDate: null,
-  initialFocused: false,
+  date: null,
+  focused: false,
   onDateChange: noop,
   onFocusChange: noop,
   isOutsideRange: noop,
