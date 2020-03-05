@@ -13,6 +13,7 @@ import {
   space,
 } from '../../themes/baseTheme';
 
+/* Dialog Title Start */
 const StyledDialogTitle = styled(Flex)`
   justify-content: space-between;
   padding: ${space[3]}px;
@@ -41,8 +42,20 @@ DialogTitle.propTypes = {
 DialogTitle.defaultProps = {
   closeIcon: true,
 };
+/* Dialog Title End */
 
-const StyledDialogContent = styled(MuiDialogContent)``;
+/* Dialog Content Start */
+const StyledDialogContent = styled(MuiDialogContent)`
+  padding: ${space[4]}px ${space[3]}px;
+
+  div:first-child {
+    margin-top: 0;
+  }
+
+  div:last-child {
+    margin-bottom: 0;
+  }
+`;
 
 export const DialogContent = props => <StyledDialogContent {...props} />;
 
@@ -53,8 +66,16 @@ DialogContent.propTypes = {
 DialogContent.defaultProps = {
   dividers: true,
 };
+/* Dialog Content End */
 
-const StyledDialogActions = styled(MuiDialogActions)``;
+/* Dialog Actions Start */
+const StyledDialogActions = styled(MuiDialogActions)`
+  padding: ${space[3]}px;
+
+  button {
+    margin-left: ${space[2]}px;
+  }
+`;
 
 export const DialogActions = props => <StyledDialogActions {...props} />;
 
@@ -65,7 +86,9 @@ DialogActions.propTypes = {
 DialogActions.defaultProps = {
   disableSpacing: true,
 };
+/* Dialog Actions End */
 
+/* Dialog Start */
 const StyledDialog = styled(MuiDialog)``;
 
 export const Dialog = props => <StyledDialog {...props} />;
@@ -74,3 +97,4 @@ Dialog.propTypes = {
   ...DialogProps,
   id: PropTypes.string.isRequired,
 };
+/* Dialog End */
