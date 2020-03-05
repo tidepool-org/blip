@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean, text } from '@storybook/addon-knobs';
+import { withKnobs, boolean, text, number } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -23,15 +23,55 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-export const DialogStory = () => {
-  const getInitialOpen = () => boolean('Initially Open', true);
-  const getTitle = () => text('Dialog Title', 'Dialog Title');
+const DIALOG = 'Dialog';
+const TITLE = 'Title';
+const CONTENT = 'Content';
+const ACTIONS = 'Actions';
 
-  const [open, setOpen] = useState(getInitialOpen());
+export const DialogStory = () => {
+  const initiallyOpen = () => boolean('Initially Open', true, DIALOG);
+
+  const showTitle = () => boolean('Show Title', true, TITLE);
+  const showTitleClose = () => boolean('Show Close Icon', true, TITLE);
+  const titleText = () => text('Title Text', 'Dialog Title', TITLE);
+
+  const showContent = () => boolean('Show Content', true, CONTENT);
+  const showDividers = () => boolean('Show Dividers', true, CONTENT);
+  const numberOfParagraphs = () => number('Number of Paragraphs', 2, {}, CONTENT);
+
+  const getParagraphs = () => {
+    const paragraphs = [];
+    let i = numberOfParagraphs();
+
+    while (i > 0) {
+      paragraphs.push((
+        <Body1 id={`paragraph-${i}`}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </Body1>
+      ));
+      i--;
+    }
+
+    return paragraphs;
+  };
+
+  const showActions = () => boolean('Show Actions', true, ACTIONS);
+  const alertOnActions = () => boolean('Alert on Action', false, ACTIONS);
+  const showAlert = alertOnActions();
+
+  const [open, setOpen] = useState(initiallyOpen());
 
   const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const handleSubmit = () => setOpen(false);
+
+  const handleClose = () => {
+    if (showAlert) alert('Closed!'); // eslint-disable-line no-alert
+    setOpen(false);
+  };
+
+  const handleSubmit = () => {
+    if (showAlert) alert('Submitted!'); // eslint-disable-line no-alert
+    setOpen(false);
+  };
 
   return (
     <React.Fragment>
@@ -48,27 +88,28 @@ export const DialogStory = () => {
         disableEnforceFocus
         disableRestoreFocus
       >
-        <DialogTitle onClose={handleClose}>
-          <Title>{getTitle()}</Title>
-        </DialogTitle>
+        {showTitle() && (
+          <DialogTitle onClose={handleClose} closeIcon={showTitleClose()}>
+            <Title>{titleText()}</Title>
+          </DialogTitle>
+        )}
 
-        <DialogContent>
-          <Body1>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          </Body1>
-          <Body1>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          </Body1>
-        </DialogContent>
+        {showContent() && (
+          <DialogContent dividers={showDividers()}>
+            {getParagraphs()}
+          </DialogContent>
+        )}
 
-        <DialogActions>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Confirm
-          </Button>
-        </DialogActions>
+        {showActions() && (
+          <DialogActions>
+            <Button variant="secondary" onClick={() => handleClose(alertOnActions())}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmit}>
+              Confirm
+            </Button>
+          </DialogActions>
+        )}
       </Dialog>
     </React.Fragment>
   );
@@ -78,7 +119,7 @@ DialogStory.story = {
   name: 'Confirmation',
   parameters: {
     design: {
-      type: 'iframe',
+      type: 'figma',
       url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=8%3A826',
     },
   },
