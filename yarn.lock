@@ -1404,7 +1404,7 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@quickbaseoss/babel-plugin-styled-components-css-namespace@^1.0.0-rc4":
+"@quickbaseoss/babel-plugin-styled-components-css-namespace@1.0.0-rc4":
   version "1.0.0-rc4"
   resolved "https://registry.yarnpkg.com/@quickbaseoss/babel-plugin-styled-components-css-namespace/-/babel-plugin-styled-components-css-namespace-1.0.0-rc4.tgz#3277134d6226ebbc7e5c850e07894f50d57cac44"
   integrity sha512-QN7aNR72corScYK3T7wwO/Dnw/QxEIITOQo7zdsTNoAmx4U1fZM06QOUoId/02txsa0k35OWgX/er/waWqKf0w==
@@ -1532,6 +1532,23 @@
     prop-types "^15.7.2"
     qs "^6.6.0"
     ts-dedent "^1.1.0"
+
+"@storybook/addon-viewport@5.3.13":
+  version "5.3.13"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-5.3.13.tgz#4a1ea684da2bb444dbe0653d0a27eb8a72cc2c94"
+  integrity sha512-sFhWhyhN1k9VdSXPRkO7QMy1MLib9m6YtBzPCTnNsz8CjAuMNtCA+7zNW/fqGGJAHxuVTTJaHRc51Zk35E4WJA==
+  dependencies:
+    "@storybook/addons" "5.3.13"
+    "@storybook/api" "5.3.13"
+    "@storybook/client-logger" "5.3.13"
+    "@storybook/components" "5.3.13"
+    "@storybook/core-events" "5.3.13"
+    "@storybook/theming" "5.3.13"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    memoizerific "^1.11.3"
+    prop-types "^15.7.2"
+    util-deprecate "^1.0.2"
 
 "@storybook/addons@5.3.13":
   version "5.3.13"
