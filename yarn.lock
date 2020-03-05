@@ -1533,6 +1533,23 @@
     qs "^6.6.0"
     ts-dedent "^1.1.0"
 
+"@storybook/addon-viewport@5.3.13":
+  version "5.3.13"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-5.3.13.tgz#4a1ea684da2bb444dbe0653d0a27eb8a72cc2c94"
+  integrity sha512-sFhWhyhN1k9VdSXPRkO7QMy1MLib9m6YtBzPCTnNsz8CjAuMNtCA+7zNW/fqGGJAHxuVTTJaHRc51Zk35E4WJA==
+  dependencies:
+    "@storybook/addons" "5.3.13"
+    "@storybook/api" "5.3.13"
+    "@storybook/client-logger" "5.3.13"
+    "@storybook/components" "5.3.13"
+    "@storybook/core-events" "5.3.13"
+    "@storybook/theming" "5.3.13"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    memoizerific "^1.11.3"
+    prop-types "^15.7.2"
+    util-deprecate "^1.0.2"
+
 "@storybook/addons@5.3.13":
   version "5.3.13"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-5.3.13.tgz#8c16fbab1142e2cd4bdfb93ffcb35a883dac2866"

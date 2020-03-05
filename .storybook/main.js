@@ -5,6 +5,7 @@ module.exports = {
     '@storybook/addon-links',
     '@storybook/addon-knobs',
     'storybook-addon-designs',
+    '@storybook/addon-viewport',
   ],
   webpackFinal: async config => {
     // do mutation to the config

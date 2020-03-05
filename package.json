@@ -53,6 +53,7 @@
     "@storybook/addon-actions": "5.3.13",
     "@storybook/addon-knobs": "5.3.13",
     "@storybook/addon-links": "5.3.13",
+    "@storybook/addon-viewport": "5.3.13",
     "@storybook/addons": "5.3.13",
     "@storybook/react": "5.3.13",
     "@tidepool/viz": "1.10.0-react-upgrade.1",
