@@ -8,6 +8,11 @@ export default ({ colors, borders }) => ({
       backgroundColor: colors.text.primary,
       borderColor: colors.text.primary,
     },
+    '&:disabled': {
+      backgroundColor: colors.lightestGrey,
+      borderColor: colors.lightestGrey,
+      color: colors.text.primaryDisabled,
+    },
   },
   secondary: {
     bg: colors.white,
@@ -17,6 +22,11 @@ export default ({ colors, borders }) => ({
       color: colors.white,
       backgroundColor: colors.text.primary,
       borderColor: colors.text.primary,
+    },
+    '&:disabled': {
+      backgroundColor: colors.lightestGrey,
+      borderColor: colors.lightestGrey,
+      color: colors.text.primaryDisabled,
     },
   },
 });
