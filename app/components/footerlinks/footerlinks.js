@@ -25,6 +25,7 @@ require('./images/jdrf_hover.png');
 
 var urlSupport = CONFIG[__BRANDING__].support;
 var urlLegal = CONFIG[__BRANDING__].legal;
+var urlPrivacy = CONFIG[__BRANDING__].privacy;
 
 const t = i18next.t.bind(i18next);
 var SupportText = (__BRANDING__ !== 'diabeloop') ? 'Get Support' : 'Diabeloop';
@@ -71,40 +72,54 @@ const FooterLinks = (props) => {
       </div>
     }
     <div className='footer-link large-format-only'>       
-        <a
-          href={urlSupport}
-          id='support'
-          onClick={metricFnMkr('Support')}
-          target="_blank">{t(SupportText)}</a>
+      <a
+        href={urlSupport}
+        id='support'
+        onClick={metricFnMkr('Support')}
+        target="_blank">{t(SupportText)}</a>
     </div>
-    <div className='footer-link'>       
+    {__BRANDING__ === 'diabeloop' ? (
+      <div className='footer-link'>
+        <a
+          href={urlPrivacy}
+          id='privacy'
+          onClick={metricFnMkr('Privacy')}
+          target='_blank'>{t('Privacy Policy')}</a> 
+        &nbsp;&&nbsp;
+        <a
+          href={urlLegal}
+          id='terms'
+          onClick={metricFnMkr('TermsOfUSe')}
+          target='_blank'>{t('Tidepool Applications Terms of Use')}</a>
+      </div> ) : (
+      <div className='footer-link'>
         <a
           href={urlLegal}
           id='legal'
           onClick={metricFnMkr('PP and TOU')}
           target='_blank'>{t('Privacy and Terms of Use')}</a>
-    </div>
+      </div> )
+    }
     {__BRANDING__ === 'diabeloop' ? (
-        <div className='footer-link large-format-only'>
-          <a
-            href='https://tidepool.org'
-            id='jdrf'
-            target='_blank'>
-            {t('Using Tidepool')}
-          </a>
-        </div>
-      ):(
-        <div className='footer-link footer-jdrf'>
-          <a
-            href='http://jdrf.org/'
-            id='jdrf'
-            onClick={metricFnMkr('JDRF')}
-            target='_blank'>
-            {t('Made possible by')}
-            <img />
-          </a>
-        </div>
-      )}
+      <div className='footer-link large-format-only'>
+        <a
+          href='https://tidepool.org'
+          id='jdrf'
+          target='_blank'>
+          {t('Using Tidepool')}
+        </a>
+      </div> ) : (
+      <div className='footer-link footer-jdrf'>
+        <a
+          href='http://jdrf.org/'
+          id='jdrf'
+          onClick={metricFnMkr('JDRF')}
+          target='_blank'>
+          {t('Made possible by')}
+          <img />
+        </a>
+      </div> )
+    }
     </div>
   );
 };

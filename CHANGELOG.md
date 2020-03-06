@@ -12,6 +12,7 @@ It is based on Tidepool Blip 1.27.
 ### Changed
 - PT-1112 Upgrade Viz to 0.10.4: change the color of RescueCarb tool tip to be consistent with the other tool tips
 - PT-1135 Remove BGLog page
+- PT-1140 Split the link to the terms of Use in the footer
 
 ## 0.12.0 - 2020-02-17
 ### Fixed
