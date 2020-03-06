@@ -14,7 +14,7 @@ export default {
   },
   neutrals: {
     white: '#FFFFFF',
-    lightestGrey: '#F9F9F9',
+    lightestGrey: '#F6F6F6',
     lightGrey: '#EDEDED',
     mediumGrey: '#979797',
     darkGrey: '#606060',
