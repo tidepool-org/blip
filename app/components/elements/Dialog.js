@@ -59,9 +59,7 @@ const StyledDialogContent = styled(MuiDialogContent)`
 
 export const DialogContent = props => <StyledDialogContent {...props} />;
 
-DialogContent.propTypes = {
-  ...DialogContentProps,
-};
+DialogContent.propTypes = DialogContentProps;
 
 DialogContent.defaultProps = {
   dividers: true,
@@ -79,9 +77,7 @@ const StyledDialogActions = styled(MuiDialogActions)`
 
 export const DialogActions = props => <StyledDialogActions {...props} />;
 
-DialogActions.propTypes = {
-  ...DialogActionsProps,
-};
+DialogActions.propTypes = DialogActionsProps;
 
 DialogActions.defaultProps = {
   disableSpacing: true,
@@ -89,9 +85,7 @@ DialogActions.defaultProps = {
 /* Dialog Actions End */
 
 /* Dialog Start */
-const StyledDialog = styled(MuiDialog)``;
-
-export const Dialog = props => <StyledDialog {...props} />;
+export const Dialog = props => <MuiDialog {...props} />;
 
 Dialog.propTypes = {
   ...DialogProps,
