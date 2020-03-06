@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.7.1 - 2020-03-06 
+### Fixed
+- PT-1155 Device Parameter change is not displayed if there is only one object in the fetched period
+
 ## 1.7.0 - 2020-03-02
 ### Added
 - PT-1122 Display Parameter object in daily view
