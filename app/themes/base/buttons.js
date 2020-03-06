@@ -4,7 +4,7 @@ export default ({ colors, borders }) => ({
     border: borders.input,
     borderColor: colors.purpleMedium,
     color: colors.white,
-    '&:hover,&:active,&:focus': {
+    '&:hover,&:active': {
       backgroundColor: colors.text.primary,
       borderColor: colors.text.primary,
     },
@@ -18,7 +18,7 @@ export default ({ colors, borders }) => ({
     bg: colors.white,
     color: colors.text.primary,
     border: borders.input,
-    '&:hover,&:active,&:focus': {
+    '&:hover,&:active': {
       color: colors.white,
       backgroundColor: colors.text.primary,
       borderColor: colors.text.primary,
