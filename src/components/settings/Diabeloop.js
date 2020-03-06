@@ -64,6 +64,7 @@ function renderDiabeloopParameters(parametersByLevel) {
     };
     tables.push(
       <Table
+        key={title.label.main}
         title={title}
         rows={parameters}
         columns={columns}
@@ -146,7 +147,7 @@ const Diabeloop = (props) => {
             addedParameterIcon={<i className="icon-add" />}
             deletedParameterIcon={<i className="icon-remove" />}
             updatedParameterIcon={<i className="icon-refresh" />}
-            changeValueArrowIcon={<i className="icon-next" />}
+            changeValueArrowIcon={<i className="icon-next" key="icon-next" />}
             switchToDailyIconClass="icon-chart-line"
             />
         </div>
@@ -181,12 +182,9 @@ Diabeloop.propTypes = {
       ).isRequired,
       history: PropTypes.arrayOf(
         PropTypes.shape({
-          _id: PropTypes.string.isRequired,
-          createdAt: PropTypes.string.isRequired,
-          updatedAt: PropTypes.string.isRequired,
+          changeDate: PropTypes.string.isRequired,
           parameters: PropTypes.arrayOf(
             PropTypes.shape({
-              _id: PropTypes.string.isRequired,
               changeType: PropTypes.string.isRequired,
               name: PropTypes.string.isRequired,
               value: PropTypes.string.isRequired,

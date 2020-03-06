@@ -95,7 +95,7 @@ export default class HistoryTable extends Table {
 
   getValueChange(parameter) {
     const { changeValueArrowIcon } = this.props;
-    const value = <span>{`${parameter.value} ${parameter.unit}`}</span>;
+    const value = <span key="value">{`${parameter.value} ${parameter.unit}`}</span>;
     let previousValue;
     let spanClass = styles.historyValue;
     switch (parameter.changeType) {
@@ -107,7 +107,7 @@ export default class HistoryTable extends Table {
         break;
       case 'updated':
         spanClass = `${spanClass} ${styles.valueUpdated}`;
-        previousValue = <span>{`${parameter.previousValue} ${parameter.previousUnit}`}</span>;
+        previousValue = <span key="previousValue">{`${parameter.previousValue} ${parameter.previousUnit}`}</span>;
         break;
       default:
         break;
