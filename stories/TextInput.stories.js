@@ -4,7 +4,7 @@ import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, number } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
-import baseTheme from '../app/themes/baseTheme'
+import baseTheme from '../app/themes/baseTheme';
 
 import TextInput from '../app/components/elements/TextInput';
 
