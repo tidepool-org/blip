@@ -22,6 +22,15 @@
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
+/* global __ALLOW_SIGNUP_PATIENT__ */
+/* global __ALLOW_PATIENT_CHANGE_EMAIL__ */
+/* global __ALLOW_PATIENT_CHANGE_PASSWORD__ */
+/* global __CAN_SEE_PWD_LOGIN__ */
+/* global __HELP_LINK__ */
+/* global __ASSETS_URL__ */
+/* global __HIDE_UPLOAD_LINK__ */
+/* global __MAX_FAILED_LOGIN_ATTEMPTS__ */
+/* global __DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__ */
 
 const pkg = require('./package.json');
 
@@ -38,11 +47,20 @@ function booleanFromText(value, defaultValue) {
 }
 
 function integerFromText(value, defaultValue) {
-  value = parseInt(value, 10);
-  if (isNaN(value)) {
-    return defaultValue === undefined ? 0 : defaultValue;
+  let intValue = 0;
+  if (typeof value === 'number') {
+    intValue = value;
+  } else {
+    intValue = parseInt(value, 10);
   }
-  return value;
+  if (Number.isNaN(intValue)) {
+    if (typeof(defaultValue) === 'number' && !Number.isNaN(defaultValue)) {
+      intValue = defaultValue;
+    } else {
+      intValue = 0;
+    }
+  }
+  return intValue;
 }
 
 const config = {
@@ -64,7 +82,9 @@ const config = {
   HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),
   HIDE_DEXCOM_BANNER: booleanFromText(__HIDE_DEXCOM_BANNER__ , false),
   HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false),
-  BRANDING: __BRANDING__ || 'tidepool'
+  BRANDING: __BRANDING__ || 'tidepool',
+  MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(__MAX_FAILED_LOGIN_ATTEMPTS__, 5),
+  DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(__DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__, 10),
 }
 
 if (__DEV__) {

@@ -25,6 +25,8 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __HIDE_DEXCOM_BANNER__: JSON.stringify(process.env.HIDE_DEXCOM_BANNER || false),
   __HIDE_UPLOAD_LINK__: JSON.stringify(process.env.HIDE_UPLOAD_LINK || false),
   __BRANDING__: JSON.stringify(process.env.BRANDING || 'tidepool'),
+  __MAX_FAILED_LOGIN_ATTEMPTS__: JSON.stringify(process.env.MAX_FAILED_LOGIN_ATTEMPTS || 5),
+  __DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__: JSON.stringify(process.env.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT || 10),
   __DEV__: isDev,
   __TEST__: false,
   __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq

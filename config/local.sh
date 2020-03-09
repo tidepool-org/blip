@@ -11,3 +11,5 @@ export BRANDING='tidepool'
 export SERVICE_NAME='blip'
 # Matomo tracking URL (use disable to desactivate tracking)
 export MATOMO_TRACKER_URL='disable'
+export MAX_FAILED_LOGIN_ATTEMPTS='5'
+export DELAY_BEFORE_NEXT_LOGIN_ATTEMPT='10'

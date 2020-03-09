@@ -26,6 +26,7 @@ import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
 import update from 'react-addons-update';
 import personUtils from '../../core/personutils';
+import config from '../../config';
 
 import { routeActions } from 'react-router-redux';
 
@@ -205,6 +206,7 @@ export function acceptTerms(api, acceptedDate, userId) {
   };
 }
 
+let wrongCredCount = 0;
 /**
  * Login Async Action Creator
  *
@@ -219,16 +221,28 @@ export function login(api, credentials, options, postLoginAction) {
 
     api.user.login(credentials, options, (err) => {
       if (err) {
-        var error = (err.status === 401) ? createActionError(ErrorMessages.ERR_LOGIN_CREDS, err) :
-          createActionError(ErrorMessages.ERR_LOGIN, err);
+        let error = null;
 
-        if (err.status === 403) {
+        switch (err.status) {
+        case 401:
+          if (++wrongCredCount >= config.MAX_FAILED_LOGIN_ATTEMPTS) {
+            error = createActionError(ErrorMessages.errLoginLocked(), err);
+          } else {
+            error = createActionError(ErrorMessages.ERR_LOGIN_CREDS, err);
+          }
+          dispatch(sync.loginFailure(error, err));
+          break;
+        case 403:
           dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
           dispatch(routeActions.push('/email-verification'));
-        } else {
+          break;
+        default:
+          error = createActionError(ErrorMessages.ERR_LOGIN, err);
           dispatch(sync.loginFailure(error, err));
         }
+
       } else {
+        wrongCredCount = 0;
         dispatch(fetchUser(api, (err, user) => {
           const isClinic = personUtils.isClinic(user);
 

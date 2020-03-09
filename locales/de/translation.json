@@ -676,6 +676,7 @@
   "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.": "Innerhalb dieses Basalsegments lassen wir ein Abschalt-Ereignis aus, das nicht beendet wurde. Dies kann darauf zurückzuführen sein, dass die Datums- und Zeiteinstellungen am Gerät geändert oder zu einem neuen Gerät gewechselt wurden. Infolgedessen kann dieses Basalsegment ungenau sein.",
   "Would you like to set up data storage for someone's diabetes data?": "Möchten Sie eine Datenspeicherung für die Diabetes-Daten von jemandem einrichten?",
   "Wrong username or password.": "Falscher Benutzername oder Passwort.",
+  "Your account has been locked for {{delayBeforeNextLoginAttempt}} minutes. You have reached the maximum number of login attempts.": "",
   "year": "Jahr",
   "Year": "Jahr",
   "year_timeago": "",

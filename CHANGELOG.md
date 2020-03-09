@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Added
 - PT-880 Display Parameter object change in Daily view
+- PT-1027 Inform the user when he has reach a max login attempt
 
 ### Fixed
 - PT-1128 Refresh button is automatically switching to BGM 
