@@ -1,9 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
-## Unreleased
+## 0.11.1 - 2020-03-09
 ### Fixed
 - PT-1145 - Display of parameters changes is not consistent (fix react warnings, maybe it will fix the problem)
+- PT-1103 Delete caps in legends (daily view)
 
 ## 0.11.0 - 2020-03-02
 - PT-1121 display parameter change in daily view 
