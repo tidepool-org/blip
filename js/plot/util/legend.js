@@ -16,12 +16,8 @@
  */
 
 var i18next = require('i18next');
-var t = i18next.t.bind(i18next);
-
-var d3 = require('d3');
 var _ = require('lodash');
-
-var log = require('bows')('Shapes');
+var t = i18next.t.bind(i18next);
 
 var legend = {
   SHAPE_MARGIN: 3,
@@ -29,23 +25,32 @@ var legend = {
   basal: [
     {
       create: function(opts) {
-        opts.widths.push(opts.SHAPE_WIDTH);
-        return opts.selection.append('rect')
-          .attr({
-            'class': 'd3-basal d3-rect-basal d3-legend'
-          });
+        const radius = 7;
+        opts.widths.push(2*radius + legend.SHAPE_MARGIN);
+        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode' });
+        g.append('circle').attr({
+          class: 'd3-basal-circle',
+          cx: -radius,
+          cy: -5,
+          r: radius,
+        });
+        g.append('text').attr({
+          class: 'd3-basal-label',
+          transform: `translate(${-radius}, -5)`
+        }).text(t('A_Label').charAt(0));
+        return g;
       },
-      type: 'rect'
+      type: 'group'
     },
     {
       create: function(opts) {
         return opts.selection.append('text')
           .attr({
-            'class': 'd3-pool-legend'
+            class: 'd3-pool-legend'
           })
-          .text(t('delivered'))
+          .text(t('Loop mode'))
           .each(function() {
-            opts.widths.push(this.getBoundingClientRect().width);
+            opts.widths.push(this.getBoundingClientRect().width + legend.SHAPE_MARGIN);
             opts.textHeight = this.getBoundingClientRect().height;
           });
       },
@@ -53,21 +58,30 @@ var legend = {
     },
     {
       create: function(opts) {
-        opts.widths.push(opts.SHAPE_WIDTH);
-        return opts.selection.append('rect')
-          .attr({
-            'class': 'd3-basal d3-rect-basal-undelivered'
-          });
+        const radius = 7;
+        opts.widths.push(2*radius);
+        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode-off' });
+        g.append('circle').attr({
+          class: 'd3-basal-circle',
+          cx: -radius,
+          cy: -5,
+          r: radius,
+        });
+        g.append('text').attr({
+          class: 'd3-basal-label',
+          transform: `translate(${-radius}, -5)`
+        }).text(t('M_Label').charAt(0));
+        return g;
       },
-      type: 'rect'
+      type: 'group'
     },
     {
       create: function(opts) {
         return opts.selection.append('text')
           .attr({
-            'class': 'd3-pool-legend'
+            class: 'd3-pool-legend'
           })
-          .text(t('scheduled'))
+          .text(t('Loop mode off'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
           });
@@ -270,7 +284,7 @@ var legend = {
     var typeFns = this[type];
     _.each(typeFns, _.bind(function(fn, i) {
       var created = fn.create(opts), w;
-      if (fn.type === 'text') {
+      if (fn.type === 'text' || fn.type === 'group') {
         if (opts.widths[i - 1]) {
           w = this.cumWidth(opts.widths, i);
           if ((i === typeFns.length - 1) && (i !== 1)) {

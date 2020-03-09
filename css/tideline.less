@@ -258,7 +258,7 @@ svg {
   &.d3-rect-picto {
     fill: @physicalactivity;
     opacity: 0.20;
-  }  
+  }
   &.d3-rect-pa {
     fill: @physicalactivity;
     opacity: 0.25;
@@ -405,10 +405,6 @@ svg {
     fill: @basal;
     stroke: @basal;
     stroke-opacity: 0.01;
-    &.d3-legend {
-      fill-opacity: 0.3;
-      stroke-width: 1.5;
-    }
     &.d3-basal-automated {
       fill: @basal-automated;
       stroke: @basal-automated;
@@ -430,12 +426,29 @@ svg {
       stroke: @basal-automated;
     }
   }
+
   // only in legends
-  &.d3-rect-basal-undelivered {
-    fill: none;
-    stroke: @basal;
-    stroke-dasharray: 1.5, 3;
-    stroke-width: 1.5;
+  &.d3-basal-loop-mode {
+    .d3-basal-circle {
+      fill: @basal-automated;
+    }
+    .d3-basal-label {
+      fill: #4e4e4f;
+    }
+  }
+  &.d3-basal-loop-mode-off {
+    .d3-basal-circle {
+      fill: @basal;
+    }
+    .d3-basal-label {
+      fill: #ffffff;
+    }
+  }
+  .d3-basal-label {
+    stroke-width: 0;
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
   }
 }
 
