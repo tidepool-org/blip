@@ -219,6 +219,6 @@ export const CheckboxGroupTitle = Styled(Text)`
   line-height: ${lineHeights[4]};
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
-  padding: 0 0 10px 0;
+  padding: 0;
   color: ${props => (props.color ? props.color : colors.text.primary)};
 `;

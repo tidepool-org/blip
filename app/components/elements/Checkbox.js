@@ -6,7 +6,6 @@ import {
   fonts,
   fontSizes,
   fontWeights,
-  lineHeights,
 } from '../../themes/baseTheme';
 
 /* eslint-disable no-confusing-arrow */
@@ -32,15 +31,18 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
 const Icon = styled.svg`
   fill: none;
   stroke: white;
-  stroke-width: 1px;
+  stroke-width: 2px;
   stroke-linejoin: round;
   stroke-linecap:round;
+  width: 10px;
+  height: 10px;
+  position: absolute;
 `;
 
 const StyledCheckbox = styled.div`
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   background: ${props => (props.checked ? colors.purpleMedium : colors.lightestGrey)};
   border: 1px solid ${props => (props.checked ? colors.purpleMedium : colors.lightGrey)};
   border-radius: 2px;
@@ -52,7 +54,6 @@ const StyledCheckbox = styled.div`
 
 export const InputLabel = styled.span`
   font-size: ${fontSizes[1]}px;
-  line-height: ${lineHeights[4]};
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
   padding: 0 0 0 8px;
