@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox } from 'rebass/styled-components';
-import { Box, Label, Text } from 'rebass/styled-components';
-
+import { Box, Text } from 'rebass/styled-components';
+import { Label, Checkbox } from '@rebass/forms';
 import {
   colors,
   fonts,
