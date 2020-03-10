@@ -7,7 +7,7 @@ import baseTheme from '../app/themes/baseTheme';
 import Checkbox from '../app/components/elements/Checkbox';
 import { CheckboxGroupTitle } from '../app/components/elements/FontStyles';
 
-import { RebassCheckbox } from '../app/components/elements/RebassCheckbox';
+import RebassCheckbox from '../app/components/elements/RebassCheckbox';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
