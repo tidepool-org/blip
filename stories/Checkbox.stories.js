@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-// import { withKnobs } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Checkbox from '../app/components/elements/Checkbox';
 import { CheckboxGroupTitle } from '../app/components/elements/FontStyles';
+
+import { RebassCheckbox } from '../app/components/elements/RebassCheckbox';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
@@ -89,6 +90,34 @@ export const MultipleCheckboxStory = () => {
 
 MultipleCheckboxStory.story = {
   name: 'Multiple Checkboxes',
+  parameters: {
+    design: {
+      type: 'iframe',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=51%3A153',
+    },
+  },
+};
+
+export const RebassCheckboxStory = () => {
+  const [isChecked, setChecked] = useState(false);
+  const toggleCheckbox = () => setChecked(!isChecked);
+
+  return (
+    <div>
+      <CheckboxGroupTitle>Do you want emails?</CheckboxGroupTitle>
+      <label>
+        <RebassCheckbox
+          checked={isChecked}
+          onClick={toggleCheckbox}
+          inputLabel="Send me Rebass Emails"
+          />
+      </label>
+    </div>
+  );
+};
+
+RebassCheckboxStory.story = {
+  name: 'Rebass Checkbox',
   parameters: {
     design: {
       type: 'iframe',
