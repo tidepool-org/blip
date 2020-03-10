@@ -6,48 +6,49 @@ import { Label, Input } from '@rebass/forms';
 import { Caption } from './FontStyles';
 import { fonts, fontSizes, colors, borders, radii, space } from '../../themes/baseTheme';
 
-export const TextInput = props => {
-  const StyledInput = styled(Input)`
-    border: ${borders.input};
+const StyledInput = styled(Input)`
+  border: ${borders.input};
+  box-shadow: none;
+  border-radius: ${radii.input}px;
+  padding: ${styleprops => (styleprops.space ? space[styleprops.space] : 12)}px;
+  caret-color: ${colors.mediumPurple};
+  font-size: ${fontSizes[1]}px;
+  font-family: ${fonts.default};
+  color: ${colors.mediumPurple};
+
+  &::placeholder {
+    color: ${colors.text.primaryTextSubdued};
+  }
+
+  &.active {
+    color: ${colors.text.primaryTextSubdued};
     box-shadow: none;
-    border-radius: ${radii.input}px;
-    padding: ${styleprops => (styleprops.space ? space[styleprops.space] : 12)}px;
-    caret-color: ${colors.mediumPurple};
-    font-size: ${fontSizes[1]}px;
-    font-family: ${fonts.default};
-    color: ${colors.mediumPurple};
+  }
 
-    &::placeholder {
-      color: ${colors.text.primaryTextSubdued};
-    }
+  &:focus {
+    box-shadow: none;
+  }
 
-    &.active {
-      color: ${colors.text.primaryTextSubdued};
-      box-shadow: none;
-    }
+  &:disabled {
+    background: ${colors.grays[0]};
+    color: ${colors.text.primaryDisabled};
+  }
+`;
 
-    &:focus {
-      box-shadow: none;
-    }
-
-    &:disabled {
-      background: ${colors.grays[0]};
-      color: ${colors.text.primaryDisabled};
-    }
-  `;
-
+export const TextInput = props => {
+  const { label, name, width, ...inputProps } = props;
   return (
     <Box
       sx={{
-        width: props.width,
+        width,
       }}
     >
       {props.label &&
-        <Label htmlFor={props.name}>
-          <Caption>{props.label}</Caption>
+        <Label htmlFor={name}>
+          <Caption>{label}</Caption>
         </Label>
       }
-      <StyledInput id={props.name} {...props} />
+      <StyledInput id={name} name={name} {...inputProps} />
     </Box>
   );
 };
