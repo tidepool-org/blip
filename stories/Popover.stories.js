@@ -51,9 +51,7 @@ export const Simple = () => {
       </Text>
       <Popover {...bindPopover(popupState)}>
         <Subheading>
-          <Text fontWeight='bold'>
             Insulin Sensitivity Factor
-          </Text>
         </Subheading>
         <Body1>
           The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.

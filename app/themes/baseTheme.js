@@ -16,13 +16,14 @@ export const colors = {
   },
   border: {
     default: colorPalette.extended.grays[1],
+    modal: colorPalette.extended.grays[0]
   },
 };
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
   input: `1px solid ${colors.border.default}`,
-  modal: `1px solid ${colors.border.default}`,
+  modal: `1px solid ${colors.border.modal}`,
 };
 
 export const fonts = {
