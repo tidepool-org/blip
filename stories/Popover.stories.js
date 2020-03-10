@@ -33,7 +33,6 @@ export default {
 };
 
 export const Simple = () => {
-  const disableScrollLock = () => boolean('Disable Scroll Lock', false);
   const onHover = () => boolean('Trigger On Hover', false);
 
   const popupState = usePopupState({
@@ -43,10 +42,14 @@ export const Simple = () => {
 
   return (
     <React.Fragment>
-      <Popover
-        {...bindPopover(popupState)}
-        disableScrollLock={disableScrollLock()}
-      >
+      <Text>
+        <IconButton
+          label="info"
+          icon={InfoRoundedIcon}
+          {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
+        />
+      </Text>
+      <Popover {...bindPopover(popupState)}>
         <Subheading>
           <Text fontWeight='bold'>
             Insulin Sensitivity Factor
@@ -56,21 +59,6 @@ export const Simple = () => {
           The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.
         </Body1>
       </Popover>
-
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Box as='span' {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}>
-        <IconButton
-          label="info"
-          icon={InfoRoundedIcon}
-        />
-      </Box>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
-      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
     </React.Fragment>
   );
 };
