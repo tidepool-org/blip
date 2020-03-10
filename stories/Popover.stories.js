@@ -3,11 +3,13 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
+import { Box, Text } from 'rebass/styled-components';
 
 import {
   usePopupState,
-  bindTrigger,
+  bindHover,
   bindPopover,
+  bindTrigger,
 } from 'material-ui-popup-state/hooks'
 
 import baseTheme from '../app/themes/baseTheme';
@@ -31,7 +33,8 @@ export default {
 };
 
 export const Simple = () => {
-  const disableScrollLock = () => boolean('Disable Scroll Lock', true);
+  const disableScrollLock = () => boolean('Disable Scroll Lock', false);
+  const onHover = () => boolean('Trigger On Hover', false);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -40,26 +43,34 @@ export const Simple = () => {
 
   return (
     <React.Fragment>
-      <IconButton label="info" icon={InfoRoundedIcon} {...bindTrigger(popupState)} />
       <Popover
         {...bindPopover(popupState)}
         disableScrollLock={disableScrollLock()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
       >
         <Subheading>
-          Insulin Sensitivity Factor
+          <Text fontWeight='bold'>
+            Insulin Sensitivity Factor
+          </Text>
         </Subheading>
         <Body1>
           The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.
         </Body1>
       </Popover>
+
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Box as='span' {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}>
+        <IconButton
+          label="info"
+          icon={InfoRoundedIcon}
+        />
+      </Box>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
+      <Body1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo aut nam dolores repudiandae aliquid! Iure magnam enim minima aut nihil hic ad minus, deserunt porro delectus dolore! Eum, possimus? Dolorem!</Body1>
     </React.Fragment>
   );
 };
@@ -69,7 +80,7 @@ Simple.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=0%3A1',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A379',
     },
   },
 };
