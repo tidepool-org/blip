@@ -16,7 +16,9 @@ const StyledPopover = styled(Base)`
   }
 `;
 
-const PopoverContentWrapper = React.forwardRef((props, ref) => <Box width={[1, 1/2, 1/3, 1/4]} {...props} ref={ref} />);
+const PopoverContentWrapper = React.forwardRef((props, ref) => (
+  <Box width={[1, 1/2, 1/3, 1/4]} {...props} ref={ref} /> // eslint-disable-line space-infix-ops
+));
 
 const Popover = props => <StyledPopover {...props} />;
 

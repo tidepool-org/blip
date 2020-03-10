@@ -16,7 +16,7 @@ export const colors = {
   },
   border: {
     default: colorPalette.extended.grays[1],
-    modal: colorPalette.extended.grays[0]
+    modal: colorPalette.extended.grays[0],
   },
 };
 

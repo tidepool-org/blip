@@ -3,14 +3,13 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
-import { Box, Text } from 'rebass/styled-components';
 
 import {
   usePopupState,
   bindHover,
   bindPopover,
   bindTrigger,
-} from 'material-ui-popup-state/hooks'
+} from 'material-ui-popup-state/hooks';
 
 import baseTheme from '../app/themes/baseTheme';
 import Popover from '../app/components/elements/Popover';
@@ -42,13 +41,11 @@ export const Simple = () => {
 
   return (
     <React.Fragment>
-      <Text>
-        <IconButton
-          label="info"
-          icon={InfoRoundedIcon}
-          {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
-        />
-      </Text>
+      <IconButton
+        label="info"
+        icon={InfoRoundedIcon}
+        {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
+      />
       <Popover {...bindPopover(popupState)}>
         <Subheading>
             Insulin Sensitivity Factor
