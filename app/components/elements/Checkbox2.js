@@ -11,7 +11,7 @@ export const Checkbox = props => {
 
   return (
     <Label {...labelProps}>
-      <Flex alignItems='center'>
+      <Flex alignItems="center">
         <StyledCheckbox
           disabled={disabled}
           id={name}
@@ -29,10 +29,10 @@ Checkbox.propTypes = {
   label: PropTypes.string,
   disabled: PropTypes.bool,
   checked: PropTypes.bool,
-}
+};
 
 Checkbox.defaultProps = {
-  width: [1/2, 1/4],
+  width: [1/2, 1/4], // eslint-disable-line space-infix-ops
   p: 1,
 };
 
