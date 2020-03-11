@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Button as Base, Box } from 'rebass/styled-components';
+import { Button as Base, Box, ButtonProps } from 'rebass/styled-components';
 import styled, { ThemeContext } from 'styled-components';
 import cx from 'classnames';
 
@@ -56,6 +57,11 @@ export const Button = props => {
       )}
     </StyledButton>
   );
+};
+
+Button.propTypes = {
+  ...ButtonProps,
+  processing: PropTypes.bool,
 };
 
 export default Button;
