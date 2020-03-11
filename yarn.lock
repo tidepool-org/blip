@@ -10920,7 +10920,7 @@ material-colors@^1.2.1:
   resolved "https://registry.yarnpkg.com/material-colors/-/material-colors-1.2.6.tgz#6d1958871126992ceecc72f4bcc4d8f010865f46"
   integrity sha512-6qE4B9deFBIa9YSpOc9O0Sgc43zTeVYbgDT5veRKSlB2+ZuHNoVVxA1L/ckMUayV9Ay9y7Z/SZCLcGteW9i7bg==
 
-material-ui-popup-state@^1.5.3:
+material-ui-popup-state@1.5.3:
   version "1.5.3"
   resolved "https://registry.yarnpkg.com/material-ui-popup-state/-/material-ui-popup-state-1.5.3.tgz#782f6914e491d5e5c519e57427a5528307f0b4ba"
   integrity sha512-Nz0S817nYioLugxOTfxcuz4l8dZpGEz4QTKDLeLwR53jxKfwUowHUFVI6Eg/RaYEujGaCRapfpxGoTwWRFTCdw==

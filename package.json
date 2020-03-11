@@ -37,7 +37,7 @@
     "express": "4.16.3",
     "hakken": "0.1.11",
     "helmet": "3.13.0",
-    "material-ui-popup-state": "^1.5.3",
+    "material-ui-popup-state": "1.5.3",
     "react-dates": "21.8.0",
     "react-moment-proptypes": "1.7.0",
     "react-router-dom": "5.1.2",
