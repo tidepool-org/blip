@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { withKnobs, text, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Checkbox from '../app/components/elements/Checkbox';
+import Checkbox2 from '../app/components/elements/Checkbox2';
 import { CheckboxGroupTitle } from '../app/components/elements/FontStyles';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -44,6 +45,51 @@ export const CheckboxStory = () => {
 
 CheckboxStory.story = {
   name: 'Single Checkbox',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=51%3A153',
+    },
+  },
+};
+
+export const Checkbox2Story = () => {
+  const labelText1 = () => text('Label Text 1', 'Check Me');
+  const defaultChecked1 = () => boolean('Default Checked 1', false);
+
+  const labelText2 = () => text('Label Text 2', 'Or Me');
+  const defaultChecked2 = () => boolean('Default Checked 2', true);
+
+  const disabled = () => boolean('Disabled', false);
+
+  const [isChecked1, setChecked1] = useState(defaultChecked1());
+  const handleCheckbox1 = (e) => setChecked1(e.target.checked);
+
+  const [isChecked2, setChecked2] = useState(defaultChecked2());
+  const handleCheckbox2 = (e) => setChecked2(e.target.checked);
+
+  return (
+    <React.Fragment>
+      <Checkbox2
+        checked={isChecked1}
+        disabled={disabled()}
+        name="my-checkbox-1"
+        label={labelText1()}
+        onChange={handleCheckbox1}
+      />
+      <Checkbox2
+        checked={isChecked2}
+        disabled={disabled()}
+        name="my-checkbox-2"
+        label={labelText2()}
+        onChange={handleCheckbox2}
+      />
+    </React.Fragment>
+  );
+};
+
+Checkbox2Story.story = {
+  name: 'Single Checkbox2',
   parameters: {
     design: {
       type: 'figma',
