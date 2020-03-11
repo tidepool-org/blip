@@ -3,6 +3,7 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
+import { Text } from 'rebass/styled-components';
 
 import {
   usePopupState,
@@ -41,17 +42,21 @@ export const Simple = () => {
 
   return (
     <React.Fragment>
-      <IconButton
-        label="info"
-        icon={InfoRoundedIcon}
-        {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
-      />
+      <Text color="text.primary">
+        <IconButton
+          label="info"
+          icon={InfoRoundedIcon}
+          {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
+        />
+      </Text>
       <Popover {...bindPopover(popupState)}>
         <Subheading>
             Insulin Sensitivity Factor
         </Subheading>
         <Body1>
-          The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.
+          <Text color="text.primarySubdued">
+            The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.
+          </Text>
         </Body1>
       </Popover>
     </React.Fragment>

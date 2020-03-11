@@ -5,6 +5,7 @@ import { default as IconButtonBase } from '@material-ui/core/IconButton';
 
 const StyledIconButton = styled(IconButtonBase)`
   padding: 0;
+  color: inherit;
 
   &:hover,
   &:focus,
