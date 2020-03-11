@@ -10,7 +10,10 @@ import { Flex } from 'rebass/styled-components';
 import { IconButton } from './IconButton';
 
 import {
+  borders,
+  radii,
   space,
+  shadows,
 } from '../../themes/baseTheme';
 
 /* Dialog Title Start */
@@ -85,7 +88,15 @@ DialogActions.defaultProps = {
 /* Dialog Actions End */
 
 /* Dialog Start */
-export const Dialog = props => <MuiDialog {...props} />;
+const StyledDialog = styled(MuiDialog)`
+  .MuiDialog-paper {
+    border: ${borders.modal};
+    box-shadow: ${shadows.large};
+    border-radius: ${radii.default}px;
+  }
+`;
+
+export const Dialog = props => <StyledDialog {...props} />;
 
 Dialog.propTypes = {
   ...DialogProps,
