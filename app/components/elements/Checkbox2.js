@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text } from 'rebass/styled-components';
+import { Flex } from 'rebass/styled-components';
 import { Checkbox as Base, Label } from '@rebass/forms';
 import styled from 'styled-components';
 
@@ -10,7 +10,6 @@ import {
   fontSizes,
   fontWeights,
 } from '../../themes/baseTheme';
-
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.purpleMedium};

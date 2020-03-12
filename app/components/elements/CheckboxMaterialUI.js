@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -83,7 +85,6 @@ function StyledCheckbox(props) {
 }
 
 export const CheckboxMaterialUI = props => {
-
   const { disabled, name, label, checked, ...labelProps } = props;
 
   return (

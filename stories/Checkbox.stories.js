@@ -1,3 +1,6 @@
+/* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
+
 import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
@@ -14,8 +17,6 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-
-
 
 const withTheme = Story => (
   <ThemeProvider theme={baseTheme}>
@@ -78,23 +79,23 @@ export const Checkbox2Story = () => {
     <React.Fragment>
       <FormControl component="fieldset">
         <FormLabel component="legend">Label Placement</FormLabel>
-          <FormGroup aria-label="position" row>
-            <Checkbox2
-              checked={isChecked1}
-              disabled={disabled()}
-              name="my-checkbox-1"
-              label={labelText1()}
-              onChange={handleCheckbox1}
-            />
-            <Checkbox2
-              checked={isChecked2}
-              disabled={disabled()}
-              name="my-checkbox-2"
-              label={labelText2()}
-              onChange={handleCheckbox2}
-            />
+        <FormGroup aria-label="position" row>
+          <Checkbox2
+            checked={isChecked1}
+            disabled={disabled()}
+            name="my-checkbox-1"
+            label={labelText1()}
+            onChange={handleCheckbox1}
+          />
+          <Checkbox2
+            checked={isChecked2}
+            disabled={disabled()}
+            name="my-checkbox-2"
+            label={labelText2()}
+            onChange={handleCheckbox2}
+          />
 
-          </FormGroup>
+        </FormGroup>
       </FormControl>
     </React.Fragment>
   );
