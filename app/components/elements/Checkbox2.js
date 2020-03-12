@@ -4,7 +4,25 @@ import { Flex, Text } from 'rebass/styled-components';
 import { Checkbox as Base, Label } from '@rebass/forms';
 import styled from 'styled-components';
 
-const StyledCheckbox = styled(Base)``;
+import {
+  colors,
+  fonts,
+  fontSizes,
+  fontWeights,
+} from '../../themes/baseTheme';
+
+
+const StyledCheckbox = styled(Base)`
+  color: ${colors.purpleMedium};
+`;
+
+const StyledLabel = styled(Label)`
+  font-size: ${fontSizes[1]}px;
+  font-weight: ${fontWeights.medium};
+  font-family: ${fonts.default};
+  padding: 0 0 0 8px;
+  color: ${props => (props.color ? props.color : colors.text.primary)};
+`;
 
 export const Checkbox = props => {
   const { disabled, name, label, checked, ...labelProps } = props;
@@ -18,7 +36,7 @@ export const Checkbox = props => {
           name={name}
           checked={checked}
         />
-        <Text>{label}</Text>
+        <StyledLabel>{label}</StyledLabel>
       </Flex>
     </Label>
   );
