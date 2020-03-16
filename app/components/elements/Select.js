@@ -57,13 +57,13 @@ export const Select = props => {
             disabled={disabled}
             value={value}
             >
-            {map(options, ({key, label}) => (
+            {map(options, option => (
               <option
-              id={key}
-              key={key}
-              value={key}
+              id={option.value}
+              key={option.value}
+              value={option.value}
               >
-                {label}
+                {option.label}
               </option>
             ))}
           </Base>
@@ -80,7 +80,7 @@ Select.propTypes = {
   disabled: PropTypes.bool,
   value: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   })).isRequired,
 };

@@ -25,13 +25,13 @@ export default {
 
 export const Simple = () => {
   const selectOptions = [
-    { key: '', label: 'None' },
-    { key: 'one', label: 'One' },
-    { key: 'two', label: 'Two' },
-    { key: 'three', label: 'Three' },
+    { value: '', label: 'None' },
+    { value: 'one', label: 'One' },
+    { value: 'two', label: 'Two' },
+    { value: 'three', label: 'Three' },
   ];
 
-  const knobOptions = mapValues(keyBy(selectOptions, 'label'), 'key');
+  const knobOptions = mapValues(keyBy(selectOptions, 'label'), 'value');
 
   const label = () => text('Label', 'Field Label')
   const defaultValue = () => options('Default Value', knobOptions, 'two', {display: 'inline-radio'})
