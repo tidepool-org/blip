@@ -70,7 +70,7 @@
 :export {
   bolus: #6fc3bb;
   basal: #19A0D7;
-  basalAutomated: #00e9fa;
+  basalManual: #a8c8d4;
   statDark: #27385b;
   statDefault: #727375;
   statDisabled: #e7e9ee;

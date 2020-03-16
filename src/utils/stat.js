@@ -352,16 +352,16 @@ export const getStatData = (data, type, opts = {}) => {
     case commonStats.timeInAuto:
       statData.data = [
         {
-          id: 'basalAutomated',
-          value: ensureNumeric(data.automated),
-          title: t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }),
-          legendTitle: vocabulary[AUTOMATED_DELIVERY],
-        },
-        {
-          id: 'basal',
+          id: 'basalManual',
           value: ensureNumeric(data.manual),
           title: t('Time In {{scheduledLabel}}', { scheduledLabel: vocabulary[SCHEDULED_DELIVERY] }),
           legendTitle: vocabulary[SCHEDULED_DELIVERY],
+        },
+        {
+          id: 'basal',
+          value: ensureNumeric(data.automated),
+          title: t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }),
+          legendTitle: vocabulary[AUTOMATED_DELIVERY],
         },
       ];
 
@@ -369,7 +369,7 @@ export const getStatData = (data, type, opts = {}) => {
       statData.dataPaths = {
         summary: [
           'data',
-          _.findIndex(statData.data, { id: 'basalAutomated' }),
+          _.findIndex(statData.data, { id: 'basal' }),
         ],
       };
       break;

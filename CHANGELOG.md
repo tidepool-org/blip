@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.11.2 - 2020-03-10
+### Changed
+- PT-1113 Change basal insulin colors in widget and graph
+
 ## 0.11.1 - 2020-03-09
 ### Fixed
 - PT-1145 - Display of parameters changes is not consistent (fix react warnings, maybe it will fix the problem)

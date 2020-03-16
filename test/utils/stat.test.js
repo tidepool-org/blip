@@ -657,23 +657,23 @@ describe('stat', () => {
 
       expect(statData.data).to.eql([
         {
-          id: 'basalAutomated',
-          value: 100000,
-          title: 'Time In Auto Mode',
-          legendTitle: 'Auto Mode',
-        },
-        {
-          id: 'basal',
+          id: 'basalManual',
           value: 20000,
           title: 'Time In Manual',
           legendTitle: 'Manual',
+        },
+        {
+          id: 'basal',
+          value: 100000,
+          title: 'Time In Auto Mode',
+          legendTitle: 'Auto Mode',
         },
       ]);
 
       expect(statData.total).to.eql({ value: 120000 });
 
       expect(statData.dataPaths).to.eql({
-        summary: ['data', 0],
+        summary: ['data', 1],
       });
     });
 
