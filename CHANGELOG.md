@@ -12,6 +12,7 @@ It is based on Tidepool Blip 1.27.
 - PT-1103 Delete caps in legends (daily view)
 
 ### Changed
+- PT-1113 Upgrade Viz to 0.11.2 and Tideline to 1.7.2: Change basal insulin colors in widget and graph 
 - PT-1112 Upgrade Viz to 0.10.4: change the color of RescueCarb tool tip to be consistent with the other tool tips
 - PT-1135 Remove BGLog page
 - PT-1140 Split the link to the terms of Use in the footer
