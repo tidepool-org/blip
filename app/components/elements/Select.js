@@ -46,9 +46,9 @@ export const Select = props => {
 
   return (
     <React.Fragment>
-      <Label htmlFor={name}>
+      {label && <Label htmlFor={name}>
         <Caption>{label}</Caption>
-      </Label>
+      </Label>}
       <StyledSelect alignItems="center">
         <Box {...wrapperProps}>
           <Base
