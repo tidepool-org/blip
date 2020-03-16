@@ -31,6 +31,7 @@
 /* global __HIDE_UPLOAD_LINK__ */
 /* global __MAX_FAILED_LOGIN_ATTEMPTS__ */
 /* global __DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__ */
+/* global __TERMS_PRIVACY_DATE__ */
 
 const pkg = require('./package.json');
 
@@ -85,6 +86,7 @@ const config = {
   BRANDING: __BRANDING__ || 'tidepool',
   MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(__MAX_FAILED_LOGIN_ATTEMPTS__, 5),
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(__DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__, 10),
+  TERMS_PRIVACY_DATE: __TERMS_PRIVACY_DATE__ || ''
 }
 
 if (__DEV__) {

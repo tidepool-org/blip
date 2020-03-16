@@ -46,8 +46,8 @@ i18n
     react: {
       wait: true,
       withRef: true,
-      // Needed for react < 16
-      defaultTransParent: 'div'
+      defaultTransParent: 'div', // a valid react element - required before react 16
+      transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
     },
     ns: ['main', 'params'],
     defaultNS: 'main',
