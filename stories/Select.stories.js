@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
@@ -39,7 +38,7 @@ export const Simple = () => {
 
   const [selected, setSelected] = useState(defaultValue());
 
-  const handleChange = () => event => {
+  const handleChange = event => {
     setSelected(event.target.value);
   };
 
@@ -50,7 +49,7 @@ export const Simple = () => {
       name="mySelect"
       options={selectOptions}
       value={selected}
-      onChange={handleChange('mySelect')}
+      onChange={handleChange}
     />
   );
 };

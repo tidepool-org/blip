@@ -18,11 +18,11 @@ const StyledSelect = styled(Flex)`
     flex-grow: 1;
   }
 
-  /* Disable browser default styles for selects */
+  /* Override browser default styles for selects */
   select {
     appearance: none;
     border: none;
-    padding: 0;
+    padding: ${space[2]}px;
   }
 
   /* Hide the default dropdown icon */
@@ -46,7 +46,7 @@ const StyledSelect = styled(Flex)`
 `;
 
 export const Select = props => {
-  const { disabled, name, label, value, options, ...selectProps } = props;
+  const { disabled, name, label, value, options, onChange, ...selectProps } = props;
   const classNames = cx({ disabled });
 
   return (
@@ -62,6 +62,7 @@ export const Select = props => {
           name={name}
           disabled={disabled}
           value={value}
+          onChange={onChange}
         >
           {map(options, option => (
             <option
@@ -84,6 +85,7 @@ Select.propTypes = {
   label: PropTypes.string,
   disabled: PropTypes.bool,
   value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
@@ -93,7 +95,6 @@ Select.propTypes = {
 Select.defaultProps = {
   width: ['100%', '75%', '50%'],
   color: colors.text.primary,
-  p: `${space[2]}px`,
   sx: {
     border: borders.input,
     borderRadius: `${radii.input}px`,
