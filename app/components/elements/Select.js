@@ -20,11 +20,9 @@ const StyledSelect = styled(Flex)`
 
   /* Disable browser default styles for selects */
   select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    -o-appearance: none;
     appearance: none;
     border: none;
+    padding: 0;
   }
 
   /* Hide the default dropdown icon */
@@ -53,21 +51,23 @@ export const Select = props => {
 
   return (
     <React.Fragment>
-      {label && <Label htmlFor={name}>
-        <Caption>{label}</Caption>
-      </Label>}
+      {label && (
+        <Label htmlFor={name}>
+          <Caption>{label}</Caption>
+        </Label>
+      )}
       <StyledSelect alignItems="center" className={classNames} {...selectProps}>
         <Base
           id={name}
           name={name}
           disabled={disabled}
           value={value}
-          >
+        >
           {map(options, option => (
             <option
-            id={option.value}
-            key={option.value}
-            value={option.value}
+              id={option.value}
+              key={option.value}
+              value={option.value}
             >
               {option.label}
             </option>
@@ -93,6 +93,7 @@ Select.propTypes = {
 Select.defaultProps = {
   width: ['100%', '75%', '50%'],
   color: colors.text.primary,
+  p: `${space[2]}px`,
   sx: {
     border: borders.input,
     borderRadius: `${radii.input}px`,

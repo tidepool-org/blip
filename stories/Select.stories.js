@@ -33,14 +33,13 @@ export const Simple = () => {
 
   const knobOptions = mapValues(keyBy(selectOptions, 'label'), 'value');
 
-  const label = () => text('Label', 'Field Label')
-  const defaultValue = () => options('Default Value', knobOptions, 'two', {display: 'inline-radio'})
+  const label = () => text('Label', 'Field Label');
+  const defaultValue = () => options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
   const disabled = () => boolean('Disabled', false);
 
-  const [selected, setSelected] = useState(defaultValue())
+  const [selected, setSelected] = useState(defaultValue());
 
-  const handleChange = name => event => {
-    console.log('name', name);
+  const handleChange = () => event => {
     setSelected(event.target.value);
   };
 
@@ -48,7 +47,7 @@ export const Simple = () => {
     <Select
       disabled={disabled()}
       label={label()}
-      name='mySelect'
+      name="mySelect"
       options={selectOptions}
       value={selected}
       onChange={handleChange('mySelect')}
