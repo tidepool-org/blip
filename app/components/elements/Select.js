@@ -1,73 +1,78 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Flex } from 'rebass/styled-components';
+import { Flex } from 'rebass/styled-components';
 import { Select as Base, Label } from '@rebass/forms';
 import styled from 'styled-components';
+import cx from 'classnames';
 import map from 'lodash/map';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
-import { borders, colors, space } from '../../themes/baseTheme';
+import { borders, colors, radii, space } from '../../themes/baseTheme';
 import { Caption } from './FontStyles';
 
 const StyledSelect = styled(Flex)`
-  color: ${colors.text.primary};
+  position: relative;
+  flex-wrap: wrap;
 
   > div {
-    background-color: ${colors.white};
+    flex-grow: 1;
   }
 
+  /* Disable browser default styles for selects */
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
     -o-appearance: none;
     appearance: none;
-    border: ${borders.input};
+    border: none;
   }
 
-  select::-ms-expand {
-    display: none;
-  }
-
+  /* Hide the default dropdown icon */
   select + svg {
     display: none;
   }
 
   .MuiSvgIcon-root {
-    position: relative;
-    right: ${space[5]}px;
+    position: absolute;
+    right: ${space[2]}px;
     color: inherit;
-    /* this is so when you click on the icon, your click actually goes on the dropdown menu */
+    /* Disable pointer events so click actually applies to the dropdown menu underneath */
     pointer-events: none;
+  }
+
+  &.disabled {
+    color: ${colors.text.primaryDisabled};
+    border-color: ${colors.lightestGrey};
+    background-color: ${colors.lightestGrey};
   }
 `;
 
 export const Select = props => {
-  const { disabled, name, label, value, options, ...wrapperProps } = props;
+  const { disabled, name, label, value, options, ...selectProps } = props;
+  const classNames = cx({ disabled });
 
   return (
     <React.Fragment>
       {label && <Label htmlFor={name}>
         <Caption>{label}</Caption>
       </Label>}
-      <StyledSelect alignItems="center">
-        <Box {...wrapperProps}>
-          <Base
-            id={name}
-            name={name}
-            disabled={disabled}
-            value={value}
+      <StyledSelect alignItems="center" className={classNames} {...selectProps}>
+        <Base
+          id={name}
+          name={name}
+          disabled={disabled}
+          value={value}
+          >
+          {map(options, option => (
+            <option
+            id={option.value}
+            key={option.value}
+            value={option.value}
             >
-            {map(options, option => (
-              <option
-              id={option.value}
-              key={option.value}
-              value={option.value}
-              >
-                {option.label}
-              </option>
-            ))}
-          </Base>
-        </Box>
+              {option.label}
+            </option>
+          ))}
+        </Base>
         <KeyboardArrowDownRoundedIcon />
       </StyledSelect>
     </React.Fragment>
@@ -86,7 +91,13 @@ Select.propTypes = {
 };
 
 Select.defaultProps = {
-  width: [1/2, 1/4], // eslint-disable-line space-infix-ops
+  width: ['100%', '75%', '50%'],
+  color: colors.text.primary,
+  sx: {
+    border: borders.input,
+    borderRadius: `${radii.input}px`,
+    backgroundColor: colors.white,
+  },
 };
 
 export default Select;
