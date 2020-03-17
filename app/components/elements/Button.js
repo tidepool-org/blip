@@ -44,7 +44,7 @@ export const Button = props => {
   const themeContext = useContext(ThemeContext);
 
   return (
-    <StyledButton {...buttonProps} className={classNames}>
+    <StyledButton variant="primary" {...buttonProps} className={classNames}>
       <ButtonFont>{children}</ButtonFont>
       { processing && (
         <StyledCircularProgress>

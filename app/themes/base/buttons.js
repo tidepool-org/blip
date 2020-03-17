@@ -29,4 +29,19 @@ export default ({ colors, borders }) => ({
       color: colors.text.primaryDisabled,
     },
   },
+  icon: {
+    bg: colors.white,
+    color: colors.text.primary,
+    border: borders.input,
+    '&:hover,&:active': {
+      color: colors.white,
+      backgroundColor: colors.text.primary,
+      borderColor: colors.text.primary,
+    },
+    '&:disabled': {
+      backgroundColor: colors.lightestGrey,
+      borderColor: colors.lightestGrey,
+      color: colors.text.primaryDisabled,
+    },
+  },
 });

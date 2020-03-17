@@ -68,9 +68,14 @@ export const transitions = {
 
 export const zIndices = [0, 10, 100, 1000];
 
+const variants = {
+  buttons: buttons({ colors, borders }),
+}
+
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders }),
+  buttons: variants.buttons,
+  variants,
   colors,
   fonts,
   fontSizes,

@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Box, BoxProps } from 'rebass/styled-components';
 import styled from 'styled-components';
 import { default as IconButtonBase } from '@material-ui/core/IconButton';
+import { colors } from '../../themes/baseTheme';
 
 const StyledIconButton = styled(IconButtonBase)`
   padding: 0;
@@ -15,18 +17,30 @@ const StyledIconButton = styled(IconButtonBase)`
 `;
 
 export const IconButton = props => {
-  const { icon: Icon, label, ...buttonProps } = props;
+  const { sx, icon: Icon, label, rebass, ...buttonProps } = props;
 
   return (
-    <StyledIconButton disableFocusRipple disableRipple aria-label={label} {...buttonProps}>
-      <Icon />
-    </StyledIconButton>
+    <Box
+      as="span"
+      color={colors.text.primary}
+      aria-label={label}
+      {...rebass}
+    >
+      {/* <StyledIconButton disableFocusRipple disableRipple aria-label={label} {...buttonProps}> */}
+        <Icon focusable />
+      {/* </StyledIconButton> */}
+    </Box>
   );
 };
 
 IconButton.propTypes = {
+  rebass: BoxProps,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
+};
+
+IconButton.defaultProps = {
+  rebass: {},
 };
 
 export default IconButton;
