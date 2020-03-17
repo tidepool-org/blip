@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Flex } from 'rebass/styled-components';
-import { Select as Base, Label } from '@rebass/forms';
+import { Select as Base, Label, SelectProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
 import map from 'lodash/map';
@@ -81,6 +81,7 @@ export const Select = props => {
 };
 
 Select.propTypes = {
+  ...SelectProps,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   disabled: PropTypes.bool,
