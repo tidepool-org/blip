@@ -44,6 +44,7 @@ export const Simple = () => {
     <React.Fragment>
       <Text color="text.primary">
         <IconButton
+          variant="icons.static"
           label="info"
           icon={InfoRoundedIcon}
           {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}

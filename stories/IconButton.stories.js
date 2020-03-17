@@ -4,8 +4,9 @@ import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
-import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
+import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
 
 import baseTheme from '../app/themes/baseTheme';
 import IconButton from '../app/components/elements/IconButton';
@@ -31,22 +32,24 @@ export const Icon = () => {
   return (
     <React.Fragment>
       <IconButton
-        rebass={{
-          color: 'mediumPurple',
-          mr: '10px',
-        }}
-        label="Info"
-        icon={InfoRoundedIcon}
+        label="Close"
+        icon={CloseRoundedIcon}
         onClick={action('onClick called')}
         disabled={disabled()}
       />
       <IconButton
-        rebass={{
-          variant: 'buttons.icon',
-          // as: 'button',
+        sx={{
+          color: 'mediumPurple',
+          mr: '10px',
         }}
+        label="More"
+        icon={MoreHorizRoundedIcon}
+        onClick={action('onClick called')}
+        disabled={disabled()}
+      />
+      <IconButton
         label="Close"
-        icon={CloseRoundedIcon}
+        icon={NotificationsRoundedIcon}
         onClick={action('onClick called')}
         disabled={disabled()}
       />

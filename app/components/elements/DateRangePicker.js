@@ -99,10 +99,10 @@ export const DateRangePicker = props => {
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navNext={<IconButton label="next month" icon={NavigateNextRoundedIcon} />}
-        navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
-        customArrowIcon={<IconButton label="to" icon={ArrowRightAltRoundedIcon} />}
+        navPrev={<IconButton variant="icons.static" label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        navNext={<IconButton variant="icons.static" label="next month" icon={NavigateNextRoundedIcon} />}
+        customCloseIcon={<IconButton variant="icons.static" label="clear dates" icon={CloseRoundedIcon} />}
+        customArrowIcon={<IconButton variant="icons.static" label="to" icon={ArrowRightAltRoundedIcon} />}
         daySize={36}
         hideKeyboardShortcutsPanel
         showClearDates

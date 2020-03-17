@@ -65,9 +65,9 @@ export const DatePicker = props => {
         placeholder="mm/dd/yyyy"
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navNext={<IconButton label="next month" icon={NavigateNextRoundedIcon} />}
-        navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
+        navNext={<IconButton variant="icons.static" label="next month" icon={NavigateNextRoundedIcon} />}
+        navPrev={<IconButton variant="icons.static" label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        customCloseIcon={<IconButton variant="icons.static" label="clear dates" icon={CloseRoundedIcon} />}
         isOutsideRange={isOutsideRange}
         daySize={36}
         enableOutsideDays

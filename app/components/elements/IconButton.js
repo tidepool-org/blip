@@ -1,46 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, BoxProps } from 'rebass/styled-components';
 import styled from 'styled-components';
-import { default as IconButtonBase } from '@material-ui/core/IconButton';
-import { colors } from '../../themes/baseTheme';
+import { Box, BoxProps } from 'rebass/styled-components';
 
-const StyledIconButton = styled(IconButtonBase)`
-  padding: 0;
-  color: inherit;
+import { transitions } from '../../themes/baseTheme';
 
-  &:hover,
-  &:focus,
-  &:active {
-    background: none;
+const StyledIconButton = styled(Box)`
+  cursor: pointer;
+  transition: ${transitions.easeOut};
+  position: relative;
+  display: inline-flex;
+
+  &:disabled {
+    pointer-events: none;
   }
 `;
 
 export const IconButton = props => {
-  const { sx, icon: Icon, label, rebass, ...buttonProps } = props;
+  const { icon: Icon, label, ...buttonProps} = props;
+  const as = props.variant === 'icons.static' ? 'span' : 'button';
 
   return (
-    <Box
-      as="span"
-      color={colors.text.primary}
+    <StyledIconButton
+      as={as}
       aria-label={label}
-      {...rebass}
+      {...buttonProps}
     >
-      {/* <StyledIconButton disableFocusRipple disableRipple aria-label={label} {...buttonProps}> */}
-        <Icon focusable />
-      {/* </StyledIconButton> */}
-    </Box>
+      <Icon focusable />
+    </StyledIconButton>
   );
 };
 
 IconButton.propTypes = {
-  rebass: BoxProps,
+  ...BoxProps,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
 };
 
 IconButton.defaultProps = {
-  rebass: {},
+  variant: 'icons.button',
 };
 
 export default IconButton;

@@ -46,7 +46,7 @@ export const Button = props => {
   return (
     <StyledButton variant="primary" {...buttonProps} className={classNames}>
       <ButtonFont>{children}</ButtonFont>
-      { processing && (
+      {processing && (
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"

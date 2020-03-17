@@ -1,6 +1,5 @@
 import { Box } from 'rebass/styled-components';
 import styled from 'styled-components';
-import { default as IconButtonBase } from '@material-ui/core/IconButton';
 
 import {
   borders,
@@ -12,10 +11,6 @@ import {
   shadows,
   space,
 } from '../../themes/baseTheme';
-
-export const IconButton = styled(IconButtonBase)`
-  padding: 0;
-`;
 
 export const DatePicker = styled(Box)`
   font-family: ${fonts.default};
