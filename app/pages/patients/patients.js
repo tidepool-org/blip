@@ -34,15 +34,17 @@ import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
+
 export let Patients = translate()(React.createClass({
   propTypes: {
-    clearPatientData: React.PropTypes.func.isRequired,
     clearPatientInView: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string,
     fetchers: React.PropTypes.array.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    fetchingPendingReceivedInvites: React.PropTypes.bool.isRequired,
-    fetchingAssociatedAccounts: React.PropTypes.bool.isRequired,
+    fetchingPendingReceivedInvites: React.PropTypes.object.isRequired,
+    fetchingAssociatedAccounts: React.PropTypes.object.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
@@ -61,26 +63,6 @@ export let Patients = translate()(React.createClass({
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
-
-    if (this.props.loading) {
-      if (this.props.location.query.justLoggedIn) {
-        return (
-          <div>
-            {welcomeTitle}
-            {this.renderLoadingIndicator()}
-          </div>
-        );
-      } else {
-        return (
-          <div className="container-box-outer">
-            <div className="patients js-patients-page">
-              {this.renderLoadingIndicator()}
-            </div>
-          </div>
-        );
-      }
-    }
-
     var welcomeSetup = this.renderWelcomeSetup();
     var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
     var invites = this.renderInvitations();
@@ -101,6 +83,7 @@ export let Patients = translate()(React.createClass({
           {invites}
           {noPatientsSetupStorage}
           {patients}
+          <Loader show={this.props.loading} overlay={true} />
         </div>
       </div>
     );
@@ -267,15 +250,6 @@ export let Patients = translate()(React.createClass({
     );
   },
 
-  renderLoadingIndicator: function() {
-    const { t } = this.props;
-    return (
-      <div className="patients-message patients-message-loading">
-        {t('Loading...')}
-      </div>
-    );
-  },
-
   handleClickCreateProfile: function() {
     this.props.trackMetric('Clicked Create Profile');
   },
@@ -325,9 +299,7 @@ export let Patients = translate()(React.createClass({
   },
 
   componentWillMount: function() {
-    if (this.props.currentPatientInViewId) {
-      this.props.clearPatientData(this.props.currentPatientInViewId);
-    }
+    this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
@@ -444,7 +416,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
-  clearPatientData: actions.sync.clearPatientData,
+  dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage
@@ -455,7 +427,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return _.assign(
     {},
     _.pick(dispatchProps, [
-      'clearPatientData',
+      'dataWorkerRemoveDataRequest',
       'clearPatientInView',
       'showWelcomeMessage',
       'onHideWelcomeSetup',

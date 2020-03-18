@@ -10,11 +10,15 @@ const { statBgSourceLabels } = vizUtils.stat;
 
 class BgSourceToggle extends PureComponent {
   static propTypes = {
-    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     bgSources: PropTypes.shape({
       cbg: PropTypes.bool.isRequired,
       smbg: PropTypes.bool.isRequired,
+      current: PropTypes.string,
     }).isRequired,
+    chartPrefs: PropTypes.shape({
+      bgSource: PropTypes.string,
+    }),
+    chartType: PropTypes.string,
     onClickBgSourceToggle: PropTypes.func.isRequired,
   };
 
@@ -23,12 +27,13 @@ class BgSourceToggle extends PureComponent {
   render = () => {
     const showToggle = this.props.bgSources.cbg || this.props.bgSources.smbg;
     const disabled = !(this.props.bgSources.cbg && this.props.bgSources.smbg);
+    const currentBgSource = this.getBgSource();
 
     return (
       <div className="toggle-container">
         {showToggle ? <TwoOptionToggle
-          left={{ label: statBgSourceLabels.smbg, state: this.props.bgSource === 'smbg' }}
-          right={{ label: statBgSourceLabels.cbg, state: this.props.bgSource === 'cbg' }}
+          left={{ label: statBgSourceLabels.smbg, state: currentBgSource === 'smbg' }}
+          right={{ label: statBgSourceLabels.cbg, state: currentBgSource === 'cbg' }}
           toggleFn={this.handleBgToggle}
           disabled={disabled}
         /> : null}
@@ -36,13 +41,19 @@ class BgSourceToggle extends PureComponent {
     );
   };
 
+  getBgSource = () => {
+    return _.get(this.props, `chartPrefs[${this.props.chartType}].bgSource`, _.get(this.props, 'bgSources.current'));
+  };
+
   handleBgToggle = (e) => {
     if (e) {
       e.preventDefault();
     }
 
-    if (this.props.bgSource) {
-      const bgSource = this.props.bgSource === 'cbg' ? 'smbg' : 'cbg';
+    const currentBgSource = this.getBgSource();
+
+    if (currentBgSource) {
+      const bgSource = currentBgSource === 'cbg' ? 'smbg' : 'cbg';
       this.props.onClickBgSourceToggle(e, bgSource);
     }
   };

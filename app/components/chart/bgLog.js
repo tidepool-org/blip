@@ -25,14 +25,14 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import Stats from './stats';
-import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
 const chartBgLogFactory = tidelineBlip.twoweek;
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 import Header from './header';
 import Footer from './footer';
@@ -41,10 +41,9 @@ class BgLogChart extends Component {
   static propTypes = {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -61,9 +60,9 @@ class BgLogChart extends Component {
     this.log = bows('BgLog Chart');
   }
 
-  mount = () => {
+  mount = (props = this.props) => {
     this.mountChart(ReactDOM.findDOMNode(this));
-    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+    this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
   };
 
   componentWillUnmount = () => {
@@ -83,11 +82,23 @@ class BgLogChart extends Component {
     this.chart.destroy();
   };
 
-  rerenderChart = () => {
-    this.log('Rerendering...');
+  remountChart = (props = this.props) => {
+    this.log('Remounting...');
     this.unmountChart();
-    this.mount();
+    this.mount(props);
     this.chart.emitter.emit('inTransition', false);
+  }
+
+  rerenderChart = (props = this.props) => {
+    this.log('Rerendering...');
+    this.chart.clear();
+    this.bindEvents();
+    this.chart.load(props.data, props.initialDatetimeLocation);
+    if (props.showingValues) {
+      this.showValues();
+    } else {
+      this.hideValues();
+    }
   };
 
   bindEvents = () => {
@@ -97,7 +108,7 @@ class BgLogChart extends Component {
     this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
   };
 
-  initializeChart = (data, datetimeLocation) => {
+  initializeChart = (data, datetimeLocation, showingValues) => {
     this.log('Initializing...');
     if (_.isEmpty(data)) {
       throw new Error('Cannot create new chart with no data');
@@ -109,7 +120,8 @@ class BgLogChart extends Component {
     else {
       this.chart.load(data);
     }
-    if (this.props.isClinicAccount){
+
+    if (this.props.isClinicAccount || showingValues) {
       this.chart.showValues();
     }
   };
@@ -124,9 +136,6 @@ class BgLogChart extends Component {
 
   // handlers
   handleDatetimeLocationChange = datetimeLocationEndpoints => {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1]
-    });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   }
 
@@ -137,7 +146,7 @@ class BgLogChart extends Component {
   goToMostRecent = () => {
     this.chart.clear();
     this.bindEvents();
-    this.chart.load(this.props.patientData);
+    this.chart.load(this.props.data);
   };
 
   hideValues = () => {
@@ -159,12 +168,12 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: React.PropTypes.string,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
@@ -173,12 +182,10 @@ class BgLog extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    patientData: React.PropTypes.object.isRequired,
     pdf: React.PropTypes.object.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
+    queryDataCount: React.PropTypes.number.isRequired,
+    stats: React.PropTypes.array.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
   };
 
@@ -193,10 +200,9 @@ class BgLog extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
-      endpoints: [],
       inTransition: false,
       showingValues: this.props.isClinicAccount,
-      title: ''
+      title: '',
     };
   };
 
@@ -207,8 +213,14 @@ class BgLog extends Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.rerenderChart();
+    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
+      this.refs.chart.rerenderChart(_.assign(
+        {},
+        nextProps,
+        { showingValues: this.state.showingValues },
+      ));
     }
   };
 
@@ -225,19 +237,16 @@ class BgLog extends Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              {this.isMissingSMBG() ? (this.props.loading ? null : this.renderMissingSMBGMessage()) : this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <Stats
-                bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.dataUtil.bgSource}
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                stats={this.props.stats}
               />
             </div>
           </div>
@@ -256,11 +265,11 @@ class BgLog extends Component {
   renderChart = () => {
     return (
       <BgLogChart
-        bgClasses={this.props.bgPrefs.bgClasses}
-        bgUnits={this.props.bgPrefs.bgUnits}
+        bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
+        bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        patientData={this.props.patientData}
-        timePrefs={this.props.timePrefs}
+        data={this.props.data}
+        timePrefs={_.get(this.props, 'data.timePrefs', {})}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onMostRecent={this.handleMostRecent}
@@ -346,16 +355,14 @@ class BgLog extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.rerenderChart();
+    this.refs.chart && this.refs.chart.remountChart(_.assign(
+      {},
+      this.props,
+      { showingValues: this.state.showingValues },
+    ));
   };
 
-  isMissingSMBG = () => {
-    const data = this.props.patientData;
-    if (_.isEmpty(data.grouped.smbg)) {
-      return true;
-    }
-    return false;
-  };
+  isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));
 
   // handlers
   handleClickTrends = e => {
@@ -373,8 +380,14 @@ class BgLog extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.setState({showingValues: false});
-    this.refs.chart.goToMostRecent();
+
+    const chartDays = _.get(this.refs, 'chart.chart.days', []);
+
+    if (_.includes(chartDays, this.props.mostRecentDatetimeLocation.slice(0,10))) {
+      this.refs.chart.goToMostRecent();
+    } else {
+      this.props.onUpdateChartDateRange(this.props.mostRecentDatetimeLocation, true)
+    }
   };
 
   handleClickOneDay = e => {
@@ -403,47 +416,25 @@ class BgLog extends Component {
     return;
   };
 
-  handleDatetimeLocationChange = (datetimeLocationEndpoints, chart = this.refs.chart) => {
-    const { timezoneAware, timezoneName } = this.props.timePrefs;
-
-    const startMoment = moment
-      .utc(datetimeLocationEndpoints[0])
-      .startOf('day');
-
-    const endMoment = moment
-      .utc(datetimeLocationEndpoints[1])
-      .add(1, 'day')
-      .startOf('day');
-
-    let startTimezoneOffset = 0;
-    let endTimezoneOffset = 0;
-
-    if (timezoneAware) {
-      startTimezoneOffset = sundial.getOffsetFromZone(startMoment.toISOString(), timezoneName);
-      endTimezoneOffset = sundial.getOffsetFromZone(endMoment.toISOString(), timezoneName);
-    }
-
-    const endpoints = [
-      startMoment.subtract(startTimezoneOffset, 'minutes').toISOString(),
-      endMoment.subtract(endTimezoneOffset, 'minutes').toISOString(),
-    ];
-
+  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
     this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints),
-      endpoints,
     });
 
-    this.props.updateDatetimeLocation(chart.getCurrentDay());
-
-    // Update the chart date range in the patientData component.
+    // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
+    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+
+    const datetimeLocation = moment.utc(dateCeiling.valueOf())
+      .subtract(12, 'hours')
+      .toISOString();
+
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(endpoints, this.refs.chart);
+    debouncedDateRangeUpdate(datetimeLocation);
 
     this.setState({ debouncedDateRangeUpdate });
   };

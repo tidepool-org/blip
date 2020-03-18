@@ -17,7 +17,6 @@ import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
-import DataUtilStub from '../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
 
@@ -29,56 +28,42 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import { MGDL_UNITS } from '../../../app/core/constants';
 
 describe('PatientData', function () {
   const defaultProps = {
-    addPatientNote: sinon.stub(),
-    clearPatientData: sinon.stub(),
-    currentPatientInViewId: 'somestring',
+    addingData: { inProgress: false, completed: false },
+    currentPatientInViewId: 'otherPatientId',
+    data: {},
+    dataWorkerRemoveDataRequest: sinon.stub(),
+    dataWorkerRemoveDataSuccess: sinon.stub(),
+    dataWorkerQueryDataRequest: sinon.stub(),
     fetchers: [],
     fetchingPatient: false,
     fetchingPatientData: false,
     fetchingUser: false,
     generatePDFRequest: sinon.stub(),
-    generatingPDF: false,
+    generatingPDF: {},
     isUserPatient: false,
+    messageThread: [],
     onCloseMessageThread: sinon.stub(),
     onCreateMessage: sinon.stub(),
     onEditMessage: sinon.stub(),
     onFetchMessageThread: sinon.stub(),
     onRefresh: sinon.stub(),
     onSaveComment: sinon.stub(),
-    patientDataMap: {},
-    patientNotesMap: {},
+    patient: {},
     pdf: {},
+    queryingData: { inProgress: false, completed: false },
     queryParams: {},
     removeGeneratedPDFS: sinon.stub(),
     trackMetric: sinon.stub(),
     updateBasicsSettings: sinon.stub(),
-    updatePatientNote: sinon.stub(),
+    updatingDatum: { inProgress: false, completed: false },
     uploadUrl: 'http://foo.com',
-    viz: {},
-    t
+    user: { id: 'loggedInUserId'},
+    t,
   };
-
-  const commonStats = {
-    averageGlucose: 'averageGlucose',
-    averageDailyDose: 'averageDailyDose',
-    carbs: 'carbs',
-    coefficientOfVariation: 'coefficientOfVariation',
-    glucoseManagementIndicator: 'glucoseManagementIndicator',
-    readingsInRange: 'readingsInRange',
-    sensorUsage: 'sensorUsage',
-    standardDev: 'standardDev',
-    timeInAuto: 'timeInAuto',
-    timeInRange: 'timeInRange',
-    totalInsulin: 'totalInsulin',
-  }
-
-  const statFetchMethods = _.transform(commonStats, (result, value, key) => {
-    result[value] = sinon.stub();
-  }, {});
-
 
   before(() => {
     PD.__Rewire__('Basics', React.createClass({
@@ -100,13 +85,14 @@ describe('PatientData', function () {
       data: {
         selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
         selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
-        DataUtil: DataUtilStub,
       },
-      stat: {
-        commonStats,
-        statFetchMethods,
-        getStatDefinition: sinon.stub().callsFake((data, type) => `stubbed ${type} definition`),
-      }
+      bg: {
+        reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
+      },
+      aggregation: {
+        defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
+        processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
+      },
     });
   });
 
@@ -119,6 +105,86 @@ describe('PatientData', function () {
 
   it('should be exposed as a module and be of type function', function() {
     expect(PatientData).to.be.a('function');
+  });
+
+  describe('isInitialProcessing', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should return false for empty data set', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: 0 },
+        }
+      }));
+
+      expect(instance.isInitialProcessing()).to.be.false;
+    });
+
+    it('should return false if data fetched and data range loaded', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: 12 },
+        }
+      }));
+
+      wrapper.setState({ chartEndpoints: { current: [100,200] } });
+
+      expect(instance.isInitialProcessing()).to.be.false;
+    });
+
+    it('should return false if data fetched and data range not loaded but view is settings', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: 12 },
+        }
+      }));
+
+      wrapper.setState({ chartEndpoints: { current: undefined }, chartType: 'settings' });
+
+      expect(instance.isInitialProcessing()).to.be.false;
+    });
+
+    it('should return true if data not fetched and data range not loaded', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: undefined },
+        }
+      }));
+
+      wrapper.setState({ chartEndpoints: { current: undefined } });
+
+      expect(instance.isInitialProcessing()).to.be.true;
+    });
+
+    it('should return true if data fetched but data range not loaded', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: 12 },
+        }
+      }));
+
+      wrapper.setState({ chartEndpoints: { current: undefined } });
+
+      expect(instance.isInitialProcessing()).to.be.true;
+    });
+
+    it('should return true if data not fetched but data range loaded', () => {
+      wrapper.setProps(_.assign({}, defaultProps, {
+        data: {
+          metaData: { size: undefined },
+        }
+      }));
+
+      wrapper.setState({ chartEndpoints: { current: [100,200] } });
+
+      expect(instance.isInitialProcessing()).to.be.true;
+    });
   });
 
   describe('render', function() {
@@ -145,78 +211,61 @@ describe('PatientData', function () {
         expect(loader().props().show).to.be.true;
       });
 
-      it('should stop rendering the loading message and image when initialProcessing and missingPatientData are false', function() {
+      it('should stop rendering the loading message and image when initial data is fetched and chart date range is loaded', function() {
         expect(loader().length).to.equal(1);
         expect(loader().props().show).to.be.true;
 
-        // Set initialProcessing to false - should hide loader
-        wrapper.setState({lastDatumProcessedIndex: 1});
+        // Set chartType to settings, which only requires data to be loaded in order to render the chart
+        wrapper.setState({ chartType: 'settings' });
+
+        // Set patient data as loaded - should still hide loader since range enpoints not set
+        wrapper.setProps(_.assign({}, defaultProps, {
+          data: {
+            metaData: { size: 10 },
+          }
+        }));
         expect(loader().props().show).to.be.false;
 
-        // Set initialProcessing back to true - should show loader
-        wrapper.setState({lastDatumProcessedIndex: -1});
+        // Set chart type to 'basics' - should show loader, since it requires chart date range to be set
+        wrapper.setState({ chartType: 'basics' });
         expect(loader().props().show).to.be.true;
 
-        // Set loadedPatientData to true - should hide loader
-        wrapper.setProps({ patientDataMap: {
-          [defaultProps.currentPatientInViewId]: ['some data'],
-        }});
-        expect(loader().props().show).to.be.false;
 
-        // Set initialProcessing to false, so both are false - should hide loader
-        wrapper.setState({lastDatumProcessedIndex: -1});
+        // Set chart endpoints - should hide loader
+        wrapper.setState({
+          chartEndpoints: { current: [1000, 2000] },
+        });
         expect(loader().props().show).to.be.false;
       });
 
-      // this is THE REGRESSION TEST for the "data mismatch" bug
-      it('should continue to render the loading message when data has been fetched for someone else but not for current patient', () => {
-        var props = {
-          currentPatientInViewId: 41,
-          fetchingPatient: false,
-          fetchingPatientData: true,
-        };
+      it('should render the loader when transitioning chart types', () => {
+        wrapper.setProps(_.assign({}, defaultProps, {
+          data: {
+            metaData: { size: 10 },
+          }
+        }));
 
-        wrapper.setProps(props);
-
-        expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.true;
-
-        wrapper.setProps({
-          patientDataMap: {
-            40: [{type: 'cbg'}],
-          },
-          patientNotesMap: {
-            40: [],
-          },
-        });
-
-        expect(loader().props().show).to.be.true;
-      });
-
-      it('should only render the initial loading view when the initial data is being fetched', () => {
-        wrapper.setState({
-          processingData: true,
-          lastDatumProcessedIndex: -1,
-        });
+        wrapper.setState({ chartEndpoints: { current: [1000, 2000] } });
 
         expect(loader().length).to.equal(1);
-        expect(loader().props().show).to.be.true;
-
-        wrapper.setState({
-          processingData: false,
-          lastDatumProcessedIndex: 100,
-        });
-
         expect(loader().props().show).to.be.false;
 
-        wrapper.setState({
-          processingData: true,
-          lastDatumProcessedIndex: 100,
-        });
+        // Set transitioningChartType to true - should show loader
+        wrapper.setState({transitioningChartType: true});
+        expect(loader().props().show).to.be.true;
+      })
 
-        // should not show even though processingData state is true, since we're not processing
-        // the initial data set. After the initial processing, the loader will be rendered within
-        // the individual chart containers, not the main view.
+      it('should not render the loader when patient data set is fetched, but empty', () => {
+        expect(loader().length).to.equal(1);
+        expect(loader().props().show).to.be.true;
+
+        wrapper.setProps(_.assign({}, defaultProps, {
+          data: {
+            metaData: { size: 0 },
+          }
+        }));
+
+        expect(loader().length).to.equal(1);
         expect(loader().props().show).to.be.false;
       });
     });
@@ -243,12 +292,11 @@ describe('PatientData', function () {
 
           wrapper = mount(<PatientData {...props} />);
 
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-            processingData: false,
-          });
-
-          wrapper.update();
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
           expect(noData().length).to.equal(1);
           expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
@@ -256,9 +304,9 @@ describe('PatientData', function () {
 
         it('should render the no data message when no data is present for current patient', function() {
           var props = _.assign({}, defaultProps, {
-            currentPatientInViewId: 40,
+            currentPatientInViewId: '40',
             patient: {
-              userid: 40,
+              userid: '40',
               profile: {
                 fullName: 'Fooey McBar'
               }
@@ -266,20 +314,20 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             patientDataMap: {
-              40: [],
+              '40': [],
             },
             patientNotesMap: {
-              40: [],
+              '40': [],
             },
           });
 
           wrapper = mount(<PatientData {...props} />);
 
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-          });
-
-          wrapper.update();
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
           expect(noData().length).to.equal(1);
           expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
@@ -291,73 +339,73 @@ describe('PatientData', function () {
           var props = {
             isUserPatient: true,
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
 
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-          });
-
-          wrapper.update();
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
           expect(noData().length).to.equal(1);
         });
 
         it('should render the no data message when no data is present for current patient', function() {
           var props = {
-            currentPatientInViewId: 40,
+            currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
-              userid: 40,
-              profile: {
-                fullName: 'Fooey McBar'
-              }
-            },
-            fetchingPatient: false,
-            fetchingPatientData: false
-          };
-
-          wrapper = mount(<PatientData {...props} />);
-
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-          });
-
-          wrapper.update();
-
-          expect(noData().length).to.equal(1);
-        });
-
-        it('should track click on main upload button', function() {
-          var props = {
-            currentPatientInViewId: 40,
-            isUserPatient: true,
-            patient: {
-              userid: 40,
+              userid: '40',
               profile: {
                 fullName: 'Fooey McBar'
               }
             },
             fetchingPatient: false,
             fetchingPatientData: false,
-            trackMetric: sinon.stub(),
-            patientDataMap: {
-              40: [],
-            },
-            patientNotesMap: {
-              40: [],
-            },
+            generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
 
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-          });
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
-          wrapper.update();
+          expect(noData().length).to.equal(1);
+        });
+
+        it('should track click on main upload button', function() {
+          var props = {
+            currentPatientInViewId: '40',
+            isUserPatient: true,
+            patient: {
+              userid: '40',
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            trackMetric: sinon.stub(),
+          };
+
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
           expect(noData().length).to.equal(1);
 
@@ -372,26 +420,28 @@ describe('PatientData', function () {
 
         it('should track click on Blip Notes link', function() {
           var props = {
-            currentPatientInViewId: 40,
+            currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
-              userid: 40,
+              userid: '40',
               profile: {
                 fullName: 'Fooey McBar'
               }
             },
             fetchingPatient: false,
             fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
+            pdf: {},
             trackMetric: sinon.stub()
           };
 
           wrapper = mount(<PatientData {...props} />);
 
-          wrapper.instance().getWrappedInstance().setState({
-            loading: false,
-          });
-
-          wrapper.update();
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
           var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;
@@ -405,10 +455,8 @@ describe('PatientData', function () {
     });
 
     describe('default view based on lastest data upload', () => {
-      let elem;
-      let kickOffProcessing;
-
-      const time = '2017-06-08T14:16:12.000Z';
+      let wrapper;
+      let instance;
 
       const uploads = [
         {
@@ -439,400 +487,525 @@ describe('PatientData', function () {
         },
         fetchingPatient: false,
         fetchingPatientData: false,
-        trackMetric: sinon.stub(),
-        viz: {
-          trends: {},
-          pdf: {},
-        },
+        generatingPDF: { inProgress: false },
       });
 
       beforeEach(() => {
-        elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-        sinon.spy(elem, 'deriveChartTypeFromLatestData');
+        wrapper = mount(<PatientData {...props} />);
+        instance = wrapper.instance().getWrappedInstance();
 
-        elem.dataUtil = new DataUtilStub();
+        sinon.spy(instance, 'deriveChartTypeFromLatestData');
 
-        kickOffProcessing = (data, includeUploads = true) => {
-          let processedData;
+        // Set data loaded and chart endpoints to hide loader and allow data views to render
+        wrapper.setProps(_.assign({}, props, {
+          data: {
+            metaData: { size: 10 },
+          }
+        }));
 
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.processData = () => {
-            let diabetesData = _.map(data, datum => {
-              datum.time = time;
-              return datum;
-            });
-
-            if(includeUploads){
-              processedData = {
-                grouped: {
-                  upload: uploads,
-                },
-                diabetesData,
-              }
-            } else {
-              processedData = {
-                diabetesData,
-              }
-            }
-
-            elem.setState({
-              processedPatientData: { data: diabetesData },
-              processingData: false,
-              loading: false,
-            });
-
-            elem.setInitialChartType(processedData);
-          };
-
-          elem.componentWillReceiveProps({
-            patient: _.assign({}, props.patient, {
-              settings: {},
-            }),
-            patientDataMap: {
-              40: []
-            },
-          });
-        };
-      });
-
-      it('should set `dataUtil._chartPrefs` to the prefs for the initial `chartType` state', () => {
-        const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-        const instance = wrapper.instance();
-
-        const processedData = {
-          grouped: {
-            upload: ['foo'],
-          },
-          diabetesData: ['bar'] ,
-        };
-
-        const chartPrefs = { basics: 'basics prefs' };
-
-        wrapper.setState({ chartPrefs })
-        instance.dataUtil = new DataUtilStub();
-
-        instance.setInitialChartType(processedData);
-        expect(instance.dataUtil._chartPrefs).to.equal('basics prefs');
+        instance.setState({ chartEndpoints: { current: [1000, 2000] } });
       });
 
       context('setting default view based on device type of last upload', () => {
         it('should set the default view to <Basics /> when latest data is from a pump', () => {
-          const data = [{
-            type: 'bolus',
-            deviceId: 'pump',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  bolus: {
+                    type: 'bolus',
+                    deviceId: 'pump',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Trends /> with CGM selected when latest data is from a cgm', () => {
-          const data = [{
-            type: 'cbg',
-            deviceId: 'cgm',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  cbg: {
+                    type: 'cbg',
+                    deviceId: 'cgm',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
-          expect(elem.state.chartPrefs.trends.showingCbg).to.be.true;
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-trends-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to trends');
         });
 
         it('should set the default view to <BgLog /> when latest data is from a bgm', () => {
-          const data = [{
-            type: 'smbg',
-            deviceId: 'bgm',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  smbg: {
+                    type: 'smbg',
+                    deviceId: 'bgm',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-bgLog-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to weekly');
         });
 
-        it('should set the default view to <BgLog /> when latest data type is cbg but came from a pump', () => {
-          const data = [{
-            type: 'cbg',
-            deviceId: 'pump-cgm',
-          }];
+        it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  cbg: {
+                    type: 'cbg',
+                    deviceId: 'pump-cgm',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
       });
 
       context('unable to determine device, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
-          const data = [{
-            type: 'bolus',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  bolus: {
+                    type: 'bolus',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Basics /> when type is basal', () => {
-          const data = [{
-            type: 'basal',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  basal: {
+                    type: 'basal',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Basics /> when type is wizard', () => {
-          const data = [{
-            type: 'wizard',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  wizard: {
+                    type: 'wizard',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Trends /> when type is cbg', () => {
-          const data = [{
-            type: 'cbg',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  cbg: {
+                    type: 'cbg',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-trends-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to trends');
         });
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
-          const data = [{
-            type: 'smbg',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: uploads },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  smbg: {
+                    type: 'smbg',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-bgLog-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to weekly');
         });
       });
 
       context('with no upload records, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
-          const data = [{
-            type: 'bolus',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  bolus: {
+                    type: 'bolus',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data, false);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Basics /> when type is basal', () => {
-          const data = [{
-            type: 'basal',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  basal: {
+                    type: 'basal',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data, false);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Basics /> when type is wizard', () => {
-          const data = [{
-            type: 'wizard',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  wizard: {
+                    type: 'wizard',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data, false);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to basics');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to basics');
         });
 
         it('should set the default view to <Trends /> when type is cbg', () => {
-          const data = [{
-            type: 'cbg',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  cbg: {
+                    type: 'cbg',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data, false);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-trends-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to trends');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to trends');
         });
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
-          const data = [{
-            type: 'smbg',
-            deviceId: 'unknown',
-          }];
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  smbg: {
+                    type: 'smbg',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
+            },
+          }));
 
-          kickOffProcessing(data, false);
+          instance.setInitialChartView();
+          wrapper.update();
 
-          const view = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-bgLog-view');
-          expect(view).to.be.ok;
+          const view = wrapper.find('.fake-bgLog-view');
+          expect(view.length).to.equal(1);
 
-          sinon.assert.calledOnce(elem.deriveChartTypeFromLatestData);
-          sinon.assert.calledWith(elem.props.trackMetric, 'web - default to weekly');
+          sinon.assert.calledOnce(instance.deriveChartTypeFromLatestData);
+          sinon.assert.calledWith(instance.props.trackMetric, 'web - default to weekly');
         });
       });
     });
 
     describe('render data (finally!)', () => {
+      let wrapper;
+      let instance;
+
+      const props = _.assign({}, defaultProps, {
+        currentPatientInViewId: '40',
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar',
+          },
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+      });
+
+      beforeEach(() => {
+        wrapper = mount(<PatientData {...props} />);
+        instance = wrapper.instance().getWrappedInstance();
+
+        // Set data loaded and chart endpoints to hide loader and allow data views to render
+        wrapper.setProps(_.assign({}, props, {
+          data: {
+            metaData: { size: 10 },
+          }
+        }));
+
+        instance.setState({ chartEndpoints: { current: [1000, 2000] } });
+      });
+
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
-          var props = _.assign({}, defaultProps, {
-            currentPatientInViewId: 40,
-            patient: {
-              userid: 40,
-              profile: {
-                fullName: 'Fooey McBar'
-              }
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  cbg: {
+                    type: 'cbg',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
             },
-            fetchingPatient: false,
-            fetchingPatientData: false,
-            viz: {
-              trends: {},
-              pdf: {},
-            },
-          });
+            isUserPatient: false,
+          }));
 
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
-          elem.dataUtil = new DataUtilStub();
+          instance.setInitialChartView();
+          wrapper.update();
 
           // Setting data.type to 'cbg' should result in <Trends /> view rendering
-          const data = [{ type: 'cbg' }];
-
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.processData = () => {
-            elem.setState({
-              processedPatientData: { data },
-              processingData: false,
-              loading: false,
-              chartType: elem.deriveChartTypeFromLatestData(data[0], []),
-            });
-          }
-          elem.componentWillReceiveProps({
-            patient: _.assign({}, props.patient, {
-              settings: {},
-            }),
-            patientDataMap: {
-              40: [],
-            },
-            patientNotesMap: {
-              40: [],
-            },
-          });
-
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-trends-view');
-          expect(x).to.be.ok;
+          const view = wrapper.find('.fake-trends-view');
+          expect(view.length).to.equal(1);
         });
       });
 
       describe('logged-in user is viewing own data', () => {
         it ('should render the correct view when data is present for current patient', function() {
-          var props = _.assign({}, defaultProps, {
-            currentPatientInViewId: 40,
-            isUserPatient: true,
-            patient: {
-              userid: 40,
-              profile: {
-                fullName: 'Fooey McBar'
-              }
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              data: { current: {
+                data: { upload: [] },
+              } },
+              metaData: {
+                latestDatumByType: {
+                  basal: {
+                    type: 'basal',
+                    deviceId: 'unknown',
+                    normalTime: 100,
+                  },
+                },
+                size: 10,
+              },
             },
-            fetchingPatient: false,
-            fetchingPatientData: false,
-            viz: {
-              pdf: {},
-            }
-          });
+            isUserPatient: true,
+          }));
 
-          // Try out using the spread props syntax in JSX
-          var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props}/>), PatientData.WrappedComponent);
-          elem.dataUtil = new DataUtilStub();
+          instance.setInitialChartView();
+          wrapper.update();
 
           // Setting data.type to 'basal' should result in <Basics /> view rendering
-          const data = [{ type: 'basal' }];
-
-          // bypass the actual processing function since that's not what we're testing here!
-          elem.processData = () => {
-            elem.setState({
-              processedPatientData: { data },
-              processingData: false,
-              loading: false,
-              chartType: elem.deriveChartTypeFromLatestData(data[0]),
-            });
-          }
-          elem.componentWillReceiveProps({
-            patient: _.assign({}, props.patient, {
-              settings: {},
-            }),
-            patientDataMap: {
-              40: []
-            },
-            patientNotesMap: {
-              40: []
-            }
-          });
-
-          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-          expect(x).to.be.ok;
+          const view = wrapper.find('.fake-basics-view');
+          expect(view.length).to.equal(1);
         });
       });
     });
@@ -842,8 +1015,12 @@ describe('PatientData', function () {
     it('should return the default `chartPrefs` state for each data view', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
-        basics: {},
-        daily: {},
+        basics: {
+          sections: {},
+        },
+        daily: {
+          extentSize: 1,
+        },
         trends: {
           activeDays: {
             monday: true,
@@ -861,9 +1038,26 @@ describe('PatientData', function () {
           smbgGrouped: false,
           smbgLines: false,
           smbgRangeOverlay: true,
+          cbgFlags: {
+            cbg100Enabled: true,
+            cbg80Enabled: true,
+            cbg50Enabled: true,
+            cbgMedianEnabled: true,
+          },
+          focusedCbgDateTrace: null,
+          focusedCbgSlice: null,
+          focusedCbgSliceKeys: null,
+          focusedSmbg: null,
+          focusedSmbgRangeAvg: null,
+          showingCbgDateTraces: false,
+          touched: false,
         },
         bgLog: {
           bgSource: 'smbg',
+          extentSize: 14,
+        },
+        settings: {
+          touched: false,
         },
       });
     });
@@ -872,16 +1066,18 @@ describe('PatientData', function () {
   describe('handleRefresh', function() {
     const props = {
       onRefresh: sinon.stub(),
-      clearPatientData: sinon.stub(),
+      dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
+      generatingPDF: { inProgress: false },
+      pdf: {},
     };
 
     it('should clear patient data upon refresh', function() {
       const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      const callCount = props.clearPatientData.callCount;
+      const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.handleRefresh();
 
-      expect(props.clearPatientData.callCount).to.equal(callCount + 1);
+      expect(props.dataWorkerRemoveDataRequest.callCount).to.equal(callCount + 1);
     });
 
     it('should clear generated pdfs upon refresh', function() {
@@ -895,87 +1091,28 @@ describe('PatientData', function () {
       const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+
       instance.DEFAULT_TITLE = 'defaultTitle';
 
-      wrapper.setState({
-        initialDatetimeLocation: 'initialDate',
+      instance.setState({
+        chartType: 'currentChartType',
       })
 
       setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
       sinon.assert.calledWithMatch(setStateSpy, {
-        endpoints: [],
-        datetimeLocation: 'initialDate',
-        fetchEarlierDataCount: 0,
-        lastDatumProcessedIndex: -1,
-        lastProcessedDateTarget: null,
-        loading: true,
-        processEarlierDataCount: 0,
-        processedPatientData: null,
-        title: 'defaultTitle'
+        ...instance.getInitialState(),
+        bgPrefs: undefined,
+        chartType: undefined,
+        chartEndpoints: undefined,
+        datetimeLocation: undefined,
+        mostRecentDatetimeLocation: undefined,
+        endpoints: undefined,
+        refreshChartType: 'currentChartType',
       });
 
       PatientData.WrappedComponent.prototype.setState.restore();
-    });
-  });
-
-  describe('updateBasicsData', () => {
-    it('should update the basicsdata portion of the processedPatientData state object', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
-
-      wrapper.setState({
-        processedPatientData: {
-          basicsData: 'old basicsData',
-          otherData: 'old otherData',
-        },
-      });
-
-      instance.updateBasicsData('new basicsData');
-
-      expect(instance.state.processedPatientData.basicsData).to.equal('new basicsData');
-    });
-
-    it('should not attempt to update the state object, if processedPatientData state is not present', () => {
-      const assignSpy = sinon.spy(_, 'assign');
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
-
-      wrapper.setState({
-        processedPatientData: undefined,
-      });
-
-      instance.updateBasicsData('new basicsData');
-
-      sinon.assert.notCalled(assignSpy)
-
-      _.assign.restore();
-    });
-
-    it('should update the processedPatientData state object, and not replace it with a new instance', () => {
-      const assignSpy = sinon.spy(_, 'assign');
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
-
-      wrapper.setState({
-        processedPatientData: {
-          basicsData: 'old basicsData',
-          otherData: 'old otherData',
-        },
-      });
-
-      instance.updateBasicsData('new basicsData');
-
-      sinon.assert.calledWithExactly(
-        assignSpy,
-        instance.state.processedPatientData,
-        { basicsData: 'new basicsData' }
-      );
-
-      _.assign.restore();
     });
   });
 
@@ -1121,47 +1258,732 @@ describe('PatientData', function () {
     });
   });
 
-  describe('updateDatetimeLocation', () => {
-    it('should update the chartDateRange state', () => {
-      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
+  describe('updateChartPrefs', () => {
+    let wrapper;
+    let instance;
 
-      setStateSpy.resetHistory();
-      sinon.assert.callCount(setStateSpy, 0);
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+      instance.queryData = sinon.stub();
+      instance.getStatsByChartType = sinon.stub().returns('stats stub');
 
-      instance.updateDatetimeLocation('new datetime');
+      wrapper.setState({
+        chartPrefs: {
+          basics: 'foo',
+        },
+      })
+    });
 
-      sinon.assert.calledWith(setStateSpy, {
-        datetimeLocation: 'new datetime',
-      });
+    it('should apply updates to chartPrefs state', () => {
+      instance.updateChartPrefs({ trends: 'bar' });
+      expect(instance.state.chartPrefs).to.eql({
+        basics: 'foo',
+        trends: 'bar',
+      })
+    });
 
-      PatientData.WrappedComponent.prototype.setState.restore();
+    it('should query data by default, but not if disabled via arg', () => {
+      instance.updateChartPrefs({ trends: 'bar' }, false);
+      sinon.assert.notCalled(instance.queryData);
+
+      instance.updateChartPrefs({ trends: 'bar' });
+      sinon.assert.calledWith(instance.queryData, undefined, { showLoading: false });
+    });
+
+    it('should query stats if enabled via arg, but not by default, nor if querying data', () => {
+      instance.setState({ chartEndpoints: { current: [100, 200] } });
+
+      // queryData set to false and queryStats set undefined
+      instance.updateChartPrefs({ trends: 'bar'}, false);
+      sinon.assert.notCalled(instance.getStatsByChartType);
+      sinon.assert.notCalled(instance.queryData);
+
+      // queryData set to true and queryStats set to false
+      instance.updateChartPrefs({ trends: 'bar' }, true, false);
+      sinon.assert.notCalled(instance.getStatsByChartType);
+      sinon.assert.calledWith(instance.queryData, undefined, { showLoading: false });
+
+      // queryData set to false and queryStats set to true
+      instance.updateChartPrefs({ trends: 'bar'}, false, true);
+      sinon.assert.called(instance.getStatsByChartType);
+      sinon.assert.calledWith(
+        instance.queryData,
+        sinon.match({
+          endpoints: [100, 200],
+          stats: 'stats stub',
+        }),
+        { showLoading: false }
+      );
     });
   });
 
-  describe('updateChartEndpoints', () => {
-    it('should update the chartDateRange state', () => {
-      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      const instance = wrapper.instance();
+  describe('getChartEndpoints', () => {
+    let wrapper;
+    let instance;
+    const datetimeLocation = '2019-11-27T12:00:00.000Z';
 
-      setStateSpy.resetHistory();
-      sinon.assert.callCount(setStateSpy, 0);
+    const useProvidedDatetimeOpts = {
+      setEndToLocalCeiling: false,
+    };
 
-      instance.updateChartEndpoints('new date range');
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
 
-      sinon.assert.calledWith(setStateSpy, {
-        endpoints: 'new date range',
+      wrapper.setState({
+        chartType: 'daily',
+        timePrefs: {
+          timezoneAware: false,
+        },
+      });
+    });
+
+    it('should use provided `datetimeLocation` arg to set the end range, and get from state if not provided', () => {
+      const result = instance.getChartEndpoints(datetimeLocation, useProvidedDatetimeOpts);
+      expect(result[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-27T12:00:00.000Z'));
+
+      wrapper.setState({ datetimeLocation: '2019-11-28T12:00:00.000Z' });
+      const resultWithNoDatetimeArg = instance.getChartEndpoints(undefined, useProvidedDatetimeOpts);
+      expect(resultWithNoDatetimeArg[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-28T12:00:00.000Z'));
+    });
+
+    it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
+      const result = instance.getChartEndpoints(datetimeLocation, undefined);
+      expect(result[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-28T00:00:00.000Z'));
+    });
+
+    context('basics view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'basics',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
       });
 
-      PatientData.WrappedComponent.prototype.setState.restore();
+      it('should return the valueOf `findBasicsStart` for the start value when timezone not set', () => {
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `findBasicsStart` for the start value when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+
+    context('daily view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'daily',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { daily: { extentSize: 14 } } });
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { daily: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+          chartPrefs: { daily: { extentSize: 14 } }
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+
+    context('bgLog view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'bgLog',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { bgLog: { extentSize: 14 } } });
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { bgLog: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+          chartPrefs: { bgLog: { extentSize: 14 } }
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+
+    context('trends view start', () => {
+      beforeEach(() => {
+        wrapper.setState({
+          chartType: 'trends',
+          timePrefs: {
+            timezoneAware: false,
+          },
+        });
+      });
+
+      it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { trends: { extentSize: 14 } } });
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { trends: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+      });
+
+      it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint when timezone is set', () => {
+        wrapper.setState({
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Eastern',
+          },
+          chartPrefs: { trends: { extentSize: 14 } }
+        });
+
+        const result = instance.getChartEndpoints(datetimeLocation);
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
+      });
+    });
+  });
+
+  describe('getCurrentData', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          data: {
+            current: {
+              nested: {
+                foo: 'bar'
+              },
+              value: 'baz'
+            },
+          },
+        },
+      });
+    });
+
+    it('should get current data from the data prop at the requested property path', () => {
+      expect(instance.getCurrentData('value')).to.equal('baz');
+      expect(instance.getCurrentData('nested.foo')).to.equal('bar');
+    });
+
+    context('path not found', () => {
+      it('should fall back to a provided empty value when set', () => {
+        expect(instance.getCurrentData('badPath', 'my fallback value')).to.equal('my fallback value');
+      });
+
+      it('should fall back to an empty object when empty value not set', () => {
+        expect(instance.getCurrentData('badPath')).to.eql({});
+      });
+    });
+  });
+
+  describe('getMetaData', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          metaData: {
+            nested: {
+              foo: 'bar'
+            },
+            value: 'baz'
+          },
+        },
+      });
+    });
+
+    it('should get meta data from the data prop at the requested property path', () => {
+      expect(instance.getMetaData('value')).to.equal('baz');
+      expect(instance.getMetaData('nested.foo')).to.equal('bar');
+    });
+
+    context('path not found', () => {
+      it('should fall back to a provided empty value when set', () => {
+        expect(instance.getMetaData('badPath', 'my fallback value')).to.equal('my fallback value');
+      });
+
+      it('should fall back to an empty object when empty value not set', () => {
+        expect(instance.getMetaData('badPath')).to.eql({});
+      });
+    });
+  });
+
+  describe('getBasicsAggregations', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PD.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should return an empty object if `data.aggregationsByDate` prop is empty', () => {
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: undefined },
+      } });
+      expect(instance.getBasicsAggregations()).to.eql({});
+    });
+
+    it('should return processed aggregrations if `data.aggregationsByDate` prop is present', () => {
+      const processBasicsAggregationsStub = PD.__get__('vizUtils').aggregation.processBasicsAggregations;
+
+      wrapper.setProps({ data: {
+        data: { aggregationsByDate: 'my aggregations' },
+        metaData: { latestPumpUpload: { manufacturer: 'animas' } },
+      } });
+
+      expect(instance.getBasicsAggregations()).to.equal('stubbed processed aggregations');
+      sinon.assert.calledWith(
+        processBasicsAggregationsStub,
+        'stubbed aggregations definitions',
+        'my aggregations',
+        defaultProps.patient,
+        'animas',
+      );
+    });
+  });
+
+  describe('getStatsByChartType', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    context('basics', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'basics' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'sensorUsage',
+          'totalInsulin',
+          'carbs',
+          'averageDailyDose',
+          'glucoseManagementIndicator',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+          'averageDailyDose',
+        ]);
+      });
+
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInAuto',
+          'carbs',
+          'averageDailyDose',
+        ]);
+      });
+    });
+
+    context('daily', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'daily' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'carbs',
+        ]);
+      });
+
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInAuto',
+          'carbs',
+        ]);
+      });
+    });
+
+    context('bgLog', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'bgLog' });
+      });
+
+      it('should add appropriate stats', () => {
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+    });
+
+    context('trends', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'trends' });
+      });
+
+      it('should add appropriate stats when cbg is selected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'cbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'timeInRange',
+          'averageGlucose',
+          'sensorUsage',
+          'glucoseManagementIndicator',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+
+      it('should add appropriate stats when smbg is selected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+        ]);
+      });
+    });
+
+    context('chartType undefined', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: undefined });
+      });
+
+      it('should return an empty array', () => {
+        expect(instance.getStatsByChartType()).to.eql([]);
+      });
+    });
+  });
+
+  describe('getDaysByType', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    context('daily', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'daily' });
+      });
+
+      it('should return 6 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 6,
+          prev: 6,
+        });
+      });
+    });
+
+    context('bgLog', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'bgLog' });
+      });
+
+      it('should return 14 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 14,
+          prev: 14,
+        });
+      });
+    });
+
+    context('chartType undefined', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: undefined });
+      });
+
+      it('should return 0 days for prev and next ranges', () => {
+        expect(instance.getDaysByType()).to.eql({
+          next: 0,
+          prev: 0,
+        });
+      });
+    });
+  });
+
+  describe('getMostRecentDatumTimeByChartType', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          metaData: {
+            latestDatumByType: {
+              basal: { type: 'basal', normalTime: 1, normalEnd: 10 },
+              bolus: { type: 'bolus', normalTime: 2 },
+              smbg: { type: 'cbg', normalTime: 3 },
+              deviceEvent: { type: 'deviceEvent', normalTime: 4 },
+              food: { type: 'food', normalTime: 5 },
+              message: { type: 'message', normalTime: 6 },
+              pumpSettings: { type: 'pumpSettings', normalTime: 7 },
+              cbg: { type: 'smbg', normalTime: 8 },
+              wizard: { type: 'wizard', normalTime: 9 },
+            }
+          }
+        }
+      });
+    });
+
+    it('should return the latest datum time for basics', () => {
+      // should return the basal normalEnd
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'basics')).to.equal(10);
+    });
+
+    it('should return the latest datum time for daily', () => {
+      // should return the basal normalEnd
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'daily')).to.equal(10);
+    });
+
+    it('should return the latest datum time for bgLog', () => {
+      // should return the smbg normalTime
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'bgLog')).to.equal(3);
+    });
+
+    it('should return the latest datum time for trends', () => {
+      // should return the cbg normalTime
+      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'trends')).to.equal(8);
+    });
+  });
+
+  describe('updateChart', () => {
+    let wrapper;
+    let instance;
+    let setStateSpy;
+
+    const defaultChartType = 'basics';
+    const defaultDatetimeLocation = '2019-11-27T00:00:00.000Z';
+    const defaultEndpoints = [100, 200];
+
+    const defaultOpts = { query: 'my query', updateChartEndpoints: true };
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setState({
+        endpoints: defaultEndpoints,
+        datetimeLocation: defaultDatetimeLocation,
+        mostRecentDatetimeLocation: undefined,
+      });
+
+      instance.queryData = sinon.stub();
+
+      setStateSpy = sinon.spy(instance, 'setState');
+    });
+
+    context('`chartType` changed', () => {
+      beforeEach(() => {
+        instance.updateChart('daily', defaultDatetimeLocation, defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `chartType`, `transitioningChartType`, and `mostRecentDatetimelocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          chartType: 'daily',
+          mostRecentDatetimeLocation: defaultDatetimeLocation,
+          transitioningChartType: false
+        });
+
+        instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { mostRecentDatetimeLocation: '2019-11-28T00:00:00.000Z' });
+        sinon.assert.calledWith(setStateSpy, {
+          chartType: 'basics',
+          mostRecentDatetimeLocation: '2019-11-28T00:00:00.000Z',
+          transitioningChartType: true,
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: true,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart('basics', defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: true,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`datetimeLocation` changed', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: defaultDatetimeLocation });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, '2019-11-28T00:00:00.000Z', defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `datetimeLocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          datetimeLocation: '2019-11-28T00:00:00.000Z',
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: false,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: false,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`endpoints` changed', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: defaultDatetimeLocation });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, [200,300], defaultOpts);
+      });
+
+      it('should set `endpoints` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          endpoints: [200,300],
+        });
+      });
+
+      it('should call `queryData` in `setState` callback with appropriate opts', () => {
+        sinon.assert.callOrder(setStateSpy, instance.queryData);
+        sinon.assert.calledWith(instance.queryData, 'my query', {
+          showLoading: true,
+          transitioningChartType: false,
+          updateChartEndpoints: true,
+        });
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, { updateChartEndpoints: false, showLoading: false });
+        sinon.assert.calledWith(instance.queryData, undefined, {
+          showLoading: false,
+          transitioningChartType: false,
+          updateChartEndpoints: false,
+        });
+      });
+    });
+
+    context('`mostRecentDatetimeLocation` state not set', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: defaultChartType, mostRecentDatetimeLocation: undefined });
+        setStateSpy.resetHistory();
+
+        instance.updateChart(defaultChartType, defaultDatetimeLocation, defaultEndpoints, defaultOpts);
+      });
+
+      it('should set `mostRecentDatetimeLocation` state', () => {
+        sinon.assert.calledWith(setStateSpy, {
+          mostRecentDatetimeLocation: defaultDatetimeLocation,
+        });
+      });
+
+      it('should set setState callback to `undefined`', () => {
+        sinon.assert.calledWith(setStateSpy, sinon.match.object, undefined);
+      });
     });
   });
 
   describe('componentWillUnmount', function() {
     const props = {
-      clearPatientData: sinon.stub(),
+      dataWorkerRemoveDataSuccess: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
     };
 
@@ -1171,25 +1993,30 @@ describe('PatientData', function () {
       elem.componentWillUnmount();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
+
+    it('should call `props.dataWorkerRemoveDataSuccess`', function() {
+    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      const callCount = props.dataWorkerRemoveDataSuccess.callCount;
+      elem.componentWillUnmount();
+      expect(props.dataWorkerRemoveDataSuccess.callCount).to.equal(callCount + 1);
+      sinon.assert.calledWith(props.dataWorkerRemoveDataSuccess, undefined, true)
+    });
   });
 
   describe('componentWillReceiveProps', function() {
-    const props = {
-      clearPatientData: sinon.stub(),
-    };
-
     describe('data processing and fetching', () => {
       let wrapper;
       let instance;
-      let initialProps;
-      let processDataStub;
-      let fetchEarlierDataStub;
-      let shouldProcessProps;
+      let props;
+      let setStateSpy;
 
       beforeEach(() => {
-        initialProps = _.assign({}, defaultProps, {
+        props = _.assign({}, defaultProps, {
+          data: {
+            metaData: { patientId: '40' },
+          },
           patient: {
-            userid: 40,
+            userid: '40',
             profile: {
               fullName: 'Fooey McBar'
             },
@@ -1197,168 +2024,335 @@ describe('PatientData', function () {
               siteChangeSource: 'cannulaPrime',
             },
           },
-          currentPatientInViewId: 40,
-          patientDataMap: {
-            40: [
-              { time: '2018-02-02T00:00:00.000Z' },
-            ]
-          },
+          currentPatientInViewId: '40',
+          queryParams: { timezone: 'US/Pacific' },
         });
 
-        shouldProcessProps = _.assign({}, initialProps, {
-          fetchedPatientDataRange: {
-            fetchedUntil: '2018-02-01T00:00:00.000Z',
-            start: '2018-02-01T00:00:00.000Z',
-            count: 1,
-          },
-        });
-
-        wrapper = shallow(<PatientData.WrappedComponent {...initialProps} />);
+        wrapper = shallow(<PatientData.WrappedComponent {...props} />);
         instance = wrapper.instance();
-        processDataStub = sinon.stub(instance, 'processData');
-        fetchEarlierDataStub = sinon.stub(instance, 'fetchEarlierData');
+
+        setStateSpy = sinon.spy(instance, 'setState');
       });
 
-      afterEach(() => {
-        processDataStub.reset();
-        fetchEarlierDataStub.reset();
-      });
-
-      after(() => {
-        processDataStub.restore();
-        fetchEarlierDataStub.restore();
-      });
-
-      context('patient settings have been fetched, initial patient data has been received', () => {
-        it('should kick off data processing', () => {
-          sinon.assert.notCalled(processDataStub);
-          wrapper.setProps(shouldProcessProps);
-
-          assert.equal(instance.state.lastDatumProcessedIndex, -1);
-          sinon.assert.calledOnce(processDataStub);
-          sinon.assert.calledWithExactly(processDataStub, shouldProcessProps);
-        });
-      });
-
-      context('patient settings have been fetched, initial data processed, new patient data has been received', () => {
-        it('should kick off processing of the new data', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0,
-          });
-
-          wrapper.setProps(shouldProcessProps); // kicks off the initial processing
-          sinon.assert.calledOnce(processDataStub);
-
-          const newDataProps = _.assign({}, shouldProcessProps, {
-            fetchedPatientDataRange: {
-              start: '2018-01-01T00:00:00.000Z',
-              count: 2,
-            },
-          });
-          wrapper.setProps(newDataProps);
-
-          assert.equal(instance.props.fetchedPatientDataRange.count, 2);
-          sinon.assert.calledTwice(processDataStub);
-        });
-      });
-
-      context('patient settings have been fetched, initial data processed, but no new patient data has been received', () => {
-        it('should NOT kick off data processing', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0,
-          });
-
-          wrapper.setProps(shouldProcessProps); // kicks off the initial processing
-          sinon.assert.calledOnce(processDataStub);
-
-          const newDataProps = _.assign({}, shouldProcessProps, {
-            fetchedPatientDataRange: {
-              start: '2018-01-01T00:00:00.000Z',
-              count: 1, // same as initial fetched data count
-            },
-          });
-          wrapper.setProps(newDataProps);
-
-          assert.equal(instance.props.fetchedPatientDataRange.count, 1);
-          sinon.assert.calledOnce(processDataStub); // still just one call made
-        });
-
-        it('should try to fetch some earlier data, but only once', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0,
-          });
-
-          wrapper.setProps(shouldProcessProps);
-          sinon.assert.calledOnce(processDataStub);
-          sinon.assert.notCalled(fetchEarlierDataStub);
-
-          const newDataProps = _.assign({}, shouldProcessProps, {
-            fetchedPatientDataRange: {
-              fetchedUntil:'2018-01-01T00:00:00.000Z',
-              start: '2018-01-01T00:00:00.000Z',
-              count: 1, // same as initial fetched data count
-            },
-          });
-          wrapper.setProps(newDataProps);
-
-          sinon.assert.calledOnce(fetchEarlierDataStub);
-          sinon.assert.calledWithExactly(fetchEarlierDataStub, { startDate: null });
-
-          // calling fetchEarlierData with a null startDate will set the
-          // 'fetchedPatientDataRange.fetchedUntil' prop to 'start', so we'll stub it here
-          const fetchedFromStartDataProps = _.assign({}, newDataProps, {
-            fetchedPatientDataRange: {
-              fetchedUntil: 'start',
-              start: '2018-01-01T00:00:00.000Z',
-              count: 1, // same as initial fetched data count
-            },
-          });
-
-          sinon.assert.calledOnce(fetchEarlierDataStub); // did not fetch a second time
-        });
-      });
-
-      context('patient settings have not been fetched, no patient data has been received', () => {
-        it('should not kick off processing or fetching', () => {
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            patient: null,
-          }));
-          sinon.assert.notCalled(processDataStub);
-          sinon.assert.notCalled(fetchEarlierDataStub);
-        });
-      });
-
-      context('patient settings have not been fetched, patient data has been received', () => {
-        it('should not kick off processing or fetching', () => {
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            patient: null,
-            fetchedPatientDataRange: {
-              fetchedUntil: 'start',
-              start: '2018-01-01T00:00:00.000Z',
-              count: 2, // additional data recieved
-            },
+      context('patient settings have not been fetched, patient data has not been added to worker', () => {
+        it('should not update state', () => {
+          wrapper.setProps(_.assign({}, props, {
+            data: { metaData: {patientID: 'foo' } },
+            patient: {
+              ...props.patient,
+              settings: undefined,
+            }
           }));
 
-          sinon.assert.notCalled(processDataStub);
-          sinon.assert.notCalled(fetchEarlierDataStub);
+          sinon.assert.notCalled(setStateSpy);
         });
       });
 
-      context('patient settings have been fetched, patient data has not been received', () => {
-        it('should not kick off processing or fetching', () => {
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            patientDataMap: {},
+      context('patient settings have not been fetched, patient data has been added to worker', () => {
+        it('should not update state', () => {
+          wrapper.setProps(_.assign({}, props, {
+            patient: {
+              ...props.patient,
+              settings: undefined,
+            }
           }));
 
-          sinon.assert.notCalled(processDataStub);
-          sinon.assert.notCalled(fetchEarlierDataStub);
+          sinon.assert.notCalled(setStateSpy);
+        });
+      });
+
+      context('patient settings have been fetched, patient data has not been added to worker', () => {
+        it('should not update state', () => {
+          wrapper.setProps(_.assign({}, props, {
+            data: { metaData: {patientID: 'foo' } },
+          }));
+
+          sinon.assert.notCalled(setStateSpy);
+        });
+      });
+
+      context('patient settings have been fetched, patient data has been added to worker', () => {
+        it('should set bgPrefs if not already set to state', () => {
+          wrapper.setState({ bgPrefs: { bgUnits: 'mg/dL' } });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps(props);
+
+          // With bgPrefs set, it should not set it again
+          sinon.assert.neverCalledWith(setStateSpy, sinon.match({
+            bgPrefs: sinon.match.object,
+          }));
+
+          wrapper.setState({ bgPrefs: undefined });
+          wrapper.setProps(props);
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            bgPrefs: {
+              bgBounds: 'stubbed bgBounds',
+              bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
+              bgUnits: 'mg/dL',
+            },
+          }));
+        });
+
+        it('should set timePrefs if not already set to state', () => {
+          wrapper.setState({ timePrefs: { timezoneAware: false } });
+          setStateSpy.resetHistory();
+
+          wrapper.setProps(props);
+
+          // With timePrefs set, it should not set it again
+          sinon.assert.neverCalledWith(setStateSpy, sinon.match({
+            timePrefs: sinon.match.object,
+          }));
+
+          wrapper.setState({ timePrefs: undefined });
+          wrapper.setProps(props);
+
+          sinon.assert.calledWith(setStateSpy, sinon.match({
+            timePrefs: {
+              timezoneAware: true,
+              timezoneName: 'US/Pacific',
+            },
+          }));
+        });
+
+        it('should query for intial data if `state.queryDataCount < 1`', () => {
+          const queryDataSpy = sinon.spy(instance, 'queryData');
+
+          wrapper.setState({ queryDataCount: 1 });
+          wrapper.setProps(props);
+          sinon.assert.notCalled(queryDataSpy);
+
+          wrapper.setState({ queryDataCount: 0 });
+          wrapper.setProps(props);
+          sinon.assert.calledWithMatch(queryDataSpy, {
+            types: {
+              upload: {
+                select: 'id,deviceId,deviceTags',
+              },
+            },
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources',
+            timePrefs: sinon.match.object,
+            bgPrefs: sinon.match.object,
+          });
+        });
+
+        context('querying data is completed', () => {
+          const completedDataQueryProps = _.assign({}, props, {
+            queryingData: {
+              inProgress: false,
+              completed: true,
+            }
+          });
+
+          beforeEach(() => {
+            wrapper.setProps(completedDataQueryProps);
+          });
+
+          it('should set queryingData state to `false`', () => {
+            sinon.assert.calledWithMatch(setStateSpy, {
+              queryingData: false,
+            });
+          });
+
+          it('should call `setInitialChartView` if `chartType` not already set to state', () => {
+            const setInitialChartViewSpy = sinon.spy(instance, 'setInitialChartView');
+
+            wrapper.setState({ chartType: 'basics' });
+            wrapper.setProps(completedDataQueryProps);
+
+            // With chartType set, it should not set it again
+            sinon.assert.notCalled(setInitialChartViewSpy);
+
+            wrapper.setState({ chartType: undefined });
+            wrapper.setProps(completedDataQueryProps);
+
+            sinon.assert.calledWith(setInitialChartViewSpy, sinon.match(completedDataQueryProps));
+          });
+
+          it('should increment `queryDataCount` if `types` was specified in the query', () => {
+            expect(instance.state.queryDataCount).to.equal(0);
+
+            wrapper.setProps(_.assign({}, completedDataQueryProps, {
+              data: {
+                ...props.data,
+                query: { types: 'smbg' },
+              },
+            }));
+
+            sinon.assert.calledWith(setStateSpy, sinon.match({
+              queryDataCount: 1,
+            }));
+          });
+
+          context('querying data just completed on current render cycle', () => {
+            const inProgressQueryingDataProps = _.assign({}, props, {
+              queryingData: {
+                inProgress: true,
+                completed: false,
+              }
+            });
+
+            beforeEach(() => {
+              wrapper.setProps(inProgressQueryingDataProps);
+            });
+
+            it('should update chart endpoints state if `updateChartEndpoints` set in query', () => {
+              wrapper.setProps(_.assign({}, completedDataQueryProps, {
+                data: {
+                  ...props.data,
+                  query: { updateChartEndpoints: true },
+                },
+              }));
+
+              sinon.assert.calledWith(setStateSpy, sinon.match({
+                chartEndpoints: {
+                  current: sinon.match.array,
+                  next: sinon.match.array,
+                  prev: sinon.match.array,
+                },
+              }));
+            });
+
+            it('should not update chart endpoints state if `updateChartEndpoints` not set in query', () => {
+              wrapper.setProps(_.assign({}, completedDataQueryProps, {
+                data: {
+                  ...props.data,
+                  query: { updateChartEndpoints: undefined },
+                },
+              }));
+
+              sinon.assert.neverCalledWith(setStateSpy, sinon.match({
+                chartEndpoints: {
+                  current: sinon.match.array,
+                  next: sinon.match.array,
+                  prev: sinon.match.array,
+                },
+              }));
+            });
+
+            it('should set `transitioningChartType` to false if `transitioningChartType` was true in query', () => {
+              wrapper.setProps(_.assign({}, completedDataQueryProps, {
+                data: {
+                  ...props.data,
+                  query: { transitioningChartType: true },
+                },
+              }));
+
+              sinon.assert.calledWith(setStateSpy, sinon.match({
+                transitioningChartType: false,
+              }));
+            });
+
+            it('should not set `transitioningChartType` to false if `transitioningChartType` was not set in query', () => {
+              wrapper.setProps(_.assign({}, completedDataQueryProps, {
+                data: {
+                  ...props.data,
+                  query: { transitioningChartType: undefined },
+                },
+              }));
+
+              sinon.assert.neverCalledWith(setStateSpy, sinon.match({
+                transitioningChartType: false,
+              }));
+            });
+          });
+
+          context('hideLoading', () => {
+            const notAddingDataProps = _.assign({}, completedDataQueryProps, {
+              addingData: { inProgress: false },
+            });
+
+            const notFetchingDataProps = _.assign({}, completedDataQueryProps, {
+              fetchingPatientData: false,
+            });
+
+            const addingDataProps = _.assign({}, completedDataQueryProps, {
+              addingData: { inProgress: true },
+            });
+
+            const fetchingDataProps = _.assign({}, completedDataQueryProps, {
+              fetchingPatientData: true,
+            });
+
+            beforeEach(() => {
+              // set props twice to ensure both this.props and nextProps set
+              wrapper.setProps({
+                ...notAddingDataProps,
+                ...notFetchingDataProps,
+              });
+            });
+
+            it('should hide the loader if data is not being fetched or added to worker', () => {
+              const hideLoadingSpy = sinon.spy(instance, 'hideLoading');
+
+              wrapper.setProps({
+                ...notAddingDataProps,
+                ...notFetchingDataProps,
+              });
+
+              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
+              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
+              sinon.assert.callCount(hideLoadingSpy, 1);
+              hideLoadingSpy.resetHistory();
+
+              wrapper.setProps({
+                ...notAddingDataProps,
+                ...fetchingDataProps,
+              });
+
+              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
+              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: true
+              sinon.assert.callCount(hideLoadingSpy, 0);
+
+              wrapper.setProps({
+                ...notAddingDataProps,
+                ...notFetchingDataProps,
+              });
+
+              hideLoadingSpy.resetHistory();
+
+              wrapper.setProps({
+                ...addingDataProps,
+                ...notFetchingDataProps,
+              });
+
+              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: true
+              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
+              sinon.assert.callCount(hideLoadingSpy, 0);
+            });
+          });
+        });
+
+        context('new data added', () => {
+          it('should call queryData with no arguments', () => {
+            const queryDataSpy = sinon.spy(instance, 'queryData');
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1 })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            sinon.assert.callCount(queryDataSpy,1);
+            // ensure queryData called with zero args
+            sinon.assert.calledWithExactly(queryDataSpy, ...[]);
+          });
         });
       });
     });
   });
 
   describe('componentWillUpdate', function() {
-    it('should generate a pdf when view is basics and patient data is processed', function () {
+    it('should generate a pdf when patient data is processed', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1368,138 +2362,18 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'basics', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is daily and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
+        data: {
+          metaData: { size: 1 },
         },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is bgLog and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'bgLog', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is settings and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'settings', processingData: false, processedPatientData });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
-    });
-
-    it('should generate a pdf when view is trends and patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        generatingPDF: false,
-      };
-
-      const processedPatientData = {
-        diabetesData: ['stub'],
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'trends', processingData: false, processedPatientData });
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
 
       elem.generatePDF.reset()
       expect(elem.generatePDF.callCount).to.equal(0);
@@ -1518,15 +2392,19 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: true,
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: true },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
@@ -1541,22 +2419,24 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
+        data: {
+          metaData: { size: undefined },
+        },
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: false });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
 
-    it('should not generate a pdf when patient data exists, but new patient data is processing', function () {
+    it('should not generate a pdf when patient data exists, but new data query is processing', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1566,22 +2446,24 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
-
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: true, processedPatientData: true });
-      wrapper.update();
+      wrapper.instance().getWrappedInstance().setState({ queryingData: true, chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
 
-    it('should not generate a pdf when one already exists for the current view', function () {
+    it('should not generate a pdf when one has already been generated', function () {
       var props = {
         currentPatientInViewId: 40,
         isUserPatient: true,
@@ -1591,607 +2473,798 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        generatingPDF: false,
-        pdf: {
-          combined: {
-            url: 'someUrl'
-          }
-        }
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false, completed: true },
+        pdf: { combined: {} },
       };
 
       const wrapper = mount(<PatientData {...props} />);
       const elem = wrapper.instance().getWrappedInstance();
       sinon.stub(elem, 'generatePDF');
 
-      var callCount = elem.generatePDF.callCount;
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
-      wrapper.instance().getWrappedInstance().setState({ chartType: 'daily', processingData: false, processedPatientData: true });
-      wrapper.update();
+      expect(elem.generatePDF.callCount).to.equal(0);
+    });
+
+    it('should not generate a pdf when a previous attempt to generate has failed', function () {
+      var props = {
+        currentPatientInViewId: 40,
+        isUserPatient: true,
+        patient: {
+          userid: 40,
+          profile: {
+            fullName: 'Fooey McBar'
+          }
+        },
+        data: {
+          metaData: { size: 1 },
+        },
+        generatingPDF: { inProgress: false, notification: { type: 'error' } },
+        pdf: {},
+      };
+
+      const wrapper = mount(<PatientData {...props} />);
+      const elem = wrapper.instance().getWrappedInstance();
+      sinon.stub(elem, 'generatePDF');
+
+      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
+      wrapper.instance().forceUpdate();
 
       expect(elem.generatePDF.callCount).to.equal(0);
     });
   });
 
-  describe('generatePDFStats', () => {
+  describe('queryData', () => {
     let wrapper;
     let instance;
-    let data;
+    let setStateSpy;
+
+    const emptyQuery = {};
 
     beforeEach(() => {
-      data = {
-        basics: {},
-        daily: {},
-        bgLog: {},
-      },
+      defaultProps.dataWorkerQueryDataRequest.reset();
 
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
+
+      instance.getDaysByType = sinon.stub().returns({ next: 'next stub', prev: 'prev stub' });
+      instance.getStatsByChartType = sinon.stub().returns(['stat 1', 'stat 2']);
+
+      setStateSpy = sinon.spy(instance, 'setState');
     });
 
-    it('should add basics stats to the provided data object if a `dateRange` property exists', () => {
-      instance.generatePDFStats(data, instance.state);
-      expect(data.basics.stats).to.be.undefined;
-
-      data.basics.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
-      instance.generatePDFStats(data, instance.state);
-      expect(data.basics.stats).to.be.an('object').and.have.keys([
-        'timeInRange',
-        'readingsInRange',
-        'totalInsulin',
-        'timeInAuto',
-        'carbs',
-        'averageDailyDose',
-      ]);
+    it('should return without doing anything if `state.queryingData` is `true`', () => {
+      wrapper.setState({ queryingData: true });
+      setStateSpy.resetHistory();
+      instance.queryData();
+      sinon.assert.notCalled(setStateSpy);
     });
 
-    it('should add daily stats to the provided data object if the `dataByDate` object map is not empty', () => {
-      data.daily.dataByDate = {};
-      instance.generatePDFStats(data, instance.state);
-      expect(data.daily.dataByDate).to.be.eql({});
-
-      data.daily.dataByDate['2019-01-01'] = { bounds: [12345678, 23456789] };
-      instance.generatePDFStats(data, instance.state);
-      expect(data.daily.dataByDate['2019-01-01'].stats).to.be.an('object').and.have.keys([
-        'timeInRange',
-        'averageGlucose',
-        'totalInsulin',
-        'timeInAuto',
-        'carbs',
-      ]);
+    it('should set the `loading` state to `options.showLoading` arg', () => {
+      instance.queryData(emptyQuery, { showLoading: false });
+      sinon.assert.calledWithMatch(setStateSpy, { loading: false });
     });
 
-    it('should add bgLog stats to the provided data object if a `dateRange` property exists', () => {
-      instance.generatePDFStats(data, instance.state);
-      expect(data.bgLog.stats).to.be.undefined;
+    it('should set the `loading` state to `true` if arg not provided', () => {
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(setStateSpy, { loading: true });
+    });
 
-      data.bgLog.dateRange = ['2019-01-01T00:00:00.000Z', '2019-02-01T00:00:00.000Z'];
-      instance.generatePDFStats(data, instance.state);
-      expect(data.bgLog.stats).to.be.an('object').and.have.keys([
-        'averageGlucose',
-      ]);
+    it('should set the `metaData` query to `options.metaData` arg', () => {
+      instance.queryData(emptyQuery, { metaData: 'latestDatumByType, size' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'latestDatumByType, size' });
+    });
+
+    it('should set the `metaData` query to `bgSources` if arg not provided', () => {
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources' });
+    });
+
+    it('should set the `activeDays` query from `chartPrefs`', () => {
+      wrapper.setState({
+        chartType: 'trends',
+        chartPrefs: { trends: { activeDays: {
+          sunday: true,
+          monday: true,
+          tuesday: false,
+          wednesday: false,
+          thursday: true,
+          friday: true,
+          saturday: true,
+        } } },
+      });
+
+      instance.queryData(emptyQuery);
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { activeDays: [0,1,4,5,6] });
+    });
+
+    it('should not set the `activeDays` query if not available in `chartPrefs`', () => {
+      wrapper.setState({
+        chartType: 'trends',
+        chartPrefs: { trends: { activeDays: undefined } },
+      });
+
+      instance.queryData(emptyQuery);
+      sinon.assert.neverCalledWithMatch(defaultProps.dataWorkerQueryDataRequest, { activeDays: sinon.match.array });
+    });
+
+    context('query is provided', () => {
+      it('should assign the provided query to the generated `chartQuery`', () => {
+        wrapper.setState({
+          endpoints: [100,200],
+          chartType: 'trends',
+          chartPrefs: { trends: { bgSource: 'smbg' } },
+        });
+
+        instance.queryData({ metaData: 'bar', types: 'cbg,smbg' }, { metaData: 'foo' });
+        sinon.assert.calledWith(defaultProps.dataWorkerQueryDataRequest, {
+          bgSource: 'smbg',
+          endpoints: [100,200],
+          types: 'cbg,smbg',
+          metaData: 'bar',
+        });
+      });
+    });
+
+    context('query is not provided', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'foo' });
+      });
+
+      it('should set `nextDays` and `prevDays` to result of `getDaysByType`', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          nextDays: 'next stub',
+          prevDays: 'prev stub',
+        });
+      });
+
+      it('should set `stats` to result of `getStatsByChartType`', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          stats: ['stat 1', 'stat 2'],
+        });
+      });
+
+      it('should set `updateChartEndpoints` to `options.updateChartEndpoints` arg', () => {
+        instance.queryData(undefined, { updateChartEndpoints: false } );
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          updateChartEndpoints: false,
+        });
+      });
+
+      it('should set `updateChartEndpoints` to `true` if not provided by arg and `state.chartEndpoints` not set', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          updateChartEndpoints: true,
+        });
+      });
+
+      it('should set `transitioningChartType` to `options.transitioningChartType` arg', () => {
+        instance.queryData(undefined, { transitioningChartType: true } );
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          transitioningChartType: true,
+        });
+      });
+
+      it('should set `transitioningChartType` to `false` if not provided by arg', () => {
+        instance.queryData();
+        sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+          transitioningChartType: false,
+        });
+      });
+
+      context('basics chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'basics' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `aggregationsByDate` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            aggregationsByDate: 'basals,boluses,fingersticks,siteChanges',
+          });
+        });
+      });
+
+      context('daily chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'daily' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              basal: {},
+              bolus: {},
+              cbg: {},
+              deviceEvent: {},
+              food: {},
+              message: {},
+              smbg: {},
+              wizard: {},
+            },
+          });
+        });
+
+        it('should set the `fillData.adjustForDSTChanges` query to `true`', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            fillData: { adjustForDSTChanges: true },
+          });
+        });
+      });
+
+      context('bgLog chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'bgLog' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              smbg: {},
+            },
+          });
+        });
+
+        it('should set the `fillData.adjustForDSTChanges` query to `false`', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            fillData: { adjustForDSTChanges: false },
+          });
+        });
+      });
+
+      context('trends chart', () => {
+        beforeEach(() => {
+          wrapper.setState({ chartType: 'trends' });
+          setStateSpy.resetHistory();
+        });
+
+        it('should set the `types` query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            types: {
+              cbg: {},
+              smbg: {},
+            },
+          });
+        });
+      });
     });
   });
 
   describe('generatePDF', () => {
-    it('should filter the daily and bgLog view data before dispatching the generate pdf action', () => {
-      const dailyFilterStub = PD.__get__('vizUtils').data.selectDailyViewData;
-      const bgLogFilterStub = PD.__get__('vizUtils').data.selectBgLogViewData;
-      const pickSpy = sinon.spy(_, 'pick');
-
-      const props = _.assign({}, defaultProps, {
-        generatePDFRequest: sinon.stub(),
-      });
-
-      const state = {
-        processedPatientData: {
-          diabetesData: [{
-            normalTime: '2018-02-02T00:00:00.000Z',
-          }],
-          grouped: {
-            pumpSettings: {},
-          },
-        },
-        printOpts: {
-          numDays: {
-            daily: 6,
-          },
-        },
-      };
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
-      const instance = wrapper.instance();
-
-      sinon.assert.callCount(dailyFilterStub, 0);
-      sinon.assert.callCount(bgLogFilterStub, 0);
-      sinon.assert.callCount(props.generatePDFRequest, 0);
-
-      instance.generatePDFStats = sinon.stub().returns({});
-      instance.generatePDF(props, state);
-
-      sinon.assert.callCount(dailyFilterStub, 1);
-      sinon.assert.callCount(bgLogFilterStub, 1);
-      sinon.assert.callCount(props.generatePDFRequest, 1);
-
-      sinon.assert.callCount(pickSpy, 2);
-      assert(dailyFilterStub.calledBefore(bgLogFilterStub));
-      expect(pickSpy.firstCall.lastArg).to.have.members(['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload']);
-      expect(pickSpy.secondCall.lastArg).to.have.members(['smbg']);
-
-      assert(dailyFilterStub.calledBefore(props.generatePDFRequest));
-      sinon.assert.calledWithMatch(props.generatePDFRequest,
-        'combined',
-        {
-          daily: 'stubbed filtered daily data',
-          bgLog: 'stubbed filtered bgLog data',
-        },
-      );
-
-      pickSpy.restore();
-    });
-
-    it('should add stats to the pdf data object by passing it to `generatePDFStats`', () => {
-      const props = _.assign({}, defaultProps, {
-        generatePDFRequest: sinon.stub(),
-      });
-
-      const state = {
-        processedPatientData: {
-          diabetesData: [{
-            normalTime: '2018-02-02T00:00:00.000Z',
-          }],
-          grouped: {
-            pumpSettings: {},
-          },
-        },
-        printOpts: {
-          numDays: {
-            daily: 6,
-          },
-        },
-      };
-
-      const wrapper = shallow(<PatientData.WrappedComponent {...props} />);
-      const instance = wrapper.instance();
-
-      sinon.assert.callCount(props.generatePDFRequest, 0);
-
-
-      instance.generatePDFStats = sinon.stub().callsFake((data) => {
-        data.basics = { stats: 'stubbed basics stats' };
-        return data;
-      });
-
-      instance.generatePDF(props, state);
-
-      sinon.assert.callCount(props.generatePDFRequest, 1);
-      sinon.assert.callCount(instance.generatePDFStats, 1);
-
-      sinon.assert.calledWithMatch(props.generatePDFRequest,
-        'combined',
-        {
-          daily: 'stubbed filtered daily data',
-          bgLog: 'stubbed filtered bgLog data',
-          basics: { stats: 'stubbed basics stats' },
-        },
-      );
-    });
-  });
-
-  describe('subtractTimezoneOffset', () => {
     let wrapper;
     let instance;
 
+    const bgPrefs = { units: MGDL_UNITS };
+    const timePrefs = { timezoneAware: true, timezoneName: 'US/Eastern' };
+    const mostRecentDatumTimeStub = '2019-11-27T12:00:00.000Z';
+    const queryEndpointsStub = [100, 200];
+
+    const commonQueries = {
+      bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs,
+    };
+
     beforeEach(() => {
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper.setState({ bgPrefs, timePrefs });
       instance = wrapper.instance();
+      defaultProps.generatePDFRequest.resetHistory();
     });
 
-    it('should apply a timezone offset to a provided datetime using `timePrefs` from state', () => {
-      wrapper.setState({
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Eastern',
+    it('should call `props.generatePDFRequest` with appropriate args', () => {
+      instance.generatePDF();
+      sinon.assert.calledWith(defaultProps.generatePDFRequest,
+        'combined',
+        {
+          basics: sinon.match.object,
+          daily: sinon.match.object,
+          bgLog: sinon.match.object,
+          settings: sinon.match.object,
         },
-      });
-
-      const datetime = '2018-02-02T00:00:00.000Z';
-
-      const result = instance.subtractTimezoneOffset(datetime);
-      expect(result).to.equal(moment(datetime).add(5, 'hours').toISOString()); // +5hr offset for US/Eastern
+        { patient: sinon.match(defaultProps.patient) }
+      );
     });
 
-    it('should apply a timezone offset to a provided datetime using provided `timePrefs` arg', () => {
-      wrapper.setState({
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Eastern',
-        },
+    context('generating basics query', () => {
+      it('should set the `endpoints` query based on the latest basics data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'basics');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'basics' });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.endpoints).to.eql(queryEndpointsStub);
       });
 
-      const timePrefsOverride = {
-        timezoneAware: true,
-        timezoneName: 'US/Pacific',
-      }
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.aggregationsByDate).to.equal('basals, boluses, fingersticks, siteChanges');
+      });
 
-      const datetime = '2018-02-02T00:00:00.000Z';
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('basics stats');
 
-      const result = instance.subtractTimezoneOffset(datetime, timePrefsOverride);
-      expect(result).to.equal(moment(datetime).add(8, 'hours').toISOString()); // +8hr offset for US/Pacific
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'basics');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.stats).to.eql('basics stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.basics.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'basics bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.bgSource).to.equal('basics bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.basics.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.basics.metaData).to.equal(commonQueries.metaData);
+        expect(query.basics.timePrefs).to.eql(commonQueries.timePrefs);
+      });
     });
 
-    it('should return an unmodified datetime when `datetime` arg is not a moment-valid value', () => {
-      wrapper.setState({
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Eastern',
-        },
+    context('generating daily query', () => {
+      it('should set the `endpoints` query based on the latest daily data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'daily');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { applyTimeZoneToStart: true, chartType: 'daily', extentSize: 15 });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.endpoints).to.eql(queryEndpointsStub);
       });
 
-      const datetime = 'hello';
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.aggregationsByDate).to.equal('dataByDate, statsByDate');
+      });
 
-      const result = instance.subtractTimezoneOffset(datetime);
-      expect(result).to.equal(datetime);
+      it('should query the required `types`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.types).to.eql({
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        });
+      });
+
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('daily stats');
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'daily');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.stats).to.eql('daily stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.daily.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'daily bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.bgSource).to.equal('daily bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.daily.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.daily.metaData).to.equal(commonQueries.metaData);
+        expect(query.daily.timePrefs).to.eql(commonQueries.timePrefs);
+      });
     });
 
-    it('should return an unmodified datetime when `timezoneSettings.timezoneAware` arg is not truthy', () => {
-      wrapper.setState({
-        timePrefs: {
-          timezoneAware: null,
-          timezoneName: 'US/Eastern',
-        },
+    context('generating bgLog query', () => {
+      it('should set the `endpoints` query based on the latest bgLog data available', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
+        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'bgLog');
+        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'bgLog', extentSize: 30 });
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.endpoints).to.eql(queryEndpointsStub);
       });
 
-      const datetime = '2018-02-02T00:00:00.000Z';
+      it('should query the required `aggregationsByDate`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.aggregationsByDate).to.equal('dataByDate');
+      });
 
-      const result = instance.subtractTimezoneOffset(datetime);
-      expect(result).to.equal(datetime);
+      it('should query the required `types`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.types).to.eql({
+          smbg: {},
+        });
+      });
+
+      it('should query the required `stats`', () => {
+        instance.getStatsByChartType = sinon.stub().returns('bgLog stats');
+
+        instance.generatePDF();
+
+        sinon.assert.calledWith(instance.getStatsByChartType, 'bgLog');
+
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.stats).to.eql('bgLog stats');
+      });
+
+      it('should query the required `bgSource` from `chartPrefs.bgLog.bgSource` state', () => {
+        wrapper.setState({ chartPrefs: { bgLog: { bgSource: 'bgLog bgSource' } } });
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.bgSource).to.equal('bgLog bgSource');
+      });
+
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.bgLog.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.bgLog.metaData).to.equal(commonQueries.metaData);
+        expect(query.bgLog.timePrefs).to.eql(commonQueries.timePrefs);
+      });
+    });
+
+    context('generating settings query', () => {
+      it('should query the required `commonQueries`', () => {
+        instance.generatePDF();
+        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
+        expect(query.settings.bgPrefs).to.eql(commonQueries.bgPrefs);
+        expect(query.settings.metaData).to.equal(commonQueries.metaData);
+        expect(query.settings.timePrefs).to.eql(commonQueries.timePrefs);
+      });
     });
   });
 
   describe('handleChartDateRangeUpdate', () => {
     let wrapper;
     let instance;
-    let updateChartDateRangeSpy;
-    let fetchEarlierDataSpy;
-    let processDataSpy;
-    let setChartType;
-    let setToShouldProcess;
-    let setToShouldFetch;
-    const dateRange = ['2018-01-02T00:00:00.000Z', '2018-03-02T00:00:00.000Z'];
+
+    const mostRecentDatetimeLocation = '2019-11-29T12:00:00.000Z';
+
+    const chartEndpoints = {
+      prev: [
+        Date.parse('2019-11-23T12:00:00.000Z'),
+        Date.parse('2019-11-25T12:00:00.000Z'),
+      ],
+      current: [
+        Date.parse('2019-11-25T12:00:00.000Z'),
+        Date.parse('2019-11-27T12:00:00.000Z'),
+      ],
+      next: [
+        Date.parse('2019-11-27T12:00:00.000Z'),
+        Date.parse('2019-11-29T12:00:00.000Z'),
+      ],
+    };
+
+    const daysByTypeStub = { next: 2, prev: 2};
+
+    const prevLimitReachedEndpoints = chartEndpoints.prev;
+    const nextLimitReachedEndpoints = chartEndpoints.next;
+
+    const fetchedUntilDateNeedingFetch = '2019-11-23T00:00:00.000Z';
+    const fetchedUntilDateNotNeedingFetch = '2019-11-20T00:00:00.000Z';
+
+    let dateTimeLocation = '2019-11-23T12:00:00.000Z';
 
     beforeEach(() => {
-      setChartType = (chartType) => {
-        wrapper.setState({
-          chartType,
-        });
-      };
-
-      setToShouldFetch = () => {
-        wrapper.setProps({
-          fetchedPatientDataRange: {
-            start: '2018-02-03T00:00:00.000Z',
-          },
-        });
-      };
-
-      setToShouldProcess = () => {
-        wrapper.setProps({
-          fetchedPatientDataRange: {
-            start: '2018-01-01T00:00:00.000Z',
-          },
-        });
-        wrapper.setState({
-          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
-        });
-      };
-
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-
-      wrapper.setProps({
-        fetchingPatientData: false,
-        currentPatientInViewId: 40,
-        patientDataMap: {
-          40: [
-            { time: '2018-01-02T00:00:00.000Z' },
-          ]
-        },
-        fetchedPatientDataRange: {
-          start: '2018-01-01T00:00:00.000Z',
-        },
-      });
-
-      wrapper.setState({
-        chartType: 'trends',
-        processingData: false,
-      });
-
+      wrapper.setState({ chartEndpoints, mostRecentDatetimeLocation });
       instance = wrapper.instance();
 
-      updateChartDateRangeSpy = sinon.spy(instance, 'updateChartEndpoints');
-      fetchEarlierDataSpy = sinon.stub(instance, 'fetchEarlierData');
-      processDataSpy = sinon.stub(instance, 'processData');
+      instance.getChartEndpoints = sinon.stub().returns(prevLimitReachedEndpoints);
+      instance.getDaysByType = sinon.stub().returns(daysByTypeStub);
+      instance.getStatsByChartType = sinon.stub().returns('stats stub');
+      instance.fetchEarlierData = sinon.stub();
+      instance.updateChart = sinon.stub();
     });
 
-    afterEach(() => {
-      updateChartDateRangeSpy.resetHistory();
-      fetchEarlierDataSpy.resetHistory();
-      processDataSpy.resetHistory();
-    });
+    context('all charts', () => {
+      const shouldFetchDataProps = _.assign({}, defaultProps, {
+        data: { fetchedUntil: fetchedUntilDateNeedingFetch },
+      });
 
-    after(() => {
-      updateChartDateRangeSpy.restore();
-      fetchEarlierDataSpy.restore();
-      processDataSpy.restore();
-    });
+      const shouldNotFetchDataProps = _.assign({}, defaultProps, {
+        data: { fetchedUntil: fetchedUntilDateNotNeedingFetch },
+      });
 
-    it('should update the chart date range state', () => {
-      sinon.assert.callCount(instance.updateChartEndpoints, 0);
+      it('should call `getDaysByType`', () => {
+        sinon.assert.callCount(instance.getDaysByType, 0);
 
-      instance.handleChartDateRangeUpdate(dateRange);
+        instance.handleChartDateRangeUpdate(dateTimeLocation);
+        sinon.assert.callCount(instance.getDaysByType, 1);
+      });
 
-      sinon.assert.callCount(instance.updateChartEndpoints, 1);
-      sinon.assert.calledWith(instance.updateChartEndpoints, dateRange);
-    });
+      context('next requested date range requires data fetch', () => {
+        it('should fetch data', () => {
+          wrapper.setProps(shouldFetchDataProps);
+          sinon.assert.callCount(instance.fetchEarlierData, 0);
 
-    it('should not trigger data processing or fetching if data is currently fetching or processing (or both)', () => {
-      wrapper.setProps({ fetchingPatientData: true });
-      wrapper.setState({ processingData: true });
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+          sinon.assert.callCount(instance.fetchEarlierData, 1);
+          sinon.assert.calledWith(instance.fetchEarlierData, {
+            showLoading: true,
+            returnData: false,
+          });
+        });
+      });
 
-      setToShouldFetch();
-      instance.handleChartDateRangeUpdate(dateRange);
-      sinon.assert.callCount(instance.fetchEarlierData, 0);
+      context('next requested date range does not require data fetch', () => {
+        it('should not fetch data', () => {
+          wrapper.setProps(shouldNotFetchDataProps);
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+          sinon.assert.callCount(instance.fetchEarlierData, 0);
+        });
+      });
 
-      setToShouldProcess();
-      instance.handleChartDateRangeUpdate(dateRange);
-      sinon.assert.callCount(instance.processData, 0);
+      context('dates would require a fetch but data is currently being fetched', () => {
+        it('should not fetch data', () => {
+          wrapper.setProps({
+            ...shouldFetchDataProps,
+            fetchingPatientData: true,
+          });
 
-      setToShouldFetch();
-      wrapper.setProps({ fetchingPatientData: true });
-      wrapper.setState({ processingData: false });
-      instance.handleChartDateRangeUpdate(dateRange);
-      sinon.assert.callCount(instance.fetchEarlierData, 0);
-
-      setToShouldProcess();
-      wrapper.setProps({ fetchingPatientData: false });
-      wrapper.setState({ processingData: true });
-      instance.handleChartDateRangeUpdate(dateRange);
-      sinon.assert.callCount(instance.processData, 0);
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+          sinon.assert.callCount(instance.fetchEarlierData, 0);
+        });
+      });
     });
 
     context('daily chart', () => {
       beforeEach(() => {
-        setChartType('daily');
+        wrapper.setState({ chartType: 'daily' });
       });
 
-      it('should not trigger data fetching if all fetched data has not been processed', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      it('should get the chart endpoints, not setting the end to the local ceiling', () => {
+        instance.handleChartDateRangeUpdate(dateTimeLocation);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: -1,
-        });
-
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+        sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
+          setEndToLocalCeiling: false,
+        })
       });
 
-      it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      context('forceChartDataUpdate arg is true', () => {
+        it('should get the chart endpoints, setting the end to the local ceiling', () => {
+          instance.handleChartDateRangeUpdate(dateTimeLocation, true);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: 0,
+          sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
+            setEndToLocalCeiling: true,
+          })
         });
 
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
+        it('should call updateChart with appropriate options', () => {
+          instance.handleChartDateRangeUpdate(dateTimeLocation, true);
 
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 1);
+          sinon.assert.calledWith(instance.updateChart, 'daily', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
+        });
       });
 
-      it('should trigger data processing if the chart date range is same day or before (to the millisecond) the earliest processed patient datum time', () => {
-        wrapper.setState({
-          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+      context('past data scroll limit reached', () => {
+        it('should call updateChart with appropriate options', () => {
+          instance.getChartEndpoints.returns(prevLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'daily', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
-
-        const sameDateRange = [
-          moment(instance.state.lastProcessedDateTarget).toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(sameDateRange);
-        sinon.assert.callCount(instance.processData, 1);
-
-        const earlierDateRange = [
-          moment(instance.state.lastProcessedDateTarget).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(earlierDateRange);
-        sinon.assert.callCount(instance.processData, 2);
-
-        const laterDateRange = [
-          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(laterDateRange);
-        sinon.assert.callCount(instance.processData, 2);
       });
 
-      it('should trigger processing if the chart scroll limit is reached and there is data to process', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
-        sinon.assert.callCount(instance.processData, 0);
+      context('upcoming data scroll limit reached', () => {
+        it('should call updateChart with appropriate options if not on the most recent day', () => {
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
 
-        wrapper.setState({
-          lastDiabetesDatumProcessedIndex: 0,
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'daily', dateTimeLocation, nextLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
 
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.processData, 1);
+        it('should call updateChart with appropriate options if on the most recent day', () => {
+          wrapper.setState({ mostRecentDatetimeLocation: '2019-11-23T12:00:00.000Z' });
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate('2019-11-24T00:00:00.000Z');
+
+          sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-24T00:00:00.000Z', nextLimitReachedEndpoints, sinon.match({
+            showLoading: false,
+            updateChartEndpoints: false,
+            query: {
+              endpoints: nextLimitReachedEndpoints,
+              nextDays: 2,
+              prevDays: 2,
+              stats: 'stats stub'
+            },
+          }));
+        });
       });
     });
 
     context('bgLog chart', () => {
       beforeEach(() => {
-        setChartType('bgLog');
+        wrapper.setState({ chartType: 'bgLog' });
       });
 
-      it('should not trigger data fetching if all fetched data has not been processed', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      it('should get the chart endpoints, setting the end to the local ceiling', () => {
+        instance.handleChartDateRangeUpdate(dateTimeLocation);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: -1,
-        });
-
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+        sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
+          setEndToLocalCeiling: true,
+        })
       });
 
-      it('should trigger data fetching if the chart date range is same or before (to the millisecond) the earliest fetched patient data time', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      context('forceChartDataUpdate arg is true', () => {
+        it('should call updateChart with appropriate options', () => {
+          instance.handleChartDateRangeUpdate(dateTimeLocation, true);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: 0,
+          sinon.assert.calledWith(instance.updateChart, 'bgLog', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
-
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 1);
       });
 
-      it('should trigger data processing if the chart date range is same day or before (to the millisecond) the earliest processed patient datum time', () => {
-        wrapper.setState({
-          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+      context('past data scroll limit reached', () => {
+        it('should call updateChart with appropriate options', () => {
+          instance.getChartEndpoints.returns(prevLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'bgLog', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
-
-        const sameDateRange = [
-          moment(instance.state.lastProcessedDateTarget).toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(sameDateRange);
-        sinon.assert.callCount(instance.processData, 1);
-
-        const earlierDateRange = [
-          moment(instance.state.lastProcessedDateTarget).subtract(1, 'milliseconds').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(earlierDateRange);
-        sinon.assert.callCount(instance.processData, 2);
-
-        const laterDateRange = [
-          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(laterDateRange);
-        sinon.assert.callCount(instance.processData, 2);
       });
 
-      it('should trigger processing if the chart scroll limit is reached and there is data to process', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
-        sinon.assert.callCount(instance.processData, 0);
+      context('upcoming data scroll limit reached', () => {
+        it('should call updateChart with appropriate options if not on the most recent day', () => {
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
 
-        wrapper.setState({
-          lastDiabetesDatumProcessedIndex: 0,
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'bgLog', dateTimeLocation, nextLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
 
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.processData, 1);
+        it('should call updateChart with appropriate options if on the most recent day', () => {
+          wrapper.setState({ mostRecentDatetimeLocation: '2019-11-24T00:00:00.000Z' });
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate('2019-11-24T00:00:00.000Z');
+
+          sinon.assert.calledWith(instance.updateChart, 'bgLog', '2019-11-24T00:00:00.000Z', nextLimitReachedEndpoints, sinon.match({
+            showLoading: false,
+            updateChartEndpoints: false,
+            query: {
+              endpoints: nextLimitReachedEndpoints,
+              nextDays: 2,
+              prevDays: 2,
+              stats: 'stats stub'
+            },
+          }));
+        });
       });
     });
 
     context('trends chart', () => {
       beforeEach(() => {
-        setChartType('trends');
+        wrapper.setState({ chartType: 'trends' });
       });
 
-      it('should not trigger data fetching if all fetched data has not been processed', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      it('should get the chart endpoints, setting the end to the local ceiling', () => {
+        instance.handleChartDateRangeUpdate(dateTimeLocation);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: -1,
-        });
-
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+        sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
+          setEndToLocalCeiling: true,
+        })
       });
 
-      it('should trigger data fetching if the chart date range is same or before (to the day) the earliest fetched patient data time', () => {
-        instance.handleChartDateRangeUpdate(dateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 0);
+      context('forceChartDataUpdate arg is true', () => {
+        it('should call updateChart with appropriate options', () => {
+          instance.handleChartDateRangeUpdate(dateTimeLocation, true);
 
-        wrapper.setState({
-          lastDatumProcessedIndex: 0,
+          sinon.assert.calledWith(instance.updateChart, 'trends', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
-
-        let newDateRange = [
-          moment(instance.props.fetchedPatientDataRange.start).subtract(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(newDateRange);
-        sinon.assert.callCount(instance.fetchEarlierData, 1);
       });
 
-      it('should trigger data processing if the chart date range is same before (to the day) the earliest processed patient datum time', () => {
-        wrapper.setState({
-          lastProcessedDateTarget: '2018-01-06T00:00:00.000Z',
+      context('past data scroll limit reached', () => {
+        it('should call updateChart with appropriate options', () => {
+          instance.getChartEndpoints.returns(prevLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'trends', dateTimeLocation, prevLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
+        });
+      });
+
+      context('upcoming data scroll limit reached', () => {
+        it('should call updateChart with appropriate options if not on the most recent day', () => {
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
+
+          instance.handleChartDateRangeUpdate(dateTimeLocation);
+
+          sinon.assert.calledWith(instance.updateChart, 'trends', dateTimeLocation, nextLimitReachedEndpoints, sinon.match({
+            showLoading: true,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
         });
 
-        const sameDateRange = [
-          moment(instance.state.lastProcessedDateTarget).toISOString(),
-          dateRange[1],
-        ];
+        it('should call updateChart with appropriate options if on the most recent day', () => {
+          wrapper.setState({ mostRecentDatetimeLocation: '2019-11-24T00:00:00.000Z' });
+          instance.getChartEndpoints.returns(nextLimitReachedEndpoints);
 
-        instance.handleChartDateRangeUpdate(sameDateRange);
-        sinon.assert.callCount(instance.processData, 0);
+          instance.handleChartDateRangeUpdate('2019-11-24T00:00:00.000Z');
 
-        const earlierDateRange = [
-          moment(instance.state.lastProcessedDateTarget).subtract(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(earlierDateRange);
-        sinon.assert.callCount(instance.processData, 1);
-
-        const laterDateRange = [
-          moment(instance.state.lastProcessedDateTarget).add(1, 'days').toISOString(),
-          dateRange[1],
-        ];
-
-        instance.handleChartDateRangeUpdate(laterDateRange);
-        sinon.assert.callCount(instance.processData, 1);
+          sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-24T00:00:00.000Z', nextLimitReachedEndpoints, sinon.match({
+            showLoading: false,
+            updateChartEndpoints: true,
+            query: undefined,
+          }));
+        });
       });
     });
   });
@@ -2202,7 +3275,6 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        addPatientNote: sinon.stub(),
         trackMetric: sinon.stub(),
       });
 
@@ -2214,12 +3286,6 @@ describe('PatientData', function () {
           },
         },
       });
-    });
-
-    it('should dispatch the message creation action', () => {
-      PatientData.WrappedComponent.prototype.handleMessageCreation.call(new BaseObject(), 'message');
-      sinon.assert.calledOnce(props.addPatientNote);
-      sinon.assert.calledWith(props.addPatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {
@@ -2235,7 +3301,6 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        updatePatientNote: sinon.stub(),
         trackMetric: sinon.stub(),
       });
 
@@ -2247,12 +3312,6 @@ describe('PatientData', function () {
           },
         },
       });
-    });
-
-    it('should dispatch the message creation action', () => {
-      PatientData.WrappedComponent.prototype.handleEditMessage.call(new BaseObject(), 'message');
-      sinon.assert.calledOnce(props.updatePatientNote);
-      sinon.assert.calledWith(props.updatePatientNote, 'message');
     });
 
     it('should dispatch the track metric action', () => {
@@ -2290,12 +3349,10 @@ describe('PatientData', function () {
       setStateSpy.restore();
     });
 
-    context('all the data has been fetched already', () => {
+    context('currently fetching data', () => {
       it('should not fetch earlier data or update the state', () => {
         wrapper.setProps({
-          fetchedPatientDataRange: {
-            fetchedUntil: 'start',
-          },
+          fetchingPatientData: true,
         });
 
         instance.fetchEarlierData();
@@ -2305,13 +3362,13 @@ describe('PatientData', function () {
       });
     });
 
-    context('all the data has been not fetched already', () => {
+    context('not currently fetching data', () => {
       it('should fetch a range of 16 weeks of prior data', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
-          currentPatientInViewId: 40,
-          fetchedPatientDataRange: {
+          currentPatientInViewId: '40',
+          data: {
             fetchedUntil,
           },
         });
@@ -2323,6 +3380,7 @@ describe('PatientData', function () {
 
         sinon.assert.calledOnce(props.onFetchEarlierData);
         sinon.assert.calledWith(props.onFetchEarlierData, {
+          showLoading: true,
           startDate: expectedStart,
           endDate: expectedEnd,
           carelink: undefined,
@@ -2330,20 +3388,21 @@ describe('PatientData', function () {
           medtronic: undefined,
           initial: false,
           useCache: false,
-        }, 40);
+        }, '40');
       });
 
       it('should allow overriding the default fetch options', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
-          currentPatientInViewId: 40,
-          fetchedPatientDataRange: {
+          currentPatientInViewId: '40',
+          data: {
             fetchedUntil,
           },
         });
 
         const options = {
+          showLoading: false,
           startDate: null,
           endDate: null,
           useCache: true,
@@ -2353,18 +3412,19 @@ describe('PatientData', function () {
 
         sinon.assert.calledOnce(props.onFetchEarlierData);
         sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+          showLoading: false,
           startDate: null,
           endDate: null,
           useCache: true,
-        }, 40);
+        }, '40');
       });
 
       it('should by default persist the `carelink`, `dexcom`, and `medtronic` data fetch api options from props', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
-          currentPatientInViewId: 40,
-          fetchedPatientDataRange: {
+          currentPatientInViewId: '40',
+          data: {
             fetchedUntil,
           },
           carelink: true,
@@ -2383,10 +3443,10 @@ describe('PatientData', function () {
           carelink: true,
           dexcom: true,
           medtronic: true,
-        }, 40);
+        }, '40');
 
         wrapper.setProps({
-          currentPatientInViewId: 40,
+          currentPatientInViewId: '40',
           fetchedPatientDataRange: {
             fetchedUntil,
           },
@@ -2405,14 +3465,14 @@ describe('PatientData', function () {
           carelink: false,
           dexcom: false,
           medtronic: false,
-        }, 40);
+        }, '40');
       });
 
       it('should set the `loading`, `fetchEarlierDataCount` and `requestedPatientDataRange` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
-          fetchedPatientDataRange: {
+          data: {
             fetchedUntil,
           },
         });
@@ -2439,13 +3499,10 @@ describe('PatientData', function () {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
-          fetchedPatientDataRange: {
+          data: {
             fetchedUntil,
           },
         });
-
-        const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
-        const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
         expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
 
@@ -2453,873 +3510,11 @@ describe('PatientData', function () {
 
         sinon.assert.calledWith(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
-          patientID: 'somestring' ,
+          patientID: 'otherPatientId' ,
         });
       });
     });
   });
-
-  describe('getLastDatumToProcessIndex', () => {
-    let wrapper;
-    let instance;
-
-    const unprocessedData = [
-      { id: 0, time: '2018-03-02T00:00:00.000Z', type: 'upload' },
-      { id: 1, time: '2018-02-02T00:00:00.000Z', type: 'cbg' },
-      { id: 2, time: '2018-01-02T00:00:00.000Z', type: 'bolus' },
-      { id: 3, time: '2017-12-02T00:00:00.000Z', type: 'deviceEvent' },
-      { id: 4, time: '2017-11-02T00:00:00.000Z', type: 'basal' },
-    ];
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should return the datum index prior to the first diabetes datum outside our range boundary', () => {
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-02-01T00:00:00.000Z')).to.equal(1)
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-01-01T00:00:00.000Z')).to.equal(3)
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2017-12-01T00:00:00.000Z')).to.equal(3)
-    });
-
-    it('should return the last datum when no diabetes data found beyond our range boundary', () => {
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2017-11-01T00:00:00.000Z')).to.equal(4)
-    });
-
-    it('should include first diabetes datum found outside of our processing window if it\'s the only one', () => {
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-02-15T00:00:00.000Z')).to.equal(1)
-      expect(instance.getLastDatumToProcessIndex(unprocessedData, '2018-04-15T00:00:00.000Z')).to.equal(1)
-    });
-  });
-
-  describe('processData', () => {
-    let wrapper;
-    let instance;
-    let setStateSpy;
-    let shouldProcessProps;
-    let processPatientDataStub;
-    let addDataStub;
-    let getTimezoneForDataProcessingStub;
-    let handleInitialProcessedDataStub;
-    let hideLoadingStub;
-    let utilsStubs;
-
-    const processedPatientDataStub = {
-      data: 'stubbed data',
-      bgClasses: 'stubbed bgClasses',
-      bgUnits: 'stubbed bgUnits',
-      timePrefs: 'stubbed timePrefs',
-      grouped: {},
-    };
-
-    beforeEach(() => {
-      shouldProcessProps = _.assign({}, defaultProps, {
-        currentPatientInViewId: 40,
-        patientDataMap: {
-          40: [
-            { id: 1, time: '2018-02-01T00:00:00.000Z', type: 'cbg' },
-            { id: 2, time: '2018-01-01T00:00:00.000Z', type: 'bolus' },
-            { id: 3, time: '2017-12-01T00:00:00.000Z', type: 'upload' },
-            { id: 4, time: '2017-11-01T00:00:00.000Z', type: 'basal' },
-          ],
-        },
-        patientNotesMap: {
-          40: [
-            { id: 5, messagetext: 'hello' },
-          ],
-        },
-        patient: {
-          settings: {},
-        },
-      });
-
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
-      instance = wrapper.instance();
-
-      // we want to stub out componentWillUpdate and fetchEarlierData to keep these tests isolated
-      instance.componentWillUpdate = sinon.stub();
-      instance.fetchEarlierData = sinon.stub();
-      instance.dataUtil = new DataUtilStub();
-
-      // stub out any methods we expect to be called
-      addDataStub = sinon.stub().returns(processedPatientDataStub);
-      wrapper.setState({
-        processedPatientData: {
-          addData: addDataStub,
-        },
-      });
-
-
-      handleInitialProcessedDataStub = sinon.stub(instance, 'handleInitialProcessedData');
-      hideLoadingStub = sinon.stub(instance, 'hideLoading');
-
-      utilsStubs = {
-        processPatientData: sinon.stub().returns(processedPatientDataStub),
-        filterPatientData: sinon.stub().returns({
-          processedData: 'stubbed filtered data',
-        }),
-        getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
-        getLatestPumpSettings: sinon.stub().returns({}),
-      };
-
-      PD.__Rewire__('utils', utilsStubs);
-
-      PD.__Rewire__('DataUtil', DataUtilStub);
-
-      processPatientDataStub = PD.__get__('utils').processPatientData;
-      getTimezoneForDataProcessingStub = PD.__get__('utils').getTimezoneForDataProcessing;
-
-      setStateSpy = sinon.spy(instance, 'setState');
-    });
-
-    afterEach(() => {
-      processPatientDataStub.reset();
-      addDataStub.reset();
-      getTimezoneForDataProcessingStub.reset();
-      PD.__ResetDependency__('utils');
-      PD.__ResetDependency__('DataUtil');
-    });
-
-    context('data is currently being processed', () => {
-      it('should return without updating state and not attempt to process data', () => {
-        wrapper.setProps(shouldProcessProps);
-        wrapper.setState({
-          processingData: true,
-        });
-
-        setStateSpy.resetHistory();
-
-        instance.processData();
-        sinon.assert.notCalled(setStateSpy);
-      });
-    });
-
-    context('all patient data has been fetched and processed', () => {
-      it('should set the loading state to false and not attempt to process any more data', () => {
-        wrapper.setState({
-          lastDatumProcessedIndex: 3,
-        });
-        wrapper.setProps(_.assign({}, shouldProcessProps, {
-          fetchedPatientDataRange: {
-            fetchedUntil: 'start',
-          },
-        }));
-
-        setStateSpy.resetHistory();
-
-        instance.processData();
-        sinon.assert.callCount(setStateSpy, 1);
-        sinon.assert.calledWith(setStateSpy, {
-          loading: false,
-        });
-      });
-    });
-
-    context('no patient data has been fetched', () => {
-      it('should return without updating state and not attempt to process data', () => {
-        wrapper.setProps(_.assign({}, shouldProcessProps, {
-          patientDataMap: {
-            40: [],
-          },
-        }));
-
-        instance.processData();
-        sinon.assert.notCalled(setStateSpy);
-      });
-    });
-
-    context('patient data has been fetched', () => {
-      it('should set the loading and processingData state to `true`', () => {
-        wrapper.setProps(shouldProcessProps);
-        instance.processData();
-        sinon.assert.calledWith(setStateSpy, {
-          loading: true,
-          processingData: true,
-        });
-      });
-
-      it('should get the timezone info for processing data if not already available in state', () => {
-        wrapper.setState({
-          timePrefs: {
-            timezoneAware: false,
-          },
-        });
-        wrapper.setProps(_.assign({}, shouldProcessProps, {
-          queryParams: {
-            timezone: 'US/Eastern',
-          },
-        }));
-        instance.processData();
-        sinon.assert.calledOnce(getTimezoneForDataProcessingStub);
-        sinon.assert.calledWith(
-          getTimezoneForDataProcessingStub,
-          sinon.match.array,
-          { timezone: 'US/Eastern' },
-        );
-      });
-
-      context('processing initial data', () => {
-        it('should call processPatientData util with a combined patient data and notes array, query params, and patient settings', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            queryParams: {
-              timezone: 'US/Eastern',
-            },
-          }));
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              shouldProcessProps.patientDataMap[40][0],
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-            { timezone: 'US/Eastern' },
-            { bgTarget: { high: 180, low: 70 }, units: { bg: 'mg/dL' } },
-          );
-        });
-
-        it('should call processPatientData util on diabetes data that falls within the 4 weeks of the lastProcessedDateTarget provided', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-          );
-        });
-
-        it('should ensure call to processPatientData util includes latest `pumpSettings` and corresponding `upload` datums', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          // Rewire processPatientData util to return undefined
-          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
-            getLatestPumpSettings: sinon.stub().returns({
-              latestPumpSettings: { type: 'pumpSettings' },
-              uploadRecord: { type: 'upload' },
-            }),
-          }));
-
-          instance.processData();
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              shouldProcessProps.patientDataMap[40][0], // second datum not processed as it is more than 4 weeks in the past
-              ...shouldProcessProps.patientNotesMap[40],
-              { type: 'pumpSettings' },
-              { type: 'upload' },
-            ],
-          );
-        });
-
-        it('should call processPatientData util on data beyond the 4 weeks of the lastProcessedDateTarget provided if no diabetes data would be in that slice', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            patientDataMap: {
-              40: [
-                { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
-                { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
-                { time: '2017-10-30T00:00:00.000Z', type: 'cbg' }, // not included in slice
-              ],
-            },
-          }));
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
-              { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-          );
-        });
-
-        it('should call processPatientData with all remain of the lastProcessedDateTarget provided if no diabetes data is in that slice and the last unprocessed datum is the only diabetes datum', () => {
-          // This test catches an edge-case index out of range bug that was happening in this scenario
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(_.assign({}, shouldProcessProps, {
-            patientDataMap: {
-              40: [
-                { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
-                { time: '2017-12-01T00:00:00.000Z', type: 'basal' }, // over 4 weeks back, but still should be included
-              ],
-            },
-          }));
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledOnce(processPatientDataStub);
-          sinon.assert.calledWith(
-            processPatientDataStub,
-            [
-              { time: '2018-02-01T00:00:00.000Z', type: 'upload' },
-              { time: '2017-12-01T00:00:00.000Z', type: 'basal' },
-              ...shouldProcessProps.patientNotesMap[40],
-            ],
-          );
-        });
-
-        it('should set the processedPatientData to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            {
-              processedPatientData: {
-                bgClasses: 'stubbed bgClasses',
-                bgUnits: 'stubbed bgUnits',
-                data: 'stubbed data',
-                timePrefs: 'stubbed timePrefs',
-              },
-            }
-          );
-        });
-
-        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastDiabetesDatumProcessedIndex: 0 }
-          );
-        });
-
-        it('should set the lastDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastDatumProcessedIndex: 0 }
-          );
-        });
-
-        it('should set the lastProcessedDateTarget to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-          });
-
-          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(30, 'days').toISOString();
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastProcessedDateTarget: expectedTargetDateTime }
-          );
-        });
-
-        it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            timePrefs: {
-              timezoneAware: true,
-              timezoneName: 'US/Eastern',
-            },
-          });
-
-          const expectedTargetDateTime = moment(shouldProcessProps.patientDataMap[40][0].time).startOf('day').subtract(30, 'days').toISOString();
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastProcessedDateTarget: moment(expectedTargetDateTime).add(5, 'hours').toISOString() } // +5 hr offset for eastern time
-          );
-        });
-
-        it('should set the bgPrefs state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { bgPrefs: sinon.match.object }
-          );
-        });
-
-        it('should set the timePrefs state with updated timePrefs or existing state timePrefs if undefined', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { timePrefs: 'stubbed timePrefs' }
-          );
-
-          // Rewire processPatientData util to return undefined
-          PD.__Rewire__('utils', _.assign({}, utilsStubs, {
-            processPatientData: sinon.stub().returns(_.assign({}, processedPatientDataStub, {
-              timePrefs: undefined,
-            })),
-          }));
-
-          wrapper.setState({
-            processedPatientData: {
-              addData: addDataStub,
-            },
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-            timePrefs: 'existing timePrefs',
-          });
-
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { timePrefs: 'existing timePrefs' }
-          );
-        });
-
-        it('should set the loading and processingData states back to false at the end', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-
-          const firstCall = setStateSpy.getCall(0);
-          const secondCall = setStateSpy.getCall(1);
-
-          sinon.assert.calledWithMatch(
-            firstCall,
-            {
-              loading: true,
-              processingData: true,
-            },
-          );
-
-          sinon.assert.calledWithMatch(
-            secondCall,
-            {
-              loading: false,
-              processingData: false,
-            },
-          );
-
-          assert(setStateSpy.calledBefore(processPatientDataStub));
-          assert(setStateSpy.calledAfter(processPatientDataStub));
-        });
-
-        it('should set call the `handleInitialProcessedData` method after updating state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledOnce(handleInitialProcessedDataStub);
-
-          const secondSetStateCall = setStateSpy.getCall(1);
-
-          assert(secondSetStateCall.calledBefore(handleInitialProcessedDataStub.getCall(0)));
-        });
-
-        it('should track the `Processed initial patient data` metric', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-
-          wrapper.setProps(shouldProcessProps);
-
-          instance.processData();
-
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed initial patient data', {
-            patientID: 40 ,
-          });
-        });
-
-        it('should initialize the `dataUtil`', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: -1, // no data has been processed
-            lastProcessedDateTarget: '2017-12-20T00:00:00.000Z',
-          });
-
-          wrapper.setProps(shouldProcessProps);
-
-          delete instance.dataUtil;
-          expect(instance.dataUtil).to.be.undefined;
-
-          instance.processData();
-          expect(instance.dataUtil).to.be.an.instanceof(DataUtilStub);
-
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed initial patient data', {
-            patientID: 40 ,
-          });
-        });
-      });
-
-      context('processing subsequent data', () => {
-        it('should call addData util with a combined patient data and notes array, and any previously processed upload data', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 1, // previous data has been processed
-            lastProcessedDateTarget: '2018-02-01T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
-          });
-          const previousUpload = { id: 0, time: '2018-02-10T00:00:00.000Z', type: 'upload' };
-          const propsWithPreviousUpload = _.assign({}, shouldProcessProps, {
-            patientDataMap: {
-              40: [previousUpload].concat(shouldProcessProps.patientDataMap[40]),
-            }
-          });
-
-          wrapper.setProps(propsWithPreviousUpload);
-          setStateSpy.resetHistory();
-          PD.__ResetDependency__('utils');
-
-          instance.processData();
-
-          sinon.assert.calledOnce(addDataStub);
-          sinon.assert.calledWith(
-            addDataStub,
-            [
-              sinon.match(propsWithPreviousUpload.patientDataMap[40][3]),
-              sinon.match(propsWithPreviousUpload.patientDataMap[40][2]),
-              sinon.match(previousUpload), // previously processed upload record included
-              sinon.match({ messageText: 'hello' }),
-            ],
-          );
-        });
-
-        it('should call fetchEarlierData on data that falls within the 8 weeks of the lastProcessedDateTarget provided, but leaves less than a week to process', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-02T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-          PD.__ResetDependency__('utils');
-
-          instance.processData();
-
-          sinon.assert.calledOnce(instance.fetchEarlierData);
-        });
-
-        it('should call addData util on data that falls within the 8 weeks of the lastProcessedDateTarget provided, and leaves more than a week to process', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-05T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-          PD.__ResetDependency__('utils');
-
-          instance.processData();
-
-          sinon.assert.calledOnce(addDataStub);
-          sinon.assert.calledWith(
-            addDataStub,
-            [
-              sinon.match(shouldProcessProps.patientDataMap[40][2]), // diabetes data order reversed due to reseting utils.filterPatientData mock above, which sorts by time asc
-              sinon.match(shouldProcessProps.patientDataMap[40][1]),
-              sinon.match({ messageText: 'hello' }),
-            ],
-          );
-        });
-
-        it('should add newly processed data to the dataUtil', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-05T00:00:00.000Z', // setting this to a specific date, otherwise, the test would run with an indeterminite time
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-          PD.__ResetDependency__('utils');
-
-          sinon.assert.notCalled(instance.dataUtil.addData);
-
-          instance.processData();
-
-          sinon.assert.calledOnce(instance.dataUtil.addData);
-          sinon.assert.calledWith(
-            instance.dataUtil.addData,
-            [
-              sinon.match(shouldProcessProps.patientDataMap[40][2]), // diabetes data order reversed due to reseting utils.filterPatientData mock above, which sorts by time asc
-              sinon.match(shouldProcessProps.patientDataMap[40][1]),
-              sinon.match({ messageText: 'hello' }),
-            ],
-          );
-        });
-
-        it('should set the processedPatientData to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            {
-              processedPatientData: {
-                bgClasses: 'stubbed bgClasses',
-                bgUnits: 'stubbed bgUnits',
-                data: 'stubbed data',
-                timePrefs: 'stubbed timePrefs',
-              },
-            }
-          );
-        });
-
-        it('should set the lastDiabetesDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-20T00:00:00.000Z',
-          });
-          setStateSpy.resetHistory();
-          wrapper.setProps(shouldProcessProps);
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastDiabetesDatumProcessedIndex: 1 }
-          );
-        });
-
-        it('should set the lastDatumProcessedIndex to state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastDatumProcessedIndex: 2 }
-          );
-        });
-
-        it('should set the lastProcessedDateTarget to state with the regularly processing target datetime when the last processed datum is within the target processing daterange', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-
-          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(56, 'days').toISOString();
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastProcessedDateTarget: expectedTargetDateTime }
-          );
-        });
-
-        it('should set the lastProcessedDateTarget to state with last diabetes datum time when the last processed datum is outside the target processing daterange', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-
-          const dataOutsideRange = [
-            { id: 0, time: '2018-02-09T00:00:00.000Z', type: 'bolus' },
-            { id: 1, time: '2017-11-01T00:00:00.000Z', type: 'bolus' },
-          ];
-
-          const propsWithDataOutsideRange = _.assign({}, shouldProcessProps, {
-            patientDataMap: {
-              40: dataOutsideRange,
-            }
-          });
-
-          wrapper.setProps(propsWithDataOutsideRange);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastProcessedDateTarget: dataOutsideRange[1].time }
-          );
-        });
-
-        it('should increment the processEarlierDataCount state', () => {
-          wrapper.setState({
-            processEarlierDataCount: 0, // previous data has been processed
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-
-          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { processEarlierDataCount: 1 }
-          );
-        });
-
-        it('should apply a timezone offset to the lastProcessedDateTarget state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-            timePrefs: {
-              timezoneAware: true,
-              timezoneName: 'US/Eastern',
-            },
-          });
-
-          const expectedTargetDateTime = moment('2018-01-10T00:00:00.000Z').startOf('day').subtract(8, 'weeks').toISOString();
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledWithMatch(
-            setStateSpy,
-            { lastProcessedDateTarget: moment(expectedTargetDateTime).add(5, 'hours').toISOString() } // +5 hr offset for eastern time
-          );
-        });
-
-        it('should set the processingData states back to false at the end', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-
-          const firstCall = setStateSpy.getCall(0);
-          const secondCall = setStateSpy.getCall(1);
-
-          sinon.assert.calledWithMatch(
-            firstCall,
-            {
-              loading: true,
-              processingData: true,
-            },
-          );
-
-          sinon.assert.calledWithMatch(
-            secondCall,
-            {
-              processingData: false,
-            },
-          );
-
-          assert(firstCall.calledBefore(addDataStub.getCall(0)));
-          assert(secondCall.calledAfter(addDataStub.getCall(0)));
-        });
-
-        it('should call the `hideLoading` method after updating state', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-
-          wrapper.setProps(shouldProcessProps);
-          setStateSpy.resetHistory();
-
-          instance.processData();
-          sinon.assert.calledTwice(setStateSpy);
-          sinon.assert.calledOnce(hideLoadingStub);
-
-          const secondSetStateCall = setStateSpy.getCall(1);
-
-          assert(secondSetStateCall.calledBefore(hideLoadingStub.getCall(0)));
-        });
-
-        it('should track the `Processed earlier patient data` metric', () => {
-          wrapper.setState({
-            lastDatumProcessedIndex: 0, // previous data has been processed
-            lastProcessedDateTarget: '2018-01-10T00:00:00.000Z',
-          });
-
-          wrapper.setProps(shouldProcessProps);
-
-          instance.processData();
-
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Processed earlier patient data', {
-            patientID: 40,
-            count: 1,
-          });
-        });
-      });
-    });
-  });
-
 
   describe('hideLoading', () => {
     let wrapper;
@@ -3361,20 +3556,21 @@ describe('PatientData', function () {
       }, 10)
     });
 
-    it('should default to a timeout of 250ms when not provided', () => {
+    it('should default to a timeout of 0ms when not provided', () => {
       instance.hideLoading();
       sinon.assert.callCount(window.setTimeout, 1);
-      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 250);
+      sinon.assert.calledWith(window.setTimeout, sinon.match.func, 0);
     });
   });
 
   describe('handleSwitchToBasics', function() {
     it('should track a metric', function() {
       var props = {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
+        dataWorkerQueryDataRequest: sinon.stub(),
         isUserPatient: true,
         patient: {
-          userid: 40,
+          userid: '40',
           profile: {
             fullName: 'Fooey McBar'
           }
@@ -3382,11 +3578,12 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBasics();
@@ -3397,34 +3594,37 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `basics`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
       wrapper.setState({chartType: 'daily'});
 
       instance.handleSwitchToBasics();
       expect(wrapper.state('chartType')).to.equal('basics');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `basics.chartPrefs` state', () => {
+    it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
-      const chartPrefs = { basics: 'basics prefs' };
-
-      wrapper.setState({ chartPrefs })
-      instance.dataUtil = new DataUtilStub();
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBasics();
-      expect(instance.dataUtil._chartPrefs).to.equal('basics prefs');
+
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'basics' });
+      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-28T00:00:00.000Z', 'endpoints stub')
     });
   });
 
   describe('handleSwitchToDaily', function() {
     it('should track metric for calender', function() {
       var props = {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
+        dataWorkerQueryDataRequest: sinon.stub(),
         isUserPatient: true,
         patient: {
-          userid: 40,
+          userid: '40',
           profile: {
             fullName: 'Fooey McBar'
           }
@@ -3433,11 +3633,12 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
-        t
+        t,
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
-      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
@@ -3448,7 +3649,6 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'basics'});
 
@@ -3456,23 +3656,26 @@ describe('PatientData', function () {
       expect(wrapper.state('chartType')).to.equal('daily');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `daily.chartPrefs` state', () => {
+    it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
-      const chartPrefs = { daily: 'daily prefs' };
-
-      wrapper.setState({ chartPrefs })
-      instance.dataUtil = new DataUtilStub();
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToDaily();
-      expect(instance.dataUtil._chartPrefs).to.equal('daily prefs');
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'daily');
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'daily' });
+      sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
+        updateChartEndpoints: true
+      });
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3486,10 +3689,11 @@ describe('PatientData', function () {
   describe('handleSwitchToTrends', function() {
     it('should track a metric', function() {
       var props = {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
+        dataWorkerQueryDataRequest: sinon.stub(),
         isUserPatient: true,
         patient: {
-          userid: 40,
+          userid: '40',
           profile: {
             fullName: 'Fooey McBar'
           }
@@ -3497,11 +3701,12 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -3512,7 +3717,6 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `trends`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'basics'});
 
@@ -3520,23 +3724,26 @@ describe('PatientData', function () {
       expect(wrapper.state('chartType')).to.equal('trends');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `trends.chartPrefs` state', () => {
+    it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
-      const chartPrefs = { trends: 'trends prefs' };
-
-      wrapper.setState({ chartPrefs })
-      instance.dataUtil = new DataUtilStub();
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
-      expect(instance.dataUtil._chartPrefs).to.equal('trends prefs');
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'trends' });
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-28T00:00:00.000Z', 'endpoints stub', {
+        updateChartEndpoints: true
+      });
     });
 
     it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
 
@@ -3547,7 +3754,6 @@ describe('PatientData', function () {
     it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3559,10 +3765,11 @@ describe('PatientData', function () {
   describe('handleSwitchToBgLog', function() {
     it('should track a metric', function() {
       var props = {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
+        dataWorkerQueryDataRequest: sinon.stub(),
         isUserPatient: true,
         patient: {
-          userid: 40,
+          userid: '40',
           profile: {
             fullName: 'Fooey McBar'
           }
@@ -3570,11 +3777,12 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
@@ -3585,7 +3793,6 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `bgLog`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'basics'});
 
@@ -3593,23 +3800,26 @@ describe('PatientData', function () {
       expect(wrapper.state('chartType')).to.equal('bgLog');
     });
 
-    it('should set `dataUtil._chartPrefs` to the `bgLog.chartPrefs` state', () => {
+    it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
+      wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
-      const chartPrefs = { bgLog: 'bgLog prefs' };
-
-      wrapper.setState({ chartPrefs })
-      instance.dataUtil = new DataUtilStub();
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBgLog();
-      expect(instance.dataUtil._chartPrefs).to.equal('bgLog prefs');
+      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'bgLog');
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'bgLog' });
+      sinon.assert.calledWith(instance.updateChart, 'bgLog', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
+        updateChartEndpoints: true
+      });
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
@@ -3623,10 +3833,11 @@ describe('PatientData', function () {
   describe('handleSwitchToSettings', function() {
     it('should track a metric', function() {
       var props = {
-        currentPatientInViewId: 40,
+        currentPatientInViewId: '40',
+        dataWorkerQueryDataRequest: sinon.stub(),
         isUserPatient: true,
         patient: {
-          userid: 40,
+          userid: '40',
           profile: {
             fullName: 'Fooey McBar'
           }
@@ -3634,11 +3845,12 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
-      elem.dataUtil = new DataUtilStub();
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToSettings();
@@ -3649,7 +3861,6 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `settings`', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
-      instance.dataUtil = new DataUtilStub();
 
       wrapper.setState({chartType: 'daily'});
 
@@ -3744,12 +3955,6 @@ describe('PatientData', function () {
         },
         currentPatientInViewId: 'a1b2c3',
         loggedInUserId: 'a1b2c3',
-        patientDataMap: {
-          a1b2c3: [1,2,3,4,5]
-        },
-        patientNotesMap: {
-          a1b2c3: [{type: 'message'}]
-        },
         messageThread: [{type: 'message'}],
         permissionsOfMembersInTargetCareTeam: {
           a1b2c3: { root: { } },
@@ -3814,6 +4019,22 @@ describe('PatientData', function () {
       it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
         expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
       });
+
+      it('should map working.addingData to addingData', () => {
+        expect(result.addingData).to.equal(state.working.addingData);
+      });
+
+      it('should map working.updatingDatum to updatingDatum', () => {
+        expect(result.updatingDatum).to.equal(state.working.updatingDatum);
+      });
+
+      it('should map working.queryingData to queryingData', () => {
+        expect(result.queryingData).to.equal(state.working.queryingData);
+      });
+
+      it('should map working.data to data', () => {
+        expect(result.data).to.equal(state.working.data);
+      });
     });
 
     describe('patient in view is distinct from logged-in user', () => {
@@ -3828,12 +4049,6 @@ describe('PatientData', function () {
         },
         currentPatientInViewId: 'd4e5f6',
         loggedInUserId: 'a1b2c3',
-        patientDataMap: {
-          d4e5f6: [1,2,3,4,5]
-        },
-        patientNotesMap: {
-          d4e5f6: [{type: 'message'}]
-        },
         membershipPermissionsInOtherCareTeams: {
           d4e5f6: {
             note: {},
@@ -3901,6 +4116,22 @@ describe('PatientData', function () {
 
       it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
         expect(result.fetchingAssociatedAccounts).to.equal(state.working.fetchingAssociatedAccounts);
+      });
+
+      it('should map working.addingData to addingData', () => {
+        expect(result.addingData).to.equal(state.working.addingData);
+      });
+
+      it('should map working.updatingDatum to updatingDatum', () => {
+        expect(result.updatingDatum).to.equal(state.working.updatingDatum);
+      });
+
+      it('should map working.queryingData to queryingData', () => {
+        expect(result.queryingData).to.equal(state.working.queryingData);
+      });
+
+      it('should map working.data to data', () => {
+        expect(result.data).to.equal(state.working.data);
       });
     });
   });

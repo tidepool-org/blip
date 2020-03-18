@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.30.2",
+  "version": "1.31.0",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
@@ -31,7 +31,8 @@
     "body-parser": "1.18.3",
     "express": "4.16.3",
     "hakken": "0.1.11",
-    "helmet": "3.13.0"
+    "helmet": "3.13.0",
+    "rollbar": "2.14.4"
   },
   "devDependencies": {
     "@babel/cli": "7.1.0",
@@ -39,7 +40,7 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
-    "@tidepool/viz": "1.10.0",
+    "@tidepool/viz": "1.11.0",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
     "babel-core": "7.0.0-bridge.0",
@@ -121,6 +122,7 @@
     "redux-mock-store": "1.5.3",
     "redux-thunk": "2.2.0",
     "reselect": "3.0.1",
+    "rollbar-sourcemap-webpack-plugin": "2.5.3",
     "salinity": "0.0.8",
     "script-loader": "0.7.2",
     "selenium-standalone": "6.15.2",
@@ -129,11 +131,11 @@
     "source-map-loader": "0.2.4",
     "style-loader": "0.23.0",
     "sundial": "1.6.0",
-    "tideline": "1.15.0",
+    "terser": "4.4.2",
+    "terser-webpack-plugin": "2.2.1",
+    "tideline": "1.16.0",
     "tidepool-platform-client": "0.42.0",
     "tidepool-standard-action": "0.1.1",
-    "uglify-es": "3.3.9",
-    "uglifyjs-webpack-plugin": "2.2.0",
     "url-loader": "1.1.1",
     "webpack": "4.39.1",
     "webpack-cli": "3.3.6",

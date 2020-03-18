@@ -44,7 +44,7 @@ describe('constants', function() {
   it('should define the list of tidepool big data donation nonprofit partners', function() {
     expect(Constants.DATA_DONATION_NONPROFITS()).to.be.an('array'); // eslint-disable-line new-cap
     expect(_.map(Constants.DATA_DONATION_NONPROFITS(), 'value')).to.eql([ // eslint-disable-line new-cap
-      'AADE',
+      'ADCES',
       'BT1',
       'CARBDM',
       'CWD',

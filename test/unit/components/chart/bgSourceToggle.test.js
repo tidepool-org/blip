@@ -32,11 +32,17 @@ const expect = chai.expect;
 
 describe('BgSourceToggle', () => {
   const props = {
-    bgSource: 'cbg',
     bgSources: {
       cbg: true,
       smbg: true,
+      current: 'smbg',
     },
+    chartPrefs: {
+      bgLog: {
+        bgSource: 'cbg',
+      },
+    },
+    chartType: 'bgLog',
     onClickBgSourceToggle: sinon.stub(),
   };
 
@@ -98,7 +104,6 @@ describe('BgSourceToggle', () => {
       },
     }));
 
-
     expect(toggle().props().disabled).to.be.true;
 
     wrapper.setProps(_.assign({}, props, {
@@ -111,7 +116,7 @@ describe('BgSourceToggle', () => {
     expect(toggle().props().disabled).to.be.true;
   });
 
-  it('should activate the appropriate source when bgSource prop changes', () => {
+  it('should activate the appropriate source when chartPrefs bgSource prop changes', () => {
     let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
 
     expect(toggle().props().left.label).to.equal('BGM');
@@ -121,7 +126,32 @@ describe('BgSourceToggle', () => {
     expect(toggle().props().right.state).to.be.true;
 
     wrapper.setProps(_.assign({}, props, {
-      bgSource: 'smbg',
+      chartPrefs: {
+        bgLog: {
+          bgSource: 'smbg',
+        },
+      },
+    }));
+
+    expect(toggle().props().left.label).to.equal('BGM');
+    expect(toggle().props().left.state).to.be.true;
+
+    expect(toggle().props().right.label).to.equal('CGM');
+    expect(toggle().props().right.state).to.be.false;
+  });
+
+  it('should fall back to bgSources.current when bgSource is not available in chartPrefs', () => {
+    let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
+
+    expect(toggle().props().left.label).to.equal('BGM');
+    expect(toggle().props().left.state).to.be.false;
+
+    expect(toggle().props().right.label).to.equal('CGM');
+    expect(toggle().props().right.state).to.be.true;
+
+    // Unset chartPrefs, and it should fall back to props.bgSources.current, which is 'smbg'
+    wrapper.setProps(_.assign({}, props, {
+      chartPrefs: undefined,
     }));
 
     expect(toggle().props().left.label).to.equal('BGM');
@@ -137,7 +167,7 @@ describe('BgSourceToggle', () => {
 
     sinon.assert.callCount(props.onClickBgSourceToggle, 0);
 
-    expect(wrapper.props().bgSource).to.equal('cbg');
+    expect(wrapper.props().chartPrefs.bgLog.bgSource).to.equal('cbg');
 
     toggle().find('Toggle').simulate('click');
 
@@ -145,10 +175,14 @@ describe('BgSourceToggle', () => {
     sinon.assert.calledWith(props.onClickBgSourceToggle, sinon.match({}), 'smbg');
 
     wrapper.setProps(_.assign({}, props, {
-      bgSource: 'smbg',
+      chartPrefs: {
+        bgLog: {
+          bgSource: 'smbg',
+        },
+      },
     }));
 
-    expect(wrapper.props().bgSource).to.equal('smbg');
+    expect(wrapper.props().chartPrefs.bgLog.bgSource).to.equal('smbg');
 
     toggle().find('Toggle').simulate('click');
 

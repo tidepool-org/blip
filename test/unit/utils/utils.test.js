@@ -11,7 +11,6 @@ import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
 describe('utils', () => {
-
   describe('capitalize', () => {
     it('should return a capitalized string', () => {
       expect(utils.capitalize('lower')).to.equal('Lower');
@@ -394,25 +393,21 @@ describe('utils', () => {
     });
   });
 
-  describe('getTimezoneForDataProcessing', () => {
-    const data = [
-      { type: 'upload', time: '2018-01-02T00:00:00.000Z', timezone: 'US/Eastern' },
-      { type: 'smbg', time: '2018-01-10T00:00:00.000Z', timezone: 'US/Central' },
-      { type: 'upload', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' },
-    ];
+  describe('getTimePrefsForDataProcessing', () => {
+    const latestUpload = { type: 'upload', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' };
 
     const queryParams = {};
 
     context('Timezone provided from queryParam', () => {
       it('should set a valid timezone from a query param', () => {
         const queryParamsWithValidTimezone = _.assign({}, queryParams, { timezone: 'UTC' });
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithValidTimezone)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithValidTimezone)).to.eql({
           timezoneAware: true,
           timezoneName: 'UTC',
         });
       });
 
-      it('should fall back to browser time when given an invalid timezone', () => {
+      it('should fall back to timezone unaware when given an invalid timezone', () => {
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
             return { timeZone: 'Europe/Budapest' };
@@ -421,9 +416,8 @@ describe('utils', () => {
 
         const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
 
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({
-          timezoneAware: true,
-          timezoneName: 'Europe/Budapest',
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithInvalidTimezone)).to.eql({
+          timezoneAware: false,
         });
 
         DateTimeFormatStub.restore();
@@ -438,7 +432,9 @@ describe('utils', () => {
 
         const queryParamsWithInvalidTimezone = _.assign({}, queryParams, { timezone: 'invalid' });
 
-        expect(utils.getTimezoneForDataProcessing(data, queryParamsWithInvalidTimezone)).to.eql({});
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParamsWithInvalidTimezone)).to.eql({
+          timezoneAware: false,
+        });
 
         DateTimeFormatStub.restore();
       });
@@ -446,19 +442,18 @@ describe('utils', () => {
 
     context('Timezone provided from most recent upload', () => {
       it('should set a valid timezone from a query param', () => {
-        expect(utils.getTimezoneForDataProcessing(data, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(latestUpload, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'US/Pacific',
         });
       });
 
       it('should fall back to browser time when given an invalid timezone', () => {
-        const dataWithInvalidTimezone = data.slice();
-        dataWithInvalidTimezone.push({
+        const dataWithInvalidTimezone = {
           type: 'upload',
           time: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
-        });
+        };
 
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
@@ -466,7 +461,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -475,12 +470,11 @@ describe('utils', () => {
       });
 
       it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
-        const dataWithInvalidTimezone = data.slice();
-        dataWithInvalidTimezone.push({
+        const dataWithInvalidTimezone = {
           type: 'upload',
           time: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
-        });
+        };
 
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
@@ -488,7 +482,9 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({});
+        expect(utils.getTimePrefsForDataProcessing(dataWithInvalidTimezone, queryParams)).to.eql({
+          timezoneAware: false,
+        });
 
         DateTimeFormatStub.restore();
       });
@@ -502,7 +498,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing([], {})).to.eql({
+        expect(utils.getTimePrefsForDataProcessing([], {})).to.eql({
           timezoneAware: true,
           timezoneName: 'Europe/Budapest',
         });
@@ -517,7 +513,7 @@ describe('utils', () => {
           },
         });
 
-        expect(utils.getTimezoneForDataProcessing([], {})).to.be.undefined;
+        expect(utils.getTimePrefsForDataProcessing([], {})).to.be.undefined;
 
         DateTimeFormatStub.restore();
       });
@@ -537,103 +533,6 @@ describe('utils', () => {
         latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
         latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
       });
-    });
-  });
-
-  describe('getDiabetesDataRange', () => {
-    it('should return the range and count of diabetes data in a raw data set', () => {
-      const data = [
-        {
-          type: 'upload',
-          time: '2018-03-01T00:00:00.000Z',
-        },
-        {
-          type: 'setting',
-          time: '2017-02-18T00:00:00.000Z',
-        },
-        {
-          type: 'basal',
-          time: '2018-02-14T00:00:00.000Z',
-        },
-        {
-          type: 'wizard',
-          time: '2018-02-01T00:00:00.000Z',
-        },
-        {
-          type: 'smbg',
-          time: '2018-02-20T00:00:00.000Z',
-        },
-        {
-          type: 'cbg',
-          time: '2018-02-02T00:00:00.000Z',
-        },
-      ];
-
-      expect(utils.getDiabetesDataRange(data)).to.deep.equal({
-        start: '2018-02-01T00:00:00.000Z',
-        end: '2018-02-20T00:00:00.000Z',
-        spanInDays: 19,
-        count: 4,
-      });
-    });
-  });
-
-  describe('getLatestPumpSettings', () => {
-    const data = [
-      {
-        type: 'upload',
-        uploadId: 'upload123',
-        time: '2018-03-01T00:00:00.000Z',
-      },
-      {
-        type: 'pumpSettings',
-        id: 'latestSettings123',
-        uploadId: 'upload123',
-        time: '2017-02-18T00:00:00.000Z',
-      },
-      {
-        type: 'cbg',
-        uploadId: 'upload123',
-        time: '2018-02-02T00:00:00.000Z',
-      },
-      {
-        type: 'pumpSettings',
-        id: 'oldSettings123',
-        uploadId: 'upload123',
-        time: '2017-01-10T00:00:00.000Z',
-      },
-    ];
-
-    it('should get the latest pump settings data in a randomly-ordered raw data set', () => {
-      expect(utils.getLatestPumpSettings(data).latestPumpSettings).to.deep.equal({
-        type: 'pumpSettings',
-        id: 'latestSettings123',
-        uploadId: 'upload123',
-        time: '2017-02-18T00:00:00.000Z',
-      });
-
-      expect(utils.getLatestPumpSettings([...data].reverse()).latestPumpSettings).to.deep.equal({
-        type: 'pumpSettings',
-        id: 'latestSettings123',
-        uploadId: 'upload123',
-        time: '2017-02-18T00:00:00.000Z',
-      });
-    });
-
-    it('should return `undefined` for `latestPumpSettings` when missing in data set', () => {
-      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).latestPumpSettings).to.be.undefined;
-    });
-
-    it('should return `undefined` for `uploadRecord` when pump settings are missing in data set', () => {
-      expect(utils.getLatestPumpSettings(_.omitBy(data, {type: 'pumpSettings'})).uploadRecord).to.be.undefined;
-    });
-
-    it('should return the upload record when pump settings are present and the corresponding upload is in data set', () => {
-      expect(utils.getLatestPumpSettings(data).uploadRecord).to.eql(data[0]);
-    });
-
-    it('should return `undefined` for `uploadRecord` when pump settings are present and the corresponding upload is not in data set', () => {
-      expect(utils.getLatestPumpSettings(_.omitBy(data, { type: 'upload' })).uploadRecord).to.be.undefined;
     });
   });
 });

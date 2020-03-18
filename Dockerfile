@@ -5,14 +5,14 @@ RUN mkdir -p dist node_modules && chown -R node:node .
 
 
 ### Stage 1 - Base image for development image to install and configure Chromium for unit tests
-FROM base as developBase
+FROM base as develop-base
 RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
   && apk --no-cache update \
   && apk --no-cache upgrade \
-  && apk add --no-cache fontconfig bash udev ttf-opensans chromium \
+  && apk add --no-cache git fontconfig bash udev ttf-opensans chromium \
   && rm -rf /var/cache/apk/* /tmp/*
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
@@ -23,6 +23,9 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
+RUN apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
 RUN \
@@ -30,9 +33,9 @@ RUN \
   yarn install --production && cp -R node_modules production_node_modules \
   # Build all modules, including `devDependancies`
   && yarn install
-COPY packageMounts/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
-COPY packageMounts/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
-COPY packageMounts/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
+COPY packageMounts/tideline/stub packageMounts/tideline/yarn.lock* packageMounts/tideline/package.json* /app/packageMounts/tideline/
+COPY packageMounts/tidepool-platform-client/stub packageMounts/tidepool-platform-client/yarn.lock* packageMounts/tidepool-platform-client/package.json*  /app/packageMounts/tidepool-platform-client/
+COPY packageMounts/@tidepool/viz/stub packageMounts/@tidepool/viz/yarn.lock* packageMounts/@tidepool/viz/package.json* /app/packageMounts/@tidepool/viz/
 ARG LINKED_PKGS=""
 RUN \
   # Build all modules for mounted packages (used when npm linking in development containers)
@@ -41,7 +44,7 @@ RUN \
 
 
 ### Stage 3 - Development root with Chromium installed for unit tests
-FROM developBase as development
+FROM develop-base as development
 ENV NODE_ENV=development
 WORKDIR /app
 # Copy all `node_modules` dependencies
@@ -64,13 +67,18 @@ CMD ["npm", "test"]
 
 
 ### Stage 5 - Base image for builds to share args and environment variables
-FROM base as buildBase
+FROM base as build-base
+RUN apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk add --no-cache git
 # ARGs
 ARG API_HOST
 ARG DISCOVERY_HOST=hakken:8000
 ARG PORT=3000
 ARG PUBLISH_HOST=hakken
 ARG SERVICE_NAME=blip
+ARG ROLLBAR_POST_SERVER_TOKEN
+ARG TRAVIS_COMMIT
 # Set ENV from ARGs
 ENV \
   API_HOST=$API_HOST \
@@ -78,11 +86,13 @@ ENV \
   PORT=$PORT \
   PUBLISH_HOST=$PUBLISH_HOST \
   SERVICE_NAME=$SERVICE_NAME \
+  ROLLBAR_POST_SERVER_TOKEN=$ROLLBAR_POST_SERVER_TOKEN \
+  TRAVIS_COMMIT=$TRAVIS_COMMIT \
   NODE_ENV=production
 
 
 ### Stage 6 - Build production-ready release
-FROM buildBase as build
+FROM build-base as build
 USER node
 # Copy all `node_modules` from `dependancies` layer
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -92,7 +102,7 @@ RUN npm run build
 
 
 ### Stage 7 - Serve production-ready release
-FROM buildBase as production
+FROM build-base as production
 USER node
 # Copy only `node_modules` and files needed to run the server
 COPY --from=dependencies /app/production_node_modules ./node_modules

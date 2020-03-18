@@ -18,7 +18,7 @@ import _ from 'lodash';
 import sundial from 'sundial';
 
 import i18next from './language';
-import { capitalize, validateEmail } from './utils';
+import utils from './utils';
 import * as errors from './validation/errors';
 
 import config from '../config';
@@ -129,7 +129,7 @@ export const typeValidators = {
       return invalid(errors.isRequired(fieldLabel));
     }
 
-    if (!validateEmail(fieldValue)) {
+    if (!utils.validateEmail(fieldValue)) {
       return invalid(errors.invalidEmail(fieldLabel));
     }
 

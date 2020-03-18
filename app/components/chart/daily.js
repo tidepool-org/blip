@@ -26,7 +26,6 @@ import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
-import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -47,10 +46,10 @@ const DailyChart = translate()(class DailyChart extends Component {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     bolusRatio: React.PropTypes.number,
+    data: React.PropTypes.object.isRequired,
     dynamicCarbs: React.PropTypes.bool,
     initialDatetimeLocation: React.PropTypes.string,
     patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: React.PropTypes.func.isRequired,
@@ -94,13 +93,14 @@ const DailyChart = translate()(class DailyChart extends Component {
 
   getInitialState = () => {
     return {
+      initialDatetimeLocation: this.props.initialDatetimeLocation,
       datetimeLocation: null
     };
   };
 
   componentDidMount = () => {
     this.mountChart();
-    this.initializeChart(this.props.initialDatetimeLocation);
+    this.initializeChart(this.props, this.props.initialDatetimeLocation);
   };
 
   componentWillUnmount = () => {
@@ -127,14 +127,14 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
   };
 
-  initializeChart = datetime => {
-    const { t } = this.props;
+  initializeChart = (props = this.props, datetime) => {
+    const { t } = props;
     this.log('Initializing...');
-    if (_.isEmpty(this.props.patientData)) {
+    if (_.isEmpty(_.get(props.data, 'data.combined', []))) {
       throw new Error(t('Cannot create new chart with no data'));
     }
 
-    this.chart.load(this.props.patientData);
+    this.chart.load(props.data);
     if (datetime) {
       this.chart.locate(datetime);
     }
@@ -162,11 +162,11 @@ const DailyChart = translate()(class DailyChart extends Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = () => {
+  rerenderChart = (props = this.props) => {
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart();
-    this.initializeChart();
+    this.initializeChart(props);
     this.chart.emitter.emit('inTransition', false);
   };
 
@@ -202,15 +202,16 @@ const DailyChart = translate()(class DailyChart extends Component {
 
 class Daily extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
+    addingData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: React.PropTypes.string,
+    pdf: React.PropTypes.object.isRequired,
+    queryDataCount: React.PropTypes.number.isRequired,
+    stats: React.PropTypes.array.isRequired,
+    updatingDatum: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
     // message handlers
@@ -223,10 +224,9 @@ class Daily extends Component {
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onSwitchToTrends: React.PropTypes.func.isRequired,
-    // PatientData state updaters
+    // data state updaters
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   };
 
@@ -243,14 +243,20 @@ class Daily extends Component {
     return {
       atMostRecent: false,
       endpoints: [],
+      initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       title: '',
     };
   };
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.loading && !nextProps.loading) {
-      this.refs.chart.getWrappedInstance().rerenderChart();
+    const loadingJustCompleted = this.props.loading && !nextProps.loading;
+    const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
+    const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
+    const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+
+    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
+      this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
     }
   };
 
@@ -261,6 +267,9 @@ class Daily extends Component {
   };
 
   render = () => {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+
     return (
       <div id="tidelineMain" className="daily">
         <Header
@@ -286,59 +295,30 @@ class Daily extends Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
-              <DailyChart
-                bgClasses={this.props.bgPrefs.bgClasses}
-                bgUnits={this.props.bgPrefs.bgUnits}
-                bolusRatio={this.props.chartPrefs.bolusRatio}
-                dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-                initialDatetimeLocation={this.props.initialDatetimeLocation}
-                patientData={this.props.patientData}
-                timePrefs={this.props.timePrefs}
-                // message handlers
-                onCreateMessage={this.props.onCreateMessage}
-                onShowMessageThread={this.props.onShowMessageThread}
-                // other handlers
-                onDatetimeLocationChange={this.handleDatetimeLocationChange}
-                onHideBasalSettings={this.handleHideBasalSettings}
-                onMostRecent={this.handleMostRecent}
-                onShowBasalSettings={this.handleShowBasalSettings}
-                onTransition={this.handleInTransition}
-                onBolusHover={this.handleBolusHover}
-                onBolusOut={this.handleBolusOut}
-                onSMBGHover={this.handleSMBGHover}
-                onSMBGOut={this.handleSMBGOut}
-                onCBGHover={this.handleCBGHover}
-                onCBGOut={this.handleCBGOut}
-                onCarbHover={this.handleCarbHover}
-                onCarbOut={this.handleCarbOut}
-                ref="chart" />
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              {this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <BgSourceToggle
-                bgSource={this.props.dataUtil.bgSource}
-                bgSources={this.props.dataUtil.bgSources}
+                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 onClickBgSourceToggle={this.toggleBgDataSource}
               />
               <Stats
-                bgPrefs={this.props.bgPrefs}
-                bgSource={this.props.dataUtil.bgSource}
+                bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                stats={this.props.stats}
               />
             </div>
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-        ref="footer" />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          ref="footer" />
         {this.state.hoveredBolus && <BolusTooltip
             position={{
               top: this.state.hoveredBolus.top,
@@ -346,8 +326,8 @@ class Daily extends Component {
             }}
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={this.props.timePrefs}
+            bgPrefs={bgPrefs}
+            timePrefs={timePrefs}
           />}
         {this.state.hoveredSMBG && <SMBGTooltip
             position={{
@@ -356,8 +336,8 @@ class Daily extends Component {
             }}
             side={this.state.hoveredSMBG.side}
             smbg={this.state.hoveredSMBG.data}
-            timePrefs={this.props.timePrefs}
-            bgPrefs={this.props.bgPrefs}
+            timePrefs={timePrefs}
+            bgPrefs={bgPrefs}
           />}
         {this.state.hoveredCBG && <CBGTooltip
           position={{
@@ -366,8 +346,8 @@ class Daily extends Component {
           }}
           side={this.state.hoveredCBG.side}
           cbg={this.state.hoveredCBG.data}
-          timePrefs={this.props.timePrefs}
-          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+          bgPrefs={bgPrefs}
         />}
         {this.state.hoveredCarb && <FoodTooltip
           position={{
@@ -376,17 +356,53 @@ class Daily extends Component {
           }}
           side={this.state.hoveredCarb.side}
           food={this.state.hoveredCarb.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          bgPrefs={bgPrefs}
+          timePrefs={timePrefs}
         />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
   };
 
+  renderChart = () => {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+
+    return (
+      <DailyChart
+        bgClasses={bgPrefs.bgClasses}
+        bgUnits={bgPrefs.bgUnits}
+        bolusRatio={this.props.chartPrefs.bolusRatio}
+        dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+        initialDatetimeLocation={this.props.initialDatetimeLocation}
+        data={this.props.data}
+        timePrefs={timePrefs}
+        // message handlers
+        onCreateMessage={this.props.onCreateMessage}
+        onShowMessageThread={this.props.onShowMessageThread}
+        // other handlers
+        onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onHideBasalSettings={this.handleHideBasalSettings}
+        onMostRecent={this.handleMostRecent}
+        onShowBasalSettings={this.handleShowBasalSettings}
+        onTransition={this.handleInTransition}
+        onBolusHover={this.handleBolusHover}
+        onBolusOut={this.handleBolusOut}
+        onSMBGHover={this.handleSMBGHover}
+        onSMBGOut={this.handleSMBGOut}
+        onCBGHover={this.handleCBGHover}
+        onCBGOut={this.handleCBGOut}
+        onCarbHover={this.handleCarbHover}
+        onCarbOut={this.handleCarbOut}
+        ref="chart" />
+    );
+  }
+
   getTitle = datetime => {
-    const { timePrefs, t } = this.props;
+    const { t } = this.props;
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
     let timezone;
+
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
@@ -407,11 +423,11 @@ class Daily extends Component {
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.daily.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
+    this.props.updateChartPrefs(prefs, false, true);
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.getWrappedInstance().rerenderChart();
+    _.get(this.refs, 'chart.wrappedInstance') && this.refs.chart.getWrappedInstance().rerenderChart()
   };
 
   handleClickTrends = e => {
@@ -426,7 +442,14 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().goToMostRecent();
+
+    const latestFillDatum = _.findLast(this.refs.chart.wrappedInstance.chart.renderedData(), { type: 'fill' });
+
+    if (latestFillDatum.fillDate >= this.props.mostRecentDatetimeLocation.slice(0,10)) {
+      this.refs.chart.getWrappedInstance().goToMostRecent();
+    } else {
+      this.props.onUpdateChartDateRange(this.props.mostRecentDatetimeLocation, true)
+    }
   };
 
   handleClickOneDay = e => {
@@ -453,27 +476,18 @@ class Daily extends Component {
   };
 
   handleDatetimeLocationChange = datetimeLocationEndpoints => {
-    const endpoints = [
-      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
-      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
-    ];
-
     this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints[1]),
-      endpoints,
     });
 
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
-
-    // Update the chart date range in the patientData component.
+    // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(endpoints);
+    debouncedDateRangeUpdate(datetimeLocationEndpoints[0].end.toISOString());
 
     this.setState({ debouncedDateRangeUpdate });
   };

@@ -26,8 +26,6 @@ import mutationTracker from 'object-invariant-test-helper';
 import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import reducer from '../../../../app/redux/reducers/pdf';
 
-// const reducer = sinon.stub();
-
 describe('pdf reducer', () => {
   it('should return the initial state of {}', () => {
     expect(reducer(undefined, {})).to.deep.equal({});
