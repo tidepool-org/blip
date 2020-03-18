@@ -10,8 +10,8 @@ import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
 import {
+  default as baseTheme,
   colors,
-  fontSizes,
   radii,
   shadows,
   space,
@@ -31,10 +31,6 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput_clearDate {
     padding: 0;
     display: flex;
-
-    .MuiSvgIcon-root {
-      width: ${fontSizes[3]}px;
-    }
   }
 `;
 
@@ -65,9 +61,9 @@ export const DatePicker = props => {
         placeholder="mm/dd/yyyy"
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navNext={<Icon label="next month" icon={NavigateNextRoundedIcon} />}
-        navPrev={<Icon label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        customCloseIcon={<Icon label="clear dates" icon={CloseRoundedIcon} />}
+        navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}
+        navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        customCloseIcon={<Icon theme={baseTheme} label="clear dates" icon={CloseRoundedIcon} />}
         isOutsideRange={isOutsideRange}
         daySize={36}
         enableOutsideDays

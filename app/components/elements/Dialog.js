@@ -19,6 +19,7 @@ import {
 /* Dialog Title Start */
 const StyledDialogTitle = styled(Flex)`
   justify-content: space-between;
+  align-items: center;
   padding: ${space[3]}px;
 `;
 
@@ -33,7 +34,14 @@ export const DialogTitle = props => {
   return (
     <StyledDialogTitle {...dialogTitleProps}>
       {children}
-      {closeIcon && <Icon label="close dialog" onClick={onClose} icon={CloseRoundedIcon} />}
+      {closeIcon && (
+        <Icon
+          label="close dialog"
+          onClick={onClose}
+          icon={CloseRoundedIcon}
+          variant="icons.button"
+        />
+      )}
     </StyledDialogTitle>
   );
 };

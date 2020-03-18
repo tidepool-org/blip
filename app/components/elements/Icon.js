@@ -36,7 +36,7 @@ export const Icon = props => {
       className={classNames}
       {...buttonProps}
     >
-      <IconElement focusable />
+      <IconElement />
     </StyledIcon>
   );
 };

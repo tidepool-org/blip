@@ -41,8 +41,8 @@ export const DatePicker = styled(Box)`
     position: absolute;
     top: ${space[2]}px;
 
-    .MuiSvgIcon-root {
-      width: ${fontSizes[4]}px;
+    > span {
+      font-size: ${fontSizes[4]}px;
     }
 
     &:first-child {
