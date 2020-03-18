@@ -175,7 +175,7 @@ class Basics extends Component {
 
     const dtMask = t('MMM D, YYYY');
     return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1], timezone, dtMask);
+      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
   }
 
   isMissingBasics = () => {

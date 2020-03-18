@@ -19,10 +19,10 @@ import _ from 'lodash';
 import * as actionTypes from '../constants/actionTypes';
 
 /* PDF Worker */
-export function generatePDFRequest(type, queries, opts) {
+export function generatePDFRequest(type, queries, opts, patientId) {
   return {
     type: actionTypes.GENERATE_PDF_REQUEST,
-    meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin, patientId },
     payload: {
       type,
       queries,
@@ -55,7 +55,7 @@ export function removeGeneratedPDFS() {
 export function dataWorkerAddDataRequest(data = [], returnData, patientId, fetchedUntil ) {
   return {
     type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
     payload: {
       data: JSON.stringify(data),
       fetchedCount: data.length,
@@ -80,10 +80,10 @@ export function dataWorkerAddDataFailure(error) {
   };
 }
 
-export function dataWorkerRemoveDataRequest(predicate) {
+export function dataWorkerRemoveDataRequest(predicate, patientId) {
   return {
     type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
     payload: {
       predicate: predicate ? JSON.stringify(predicate) : undefined,
     },
@@ -104,10 +104,10 @@ export function dataWorkerRemoveDataFailure(error) {
   };
 }
 
-export function dataWorkerUpdateDatumRequest(datum = {}) {
+export function dataWorkerUpdateDatumRequest(datum = {}, patientId) {
   return {
     type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
     payload: {
       datum: JSON.stringify(datum),
     },
@@ -128,20 +128,20 @@ export function dataWorkerUpdateDatumFailure(error) {
   };
 }
 
-export function dataWorkerQueryDataRequest(query = {}) {
+export function dataWorkerQueryDataRequest(query = {}, patientId, destination = 'redux') {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-    meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+    meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId, destination },
     payload: {
       query: JSON.stringify(query),
     },
   };
 }
 
-export function dataWorkerQueryDataSuccess(result) {
+export function dataWorkerQueryDataSuccess(result, destination = 'redux') {
   return {
     type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
-    payload: { result },
+    payload: { result, destination },
   };
 }
 

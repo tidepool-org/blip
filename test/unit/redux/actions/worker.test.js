@@ -26,6 +26,8 @@ import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import * as worker from '../../../../app/redux/actions/worker';
 
 describe('worker action creators', () => {
+  const patientId = 'abc123';
+
   describe('generatePDFRequest', () => {
     const payload = {
       type: 'combined',
@@ -39,7 +41,7 @@ describe('worker action creators', () => {
       opts,
     } = payload;
 
-    const action = worker.generatePDFRequest(type, queries, opts);
+    const action = worker.generatePDFRequest(type, queries, opts, patientId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -48,7 +50,7 @@ describe('worker action creators', () => {
     it('should create an action to request a PDF generation', () => {
       expect(action).to.deep.equal({
         type: actionTypes.GENERATE_PDF_REQUEST,
-        meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'pdf', origin: document.location.origin, patientId },
         payload: {
           type,
           queries,
@@ -126,7 +128,7 @@ describe('worker action creators', () => {
     it('should create an action to add data to the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
         payload: {
           data: JSON.stringify(data),
           fetchedCount: 1,
@@ -177,8 +179,8 @@ describe('worker action creators', () => {
   describe('dataWorkerRemoveDataRequest', () => {
     const predicate = { foo: 'bar'};
 
-    const action = worker.dataWorkerRemoveDataRequest(predicate);
-    const actionWithUndefinedPredicate = worker.dataWorkerRemoveDataRequest();
+    const action = worker.dataWorkerRemoveDataRequest(predicate, patientId);
+    const actionWithUndefinedPredicate = worker.dataWorkerRemoveDataRequest(undefined, patientId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -188,7 +190,7 @@ describe('worker action creators', () => {
     it('should create an action to remove data from the worker with a stringified predicate', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
         payload: {
           predicate: JSON.stringify(predicate),
         },
@@ -198,7 +200,7 @@ describe('worker action creators', () => {
     it('should create an action to remove data from the worker with an undefined predicate', () => {
       expect(actionWithUndefinedPredicate).to.deep.equal({
         type: actionTypes.DATA_WORKER_REMOVE_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
         payload: {
           predicate: undefined,
         },
@@ -247,7 +249,7 @@ describe('worker action creators', () => {
   describe('dataWorkerUpdateDatumRequest', () => {
     const datum = { foo: 'bar'};
 
-    const action = worker.dataWorkerUpdateDatumRequest(datum);
+    const action = worker.dataWorkerUpdateDatumRequest(datum, patientId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -256,7 +258,7 @@ describe('worker action creators', () => {
     it('should create an action to update a datum in the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_UPDATE_DATUM_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId },
         payload: {
           datum: JSON.stringify(datum),
         },
@@ -303,7 +305,7 @@ describe('worker action creators', () => {
   describe('dataWorkerQueryDataRequest', () => {
     const query = { foo: 'bar'};
 
-    const action = worker.dataWorkerQueryDataRequest(query);
+    const action = worker.dataWorkerQueryDataRequest(query, patientId);
 
     it('should be a TSA', () => {
       expect(isTSA(action)).to.be.true;
@@ -312,7 +314,7 @@ describe('worker action creators', () => {
     it('should create an action to query data from the worker', () => {
       expect(action).to.deep.equal({
         type: actionTypes.DATA_WORKER_QUERY_DATA_REQUEST,
-        meta: { WebWorker: true, worker: 'data', origin: document.location.origin },
+        meta: { WebWorker: true, worker: 'data', origin: document.location.origin, patientId, destination: 'redux' },
         payload: {
           query: JSON.stringify(query),
         },
@@ -334,6 +336,7 @@ describe('worker action creators', () => {
         type: actionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
         payload: {
           result,
+          destination: 'redux',
         },
       });
     });

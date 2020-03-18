@@ -299,7 +299,7 @@ export let Patients = translate()(React.createClass({
   },
 
   componentWillMount: function() {
-    this.props.dataWorkerRemoveDataRequest();
+    this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();
