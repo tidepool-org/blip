@@ -8,7 +8,7 @@ import noop from 'lodash/noop';
 import styled from 'styled-components';
 
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
-import { IconButton } from './IconButton';
+import { Icon } from './Icon';
 
 import {
   colors,
@@ -99,10 +99,10 @@ export const DateRangePicker = props => {
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navPrev={<IconButton variant="icons.static" label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        navNext={<IconButton variant="icons.static" label="next month" icon={NavigateNextRoundedIcon} />}
-        customCloseIcon={<IconButton variant="icons.static" label="clear dates" icon={CloseRoundedIcon} />}
-        customArrowIcon={<IconButton variant="icons.static" label="to" icon={ArrowRightAltRoundedIcon} />}
+        navPrev={<Icon label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        navNext={<Icon label="next month" icon={NavigateNextRoundedIcon} />}
+        customCloseIcon={<Icon label="clear dates" icon={CloseRoundedIcon} />}
+        customArrowIcon={<Icon label="to" icon={ArrowRightAltRoundedIcon} />}
         daySize={36}
         hideKeyboardShortcutsPanel
         showClearDates

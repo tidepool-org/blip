@@ -9,7 +9,7 @@ import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
 
 import baseTheme from '../app/themes/baseTheme';
-import IconButton from '../app/components/elements/IconButton';
+import Icon from '../app/components/elements/Icon';
 
 /* eslint-disable max-len */
 
@@ -21,33 +21,36 @@ const withTheme = Story => (
 );
 
 export default {
-  title: 'Icon Buttons',
+  title: 'Icons',
   decorators: [withDesign, withKnobs, withTheme],
 };
 
 const disabled = () => boolean('Disabled', false);
 
-export const Icon = () => {
-
+export const Static = () => {
   return (
     <React.Fragment>
-      <IconButton
+      <Icon
+        sx={{
+          mr: '10px',
+        }}
         label="Close"
         icon={CloseRoundedIcon}
         onClick={action('onClick called')}
         disabled={disabled()}
       />
-      <IconButton
-        sx={{
-          color: 'mediumPurple',
-          mr: '10px',
-        }}
+      <Icon
+        color="mediumPurple"
+        mr="10px"
         label="More"
         icon={MoreHorizRoundedIcon}
         onClick={action('onClick called')}
         disabled={disabled()}
       />
-      <IconButton
+      <Icon
+        sx={{
+          fontSize: '40px',
+        }}
         label="Close"
         icon={NotificationsRoundedIcon}
         onClick={action('onClick called')}
@@ -57,14 +60,58 @@ export const Icon = () => {
   );
 };
 
-Icon.story = {
-  name: 'Simple',
+Static.story = {
+  name: 'Static',
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=11%3A2',
     },
   },
 };
 
+export const Button = () => {
+  return (
+    <React.Fragment>
+      <Icon
+        variant="icons.button"
+        sx={{
+          mr: '10px',
+        }}
+        label="Close"
+        icon={CloseRoundedIcon}
+        onClick={action('onClick called')}
+        disabled={disabled()}
+      />
+      <Icon
+        variant="icons.button"
+        color="mediumPurple"
+        mr="10px"
+        label="More"
+        icon={MoreHorizRoundedIcon}
+        onClick={action('onClick called')}
+        disabled={disabled()}
+      />
+      <Icon
+        variant="icons.button"
+        sx={{
+          fontSize: '40px',
+        }}
+        label="Close"
+        icon={NotificationsRoundedIcon}
+        onClick={action('onClick called')}
+        disabled={disabled()}
+      />
+    </React.Fragment>
+  );
+};
 
+Button.story = {
+  name: 'Button',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=11%3A2',
+    },
+  },
+};

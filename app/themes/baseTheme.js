@@ -70,8 +70,8 @@ export const transitions = {
 export const zIndices = [0, 10, 100, 1000];
 
 const variants = {
-  icons: icons({ colors, borders, radii }),
-}
+  icons: icons({ colors, fontSizes, radii, space }),
+};
 
 export default {
   breakpoints,

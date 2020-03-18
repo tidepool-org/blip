@@ -2,43 +2,53 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box, BoxProps } from 'rebass/styled-components';
+import cx from 'classnames';
 
 import { transitions } from '../../themes/baseTheme';
 
-const StyledIconButton = styled(Box)`
+const StyledIcon = styled(Box)`
   cursor: pointer;
   transition: ${transitions.easeOut};
   position: relative;
   display: inline-flex;
 
-  &:disabled {
+  &.disabled, &:disabled {
     pointer-events: none;
+  }
+
+  .MuiSvgIcon-root {
+    font-size: inherit;
   }
 `;
 
-export const IconButton = props => {
-  const { icon: Icon, label, ...buttonProps} = props;
-  const as = props.variant === 'icons.static' ? 'span' : 'button';
+export const Icon = props => {
+  const { icon: IconElement, label, ...buttonProps } = props;
+  const as = props.variant === 'icons.button' ? 'button' : 'span';
+
+  const classNames = cx({
+    disabled: props.disabled,
+  });
 
   return (
-    <StyledIconButton
+    <StyledIcon
       as={as}
       aria-label={label}
+      className={classNames}
       {...buttonProps}
     >
-      <Icon focusable />
-    </StyledIconButton>
+      <IconElement focusable />
+    </StyledIcon>
   );
 };
 
-IconButton.propTypes = {
+Icon.propTypes = {
   ...BoxProps,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
 };
 
-IconButton.defaultProps = {
-  variant: 'icons.button',
+Icon.defaultProps = {
+  variant: 'icons.static',
 };
 
-export default IconButton;
+export default Icon;
