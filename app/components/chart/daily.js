@@ -254,9 +254,10 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
 
-    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
-      this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
+    if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
+      wrappedInstance.rerenderChart(nextProps);
     }
   };
 
