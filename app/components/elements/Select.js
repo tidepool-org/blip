@@ -7,7 +7,7 @@ import cx from 'classnames';
 import map from 'lodash/map';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
-import { borders, colors, radii, space } from '../../themes/baseTheme';
+import { space } from '../../themes/baseTheme';
 import { Caption } from './FontStyles';
 
 const StyledSelect = styled(Flex)`
@@ -36,12 +36,6 @@ const StyledSelect = styled(Flex)`
     color: inherit;
     /* Disable pointer events so click actually applies to the dropdown menu underneath */
     pointer-events: none;
-  }
-
-  &.disabled {
-    color: ${colors.text.primaryDisabled};
-    border-color: ${colors.lightestGrey};
-    background-color: ${colors.lightestGrey};
   }
 `;
 
@@ -94,13 +88,7 @@ Select.propTypes = {
 };
 
 Select.defaultProps = {
-  width: ['100%', '75%', '50%'],
-  color: colors.text.primary,
-  sx: {
-    border: borders.input,
-    borderRadius: `${radii.input}px`,
-    backgroundColor: colors.white,
-  },
+  variant: 'inputs.select',
 };
 
 export default Select;
