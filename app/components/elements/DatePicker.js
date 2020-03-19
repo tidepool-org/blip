@@ -38,7 +38,6 @@ export const DatePicker = props => {
   const {
     date: dateProp,
     focused: focusedProp,
-    isOutsideRange,
     onDateChange,
     onFocusChange,
     ...datePickerProps
@@ -50,7 +49,10 @@ export const DatePicker = props => {
     <StyledDatePicker>
       <SingleDatePicker
         date={date}
-        onDateChange={newDate => setDate(newDate) && onDateChange(newDate)}
+        onDateChange={newDate => {
+          setDate(newDate);
+          onDateChange(newDate);
+        }}
         focused={focused}
         onFocusChange={({ focused: newFocused }) => {
           setFocused(newFocused);
@@ -64,7 +66,6 @@ export const DatePicker = props => {
         navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}
         navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
         customCloseIcon={<Icon theme={baseTheme} label="clear dates" icon={CloseRoundedIcon} />}
-        isOutsideRange={isOutsideRange}
         daySize={36}
         enableOutsideDays
         hideKeyboardShortcutsPanel

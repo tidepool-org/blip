@@ -70,8 +70,7 @@ export const DateRangePicker = props => {
     startDate,
     endDate,
     focusedInput: focusedInputProp,
-    isOutsideRange,
-    onDateChange,
+    onDatesChange,
     onFocusChange,
     ...datePickerProps
   } = props;
@@ -86,11 +85,14 @@ export const DateRangePicker = props => {
         startDateId={props.startDateId}
         endDate={dates.endDate}
         endDateId={props.endDateId}
-        onDatesChange={newDates => setDates(newDates) && props.onDatesChange(newDates)}
+        onDatesChange={newDates => {
+          setDates(newDates);
+          onDatesChange(newDates);
+        }}
         focusedInput={focusedInput}
         onFocusChange={newFocusedInput => {
           setFocusedInput(newFocusedInput);
-          props.onFocusChange(newFocusedInput);
+          onFocusChange(newFocusedInput);
         }}
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
