@@ -8,11 +8,11 @@ import noop from 'lodash/noop';
 import styled from 'styled-components';
 
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
-import { IconButton } from './IconButton';
+import { Icon } from './Icon';
 
 import {
+  default as baseTheme,
   colors,
-  fontSizes,
   radii,
   shadows,
   space,
@@ -32,10 +32,6 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   .DateRangePickerInput_clearDates {
     padding: 0;
     display: flex;
-
-    .MuiSvgIcon-root {
-      width: ${fontSizes[3]}px;
-    }
   }
 
   .DateRangePickerInput_arrow {
@@ -101,10 +97,10 @@ export const DateRangePicker = props => {
         numberOfMonths={2}
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navNext={<IconButton label="next month" icon={NavigateNextRoundedIcon} />}
-        navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
-        customArrowIcon={<IconButton label="to" icon={ArrowRightAltRoundedIcon} />}
+        navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}
+        customCloseIcon={<Icon theme={baseTheme} label="clear dates" icon={CloseRoundedIcon} />}
+        customArrowIcon={<Icon theme={baseTheme} label="to" icon={ArrowRightAltRoundedIcon} />}
         daySize={36}
         hideKeyboardShortcutsPanel
         showClearDates

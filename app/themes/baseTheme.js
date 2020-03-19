@@ -1,5 +1,6 @@
 import colorPalette from './colorPalette';
 import buttons from './base/buttons';
+import icons from './base/icons';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -68,9 +69,14 @@ export const transitions = {
 
 export const zIndices = [0, 10, 100, 1000];
 
+const variants = {
+  icons: icons({ colors, fontSizes, radii, space }),
+};
+
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders }),
+  buttons: buttons({ colors, borders, radii }),
+  variants,
   colors,
   fonts,
   fontSizes,
