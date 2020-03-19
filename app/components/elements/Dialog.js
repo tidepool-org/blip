@@ -7,7 +7,7 @@ import MuiDialogActions, { DialogActionsProps } from '@material-ui/core/DialogAc
 import styled from 'styled-components';
 import { Flex } from 'rebass/styled-components';
 
-import { IconButton } from './IconButton';
+import { Icon } from './Icon';
 
 import {
   borders,
@@ -19,6 +19,7 @@ import {
 /* Dialog Title Start */
 const StyledDialogTitle = styled(Flex)`
   justify-content: space-between;
+  align-items: center;
   padding: ${space[3]}px;
 `;
 
@@ -33,7 +34,14 @@ export const DialogTitle = props => {
   return (
     <StyledDialogTitle {...dialogTitleProps}>
       {children}
-      {closeIcon && <IconButton label="close dialog" onClick={onClose} icon={CloseRoundedIcon} />}
+      {closeIcon && (
+        <Icon
+          label="close dialog"
+          onClick={onClose}
+          icon={CloseRoundedIcon}
+          variant="icons.button"
+        />
+      )}
     </StyledDialogTitle>
   );
 };
