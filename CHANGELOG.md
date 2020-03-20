@@ -17,6 +17,7 @@ It is based on Tidepool Blip 1.27.
 - PT-1135 Remove BGLog page
 - PT-1140 Split the link to the terms of Use in the footer
 - PT-1009 Manage the update of the data privacy
+- PT-1197 Basics screen wording update
 
 ## 0.12.0 - 2020-02-17
 ### Fixed
