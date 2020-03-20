@@ -3,6 +3,8 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+
+## 0.13.0 - 2020-03-20
 ### Added
 - PT-880 Display Parameter object change in Daily view
 - PT-1027 Inform the user when he has reach a max login attempt
