@@ -270,6 +270,7 @@ class Daily extends Component {
   render = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const dayDataReady = _.get(this.props, 'data.data.current.endpoints.days') === 1;
 
     return (
       <div id="tidelineMain" className="daily">
@@ -297,7 +298,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.renderChart()}
+              {dayDataReady && this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
