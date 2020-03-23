@@ -164,6 +164,38 @@ function TidelineData(data, opts) {
     });
   };
 
+  this.setDeviceParameters = function (data = []){
+    var parameters = _.filter( data,  {type: 'deviceEvent', subType: 'deviceParameter'});
+    var sortedParameters =_.orderBy(parameters,['normaltime'], ['desc']);
+  
+    this.deviceParameters = [];
+    if (sortedParameters.length > 0) {
+      var first = sortedParameters[0];
+      var group = {
+        normalTime: first.normalTime,
+        id: first.id,
+        params: [first]
+      }
+      if (sortedParameters.length > 1) {
+        for (let i = 1; i < sortedParameters.length; ++i) {
+          const item = sortedParameters[i];
+          if (dt.difference(item.normalTime, group.normalTime) < DEVICE_PARAMS_OFFSET) {
+            // add to current group
+            group.params.push(item);
+          } else {
+            this.deviceParameters.push(group);
+            group = {
+              normalTime: item.normalTime,
+              id: item.id,
+              params: [item]
+            }
+          }
+        }
+      }
+      this.deviceParameters.push(group);
+    }
+  };
+
   this.filterDataArray = function() {
     var dData = _.sortBy(this.diabetesData, 'normalTime');
     this.data = _.reject(this.data, function(d) {
@@ -223,6 +255,9 @@ function TidelineData(data, opts) {
 
     // Deduplicate the data
     this.deduplicateDataArrays();
+
+    // get DeviceParameters
+    this.setDeviceParameters(this.data);
 
     startTimer('setUtilities');
     this.setUtilities();
@@ -527,35 +562,9 @@ function TidelineData(data, opts) {
   endTimer('diabetesData');
 
   startTimer('deviceEvents');
-  var parameters = _.filter( data,  {type: 'deviceEvent', subType: 'deviceParameter'});
-  var sortedParameters =_.orderBy(parameters,['normaltime'], ['desc']);
 
-  this.deviceParameters = [];
-  if (sortedParameters.length > 0) {
-    var first = sortedParameters[0];
-    var group = {
-      normalTime: first.normalTime,
-      id: first.id,
-      params: [first]
-    }
-    if (sortedParameters.length > 1) {
-      for (let i = 1; i < sortedParameters.length; ++i) {
-        const item = sortedParameters[i];
-        if (dt.difference(item.normalTime, group.normalTime) < DEVICE_PARAMS_OFFSET) {
-          // add to current group
-          group.params.push(item);
-        } else {
-          this.deviceParameters.push(group);
-          group = {
-            normalTime: item.normalTime,
-            id: item.id,
-            params: [item]
-          }
-        }
-      }
-    }
-    this.deviceParameters.push(group);
-  }
+  this.setDeviceParameters(data);
+
   endTimer('deviceEvents');
 
   this.setBGPrefs();

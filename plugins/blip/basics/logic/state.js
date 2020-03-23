@@ -69,7 +69,7 @@ var basicsState = function (manufacturer) {
           ]
         },
         settingsTogglable: togglableState.off,
-        title: 'Basals',
+        title: t('Basals'),
         type: 'basal'
       },
       boluses: {
