@@ -259,6 +259,9 @@ export let PatientData = translate()(React.createClass({
     }
 
     if (this.props.isUserPatient) {
+      const supportEmailAddr = config.SUPPORT_EMAIL_ADDRESS;
+      const supportWebAddr = config.SUPPORT_WEB_ADDRESS;
+      const mailto = `mailto:${supportEmailAddr}`
       content = (
         <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
           <h1>To see your data, you’ll need the Tidepool Uploader</h1>
@@ -269,7 +272,7 @@ export let PatientData = translate()(React.createClass({
           <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
           <p className="patient-no-data-help">
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
-            <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
+            <b>Need help?</b> Email <a className="uploader-color-override" href={mailto}>us</a> or visit our <a className="uploader-color-override" href={supportWebAddr}>help page</a>.
           </p>
         </Trans>
       );

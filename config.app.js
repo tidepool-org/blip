@@ -26,6 +26,8 @@
 /* global __ALLOW_PATIENT_CHANGE_EMAIL__ */
 /* global __ALLOW_PATIENT_CHANGE_PASSWORD__ */
 /* global __CAN_SEE_PWD_LOGIN__ */
+/* global __SUPPORT_EMAIL_ADDRESS__ */
+/* global __SUPPORT_WEB_ADDRESS__ */
 /* global __HELP_LINK__ */
 /* global __ASSETS_URL__ */
 /* global __HIDE_UPLOAD_LINK__ */
@@ -78,6 +80,8 @@ const config = {
   ALLOW_PATIENT_CHANGE_EMAIL: booleanFromText(__ALLOW_PATIENT_CHANGE_EMAIL__, true),
   ALLOW_PATIENT_CHANGE_PASSWORD: booleanFromText(__ALLOW_PATIENT_CHANGE_PASSWORD__, true),
   CAN_SEE_PWD_LOGIN: booleanFromText(__CAN_SEE_PWD_LOGIN__, true),
+  SUPPORT_EMAIL_ADDRESS: __SUPPORT_EMAIL_ADDRESS__,
+  SUPPORT_WEB_ADDRESS: __SUPPORT_WEB_ADDRESS__,
   HELP_LINK: __HELP_LINK__ || null,
   ASSETS_URL: __ASSETS_URL__ || null,
   HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),

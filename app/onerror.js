@@ -14,18 +14,15 @@
  */
 
 import i18next from './core/language';
+import config from '../app/config';
 
 const t = i18next.t.bind(i18next);
 
 export default function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
-  const ERR_GENERIC_LIST = [
-    t('Whoops! Tidepool\'s servers got clogged with glucose tabs.'),
-    t('Whoops! Tidepool ran out of test strips...'),
-    t('Whoa, sorry about that. Looks like Tidepool needs to change the battery on its pump.')
-  ];
+  const supportEmailAddr = config.SUPPORT_EMAIL_ADDRESS;
   const ERR_GENERIC_HELP = t('Tidepool is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.');
   const ERR_SENT_TO_SERVER = t('Tidepool will attempt to send the details to our server.');
-  const ERR_PLEASE_SEND_DETAIL = t('We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?');
+  const ERR_PLEASE_SEND_DETAIL = t('We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:{{supportEmailAddr}}">{{supportEmailAddr}}</a> and we\'ll try to see what broke?', {supportEmailAddr: supportEmailAddr});
   let html;
 
   const details = {

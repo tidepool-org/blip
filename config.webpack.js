@@ -19,6 +19,8 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __ALLOW_PATIENT_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_EMAIL || true),
   __ALLOW_PATIENT_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_PASSWORD || true),
   __CAN_SEE_PWD_LOGIN__: JSON.stringify(process.env.CAN_SEE_PWD_LOGIN || true),
+  __SUPPORT_EMAIL_ADDRESS__: JSON.stringify(process.env.SUPPORT_EMAIL_ADDRESS || 'support@tidepool.org'),
+  __SUPPORT_WEB_ADDRESS__: JSON.stringify(process.env.SUPPORT_WEB_ADDRESS || 'http://support.tidepool.org'),
   __HELP_LINK__: JSON.stringify(process.env.HELP_LINK || null),
   __ASSETS_URL__: JSON.stringify(process.env.ASSETS_URL || null),
   __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || null),

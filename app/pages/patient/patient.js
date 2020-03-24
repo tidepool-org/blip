@@ -27,6 +27,7 @@ import personUtils from '../../core/personutils';
 import ModalOverlay from '../../components/modaloverlay';
 import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
+import config from '../../config';
 
 const Patient = translate()(React.createClass({
   // many things *not* required here because they aren't needed for
@@ -148,8 +149,9 @@ const Patient = translate()(React.createClass({
   },
 
   renderDeleteDialog: function() {
+    const mailto = `mailto:${config.SUPPORT_EMAIL_ADDRESS}?Subject=Delete%20my%20account`;
     return (
-      <Trans i18nKey="html.patient-delete-account">If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</Trans>
+      <Trans i18nKey="html.patient-delete-account">If you are sure you want to delete your account, please <a href={mailto} target="_blank">send an email</a> and we take care of it for you.</Trans>
     );
   },
 
