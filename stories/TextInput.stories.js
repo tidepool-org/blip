@@ -7,6 +7,8 @@ import { ThemeProvider } from 'styled-components';
 import baseTheme from '../app/themes/baseTheme';
 
 import TextInput from '../app/components/elements/TextInput';
+import SearchIcon from '@material-ui/icons/Search';
+
 
 const withTheme = Story => (
   <ThemeProvider theme={baseTheme}>
@@ -20,7 +22,7 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const label = () => text('Label', '');
+const label = () => text('Label', 'Name');
 const width = () => number('Width');
 const disabled = () => boolean('Disabled', false);
 const placeholder = () => text('Placeholder', 'Your name');
@@ -36,6 +38,26 @@ export const BasicInput = () => (
 
 BasicInput.story = {
   name: 'Basic Input',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
+    },
+  },
+};
+
+export const IconInput = () => (
+  <TextInput
+    placeholder={placeholder()}
+    disabled={disabled()}
+    label={label()}
+    {...(width() ? { width: width() } : [])}
+    icon={SearchIcon}
+    name="name" />
+);
+
+IconInput.story = {
+  name: 'Input w/ Icon',
   parameters: {
     design: {
       type: 'figma',

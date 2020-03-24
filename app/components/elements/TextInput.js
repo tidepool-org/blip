@@ -1,10 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Box } from 'rebass/styled-components';
-import { Label, Input } from '@rebass/forms';
+import { Flex } from 'rebass/styled-components';
+import { Label, Input, InputProps } from '@rebass/forms';
 import { Caption } from './FontStyles';
+import { Icon } from './Icon';
 import { fonts, fontSizes, colors, borders, radii, space } from '../../themes/baseTheme';
+
+const StyledWrapper = styled(Flex)`
+  position: relative;
+  flex-wrap: wrap;
+
+  > input {
+    flex-grow: 1;
+  }
+
+.MuiSvgIcon-root {
+    position: absolute;
+    right: ${space[2]}px;
+    top: 12px;
+    color: inherit;
+    /* Disable pointer events so click actually applies to the dropdown menu underneath */
+    pointer-events: none;
+  }
+`;
 
 const StyledInput = styled(Input)`
   border: ${borders.input};
@@ -36,29 +55,36 @@ const StyledInput = styled(Input)`
 `;
 
 export const TextInput = props => {
-  const { label, name, width, ...inputProps } = props;
+  const { label, name, width, icon, ...inputProps } = props;
   return (
-    <Box
-      sx={{
-        width,
-      }}
-    >
-      {props.label &&
+    <React.Fragment>
+      {label &&
         <Label htmlFor={name}>
           <Caption>{label}</Caption>
         </Label>
       }
-      <StyledInput id={name} name={name} {...inputProps} />
-    </Box>
+      <StyledWrapper
+        sx={{
+          width,
+        }}
+      >
+        <StyledInput id={name} name={name} {...inputProps} />
+        {icon &&
+          <Icon icon={icon} label={label} />
+        }
+      </StyledWrapper>
+    </React.Fragment>
   );
 };
 
 TextInput.propTypes = {
+  ...InputProps,
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
   space: PropTypes.number,
   disabled: PropTypes.bool,
+  icon: PropTypes.elementType,
 };
 
 TextInput.defaultProps = {
