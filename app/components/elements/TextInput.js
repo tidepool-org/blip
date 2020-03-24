@@ -15,7 +15,7 @@ const StyledWrapper = styled(Flex)`
     flex-grow: 1;
   }
 
-.MuiSvgIcon-root {
+  .MuiSvgIcon-root {
     position: absolute;
     right: ${space[2]}px;
     top: 12px;
