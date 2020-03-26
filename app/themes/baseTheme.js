@@ -72,7 +72,7 @@ export const zIndices = [0, 10, 100, 1000];
 
 const variants = {
   icons: icons({ colors, fontSizes, radii, space }),
-  inputs: inputs({ borders, colors, fonts, radii }),
+  inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
 };
 
 export default {
