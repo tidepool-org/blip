@@ -47,10 +47,10 @@ const Radio = props => {
 
   return (
     <Label width="auto" mb="0.5em" alignItems="center">
-      <StyledRadio className={classNames} {...radioProps}/>
+      <StyledRadio className={classNames} {...radioProps} />
       <StyledRadioLabel className={classNames} as="span">{label}</StyledRadioLabel>
     </Label>
-  )
+  );
 };
 
 Radio.propTypes = RadioProps;
