@@ -7,11 +7,11 @@ import noop from 'lodash/noop';
 import styled from 'styled-components';
 
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
-import { IconButton } from './IconButton';
+import { Icon } from './Icon';
 
 import {
+  default as baseTheme,
   colors,
-  fontSizes,
   radii,
   shadows,
   space,
@@ -31,10 +31,6 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput_clearDate {
     padding: 0;
     display: flex;
-
-    .MuiSvgIcon-root {
-      width: ${fontSizes[3]}px;
-    }
   }
 `;
 
@@ -42,7 +38,6 @@ export const DatePicker = props => {
   const {
     date: dateProp,
     focused: focusedProp,
-    isOutsideRange,
     onDateChange,
     onFocusChange,
     ...datePickerProps
@@ -54,7 +49,10 @@ export const DatePicker = props => {
     <StyledDatePicker>
       <SingleDatePicker
         date={date}
-        onDateChange={newDate => setDate(newDate) && onDateChange(newDate)}
+        onDateChange={newDate => {
+          setDate(newDate);
+          onDateChange(newDate);
+        }}
         focused={focused}
         onFocusChange={({ focused: newFocused }) => {
           setFocused(newFocused);
@@ -65,10 +63,9 @@ export const DatePicker = props => {
         placeholder="mm/dd/yyyy"
         displayFormat="MMM D, YYYY"
         verticalSpacing={0}
-        navNext={<IconButton label="next month" icon={NavigateNextRoundedIcon} />}
-        navPrev={<IconButton label="previous month" icon={NavigateBeforeRoundedIcon} />}
-        customCloseIcon={<IconButton label="clear dates" icon={CloseRoundedIcon} />}
-        isOutsideRange={isOutsideRange}
+        navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}
+        navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
+        customCloseIcon={<Icon theme={baseTheme} label="clear dates" icon={CloseRoundedIcon} />}
         daySize={36}
         enableOutsideDays
         hideKeyboardShortcutsPanel

@@ -14,7 +14,7 @@ import {
 
 import baseTheme from '../app/themes/baseTheme';
 import Popover from '../app/components/elements/Popover';
-import { IconButton } from '../app/components/elements/IconButton';
+import { Icon } from '../app/components/elements/Icon';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import { Body1, Subheading } from '../app/components/elements/FontStyles';
 
@@ -43,7 +43,7 @@ export const Simple = () => {
   return (
     <React.Fragment>
       <Text color="text.primary">
-        <IconButton
+        <Icon
           label="info"
           icon={InfoRoundedIcon}
           {...(onHover() ? bindHover(popupState) : bindTrigger(popupState))}
