@@ -35,8 +35,11 @@ import utils from '../../core/utils';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
-  if (apiError && apiError.status) {
-    err.status = apiError.status;
+  if (apiError) {
+    err.originalError = apiError;
+    if (apiError.status){
+      err.status = apiError.status;
+    }
   }
   return err;
 }
