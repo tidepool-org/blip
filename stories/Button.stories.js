@@ -78,3 +78,30 @@ Secondary.story = {
     },
   },
 };
+
+export const Text = () => {
+  const buttonText = () => text('Button Text', 'Apply');
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="text"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Text.story = {
+  name: 'Text',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
+    },
+  },
+};
