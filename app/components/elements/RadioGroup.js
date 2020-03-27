@@ -46,14 +46,17 @@ const Radio = props => {
   });
 
   return (
-    <Label width="auto" mb="0.5em" alignItems="center">
+    <Label width="auto" mb={2} alignItems="center">
       <StyledRadio className={classNames} {...radioProps} />
       <StyledRadioLabel className={classNames} as="span">{label}</StyledRadioLabel>
     </Label>
   );
 };
 
-Radio.propTypes = RadioProps;
+Radio.propTypes = {
+  ...RadioProps,
+  label: PropTypes.string.isRequired,
+};
 
 export const RadioGroup = props => {
   const { disabled, id, label, name, options, value, variant, ...wrapperProps } = props;
@@ -64,12 +67,11 @@ export const RadioGroup = props => {
   return (
     <Box role="radiogroup" id={id} aria-labelledby={ariaLabelledBy} {...wrapperProps}>
       {label && (
-        <Label mb="0.5em" className="label" id={labelId}>
+        <Label mb={2} id={labelId}>
           <Caption>{label}</Caption>
         </Label>
       )}
       <Flex
-        className="options"
         justifyContent="flex-start"
         theme={baseTheme}
         variant={variant}

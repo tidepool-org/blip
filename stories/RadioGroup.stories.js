@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
@@ -16,11 +15,11 @@ const withTheme = Story => (
 );
 
 export default {
-  title: 'Radio Groups',
+  title: 'Radios',
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-export const RadioStory = () => {
+export const RadioGroupStory = () => {
   const radioOptions = [
     { value: '', label: 'None' },
     { value: 'one', label: 'One' },
@@ -61,7 +60,7 @@ export const RadioStory = () => {
   );
 };
 
-RadioStory.story = {
+RadioGroupStory.story = {
   name: 'Radio Group',
   parameters: {
     design: {
