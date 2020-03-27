@@ -31,4 +31,18 @@ export default ({ colors, borders, radii }) => ({
       color: colors.text.primaryDisabled,
     },
   },
+  text: {
+    backgroundColor: colors.white,
+    color: colors.text.primary,
+    border: 0,
+    borderRadius: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    '&:hover,&:active': {
+      color: colors.text.primarySubdued,
+    },
+    '&:disabled': {
+      color: colors.text.primaryDisabled,
+    },
+  },
 });
