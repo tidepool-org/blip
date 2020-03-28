@@ -488,6 +488,14 @@ describe('api', () => {
         sinon.assert.calledOnce(tidepool.logAppError);
         sinon.assert.calledWith(tidepool.logAppError, error, message, properties, cb);
       });
+
+      it('should log the originalError from an error object', () => {
+        const originalError = new Error('original');
+        const error = { originalError, other: 'property' };
+        api.errors.log(error);
+        sinon.assert.calledOnce(rollbar.error);
+        sinon.assert.calledWith(rollbar.error, originalError, { displayError: { other: 'property' }});
+      });
     });
   });
 });
