@@ -276,19 +276,18 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
         var events = {
           automatedStop: 0,
+          automatedStart: 0,
         };
 
         _.reduce(basalPathGroups, (acc, group) => {
           const event = group[0].deliveryType === 'automated' ? 'automatedStart' : 'automatedStop';
-          // For now, we're only tracking `automatedStop` events
-          if (event === 'automatedStop') {
-            acc[event]++;
-          }
+          acc[event]++;
           return acc;
         }, events);
 
         _.assign(dataForDate.subtotals, events);
         dataForDate.total += events.automatedStop;
+        dataForDate.total += events.automatedStart;
       }
 
       function countDistinctSuspendsForDay(dataForDate) {

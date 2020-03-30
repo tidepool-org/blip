@@ -585,14 +585,15 @@ describe('basics datamunger', function() {
         dm.reduceByDay(bd);
 
         expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(0);
-        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(1);
+        expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.automatedStart).to.equal(1);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
 
         // Add a scheduled basal to kick out of automode
         bd.data.basal.data.push({ type: 'basal', deliveryType: 'scheduled', normalTime: then, displayOffset: 0 });
         dm.reduceByDay(bd);
 
         expect(bd.data.basal.dataByDate['2015-01-01'].subtotals.automatedStop).to.equal(1);
-        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(2);
+        expect(bd.data.basal.dataByDate['2015-01-01'].total).to.equal(3);
       });
     });
 
