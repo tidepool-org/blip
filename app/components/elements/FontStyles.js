@@ -205,9 +205,7 @@ export const TopNavLink = Styled(NavLink)`
 
 export const TextLink = Styled(Link)`
   color: ${colors.text.link};
-  font-size: ${fontSizes[1]}px;
   font-family: ${fonts.default};
-  line-height: ${lineHeights[0]};
   text-decoration: none;
   &:hover {
     color: ${colors.text.link};
