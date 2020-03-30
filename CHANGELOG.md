@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.9.1 - 2020-03-30
+### Fixed
+- PT-1206 PT-1127 Have notes in first position on the daily screen, reverting PT-1100
+
 ## 1.9.0 - 2020-03-30
 ### Changed
 - PT-1198 remove unused items in Basics page
@@ -30,11 +34,8 @@ Library for Tidepool's timeline-style diabetes data visualization(s) used in Bli
 ### Fixed
 - PT-1108 All Diabeloop devices are considered as _automated basal_ models
 
-## 1.6.1 - 2020-02-11
-### Changed
-- PT-1090 Moving message notes to the bottom of the page 
-
 ## 1.6.0 - 2020-01-06
+
 ### Added
 - PT-882 Display reservoir change in Glycemia section
 
