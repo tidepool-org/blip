@@ -1,7 +1,7 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
-## Unreleased
+## 1.9.0 - 2020-03-30
 ### Changed
 - PT-1198 remove unused items in Basics page
 
