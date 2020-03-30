@@ -105,3 +105,30 @@ Text.story = {
     },
   },
 };
+
+export const Split = () => {
+  const buttonText = () => text('Button Text', 'Apply');
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="split"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Split.story = {
+  name: 'Split',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=987%3A145',
+    },
+  },
+};
