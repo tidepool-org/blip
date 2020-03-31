@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": true,
   "scripts": {
     "mrproper": "rm -rf dist node_modules coverage",
@@ -14,7 +14,7 @@
     "watchViz": "export NODE_OPTIONS='--max-old-space-size=4096' && cd ./packageMounts/@tidepool/viz && npm run start",
     "buildViz": "cd ./packageMounts/@tidepool/viz && npm run build-dev",
     "startWithViz": "npm run buildViz && ./node_modules/concurrently/bin/concurrently.js --kill-others --names viz,blip \"npm run watchViz\" \"npm run start\"",
-    "dblp": "NODE_ENV=development API_HOST='http://localhost:8009' SUPPORT_EMAIL_ADDRESS='support@tidepool.org' SUPPORT_WEB_ADDRESS='http://support.tidepool.org' ALLOW_SIGNUP_PATIENT=false ALLOW_PATIENT_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_PATIENT_CHANGE_PASSWORD=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=false BRANDING='diabeloop' ASSETS_URL='https://url.com/' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
+    "dblp": "NODE_ENV=development API_HOST='http://localhost:8009' SUPPORT_EMAIL_ADDRESS='yourloops@diabeloop.com' SUPPORT_WEB_ADDRESS='https://support.diabeloop.com/hc/categories/360001386093-YourLoops' ALLOW_SIGNUP_PATIENT=false ALLOW_PATIENT_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_PATIENT_CHANGE_PASSWORD=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=false BRANDING='diabeloop' ASSETS_URL='https://url.com/' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "NODE_ENV=production npm run build-app && npm run build-config",
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
@@ -138,7 +138,7 @@
     "source-map-loader": "0.2.4",
     "style-loader": "0.23.0",
     "sundial": "mdblp/sundial#dblp.0.1.0",
-    "tideline": "mdblp/tideline#dblp.1.7.2",
+    "tideline": "mdblp/tideline#dblp.1.9.1",
     "tidepool-platform-client": "0.41.0",
     "tidepool-standard-action": "0.1.1",
     "uglify-es": "3.3.9",

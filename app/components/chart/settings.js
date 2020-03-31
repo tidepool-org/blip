@@ -128,13 +128,11 @@ const Settings = translate()(React.createClass({
 
     return (
       <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data">
-        <p>The Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven't uploaded pump data yet.</p>
-        <p>To see your Device Settings, <a
-            href={this.props.uploadUrl}
-            target="_blank"
-            onClick={handleClickUpload}>upload</a> your pump.</p>
         <p>
-          If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
+          The System Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like your system hasn't sent data yet.
+        </p>
+        <p>
+          If you just checked it, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
         </p>
       </Trans>
     );
