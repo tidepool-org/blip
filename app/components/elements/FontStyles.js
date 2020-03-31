@@ -202,13 +202,3 @@ export const TopNavLink = Styled(NavLink)`
     text-decoration: none;
   }
 `;
-
-export const TextLink = Styled(Link)`
-  color: ${colors.text.link};
-  font-family: ${fonts.default};
-  text-decoration: none;
-  &:hover {
-    color: ${colors.text.link};
-    text-decoration: none;
-  }
-`;

@@ -23,11 +23,9 @@ const linkText = () => text('Link Text', 'Link Text');
 const link = () => text('URL', '');
 
 export const TextLinkStory = () => (
-  <React.Fragment>
-    <Link href={link()}>
-      {linkText()}
-    </Link>
-  </React.Fragment>
+  <Link href={link()}>
+    {linkText()}
+  </Link>
 );
 
 TextLinkStory.story = {
