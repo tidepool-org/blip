@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex } from 'rebass/styled-components';
+import { Flex, Text } from 'rebass/styled-components';
 import { Checkbox as Base, Label } from '@rebass/forms';
 import styled from 'styled-components';
+import cx from 'classnames';
 
 import {
   colors,
@@ -12,30 +13,45 @@ import {
 } from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
-  color: ${colors.purpleMedium};
+  color: ${colors.border.default};
+
+  &.checked {
+    color: ${colors.purpleMedium};
+    background-color: ${colors.white};
+  }
 `;
 
-const StyledLabel = styled(Label)`
+const StyledLabel = styled(Text)`
   font-size: ${fontSizes[1]}px;
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
-  padding: 0 0 0 8px;
+
   color: ${props => (props.color ? props.color : colors.text.primary)};
+
+  &.disabled {
+    color: ${colors.text.primaryDisabled};
+  }
 `;
 
 export const Checkbox = props => {
   const { disabled, name, label, checked, ...labelProps } = props;
 
+  const classNames = cx({
+    checked: props.checked,
+    disabled: props.disabled,
+  });
+
   return (
     <Label {...labelProps}>
       <Flex alignItems="center">
         <StyledCheckbox
+          className={classNames}
           disabled={disabled}
           id={name}
           name={name}
           checked={checked}
         />
-        <StyledLabel>{label}</StyledLabel>
+        <StyledLabel className={classNames}>{label}</StyledLabel>
       </Flex>
     </Label>
   );

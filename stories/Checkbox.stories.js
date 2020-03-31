@@ -13,10 +13,6 @@ import Checkbox2 from '../app/components/elements/Checkbox2';
 import CheckboxMaterial from '../app/components/elements/CheckboxMaterialUI';
 import { CheckboxGroupTitle } from '../app/components/elements/FontStyles';
 
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 
 const withTheme = Story => (
   <ThemeProvider theme={baseTheme}>
@@ -76,28 +72,13 @@ export const Checkbox2Story = () => {
   const handleCheckbox2 = (e) => setChecked2(e.target.checked);
 
   return (
-    <React.Fragment>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Label Placement</FormLabel>
-        <FormGroup aria-label="position" row>
-          <Checkbox2
-            checked={isChecked1}
-            disabled={disabled()}
-            name="my-checkbox-1"
-            label={labelText1()}
-            onChange={handleCheckbox1}
-          />
-          <Checkbox2
-            checked={isChecked2}
-            disabled={disabled()}
-            name="my-checkbox-2"
-            label={labelText2()}
-            onChange={handleCheckbox2}
-          />
-
-        </FormGroup>
-      </FormControl>
-    </React.Fragment>
+    <Checkbox2
+      checked={isChecked1}
+      disabled={disabled()}
+      name="my-checkbox-1"
+      label={labelText1()}
+      onChange={handleCheckbox1}
+  />
   );
 };
 
@@ -106,7 +87,7 @@ Checkbox2Story.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=51%3A153',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
     },
   },
 };
@@ -151,7 +132,7 @@ CheckboxMaterialStory.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=51%3A153',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
     },
   },
 };
