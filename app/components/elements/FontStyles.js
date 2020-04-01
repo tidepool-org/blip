@@ -203,17 +203,6 @@ export const TopNavLink = Styled(NavLink)`
   }
 `;
 
-export const TextLink = Styled(Link)`
-  color: ${colors.text.link};
-  text-decoration: none;
-  line-height: ${lineHeights[0]};
-  font-family: ${fonts.default};
-  &:hover {
-    color: ${colors.text.link};
-    text-decoration: none;
-  }
-`;
-
 export const CheckboxGroupTitle = Styled(Text)`
   font-size: ${fontSizes[0]}px;
   line-height: ${lineHeights[4]};
