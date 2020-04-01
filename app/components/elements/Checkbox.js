@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text } from 'rebass/styled-components';
-import { Checkbox as Base, Label } from '@rebass/forms';
+import { Text } from 'rebass/styled-components';
+import { Checkbox as Base, Label, CheckboxProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -9,19 +9,30 @@ import {
   colors,
   fonts,
   fontSizes,
-  fontWeights,
-} from '../../themes/baseTheme';
+  fontWeights } from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.border.default};
+  height: 1.5em;
+  width: 1.5em;
+  margin-right: .25em;
+
+  cursor: pointer;
 
   &.checked {
     color: ${colors.purpleMedium};
     background-color: ${colors.white};
+    height: 1.5em;
+    width: 1.5em;
+  }
+
+  &.disabled {
+    pointer-events: none;
+    color: ${colors.text.primaryDisabled};
   }
 `;
 
-const StyledLabel = styled(Text)`
+const StyledCheckboxLabel = styled(Text)`
   font-size: ${fontSizes[1]}px;
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
@@ -34,7 +45,7 @@ const StyledLabel = styled(Text)`
 `;
 
 export const Checkbox = props => {
-  const { disabled, name, label, checked, ...labelProps } = props;
+  const { label, ...checkboxProps } = props;
 
   const classNames = cx({
     checked: props.checked,
@@ -42,26 +53,19 @@ export const Checkbox = props => {
   });
 
   return (
-    <Label {...labelProps}>
-      <Flex alignItems="center">
-        <StyledCheckbox
-          className={classNames}
-          disabled={disabled}
-          id={name}
-          name={name}
-          checked={checked}
-        />
-        <StyledLabel className={classNames}>{label}</StyledLabel>
-      </Flex>
+    <Label width="auto" mb={2} alignItems="center">
+      <StyledCheckbox
+        className={classNames}
+        {...checkboxProps}
+      />
+      <StyledCheckboxLabel className={classNames} as="span">{label}</StyledCheckboxLabel>
     </Label>
   );
 };
 
 Checkbox.propTypes = {
-  name: PropTypes.string.isRequired,
+  ...CheckboxProps,
   label: PropTypes.string,
-  disabled: PropTypes.bool,
-  checked: PropTypes.bool,
 };
 
 Checkbox.defaultProps = {

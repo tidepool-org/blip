@@ -1,3 +1,5 @@
+/* eslint-disable no-confusing-arrow */
+
 import React from 'react';
 
 import styled from 'styled-components';
@@ -8,8 +10,6 @@ import {
   fontSizes,
   fontWeights,
 } from '../../themes/baseTheme';
-
-/* eslint-disable no-confusing-arrow */
 
 const CheckboxContainer = styled.div`
   display: inline-block;
