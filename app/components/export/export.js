@@ -64,7 +64,7 @@ export default translate()(class Export extends Component {
     if (this.state.allTime) {
       options = _.omit(options, ['endDate', 'startDate']);
     } else {
-      options.endDate = moment(this.state.endDate).utc().toISOString();
+      options.endDate = moment(this.state.endDate).endOf('day').utc().toISOString();
       options.startDate = moment(this.state.startDate).utc().toISOString();
     }
 
