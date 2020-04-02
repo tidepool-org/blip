@@ -202,12 +202,3 @@ export const TopNavLink = Styled(NavLink)`
     text-decoration: none;
   }
 `;
-
-export const CheckboxGroupTitle = Styled(Text)`
-  font-size: ${fontSizes[0]}px;
-  line-height: ${lineHeights[4]};
-  font-weight: ${fontWeights.medium};
-  font-family: ${fonts.default};
-  padding: 0;
-  color: ${props => (props.color ? props.color : colors.text.primary)};
-`;
