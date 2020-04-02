@@ -16,7 +16,6 @@ const StyledCheckbox = styled(Base)`
   height: 1.5em;
   width: 1.5em;
   margin-right: .25em;
-
   cursor: pointer;
 
   &.checked {
