@@ -16,6 +16,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
+import i18next from '../../core/language';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -51,6 +52,7 @@ import {
 const { Loader } = vizComponents;
 const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
+const t = i18next.t.bind(i18next);
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -198,7 +200,7 @@ export let PatientData = translate()(React.createClass({
     return this.renderChart();
   },
 
-  renderEmptyHeader: function(title = 'Preparing Chart Data') {
+  renderEmptyHeader: function(title = t('Preparing Chart Data')) {
     const { t } = this.props;
     return (
       <Header
