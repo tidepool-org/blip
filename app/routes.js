@@ -164,7 +164,9 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
         if (err.status === 401) {
           return cb();
         }
-        throw new Error('Error getting user at /email-verification');
+        const error = new Error('Error getting user at /email-verification');
+        error.originalError = err;
+        throw error;
       }
 
       checkIfVerified(user);

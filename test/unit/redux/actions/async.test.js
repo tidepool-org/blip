@@ -874,14 +874,14 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub' }, payload: { predicate: undefined } },
+          { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
           { type: '@@router/TRANSITION', payload: { args: [ '/' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
-        let store = mockStore({ blip: initialState });
+        let store = mockStore({ blip: { ...initialState, currentPatientInViewId: 'abc123' } });
         store.dispatch(async.logout(api));
 
         const actions = store.getActions();
@@ -2832,14 +2832,15 @@ describe('Actions', () => {
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
           { id: 26, value: 30.8, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
+          { type: 'upload', id: 'upload789', uploadId: '_upload789', time: '2018-06-01T00:00:00.000Z' },
+        ];
+
+        uploadRecord = [
+          { type: 'upload', id: 'upload123', uploadId: '_upload123', time: '2018-01-15T00:00:00.000Z'}
         ];
 
         teamNotes = [
           { id: 28, note: 'foo' }
-        ];
-
-        uploadRecord = [
-          { type: 'upload', id: 'upload123' }
         ];
 
         api = {
@@ -2939,7 +2940,7 @@ describe('Actions', () => {
           }).callCount).to.equal(1);
         });
 
-        it('should fetch the patient data 30 days prior to the latest datum time returned', () => {
+        it('should fetch the patient data 30 days prior to the latest diabetes datum time returned', () => {
           let store = mockStore({ blip: {
             ...initialState,
           }, routing: { location: { pathname: `data/${patientId}` } } });
@@ -2947,6 +2948,8 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           expect(api.patientData.get.callCount).to.equal(2);
+
+          // Should set the start date based on the latest smbg, even though the upload is more recent
           expect(api.patientData.get.withArgs(patientId, {
             ...options,
             startDate: '2017-12-31T00:00:00.000Z',
@@ -2975,10 +2978,10 @@ describe('Actions', () => {
               { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
               {
                 type: 'DATA_WORKER_ADD_DATA_REQUEST',
-                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub' },
+                meta: { WebWorker: true, worker: 'data', origin: 'http://originStub', patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
-                  fetchedCount: 4,
+                  fetchedCount: 5,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,

@@ -60,9 +60,9 @@ class BgLogChart extends Component {
     this.log = bows('BgLog Chart');
   }
 
-  mount = () => {
+  mount = (props = this.props) => {
     this.mountChart(ReactDOM.findDOMNode(this));
-    this.initializeChart(this.props.data, this.props.initialDatetimeLocation);
+    this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
   };
 
   componentWillUnmount = () => {
@@ -82,10 +82,10 @@ class BgLogChart extends Component {
     this.chart.destroy();
   };
 
-  remountChart = () => {
+  remountChart = (props = this.props) => {
     this.log('Remounting...');
     this.unmountChart();
-    this.mount();
+    this.mount(props);
     this.chart.emitter.emit('inTransition', false);
   }
 
@@ -94,6 +94,11 @@ class BgLogChart extends Component {
     this.chart.clear();
     this.bindEvents();
     this.chart.load(props.data, props.initialDatetimeLocation);
+    if (props.showingValues) {
+      this.showValues();
+    } else {
+      this.hideValues();
+    }
   };
 
   bindEvents = () => {
@@ -103,7 +108,7 @@ class BgLogChart extends Component {
     this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
   };
 
-  initializeChart = (data, datetimeLocation) => {
+  initializeChart = (data, datetimeLocation, showingValues) => {
     this.log('Initializing...');
     if (_.isEmpty(data)) {
       throw new Error('Cannot create new chart with no data');
@@ -115,7 +120,8 @@ class BgLogChart extends Component {
     else {
       this.chart.load(data);
     }
-    if (this.props.isClinicAccount){
+
+    if (this.props.isClinicAccount || showingValues) {
       this.chart.showValues();
     }
   };
@@ -210,7 +216,11 @@ class BgLog extends Component {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
-      this.refs.chart.rerenderChart(nextProps);
+      this.refs.chart.rerenderChart(_.assign(
+        {},
+        nextProps,
+        { showingValues: this.state.showingValues },
+      ));
     }
   };
 
@@ -345,7 +355,11 @@ class BgLog extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.remountChart();
+    this.refs.chart && this.refs.chart.remountChart(_.assign(
+      {},
+      this.props,
+      { showingValues: this.state.showingValues },
+    ));
   };
 
   isMissingSMBG = () => _.isEmpty(_.get(this.props, 'data.metaData.latestDatumByType.smbg'));
@@ -366,8 +380,6 @@ class BgLog extends Component {
     if (e) {
       e.preventDefault();
     }
-
-    this.setState({showingValues: false});
 
     const chartDays = _.get(this.refs, 'chart.chart.days', []);
 
@@ -418,8 +430,7 @@ class BgLog extends Component {
     const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .subtract(1, 'day')
-      .hours(12)
+      .subtract(12, 'hours')
       .toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
