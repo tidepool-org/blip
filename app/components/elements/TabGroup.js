@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box, BoxProps } from 'rebass/styled-components';
-import { default as TabsBase, TabsProps } from '@material-ui/core/Tabs';
-import { default as TabBase, TabProps } from '@material-ui/core/Tab';
+import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
 
-export function tabProps(id, index, disabled) {
+function tabProps(id, index, disabled) {
   return {
     id: `${id}-tab-${index}`,
     'aria-controls': `${id}-tab-panel-${index}`,
@@ -14,7 +14,7 @@ export function tabProps(id, index, disabled) {
   };
 }
 
-export function tabPanelProps(id, index, selectedIndex) {
+function tabPanelProps(id, index, selectedIndex) {
   return {
     role: 'tabpanel',
     hidden: selectedIndex !== index,
@@ -23,15 +23,11 @@ export function tabPanelProps(id, index, selectedIndex) {
   };
 }
 
-const StyledTab = styled(TabBase)`
+const StyledTab = styled(Tab)`
 
 `;
 
-export const Tab = props => <StyledTab {...props} />;
-
-Tab.propTypes = TabProps;
-
-const StyledTabGroup = styled(TabsBase)`
+const StyledTabGroup = styled(Tabs)`
 
 `;
 
