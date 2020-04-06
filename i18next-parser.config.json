@@ -5,5 +5,5 @@
     "js": ["JavascriptLexer", "JsxLexer"]
   },
   "sort": true,
-  "locales": ["en", "fr","es"]
+  "locales": ["en", "fr", "es"]
 }

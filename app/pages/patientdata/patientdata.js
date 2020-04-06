@@ -47,7 +47,6 @@ import {
 const { Loader } = vizComponents;
 const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
-const t = i18next.t.bind(i18next);
 
 export let PatientData = translate()(React.createClass({
   propTypes: {
@@ -194,14 +193,15 @@ export let PatientData = translate()(React.createClass({
     return this.renderChart();
   },
 
-  renderEmptyHeader: function(title = t('Preparing Chart Data')) {
+  renderEmptyHeader: function(title) {
     const { t } = this.props;
+    const headerTitle = title || t('Preparing Chart Data');
     return (
       <Header
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t(title)}
+        title={t(headerTitle)}
         ref="header" />
       );
   },
