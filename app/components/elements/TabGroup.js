@@ -6,23 +6,6 @@ import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
 
-function tabProps(id, index, disabled) {
-  return {
-    id: `${id}-tab-${index}`,
-    'aria-controls': `${id}-tab-panel-${index}`,
-    disabled,
-  };
-}
-
-function tabPanelProps(id, index, selectedIndex) {
-  return {
-    role: 'tabpanel',
-    hidden: selectedIndex !== index,
-    id: `${id}-tab-panel-${index}`,
-    'aria-labelledby': `${id}-tab-${index}`,
-  };
-}
-
 const StyledTab = styled(Tab)`
 
 `;
@@ -44,15 +27,26 @@ export const TabGroup = props => {
     <React.Fragment>
       <StyledTabGroup {...tabGroupProps}>
         {map(tabs, ({ label, disabled }, index) => (
-          <StyledTab label={label} {...tabProps(id, index, disabled)} />
+          <StyledTab
+            label={label}
+            id={`${id}-tab-${index}`}
+            aria-controls={`${id}-tab-panel-${index}`}
+            disabled={disabled}
+          />
         ))}
       </StyledTabGroup>
+
       {children.map((Child, index) => (
-        React.cloneElement(Child, tabPanelProps(id, index, selectedTabIndex))
+        React.cloneElement(Child, {
+          role: 'tabpanel',
+          hidden: selectedTabIndex !== index,
+          id: `${id}-tab-panel-${index}`,
+          'aria-labelledby': `${id}-tab-${index}`,
+        })
       ))}
     </React.Fragment>
   );
-}
+};
 
 TabGroup.propTypes = {
   ...TabsProps,
@@ -66,7 +60,7 @@ TabGroup.propTypes = {
 };
 
 TabGroup.defaultProps = {
-  selectedTabIndex: 0,
+  value: 0,
   variant: 'tabs.horizontal',
 }
 
