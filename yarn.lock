@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.11.3-rc.1":
-  version "1.11.3-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.3-rc.1.tgz#42445d3d8a4874ff4638ccbb0fe6803bd60ceac3"
-  integrity sha512-WmQbZBakLeGPONASjFCoBqMtGuQi92srq9n2VgriUM07cPxYGtlNYapLN34yFhgxaAN7QIkReQtg9ZuxeJ6J+Q==
+"@tidepool/viz@1.11.3":
+  version "1.11.3"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.3.tgz#033fb29a2634dc350b281a74d02d1fa2fa501662"
+  integrity sha512-idz2Ix2OeKGb1zU0mBKwwEL1cTjTJMQ891NTnITGY5sO9UnczAfTxNXs4jVhawUe4U7i6Svji0OHkmaguHTLAA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
