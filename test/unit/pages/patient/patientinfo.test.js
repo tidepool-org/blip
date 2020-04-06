@@ -842,8 +842,86 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.about).to.be.an('undefined');
     });
 
-    it('should prepare full form and return expected values', function() {
+    it('should remove empty mrn field if user account is clinician', function() {
       var props = {
+        user: {
+          roles: ['clinic'],
+        },
+        patient: {
+          profile : {
+            patient: {
+              mrn: 'abcd1234'
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
+      var formValues = {
+        mrn: '',
+      };
+      var result = elem.prepareFormValuesForSubmit(formValues);
+
+      expect(result.profile.patient.mrn).to.be.an('undefined');
+    });
+
+    it('should not remove empty mrn field for non-clinical users', function() {
+      var props = {
+        patient: {
+          profile : {
+            patient: {
+              mrn: 'abcd1234',
+            },
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
+      var formValues = {};
+      var result = elem.prepareFormValuesForSubmit(formValues);
+
+      expect(result.profile.patient.mrn).to.equal('abcd1234');
+    });
+
+    it('should prepare full form and return expected values for normal user', function() {
+      var props = {
+        patient: {
+          profile : {
+            patient: {},
+          },
+        },
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem).getWrappedInstance();
+      var formValues = {
+        about: 'I am a testing developer.',
+        birthday: '02-02-1990',
+        diagnosisDate: '04-05-2001',
+        diagnosisType: 'type1',
+        email: 'exampleEmail@example.com',
+      };
+      var result = elem.prepareFormValuesForSubmit(formValues);
+
+      expect(result.profile.patient.about).to.equal('I am a testing developer.');
+      expect(result.profile.patient.birthday).to.equal('1990-02-02');
+      expect(result.profile.patient.diagnosisDate).to.equal('2001-04-05');
+      expect(result.profile.patient.diagnosisType).to.equal('type1');
+      expect(result.emails).to.have.length(1);
+      expect(result.emails[0]).to.equal('exampleEmail@example.com');
+      expect(result.username).to.equal('exampleEmail@example.com');
+      expect(result.profile.emails).to.have.length(1)
+      expect(result.profile.emails[0]).to.equal('exampleEmail@example.com');
+      expect(result.profile.patient.email).to.equal('exampleEmail@example.com');
+    });
+
+    it('should prepare full form and return expected values for clinic', function() {
+      var props = {
+        user: {
+          roles: ['clinic'],
+        },
         patient: {
           profile : {
             patient: {},
@@ -1038,7 +1116,7 @@ describe('PatientInfo', function () {
     });
   });
 
-  describe.skip('renderExport', function() {
+  describe('renderExport', function() {
     it('should render the export UI', function(){
       expect(wrapper.find('.PatientPage-export')).to.have.length(1);
     })
