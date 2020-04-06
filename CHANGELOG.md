@@ -3,6 +3,11 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 # unreleased
+### Changed
+- PT-1093 Search Page: remove date of birth as filter
+- PT-1094 Search Page: remove the persona icon next to the patient name
+- PT-1194 Search Page: add a way to open the patient page in a new tab
+
 ### Fixed
 - PT-1157 Revert temporary fix PT-1115
 
