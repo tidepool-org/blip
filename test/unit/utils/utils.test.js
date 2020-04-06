@@ -395,11 +395,10 @@ describe('utils', () => {
   });
 
   describe('getTimezoneForDataProcessing', () => {
-    // temporary change until we have consistent upload data
     const data = [
-      { type: 'undefined', time: '2018-01-02T00:00:00.000Z', timezone: 'US/Eastern' },
+      { type: 'upload', time: '2018-01-02T00:00:00.000Z', timezone: 'US/Eastern' },
       { type: 'smbg', time: '2018-01-10T00:00:00.000Z', timezone: 'US/Central' },
-      { type: 'undefined', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' },
+      { type: 'upload', time: '2018-02-02T00:00:00.000Z', timezone: 'US/Pacific' },
     ];
 
     const queryParams = {};
@@ -456,7 +455,7 @@ describe('utils', () => {
       it('should fall back to browser time when given an invalid timezone', () => {
         const dataWithInvalidTimezone = data.slice();
         dataWithInvalidTimezone.push({
-          type: 'undefined',
+          type: 'upload',
           time: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
         });
@@ -478,7 +477,7 @@ describe('utils', () => {
       it('should fall back to timezone-naive display time when given an invalid timezone and cannot determine timezone from browser', () => {
         const dataWithInvalidTimezone = data.slice();
         dataWithInvalidTimezone.push({
-          type: 'undefined',
+          type: 'upload',
           time: '2018-02-10T00:00:00.000Z',
           timezone: 'invalid',
         });
@@ -495,7 +494,7 @@ describe('utils', () => {
       });
     });
 
-    context('Timezone not provided from query params or most recent upload/undefined', () => {
+    context('Timezone not provided from query params or most recent upload', () => {
       it('should fall back to browser timezone if available', () => {
         const DateTimeFormatStub = sinon.stub(Intl, 'DateTimeFormat').returns({
           resolvedOptions: () => {
