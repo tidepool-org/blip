@@ -219,6 +219,7 @@ export function login(api, credentials, options, postLoginAction) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
+    options = options || {remember : true};
     api.user.login(credentials, options, (err) => {
       if (err) {
         let error = null;

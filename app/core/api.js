@@ -43,7 +43,7 @@ api.init = function(cb) {
       info: tidepoolLog,
       debug: tidepoolLog
     },
-    localStore: window.localStorage,
+    localStore: window.sessionStorage,
     metricsSource: 'blip',
     metricsVersion: config.VERSION
   });

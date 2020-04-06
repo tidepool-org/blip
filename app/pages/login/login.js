@@ -53,8 +53,7 @@ export let Login = translate()(React.createClass({
 
     return [
       { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', placeholder: t('Password'), type: pwdType },
-      { name: 'remember', label: t('Remember me'), type: 'checkbox' }
+      { name: 'password', placeholder: t('Password'), type: pwdType }
     ];
   },
 
@@ -257,9 +256,6 @@ export let Login = translate()(React.createClass({
       user: {
         username: formValues.username,
         password: formValues.password
-      },
-      options: {
-        remember: formValues.remember
       }
     };
   },

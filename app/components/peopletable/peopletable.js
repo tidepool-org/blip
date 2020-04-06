@@ -27,15 +27,34 @@ import { translate, Trans } from 'react-i18next';
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../modaloverlay';
+import { Link } from 'react-router';
 
 const resetSearchImageSrc = require('./images/searchReset.png');
 
-const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
+const TextCell = ({ rowIndex, data, col, icon, title, t, track, ...props }) => (
   <Cell {...props}>
     <div className="peopletable-cell">
       {icon}
       <div className="peopletable-cell-content">
         {data[rowIndex][col]}
+      </div>
+      <div 
+        onClick={
+          (e) => {
+            track('Selected PWD in new tab');
+            e.stopPropagation()}
+        } 
+        className="peopletable-cell-content-svg">
+        <Link 
+          title={t(title, {patient: data[rowIndex][col]})} 
+          to={data[rowIndex].link}  
+          target="_blank">
+            <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 1H4a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V8h-1v5a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1h5V1z"/>
+              <path fillRule="evenodd" d="M13.5 1a.5.5 0 01.5.5v2a.5.5 0 01-.5.5h-2a.5.5 0 010-1H13V1.5a.5.5 0 01.5-.5z" fillRule="evenodd"/>
+              <path fillRule="evenodd" d="M13 3.5a.5.5 0 01.5-.5h2a.5.5 0 010 1H14v1.5a.5.5 0 01-1 0v-2z" fillRule="evenodd"/>
+          </svg>
+        </Link>
       </div>
     </div>
   </Cell>
@@ -46,6 +65,9 @@ TextCell.propTypes = {
   data: PropTypes.array,
   rowIndex: PropTypes.number,
   icon: PropTypes.object,
+  title: PropTypes.string,
+  t: PropTypes.func,
+  track: PropTypes.func,
 };
 
 const RemoveLinkCell = ({ rowIndex, data, handleClick, title, ...props }) => (
@@ -293,11 +315,11 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     switch (true) {
 
       case (windowSize.windowWidth < 480):
-        tableWidth = windowSize.windowWidth - 20;
+        tableWidth = windowSize.windowWidth - 35;
         break;
 
       case (windowSize.windowWidth < 934):
-        tableWidth = windowSize.windowWidth - 60;
+        tableWidth = windowSize.windowWidth - 75;
         break;
     }
 
@@ -311,7 +333,9 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     const { colSortDirs, dataList, tableWidth, tableHeight } = this.state;
 
     const title = t('I want to quit this patient\'s care team');
+    const newTabTitle = 'open {{patient}} in a new tab';
 
+    console.log(dataList);
     return (
       <Table
         rowHeight={65}
@@ -337,28 +361,12 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
             className="fullName"
             data={dataList}
             col="fullName"
-            icon={<i className="peopletable-icon-profile icon-profile"></i>}
+            title={newTabTitle}
+            t={t}
+            track={this.props.trackMetric}
           />}
-          width={20}
+          width={50}
           flexGrow={1}
-        />
-
-        <Column
-          columnKey="birthdayOrderable"
-          header={
-            <SortHeaderCell
-              onSortChange={this.handleSortChange}
-              sortDir={colSortDirs.birthdayOrderable}
-            >
-              {t('BIRTHDAY')}
-            </SortHeaderCell>
-          }
-          cell={<TextCell
-            data={dataList}
-            col="birthday"
-          />}
-          width={120}
-          flexGrow={0}
         />
 
         <Column

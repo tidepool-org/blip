@@ -152,6 +152,7 @@
   box-sizing: border-box;
   display: block;
   padding: 20px 8px 8px;
+  display: table;
   width: 100%;
 }
 
@@ -162,6 +163,28 @@
   white-space: nowrap;
   font-size: 18px;
   line-height: 1.5em;
+  // display: inline-block;
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.svg {
+  display: inline-block;
+}
+
+
+.peopletable-cell-content-svg {
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  line-height: 1.5em;
+  display: table-cell;
+  text-align: right;
+  vertical-align: middle;
+  width: 15px;
 }
 
 .fullname .peopletable-cell-content {

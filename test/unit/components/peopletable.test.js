@@ -126,7 +126,7 @@ describe('PeopleTable', () => {
   describe('sorting', function () {
     it('should find 2 sort links', function () {
       const links = wrapper.find('.peopletable-search-icon');
-      expect(links).to.have.length(2);
+      expect(links).to.have.length(1);
     });
 
     it('should trigger a call to trackMetric with correct parameters', function () {
