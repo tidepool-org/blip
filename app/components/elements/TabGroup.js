@@ -52,9 +52,7 @@ export const TabGroup = props => {
         ))}
       </StyledTabGroup>
       {children.map((Child, index) => (
-        <Box {...tabPanelProps(id, index, selectedTabIndex)}>
-          {Child}
-        </Box>
+        React.cloneElement(Child, tabPanelProps(id, index, selectedTabIndex))
       ))}
     </React.Fragment>
   );
