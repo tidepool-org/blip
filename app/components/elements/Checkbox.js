@@ -13,9 +13,10 @@ import {
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.border.default};
-  height: 1.5em;
-  width: 1.5em;
-  margin-right: .25em;
+  height: 1em;
+  width: 1em;
+  padding: 0;
+  margin-right: 0.5em;
   cursor: pointer;
 
   &.checked {
@@ -68,7 +69,7 @@ Checkbox.propTypes = {
 };
 
 Checkbox.defaultProps = {
-  width: [1/2, 1/4], // eslint-disable-line space-infix-ops
+  width: ['50%', '25%'], // eslint-disable-line space-infix-ops
   p: 1,
 };
 
