@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box } from 'rebass/styled-components';
 import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
@@ -25,7 +25,7 @@ export const TabGroup = props => {
 
   return (
     <React.Fragment>
-      <StyledTabGroup {...tabGroupProps}>
+      <StyledTabGroup className="tabs" {...tabGroupProps}>
         {map(tabs, ({ label, disabled }, index) => (
           <StyledTab
             label={label}
@@ -35,15 +35,16 @@ export const TabGroup = props => {
           />
         ))}
       </StyledTabGroup>
-
-      {children.map((Child, index) => (
-        React.cloneElement(Child, {
-          role: 'tabpanel',
-          hidden: selectedTabIndex !== index,
-          id: `${id}-tab-panel-${index}`,
-          'aria-labelledby': `${id}-tab-${index}`,
-        })
-      ))}
+      <Box className="tab-panels">
+        {map(children, (Child, index) => (
+          React.cloneElement(Child, {
+            role: 'tabpanel',
+            hidden: selectedTabIndex !== index,
+            id: `${id}-tab-panel-${index}`,
+            'aria-labelledby': `${id}-tab-${index}`,
+          })
+        ))}
+      </Box>
     </React.Fragment>
   );
 };
@@ -62,6 +63,6 @@ TabGroup.propTypes = {
 TabGroup.defaultProps = {
   value: 0,
   variant: 'tabs.horizontal',
-}
+};
 
 export default TabGroup;

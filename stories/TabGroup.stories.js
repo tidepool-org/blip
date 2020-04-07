@@ -1,16 +1,11 @@
 import React from 'react';
-
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
+import { Box } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
-import {TabGroup, tabProps, tabPanelProps} from '../app/components/elements/TabGroup';
-
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-
-import { Box } from 'rebass/styled-components';
+import TabGroup from '../app/components/elements/TabGroup';
 
 /* eslint-disable max-len */
 
@@ -26,7 +21,7 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const tabDisabled = i => boolean(`Tab ${i+1} Disabled`, false);
+const tabDisabled = i => boolean(`Tab ${i + 1} Disabled`, false);
 
 export const TabGroupStory = () => {
   const [selected, setSelected] = React.useState(0);
@@ -40,15 +35,15 @@ export const TabGroupStory = () => {
     tabs: [
       {
         label: 'One',
-        disabled: tabDisabled(0)
+        disabled: tabDisabled(0),
       },
       {
         label: 'Two',
-        disabled: tabDisabled(1)
+        disabled: tabDisabled(1),
       },
       {
         label: 'Three',
-        disabled: tabDisabled(2)
+        disabled: tabDisabled(2),
       },
     ],
     onChange: handleChange,
