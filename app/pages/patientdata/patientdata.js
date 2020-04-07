@@ -201,7 +201,7 @@ export let PatientData = translate()(React.createClass({
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t(headerTitle)}
+        title={headerTitle}
         ref="header" />
       );
   },
