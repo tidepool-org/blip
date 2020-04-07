@@ -62,6 +62,7 @@ TabGroup.propTypes = {
   id: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.number.isRequired,
+  variant: PropTypes.oneOf(['horizontal', 'vertical']),
   themeProps: PropTypes.shape({
     wrapper: PropTypes.shape(FlexProps),
     panel: PropTypes.shape(BoxProps),
