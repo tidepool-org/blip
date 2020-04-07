@@ -21,6 +21,7 @@ export const colors = {
   border: {
     default: colorPalette.extended.grays[1],
     modal: colorPalette.extended.grays[0],
+    divider: colorPalette.extended.grays[0],
   },
 };
 
@@ -28,6 +29,7 @@ export const borders = {
   default: `1px solid ${colors.border.default}`,
   input: `1px solid ${colors.border.default}`,
   modal: `1px solid ${colors.border.modal}`,
+  divider: `2px solid ${colors.border.divider}`,
 };
 
 export const fonts = {
@@ -73,7 +75,7 @@ export const transitions = {
 export const zIndices = [0, 10, 100, 1000];
 
 const linkVariants = links({ colors, fonts });
-const tabGroupVariants = tabGroups({ colors, fonts });
+const tabGroupVariants = tabGroups({ borders, colors, fonts, fontWeights, fontSizes });
 
 const variants = {
   icons: icons({ colors, fontSizes, radii, space }),

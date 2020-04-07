@@ -3,9 +3,12 @@ import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
+import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
+import NotificationsRoundedIcon from '@material-ui/icons/NotificationsRounded';
 
 import baseTheme from '../app/themes/baseTheme';
 import TabGroup from '../app/components/elements/TabGroup';
+import Icon from '../app/components/elements/Icon';
 
 /* eslint-disable max-len */
 
@@ -28,7 +31,7 @@ const orientations = {
   Vertical: 'vertical',
 };
 
-const orientation = () => options('Tabs Orientation', orientations, 'vertical', { display: 'inline-radio' });
+const orientation = () => options('Tabs Orientation', orientations, 'horizontal', { display: 'inline-radio' });
 
 export const TabGroupStory = () => {
   const [selected, setSelected] = React.useState(0);
@@ -44,10 +47,11 @@ export const TabGroupStory = () => {
         disabled: tabDisabled(0),
       },
       {
-        label: 'Two',
+        icon: <Icon label="notifications" icon={NotificationsRoundedIcon} />,
         disabled: tabDisabled(1),
       },
       {
+        icon: <Icon label="more" icon={MoreHorizRoundedIcon} />,
         label: 'Three',
         disabled: tabDisabled(2),
       },
@@ -58,9 +62,18 @@ export const TabGroupStory = () => {
     onChange: handleChange,
     value: selected,
     themeProps: {
-      wrapper: { color: 'green' },
-      panel: { color: 'orange' },
-      tabs: { color: 'purple' },
+      wrapper: {
+        margin: 2,
+        sx: {
+          border: '1px solid #eee',
+        },
+      },
+      panel: {
+        padding: 3,
+        minHeight: '20em',
+      },
+      tabs: {
+      },
     },
   };
 

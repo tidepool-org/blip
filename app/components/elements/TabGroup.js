@@ -6,12 +6,50 @@ import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
 
-const StyledTab = styled(Tab)`
+import { colors, space } from '../../themes/baseTheme';
 
-`;
+const StyledTab = styled(Tab)`
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  min-height: auto;
+  text-transform: none;
+
+  &.Mui-selected {
+    color: ${colors.text.link};
+  },
+
+  &:hover {
+    background-color: ${colors.lightestGrey};
+  }
+
+  .MuiTab-wrapper {
+    flex-direction: row;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+
+    > span {
+      color: inherit;
+    }
+
+    > *:first-child {
+      margin-bottom: 0;
+      margin-right: ${space[2]}px;
+    }
+  }
+  `;
 
 const StyledTabGroup = styled(Tabs)`
+  min-height: auto;
 
+  &.MuiTabs-root, .MuiTabs-fixed {
+    overflow: visible !important;
+  }
+
+  .MuiTabs-indicator {
+    background-color: ${colors.text.link};
+  }
 `;
 
 export const TabGroup = props => {
@@ -29,13 +67,15 @@ export const TabGroup = props => {
     <Flex variant={`tabGroups.${variant}`} {...themeProps.wrapper}>
       <Box {...themeProps.tabs}>
         <StyledTabGroup className="tabs" orientation={variant} value={selectedTabIndex} {...tabGroupProps}>
-          {map(tabs, ({ label, disabled }, index) => (
+          {map(tabs, ({ label, icon, disabled }, index) => (
             <StyledTab
               key={index}
               label={label}
+              icon={icon}
               id={`${id}-tab-${index}`}
               aria-controls={`${id}-tab-panel-${index}`}
               disabled={disabled}
+              disableRipple
             />
           ))}
         </StyledTabGroup>
@@ -69,7 +109,8 @@ TabGroup.propTypes = {
     tabs: PropTypes.shape(BoxProps),
   }),
   tabs: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
+    icon: PropTypes.elementType,
     disabled: PropTypes.bool,
   })),
 };
