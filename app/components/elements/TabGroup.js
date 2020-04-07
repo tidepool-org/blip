@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Box } from 'rebass/styled-components';
+import { Box, Flex, BoxProps, FlexProps } from 'rebass/styled-components';
 import { default as Tabs, TabsProps } from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import map from 'lodash/map';
@@ -16,28 +16,34 @@ const StyledTabGroup = styled(Tabs)`
 
 export const TabGroup = props => {
   const {
-    id,
     tabs,
     children,
+    id,
     value: selectedTabIndex,
+    themeProps,
+    variant,
     ...tabGroupProps
   } = props;
 
   return (
-    <React.Fragment>
-      <StyledTabGroup className="tabs" {...tabGroupProps}>
-        {map(tabs, ({ label, disabled }, index) => (
-          <StyledTab
-            label={label}
-            id={`${id}-tab-${index}`}
-            aria-controls={`${id}-tab-panel-${index}`}
-            disabled={disabled}
-          />
-        ))}
-      </StyledTabGroup>
-      <Box className="tab-panels">
+    <Flex variant={`tabGroups.${variant}`} {...themeProps.wrapper}>
+      <Box {...themeProps.tabs}>
+        <StyledTabGroup className="tabs" orientation={variant} value={selectedTabIndex} {...tabGroupProps}>
+          {map(tabs, ({ label, disabled }, index) => (
+            <StyledTab
+              key={index}
+              label={label}
+              id={`${id}-tab-${index}`}
+              aria-controls={`${id}-tab-panel-${index}`}
+              disabled={disabled}
+            />
+          ))}
+        </StyledTabGroup>
+      </Box>
+      <Box className="tab-panels" {...themeProps.panel}>
         {map(children, (Child, index) => (
           React.cloneElement(Child, {
+            key: index,
             role: 'tabpanel',
             hidden: selectedTabIndex !== index,
             id: `${id}-tab-panel-${index}`,
@@ -45,15 +51,22 @@ export const TabGroup = props => {
           })
         ))}
       </Box>
-    </React.Fragment>
+    </Flex>
   );
 };
 
 TabGroup.propTypes = {
+  ...BoxProps,
   ...TabsProps,
-  id: PropTypes.string.isRequired,
   'aria-label': PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
   value: PropTypes.number.isRequired,
+  themeProps: PropTypes.shape({
+    wrapper: PropTypes.shape(FlexProps),
+    panel: PropTypes.shape(BoxProps),
+    tabs: PropTypes.shape(BoxProps),
+  }),
   tabs: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
@@ -62,7 +75,7 @@ TabGroup.propTypes = {
 
 TabGroup.defaultProps = {
   value: 0,
-  variant: 'tabs.horizontal',
+  variant: 'horizontal',
 };
 
 export default TabGroup;

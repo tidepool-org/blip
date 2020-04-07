@@ -1,6 +1,6 @@
 import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean } from '@storybook/addon-knobs';
+import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
 
@@ -23,6 +23,13 @@ export default {
 
 const tabDisabled = i => boolean(`Tab ${i + 1} Disabled`, false);
 
+const orientations = {
+  Horizontal: 'horizontal',
+  Vertical: 'vertical',
+};
+
+const orientation = () => options('Tabs Orientation', orientations, 'vertical', { display: 'inline-radio' });
+
 export const TabGroupStory = () => {
   const [selected, setSelected] = React.useState(0);
 
@@ -30,8 +37,7 @@ export const TabGroupStory = () => {
     setSelected(newValue);
   };
 
-  const tabGroupProps = {
-    id: 'my-tab-group',
+  const props = {
     tabs: [
       {
         label: 'One',
@@ -46,13 +52,20 @@ export const TabGroupStory = () => {
         disabled: tabDisabled(2),
       },
     ],
+    variant: orientation(),
+    'aria-label': 'My Tab Group',
+    id: 'my-tab-group',
     onChange: handleChange,
     value: selected,
-    'aria-label': 'My Tab Group',
+    themeProps: {
+      wrapper: { color: 'green' },
+      panel: { color: 'orange' },
+      tabs: { color: 'purple' },
+    },
   };
 
   return (
-    <TabGroup {...tabGroupProps}>
+    <TabGroup {...props}>
       <Box>
         Content 1
       </Box>
