@@ -31,7 +31,13 @@ const orientations = {
   Vertical: 'vertical',
 };
 
+const backgrounds = {
+  None: 'transparent',
+  'Light Grey': 'lightGrey',
+};
+
 const orientation = () => options('Tabs Orientation', orientations, 'horizontal', { display: 'inline-radio' });
+const background = () => options('Tabs Background', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const TabGroupStory = () => {
   const [selected, setSelected] = React.useState(0);
@@ -55,6 +61,15 @@ export const TabGroupStory = () => {
         label: 'Three',
         disabled: tabDisabled(2),
       },
+      {
+        label: 'Four',
+      },
+      {
+        label: 'Five',
+      },
+      {
+        label: 'Six',
+      },
     ],
     variant: orientation(),
     'aria-label': 'My Tab Group',
@@ -73,6 +88,7 @@ export const TabGroupStory = () => {
         minHeight: '20em',
       },
       tabs: {
+        backgroundColor: background(),
       },
     },
   };
@@ -87,6 +103,15 @@ export const TabGroupStory = () => {
       </Box>
       <Box>
         Content 3
+      </Box>
+      <Box>
+        Content 4
+      </Box>
+      <Box>
+        Content 5
+      </Box>
+      <Box>
+        Content 6
       </Box>
     </TabGroup>
   );
