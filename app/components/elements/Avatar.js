@@ -9,7 +9,6 @@ import {
   fontWeights } from '../../themes/baseTheme';
 
 const StyledAvatar = styled.div`
-  background-color: #FAE2E2;
   display: flex;
   height: 32px;
   width: 32px;
@@ -26,10 +25,13 @@ const Initials = styled(Text)`
 `;
 
 const Avatar = (props) => {
-  const { initials } = props;
+  const { initials, bgColor } = props;
 
   return (
-    <StyledAvatar><Initials>{initials}</Initials></StyledAvatar>
+    <StyledAvatar
+      style={{ backgroundColor: bgColor }}>
+      <Initials>{initials}</Initials>
+    </StyledAvatar>
   );
 };
 

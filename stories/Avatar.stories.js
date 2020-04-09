@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { withKnobs, text, color } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -19,9 +19,11 @@ export default {
 };
 
 const initials = () => text('Initials', 'JJ');
+const bgColor = () => color('Background Color', '#FAE2E2');
 
 export const AvatarStory = () => (
   <Avatar
+    bgColor={bgColor()}
     initials={initials()}
   />
 );
