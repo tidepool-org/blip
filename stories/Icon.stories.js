@@ -71,7 +71,7 @@ Static.story = {
 export const Button = () => (
   <React.Fragment>
     <Icon
-      variant="icons.button"
+      variant="button"
       sx={{
         mr: '10px',
       }}
@@ -81,7 +81,7 @@ export const Button = () => (
       disabled={disabled()}
     />
     <Icon
-      variant="icons.button"
+      variant="button"
       color="mediumPurple"
       mr="10px"
       label="More"
@@ -90,7 +90,7 @@ export const Button = () => (
       disabled={disabled()}
     />
     <Icon
-      variant="icons.button"
+      variant="button"
       sx={{
         fontSize: '40px',
       }}

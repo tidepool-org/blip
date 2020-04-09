@@ -55,7 +55,7 @@ export const RadioGroupStory = () => {
       options={radioOptions}
       value={selected}
       onChange={handleChange}
-      variant={`inputs.radios.${orientation()}`}
+      variant={orientation()}
     />
   );
 };
