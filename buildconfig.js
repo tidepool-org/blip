@@ -10,6 +10,7 @@ var reZendesk = /(<!-- Zendesk disabled -->)|(<script id="ze-snippet" type="text
 var zendeskDisable = '<!-- Zendesk disabled -->';
 var reTrackerUrl = /const u = '(.*)';/;
 var reTrackerSiteId = /const id = ([0-9]);/;
+var reCrowdin = /<!-- Crowdin Start -->([\s\S]*)<!-- Crowdin End -->/m;
 
 var start = new Date();
 
@@ -74,6 +75,24 @@ if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRA
 } else {
     console.info('Tracker code is disabled');
     matomoJs = '/* MaToMo tracker is disabled */';
+}
+
+// Replace Crowdin Javascript
+if (typeof process.env.CROWDIN === 'string' && process.env.CROWDIN === 'enabled') {
+  const script = "\
+  <script type=\"text/javascript\">\n\
+    var _jipt = [];\n\
+    _jipt.push(['project', 'yourloops']);\n\
+  </script>\n\
+  <script type=\"text/javascript\" src=\"//cdn.crowdin.com/jipt/jipt.js\"></script>\n";
+  console.log('enable crowdin');
+  indexHtml = indexHtml.replace(reCrowdin,(m, u) => {
+    return m.replace(u, script);
+  });
+} else {
+  indexHtml = indexHtml.replace(reCrowdin, (m, u) => {
+    return m.replace(u, '<!-- disabled -->');
+  });
 }
 
 // Saving

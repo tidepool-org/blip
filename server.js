@@ -79,6 +79,14 @@ if (config.matomoUrl !== null) {
   contentSecurityPolicy.directives.connectSrc.push(config.matomoUrl);
 }
 
+if (config.crowdinPreview) {
+  contentSecurityPolicy.directives.imgSrc.push('https://crowdin-static.downloads.crowdin.com', 'https://cdn.crowdin.com');
+  contentSecurityPolicy.directives.styleSrc.push('https://cdn.crowdin.com');
+  contentSecurityPolicy.directives.connectSrc.push('https://cdn.crowdin.com');
+  contentSecurityPolicy.directives.fontSrc.push('https://cdn.crowdin.com', 'https://fonts.gstatic.com');
+  contentSecurityPolicy.directives.frameSrc.push('https://cdn.crowdin.com', 'https://crowdin.com');
+}
+
 app.use(nonceMiddleware, helmet.contentSecurityPolicy(contentSecurityPolicy));
 
 app.use(bodyParser.json({

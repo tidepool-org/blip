@@ -69,18 +69,24 @@ export var UserProfile = translate()(React.createClass({
     }
 
     if (config.I18N_ENABLED) {
+      let locales = [
+        {value: 'en', label: 'English'},
+        {value: 'fr', label: 'Français'},
+        {value: 'de', label: 'Deutsch'}
+      ];
+      // Special "pseudo" language for crowdin live preview
+      if (typeof _jipt === 'object') {
+        locales.push({value: 'it', label: 'Crowdin'});
+      }
       inputs.push({
         name: 'lang',
         label: t('Language'),
         type: 'select',
-        items: [
-          {value: 'en', label: 'English'},
-          {value: 'fr', label: 'Français'},
-          {value: 'de', label: 'Deutsch'},
-        ],
+        items: locales,
         placeholder: t('Select language...')
       });
     }
+    
 
     return inputs;
   },

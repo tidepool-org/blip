@@ -58,10 +58,16 @@ if (process.env.SKIP_HAKKEN) {
   config.publishHost = process.env.PUBLISH_HOST;
 }
 
-if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disabled') {
+if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disable') {
   config.matomoUrl = process.env.MATOMO_TRACKER_URL;
 } else {
   config.matomoUrl = null;
+}
+
+if (typeof process.env.CROWDIN === 'string' && process.env.CROWDIN === 'enabled') {
+  config.crowdinPreview = true;
+} else {
+  config.crowdinPreview = false;
 }
 
 module.exports = config;

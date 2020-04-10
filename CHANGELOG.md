@@ -11,6 +11,9 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - PT-1157 Revert temporary fix PT-1115
 
+### Engineering
+- PT-1215 Integration with Crowdin live preview (localization management saas)
+
 ## 0.14.1 - 2020-03-31
 ### Fixed
 - Integrate parameters translations
