@@ -19,12 +19,14 @@ export default {
 };
 
 const initials = () => text('Initials', 'JJ');
-const bgColor = () => color('Background Color', '#FAE2E2');
+const bgColor = () => color('Background Color', '#BFE8F9');
+const textColor = () => color('Text Color', '#4F6A92');
 
 export const AvatarStory = () => (
   <Avatar
     bgColor={bgColor()}
     initials={initials()}
+    textColor={textColor()}
   />
 );
 

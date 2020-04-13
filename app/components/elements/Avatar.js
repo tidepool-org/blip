@@ -1,9 +1,8 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Text } from 'rebass/styled-components';
 import {
-  colors,
   fonts,
   fontSizes,
   fontWeights } from '../../themes/baseTheme';
@@ -18,21 +17,35 @@ const StyledAvatar = styled.div`
 `;
 
 const Initials = styled(Text)`
-  color: ${colors.text.primary};
   font-family: ${fonts.default};
   font-size: ${fontSizes[1]}px;
   font-weight: ${fontWeights.medium};
 `;
 
 const Avatar = (props) => {
-  const { initials, bgColor } = props;
+  const { bgColor, initials, textColor, label } = props;
 
   return (
     <StyledAvatar
-      style={{ backgroundColor: bgColor }}>
+      style={{ backgroundColor: bgColor, color: textColor }}
+      aria-label={label}>
       <Initials>{initials}</Initials>
     </StyledAvatar>
   );
+};
+
+Avatar.propTypes = {
+  initials: PropTypes.string.isRequired,
+  bgColor: PropTypes.string.isRequired,
+  textColor: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+};
+
+Avatar.defaultProps = {
+  initials: 'JJ',
+  bgColor: '#617DFF',
+  textColor: '#FFFFFF',
+  label: 'avatar',
 };
 
 export default Avatar;
