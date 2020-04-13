@@ -1,8 +1,7 @@
 import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean, number, select } from '@storybook/addon-knobs';
+import { withKnobs, boolean, select, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
-import assign from 'lodash/assign';
 import range from 'lodash/range';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -26,6 +25,14 @@ const pageCount = () => select('Page Count', range(5, 50), 10);
 const initialPage = () => select('Initial Page', range(1, pageCount()), 1);
 const disabled = () => boolean('Disabled', false);
 
+
+const variations = {
+  Default: 'default',
+  Condensed: 'condensed',
+};
+
+const variation = () => options('Variation', variations, 'default', { display: 'inline-radio' });
+
 export const PaginationStory = () => {
   const [page, setPage] = React.useState(initialPage());
 
@@ -41,6 +48,7 @@ export const PaginationStory = () => {
         count={pageCount()}
         onChange={handleChange}
         disabled={disabled()}
+        variation={variation()}
       />
     </React.Fragment>
   );
@@ -51,7 +59,7 @@ PaginationStory.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A131',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=4%3A992',
     },
   },
 };
