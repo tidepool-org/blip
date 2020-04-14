@@ -24,14 +24,23 @@ export default {
 const pageCount = () => select('Page Count', range(5, 50), 10);
 const initialPage = () => select('Initial Page', range(1, pageCount()), 1);
 const disabled = () => boolean('Disabled', false);
+const showPrevNextControls = () => boolean('Show Prev/Next Controls', true);
+const showFirstLastControls = () => boolean('Show First/Last Controls', false);
 
-
-const variations = {
+const variants = {
   Default: 'default',
   Condensed: 'condensed',
 };
 
-const variation = () => options('Variation', variations, 'default', { display: 'inline-radio' });
+const variant = () => options('Variant', variants, 'default', { display: 'inline-radio' });
+
+
+const backgrounds = {
+  None: 'transparent',
+  'Light Grey': 'lightestGrey',
+};
+
+const background = () => options('Tabs Background', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const PaginationStory = () => {
   const [page, setPage] = React.useState(initialPage());
@@ -44,18 +53,27 @@ export const PaginationStory = () => {
     <React.Fragment>
       <p>Page selected: {page}</p>
       <Pagination
+        id="my-paginator"
         page={page}
         count={pageCount()}
         onChange={handleChange}
         disabled={disabled()}
-        variation={variation()}
+        hidePrevButton={!showPrevNextControls()}
+        hideNextButton={!showPrevNextControls()}
+        showFirstButton={showFirstLastControls()}
+        showLastButton={showFirstLastControls()}
+        variant={variant()}
+        themeProps={{
+          py: '8px',
+          backgroundColor: background(),
+        }}
       />
     </React.Fragment>
   );
 };
 
 PaginationStory.story = {
-  name: 'Tab Group',
+  name: 'Default',
   parameters: {
     design: {
       type: 'figma',
