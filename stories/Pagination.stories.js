@@ -3,6 +3,7 @@ import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, select, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import range from 'lodash/range';
+import { Text } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Pagination from '../app/components/elements/Pagination';
@@ -51,7 +52,6 @@ export const PaginationStory = () => {
 
   return (
     <React.Fragment>
-      <p>Page selected: {page}</p>
       <Pagination
         id="my-paginator"
         page={page}
@@ -68,6 +68,15 @@ export const PaginationStory = () => {
           backgroundColor: background(),
         }}
       />
+      <Text
+        mt={4}
+        fontSize={2}
+        fontFamily="default"
+        color="text.primary"
+        textAlign="center"
+      >
+        Page Selected: <Text as="span" fontWeight="medium">{page}</Text>
+      </Text>
     </React.Fragment>
   );
 };
