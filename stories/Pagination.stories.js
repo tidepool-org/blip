@@ -40,7 +40,7 @@ const backgrounds = {
   'Light Grey': 'lightestGrey',
 };
 
-const background = () => options('Tabs Background', backgrounds, 'transparent', { display: 'inline-radio' });
+const background = () => options('Background Color', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const PaginationStory = () => {
   const [page, setPage] = React.useState(initialPage());
