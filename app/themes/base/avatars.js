@@ -5,7 +5,7 @@ export default ({ colors }) => {
 
   return {
     default: {
-      color: colors.neutrals.white,
+      color: colors.white,
       backgroundColor: colors.blues[1],
     },
     blue: {
