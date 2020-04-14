@@ -79,7 +79,7 @@ const linkVariants = links({ colors, fonts });
 const tabGroupVariants = tabGroups({ borders, colors, fonts, fontWeights, fontSizes });
 
 const variants = {
-  avatars: avatars({ colors }),
+  avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
   link: linkVariants.default,

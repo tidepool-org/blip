@@ -25,16 +25,14 @@ const textColor = () => color('Text Color', '#4F6A92');
 
 export const AvatarStory = () => (
   <React.Fragment>
-    <div>
-      <Avatar
-        bgColor={bgColor()}
-        initials={initials()}
-        textColor={textColor()}
-      />
-    </div>
-    <div style={{ paddingTop: 40 }}>
-      <Avatar2 />
-    </div>
+    <Avatar
+      bgColor={bgColor()}
+      initials={initials()}
+      textColor={textColor()}
+    />
+    <Avatar2 my={2} />
+    <Avatar2 my={2} variant="orange" />
+    <Avatar2 my={2} variant="blue" backgroundColor="purples.4" color="white" />
   </React.Fragment>
 );
 
