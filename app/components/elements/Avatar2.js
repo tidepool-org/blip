@@ -15,8 +15,8 @@ const StyledAvatar = styled.div`
   border-radius: 9999px;
   justify-content: center;
   align-items: center;
-  background-color: ${colors.purpleMedium}
-`;
+  `;
+  // background-color: ${colors.purpleMedium}
 
 const Initials = styled(Text)`
   font-family: ${fonts.default};
