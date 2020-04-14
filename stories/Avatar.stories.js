@@ -6,6 +6,7 @@ import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Avatar from '../app/components/elements/Avatar';
+import Avatar2 from '../app/components/elements/Avatar2';
 
 const withTheme = Story => (
   <ThemeProvider theme={baseTheme}>
@@ -23,11 +24,18 @@ const bgColor = () => color('Background Color', '#BFE8F9');
 const textColor = () => color('Text Color', '#4F6A92');
 
 export const AvatarStory = () => (
-  <Avatar
-    bgColor={bgColor()}
-    initials={initials()}
-    textColor={textColor()}
-  />
+  <React.Fragment>
+    <div>
+      <Avatar
+        bgColor={bgColor()}
+        initials={initials()}
+        textColor={textColor()}
+      />
+    </div>
+    <div style={{ paddingTop: 40 }}>
+      <Avatar2 />
+    </div>
+  </React.Fragment>
 );
 
 AvatarStory.story = {
