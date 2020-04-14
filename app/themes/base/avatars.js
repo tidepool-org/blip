@@ -18,16 +18,12 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
   return {
     default: {
       ...common,
+      backgroundColor: colors.blues[1],
+    },
+    inverse: {
+      ...common,
       color: colors.white,
-      backgroundColor: colors.blues[1],
-    },
-    blue: {
-      ...common,
-      backgroundColor: colors.blues[1],
-    },
-    orange: {
-      ...common,
-      backgroundColor: colors.oranges[1],
+      backgroundColor: colors.purpleMedium,
     },
   };
 };
