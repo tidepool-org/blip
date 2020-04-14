@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Text } from 'rebass/styled-components';
 import {
-  colors,
+  // colors,
   fonts,
   fontSizes,
   fontWeights } from '../../themes/baseTheme';

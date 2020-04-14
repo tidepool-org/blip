@@ -1,11 +1,15 @@
 export default ({ colors }) => {
+  const common = {
+    color: colors.text.primary,
+  };
+
   return {
     default: {
-      color: colors.white,
-      backgroundColor: colors.purpleMedium,
+      color: colors.neutrals.white,
+      backgroundColor: colors.blues[1],
     },
     blue: {
-      color: colors.text.primary,
+      ...common,
       backgroundColor: colors.blues[1],
     },
   };
