@@ -5,8 +5,6 @@ import { Button as Base, Box, ButtonProps } from 'rebass/styled-components';
 import styled, { ThemeContext } from 'styled-components';
 import cx from 'classnames';
 
-import { ButtonFont } from './FontStyles';
-
 import {
   transitions,
 } from '../../themes/baseTheme';
@@ -22,15 +20,15 @@ const StyledButton = styled(Base)`
 
   &.processing {
     pointer-events: none;
-    line-height: 0;
 
-    ${ButtonFont} {
+    > div:first-child {
       visibility: hidden;
     }
   }
 `;
 
 const StyledCircularProgress = styled(Box)`
+  display: flex;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -38,14 +36,14 @@ const StyledCircularProgress = styled(Box)`
 `;
 
 export const Button = props => {
-  const { children, processing, ...buttonProps } = props;
+  const { children, processing, className = '', ...buttonProps } = props;
   const classNames = cx({ processing });
 
   const themeContext = useContext(ThemeContext);
 
   return (
-    <StyledButton variant="primary" {...buttonProps} className={classNames}>
-      <ButtonFont>{children}</ButtonFont>
+    <StyledButton variant="primary" {...buttonProps} className={`${classNames} ${className}`}>
+      <div>{children}</div>
       {processing && (
         <StyledCircularProgress>
           <CircularProgress
