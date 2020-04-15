@@ -17,6 +17,10 @@ export default ({ colors, fonts, fontSizes }) => {
       margin: 0,
       display: 'flex',
 
+      ul: {
+        alignItems: 'center',
+      },
+
       'ul li > *': listItemStyles,
     },
 
