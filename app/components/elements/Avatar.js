@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Box } from 'rebass/styled-components';
+import { Text, Box, BoxProps } from 'rebass/styled-components';
 
 const Avatar = (props) => {
   const { label, variant, initials, ...themeProps } = props;
@@ -23,6 +23,7 @@ Avatar.propTypes = {
 };
 
 Avatar.defaultProps = {
+  ...BoxProps,
   initials: 'JJ',
   variant: 'default',
   label: 'avatar',
