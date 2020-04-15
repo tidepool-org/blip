@@ -20,8 +20,10 @@ export default ({ colors, fonts, fontSizes }) => {
       'ul li > *': listItemStyles,
     },
 
-    '.MuiSvgIcon-root': {
-      fontSize: `${fontSizes[2]}px`,
+    '.prev-controls, .next-controls': {
+      'span .MuiSvgIcon-root': {
+        fontSize: `${fontSizes[2]}px`,
+      },
     },
 
     '.pages li > *': {
@@ -35,7 +37,6 @@ export default ({ colors, fonts, fontSizes }) => {
         width: 'auto',
 
         '.MuiSvgIcon-root': {
-          fontSize: 'inherit',
           position: 'relative',
           top: '2px',
         },
