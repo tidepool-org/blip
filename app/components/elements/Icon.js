@@ -46,11 +46,11 @@ Icon.propTypes = {
   ...BoxProps,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['static', 'button']),
+  variant: PropTypes.oneOf(['default', 'static', 'button']),
 };
 
 Icon.defaultProps = {
-  variant: 'static',
+  variant: 'default',
 };
 
 export default Icon;

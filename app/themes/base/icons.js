@@ -11,9 +11,17 @@ export default ({ colors, fontSizes, radii, space }) => {
   };
 
   return {
-    static: {
+    default: {
       ...common,
       fontSize: fontSizes[3],
+      padding: 0,
+      '&.disabled': disabled,
+    },
+    static: {
+      ...common,
+      backgroundColor: 'inherit',
+      color: 'inherit',
+      fontSize: 'inherit',
       padding: 0,
       '&.disabled': disabled,
     },
@@ -27,7 +35,7 @@ export default ({ colors, fontSizes, radii, space }) => {
         color: colors.text.link,
         backgroundColor: colors.blues[0],
       },
-      '&:disabled': disabled,
+      '&.disabled': disabled,
     },
   };
 };
