@@ -4,6 +4,7 @@ import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
 import tabGroups from './base/tabGroups';
+import paginators from './base/paginators';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -75,19 +76,19 @@ export const transitions = {
 export const zIndices = [0, 10, 100, 1000];
 
 const linkVariants = links({ colors, fonts });
-const tabGroupVariants = tabGroups({ borders, colors, fonts, fontWeights, fontSizes });
 
 const variants = {
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
   link: linkVariants.default,
   links: linkVariants,
-  tabGroups: tabGroupVariants,
+  tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
+  paginators: paginators({ colors, fonts, fontSizes }),
 };
 
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders, radii }),
+  buttons: buttons({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }),
   variants,
   colors,
   fonts,
