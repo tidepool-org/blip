@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import avatars from './base/avatars';
 import buttons from './base/buttons';
 import icons from './base/icons';
 import inputs from './base/inputs';
@@ -78,6 +79,7 @@ export const zIndices = [0, 10, 100, 1000];
 const linkVariants = links({ colors, fonts });
 
 const variants = {
+  avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
   link: linkVariants.default,
