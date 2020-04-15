@@ -63,10 +63,8 @@ export const PaginationStory = () => {
         showFirstButton={showFirstLastControls()}
         showLastButton={showFirstLastControls()}
         variant={variant()}
-        themeProps={{
-          py: '8px',
-          backgroundColor: background(),
-        }}
+        py={2}
+        bg={background()}
       />
       <Text
         mt={4}

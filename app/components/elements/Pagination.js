@@ -18,7 +18,7 @@ import Icon from './Icon';
 import baseTheme from '../../themes/baseTheme';
 
 export const Pagination = props => {
-  const { id, variant, themeProps, ...paginationProps } = props;
+  const { id, variant, ...paginationProps } = props;
 
   const classNames = cx({
     condensed: variant === 'condensed',
@@ -29,7 +29,7 @@ export const Pagination = props => {
   const nextControls = remove(items, ({ type }) => includes(['next', 'last'], type));
 
   return (
-    <Box as="nav" variant={`paginators.${variant}`} {...themeProps}>
+    <Box as="nav" variant={`paginators.${variant}`} {...paginationProps}>
       <ul className={classNames}>
         <li>
           <ul className="prev-controls">
@@ -92,8 +92,8 @@ export const Pagination = props => {
 
 Pagination.propTypes = {
   id: PropTypes.string.isRequired,
-  themeProps: PropTypes.shape(BoxProps),
   ...PaginationProps,
+  ...BoxProps,
   variant: PropTypes.oneOf(['default', 'condensed']),
 };
 
