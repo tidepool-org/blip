@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import banners from './base/banners';
 import buttons from './base/buttons';
 import icons from './base/icons';
 import inputs from './base/inputs';
@@ -78,6 +79,7 @@ const linkVariants = links({ colors, fonts });
 const tabGroupVariants = tabGroups({ borders, colors, fonts, fontWeights, fontSizes });
 
 const variants = {
+  banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
   link: linkVariants.default,
