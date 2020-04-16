@@ -71,8 +71,8 @@ function renderStatus({ status }) {
 }
 
 const columns = [
-  { title: 'Patient', field: 'patient', align: 'left', sortable: true, render: renderPatient },
-  { title: 'Status', field: 'status', align: 'left', render: renderStatus },
+  { title: 'Patient', field: 'patient', align: 'left', sortable: true, orderBy: 'patient.name', render: renderPatient },
+  { title: 'Status', field: 'status', align: 'left', sortable: true, render: renderStatus },
   { title: 'Permission', field: 'permission', align: 'left' },
   { title: 'Role', field: 'role', align: 'left' },
 ];
@@ -94,7 +94,6 @@ const data = [
 
 const stickyHeader = () => boolean('Sticky Header', false);
 const rowHover = () => boolean('Enable Row Hover', false);
-
 
 const variants = {
   Default: 'default',
@@ -121,6 +120,8 @@ export const Simple = () => (
       data={data}
       columns={columns}
       bg={background()}
+      orderBy="patient.name"
+      order="desc"
     />
   </React.Fragment>
 );
