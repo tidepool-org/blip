@@ -35,7 +35,6 @@ const variants = {
 
 const variant = () => options('Variant', variants, 'default', { display: 'inline-radio' });
 
-
 const backgrounds = {
   None: 'transparent',
   'Light Grey': 'lightestGrey',
