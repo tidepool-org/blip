@@ -3,6 +3,8 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
+import toUpper from 'lodash/toUpper';
+import { Flex, Box, Text } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Table from '../app/components/elements/Table';
@@ -21,32 +23,57 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
+function createData(patient, status, permission, role) {
+  return { patient, status, permission, role };
+}
+
+function renderName({ patient }) {
+  let initials = patient.name.match(/\b\w/g) || [];
+  initials = toUpper((initials.shift() || '') + (initials.pop() || ''));
+
+  return (
+    <Flex alignItems="center">
+      <Box px={2}>{initials}</Box>
+      <Box px={2}>
+        <Text fontWeight="medium">{patient.name}</Text>
+        <Text>{patient.email}</Text>
+      </Box>
+    </Flex>
+  );
+}
+
+function renderStatus({ status }) {
+  let color = 'text.primary';
+  let bg = 'white';
+
+  if (status) {
+    color = status === 'success' ? 'greens.9' : 'indigos.9';
+    bg = status === 'success' ? 'greens.0' : 'indigos.0';
+  }
+
+  return <Text as="span" px={2} py={1} fontWeight="medium" sx={{ borderRadius: 4 }} color={color} bg={bg}>{status}</Text>;
 }
 
 const columns = [
-  { title: 'Dessert (100g serving)', field: 'name' },
-  { title: 'Calories (g)', field: 'calories' },
-  { title: 'Fat (g)', field: 'fat' },
-  { title: 'Carbs (g)', field: 'carbs' },
-  { title: 'Protein (g)', field: 'protein' },
+  { title: 'Patient', field: 'patient', align: 'left', sortable: true, render: renderName },
+  { title: 'Status', field: 'status', align: 'left', render: renderStatus },
+  { title: 'Permission', field: 'permission', align: 'left' },
+  { title: 'Role', field: 'role', align: 'left' },
 ];
 
 const data = [
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Donut', 452, 25.0, 51, 4.9),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-  createData('Honeycomb', 408, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Jelly Bean', 375, 0.0, 94, 0.0),
-  createData('KitKat', 518, 26.0, 65, 7.0),
-  createData('Lollipop', 392, 0.2, 98, 0.0),
-  createData('Marshmallow', 318, 0, 81, 2.0),
-  createData('Nougat', 360, 19.0, 9, 37.0),
-  createData('Oreo', 437, 18.0, 63, 4.0),
+  createData({ name: 'Claire Clownfish', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Admin'),
+  createData({ name: 'James Jellyfish', email: 'foo@bar.com' }, 'success', '', 'Clinic Member'),
+  createData({ name: 'Bill Barracuda', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Admin'),
+  createData({ name: 'Sam Jellyfish', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Member'),
+  createData({ name: 'Oprah Orca', email: 'foo@bar.com' }, 'success', '', 'Clinic Admin'),
+  createData({ name: 'Wendy Barracuda', email: 'foo@bar.com' }, 'pending', '', 'Clinic Admin'),
+  createData({ name: 'George Grouper', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Admin'),
+  createData({ name: 'Peter Pike', email: 'foo@bar.com' }, 'success', '', 'Clinic Member'),
+  createData({ name: 'Patsy Pickeral', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Admin'),
+  createData({ name: 'Tom Turtle', email: 'foo@bar.com' }, '', 'Prescriber', 'Clinic Member'),
+  createData({ name: 'Perry Porpoise', email: 'foo@bar.com' }, 'pending', '', 'Clinic Admin'),
+  createData({ name: 'Marco Manowar', email: 'foo@bar.com' }, 'success', '', 'Clinic Admin'),
 ];
 
 const stickyHeader = () => boolean('Sticky Header', false);

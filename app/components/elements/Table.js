@@ -11,6 +11,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Box, BoxProps } from 'rebass/styled-components';
 import cx from 'classnames';
 import map from 'lodash/map';
+import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 import styled from 'styled-components';
 
@@ -39,13 +40,17 @@ export const Table = props => {
     <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
       <TableHead>
         <TableRow>
-          {map(columns, (col, index) => (
-            <TableCell
-              align={index === 0 ? 'left' : 'right'}
-            >
-              {col.title}
-            </TableCell>
-          ))}
+          {map(columns, (col, index) => {
+            const Cell = col.sortable ? TableSortLabel : 'span';
+
+            return (
+              <TableCell
+                align={col.align || index === 0 ? 'left' : 'right'}
+              >
+                <Box as={Cell}>{col.title}</Box>
+              </TableCell>
+            );
+          })}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -54,9 +59,9 @@ export const Table = props => {
             {map(columns, (col, index) => (
               <TableCell
                 component={index === 0 ? 'th' : 'td'}
-                align={index === 0 ? 'left' : 'right'}
+                align={col.align || index === 0 ? 'left' : 'right'}
               >
-                {d[col.field]}
+                {isFunction(col.render) ? col.render(d) : d[col.field]}
               </TableCell>
             ))}
           </TableRow>
