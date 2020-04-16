@@ -25,7 +25,15 @@ function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
 
-const rows = [
+const columns = [
+  { title: 'Dessert (100g serving)', field: 'name' },
+  { title: 'Calories (g)', field: 'calories' },
+  { title: 'Fat (g)', field: 'fat' },
+  { title: 'Carbs (g)', field: 'carbs' },
+  { title: 'Protein (g)', field: 'protein' },
+];
+
+const data = [
   createData('Cupcake', 305, 3.7, 67, 4.3),
   createData('Donut', 452, 25.0, 51, 4.9),
   createData('Eclair', 262, 16.0, 24, 6.0),
@@ -52,7 +60,6 @@ const variants = {
 
 const variant = () => options('Variant', variants, 'default', { display: 'inline-radio' });
 
-
 const backgrounds = {
   None: 'transparent',
   'Light Grey': 'lightestGrey',
@@ -66,7 +73,8 @@ export const Simple = () => (
       stickyHeader={stickyHeader()}
       rowHover={rowHover()}
       variant={variant()}
-      rows={rows}
+      data={data}
+      columns={columns}
       bg={background()}
     />
   </React.Fragment>

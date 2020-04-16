@@ -11,6 +11,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Box, BoxProps } from 'rebass/styled-components';
 import cx from 'classnames';
 import map from 'lodash/map';
+import isNumber from 'lodash/isNumber';
 import styled from 'styled-components';
 
 const StyledTable = styled(Base)`
@@ -20,7 +21,6 @@ const StyledTable = styled(Base)`
     color: inherit;
     font-size: inherit;
     font-family: inherit;
-    font-weight: inherit;
   }
 `;
 
@@ -28,7 +28,8 @@ export const Table = props => {
   const {
     id,
     label,
-    rows,
+    columns,
+    data,
     rowHover,
     variant,
     ...tableProps
@@ -38,26 +39,26 @@ export const Table = props => {
     <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
       <TableHead>
         <TableRow>
-          <TableCell>Dessert (100g serving)</TableCell>
-          <TableCell align="right">
-            {/* TODO: use custom icon */}
-            <TableSortLabel scope="calories" iconSortLabel={undefined}>Calories</TableSortLabel>
-          </TableCell>
-          <TableCell align="right">Fat&nbsp;(g)</TableCell>
-          <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-          <TableCell align="right">Protein&nbsp;(g)</TableCell>
+          {map(columns, (col, index) => (
+            <TableCell
+              align={index === 0 ? 'left' : 'right'}
+            >
+              {col.title}
+            </TableCell>
+          ))}
         </TableRow>
       </TableHead>
       <TableBody>
-        {map(rows, (row) => (
-          <TableRow hover={rowHover} key={row.name}>
-            <TableCell component="th" scope="row">
-              {row.name}
-            </TableCell>
-            <TableCell align="right">{row.calories}</TableCell>
-            <TableCell align="right">{row.fat}</TableCell>
-            <TableCell align="right">{row.carbs}</TableCell>
-            <TableCell align="right">{row.protein}</TableCell>
+        {map(data, (d) => (
+          <TableRow hover={rowHover} key={d.name}>
+            {map(columns, (col, index) => (
+              <TableCell
+                component={index === 0 ? 'th' : 'td'}
+                align={index === 0 ? 'left' : 'right'}
+              >
+                {d[col.field]}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
