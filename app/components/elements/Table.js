@@ -3,16 +3,12 @@ import PropTypes from 'prop-types';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Box, BoxProps } from 'rebass/styled-components';
-import cx from 'classnames';
 import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
-import isNumber from 'lodash/isNumber';
 import styled from 'styled-components';
 
 const StyledTable = styled(Base)`
