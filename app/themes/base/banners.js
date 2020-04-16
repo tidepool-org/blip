@@ -19,10 +19,13 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
       ...common,
       backgroundColor: colors.purpleMedium,
     },
-    inverse: {
+    warning: {
       ...common,
-      color: colors.text.primary,
-      backgroundColor: colors.blues[1],
+      backgroundColor: '#ffab00',
+    },
+    danger: {
+      ...common,
+      backgroundColor: '#de350c',
     },
   };
 };

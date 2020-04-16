@@ -37,5 +37,10 @@ export default ({ colors, fontSizes, radii, space }) => {
       },
       '&.disabled': disabled,
     },
+    banner: {
+      ...common,
+      color: 'inherit',
+      paddingRight: 10,
+    },
   };
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Box } from 'rebass/styled-components';
+import { Text, Box, BoxProps } from 'rebass/styled-components';
 
 const Banner = (props) => {
   const { label, variant, message, ...themeProps } = props;
@@ -11,14 +11,16 @@ const Banner = (props) => {
       aria-label={label}
       {...themeProps}
     >
+      {props.children}
       <Text className="message">{message}</Text>
     </Box>
   );
 };
 
 Banner.propTypes = {
+  ...BoxProps,
   message: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['default', 'inverse']),
+  variant: PropTypes.oneOf(['default', 'warning', 'danger']),
   label: PropTypes.string.isRequired,
 };
 
