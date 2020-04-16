@@ -45,6 +45,8 @@ export const Table = props => {
 
             return (
               <TableCell
+                id={`${id}-header-${col.field}`}
+                key={`${id}-header-${col.field}`}
                 align={col.align || index === 0 ? 'left' : 'right'}
               >
                 <Box as={Cell}>{col.title}</Box>
@@ -54,10 +56,16 @@ export const Table = props => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {map(data, (d) => (
-          <TableRow hover={rowHover} key={d.name}>
+        {map(data, (d, rowIndex) => (
+          <TableRow
+            id={`${id}-row-${rowIndex}`}
+            key={`${id}-row-${rowIndex}`}
+            hover={rowHover}
+          >
             {map(columns, (col, index) => (
               <TableCell
+                id={`${id}-row-${rowIndex}-${col.field}`}
+                key={`${id}-row-${rowIndex}-${col.field}`}
                 component={index === 0 ? 'th' : 'td'}
                 align={col.align || index === 0 ? 'left' : 'right'}
               >
@@ -76,12 +84,20 @@ Table.propTypes = {
   ...BoxProps,
   label: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    field: PropTypes.string.isRequired,
+    align: PropTypes.oneOf(['left', 'right', 'center']),
+    sortable: PropTypes.bool,
+    render: PropTypes.func,
+  })).isRequired,
+  data: PropTypes.array.isRequired,
   rowHover: PropTypes.bool,
+  stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
 };
 
 Table.defaultProps = {
-  themeProps: {},
   variant: 'default',
 };
 

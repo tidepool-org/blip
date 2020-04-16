@@ -113,6 +113,8 @@ const background = () => options('Background Color', backgrounds, 'transparent',
 export const Simple = () => (
   <React.Fragment>
     <Table
+      label="Sample clinician list"
+      id="my-table"
       stickyHeader={stickyHeader()}
       rowHover={rowHover()}
       variant={variant()}
