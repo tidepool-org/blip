@@ -24,7 +24,6 @@ Avatar.propTypes = {
 
 Avatar.defaultProps = {
   ...BoxProps,
-  initials: 'JJ',
   variant: 'default',
   label: 'avatar',
 };

@@ -19,9 +19,9 @@ export default {
 
 export const AvatarStory = () => (
   <React.Fragment>
-    <Avatar my={2} />
-    <Avatar my={2} variant="inverse" />
-    <Avatar my={2} backgroundColor="oranges.2" />
+    <Avatar initials="JJ" my={2} />
+    <Avatar initials="PP" my={2} variant="inverse" />
+    <Avatar initials="OO" my={2} backgroundColor="oranges.2" />
   </React.Fragment>
 );
 
