@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -65,6 +65,10 @@ const StyledTable = styled(Base)`
     font-size: inherit;
     font-family: inherit;
   }
+
+  .MuiTableCell-stickyHeader {
+    color: inherit;
+  }
 `;
 
 export const Table = props => {
@@ -76,15 +80,16 @@ export const Table = props => {
     rowHover,
     variant,
     searchText,
+    page,
+    rowsPerPage,
     ...tableProps
   } = props;
 
-  const [order, setOrder] = React.useState(props.order || 'asc');
-  const [orderBy, setOrderBy] = React.useState(props.orderBy || columns[0].field);
-  // const [orderByProperty, setOrderByProperty] = React.useState(props.orderByProperty);
-  // const [selected, setSelected] = React.useState([]);
-  // const [page, setPage] = React.useState(0);
-  // const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [order, setOrder] = useState(props.order || 'asc');
+  const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
+  // const [selected, setSelected] = useState([]);
+  // const [page, setPage] = useState(0);
+  // const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -104,6 +109,9 @@ export const Table = props => {
   );
 
   const filteredData = searchText ? filterData(sortedData, searchFields, searchText) : sortedData;
+
+  const pageIndex = page - 1;
+  const pagedData = rowsPerPage && rowsPerPage < filteredData.length ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage) : filteredData;
 
   return (
     <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
@@ -133,7 +141,7 @@ export const Table = props => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {map(filteredData, (d, rowIndex) => (
+        {map(pagedData, (d, rowIndex) => (
           <TableRow
             id={`${id}-row-${rowIndex}`}
             key={`${id}-row-${rowIndex}`}

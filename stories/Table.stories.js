@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
@@ -12,6 +12,8 @@ import Table from '../app/components/elements/Table';
 import Avatar from '../app/components/elements/Avatar';
 import TextInput from '../app/components/elements/TextInput';
 import SearchIcon from '@material-ui/icons/Search';
+import Pagination from '../app/components/elements/Pagination';
+import Select from '../app/components/elements/Select';
 
 /* eslint-disable max-len */
 
@@ -112,21 +114,57 @@ const backgrounds = {
 const background = () => options('Background Color', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const Simple = () => {
-  const [searchText, setSearchText] = React.useState();
+  const [searchText, setSearchText] = useState();
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
   }
 
+  const rowsPerPageOptions = [
+    { value: 3, label: '3' },
+    { value: 5, label: '5' },
+    { value: 10, label: '10' },
+    { value: 15, label: '15' },
+  ];
+
+  const [page, setPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(3);
+
+  const handleRowsPerPageChange = event => {
+    setPage(1);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
   return (
     <React.Fragment>
-      <Flex my={3} justifyContent="flex-end">
+      <Flex my={3} justifyContent="flex-end" flexGrow>
+        <Select
+          themeProps={{
+            mr: 3,
+            width: 'auto',
+          }}
+          label="Rows per Page"
+          name="row-count-select"
+          options={rowsPerPageOptions}
+          value={rowsPerPage}
+          onChange={handleRowsPerPageChange}
+          variant="condensed"
+        />
         <TextInput
-          placeholder="search clinicians"
+          themeProps={{
+            width: 'auto',
+            minWidth: '250px',
+          }}
+          placeholder="enter search text"
           icon={SearchIcon}
-          label="search clinicians"
+          label="Search clinicians"
           name="search"
           onChange={handleSearchChange}
+          variant="condensed"
         />
       </Flex>
       <Table
@@ -139,8 +177,19 @@ export const Simple = () => {
         columns={columns}
         bg={background()}
         searchText={searchText}
-        // orderBy="patient.name"
-        // order="desc"
+        page={page}
+        rowsPerPage={rowsPerPage}
+        orderBy="patient.name"
+        order="asc"
+      />
+      <Pagination
+        id="my-paginator"
+        page={page}
+        count={Math.ceil(data.length / rowsPerPage)}
+        onChange={handlePageChange}
+        disabled={rowsPerPage >= data.length}
+        variant="default"
+        my={3}
       />
     </React.Fragment>
   );

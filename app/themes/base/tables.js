@@ -7,6 +7,14 @@ export default ({ colors, fonts, fontSizes }) => {
     '.MuiTableCell-root': {
       padding: 3,
     },
+
+    '.MuiTableCell-head': {
+      paddingY: 1,
+    },
+
+    '.MuiTableCell-stickyHeader': {
+      backgroundColor: colors.white,
+    },
   };
 
   return {
@@ -17,7 +25,7 @@ export default ({ colors, fonts, fontSizes }) => {
       ...defaultStyles,
 
       '.MuiTableCell-root': {
-        padding: 2,
+        paddingY: 2,
       },
     },
   };
