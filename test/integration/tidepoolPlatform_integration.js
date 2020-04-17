@@ -340,12 +340,12 @@ describe('platform client', function () {
     });
 
     /*
-    * Revoke a_Memeber permissons to a_PWD after these tests
+    * Revoke a_Member permissons to a_PWD after these tests
     */
     after(function (done) {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
         expect(err).to.not.exist;
-        expect(permissions).to.be.empty;
+        expect(permissions).to.not.exist;
         done();
       });
     });
@@ -569,9 +569,9 @@ describe('platform client', function () {
     });
 
     it('a_PWD can remove the permissions for a_Member', function(done) {
-      pwdClient.setAccessPermissions(a_Member.id, null, function(err, perms){
+      pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
         expect(err).to.not.exist;
-        expect(perms).to.be.empty;
+        expect(permissions).to.not.exist;
         done();
       });
     });
@@ -679,7 +679,7 @@ describe('platform client', function () {
     };
     it('using a restricted token', function (done) {
       pwdClient.createRestrictedTokenForUser(
-        a_PWD.id, 
+        a_PWD.id,
         dataSourceFilter, function(error, restrictedToken){
           expect(error).to.not.exist;
           expect(restrictedToken).to.exist;
@@ -689,12 +689,12 @@ describe('platform client', function () {
 
     it('adding an OAuth provider authorization', function (done) {
       pwdClient.createRestrictedTokenForUser(
-        a_PWD.id, 
+        a_PWD.id,
         dataSourceFilter, function(error, restrictedToken){
           expect(error).to.not.exist;
           expect(restrictedToken).to.exist;
           pwdClient.createOAuthProviderAuthorization(
-            dataSourceFilter.name, 
+            dataSourceFilter.name,
             restrictedToken, function(error, authorizationURL){
               expect(error).to.not.exist;
               expect(authorizationURL).to.exist;
@@ -712,7 +712,7 @@ describe('platform client', function () {
         }
       );
     });
-  
+
   });
   describe.skip('handles invites', function () {
     /*
