@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Flex } from 'rebass/styled-components';
+import { Flex, Box } from 'rebass/styled-components';
 import { Label, Input, InputProps } from '@rebass/forms';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
@@ -57,23 +57,19 @@ const StyledInput = styled(Input)`
 export const TextInput = props => {
   const { label, name, width, icon, ...inputProps } = props;
   return (
-    <React.Fragment>
+    <Box width={width}>
       {label &&
         <Label htmlFor={name}>
           <Caption>{label}</Caption>
         </Label>
       }
-      <StyledWrapper
-        sx={{
-          width,
-        }}
-      >
+      <StyledWrapper>
         <StyledInput id={name} name={name} {...inputProps} />
         {icon &&
           <Icon icon={icon} label={label} />
         }
       </StyledWrapper>
-    </React.Fragment>
+    </Box>
   );
 };
 

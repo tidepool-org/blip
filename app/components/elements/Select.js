@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex } from 'rebass/styled-components';
+import { Flex, Box } from 'rebass/styled-components';
 import { Select as Base, Label, SelectProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -44,7 +44,7 @@ export const Select = props => {
   const classNames = cx({ disabled });
 
   return (
-    <React.Fragment>
+    <Box>
       {label && (
         <Label htmlFor={name}>
           <Caption>{label}</Caption>
@@ -70,7 +70,7 @@ export const Select = props => {
         </Base>
         <KeyboardArrowDownRoundedIcon />
       </StyledSelect>
-    </React.Fragment>
+    </Box>
   );
 };
 
