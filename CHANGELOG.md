@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## Unreleased
+### Fixed
+- PT-1230 CGM / BGM labels don't change with language
+
 ## 0.11.2 - 2020-03-10
 ### Changed
 - PT-1113 Change basal insulin colors in widget and graph

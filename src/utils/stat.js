@@ -31,8 +31,8 @@ export const statTypes = {
 };
 
 export const statBgSourceLabels = {
-  cbg: t('CGM'),
-  smbg: t('BGM'),
+  get cbg() { return t('CGM'); },
+  get smbg() { return t('BGM'); },
 };
 
 export const statFormats = {
