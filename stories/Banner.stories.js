@@ -25,7 +25,7 @@ export default {
 };
 
 const bannerText = () => text('Banner Text', 'Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. ');
-const bannerTextDanger = () => text('Banner Text Danger', 'He made many woofs mlem, many pats.');
+const bannerTextDanger = () => text('Banner Text Danger', 'Wrinkler h*ck doggorino. He made many woofs mlem, many pats.');
 const bannerTextWarning = () => text('Banner Text Warning', 'Wrinkler h*ck doggorino clouds, you are doing me a frighten.');
 const bannerTextNoIcon = () => text('Banner Text', 'Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. ');
 
@@ -43,6 +43,10 @@ export const BannerStory = () => (
       <Icon icon={WarningIcon} variant="banner" />
     </Banner>
     <Banner my={2} message={bannerTextNoIcon()} />
+    <Banner my={2} variant="warning" message={bannerTextWarning()} dismissable="true">
+      <Icon icon={WarningIcon} variant="banner" />
+    </Banner>
+    <Banner my={2} message={bannerTextNoIcon()} dismissable="true" />
   </React.Fragment>
 );
 

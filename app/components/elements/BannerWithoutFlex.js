@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text, Box, BoxProps } from 'rebass/styled-components';
+import { Text, Box, BoxProps } from 'rebass/styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 
 const Banner = (props) => {
@@ -21,18 +21,15 @@ const Banner = (props) => {
   }
 
   return (
-    <Flex
+    <Box
+      variant={`banners.${variant}`}
       aria-label={label}
       {...themeProps}
-      variant={`banners.${variant}`}>
-      <Box width={'94%'} sx={{ display: 'flex', justifyContent: 'center' }}>
-        {props.children}
-        <Text className="message">{message}</Text>
-      </Box>
-      <Box width={'3%'} px={0}>
-        {close}
-      </Box>
-    </Flex>
+    >
+      {props.children}
+      <Text className="message">{message}</Text>
+      {close}
+    </Box>
   );
 };
 

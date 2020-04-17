@@ -40,7 +40,8 @@ export default ({ colors, fontSizes, radii, space }) => {
     banner: {
       ...common,
       color: 'inherit',
-      paddingRight: 10,
+      fontSize: 'inherit',
+      paddingRight: 12,
     },
   };
 };
