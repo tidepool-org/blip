@@ -82,7 +82,7 @@ const linkVariants = links({ colors, fonts });
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
-  inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
+  inputs: inputs({ borders, colors, fonts, radii, fontSizes, space }),
   link: linkVariants.default,
   links: linkVariants,
   paginators: paginators({ colors, fonts, fontSizes }),

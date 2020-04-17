@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, boolean, text, number } from '@storybook/addon-knobs';
+import { withKnobs, boolean, text, number, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -27,8 +27,16 @@ const width = () => number('Width');
 const disabled = () => boolean('Disabled', false);
 const placeholder = () => text('Placeholder', 'Your name');
 
+const variants = {
+  Default: 'default',
+  Condensed: 'condensed',
+};
+
+const variant = () => options('Variant', variants, 'default', { display: 'inline-radio' });
+
 export const BasicInput = () => (
   <TextInput
+    variant={variant()}
     placeholder={placeholder()}
     disabled={disabled()}
     label={label()}
@@ -48,6 +56,7 @@ BasicInput.story = {
 
 export const IconInput = () => (
   <TextInput
+    variant={variant()}
     placeholder={placeholder()}
     disabled={disabled()}
     label={label()}

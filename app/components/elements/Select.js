@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box, BoxProps } from 'rebass/styled-components';
 import { Select as Base, Label, SelectProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -22,7 +22,6 @@ const StyledSelect = styled(Flex)`
   select {
     appearance: none;
     border: none;
-    padding: ${space[2]}px;
   }
 
   /* Hide the default dropdown icon */
@@ -40,17 +39,29 @@ const StyledSelect = styled(Flex)`
 `;
 
 export const Select = props => {
-  const { disabled, name, label, value, options, onChange, ...selectProps } = props;
+  const {
+    disabled,
+    name,
+    label,
+    value,
+    variant,
+    options,
+    onChange,
+    themeProps,
+    width,
+    ...selectProps
+  } = props;
+
   const classNames = cx({ disabled });
 
   return (
-    <Box>
+    <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
           <Caption>{label}</Caption>
         </Label>
       )}
-      <StyledSelect alignItems="center" className={classNames} {...selectProps}>
+      <StyledSelect alignItems="center" className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
         <Base
           id={name}
           name={name}
@@ -80,6 +91,8 @@ Select.propTypes = {
   label: PropTypes.string,
   disabled: PropTypes.bool,
   value: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'condensed']),
+  themeProps: PropTypes.shape(BoxProps),
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
@@ -88,7 +101,8 @@ Select.propTypes = {
 };
 
 Select.defaultProps = {
-  variant: 'inputs.select',
+  themeProps: {},
+  variant: 'default',
 };
 
 export default Select;
