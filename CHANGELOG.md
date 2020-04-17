@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Fixed
 - PT-1218 Zendesk Contact form is not offloaded
+- PT-419 Manage Language in Zendesk widget
 
 ## 0.15.0 - 2020-04-14
 ### Changed

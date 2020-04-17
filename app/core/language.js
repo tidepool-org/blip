@@ -16,6 +16,10 @@ const crowdinActive = typeof _jipt === 'object';
 let language = getLocale();
 if (self.localStorage && self.localStorage.lang) {
   language = self.localStorage.lang;
+
+  if (typeof window.zE === 'function') {
+    window.zE('webWidget', 'setLocale', language);
+  }
 }
 
 const i18nOptions = {
@@ -86,6 +90,11 @@ i18n.on('languageChanged', (lng) => {
       moment.locale('en');
     } else {
       moment.locale(lng);
+    }
+
+    // Zendesk locale
+    if (typeof window.zE === 'function') {
+      window.zE('webWidget', 'setLocale', language);
     }
 
     // Save locale for future load
