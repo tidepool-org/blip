@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## Unreleased
+### Fixed
+- PT-1231 Basics: Total basal events count does not give the correct total
+
 ## 1.9.1 - 2020-03-30
 ### Fixed
 - PT-1206 PT-1127 Have notes in first position on the daily screen, reverting PT-1100
