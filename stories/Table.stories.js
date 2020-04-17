@@ -10,6 +10,8 @@ import { Flex, Box, Text } from 'rebass/styled-components';
 import baseTheme from '../app/themes/baseTheme';
 import Table from '../app/components/elements/Table';
 import Avatar from '../app/components/elements/Avatar';
+import TextInput from '../app/components/elements/TextInput';
+import SearchIcon from '@material-ui/icons/Search';
 
 /* eslint-disable max-len */
 
@@ -71,8 +73,8 @@ function renderStatus({ status }) {
 }
 
 const columns = [
-  { title: 'Patient', field: 'patient', align: 'left', sortable: true, orderBy: 'patient.name', render: renderPatient },
-  { title: 'Status', field: 'status', align: 'left', sortable: true, render: renderStatus },
+  { title: 'Patient', field: 'patient', align: 'left', sortable: true, sortBy: 'patient.name', render: renderPatient, searchable: true, searchBy: ['patient.name', 'patient.email'] },
+  { title: 'Status', field: 'status', align: 'left', sortable: true, render: renderStatus, searchable: true },
   { title: 'Permission', field: 'permission', align: 'left' },
   { title: 'Role', field: 'role', align: 'left' },
 ];
@@ -109,22 +111,40 @@ const backgrounds = {
 
 const background = () => options('Background Color', backgrounds, 'transparent', { display: 'inline-radio' });
 
-export const Simple = () => (
-  <React.Fragment>
-    <Table
-      label="Sample clinician list"
-      id="my-table"
-      stickyHeader={stickyHeader()}
-      rowHover={rowHover()}
-      variant={variant()}
-      data={data}
-      columns={columns}
-      bg={background()}
-      orderBy="patient.name"
-      order="desc"
-    />
-  </React.Fragment>
-);
+export const Simple = () => {
+  const [searchText, setSearchText] = React.useState();
+
+  function handleSearchChange(event) {
+    setSearchText(event.target.value);
+  }
+
+  return (
+    <React.Fragment>
+      <Flex my={3} justifyContent="flex-end">
+        <TextInput
+          placeholder="search clinicians"
+          icon={SearchIcon}
+          label="search clinicians"
+          name="search"
+          onChange={handleSearchChange}
+        />
+      </Flex>
+      <Table
+        label="Sample clinician list"
+        id="my-table"
+        stickyHeader={stickyHeader()}
+        rowHover={rowHover()}
+        variant={variant()}
+        data={data}
+        columns={columns}
+        bg={background()}
+        searchText={searchText}
+        // orderBy="patient.name"
+        // order="desc"
+      />
+    </React.Fragment>
+  );
+};
 
 Simple.story = {
   name: 'Simple',

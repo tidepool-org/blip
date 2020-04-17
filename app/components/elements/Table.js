@@ -10,6 +10,10 @@ import { Box, BoxProps } from 'rebass/styled-components';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
+import toUpper from 'lodash/toUpper';
+import flatten from 'lodash/flatten';
+import includes from 'lodash/includes';
+import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
 import styled from 'styled-components';
 
@@ -17,13 +21,8 @@ function descendingComparator(a, b, orderBy) {
   const compA = get(a, orderBy);
   const compB = get(b, orderBy);
 
-  if (compB < compA) {
-    return -1;
-  }
-  if (compB > compA) {
-    return 1;
-  }
-  return 0;
+  if (compB < compA) return -1;
+  return (compB > compA) ? 1 : 0;
 }
 
 function getComparator(order, orderBy) {
@@ -40,6 +39,22 @@ function stableSort(array, comparator) {
     return a[1] - b[1];
   });
   return map(stabilizedThis, (el) => el[0]);
+}
+
+function filterData(data, fields, queryText) {
+  const filteredData = [...data];
+
+  return filter(filteredData, d => {
+    let matchesQuery = false;
+    for (let index = 0; index < fields.length; index++) {
+      const field = fields[index];
+      if (includes(toUpper(get(d, field)), toUpper(queryText))) {
+        matchesQuery = true;
+      }
+      if (matchesQuery) break;
+    }
+    return matchesQuery;
+  });
 }
 
 const StyledTable = styled(Base)`
@@ -60,6 +75,7 @@ export const Table = props => {
     data,
     rowHover,
     variant,
+    searchText,
     ...tableProps
   } = props;
 
@@ -82,12 +98,19 @@ export const Table = props => {
 
   const sortedData = stableSort(data, getComparator(order, orderBy));
 
+  const searchFields = filter(
+    flatten(map(columns, col => col.searchable && (col.searchBy || col.field))),
+    Boolean,
+  );
+
+  const filteredData = searchText ? filterData(sortedData, searchFields, searchText) : sortedData;
+
   return (
     <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
       <TableHead>
         <TableRow>
           {map(columns, (col, index) => {
-            const Cell = col.sortable ? TableSortLabel : 'span';
+            const InnerCell = col.sortable ? TableSortLabel : 'span';
 
             return (
               <TableCell
@@ -97,10 +120,10 @@ export const Table = props => {
                 sortDirection={orderBy === col.field ? order : false}
               >
                 <Box
-                  as={Cell}
+                  as={InnerCell}
                   active={orderBy === col.field}
                   direction={orderBy.split('.')[0] === col.field ? order : 'asc'}
-                  onClick={col.sortable ? createSortHandler(col.orderBy || col.field) : noop}
+                  onClick={col.sortable ? createSortHandler(col.sortBy || col.field) : noop}
                 >
                   {col.title}
                 </Box>
@@ -110,7 +133,7 @@ export const Table = props => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {map(sortedData, (d, rowIndex) => (
+        {map(filteredData, (d, rowIndex) => (
           <TableRow
             id={`${id}-row-${rowIndex}`}
             key={`${id}-row-${rowIndex}`}
@@ -142,18 +165,20 @@ Table.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.string.isRequired,
     field: PropTypes.string.isRequired,
-    align: PropTypes.oneOf(['left', 'right', 'center']),
+    align: PropTypes.oneOf(['left', 'right', 'center', 'inherit', 'justify']),
     sortable: PropTypes.bool,
-    orderBy: PropTypes.string,
+    sortBy: PropTypes.string,
     searchable: PropTypes.bool,
+    searchBy: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
     render: PropTypes.func,
   })).isRequired,
   data: PropTypes.array.isRequired,
   rowHover: PropTypes.bool,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
-  order: PropTypes.oneOf('asc', 'desc'),
+  order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
+  searchText: PropTypes.string,
 };
 
 Table.defaultProps = {
