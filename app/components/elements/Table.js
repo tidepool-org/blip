@@ -41,10 +41,8 @@ function stableSort(array, comparator) {
   return map(stabilizedThis, (el) => el[0]);
 }
 
-function filterData(data, fields, queryText) {
-  const filteredData = [...data];
-
-  return filter(filteredData, d => {
+function filterData(data, fields, queryText, cb) {
+  const filteredData = filter([...data], d => {
     let matchesQuery = false;
     for (let index = 0; index < fields.length; index++) {
       const field = fields[index];
@@ -55,6 +53,10 @@ function filterData(data, fields, queryText) {
     }
     return matchesQuery;
   });
+
+  if (cb) cb(filteredData);
+
+  return filteredData;
 }
 
 const StyledTable = styled(Base)`
@@ -73,23 +75,21 @@ const StyledTable = styled(Base)`
 
 export const Table = props => {
   const {
-    id,
-    label,
     columns,
     data,
-    rowHover,
-    variant,
-    searchText,
+    id,
+    label,
+    onFilter,
     page,
+    rowHover,
     rowsPerPage,
+    searchText,
+    variant,
     ...tableProps
   } = props;
 
   const [order, setOrder] = useState(props.order || 'asc');
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  // const [selected, setSelected] = useState([]);
-  // const [page, setPage] = useState(0);
-  // const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -108,10 +108,12 @@ export const Table = props => {
     Boolean,
   );
 
-  const filteredData = searchText ? filterData(sortedData, searchFields, searchText) : sortedData;
+  const filteredData = filterData(sortedData, searchFields, searchText, onFilter);
 
   const pageIndex = page - 1;
-  const pagedData = rowsPerPage && rowsPerPage < filteredData.length ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage) : filteredData;
+  const pagedData = rowsPerPage && rowsPerPage < filteredData.length
+    ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage)
+    : filteredData;
 
   return (
     <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
@@ -168,8 +170,6 @@ export const Table = props => {
 Table.propTypes = {
   ...TableProps,
   ...BoxProps,
-  label: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
   columns: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.string.isRequired,
     field: PropTypes.string.isRequired,
@@ -181,12 +181,15 @@ Table.propTypes = {
     render: PropTypes.func,
   })).isRequired,
   data: PropTypes.array.isRequired,
-  rowHover: PropTypes.bool,
-  stickyHeader: PropTypes.bool,
-  variant: PropTypes.oneOf(['default', 'condensed']),
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  onFilter: PropTypes.func,
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
+  rowHover: PropTypes.bool,
   searchText: PropTypes.string,
+  stickyHeader: PropTypes.bool,
+  variant: PropTypes.oneOf(['default', 'condensed']),
 };
 
 Table.defaultProps = {

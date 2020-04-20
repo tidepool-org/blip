@@ -29,7 +29,7 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-function createPatient(name, email) {
+const createPatient = (name, email) => {
   const colors = [
     'blues',
     'cyans',
@@ -41,13 +41,11 @@ function createPatient(name, email) {
   ];
 
   return { name, email, color: colors[random(colors.length - 1)] };
-}
+};
 
-function createData(patient, status, permission, role) {
-  return { patient, status, permission, role };
-}
+const createData = (patient, status, permission, role) => ({ patient, status, permission, role });
 
-function renderPatient({ patient }) {
+const renderPatient = ({ patient }) => {
   let initials = patient.name.match(/\b\w/g) || [];
   initials = toUpper((initials.shift() || '') + (initials.pop() || ''));
 
@@ -60,7 +58,7 @@ function renderPatient({ patient }) {
       </Box>
     </Flex>
   );
-}
+};
 
 function renderStatus({ status }) {
   let color = 'text.primary';
@@ -115,20 +113,15 @@ const background = () => options('Background Color', backgrounds, 'transparent',
 
 export const Simple = () => {
   const [searchText, setSearchText] = useState();
+  const [page, setPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(3);
+
+  const getPageCount = rowCount => Math.ceil(rowCount / rowsPerPage);
+  const [count, setCount] = React.useState(getPageCount(data.length));
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
   }
-
-  const rowsPerPageOptions = [
-    { value: 3, label: '3' },
-    { value: 5, label: '5' },
-    { value: 10, label: '10' },
-    { value: 15, label: '15' },
-  ];
-
-  const [page, setPage] = React.useState(1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(3);
 
   const handleRowsPerPageChange = event => {
     setPage(1);
@@ -138,6 +131,17 @@ export const Simple = () => {
   const handlePageChange = (event, newValue) => {
     setPage(newValue);
   };
+
+  const handleFilterChange = filteredData => {
+    setCount(getPageCount(filteredData.length));
+  };
+
+  const rowsPerPageOptions = [
+    { value: 3, label: '3' },
+    { value: 5, label: '5' },
+    { value: 10, label: '10' },
+    { value: 15, label: '15' },
+  ];
 
   return (
     <React.Fragment>
@@ -177,17 +181,18 @@ export const Simple = () => {
         columns={columns}
         bg={background()}
         searchText={searchText}
+        onFilter={handleFilterChange}
         page={page}
         rowsPerPage={rowsPerPage}
         orderBy="patient.name"
         order="asc"
       />
       <Pagination
-        id="my-paginator"
+        id="my-paginator`"
         page={page}
-        count={Math.ceil(data.length / rowsPerPage)}
+        count={count}
         onChange={handlePageChange}
-        disabled={rowsPerPage >= data.length}
+        disabled={count < 2}
         variant="default"
         my={3}
       />
