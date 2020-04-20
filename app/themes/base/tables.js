@@ -10,8 +10,17 @@ export default ({ borders, colors, fonts, fontSizes, shadows }) => {
       borderBottom: 'none',
     },
 
-    '.MuiTableCell-stickyHeader': {
-      backgroundColor: colors.white,
+    '&.MuiTable-stickyHeader': {
+      '.MuiTableCell-stickyHeader': {
+        backgroundColor: colors.white,
+        borderBottom: borders.default,
+      },
+
+      '.MuiTableBody-root .MuiTableRow-root:first-child': {
+        '.MuiTableCell-body': {
+          borderTop: 'none',
+        },
+      },
     },
 
     '.MuiTableBody-root .MuiTableRow-root': {
