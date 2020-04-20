@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
+import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import toUpper from 'lodash/toUpper';
 import random from 'lodash/random';
+import SearchIcon from '@material-ui/icons/Search';
+import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import { Flex, Box, Text } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Table from '../app/components/elements/Table';
 import Avatar from '../app/components/elements/Avatar';
 import TextInput from '../app/components/elements/TextInput';
-import SearchIcon from '@material-ui/icons/Search';
 import Pagination from '../app/components/elements/Pagination';
 import Select from '../app/components/elements/Select';
+import Button from '../app/components/elements/Button';
+import Icon from '../app/components/elements/Icon';
 
 /* eslint-disable max-len */
 
@@ -60,7 +64,7 @@ const renderPatient = ({ patient }) => {
   );
 };
 
-function renderStatus({ status }) {
+const renderStatus = ({ status }) => {
   let color = 'text.primary';
   let bg = 'transparent';
 
@@ -70,13 +74,23 @@ function renderStatus({ status }) {
   }
 
   return <Text as="span" px={2} py={1} fontWeight="medium" sx={{ borderRadius: 4 }} color={color} bg={bg}>{status}</Text>;
-}
+};
+
+const renderEdit = ({ patient }) => (
+  <Button p={0} fontSize="inherit" variant="text" onClick={action(`"Edit" called for ${patient.name}`)}>Edit</Button>
+);
+
+const renderMore = ({ patient }) => (
+  <Icon variant="button" icon={MoreHorizRoundedIcon} label="More actions" onClick={action(`"More actions" called for ${patient.name}`)} />
+);
 
 const columns = [
   { title: 'Patient', field: 'patient', align: 'left', sortable: true, sortBy: 'patient.name', render: renderPatient, searchable: true, searchBy: ['patient.name', 'patient.email'] },
   { title: 'Status', field: 'status', align: 'left', sortable: true, render: renderStatus, searchable: true },
   { title: 'Permission', field: 'permission', align: 'left' },
   { title: 'Role', field: 'role', align: 'left' },
+  { title: 'Edit', field: 'edit', render: renderEdit, align: 'left' },
+  { title: '', field: 'more', render: renderMore, align: 'left' },
 ];
 
 const data = [
