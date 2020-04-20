@@ -66,6 +66,7 @@ export const radii = {
 
 export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
+  medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
 };
 
@@ -87,7 +88,7 @@ const variants = {
   links: linkVariants,
   paginators: paginators({ colors, fonts, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
-  tables: tables({ colors, fonts, fontSizes }),
+  tables: tables({ borders, colors, fonts, fontSizes, shadows }),
 };
 
 export default {

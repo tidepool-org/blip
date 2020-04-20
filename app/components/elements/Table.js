@@ -193,8 +193,9 @@ Table.propTypes = {
 };
 
 Table.defaultProps = {
-  variant: 'default',
   order: 'asc',
+  rowHover: true,
+  variant: 'default',
 };
 
 export default Table;

@@ -109,7 +109,7 @@ const data = [
 ];
 
 const stickyHeader = () => boolean('Sticky Header', false);
-const rowHover = () => boolean('Enable Row Hover', false);
+const rowHover = () => boolean('Enable Row Hover', true);
 
 const variants = {
   Default: 'default',
