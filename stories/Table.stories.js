@@ -135,6 +135,7 @@ export const Simple = () => {
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
+    setPage(1);
   }
 
   const handleRowsPerPageChange = event => {
