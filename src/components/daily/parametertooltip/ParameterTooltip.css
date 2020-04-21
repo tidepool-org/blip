@@ -18,57 +18,46 @@
 
 .container {
   opacity: 1;
-  display: flex;
-  flex-direction: column;
   min-width: 80px;
   margin: 2px 0;
-  max-width: 300px;
-}
-
-.row {
   composes: smallSize from '../../../styles/typography.css';
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: space-between;
   line-height: 20px;
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  column-gap: .4em;
+  max-height: 480px;
+  overflow-y: hidden;
 }
 
 .date {
-  /* flex-grow: 1; */
-  padding-right: 5px;
-  width: 50px;
-  max-width: 50px;
+  text-align: right;
 }
 
 .label {
-  flex-grow: 1;
   font-weight: bold;
-  text-align: left;
 }
 
 .previous {
-  margin-left: 10px;
-  text-align: left;
+  text-align: right;
   white-space: nowrap;
 }
 
 .value {
-  margin-left: 2px;
   font-weight: bold;
   color: var(--activeValue);
-  text-align: left;
+  text-align: right;
+}
+
+.value-no-prev {
+  grid-column-start: 3;
+  grid-column-end: span 3;
 }
 
 .units {
   min-width: 0.7em;
-  margin-left: 2px;
 }
 
 .title {
   composes: smallSize from '../../../styles/typography.css';
   text-align: right;
-}
-
-.pa {
-  composes: row;
 }

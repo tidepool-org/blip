@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## Unreleased
+### Fixed
+- PT-1244 Parameter names are not aligned in Daily tooltip
+
 ## 0.11.3 - 2020-04-17
 ### Fixed
 - PT-1230 CGM / BGM labels don't change with language
