@@ -156,15 +156,6 @@ export const TextLinkStyle = Styled(Link)`
   }
 `;
 
-export const ButtonFont = Styled(Text)`
-  font-size: ${fontSizes[2]}px;
-  font-weight: ${fontWeights.regular};
-  line-height: ${lineHeights[0]};
-  font-family: ${fonts.default};
-  padding: ${space[0]}px ${space[2]}px;
-  height: auto;
-`;
-
 export const BlockQuote = Styled.blockquote`
   border-left: ${borders.default};
   font-weight: ${fontWeights.regular};
@@ -199,17 +190,6 @@ export const TopNavLink = Styled(NavLink)`
   &:hover {
     color: ${colors.text.link};
     box-shadow: none;
-    text-decoration: none;
-  }
-`;
-
-export const TextLink = Styled(Link)`
-  color: ${colors.text.link};
-  text-decoration: none;
-  line-height: ${lineHeights[0]};
-  font-family: ${fonts.default};
-  &:hover {
-    color: ${colors.text.link};
     text-decoration: none;
   }
 `;

@@ -74,7 +74,7 @@ export const RadioGroup = props => {
       <Flex
         justifyContent="flex-start"
         theme={baseTheme}
-        variant={variant}
+        variant={`inputs.radios.${variant}`}
       >
         {map(options, (option, i) => (
           <Radio
@@ -99,6 +99,7 @@ RadioGroup.propTypes = {
   disabled: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['horizontal', 'vertical']),
   options: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
@@ -106,7 +107,7 @@ RadioGroup.propTypes = {
 };
 
 RadioGroup.defaultProps = {
-  variant: 'inputs.radios.vertical',
+  variant: 'vertical',
   color: colors.text.default,
 };
 

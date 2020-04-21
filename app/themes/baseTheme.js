@@ -1,7 +1,12 @@
 import colorPalette from './colorPalette';
+import avatars from './base/avatars';
 import buttons from './base/buttons';
 import icons from './base/icons';
 import inputs from './base/inputs';
+import links from './base/links';
+import tabGroups from './base/tabGroups';
+import paginators from './base/paginators';
+import tables from './base/tables';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -19,6 +24,7 @@ export const colors = {
   border: {
     default: colorPalette.extended.grays[1],
     modal: colorPalette.extended.grays[0],
+    divider: colorPalette.extended.grays[0],
   },
 };
 
@@ -26,6 +32,7 @@ export const borders = {
   default: `1px solid ${colors.border.default}`,
   input: `1px solid ${colors.border.default}`,
   modal: `1px solid ${colors.border.modal}`,
+  divider: `2px solid ${colors.border.divider}`,
 };
 
 export const fonts = {
@@ -59,6 +66,7 @@ export const radii = {
 
 export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
+  medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
 };
 
@@ -70,14 +78,22 @@ export const transitions = {
 
 export const zIndices = [0, 10, 100, 1000];
 
+const linkVariants = links({ colors, fonts });
+
 const variants = {
+  avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
-  inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
+  inputs: inputs({ borders, colors, fonts, radii, fontSizes, space }),
+  link: linkVariants.default,
+  links: linkVariants,
+  paginators: paginators({ colors, fonts, fontSizes }),
+  tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
+  tables: tables({ borders, colors, fonts, fontSizes, shadows }),
 };
 
 export default {
   breakpoints,
-  buttons: buttons({ colors, borders, radii }),
+  buttons: buttons({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }),
   variants,
   colors,
   fonts,

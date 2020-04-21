@@ -1,10 +1,34 @@
-export default ({ borders, colors, fonts, radii, fontSizes }) => {
+export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
   const common = {
     border: borders.input,
     borderRadius: `${radii.input}px`,
     backgroundColor: colors.white,
     boxShadow: 'none',
     fontFamily: fonts.default,
+    fontSize: fontSizes[1],
+  };
+
+  const textInputs = {
+    ...common,
+    color: colors.text.primary,
+    caretColor: colors.text.primary,
+    width: '100%',
+
+    '&::placeholder': {
+      color: colors.text.primaryTextSubdued,
+    },
+    '&.active': {
+      color: colors.text.primaryTextSubdued,
+      boxShadow: 'none',
+    },
+    '&:focus': {
+      boxShadow: 'none',
+    },
+    '&:disabled': {
+      color: colors.text.primaryDisabled,
+      borderColor: colors.lightestGrey,
+      backgroundColor: colors.lightestGrey,
+    },
   };
 
   const radios = {
@@ -15,15 +39,43 @@ export default ({ borders, colors, fonts, radii, fontSizes }) => {
     fontSize: fontSizes[0],
   };
 
+  const selects = {
+    ...common,
+    color: colors.text.primary,
+    '&.disabled': {
+      color: colors.text.primaryDisabled,
+      borderColor: colors.lightestGrey,
+      backgroundColor: colors.lightestGrey,
+    },
+  };
+
   return {
+    text: {
+      default: {
+        input: {
+          ...textInputs,
+          padding: `${space[2] * 1.5}px`,
+        },
+      },
+      condensed: {
+        input: {
+          ...textInputs,
+          padding: `${space[2]}px`,
+        },
+      },
+    },
     select: {
-      ...common,
-      color: colors.text.primary,
-      width: ['100%', '75%', '50%'],
-      '&.disabled': {
-        color: colors.text.primaryDisabled,
-        borderColor: colors.lightestGrey,
-        backgroundColor: colors.lightestGrey,
+      default: {
+        ...selects,
+        select: {
+          padding: `${space[2] * 1.5}px`,
+        },
+      },
+      condensed: {
+        ...selects,
+        select: {
+          padding: `${space[2]}px`,
+        },
       },
     },
     radios: {

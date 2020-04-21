@@ -36,6 +36,13 @@ export const Simple = () => {
   const defaultValue = () => options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
   const disabled = () => boolean('Disabled', false);
 
+  const variants = {
+    Default: 'default',
+    Condensed: 'condensed',
+  };
+
+  const variant = () => options('Variant', variants, 'default', { display: 'inline-radio' });
+
   const [selected, setSelected] = useState(defaultValue());
 
   const handleChange = event => {
@@ -44,6 +51,7 @@ export const Simple = () => {
 
   return (
     <Select
+      variant={variant()}
       disabled={disabled()}
       label={label()}
       name="mySelect"

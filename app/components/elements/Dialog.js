@@ -39,7 +39,7 @@ export const DialogTitle = props => {
           label="close dialog"
           onClick={onClose}
           icon={CloseRoundedIcon}
-          variant="icons.button"
+          variant="button"
         />
       )}
     </StyledDialogTitle>

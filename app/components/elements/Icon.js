@@ -22,7 +22,7 @@ const StyledIcon = styled(Box)`
 `;
 
 export const Icon = props => {
-  const { icon: IconElement, label, ...buttonProps } = props;
+  const { icon: IconElement, label, variant, ...buttonProps } = props;
   const as = props.variant === 'icons.button' ? 'button' : 'span';
 
   const classNames = cx({
@@ -34,6 +34,7 @@ export const Icon = props => {
       as={as}
       aria-label={label}
       className={classNames}
+      variant={`icons.${variant}`}
       {...buttonProps}
     >
       <IconElement />
@@ -45,10 +46,11 @@ Icon.propTypes = {
   ...BoxProps,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
+  variant: PropTypes.oneOf(['default', 'static', 'button']),
 };
 
 Icon.defaultProps = {
-  variant: 'icons.static',
+  variant: 'default',
 };
 
 export default Icon;

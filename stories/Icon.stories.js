@@ -27,7 +27,7 @@ export default {
 
 const disabled = () => boolean('Disabled', false);
 
-export const Static = () => (
+export const Default = () => (
   <React.Fragment>
     <Icon
       sx={{
@@ -58,8 +58,8 @@ export const Static = () => (
   </React.Fragment>
 );
 
-Static.story = {
-  name: 'Static',
+Default.story = {
+  name: 'Default',
   parameters: {
     design: {
       type: 'figma',
@@ -71,7 +71,7 @@ Static.story = {
 export const Button = () => (
   <React.Fragment>
     <Icon
-      variant="icons.button"
+      variant="button"
       sx={{
         mr: '10px',
       }}
@@ -81,7 +81,7 @@ export const Button = () => (
       disabled={disabled()}
     />
     <Icon
-      variant="icons.button"
+      variant="button"
       color="mediumPurple"
       mr="10px"
       label="More"
@@ -90,7 +90,7 @@ export const Button = () => (
       disabled={disabled()}
     />
     <Icon
-      variant="icons.button"
+      variant="button"
       sx={{
         fontSize: '40px',
       }}
