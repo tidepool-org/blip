@@ -19,10 +19,11 @@ export default ({ colors, fontSizes, radii, space }) => {
     },
     static: {
       ...common,
-      backgroundColor: 'inherit',
+      backgroundColor: 'transparent',
       color: 'inherit',
       fontSize: 'inherit',
       padding: 0,
+      pointerEvents: 'none',
       '&.disabled': disabled,
     },
     button: {

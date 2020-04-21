@@ -4,6 +4,7 @@ import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
+import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
@@ -24,6 +25,7 @@ export default {
 
 const disabled = () => boolean('Disabled', false);
 const processing = () => boolean('Processing', false);
+const active = () => boolean('Active', false);
 
 export const Primary = () => {
   const buttonText = () => text('Button Text', 'Primary');
@@ -106,16 +108,19 @@ Text.story = {
   },
 };
 
-export const Split = () => {
-  const buttonText = () => text('Button Text', 'Apply');
+export const Filter = () => {
+  const buttonText = () => text('Button Text', 'Filter');
 
   return (
     <React.Fragment>
       <Button
-        variant="split"
+        variant="filter"
+        active={active()}
         disabled={disabled()}
         onClick={action('onClick called')}
         processing={processing()}
+        icon={KeyboardArrowDownRoundedIcon}
+        iconLabel="Open filters"
       >
         {buttonText()}
       </Button>
@@ -123,8 +128,8 @@ export const Split = () => {
   );
 };
 
-Split.story = {
-  name: 'Split',
+Filter.story = {
+  name: 'Filter',
   parameters: {
     design: {
       type: 'figma',
