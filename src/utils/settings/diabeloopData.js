@@ -17,6 +17,8 @@
 import textTable from 'text-table';
 import i18next from 'i18next';
 
+import { formatParameterValue } from '../format';
+
 const t = i18next.t.bind(i18next);
 
 /**
@@ -33,9 +35,10 @@ export function getParametersByLevel(parameters) {
       mapParams.set(parameter.level, []);
     }
 
+    const value = formatParameterValue(parameter.value, parameter.unit);
     const param = {
       name: t(`params:::${parameter.name}`),
-      value: parameter.value,
+      value,
       unit: parameter.unit,
       level: parameter.level,
     };

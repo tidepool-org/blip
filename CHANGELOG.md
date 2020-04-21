@@ -4,6 +4,7 @@ This node package is a dependency of Blip and was forked from tidepool/viz.
 ## Unreleased
 ### Fixed
 - PT-1244 Parameter names are not aligned in Daily tooltip
+- PT-1245 Parameter values are not rounded in Daily tooltip and Device settings page
 
 ## 0.11.3 - 2020-04-17
 ### Fixed

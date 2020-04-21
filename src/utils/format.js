@@ -39,7 +39,7 @@
 import _ from 'lodash';
 import { format } from 'd3-format';
 import { convertToMmolL } from './bloodglucose';
-import { BG_HIGH, BG_LOW, MMOLL_UNITS } from './constants';
+import { BG_HIGH, BG_LOW, MMOLL_UNITS, MGDL_UNITS } from './constants';
 
 /**
  * formatBgValue
@@ -124,10 +124,72 @@ export function formatPercentage(val, precision = 0) {
 
 /**
  * removeTrailingZeroes
- * @param {String} - formatted decimal value, may have trailing zeroes
- *
- * @return {String} - formatted decimal value w/o trailing zero-indexes
+ * @param {string} val formatted decimal value, may have trailing zeroes *
+ * @return {string} formatted decimal value w/o trailing zero-indexes
  */
 export function removeTrailingZeroes(val) {
   return val.replace(/\.0+$/, '');
+}
+
+/**
+ * Format the device parameter values.
+ * @param {string | number} value The parameter value
+ * @param {string} units The parameter units
+ * @returns {string} The formated parameter
+ */
+export function formatParameterValue(value, units) {
+  /** @type {number} */
+  let nValue;
+  /** @type {string} */
+  let ret;
+  if (typeof value === 'string') {
+    if (_.includes(value, '.')) {
+      nValue = Number.parseFloat(value);
+    } else {
+      nValue = Number.parseInt(value, 10);
+    }
+  } else if (typeof value === 'number') {
+    nValue = value;
+  }
+
+  let nDecimals = 0;
+  switch (units) {
+    case '%': // Percent, thanks captain obvious.
+    case 'min': // Minutes
+      break;
+    case 'g': // Grams
+    case 'kg':
+    case 'U': // Insulin dose
+    case MMOLL_UNITS:
+    case MGDL_UNITS:
+      nDecimals = 1;
+      break;
+    case 'U/g':
+      nDecimals = 3;
+      break;
+    default:
+      nDecimals = 2;
+      break;
+  }
+
+  if (Number.isNaN(nValue)) {
+    // Like formatPercentage() but we do not want to pad the '%' character.
+    ret = '--';
+  } else if (Number.isInteger(nValue) && nDecimals === 0) {
+    ret = nValue.toString(10);
+  } else {
+    const aValue = Math.abs(nValue);
+    // I did not use formatDecimalNumber() because some of our parameters are x10e-4,
+    // so they are displayed as "0.00"
+    if (aValue < Number.EPSILON) {
+      ret = nValue.toFixed(1); // Value ~= 0
+    } else if (aValue < 1e-2 || aValue > 9999) {
+      ret = nValue.toExponential(2);
+    } else {
+      ret = nValue.toFixed(nDecimals);
+    }
+  }
+
+  // `${value} | ${ret}`; // Debug
+  return ret;
 }

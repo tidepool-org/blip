@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
-
+import { formatParameterValue } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './ParameterTooltip.css';
@@ -39,7 +39,8 @@ class ParameterTooltip extends React.Component {
     let prevToNext = null;
     let valueClassName = styles.value;
     if (typeof parameter.previousValue === 'string') {
-      previousValue = <span className={styles.previous} key={`${parameter.id}-prev`}>{parameter.previousValue}</span>;
+      const previous = formatParameterValue(parameter.previousValue, parameter.units);
+      previousValue = <span className={styles.previous} key={`${parameter.id}-prev`}>{previous}</span>;
       prevToNext = <span key={`${parameter.id}-arrow`}>&rarr;</span>;
     } else {
       valueClassName = `${valueClassName} ${styles['value-no-prev']}`;
@@ -48,12 +49,14 @@ class ParameterTooltip extends React.Component {
     const displayHour = formatLocalizedFromUTC(
       parameter.normalTime, this.props.timePrefs, this.hourMinuteFormat);
 
+    const value = formatParameterValue(parameter.value, parameter.units);
+
     return [
       <span className={styles.date} key={`${parameter.id}-date`}>{displayHour}</span>,
       <span className={styles.label} key={`${parameter.id}-name`}>{t(`params:::${parameter.name}`)}</span>,
       previousValue,
       prevToNext,
-      <span className={valueClassName} key={`${parameter.id}-value`}>{parameter.value}</span>,
+      <span className={valueClassName} key={`${parameter.id}-value`}>{value}</span>,
       <span className={styles.units} key={`${parameter.id}-units`}>{t(`${parameter.units}`)}</span>,
     ];
   }

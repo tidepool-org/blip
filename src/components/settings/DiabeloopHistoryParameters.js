@@ -1,14 +1,23 @@
 import React from 'react';
 import i18next from 'i18next';
 import _ from 'lodash';
+import bows from 'bows';
 
+import { formatParameterValue } from '../../utils/format';
 import Table from './common/Table';
 
+// @ts-ignore
 import styles from './Diabeloop.css';
 
 const t = i18next.t.bind(i18next);
 
 export default class HistoryTable extends Table {
+  constructor(props) {
+    super(props);
+
+    this.log = bows('HistoryTable');
+  }
+
   static get title() {
     return {
       label: {
@@ -93,28 +102,37 @@ export default class HistoryTable extends Table {
     );
   }
 
-  getValueChange(parameter) {
-    const { changeValueArrowIcon } = this.props;
-    const value = <span key="value">{`${parameter.value} ${parameter.unit}`}</span>;
-    let previousValue;
+  getValueChange(param) {
+    const fCurrentValue = formatParameterValue(param.value, param.unit);
+    const value = <span key="value">{`${fCurrentValue} ${param.unit}`}</span>;
     let spanClass = styles.historyValue;
-    switch (parameter.changeType) {
+
+    const elements = [];
+    switch (param.changeType) {
       case 'added':
         spanClass = `${spanClass} ${styles.valueAdded}`;
         break;
       case 'deleted':
         spanClass = `${spanClass} ${styles.valueDeleted}`;
         break;
-      case 'updated':
+      case 'updated': {
+        const { changeValueArrowIcon } = this.props;
+        const fPreviousValue = formatParameterValue(param.previousValue, param.previousUnit);
         spanClass = `${spanClass} ${styles.valueUpdated}`;
-        previousValue = <span key="previousValue">{`${parameter.previousValue} ${parameter.previousUnit}`}</span>;
+        const previousValue = <span key="previousValue">{`${fPreviousValue} ${param.previousUnit}`}</span>;
+        elements.push(previousValue);
+        elements.push(changeValueArrowIcon);
         break;
+      }
       default:
         break;
     }
+
+    elements.push(value);
+
     return (
       <span className={spanClass}>
-        {parameter.changeType === 'updated' ? ([previousValue, changeValueArrowIcon, value]) : value}
+        {elements}
       </span>
     );
   }
@@ -153,7 +171,7 @@ export default class HistoryTable extends Table {
               case 'added':
                 if (currentParameters.has(parameter.name)) {
                   // eslint-disable-next-line max-len
-                  console.warn(`History: Parameter ${parameter.name} was added, but present in current parameters`);
+                  this.log.warn(`History: Parameter ${parameter.name} was added, but present in current parameters`);
                 }
                 currentParameters.set(parameter.name, {
                   value: parameter.value,
@@ -165,7 +183,7 @@ export default class HistoryTable extends Table {
                   currentParameters.delete(parameter.name);
                 } else {
                   // eslint-disable-next-line max-len
-                  console.warn(`History: Parameter ${parameter.name} was removed, but not present in current parameters`);
+                  this.log.warn(`History: Parameter ${parameter.name} was removed, but not present in current parameters`);
                 }
                 break;
               case 'updated':
@@ -175,7 +193,7 @@ export default class HistoryTable extends Table {
                   row.previousValue = currParam.value;
                 } else {
                   // eslint-disable-next-line max-len
-                  console.warn(`History: Parameter ${parameter.name} was updated, but not present in current parameters`);
+                  this.log.warn(`History: Parameter ${parameter.name} was updated, but not present in current parameters`);
                   row.changeType = 'added';
                 }
 
@@ -185,7 +203,7 @@ export default class HistoryTable extends Table {
                 });
                 break;
               default:
-                console.warn(`Unknown change type ${row.changeType}:`, row);
+                this.log.warn(`Unknown change type ${row.changeType}:`, row);
                 break;
             }
 
