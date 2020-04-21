@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { withKnobs, text, boolean } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from 'styled-components';
 import InfoIcon from '@material-ui/icons/Info';
@@ -29,24 +29,21 @@ const bannerTextDanger = () => text('Banner Text Danger', 'Wrinkler h*ck doggori
 const bannerTextWarning = () => text('Banner Text Warning', 'Wrinkler h*ck doggorino clouds, you are doing me a frighten.');
 const bannerTextNoIcon = () => text('Banner Text', 'Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. ');
 
+const closed = () => boolean('Closed', false);
 
 export const BannerStory = () => (
 
   <React.Fragment>
-    <Banner my={2} message={bannerText()} onClick={action('onClick called')}>
+    <Banner my={2} message={bannerText()} onClick={action()}>
       <Icon icon={InfoIcon} variant="banner" />
     </Banner>
     <Banner my={2} variant="danger" message={bannerTextDanger()}>
       <Icon icon={WarningIcon} variant="banner" />
     </Banner>
-    <Banner my={2} variant="warning" message={bannerTextWarning()}>
-      <Icon icon={WarningIcon} variant="banner" />
-    </Banner>
     <Banner my={2} message={bannerTextNoIcon()} />
-    <Banner my={2} variant="warning" message={bannerTextWarning()} dismissable="true">
+    <Banner my={2} variant="warning" message={bannerTextWarning()} dismissable="true" closed={closed()}>
       <Icon icon={WarningIcon} variant="banner" />
     </Banner>
-    <Banner my={2} message={bannerTextNoIcon()} dismissable="true" />
   </React.Fragment>
 );
 

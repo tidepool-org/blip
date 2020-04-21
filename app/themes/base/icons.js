@@ -42,6 +42,7 @@ export default ({ colors, fontSizes, radii, space }) => {
       color: 'inherit',
       fontSize: 'inherit',
       paddingRight: 12,
+      cursor: 'default',
     },
   };
 };
