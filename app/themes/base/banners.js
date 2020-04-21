@@ -18,6 +18,11 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
     },
+
+    '.close-icon': {
+      color: colors.white,
+      fontSize: fontSizes[1],
+    },
   };
 
   return {
