@@ -6,6 +6,7 @@ import inputs from './base/inputs';
 import links from './base/links';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
+import tables from './base/tables';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -65,6 +66,7 @@ export const radii = {
 
 export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
+  medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
 };
 
@@ -81,11 +83,12 @@ const linkVariants = links({ colors, fonts });
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
-  inputs: inputs({ borders, colors, fonts, fontSizes, radii }),
+  inputs: inputs({ borders, colors, fonts, radii, fontSizes, space }),
   link: linkVariants.default,
   links: linkVariants,
-  tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   paginators: paginators({ colors, fonts, fontSizes }),
+  tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
+  tables: tables({ borders, colors, fonts, fontSizes, shadows }),
 };
 
 export default {

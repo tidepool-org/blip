@@ -1,3 +1,4 @@
+/* See https://tidepool-design.netlify.app/#/Utilities/Color for swatches */
 export default {
   primary: {
     background: '#FFFFFF',
