@@ -95,6 +95,7 @@ export default {
   breakpoints,
   buttons: buttons({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }),
   variants,
+  borders,
   colors,
   fonts,
   fontSizes,
