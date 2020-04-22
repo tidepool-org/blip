@@ -47,16 +47,31 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
         color: colors.text.primaryDisabled,
       },
     },
-    text: {
+    textPrimary: {
       ...defaultStyles,
       backgroundColor: colors.white,
-      color: colors.text.primary,
+      color: colors.purpleMedium,
       border: 0,
       borderRadius: 0,
       paddingLeft: 2,
       paddingRight: 2,
       '&:hover,&:active': {
-        color: colors.text.primarySubdued,
+        color: colors.text.primary,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+      },
+    },
+    textSecondary: {
+      ...defaultStyles,
+      backgroundColor: colors.white,
+      color: colors.text.primarySubdued,
+      border: 0,
+      borderRadius: 0,
+      paddingLeft: 2,
+      paddingRight: 2,
+      '&:hover,&:active': {
+        color: colors.text.primary,
       },
       '&:disabled': {
         color: colors.text.primaryDisabled,
