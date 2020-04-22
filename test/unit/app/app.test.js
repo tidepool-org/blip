@@ -200,6 +200,8 @@ describe('App', () => {
       showBanner: sinon.stub(),
       hideBanner: sinon.stub(),
       patient: {},
+      resendEmailVerificationProgress: false,
+      resentEmailVerification: false,
     });
 
     let wrapper;
@@ -209,18 +211,23 @@ describe('App', () => {
 
     it('should render the banner or not based on the patient username and permsOfLoggedInUser prop values', () => {
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
       wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
 
       wrapper.setProps({ patient: {}, permsOfLoggedInUser: {custodian:{}} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
       wrapper.setProps({ patient: {}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
 
       wrapper.setProps({ patient: {username: 'someEmail'}, permsOfLoggedInUser: {} });
       expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
+      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
     });
   });
 
@@ -596,6 +603,14 @@ describe('App', () => {
       it('should return null for permsOfLoggedInUser', () => {
         expect(result.permsOfLoggedInUser).to.be.null;
       });
+
+      it('should map working.resendingEmailVerification.inProgress to resendingEmailVerification', () => {
+        expect(result.resendEmailVerificationProgress).to.be.false;
+      });
+
+      it('should map resentEmailVerification to resentEmailVerification', () => {
+        expect(result.resentEmailVerification).to.be.false;
+      });
     });
 
     describe('logged-in state', () => {
@@ -632,8 +647,10 @@ describe('App', () => {
           fetchingPendingSentInvites: {inProgress: false},
           updatingDataDonationAccounts: {inProgress: false},
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
-          loggingOut: {inProgress: false}
-        }
+          loggingOut: {inProgress: false},
+          resendingEmailVerification: {inProgress: false},
+        },
+        resentEmailVerification: false,
       };
       const result = mapStateToProps({blip: loggedIn});
 
@@ -718,7 +735,8 @@ describe('App', () => {
             fetchingPendingSentInvites: {inProgress: false},
             updatingDataDonationAccounts: {inProgress: false},
             fetchingPatient: {inProgress: false, notification: {type: 'error'}},
-            loggingOut: {inProgress: false}
+            loggingOut: {inProgress: false},
+            resendingEmailVerification: {inProgress: false},
           }
         };
         const careTeamMemberUploadResult = mapStateToProps({blip: careTeamMemberUpload});
@@ -763,7 +781,8 @@ describe('App', () => {
             fetchingPendingSentInvites: {inProgress: false},
             updatingDataDonationAccounts: {inProgress: false},
             fetchingPatient: {inProgress: false, notification: {type: 'error'}},
-            loggingOut: {inProgress: false}
+            loggingOut: {inProgress: false},
+            resendingEmailVerification: {inProgress: false},
           }
         };
         const careTeamMemberNoUploadResult = mapStateToProps({blip: careTeamMemberNoUpload});
