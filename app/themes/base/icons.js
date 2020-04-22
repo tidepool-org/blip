@@ -38,12 +38,5 @@ export default ({ colors, fontSizes, radii, space }) => {
       },
       '&.disabled': disabled,
     },
-    banner: {
-      ...common,
-      color: 'inherit',
-      fontSize: 'inherit',
-      paddingRight: 12,
-      cursor: 'default',
-    },
   };
 };
