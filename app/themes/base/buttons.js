@@ -6,6 +6,10 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     fontFamily: fonts.default,
     padding: `${space[2]}px ${space[3]}px`,
     height: 'auto',
+
+    '.icon': {
+      fontSize: `${fontSizes[3]}px`,
+    },
   };
 
   return {
@@ -60,8 +64,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     },
     pagination: {
       ...defaultStyles,
-      fontSize: fontSizes[0],
-
+      fontSize: `${fontSizes[0]}px`,
       fontWeight: fontWeights.medium,
       backgroundColor: 'transparent',
       color: colors.text.primary,
@@ -89,6 +92,31 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
         '&:disabled': {
           backgroundColor: colors.text.primaryDisabled,
         },
+      },
+    },
+    filter: {
+      ...defaultStyles,
+      backgroundColor: colors.white,
+      color: colors.text.primary,
+      border: borders.input,
+      borderColor: colors.grays[1],
+      borderRadius: radii.default,
+      fontSize: `${fontSizes[0]}px`,
+      padding: `${space[2]}px`,
+
+      '.icon': {
+        fontSize: `${fontSizes[2]}px`,
+      },
+      '&:hover': {
+        borderColor: colors.grays[2],
+      },
+      '&:active, &.active': {
+        borderColor: colors.purpleMedium,
+      },
+      '&:disabled': {
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
+        color: colors.text.primaryDisabled,
       },
     },
   };
