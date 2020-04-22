@@ -22,7 +22,6 @@ export default ({ colors, fontSizes, radii, space }) => {
       backgroundColor: 'transparent',
       color: 'inherit',
       fontSize: 'inherit',
-      pointerEvents: 'none',
       padding: 0,
       pointerEvents: 'none',
       '&.disabled': disabled,
