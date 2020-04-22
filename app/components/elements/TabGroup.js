@@ -144,6 +144,7 @@ TabGroup.propTypes = {
 };
 
 TabGroup.defaultProps = {
+  themeProps: {},
   value: 0,
   variant: 'horizontal',
 };

@@ -1,13 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Button as Base, Box, ButtonProps } from 'rebass/styled-components';
+import { Button as Base, Flex, Box, ButtonProps } from 'rebass/styled-components';
 import styled, { ThemeContext } from 'styled-components';
 import cx from 'classnames';
 
-import {
-  transitions,
-} from '../../themes/baseTheme';
+import Icon from './Icon';
+import baseTheme, { transitions } from '../../themes/baseTheme';
 
 const StyledButton = styled(Base)`
   cursor: pointer;
@@ -21,7 +20,7 @@ const StyledButton = styled(Base)`
   &.processing {
     pointer-events: none;
 
-    > div:first-child {
+    > div:first-child, .icon {
       visibility: hidden;
     }
   }
@@ -36,14 +35,17 @@ const StyledCircularProgress = styled(Box)`
 `;
 
 export const Button = props => {
-  const { children, processing, className = '', ...buttonProps } = props;
-  const classNames = cx({ processing });
+  const { children, active, processing, icon, iconLabel, className = '', ...buttonProps } = props;
+  const classNames = cx({ processing, active });
 
   const themeContext = useContext(ThemeContext);
 
   return (
-    <StyledButton variant="primary" {...buttonProps} className={`${classNames} ${className}`}>
-      <div>{children}</div>
+    <Flex as={StyledButton} alignItems="center" variant="primary" {...buttonProps} className={`${classNames} ${className}`}>
+      <Box>{children}</Box>
+      {icon && (
+        <Icon className="icon" ml={1} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
+      )}
       {processing && (
         <StyledCircularProgress>
           <CircularProgress
@@ -53,13 +55,16 @@ export const Button = props => {
           />
         </StyledCircularProgress>
       )}
-    </StyledButton>
+    </Flex>
   );
 };
 
 Button.propTypes = {
   ...ButtonProps,
   processing: PropTypes.bool,
+  active: PropTypes.bool,
+  icon: PropTypes.elementType,
+  iconLabel: PropTypes.string,
 };
 
 export default Button;
