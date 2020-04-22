@@ -21,9 +21,9 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const bannerText = () => text('Banner Text', 'Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. Fluffer ur givin me a spook. lotsa pats smol borking doggo with shooberino boofers. ');
-const bannerTextDanger = () => text('Banner Text Danger', 'Wrinkler h*ck doggorino. He made many woofs mlem, many pats.');
-const bannerTextWarning = () => text('Banner Text Warning', 'Wrinkler h*ck doggorino clouds, you are doing me a frighten.');
+const bannerText = () => text('Banner Text', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
+const bannerTextDanger = () => text('Banner Text Danger', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
+const bannerTextWarning = () => text('Banner Text Warning', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.');
 
 function createBanner(message, variant, dismissable = true) {
   return { message, variant, dismissable };
