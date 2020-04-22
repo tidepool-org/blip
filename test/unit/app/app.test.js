@@ -604,8 +604,8 @@ describe('App', () => {
         expect(result.permsOfLoggedInUser).to.be.null;
       });
 
-      it('should map working.resendingEmailVerification.inProgress to resendingEmailVerification', () => {
-        expect(result.resendEmailVerificationProgress).to.be.false;
+      it('should map working.resendingEmailVerification.inProgress to resendEmailVerificationInProgress', () => {
+        expect(result.resendEmailVerificationInProgress).to.be.false;
       });
 
       it('should map resentEmailVerification to resentEmailVerification', () => {

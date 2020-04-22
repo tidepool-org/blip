@@ -315,7 +315,7 @@ export class AppComponent extends React.Component {
       patient,
       permsOfLoggedInUser,
       onResendEmailVerification,
-      resendEmailVerificationProgress,
+      resendEmailVerificationInProgress,
       resentEmailVerification,
     } = this.props;
     if (_.has(permsOfLoggedInUser, 'custodian')) {
@@ -337,7 +337,7 @@ export class AppComponent extends React.Component {
               trackMetric={this.props.context.trackMetric}
               patient={patient}
               resendVerification={onResendEmailVerification}
-              resendEmailVerificationProgress={resendEmailVerificationProgress}
+              resendEmailVerificationInProgress={resendEmailVerificationInProgress}
               resentEmailVerification={resentEmailVerification}
             />
           </div>
@@ -570,7 +570,7 @@ export function mapStateToProps(state) {
     userIsDonor,
     userHasConnectedDataSources,
     userIsSupportingNonprofit,
-    resendEmailVerificationProgress: state.blip.working.resendingEmailVerification.inProgress,
+    resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
   };
 };

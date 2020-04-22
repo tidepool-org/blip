@@ -50,7 +50,7 @@ describe('SendVerificationBanner', () => {
     expect(verificationButton.text()).contains(expectedText);
   });
 
-  it('should track when the add email button is clicked', () => {
+  it('should track when the resend verification button is clicked', () => {
     const verificationButton = wrapper.find('button');
     verificationButton.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);

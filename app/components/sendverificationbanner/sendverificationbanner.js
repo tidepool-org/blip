@@ -10,7 +10,7 @@ const SendVerificationBanner = (props) => {
     trackMetric,
     resendVerification,
     t,
-    resendEmailVerificationProgress: working,
+    resendEmailVerificationInProgress: working,
     resentEmailVerification: resent,
   } = props;
 
@@ -57,7 +57,7 @@ SendVerificationBanner.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
   resendVerification: PropTypes.func.isRequired,
-  resendEmailVerificationProgress: PropTypes.bool.isRequired,
+  resendEmailVerificationInProgress: PropTypes.bool.isRequired,
   resentEmailVerification: PropTypes.bool.isRequired,
 };
 
