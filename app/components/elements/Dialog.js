@@ -2,10 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import MuiDialog, { DialogProps } from '@material-ui/core/Dialog';
-import MuiDialogContent, { DialogContentProps } from '@material-ui/core/DialogContent';
-import MuiDialogActions, { DialogActionsProps } from '@material-ui/core/DialogActions';
 import styled from 'styled-components';
-import { Flex } from 'rebass/styled-components';
+import { Flex, FlexProps, Box, BoxProps } from 'rebass/styled-components';
 
 import { Icon } from './Icon';
 
@@ -17,12 +15,6 @@ import {
 } from '../../themes/baseTheme';
 
 /* Dialog Title Start */
-const StyledDialogTitle = styled(Flex)`
-  justify-content: space-between;
-  align-items: center;
-  padding: ${space[3]}px;
-`;
-
 export const DialogTitle = props => {
   const {
     children,
@@ -32,7 +24,13 @@ export const DialogTitle = props => {
   } = props;
 
   return (
-    <StyledDialogTitle {...dialogTitleProps}>
+    <Flex
+      p={3}
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+      {...dialogTitleProps}
+    >
       {children}
       {closeIcon && (
         <Icon
@@ -42,23 +40,24 @@ export const DialogTitle = props => {
           variant="button"
         />
       )}
-    </StyledDialogTitle>
+    </Flex>
   );
 };
 
 DialogTitle.propTypes = {
+  ...FlexProps,
   closeIcon: PropTypes.bool,
+  divider: PropTypes.bool,
 };
 
 DialogTitle.defaultProps = {
   closeIcon: true,
+  divider: true,
 };
 /* Dialog Title End */
 
 /* Dialog Content Start */
-const StyledDialogContent = styled(MuiDialogContent)`
-  padding: ${space[4]}px ${space[3]}px;
-
+const StyledDialogContent = styled(Box)`
   div:first-child {
     margin-top: 0;
   }
@@ -68,30 +67,41 @@ const StyledDialogContent = styled(MuiDialogContent)`
   }
 `;
 
-export const DialogContent = props => <StyledDialogContent {...props} />;
+export const DialogContent = props => (
+  <StyledDialogContent
+    p={3}
+    sx={{ borderBottom: props.divider ? borders.divider : 'unset' }}
+    {...props}
+  />
+);
 
-DialogContent.propTypes = DialogContentProps;
+DialogContent.propTypes = {
+  ...BoxProps,
+  divider: PropTypes.bool,
+};
 
 DialogContent.defaultProps = {
-  dividers: true,
+  divider: true,
 };
 /* Dialog Content End */
 
 /* Dialog Actions Start */
-const StyledDialogActions = styled(MuiDialogActions)`
-  padding: ${space[3]}px;
-
+const StyledDialogActions = styled(Flex)`
   button {
     margin-left: ${space[2]}px;
   }
 `;
 
-export const DialogActions = props => <StyledDialogActions {...props} />;
+export const DialogActions = props => (
+  <StyledDialogActions
+    justifyContent="flex-end"
+    p={3}
+    {...props}
+  />
+);
 
-DialogActions.propTypes = DialogActionsProps;
-
-DialogActions.defaultProps = {
-  disableSpacing: true,
+DialogActions.propTypes = {
+  ...FlexProps,
 };
 /* Dialog Actions End */
 
