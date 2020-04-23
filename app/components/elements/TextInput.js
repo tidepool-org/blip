@@ -6,6 +6,7 @@ import { Label, Input as Base, InputProps } from '@rebass/forms';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
 import { space } from '../../themes/baseTheme';
+import cx from 'classnames';
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -20,26 +21,53 @@ const StyledWrapper = styled(Flex)`
     right: ${space[2]}px;
     top: ${({ variant }) => (variant === 'inputs.text.default' ? 13 : 9)}px;
     color: inherit;
-    /* Disable pointer events so click actually applies to the dropdown menu underneath */
+    /* Disable pointer events so click actually applies to the text input underneath */
     pointer-events: none;
   }
 `;
 
-export const TextInput = props => {
-  const { label, name, width, icon, themeProps, variant, ...inputProps } = props;
+export const TextInput = (props) => {
+  const {
+    label,
+    name,
+    width,
+    icon,
+    themeProps,
+    variant,
+    required,
+    placeholder: placeholderProp,
+    error,
+    ...inputProps
+  } = props;
+  let placeholder = placeholderProp;
+  if (required) {
+    placeholder += ' *';
+  }
+  const inputClasses = cx({
+    error,
+  });
   return (
     <Box width={['100%', '75%', '50%']} {...themeProps}>
-      {label &&
+      {label && (
         <Label htmlFor={name}>
-          <Caption>{label}</Caption>
+          <Caption className={inputClasses}>{label}</Caption>
         </Label>
-      }
+      )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
-        <Base id={name} name={name} {...inputProps} />
-        {icon &&
-          <Icon icon={icon} label={label} />
-        }
+        <Base
+          id={name}
+          name={name}
+          placeholder={placeholder}
+          className={inputClasses}
+          {...inputProps}
+        />
+        {icon && <Icon icon={icon} label={label} />}
       </StyledWrapper>
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
     </Box>
   );
 };
@@ -54,6 +82,8 @@ TextInput.propTypes = {
   icon: PropTypes.elementType,
   themeProps: PropTypes.shape(BoxProps),
   variant: PropTypes.oneOf(['default', 'condensed']),
+  required: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 TextInput.defaultProps = {

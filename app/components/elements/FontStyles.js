@@ -106,6 +106,9 @@ export const Caption = Styled(Text)`
   line-height: ${lineHeights[4]};
   font-family: ${fonts.default};
   color: ${props => (props.color ? props.color : colors.text.primary)};
+  &.error {
+    color: ${colors.orange}
+  }
 `;
 
 export const NavigationLink = Styled(Link)`
