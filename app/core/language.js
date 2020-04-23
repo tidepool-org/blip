@@ -52,6 +52,10 @@ i18n
       fr: {
         // Default namespace
         translation: require('../../locales/fr/translation.json')
+      },
+      es: {
+        // Default namespace
+        translation: require('../../locales/es/translation.json')
       }
     }
   });

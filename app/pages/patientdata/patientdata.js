@@ -18,6 +18,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
+import i18next from '../../core/language';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -194,14 +195,15 @@ export let PatientData = translate()(React.createClass({
     return this.renderChart();
   },
 
-  renderEmptyHeader: function(title = 'Preparing Chart Data') {
+  renderEmptyHeader: function(title) {
     const { t } = this.props;
+    const headerTitle = title || t('Preparing Chart Data');
     return (
       <Header
         chartType={'no-data'}
         inTransition={false}
         atMostRecent={false}
-        title={t(title)}
+        title={headerTitle}
         ref="header" />
       );
   },
