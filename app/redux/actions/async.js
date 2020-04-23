@@ -937,25 +937,46 @@ export function fetchPatientData(api, options, id) {
       // passing in an initial startDate param in the patientdata.js initial data fetcher.
       if (options.initialStartDate) initialFetchParams.startDate = options.initialStartDate;
 
-      api.patientData.get(id, initialFetchParams, (err, results) => {
-        if (err) {
-          dispatch(sync.fetchPatientDataFailure(
-            createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
-          ));
-        } else {
+      const initialFetchers = {
+        serverTime: api.server.getTime.bind(api),
+        latestDatums: api.patientData.get.bind(api, id, initialFetchParams),
+      };
+
+      async.parallel(async.reflectAll(initialFetchers), (err, results) => {
+        const resultsErr = _.mapValues(results, ({error}) => error);
+        const resultsVal = _.mapValues(results, ({value}) => value);
+        const hasError = _.some(resultsErr, err => !_.isUndefined(err));
+
+        if (hasError) {
+          handleFetchErrors(resultsErr);
+        }
+        else {
+          // On the initial fetch, we want to use the server time if we can in case the user's local
+          // computer time is off and set the max endDate to one day in the future since we can get
+          // `time` fields that are slightly (or not-so-slightly) in the future due to incorrect
+          // device and/or computer time upon upload.
+          const serverTime = _.get(resultsVal.serverTime, 'data.time');
+          dispatch(sync.fetchServerTimeSuccess(serverTime));
+
           // We determine the date range to fetch data for by first finding the latest
           // diabetes datum time and going back 30 days
-          const diabetesDatums = _.reject(results, d => _.includes(['food', 'upload'], d.type));
+          const diabetesDatums = _.reject(resultsVal.latestDatums, d => _.includes(['food', 'upload'], d.type));
           const latestDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
-          options.startDate = moment.utc(latestDatumTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
-          options.endDate = moment.utc(latestDatumTime || options.browserTimeStub).add(1, 'days').toISOString();
+
+          // We want to use the server time as the max end date in case the user's local computer
+          // time is off. We add add a one day buffer due to timezones and since we can get `time`
+          // fields that are slightly in the future due to incorrect device and/or computer time
+          // upon upload.
+          const fetchFromTime = latestDatumTime ? _.min([latestDatumTime, serverTime]) : serverTime;
+          options.startDate = moment.utc(fetchFromTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
+          options.endDate = moment.utc(fetchFromTime || options.browserTimeStub).add(1, 'days').toISOString();
 
           // We want to make sure the latest upload, which may be beyond the data range we'll be
           // fetching, is stored so we can include it with the fetched results
-          latestUpload = _.find(results, { type: 'upload' });
-          const latestPumpSettings = _.find(results, { type: 'pumpSettings' });
+          latestUpload = _.find(resultsVal.latestDatums, { type: 'upload' });
+          const latestPumpSettings = _.find(resultsVal.latestDatums, { type: 'pumpSettings' });
           const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
-          const latestPumpSettingsUpload = _.find(results, { type: 'upload', uploadId: latestPumpSettingsUploadId });
+          const latestPumpSettingsUpload = _.find(resultsVal.latestDatums, { type: 'upload', uploadId: latestPumpSettingsUploadId });
 
           if (latestPumpSettingsUploadId && !latestPumpSettingsUpload) {
             // If we have pump settings, but we don't have the corresponing upload record used
@@ -972,6 +993,18 @@ export function fetchPatientData(api, options, id) {
     }
 
     function handleFetchErrors(errors) {
+      if (errors.serverTime) {
+        dispatch(sync.fetchServerTimeFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_SERVER_TIME, errors.serverTime),
+          errors.serverTime
+        ));
+      }
+      if (errors.latestDatums) {
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, errors.latestDatums),
+          errors.latestDatums
+        ));
+      }
       if (errors.patientData) {
         dispatch(sync.fetchPatientDataFailure(
           createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, errors.patientData),
