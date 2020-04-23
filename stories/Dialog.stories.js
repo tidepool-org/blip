@@ -90,13 +90,13 @@ export const DialogStory = () => {
         disableRestoreFocus
       >
         {showTitle() && (
-          <DialogTitle onClose={handleClose} closeIcon={showTitleClose()}>
+          <DialogTitle divider={showDividers()} onClose={handleClose} closeIcon={showTitleClose()}>
             <Title id="dialog-title">{titleText()}</Title>
           </DialogTitle>
         )}
 
         {showContent() && (
-          <DialogContent dividers={showDividers()}>
+          <DialogContent divider={showDividers()}>
             {getParagraphs()}
           </DialogContent>
         )}

@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
+import { Flex } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
@@ -82,19 +83,29 @@ Secondary.story = {
 };
 
 export const Text = () => {
-  const buttonText = () => text('Button Text', 'Apply');
+  const buttonPrimaryText = () => text('Primary Button Text', 'Apply');
+  const buttonSecondaryText = () => text('Secondary Button Text', 'Cancel');
 
   return (
-    <React.Fragment>
+    <Flex>
       <Button
-        variant="text"
+        mr={2}
+        variant="textSecondary"
         disabled={disabled()}
         onClick={action('onClick called')}
         processing={processing()}
       >
-        {buttonText()}
+        {buttonSecondaryText()}
       </Button>
-    </React.Fragment>
+      <Button
+        variant="textPrimary"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
+      >
+        {buttonPrimaryText()}
+      </Button>
+    </Flex>
   );
 };
 

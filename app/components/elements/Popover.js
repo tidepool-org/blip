@@ -1,33 +1,49 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { default as Base, PopoverProps } from '@material-ui/core/Popover';
 import styled from 'styled-components';
-import { Box } from 'rebass/styled-components';
+import { Box, BoxProps } from 'rebass/styled-components';
 
 import { borders, radii, shadows, space } from '../../themes/baseTheme';
 
 const StyledPopover = styled(Base)`
   .MuiPopover-paper {
-    padding: ${space[3]}px;
     margin-top: ${space[2]}px;
     margin-bottom: ${space[2]}px;
     border: ${borders.modal};
     box-shadow: ${shadows.large};
     border-radius: ${radii.default}px;
+    width: ${({ width }) => width};
+    max-width: calc(100% - ${space[5]}px);
   }
 `;
 
 const PopoverContentWrapper = React.forwardRef((props, ref) => (
-  <Box width={['100%', '50%', '33.3%', '25%']} {...props} ref={ref} />
+  <Box {...props} ref={ref} />
 ));
 
-const Popover = props => <StyledPopover {...props} />;
+const Popover = props => {
+  const {
+    themeProps,
+    PaperProps,
+    ...popoverProps
+  } = props;
 
-Popover.propTypes = PopoverProps;
+  return (
+    <StyledPopover
+      PaperProps={{ component: PopoverContentWrapper }}
+      {...popoverProps}
+    />
+  );
+};
+
+Popover.propTypes = {
+  ...PopoverProps,
+  themeProps: PropTypes.shape(BoxProps),
+};
 
 Popover.defaultProps = {
-  PaperProps: {
-    component: PopoverContentWrapper,
-  },
+  width: 'auto',
   anchorOrigin: {
     vertical: 'bottom',
     horizontal: 'left',
