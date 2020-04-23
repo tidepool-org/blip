@@ -43,4 +43,26 @@ describe('resentEmailVerification', () => {
       expect(state).to.be.true;
     });
   });
+  describe('fetchPatientSuccess', () => {
+    it('should set state to false', () => {
+      let initialStateForTest = true;
+
+      let action = actions.sync.fetchPatientSuccess();
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.be.false;
+    });
+  });
+  describe('clearPatientInView', () => {
+    it('should set state to false', () => {
+      let initialStateForTest = true;
+
+      let action = actions.sync.clearPatientInView();
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.be.false;
+    });
+  });
 });
