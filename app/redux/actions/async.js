@@ -33,6 +33,8 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 
+import rollbar from '../../rollbar';
+
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
   if (apiError && apiError.status) {
@@ -961,13 +963,24 @@ export function fetchPatientData(api, options, id) {
           // We determine the date range to fetch data for by first finding the latest
           // diabetes datum time and going back 30 days
           const diabetesDatums = _.reject(resultsVal.latestDatums, d => _.includes(['food', 'upload'], d.type));
-          const latestDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
+          const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
+
+          if (moment.utc(latestDiabetesDatumTime).diff(moment.utc(serverTime), 'days') > 1) {
+            _.isFunction(rollbar.error) && rollbar.error(
+              new Error('Latest diabetes datum time is more than one day in the future'),
+              {
+                serverTime,
+                latestDiabetesDatumTime,
+                latestDatums: resultsVal.latestDatums,
+              }
+            );
+          };
 
           // We want to use the server time as the max end date in case the user's local computer
           // time is off. We add add a one day buffer due to timezones and since we can get `time`
           // fields that are slightly in the future due to incorrect device and/or computer time
           // upon upload.
-          const fetchFromTime = latestDatumTime ? _.min([latestDatumTime, serverTime]) : serverTime;
+          const fetchFromTime = latestDiabetesDatumTime ? _.min([latestDiabetesDatumTime, serverTime]) : serverTime;
           options.startDate = moment.utc(fetchFromTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
           options.endDate = moment.utc(fetchFromTime || options.browserTimeStub).add(1, 'days').toISOString();
 
