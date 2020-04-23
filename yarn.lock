@@ -841,10 +841,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-2.0.0.tgz#9163742ac35c12d3602dece74317643b35db6a80"
 
-"@tidepool/viz@1.11.4-rc.1":
-  version "1.11.4-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.4-rc.1.tgz#b0d1dc1e9efc949a3d02279e0159a436f1e667da"
-  integrity sha512-HFp/WXj+HsXj/L/eEQZn49aLDKaKNAgd2Jy+Jrl/NzBxsOu6Zjrbkps1IgpuusWko4MdYHkVnxuCvINdgsUgxw==
+"@tidepool/viz@1.11.4":
+  version "1.11.4"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.11.4.tgz#dd51b824785aea657147e99f0a8d017af2eb84d7"
+  integrity sha512-EWyFpxzT3YXpCDIrGdaxvBYJoJHO9x0cM1FUDoM8e8AbIHdZ+pbsigJYaiDnL9/Ydft42aHfWSwU8dDKhiL5kg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -10081,7 +10081,7 @@ reduce-component@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
 
-reductio@crossfilter/reductio#0c45b03559:
+"reductio@github:crossfilter/reductio#0c45b03559":
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
@@ -11774,10 +11774,10 @@ thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
 
-tideline@1.17.0-rc.1:
-  version "1.17.0-rc.1"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.17.0-rc.1.tgz#5d6a32961a602f88d82f076382aceefb84f510aa"
-  integrity sha512-hw+x+YQbBoHNgQd/iFR3gpMvFNUBLIhVHmrjuXBaVwC0iXYMmLg6lFJzuLgJ+fr9zAdxxRqh6hleObpi6rOIqQ==
+tideline@1.17.0:
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.17.0.tgz#f02da5242e4cf0cceac04f63abe308b2b750011f"
+  integrity sha512-Ve3C5f4MDTFrAsajKZj6VJMOh50zhQln8Ih29PkTsNA3TDknRPLWPOB115iuwplC+zonm2fb2xZYdoQRr1EYDQ==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
