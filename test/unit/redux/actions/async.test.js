@@ -2826,7 +2826,7 @@ describe('Actions', () => {
 
       before(() => {
         rollbar = {
-          error: sinon.stub(),
+          info: sinon.stub(),
         };
 
         async.__Rewire__('rollbar', rollbar);
@@ -2869,7 +2869,7 @@ describe('Actions', () => {
       });
 
       afterEach(() => {
-        rollbar.error.resetHistory();
+        rollbar.info.resetHistory();
       });
 
       after(() => {
@@ -2972,10 +2972,10 @@ describe('Actions', () => {
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
-          sinon.assert.calledOnce(rollbar.error);
+          sinon.assert.calledOnce(rollbar.info);
           sinon.assert.calledWithMatch(
-            rollbar.error,
-            sinon.match.instanceOf(Error).and(sinon.match.has('message', 'Latest diabetes datum time is more than one day in the future')),
+            rollbar.info,
+            'Latest diabetes datum time is more than one day in the future',
             {
               serverTime,
               latestDiabetesDatumTime: '2019-01-01T00:00:00.000Z',

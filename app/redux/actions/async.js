@@ -969,8 +969,8 @@ export function fetchPatientData(api, options, id) {
           const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
 
           if (moment.utc(latestDiabetesDatumTime).diff(moment.utc(serverTime), 'days') > 1) {
-            _.isFunction(rollbar.error) && rollbar.error(
-              new Error('Latest diabetes datum time is more than one day in the future'),
+            _.isFunction(rollbar.info) && rollbar.info(
+              'Latest diabetes datum time is more than one day in the future',
               {
                 serverTime,
                 latestDiabetesDatumTime,
