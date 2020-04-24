@@ -303,7 +303,7 @@ api.user.put = function(user, cb) {
   const profile = profileFromUser(user);
   const preferences = preferencesFromUser(user);
 
-  async.parallel({
+  async.series({
     account: tidepool.updateCurrentUser.bind(tidepool, account),
     profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
     preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)
@@ -832,7 +832,15 @@ api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
 
   // Log error to Rollbar
-  _.isFunction(rollbar.error) && rollbar.error(error);
+  if (_.isFunction(rollbar.error)) {
+    const extra = {};
+    _.assign(extra, properties, message ? { message } : {});
+    if (_.isError(error.originalError)) {
+      _.assign(extra, { displayError: _.omit(error, ['originalError']) });
+      error = error.originalError;
+    }
+    rollbar.error(error, extra);
+  }
 
   return tidepool.logAppError(error, message, properties, cb);
 };
