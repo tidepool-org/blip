@@ -74,3 +74,52 @@ IconInput.story = {
     },
   },
 };
+
+export const NumberInput = () => {
+  const stepOptions = ['1', '5', '10'];
+
+  const step = () => options('stepOptions', stepOptions, '5', { display: 'inline-radio' });
+
+  const minRangeOptions = {
+    range: true,
+    min: -10,
+    max: 50,
+    step: 1,
+  };
+
+  const min = () => number('Min', -10, minRangeOptions);
+
+  const maxRangeOptions = {
+    range: true,
+    min: min(),
+    max: 50,
+    step: 1,
+  };
+
+  const max = () => number('Max', 50, maxRangeOptions);
+
+  return (
+    <TextInput
+      variant={variant()}
+      placeholder="Please select a number"
+      disabled={disabled()}
+      label={'Number Input'}
+      {...(width() ? { width: width() } : [])}
+      type="number"
+      step={step()}
+      min={min()}
+      max={max()}
+      name="name"
+    />
+  );
+};
+
+NumberInput.story = {
+  name: 'Number Input',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A153',
+    },
+  },
+};
