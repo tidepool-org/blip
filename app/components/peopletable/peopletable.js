@@ -165,9 +165,6 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
       metricMessage += ` ${sortDir}`;
       this.props.trackMetric(metricMessage);
     }
-    // console.log('columnKey', columnKey);
-    // console.log('sortDir', sortDir);
-    // console.log('sorted', sorted);
 
     this.setState({
       dataList: sorted,
