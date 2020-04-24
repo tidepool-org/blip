@@ -2811,8 +2811,9 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPatientData', () => {
+    describe.only('fetchPatientData', () => {
       const patientId = 300;
+      const serverTime = '2018-02-01T00:00:00.000Z';
 
       let options;
       let patientData;
@@ -2850,6 +2851,9 @@ describe('Actions', () => {
           team: {
             getNotes: sinon.stub().callsArgWith(2, null, teamNotes)
           },
+          server: {
+            getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } })
+          }
         };
       });
 
@@ -3076,6 +3080,7 @@ describe('Actions', () => {
           err.status = 500;
 
           let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime: '2018-02-01T00:00:00.000Z' } },
             { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
@@ -3090,9 +3095,8 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
-          expectedActions[1].error = actions[1].error;
-
+          expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expectedActions[2].error = actions[2].error;
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
