@@ -931,10 +931,16 @@ export function fetchPatientData(api, options, id) {
       // determine the ideal start and end date ranges for our data fetch
       const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload'];
 
-      api.patientData.get(id, {
+      const initialFetchParams = {
         type: datumTypesToFetch.join(','),
         latest: 1,
-      }, (err, results) => {
+      };
+
+      // As a temporary workaround to some inefficiencies for this query on large datasets, we are
+      // passing in an initial startDate param in the patientdata.js initial data fetcher.
+      if (options.initialStartDate) initialFetchParams.startDate = options.initialStartDate;
+
+      api.patientData.get(id, initialFetchParams, (err, results) => {
         if (err) {
           dispatch(sync.fetchPatientDataFailure(
             createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err

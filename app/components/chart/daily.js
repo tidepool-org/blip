@@ -254,9 +254,10 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
 
-    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
-      this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
+    if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
+      wrappedInstance.rerenderChart(nextProps);
     }
   };
 
@@ -269,6 +270,7 @@ class Daily extends Component {
   render = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const dayDataReady = _.get(this.props, 'data.data.current.endpoints.days') === 1;
 
     return (
       <div id="tidelineMain" className="daily">
@@ -296,7 +298,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.renderChart()}
+              {dayDataReady && this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
