@@ -4,7 +4,9 @@
 /* global it */
 /* global expect */
 /* global beforeEach */
+/* global before */
 /* global afterEach */
+/* global after */
 /* global context */
 
 import configureStore from 'redux-mock-store';
@@ -2811,7 +2813,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.only('fetchPatientData', () => {
+    describe('fetchPatientData', () => {
       const patientId = 300;
       const serverTime = '2018-02-01T00:00:00.000Z';
 
@@ -2820,6 +2822,15 @@ describe('Actions', () => {
       let teamNotes;
       let uploadRecord;
       let api;
+      let rollbar;
+
+      before(() => {
+        rollbar = {
+          error: sinon.stub(),
+        };
+
+        async.__Rewire__('rollbar', rollbar);
+      });
 
       beforeEach(() => {
         options = {
@@ -2855,6 +2866,14 @@ describe('Actions', () => {
             getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } })
           }
         };
+      });
+
+      afterEach(() => {
+        rollbar.error.resetHistory();
+      });
+
+      after(() => {
+        async.__ResetDependency__('rollbar');
       });
 
       context('data is available in cache', () => {
@@ -2920,6 +2939,51 @@ describe('Actions', () => {
           expect(actions[0].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
           expectedActions[0].error = actions[0].error;
           expect(actions).to.eql(expectedActions);
+        });
+
+        it('should fetch the server time, and use it (plus 1 day) if the latest diabetes datum time is ahead of it', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, [...patientData, {
+            id: 25, value: 540.4, type: 'cbg', time: '2019-01-01T00:00:00.000Z' // A year later than serverTime
+          }]);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.server.getTime.callCount).to.equal(1);
+
+          expect(api.patientData.get.withArgs(patientId, {
+            ...options,
+            startDate: '2018-01-02T00:00:00.000Z', // 30 days before serverTime
+            endDate: '2018-02-02T00:00:00.000Z', // 1 days beyond serverTime
+          }).callCount).to.equal(1);
+        });
+
+        it('should dispatch error to rollbar if the latest diabetes datum time is in the future', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, [...patientData, {
+            id: 25, value: 540.4, type: 'cbg', time: '2019-01-01T00:00:00.000Z' // A year later than serverTime
+          }]);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          sinon.assert.calledOnce(rollbar.error);
+          sinon.assert.calledWithMatch(
+            rollbar.error,
+            sinon.match.instanceOf(Error).and(sinon.match.has('message', 'Latest diabetes datum time is more than one day in the future')),
+            {
+              serverTime,
+              latestDiabetesDatumTime: '2019-01-01T00:00:00.000Z',
+              latestDatums: [...patientData, {
+                id: 25, value: 540.4, type: 'cbg', time: '2019-01-01T00:00:00.000Z' // A year later than serverTime
+              }],
+            }
+          );
         });
 
         it('should fetch the latest data for all diabetes types and pumpSettings', () => {
