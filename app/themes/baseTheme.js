@@ -27,6 +27,11 @@ export const colors = {
     modal: colorPalette.extended.grays[0],
     divider: colorPalette.extended.grays[0],
   },
+  feedback: {
+    info: colorPalette.primary.purpleMedium,
+    warning: '#FFAB00',
+    danger: '#DE350C',
+  },
 };
 
 export const borders = {

@@ -28,15 +28,15 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
   return {
     default: {
       ...common,
-      backgroundColor: colors.purpleMedium,
+      backgroundColor: colors.feedback.info,
     },
     warning: {
       ...common,
-      backgroundColor: '#ffab00',
+      backgroundColor: colors.feedback.warning,
     },
     danger: {
       ...common,
-      backgroundColor: '#de350c',
+      backgroundColor: colors.feedback.danger,
     },
   };
 };
