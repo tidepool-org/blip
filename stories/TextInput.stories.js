@@ -76,9 +76,8 @@ IconInput.story = {
 };
 
 export const NumberInput = () => {
-  const stepOptions = ['1', '5', '10'];
-
-  const step = () => options('stepOptions', stepOptions, '5', { display: 'inline-radio' });
+  const stepOptions = { 1: '1', 5: '5', 10: '10' };
+  const step = () => options('Step Increment', stepOptions, '5', { display: 'inline-radio' });
 
   const minRangeOptions = {
     range: true,
@@ -102,15 +101,15 @@ export const NumberInput = () => {
 
   return (
     <TextInput
+      min={min()}
+      max={max()}
+      step={step()}
       variant={variant()}
       value={value}
       disabled={disabled()}
       label={'Number Input'}
       width={100}
       type="number"
-      step={step()}
-      min={min()}
-      max={max()}
       name="name"
       onChange={e => setValue(e.target.value)}
     />
