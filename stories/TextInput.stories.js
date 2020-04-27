@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, text, number, optionsKnob as options } from '@storybook/addon-knobs';
@@ -98,18 +98,21 @@ export const NumberInput = () => {
 
   const max = () => number('Max', 50, maxRangeOptions);
 
+  const [value, setValue] = useState(10);
+
   return (
     <TextInput
       variant={variant()}
-      placeholder="Please select a number"
+      value={value}
       disabled={disabled()}
       label={'Number Input'}
-      {...(width() ? { width: width() } : [])}
+      width={100}
       type="number"
       step={step()}
       min={min()}
       max={max()}
       name="name"
+      onChange={e => setValue(e.target.value)}
     />
   );
 };

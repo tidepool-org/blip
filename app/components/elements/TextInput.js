@@ -26,9 +26,18 @@ const StyledWrapper = styled(Flex)`
 `;
 
 export const TextInput = props => {
-  const { label, name, width, icon, themeProps, variant, ...inputProps } = props;
+  const {
+    label,
+    name,
+    width = ['100%', '75%', '50%'],
+    icon,
+    themeProps,
+    variant,
+    ...inputProps
+  } = props;
+
   return (
-    <Box width={['100%', '75%', '50%']} {...themeProps}>
+    <Box width={width} {...themeProps}>
       {label &&
         <Label htmlFor={name}>
           <Caption>{label}</Caption>
