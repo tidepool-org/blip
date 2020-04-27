@@ -2813,7 +2813,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.only('fetchPatientData', () => {
+    describe('fetchPatientData', () => {
       const patientId = 300;
       const serverTime = '2018-02-01T00:00:00.000Z';
 
