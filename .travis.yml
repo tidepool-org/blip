@@ -3,8 +3,6 @@ node_js:
   - 10.15.3
   - node
 
-cache: npm
-
 install:
   - npm install
 

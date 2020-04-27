@@ -332,6 +332,26 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' and their associated data
+     * includes profile, permissions and metadata
+     *
+     * @param {Object} options
+     * @param {String} options.userIds list of userids
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUsersTir: function (userIds, cb) {
+
+      userIds = userIds || [];
+
+      var users = userIds.join(',');
+      common.doGetWithToken(
+        `/compute/tir?userIds=${users}`,
+        { 200: function(res){ return res.body; }, 404: {}, 403: {} },
+        cb
+      );
+    },
+    /**
      * Get the users 'patients' to whom they can upload for.
      *
      * @param {String} userId of the user
