@@ -5,6 +5,7 @@ import { Box, Flex, Text, BoxProps, FlexProps } from 'rebass/styled-components';
 import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+import StepContent from '@material-ui/core/StepContent';
 import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
 
@@ -30,6 +31,8 @@ export const Stepper = props => {
     variant,
     ...stepperProps
   } = props;
+
+  const isHorizontal = variant === 'horizontal';
 
   const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep));
   const [skipped, setSkipped] = React.useState(new Set());
@@ -62,13 +65,58 @@ export const Stepper = props => {
     });
   };
 
+  const renderStepPanel = (Panel, index) => React.cloneElement(Panel, {
+    key: index,
+    hidden: activeStep !== index,
+    id: `${id}-step-panel-${index}`,
+    'aria-labelledby': `${id}-step-${index}`,
+  });
+
+  const renderStepActions = () => (
+    <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
+      <Button
+        disabled={activeStep === 0}
+        variant="secondary"
+        className="step-back"
+        onClick={handleBack}
+      >
+        Back
+      </Button>
+      {isStepOptional(activeStep) && (
+        <Button
+          variant="primary"
+          ml={2}
+          className="step-skip"
+          onClick={handleSkip}
+        >
+          Skip
+        </Button>
+      )}
+      <Button
+        variant="primary"
+        ml={2}
+        className="step-next"
+        onClick={handleNext}
+      >
+        {steps[activeStep].completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
+      </Button>
+    </Flex>
+  );
+
+  const renderStepPanels = () => (
+    <React.Fragment>
+      {map(children, renderStepPanel)}
+      {renderStepActions()}
+    </React.Fragment>
+  );
+
   return (
     <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
           orientation={variant}
           activeStep={activeStep}
-          alternativeLabel
+          alternativeLabel={isHorizontal}
           {...stepperProps}
         >
           {map(steps, ({ label, icon, disabled }, index) => {
@@ -86,54 +134,26 @@ export const Stepper = props => {
               >
                 <StepLabel
                   optional={isStepOptional(index) && <Text className="optional" textAlign="center">{isStepSkipped(index) ? 'skipped' : 'optional'}</Text>}
-                  icon={icon}
+                  // icon={icon}
                 >
                   {label}
                 </StepLabel>
+                {!isHorizontal && (
+                    <StepContent>
+                      {renderStepPanel(children[index], index)}
+                      {renderStepActions()}
+                    </StepContent>
+                )}
               </Step>
             );
           })}
         </StyledStepper>
       </Box>
-      <Box className="step-panels" {...themeProps.panel}>
-        {map(children, (Child, index) => (
-          React.cloneElement(Child, {
-            key: index,
-            hidden: activeStep !== index,
-            id: `${id}-step-panel-${index}`,
-            'aria-labelledby': `${id}-step-${index}`,
-          })
-        ))}
-
-        <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
-          <Button
-            disabled={activeStep === 0}
-            variant="secondary"
-            className="step-back"
-            onClick={handleBack}
-          >
-            Back
-          </Button>
-          {isStepOptional(activeStep) && (
-            <Button
-              variant="primary"
-              ml={2}
-              className="step-skip"
-              onClick={handleSkip}
-            >
-              Skip
-            </Button>
-          )}
-          <Button
-            variant="primary"
-            ml={2}
-            className="step-next"
-            onClick={handleNext}
-          >
-            {steps[activeStep].completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
-          </Button>
-        </Flex>
-      </Box>
+      {isHorizontal && (
+        <Box className="step-panels" {...themeProps.panel}>
+          {renderStepPanels()}
+        </Box>
+      )}
     </Flex>
   );
 };

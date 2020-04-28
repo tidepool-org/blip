@@ -80,6 +80,7 @@ export const StepperStory = () => {
     themeProps: {
       wrapper: {
         margin: 2,
+        padding: 2,
         sx: {
           border: '1px solid #eee',
         },

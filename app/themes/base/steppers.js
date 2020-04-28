@@ -6,11 +6,18 @@ export default ({ colors, fonts, fontWeights, fontSizes }) => {
 
     '.steps': {
       fontWeight: fontWeights.medium,
-      height: '100%',
     },
 
     '.optional': {
       color: colors.text.primaryDisabled,
+    },
+
+    '.MuiStepIcon-root': {
+      color: colors.text.primaryDisabled,
+
+      '&.MuiStepIcon-active, &.MuiStepIcon-completed': {
+        color: colors.purpleMedium,
+      },
     },
 
     '.MuiStepLabel-label': {
