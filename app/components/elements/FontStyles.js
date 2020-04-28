@@ -109,6 +109,10 @@ export const Caption = Styled(Text)`
   &.error {
     color: ${colors.orange}
   }
+  &.required::after {
+    content: ' *';
+    display: inline;
+  }
 `;
 
 export const NavigationLink = Styled(Link)`

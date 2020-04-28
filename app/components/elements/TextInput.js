@@ -35,16 +35,14 @@ export const TextInput = (props) => {
     themeProps,
     variant,
     required,
-    placeholder: placeholderProp,
+    placeholder,
     error,
     ...inputProps
   } = props;
-  let placeholder = placeholderProp;
-  if (required) {
-    placeholder += ' *';
-  }
+
   const inputClasses = cx({
     error,
+    required,
   });
   return (
     <Box width={['100%', '75%', '50%']} {...themeProps}>
