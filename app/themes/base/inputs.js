@@ -54,6 +54,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
       borderColor: colors.lightestGrey,
       backgroundColor: colors.lightestGrey,
     },
+    '&.error': {
+      color: colors.orange,
+      borderColor: colors.orange,
+    },
   };
 
   return {
