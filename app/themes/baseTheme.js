@@ -1,5 +1,6 @@
 import colorPalette from './colorPalette';
 import avatars from './base/avatars';
+import banners from './base/banners';
 import buttons from './base/buttons';
 import icons from './base/icons';
 import inputs from './base/inputs';
@@ -25,6 +26,11 @@ export const colors = {
     default: colorPalette.extended.grays[1],
     modal: colorPalette.extended.grays[0],
     divider: colorPalette.extended.grays[0],
+  },
+  feedback: {
+    info: colorPalette.primary.purpleMedium,
+    warning: '#FFAB00',
+    danger: '#DE350C',
   },
 };
 
@@ -82,6 +88,7 @@ const linkVariants = links({ colors, fonts });
 
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
+  banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, space }),
   link: linkVariants.default,
