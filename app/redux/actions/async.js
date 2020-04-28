@@ -963,28 +963,33 @@ export function fetchPatientData(api, options, id) {
           const serverTime = _.get(resultsVal.serverTime, 'data.time');
           dispatch(sync.fetchServerTimeSuccess(serverTime));
 
-          // We determine the date range to fetch data for by first finding the latest
+          // First, we strip any future datums out of the response by removing any that are more
+          // 1 day beyond server time
+          const futureDatums = _.remove(resultsVal.latestDatums, d => moment.utc(d.time).diff(moment.utc(serverTime), 'days') > 1);
+
+          // We then determine the date range to fetch data for by first finding the latest
           // diabetes datum time and going back 30 days
           const diabetesDatums = _.reject(resultsVal.latestDatums, d => _.includes(['food', 'upload'], d.type));
           const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
 
-          if (moment.utc(latestDiabetesDatumTime).diff(moment.utc(serverTime), 'days') > 1) {
+          if (futureDatums.length) {
             _.isFunction(rollbar.info) && rollbar.info(
-              'Latest diabetes datum time is more than one day in the future',
+              'Latest datums fetch contains item(s) with time more than one day in the future',
               {
                 serverTime,
-                latestDiabetesDatumTime,
-                latestDatums: resultsVal.latestDatums,
+                futureDatums,
               }
             );
           };
 
-          // We want to use the server time as the max end date in case the user's local computer
-          // time is off. We add add a one day buffer due to timezones and since we can get `time`
-          // fields that are slightly in the future due to incorrect device and/or computer time
-          // upon upload.
-          const fetchFromTime = latestDiabetesDatumTime ? _.min([latestDiabetesDatumTime, serverTime]) : serverTime;
+          // If we have no non-future latest diabetes datum times, we fall back to use the
+          // server time as the max end date.
+          const fetchFromTime = latestDiabetesDatumTime || serverTime;
+
           options.startDate = moment.utc(fetchFromTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
+
+          // We add a 1 day buffer to the end date since we can get `time` fields that are slightly
+          // in the future due to timezones or incorrect device and/or computer time upon upload.
           options.endDate = moment.utc(fetchFromTime || options.browserTimeStub).add(1, 'days').toISOString();
 
           // We want to make sure the latest upload, which may be beyond the data range we'll be
