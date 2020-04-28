@@ -30,7 +30,7 @@ export const TextInput = (props) => {
   const {
     label,
     name,
-    width,
+    width = ['100%', '75%', '50%'],
     icon,
     themeProps,
     variant,
@@ -45,8 +45,8 @@ export const TextInput = (props) => {
     required,
   });
   return (
-    <Box width={['100%', '75%', '50%']} {...themeProps}>
-      {label && (
+    <Box width={width} {...themeProps}>
+      {label &&
         <Label htmlFor={name}>
           <Caption className={inputClasses}>{label}</Caption>
         </Label>
