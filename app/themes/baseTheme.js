@@ -5,6 +5,7 @@ import buttons from './base/buttons';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
+import steppers from './base/steppers';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
 import tables from './base/tables';
@@ -94,6 +95,7 @@ const variants = {
   link: linkVariants.default,
   links: linkVariants,
   paginators: paginators({ colors, fonts, fontSizes }),
+  steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
 };
