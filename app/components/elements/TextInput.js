@@ -46,7 +46,7 @@ export const TextInput = (props) => {
   });
   return (
     <Box width={width} {...themeProps}>
-      {label &&
+      {label && (
         <Label htmlFor={name}>
           <Caption className={inputClasses}>{label}</Caption>
         </Label>
