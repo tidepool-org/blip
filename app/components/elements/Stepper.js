@@ -10,7 +10,6 @@ import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
 
 import Button from './Button';
-import { borders, colors, space } from '../../themes/baseTheme';
 
 const StyledStepper = styled(Base)`
   font-size: inherit;
@@ -34,7 +33,7 @@ export const Stepper = props => {
 
   const isHorizontal = variant === 'horizontal';
 
-  const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep));
+  const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep, 10));
   const [skipped, setSkipped] = React.useState(new Set());
 
   const isStepOptional = (step) => steps[step].optional;
@@ -49,7 +48,7 @@ export const Stepper = props => {
     setSkipped(newSkipped);
 
     if (activeStep < steps.length - 1) setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete()
+    if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
   };
 
   const handleBack = () => {
@@ -119,7 +118,7 @@ export const Stepper = props => {
           alternativeLabel={isHorizontal}
           {...stepperProps}
         >
-          {map(steps, ({ label, icon, disabled }, index) => {
+          {map(steps, ({ label, disabled }, index) => {
             const stepProps = {};
             if (isStepSkipped(index)) {
               stepProps.completed = false;
@@ -134,15 +133,15 @@ export const Stepper = props => {
               >
                 <StepLabel
                   optional={isStepOptional(index) && <Text className="optional" textAlign="center">{isStepSkipped(index) ? 'skipped' : 'optional'}</Text>}
-                  // icon={icon}
+                  // icon={icon} // TODO: custom element for dots?
                 >
                   {label}
                 </StepLabel>
                 {!isHorizontal && (
-                    <StepContent>
-                      {renderStepPanel(children[index], index)}
-                      {renderStepActions()}
-                    </StepContent>
+                  <StepContent>
+                    {renderStepPanel(children[index], index)}
+                    {renderStepActions()}
+                  </StepContent>
                 )}
               </Step>
             );

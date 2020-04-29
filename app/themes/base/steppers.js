@@ -34,7 +34,7 @@ export default ({ colors, fonts, fontWeights, fontSizes }) => {
           visibility: 'hidden',
         },
       },
-    }
+    },
   };
 
   return {

@@ -8,7 +8,6 @@ import reduce from 'lodash/reduce';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';
-import Icon from '../app/components/elements/Icon';
 
 /* eslint-disable max-len */
 
@@ -52,17 +51,17 @@ const steps = [
     label: 'Enter Therapy Settings',
     disabled: stepDisabled(2),
     onComplete: action('Therapy Settings Completed'),
-    completeText: 'Review Prescription'
+    completeText: 'Review Prescription',
   },
   {
     label: 'Review and Send Prescription',
     onComplete: action('Prescription Sent'),
-    completeText: 'Send Prescription'
+    completeText: 'Send Prescription',
   },
 ];
 
 const stepOptions = reduce(steps, (result, value, index) => {
-  result[index + 1] = index.toString();
+  result[index + 1] = index.toString(); // eslint-disable-line no-param-reassign
   return result;
 }, {});
 
@@ -76,7 +75,7 @@ export const StepperStory = () => {
     variant: orientation(),
     'aria-label': 'My Stepper',
     id: 'my-stepper',
-    activeStep: parseInt(initialActiveStep()),
+    activeStep: parseInt(initialActiveStep(), 10),
     themeProps: {
       wrapper: {
         margin: 2,
