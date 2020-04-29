@@ -95,7 +95,39 @@ export const StepperStory = () => {
         Account Creation Form
       </Box>
       <Box>
-        Patient Profile Form
+        <Stepper
+          {...props}
+          id="nested-stepper"
+          aria-label="Profile Form"
+          steps={[
+            {
+              label: 'Step One',
+              onComplete: action('Profile Step One Complete'),
+              hideBack: true,
+            },
+            {
+              label: 'Step Two',
+              onComplete: action('Profile Step Two Complete'),
+            },
+            {
+              label: 'Step Three',
+              onComplete: action('Profile Step Three Complete'),
+              hideComplete: true,
+              backText: 'Back to Step Two',
+            },
+          ]}
+          variant="vertical"
+        >
+          <Box>
+            Patient Profile Step One
+          </Box>
+          <Box>
+            Patient Profile Step Two
+          </Box>
+          <Box>
+            Patient Profile Step Three
+          </Box>
+        </Stepper>
       </Box>
       <Box>
         Therapy Settings Form

@@ -73,14 +73,16 @@ export const Stepper = props => {
 
   const renderStepActions = () => (
     <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
-      <Button
-        disabled={activeStep === 0}
-        variant="secondary"
-        className="step-back"
-        onClick={handleBack}
-      >
-        Back
-      </Button>
+      {!steps[activeStep].hideBack && (
+        <Button
+          disabled={activeStep === 0}
+          variant="secondary"
+          className="step-back"
+          onClick={handleBack}
+        >
+          {steps[activeStep].backText || 'Back'}
+        </Button>
+      )}
       {isStepOptional(activeStep) && (
         <Button
           variant="primary"
@@ -91,14 +93,16 @@ export const Stepper = props => {
           Skip
         </Button>
       )}
-      <Button
-        variant="primary"
-        ml={2}
-        className="step-next"
-        onClick={handleNext}
-      >
-        {steps[activeStep].completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
-      </Button>
+      {!steps[activeStep].hideComplete && (
+        <Button
+          variant="primary"
+          ml={2}
+          className="step-next"
+          onClick={handleNext}
+        >
+          {steps[activeStep].completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
+        </Button>
+      )}
     </Flex>
   );
 
@@ -168,22 +172,25 @@ Stepper.propTypes = {
   'aria-label': PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   onStepChange: PropTypes.func.isRequired,
-  value: PropTypes.number.isRequired,
-  variant: PropTypes.oneOf(['horizontal', 'vertical']),
+  steps: PropTypes.arrayOf(PropTypes.shape({
+    disabled: PropTypes.bool,
+    backText: PropTypes.string,
+    completed: PropTypes.bool,
+    completeText: PropTypes.string,
+    hideBack: PropTypes.bool,
+    hideComplete: PropTypes.bool,
+    label: PropTypes.string,
+    onComplete: PropTypes.func,
+    optional: PropTypes.bool,
+  })),
   themeProps: PropTypes.shape({
     wrapper: PropTypes.shape(FlexProps),
     panel: PropTypes.shape(BoxProps),
     steps: PropTypes.shape(BoxProps),
     actions: PropTypes.shape(FlexProps),
   }),
-  steps: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string,
-    icon: PropTypes.elementType, // TODO: icons?
-    disabled: PropTypes.bool,
-    completed: PropTypes.bool,
-    completeText: PropTypes.string,
-    onComplete: PropTypes.func,
-  })),
+  value: PropTypes.number.isRequired,
+  variant: PropTypes.oneOf(['horizontal', 'vertical']),
 };
 
 Stepper.defaultProps = {
