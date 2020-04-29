@@ -132,8 +132,14 @@ export const Stepper = props => {
                 {...stepProps}
               >
                 <StepLabel
-                  optional={isStepOptional(index) && <Text className="optional" textAlign="center">{isStepSkipped(index) ? 'skipped' : 'optional'}</Text>}
-                  // icon={icon} // TODO: custom element for dots?
+                  optional={isStepOptional(index) && (
+                    <Text
+                      className="optional"
+                      textAlign={isHorizontal ? 'center' : 'left'}
+                    >
+                      {isStepSkipped(index) ? 'skipped' : 'optional'}
+                    </Text>
+                  )}
                 >
                   {label}
                 </StepLabel>
