@@ -112,7 +112,7 @@ StepperStory.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A131',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=48%3A244',
     },
   },
 };
