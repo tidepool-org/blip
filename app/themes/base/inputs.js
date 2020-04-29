@@ -29,6 +29,13 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
       borderColor: colors.lightestGrey,
       backgroundColor: colors.lightestGrey,
     },
+    '&.error': {
+      color: colors.orange,
+      borderColor: colors.orange,
+      '&::placeholder': {
+        color: colors.orange,
+      },
+    },
   };
 
   const radios = {
@@ -46,6 +53,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
       color: colors.text.primaryDisabled,
       borderColor: colors.lightestGrey,
       backgroundColor: colors.lightestGrey,
+    },
+    '&.error': {
+      color: colors.orange,
+      borderColor: colors.orange,
     },
   };
 
