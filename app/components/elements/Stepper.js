@@ -6,6 +6,7 @@ import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
 
@@ -34,10 +35,12 @@ export const Stepper = props => {
   const isHorizontal = variant === 'horizontal';
 
   const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep, 10));
+  const [activeSubStep, setActiveSubStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 
-  const isStepOptional = (step) => steps[step].optional;
-  const isStepSkipped = (step) => skipped.has(step);
+  const isStepOptional = stepIndex => steps[stepIndex].optional;
+  const isStepSkipped = stepIndex => skipped.has(stepIndex);
+  const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length;
 
   const handleNext = () => {
     let newSkipped = skipped;
@@ -47,8 +50,17 @@ export const Stepper = props => {
     }
     setSkipped(newSkipped);
 
-    if (activeStep < steps.length - 1) setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+    if (stepHasSubSteps && (activeSubStep < steps[activeStep].subSteps.length - 1)) {
+      if (isFunction(steps[activeStep].subSteps[activeSubStep].onComplete)) {
+        steps[activeStep].subSteps[activeSubStep].onComplete();
+      }
+      setActiveStep((prevActiveSubStep) => prevActiveSubStep + 1);
+    } else if (activeStep < steps.length - 1) {
+      if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setActiveSubStep(0);
+    }
+
   };
 
   const handleBack = () => {
@@ -167,22 +179,26 @@ export const Stepper = props => {
   );
 };
 
+const StepPropTypes = PropTypes.shape({
+  backText: PropTypes.string,
+  completed: PropTypes.bool,
+  completeText: PropTypes.string,
+  hideBack: PropTypes.bool,
+  hideComplete: PropTypes.bool,
+  label: PropTypes.string,
+  onComplete: PropTypes.func,
+  optional: PropTypes.bool,
+});
+
 Stepper.propTypes = {
   ...StepperProps,
   'aria-label': PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   onStepChange: PropTypes.func.isRequired,
-  steps: PropTypes.arrayOf(PropTypes.shape({
-    disabled: PropTypes.bool,
-    backText: PropTypes.string,
-    completed: PropTypes.bool,
-    completeText: PropTypes.string,
-    hideBack: PropTypes.bool,
-    hideComplete: PropTypes.bool,
-    label: PropTypes.string,
-    onComplete: PropTypes.func,
-    optional: PropTypes.bool,
-  })),
+  steps: PropTypes.arrayOf({
+    ...StepPropTypes,
+    subSteps: PropTypes.arrayOf(StepPropTypes),
+  }),
   themeProps: PropTypes.shape({
     wrapper: PropTypes.shape(FlexProps),
     panel: PropTypes.shape(BoxProps),
