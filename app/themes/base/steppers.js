@@ -10,6 +10,7 @@ export default ({ colors, fonts, fontWeights, fontSizes }) => {
 
     '.optional': {
       color: colors.text.primaryDisabled,
+      fontWeight: fontWeights.regular,
     },
 
     '.MuiStepIcon-root': {

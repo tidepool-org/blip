@@ -1,7 +1,7 @@
 import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
-import { withKnobs, boolean, optionsKnob as options } from '@storybook/addon-knobs';
+import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
 import reduce from 'lodash/reduce';
@@ -23,8 +23,6 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const stepDisabled = i => boolean(`Tab ${i + 1} Disabled`, false);
-
 const orientations = {
   Horizontal: 'horizontal',
   Vertical: 'vertical',
@@ -38,18 +36,15 @@ const backgrounds = {
 const steps = [
   {
     label: 'Create Patient Account',
-    disabled: stepDisabled(0),
     onComplete: action('Patient Account Created'),
   },
   {
     label: 'Complete Patient Profile',
-    disabled: stepDisabled(1),
     onComplete: action('Patient Profile Completed'),
     optional: true,
   },
   {
     label: 'Enter Therapy Settings',
-    disabled: stepDisabled(2),
     onComplete: action('Therapy Settings Completed'),
     completeText: 'Review Prescription',
   },
