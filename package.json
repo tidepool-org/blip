@@ -12,13 +12,14 @@
   "main": "js/index.js",
   "license": "BSD-2-Clause",
   "scripts": {
-    "clean": "rimraf ./dist/*",
+    "clean": "rm -rf ./dist/*",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production webpack --optimize-minimize",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "browser-tests": "karma start --browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
+    "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
     "lint": "NODE_ENV=test eslint js plugins example test"
   },
   "dependencies": {
@@ -31,7 +32,7 @@
     "i18next": "11.9.0",
     "intl": "1.2.5",
     "lodash": "4.17.15",
-    "moment-timezone": "0.5.26",
+    "moment-timezone": "0.5.28",
     "react": "15.6.2",
     "react-addons-pure-render-mixin": "15.6.2",
     "react-dom": "15.6.2",

@@ -15,15 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+const d3 = require('d3');
+const _ = require('lodash');
 
-var dt = require('../data/util/datetime');
-var format = require('../data/util/format');
+const moment = require('moment-timezone');
+const i18next = require('i18next');
 
-var timeChangeImage = require('../../img/timechange/timechange.svg');
+const constants = require('../data/util/constants');
+const format = require('../data/util/format');
 
-var log = require('bows')('DeviceEvent - TimeChange');
+const timeChangeImage = require('../../img/timechange/timechange.svg');
+
+const t = i18next.t.bind(i18next);
 
 /**
  * Module for adding timechange markers to a chart pool
@@ -34,7 +37,6 @@ var log = require('bows')('DeviceEvent - TimeChange');
  */
 module.exports = function(pool, opts) {
   opts = opts || {};
-
   /**
    * Default configuration for this component
    */
@@ -43,8 +45,6 @@ module.exports = function(pool, opts) {
   };
 
   _.defaults(opts, defaults);
-
-  var mainGroup = pool.group();
 
   function timechange(selection) {
     selection.each(function(currentData) {
@@ -91,7 +91,86 @@ module.exports = function(pool, opts) {
     var elem = d3.select('#tooltip_' + d.id).remove();
   };
 
-  timechange._displayTooltip = function(d) {
+  timechange._displayTooltip = (d) => {
+    if (d.source === 'Diabeloop') {
+      timechange._diplayDblgTooltip(d);
+    } else {
+      timechange._diplayTidepoolTooltip(d);
+    }
+  };
+
+  timechange._diplayDblgTooltip = (d) => {
+    const mFrom = moment.tz(d.from.time, d.from.timeZoneName);
+    const mTo = moment.tz(d.to.time, d.to.timeZoneName);
+
+    let format = 'h:mm a';
+    if (mFrom.year() !== mTo.year()) {
+      format = constants.MMM_D_YYYY_H_MM_A_FORMAT;
+    } else if (mFrom.month() !== mTo.month()) {
+      format = constants.MMM_D_H_MM_A_FORMAT;
+    } else if (mFrom.date() !== mTo.date()) {
+      format = constants.DDDD_H_MM_A;
+    } else {
+      format = constants.H_MM_A_FORMAT;
+    }
+
+    const fromDate = mFrom.format(format);
+    const toDate = mTo.format(format);
+
+    const tooltips = pool.tooltips();
+    const tooltip = tooltips.addForeignObjTooltip({
+      cssClass: 'svg-tooltip-timechange',
+      datum: d,
+      shape: 'generic',
+      xPosition: timechange.xPositionCenter,
+      yPosition: timechange.yPositionCenter
+    });
+
+    const { foGroup } = tooltip;
+    let fromHTML = `<span class="fromto">${t('from')}</span> ${fromDate}`;
+    let toHTML = `<span class="fromto">${t('to')}</span> ${toDate}`;
+    let changeType;
+    if (d.from.timeZoneName !== d.to.timeZoneName) {
+      fromHTML = `${fromHTML} - ${d.from.timeZoneName}`;
+      toHTML = `${toHTML} - ${d.to.timeZoneName}`;
+      changeType = t('Timezone Change');
+    } else {
+      changeType = t('Time Change');
+    }
+
+    foGroup.append('p')
+      .append('span')
+      .attr('class', 'secondary')
+      .html(fromHTML);
+    foGroup.append('p')
+      .append('span')
+      .attr('class', 'secondary')
+      .html(toHTML);
+    foGroup.append('p')
+      .append('span')
+      .attr('class', 'mainText')
+      .html(changeType);
+
+    const dims = tooltips.foreignObjDimensions(foGroup);
+
+    // foGroup.node().parentNode is the <foreignObject> itself
+    // because foGroup is actually the top-level <xhtml:div> element
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
+      x: timechange.xPositionCenter(d),
+      y: -dims.height,
+      orientation: {
+        'default': 'leftAndDown',
+        leftEdge: 'rightAndDown',
+        rightEdge: 'leftAndDown'
+      },
+      shape: 'generic',
+      edge: tooltip.edge
+    });
+  };
+
+  timechange._diplayTidepoolTooltip = (d) => {
     // Need to check if time is coming from the current data model, or the deprecated `change` property
     var fromTime = _.get(d, 'from.time', _.get(d, 'change.from'));
     var toTime = _.get(d, 'to.time', _.get(d, 'change.to'));

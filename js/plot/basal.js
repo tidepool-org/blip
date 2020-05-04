@@ -15,18 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
 var i18next = require('i18next');
-var t = i18next.t.bind(i18next);
-
+const moment = require('moment-timezone');
 var d3 = require('d3');
 var _ = require('lodash');
 
+
+var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = require('../data/util/constants');
 var format = require('../data/util/format');
 var BasalUtil = require('../data/basalutil');
-var basalUtil = new BasalUtil();
 
-var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = require('../data/util/constants');
+var t = i18next.t.bind(i18next);
+var basalUtil = new BasalUtil();
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -36,6 +36,8 @@ module.exports = function(pool, opts) {
     opacityDelta: 0.2,
     pathStroke: 1.5,
     timezoneAware: false,
+    timezoneName: 'UTC',
+    timezoneOffset: 0,
     tooltipPadding: 20,
   };
 
@@ -107,17 +109,16 @@ module.exports = function(pool, opts) {
       var renderGroupMarkers = basalPathGroups.length > 1;
 
       var basalPathsGroup = selection
-        .selectAll(`.d3-basal-path-group`)
-        .data([`d3-basal-path-group`]);
+        .selectAll('.d3-basal-path-group')
+        .data(['d3-basal-path-group']);
 
       basalPathsGroup
         .enter()
         .append('g')
-        .attr('class', `d3-basal-path-group`);
+        .attr('class', 'd3-basal-path-group');
 
       _.each(basalPathGroups, (data, index) => {
         var id = data[0].id;
-        var source = data[0].source;
         var pathType = basalUtil.getBasalPathGroupType(data[0]);
         var isAutomated = pathType === 'automated';
 
@@ -180,17 +181,16 @@ module.exports = function(pool, opts) {
               'class': 'd3-basal-group-label',
             })
             .text(function(d) {
-              /* jshint laxbreak: true */
               return isAutomated ? t('A_Label').charAt(0) : t('M_Label').charAt(0);
-          });
+            });
 
           markers.exit().remove();
         }
       });
 
       var undeliveredPaths = basalPathsGroup
-          .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-undelivered`)
-          .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
+        .selectAll('.d3-basal.d3-path-basal.d3-path-basal-undelivered')
+        .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
 
       undeliveredPaths
         .enter()
@@ -336,7 +336,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.tempPercentage = function(d) {
-    if (d.percent != null) {
+    if (typeof d.percent === 'number') {
       return format.percentage(d.percent);
     }
     else {
@@ -346,47 +346,61 @@ module.exports = function(pool, opts) {
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     switch (datum.deliveryType) {
-      case 'temp':
+    case 'temp':
+      group.append('p')
+        .append('span')
+        .html('<span class="plain">'+t('Temp basal of')+'</span> ' + basal.tempPercentage(datum));
+      if (datum.suppressed) {
         group.append('p')
           .append('span')
-          .html('<span class="plain">'+t("Temp basal of")+'</span> ' + basal.tempPercentage(datum));
-        if (datum.suppressed) {
-          group.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
-        }
-        break;
-      case 'suspend':
+          .attr('class', 'secondary')
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+      }
+      break;
+    case 'suspend':
+      group.append('p')
+        .append('span')
+        .html('<span class="plain">Pump suspended</span>');
+      if (datum.suppressed) {
         group.append('p')
           .append('span')
-          .html('<span class="plain">Pump suspended</span>');
-        if (datum.suppressed) {
-          group.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
-        }
-        break;
-      case 'automated':
-        group.append('p')
-          .append('span')
-          .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
-            basal.rateString(datum, 'plain'));
-        break;
-      default:
-        var label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
-        group.append('p')
-          .append('span')
-          .html(label + basal.rateString(datum, 'plain'));
+          .attr('class', 'secondary')
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+      }
+      break;
+    case 'automated':
+      group.append('p')
+        .append('span')
+        .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
+          basal.rateString(datum, 'plain'));
+      break;
+    default:
+      const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
+      group.append('p')
+        .append('span')
+        .html(label + basal.rateString(datum, 'plain'));
     }
+
+    let begin = '';
+    let end = '';
+    if (datum.source === 'Diabeloop') {
+      const mBegin = moment.tz(datum.normalTime, datum.timezone);
+      begin = mBegin.format(H_MM_A_FORMAT);
+      end = moment.tz(datum.normalEnd, datum.timezone).format(H_MM_A_FORMAT);
+      if (datum.timezone !== opts.timezoneName) {
+        end = `${end}<br />UTC${mBegin.format('Z')}`;
+      } else if (mBegin.utcOffset() !== opts.timezoneOffset) {
+        end = `${end}<br />UTC${mBegin.format('Z z')}`;
+      }
+    } else {
+      begin = format.timestamp(datum.normalTime, datum.displayOffset);
+      end = format.timestamp(datum.normalEnd, datum.displayOffset);
+    }
+    const html = `<span class="fromto">${t('from')}</span> ${begin} <span class="fromto">${t('to')}</span> ${end}`;
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">'+t('from')+'</span> ' +
-        format.timestamp(datum.normalTime, datum.displayOffset) +
-        ' <span class="fromto">'+t('to')+'</span> ' +
-        format.timestamp(datum.normalEnd, datum.displayOffset));
+      .html(html);
   };
 
   basal.addTooltip = function(d, showSheduledLabel) {

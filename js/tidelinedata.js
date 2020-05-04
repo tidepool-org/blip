@@ -21,6 +21,7 @@
 var _ = require('lodash');
 var crossfilter = require('crossfilter2');
 var d3 = require('d3');
+var moment = require('moment-timezone');
 
 var validate = require('./validation/validate');
 
@@ -74,14 +75,28 @@ function TidelineData(data, opts) {
     ],
     timePrefs: {
       timezoneAware: false,
-      timezoneName: dt.getBrowserTimezone(),
+      timezoneName: 'UTC',
+      timezoneOffset: 0,
     }
   };
 
   _.defaultsDeep(opts, defaults);
+  this.opts = opts;
   var that = this;
 
   var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
+
+  function genRandomId() {
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    const hexID = new Array(16);
+    for (let i = 0; i < array.length; i++) {
+      const b = array[i];
+      const hex = (b + 0x100).toString(16).substr(1);
+      hexID[i] = hex;
+    }
+    return hexID.join('');
+  }
 
   function checkRequired() {
     startTimer('checkRequired');
@@ -196,6 +211,125 @@ function TidelineData(data, opts) {
     }
   };
 
+  this.checkTimezone = function() {
+    if (!Array.isArray(this.grouped.upload)) {
+      return;
+    }
+    startTimer('checkTimezone');
+    const uploadIdFilter = crossfilter(this.grouped.upload).dimension((d) => d.id);
+    const nData = this.data.length;
+    let nUpdate = 0;
+    let timezone = null;
+    let timezoneOffset = 0;
+
+    if (opts.timePrefs.timezoneAware) {
+      timezone = opts.timePrefs.timezoneName;
+    }
+
+    for (let i = 0; i < nData; i++) {
+      const datum = this.data[i];
+      // We need the source info for the tooltips (only diabeloop source may have this information):
+      if (datum.type !== 'upload' && typeof datum.source !== 'string') {
+        const uploadDatum = uploadIdFilter.filterExact(datum.uploadId).top(1);
+        if (uploadDatum.length > 0) {
+          datum.source = uploadDatum[0].source;
+          nUpdate++;
+        } else {
+          // Use another upload
+          datum.source = this.grouped.upload[0].source;
+          nUpdate++;
+        }
+      }
+      // deviceEvent / timeChange datum:
+      if (typeof datum.timezone !== 'string' || moment.tz.zone(datum.timezone) === null) {
+        // No valid timezone found, ignore this entry
+        continue;
+      }
+      if (timezone === null || (timezone !== 'UTC' && timezoneOffset === 0)) {
+        const mTime = moment.tz(datum.normalTime, datum.timezone);
+        if (mTime.isValid()) {
+          timezoneOffset = mTime.utcOffset();
+          timezone = datum.timezone;
+        }
+      } else if (timezone !== null && timezone !== 'UTC' && datum.timezone !== 'UTC' && timezone !== datum.timezone) {
+        // Create timezone change datum
+        const prevTime = moment.tz(datum.normalTime, timezone).format('YYYY-MM-DDTHH:mm:ss');
+        const mTime = moment.tz(datum.normalTime, datum.timezone);
+        const newTime = mTime.format('YYYY-MM-DDTHH:mm:ss');
+        timezone = datum.timezone;
+        timezoneOffset = mTime.utcOffset();
+        const datumTimezoneChange = {
+          id: genRandomId(),
+          time: datum.normalTime,
+          normalTime: datum.normalTime,
+          timezone: datum.timezone,
+          timezoneOffset,
+          type: 'deviceEvent',
+          subType: 'timeChange',
+          source: 'Diabeloop',
+          from: {
+            time: prevTime,
+            timeZoneName: timezone,
+          },
+          to: {
+            time: newTime,
+            timeZoneName: datum.timezone,
+          },
+          method: 'guessed',
+        };
+        this.data.push(datumTimezoneChange);
+        log.info('Timezone change', datumTimezoneChange);
+      } else if (timezone !== null && datum.timezone === timezone) {
+        // Offset change in the same timezone (daily saving time)
+        const mTime = moment.tz(datum.normalTime, datum.timezone);
+        const newOffset = mTime.utcOffset();
+        if (newOffset !== timezoneOffset) {
+          const zone = moment.tz.zone(timezone);
+          // Get the closest timechange
+          const utcDatumTime = mTime.valueOf();
+          let utcTimeChange = 0;
+          for (let u = 0; u < zone.untils.length; u++) {
+            if (zone.untils[u] > utcDatumTime && u > 0) {
+              utcTimeChange = zone.untils[u - 1];
+              break;
+            }
+          }
+          const prevMoment = moment.tz(utcTimeChange - 1, timezone);
+          const newMoment = moment.tz(utcTimeChange, timezone);
+          const normalTime = newMoment.toISOString();
+          timezoneOffset = newOffset;
+
+          const datumOffsetChange = {
+            id: genRandomId(),
+            time: normalTime,
+            normalTime,
+            timezone,
+            timezoneOffset,
+            type: 'deviceEvent',
+            subType: 'timeChange',
+            source: 'Diabeloop',
+            from: {
+              time: prevMoment.toISOString(),
+              timeZoneName: timezone,
+            },
+            to: {
+              time: normalTime,
+              timeZoneName: timezone,
+            },
+            method: 'guessed',
+          };
+          this.data.push(datumOffsetChange);
+          log.info('Offset change', datumOffsetChange);
+        }
+      }
+    }
+
+    // Keep last offset
+    opts.timePrefs.timezoneOffset = timezoneOffset;
+    log.info('Number of datum source updated:', nUpdate);
+    endTimer('checkTimezone');
+  }
+
   this.filterTempBasal = (data) => _.reject(data, (d) => (d.type === 'basal' && d.deliveryType === 'temp'));
 
   this.filterDataArray = function() {
@@ -233,6 +367,12 @@ function TidelineData(data, opts) {
     }));
     endTimer('Validation');
 
+    // Remove generated timezone event
+    this.data = _.reject(this.data, (d) => d.type === 'deviceEvent' && d.subType === 'timeChange' && d.method === 'guessed');
+    if (Array.isArray(this.grouped.deviceEvent)) {
+      this.grouped.deviceEvent = _.reject(this.grouped.deviceEvent, (d) => d.type === 'deviceEvent' && d.subType === 'timeChange' && d.method === 'guessed');
+    }
+
     // Add all valid new datums to the top of appropriate collections in descending order
     _.eachRight(_.sortBy(validatedData.valid, 'normalTime'), datum => {
       if (! _.isArray(this.grouped[datum.type])) {
@@ -261,6 +401,9 @@ function TidelineData(data, opts) {
 
     // get DeviceParameters
     this.setDeviceParameters(this.data);
+
+    // Timezone change events (for tooltips)
+    this.checkTimezone();
 
     startTimer('setUtilities');
     this.setUtilities();
@@ -589,10 +732,10 @@ function TidelineData(data, opts) {
   this.setUtilities();
 
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
-    var dData = this.diabetesData;
     this.data = _.sortBy(data, function(d) { return d.normalTime; });
     this.filterDataArray().generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
+    this.checkTimezone();
   }
   else {
     this.data = [];
