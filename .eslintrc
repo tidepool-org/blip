@@ -29,6 +29,7 @@
     "lodash/prefer-lodash-method": ["error", {
       "ignoreMethods": ["split", "trim", "replace", "toLower"]
     }],
+    "no-bitwise": ["warn", { "int32Hint": true }],
     "no-else-return": 0,
     "no-extra-boolean-cast": 0,
     "no-lonely-if": 0,

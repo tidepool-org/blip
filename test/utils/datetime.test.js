@@ -492,9 +492,8 @@ describe('datetime', () => {
     });
 
     it('should error if passed a JavaScript Date for the `utc` param', () => {
-      const fn = () => { datetime.formatLocalizedFromUTC(new Date(), tzAwareLA); };
-      expect(fn)
-        .to.throw('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
+      expect(datetime.formatLocalizedFromUTC(new Date(utcString), tzUnaware, 'MMM D'))
+        .to.equal('Sep 5');
     });
   });
 

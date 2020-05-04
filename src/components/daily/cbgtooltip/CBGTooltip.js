@@ -15,36 +15,37 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
+
 import {
   classifyBgValue,
   reshapeBgClassesToBgBounds,
   getOutOfRangeThreshold,
 } from '../../../utils/bloodglucose';
 import { formatBgValue } from '../../../utils/format';
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
 import { getOutOfRangeAnnotationMessage } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './CBGTooltip.css';
 
-class CBGTooltip extends PureComponent {
+class CBGTooltip extends React.Component {
   renderCBG() {
-    const cbg = this.props.cbg;
+    const { cbg, bgPrefs } = this.props;
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(cbg);
     const rows = [
       <div key={'bg'} className={styles.bg}>
         <div className={styles.label}>BG</div>
         <div className={styles.value}>
-          {`${formatBgValue(cbg.value, this.props.bgPrefs, getOutOfRangeThreshold(cbg))}`}
+          {`${formatBgValue(cbg.value, bgPrefs, getOutOfRangeThreshold(cbg))}`}
         </div>
       </div>,
     ];
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(
-        reshapeBgClassesToBgBounds(this.props.bgPrefs),
-        this.props.cbg.value,
+        reshapeBgClassesToBgBounds(bgPrefs),
+        cbg.value,
         'fiveWay'
       );
       rows.push(
@@ -65,25 +66,28 @@ class CBGTooltip extends PureComponent {
   }
 
   render() {
+    const { cbg, timePrefs, bgPrefs, title } = this.props;
     const bgClass = classifyBgValue(
-      reshapeBgClassesToBgBounds(this.props.bgPrefs),
-      this.props.cbg.value,
+      reshapeBgClassesToBgBounds(bgPrefs),
+      cbg.value,
       'fiveWay'
     );
-    const title = this.props.title ? this.props.title : (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.cbg.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-          }
-      </div>
-    );
+
+    let dateTitle = null;
+    if (title === null) {
+      dateTitle = {
+        source: _.get(cbg, 'source', 'tidepool'),
+        normalTime: cbg.normalTime,
+        timezone: _.get(cbg, 'timezone', 'UTC'),
+        timePrefs,
+      };
+    }
+
     return (
       <Tooltip
         {...this.props}
         title={title}
+        dateTitle={dateTitle}
         content={this.renderCBG()}
         borderColor={colors[bgClass]}
         tailColor={colors[bgClass]}
@@ -102,8 +106,8 @@ CBGTooltip.propTypes = {
     left: PropTypes.number,
     horizontal: PropTypes.number,
   }),
-  titls: PropTypes.node,
-  tail: PropTypes.bool.isRequired,
+  title: PropTypes.node,
+  tail: PropTypes.bool,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailColor: PropTypes.string.isRequired,
   tailWidth: PropTypes.number.isRequired,
@@ -131,6 +135,7 @@ CBGTooltip.defaultProps = {
   tailColor: colors.bolus,
   borderColor: colors.bolus,
   borderWidth: 2,
+  title: null,
 };
 
 export default CBGTooltip;

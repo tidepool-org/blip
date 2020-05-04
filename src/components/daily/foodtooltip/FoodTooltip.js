@@ -15,19 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './FoodTooltip.css';
 import i18next from 'i18next';
 
-const t = i18next.t.bind(i18next);
-
-class FoodTooltip extends PureComponent {
+class FoodTooltip extends React.Component {
   getCarbs(food) {
     return _.get(food, 'nutrition.carbohydrate.net', 0);
   }
@@ -36,7 +33,7 @@ class FoodTooltip extends PureComponent {
     const food = this.props.food;
     const rows = [
       <div key={'carb'} className={styles.carb}>
-        <div className={styles.label}>{t('Rescuecarbs')}</div>
+        <div className={styles.label}>{i18next.t('Rescuecarbs')}</div>
         <div className={styles.value}>
           {`${this.getCarbs(food)}`}
         </div>
@@ -48,20 +45,23 @@ class FoodTooltip extends PureComponent {
   }
 
   render() {
-    const title = this.props.title ? this.props.title : (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.food.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-          }
-      </div>
-    );
+    const { food, timePrefs, title } = this.props;
+
+    let dateTitle = null;
+    if (title === null) {
+      dateTitle = {
+        source: _.get(food, 'source', 'tidepool'),
+        normalTime: food.normalTime,
+        timezone: _.get(food, 'timezone', 'UTC'),
+        timePrefs,
+      };
+    }
+
     return (
       <Tooltip
         {...this.props}
         title={title}
+        dateTitle={dateTitle}
         content={this.renderFood()}
       />
     );
@@ -78,7 +78,7 @@ FoodTooltip.propTypes = {
     left: PropTypes.number,
     horizontal: PropTypes.number,
   }),
-  titls: PropTypes.node,
+  title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailColor: PropTypes.string.isRequired,
@@ -110,6 +110,7 @@ FoodTooltip.defaultProps = {
   tailColor: colors.rescuecarbs,
   borderColor: colors.rescuecarbs,
   borderWidth: 2,
+  title: null,
 };
 
 export default FoodTooltip;

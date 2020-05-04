@@ -15,10 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
-import { formatLocalizedFromUTC, formatDuration, getHourMinuteFormat } from '../../../utils/datetime';
+import { formatDuration } from '../../../utils/datetime';
 import { formatInsulin, formatBgValue } from '../../../utils/format';
 import { getAnnotationMessages } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
@@ -28,7 +29,7 @@ import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
-class BolusTooltip extends PureComponent {
+class BolusTooltip extends React.Component {
   formatBgValue(val) {
     return formatBgValue(val, this.props.bgPrefs);
   }
@@ -174,7 +175,7 @@ class BolusTooltip extends PureComponent {
   renderWizard() {
     const wizard = this.props.bolus;
     const recommended = bolusUtils.getRecommended(wizard);
-    const suggested = _.isFinite(recommended) ? `${recommended}` : null;
+    const suggested = _.isFinite(recommended) ? recommended : null;
     const bg = _.get(wizard, 'bgInput', null);
     const iob = _.get(wizard, 'insulinOnBoard', null);
     const carbs = bolusUtils.getCarbs(wizard);
@@ -214,7 +215,7 @@ class BolusTooltip extends PureComponent {
       </div>
     );
     const suggestedLine = (isInterrupted || overrideLine) &&
-      !!suggested && (
+      suggested !== null && (
       <div className={styles.suggested}>
         <div className={styles.label}>{t('Suggested')}</div>
         <div className={styles.value}>{formatInsulin(suggested)}</div>
@@ -341,17 +342,22 @@ class BolusTooltip extends PureComponent {
   }
 
   render() {
-    const title = (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.bolus.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-        }
-      </div>
+    const { bolus, timePrefs } = this.props;
+
+    const dateTitle = {
+      source: _.get(bolus, 'source', 'tidepool'),
+      normalTime: bolus.normalTime,
+      timezone: _.get(bolus, 'timezone', 'UTC'),
+      timePrefs,
+    };
+
+    return (
+      <Tooltip
+        {...this.props}
+        dateTitle={dateTitle}
+        content={this.renderBolus()}
+      />
     );
-    return <Tooltip {...this.props} title={title} content={this.renderBolus()} />;
   }
 }
 

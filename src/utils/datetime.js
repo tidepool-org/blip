@@ -301,16 +301,13 @@ export function formatDuration(duration, opts = {}) {
 
 /**
  * formatLocalizedFromUTC
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {String|Number|Date|moment.Moment} utc - Zulu timestamp (Integer hammertime also OK)
  * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  * @param  {String} [format] - optional moment display format string; default is 'dddd, MMMM D'
  *
  * @return {String} formatted datetime, e.g., 'Sunday, January 1'
  */
 export function formatLocalizedFromUTC(utc, timePrefs, format = getDayFormat()) {
-  if (utc instanceof Date) {
-    throw new Error('`utc` must be a ISO-formatted String timestamp or integer hammertime!');
-  }
   const timezone = getTimezoneFromTimePrefs(timePrefs);
   return moment.utc(utc).tz(timezone).format(format);
 }

@@ -15,22 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
-
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
+import React from 'react';
+import PropTypes from 'prop-types';
+import i18next from 'i18next';
+import _ from 'lodash';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './ReservoirTooltip.css';
-import i18next from 'i18next';
 
-const t = i18next.t.bind(i18next);
-
-class ReservoirTooltip extends PureComponent {
+class ReservoirTooltip extends React.Component {
   renderReservoir() {
     const rows = [
       <div key={'title'} className={styles.pa}>
-        <div className={styles.label}>{t('Reservoir Change')}</div>
+        <div className={styles.label}>{i18next.t('Reservoir Change')}</div>
       </div>,
     ];
 
@@ -38,20 +36,23 @@ class ReservoirTooltip extends PureComponent {
   }
 
   render() {
-    const title = this.props.title ? this.props.title : (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.reservoir.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-          }
-      </div>
-    );
+    const { reservoir, timePrefs, title } = this.props;
+
+    let dateTitle = null;
+    if (title === null) {
+      dateTitle = {
+        source: _.get(reservoir, 'source', 'tidepool'),
+        normalTime: reservoir.normalTime,
+        timezone: _.get(reservoir, 'timezone', 'UTC'),
+        timePrefs,
+      };
+    }
+
     return (
       <Tooltip
         {...this.props}
         title={title}
+        dateTitle={dateTitle}
         content={this.renderReservoir()}
       />
     );
@@ -77,7 +78,7 @@ ReservoirTooltip.propTypes = {
   backgroundColor: PropTypes.string,
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
-  reservoir: PropTypes.number.isRequired,
+  reservoir: PropTypes.object.isRequired,
   timePrefs: PropTypes.object.isRequired,
 };
 
@@ -89,6 +90,7 @@ ReservoirTooltip.defaultProps = {
   tailColor: colors.deviceEvent,
   borderColor: colors.deviceEvent,
   borderWidth: 2,
+  title: null,
 };
 
 export default ReservoirTooltip;

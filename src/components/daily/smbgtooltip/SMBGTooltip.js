@@ -15,15 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
+
 import {
   classifyBgValue,
   reshapeBgClassesToBgBounds,
   getOutOfRangeThreshold,
 } from '../../../utils/bloodglucose';
 import { formatBgValue } from '../../../utils/format';
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
 import {
   getMedtronic600AnnotationMessages,
   getOutOfRangeAnnotationMessage,
@@ -32,7 +33,7 @@ import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './SMBGTooltip.css';
 
-class SMBGTooltip extends PureComponent {
+class SMBGTooltip extends React.Component {
   renderSMBG() {
     const smbg = this.props.smbg;
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(smbg);
@@ -89,25 +90,28 @@ class SMBGTooltip extends PureComponent {
   }
 
   render() {
+    const { smbg, timePrefs, bgPrefs, title } = this.props;
     const bgClass = classifyBgValue(
-      reshapeBgClassesToBgBounds(this.props.bgPrefs),
-      this.props.smbg.value,
+      reshapeBgClassesToBgBounds(bgPrefs),
+      smbg.value,
       'fiveWay'
     );
-    const title = this.props.title ? this.props.title : (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.smbg.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-          }
-      </div>
-    );
+
+    let dateTitle = null;
+    if (title === null) {
+      dateTitle = {
+        source: _.get(smbg, 'source', 'tidepool'),
+        normalTime: smbg.normalTime,
+        timezone: _.get(smbg, 'timezone', 'UTC'),
+        timePrefs,
+      };
+    }
+
     return (
       <Tooltip
         {...this.props}
         title={title}
+        dateTitle={dateTitle}
         content={this.renderSMBG()}
         borderColor={colors[bgClass]}
         tailColor={colors[bgClass]}
@@ -126,7 +130,7 @@ SMBGTooltip.propTypes = {
     left: PropTypes.number,
     horizontal: PropTypes.number,
   }),
-  titls: PropTypes.node,
+  title: PropTypes.node,
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
   tailColor: PropTypes.string.isRequired,
@@ -155,6 +159,7 @@ SMBGTooltip.defaultProps = {
   tailColor: colors.bolus,
   borderColor: colors.bolus,
   borderWidth: 2,
+  title: null,
 };
 
 export default SMBGTooltip;

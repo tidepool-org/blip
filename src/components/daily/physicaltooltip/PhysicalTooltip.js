@@ -15,18 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
-
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import i18next from 'i18next';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './PhysicalTooltip.css';
-import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
-class PhysicalTooltip extends PureComponent {
+class PhysicalTooltip extends React.Component {
   getDurationInMinutes() {
     const display = {
       units: 'minutes',
@@ -71,20 +71,23 @@ class PhysicalTooltip extends PureComponent {
   }
 
   render() {
-    const title = this.props.title ? this.props.title : (
-      <div className={styles.title}>
-        {
-          formatLocalizedFromUTC(
-            this.props.physicalActivity.normalTime,
-            this.props.timePrefs,
-            getHourMinuteFormat())
-          }
-      </div>
-    );
+    const { physicalActivity, timePrefs, title } = this.props;
+
+    let dateTitle = null;
+    if (title === null) {
+      dateTitle = {
+        source: _.get(physicalActivity, 'source', 'tidepool'),
+        normalTime: physicalActivity.normalTime,
+        timezone: _.get(physicalActivity, 'timezone', 'UTC'),
+        timePrefs,
+      };
+    }
+
     return (
       <Tooltip
         {...this.props}
         title={title}
+        dateTitle={dateTitle}
         content={this.renderPhysicalActivity()}
       />
     );
@@ -128,6 +131,7 @@ PhysicalTooltip.defaultProps = {
   tailColor: colors.physicalActivity,
   borderColor: colors.physicalActivity,
   borderWidth: 2,
+  title: null,
 };
 
 export default PhysicalTooltip;

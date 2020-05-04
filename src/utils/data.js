@@ -58,8 +58,6 @@ export class DataUtil {
   set endpoints(endpoints = []) {
     this._endpoints = endpoints;
     this.days = this.getDayCountFromEndpoints();
-
-    this.log('endpoints', this._endpoints, 'days in range', this.days);
   }
 
   set bgPrefs(bgPrefs = {}) {

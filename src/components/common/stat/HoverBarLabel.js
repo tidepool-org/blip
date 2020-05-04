@@ -100,7 +100,8 @@ export const HoverBarLabel = props => {
 };
 
 HoverBarLabel.propTypes = {
-  datum: PropTypes.object.isRequired,
+  datum: PropTypes.object,
+  style: PropTypes.object,
   domain: PropTypes.object.isRequired,
   isDisabled: PropTypes.func.isRequired,
   text: PropTypes.func.isRequired,
