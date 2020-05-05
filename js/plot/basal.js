@@ -345,6 +345,9 @@ module.exports = function(pool, opts) {
   };
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
+    const defaultSource = _.get(window, 'config.BRANDING', 'tidepool') === 'diabeloop' ? 'Diabeloop' : 'default';
+    /** @type {string} */
+    const source = _.get(datum, 'source', defaultSource);
     switch (datum.deliveryType) {
     case 'temp':
       group.append('p')
@@ -371,11 +374,11 @@ module.exports = function(pool, opts) {
     case 'automated':
       group.append('p')
         .append('span')
-        .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, datum.source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
+        .html('<span class="plain muted">' + _.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default) + ':</span> ' +
           basal.rateString(datum, 'plain'));
       break;
     default:
-      const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, datum.source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
+      const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
       group.append('p')
         .append('span')
         .html(label + basal.rateString(datum, 'plain'));
@@ -383,7 +386,7 @@ module.exports = function(pool, opts) {
 
     let begin = '';
     let end = '';
-    if (datum.source === 'Diabeloop') {
+    if (source === 'Diabeloop') {
       const mBegin = moment.tz(datum.normalTime, datum.timezone);
       begin = mBegin.format(H_MM_A_FORMAT);
       end = moment.tz(datum.normalEnd, datum.timezone).format(H_MM_A_FORMAT);

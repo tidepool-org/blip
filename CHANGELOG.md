@@ -4,6 +4,7 @@ Library for Tidepool's timeline-style diabetes data visualization(s) used in Bli
 ## Unreleased
 ### Fixed 
 - PT-1205 Add timezone info on tooltips when necessary
+- PT-1246 Basal loop mode is displayed as "automated" in daily view
 
 ## 1.9.2 - 2020-04-17
 ### Fixed
