@@ -270,7 +270,7 @@ class Daily extends Component {
   render = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
-    const dayDataReady = _.get(this.props, 'data.data.current.endpoints.days') === 1;
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'daily';
 
     return (
       <div id="tidelineMain" className="daily">
@@ -298,7 +298,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {dayDataReady && this.renderChart()}
+              {dataQueryComplete && this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -320,27 +320,28 @@ class Daily extends Component {
         <Footer
           chartType={this.chartType}
           onClickRefresh={this.props.onClickRefresh}
-          ref="footer" />
+          ref="footer"
+        />
         {this.state.hoveredBolus && <BolusTooltip
-            position={{
-              top: this.state.hoveredBolus.top,
-              left: this.state.hoveredBolus.left
-            }}
-            side={this.state.hoveredBolus.side}
-            bolus={this.state.hoveredBolus.data}
-            bgPrefs={bgPrefs}
-            timePrefs={timePrefs}
-          />}
+          position={{
+            top: this.state.hoveredBolus.top,
+            left: this.state.hoveredBolus.left
+          }}
+          side={this.state.hoveredBolus.side}
+          bolus={this.state.hoveredBolus.data}
+          bgPrefs={bgPrefs}
+          timePrefs={timePrefs}
+        />}
         {this.state.hoveredSMBG && <SMBGTooltip
-            position={{
-              top: this.state.hoveredSMBG.top,
-              left: this.state.hoveredSMBG.left
-            }}
-            side={this.state.hoveredSMBG.side}
-            smbg={this.state.hoveredSMBG.data}
-            timePrefs={timePrefs}
-            bgPrefs={bgPrefs}
-          />}
+          position={{
+            top: this.state.hoveredSMBG.top,
+            left: this.state.hoveredSMBG.left
+          }}
+          side={this.state.hoveredSMBG.side}
+          smbg={this.state.hoveredSMBG.data}
+          timePrefs={timePrefs}
+          bgPrefs={bgPrefs}
+        />}
         {this.state.hoveredCBG && <CBGTooltip
           position={{
             top: this.state.hoveredCBG.top,
