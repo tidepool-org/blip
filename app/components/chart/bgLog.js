@@ -232,10 +232,8 @@ class BgLog extends Component {
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
     let renderedContent;
 
-    if (this.isMissingSMBG()) {
-      renderedContent = this.props.loading ? null : this.renderMissingSMBGMessage()
-    } else {
-      renderedContent = dataQueryComplete ? this.renderChart() : null;
+    if (dataQueryComplete) {
+      renderedContent = this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart();
     }
 
     return (
