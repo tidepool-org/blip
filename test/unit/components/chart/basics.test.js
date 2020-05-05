@@ -32,7 +32,7 @@ import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 
-describe('Basics', () => {
+describe.only('Basics', () => {
   const bgPrefs = {
     bgClasses: {
       'very-low': {
@@ -62,7 +62,8 @@ describe('Basics', () => {
       timePrefs: {
         timezoneAware: false,
         timezoneName: 'US/Pacific',
-      }
+      },
+      query: { chartType: 'basics' },
     },
     initialDatetimeLocation: '2019-11-27T00:00:00.000Z',
     loading: false,
