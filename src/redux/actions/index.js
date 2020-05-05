@@ -15,6 +15,38 @@
  * == BSD2 LICENSE ==
  */
 
-export * from './thunks';
-export * from './trends';
-export * from './settings';
+import { delayShowCbgTracesOnFocus } from './thunks';
+import {
+  focusTrendsCbgDateTrace,
+  focusTrendsCbgSlice,
+  focusTrendsSmbg,
+  focusTrendsSmbgRangeAvg,
+  markTrendsViewed,
+  showCbgDateTraces,
+  turnOffCbgRange,
+  turnOnCbgRange,
+  unfocusTrendsCbgDateTrace,
+  unfocusTrendsCbgSlice,
+  unfocusTrendsSmbg,
+  unfocusTrendsSmbgRangeAvg,
+} from './trends';
+import { markSettingsViewed, toggleSettingsSection } from './settings';
+
+
+export {
+  delayShowCbgTracesOnFocus,
+  focusTrendsCbgDateTrace,
+  focusTrendsCbgSlice,
+  focusTrendsSmbg,
+  focusTrendsSmbgRangeAvg,
+  markTrendsViewed,
+  showCbgDateTraces,
+  turnOffCbgRange,
+  turnOnCbgRange,
+  unfocusTrendsCbgDateTrace,
+  unfocusTrendsCbgSlice,
+  unfocusTrendsSmbg,
+  unfocusTrendsSmbgRangeAvg,
+  markSettingsViewed,
+  toggleSettingsSection,
+};
