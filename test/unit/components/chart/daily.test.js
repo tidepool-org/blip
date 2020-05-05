@@ -173,7 +173,7 @@ describe('Daily', () => {
       var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
         data: {
-          data: { current: { endpoints: { days: 1 } } },
+          query: { chartType: 'daily'},
           bgPrefs,
           timePrefs: {
             timezoneAware: false,
@@ -197,7 +197,7 @@ describe('Daily', () => {
       var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
         data: {
-          data: { current: { endpoints: { days: 1 } } },
+          query: { chartType: 'daily'},
           bgPrefs,
           timePrefs: {
             timezoneAware: false,
