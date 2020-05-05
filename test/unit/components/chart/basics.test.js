@@ -32,7 +32,7 @@ import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 
-describe.only('Basics', () => {
+describe('Basics', () => {
   const bgPrefs = {
     bgClasses: {
       'very-low': {
