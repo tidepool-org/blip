@@ -79,7 +79,7 @@ class BgLogChart extends Component {
 
   unmountChart = () => {
     this.log('Unmounting...');
-    this.chart.destroy();
+    if (this.chart) this.chart.destroy();
   };
 
   remountChart = (props = this.props) => {
@@ -215,12 +215,18 @@ class BgLog extends Component {
   componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
-      this.refs.chart.rerenderChart(_.assign(
-        {},
-        nextProps,
-        { showingValues: this.state.showingValues },
-      ));
+    if (this.refs.chart) {
+      if (!this.refs.chart.chart) {
+        this.refs.chart.mount();
+      }
+
+      if ((loadingJustCompleted || newDataRecieved)) {
+        this.refs.chart.rerenderChart(_.assign(
+          {},
+          nextProps,
+          { showingValues: this.state.showingValues },
+        ));
+      }
     }
   };
 
@@ -231,6 +237,15 @@ class BgLog extends Component {
   };
 
   render = () => {
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
+    let renderedContent;
+
+    if (this.isMissingSMBG()) {
+      renderedContent = this.props.loading ? null : this.renderMissingSMBGMessage()
+    } else {
+      renderedContent = dataQueryComplete ? this.renderChart() : null;
+    }
+
     return (
       <div id="tidelineMain" className="bgLog">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -238,7 +253,7 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.isMissingSMBG() ? (this.props.loading ? null : this.renderMissingSMBGMessage()) : this.renderChart()}
+              {renderedContent}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -252,11 +267,12 @@ class BgLog extends Component {
           </div>
         </div>
         <Footer
-         chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
-         onClickValues={this.toggleValues}
-         onClickRefresh={this.props.onClickRefresh}
-         showingValues={this.state.showingValues}
-        ref="footer" />
+          chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
+          onClickValues={this.toggleValues}
+          onClickRefresh={this.props.onClickRefresh}
+          showingValues={this.state.showingValues}
+          ref="footer"
+        />
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
