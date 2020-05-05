@@ -60,6 +60,10 @@ class BgLogChart extends Component {
     this.log = bows('BgLog Chart');
   }
 
+  componentDidMount = () => {
+    this.mount();
+  };
+
   mount = (props = this.props) => {
     this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
@@ -206,27 +210,15 @@ class BgLog extends Component {
     };
   };
 
-  componentDidMount = () => {
-    if (this.refs.chart) {
-      this.refs.chart.mount();
-    }
-  };
-
   componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    if (this.refs.chart) {
-      if (!this.refs.chart.chart) {
-        this.refs.chart.mount();
-      }
-
-      if ((loadingJustCompleted || newDataRecieved)) {
-        this.refs.chart.rerenderChart(_.assign(
-          {},
-          nextProps,
-          { showingValues: this.state.showingValues },
-        ));
-      }
+    if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {
+      this.refs.chart.rerenderChart(_.assign(
+        {},
+        nextProps,
+        { showingValues: this.state.showingValues },
+      ));
     }
   };
 
