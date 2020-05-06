@@ -4,7 +4,9 @@
 /* global it */
 /* global expect */
 /* global beforeEach */
+/* global before */
 /* global afterEach */
+/* global after */
 /* global context */
 
 import configureStore from 'redux-mock-store';
@@ -2813,12 +2815,22 @@ describe('Actions', () => {
 
     describe('fetchPatientData', () => {
       const patientId = 300;
+      const serverTime = '2018-02-01T00:00:00.000Z';
 
       let options;
       let patientData;
       let teamNotes;
       let uploadRecord;
       let api;
+      let rollbar;
+
+      before(() => {
+        rollbar = {
+          info: sinon.stub(),
+        };
+
+        async.__Rewire__('rollbar', rollbar);
+      });
 
       beforeEach(() => {
         options = {
@@ -2850,7 +2862,18 @@ describe('Actions', () => {
           team: {
             getNotes: sinon.stub().callsArgWith(2, null, teamNotes)
           },
+          server: {
+            getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } })
+          }
         };
+      });
+
+      afterEach(() => {
+        rollbar.info.resetHistory();
+      });
+
+      after(() => {
+        async.__ResetDependency__('rollbar');
       });
 
       context('data is available in cache', () => {
@@ -2904,6 +2927,8 @@ describe('Actions', () => {
           err.status = 500;
 
           let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST'},
+            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime } },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
           _.each(expectedActions, (action) => {
@@ -2913,9 +2938,28 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[0].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
-          expectedActions[0].error = actions[0].error;
+          expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT_DATA });
+          expectedActions[2].error = actions[2].error;
           expect(actions).to.eql(expectedActions);
+        });
+
+        it('should use server time (plus 1 day, minus 30) for date range of data fetching if all latest diabetes datums returns empty results', () => {
+          let store = mockStore({ blip: {
+            ...initialState,
+          }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          // Set all times in response to 1 year past server time
+          api.patientData.get = sinon.stub().callsArgWith(2, null, []);
+
+          store.dispatch(async.fetchPatientData(api, options, patientId));
+
+          expect(api.server.getTime.callCount).to.equal(1);
+
+          expect(api.patientData.get.withArgs(patientId, {
+            ...options,
+            startDate: '2018-01-02T00:00:00.000Z', // 30 days before serverTime
+            endDate: '2018-02-02T00:00:00.000Z', // 1 day beyond serverTime
+          }).callCount).to.equal(1);
         });
 
         it('should fetch the latest data for all diabetes types and pumpSettings', () => {
@@ -2937,6 +2981,7 @@ describe('Actions', () => {
               'upload',
             ].join(','),
             latest: 1,
+            endDate: '2018-02-02T00:00:00.000Z', // 1 day beyond serverTime
           }).callCount).to.equal(1);
         });
 
@@ -2944,6 +2989,8 @@ describe('Actions', () => {
           let store = mockStore({ blip: {
             ...initialState,
           }, routing: { location: { pathname: `data/${patientId}` } } });
+
+          api.patientData.get = sinon.stub().callsArgWith(2, null, patientData);
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
@@ -3067,7 +3114,7 @@ describe('Actions', () => {
 
           api.patientData = {
             get: sinon.stub()
-              .onFirstCall().callsArgWith(2, null, [ ...patientData, { type: 'pumpSettings', uploadId: 'upload123' }])
+              .onFirstCall().callsArgWith(2, null, [ ...patientData, { type: 'pumpSettings', uploadId: 'upload123', time: '2018-02-01T00:00:00.000Z' }])
               .onSecondCall().callsArgWith(2, null, patientData)
               .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
@@ -3076,6 +3123,8 @@ describe('Actions', () => {
           err.status = 500;
 
           let expectedActions = [
+            { type: 'FETCH_SERVER_TIME_REQUEST'},
+            { type: 'FETCH_SERVER_TIME_SUCCESS', payload: { serverTime } },
             { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
             { type: 'FETCH_PATIENT_DATA_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
           ];
@@ -3090,9 +3139,8 @@ describe('Actions', () => {
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
           const actions = store.getActions();
-          expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
-          expectedActions[1].error = actions[1].error;
-
+          expect(actions[3].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_PUMP_SETTINGS_UPLOAD });
+          expectedActions[3].error = actions[3].error;
           expect(actions).to.eql(expectedActions);
           expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
           expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
