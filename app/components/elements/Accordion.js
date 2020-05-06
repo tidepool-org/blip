@@ -5,9 +5,9 @@ import { Box, BoxProps } from 'rebass/styled-components';
 import { default as ExpansionPanel, ExpansionPanelProps } from '@material-ui/core/ExpansionPanel';
 import { default as ExpansionPanelSummary, ExpansionPanelSummaryProps } from '@material-ui/core/ExpansionPanelSummary';
 import { default as ExpansionPanelDetails, ExpansionPanelDetailsProps } from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 
-import { borders, colors, space, fonts, fontSizes } from '../../themes/baseTheme';
+import { borders, colors, space, fonts, fontSizes, fontWeights } from '../../themes/baseTheme';
 
 const StyledAccordion = styled(ExpansionPanel)`
   font-family: ${fonts.default};
@@ -37,23 +37,31 @@ const StyledAccordionContent = styled(ExpansionPanelDetails)`
 `;
 
 export const Accordion = (props) => {
-  const { header, children, themeProps, icon, label } = props;
+  const { header, children, themeProps, icon, label, ...accordionProps } = props;
 
   return (
-    <Box {...themeProps.wrapper}>
-      <StyledAccordion square>
-        <StyledAccordionHeader
-          expandIcon={icon}
-          aria-controls={`${label}-content`}
-          id={`${label}-header`}
-          {...themeProps.header}
-        >
-          {header}
-        </StyledAccordionHeader>
-        <StyledAccordionContent {...themeProps.panel}>
-          {children}
-        </StyledAccordionContent>
-      </StyledAccordion>
+    <Box square as={StyledAccordion} {...themeProps.wrapper} {...accordionProps}>
+      <Box
+        as={StyledAccordionHeader}
+        expandIcon={icon}
+        aria-controls={`${label}-content`}
+        id={`${label}-header`}
+        fontWeight={fontWeights.medium}
+        IconButtonProps={{
+          disableFocusRipple: true,
+          disableRipple: true,
+        }}
+        {...themeProps.header}
+      >
+        {header}
+      </Box>
+      <Box
+        as={StyledAccordionContent}
+        id={`${label}-content`}
+        {...themeProps.panel}
+      >
+        {children}
+      </Box>
     </Box>
   );
 };
@@ -66,13 +74,13 @@ Accordion.propTypes = {
   label: PropTypes.string.isRequired,
   themeProps: PropTypes.shape({
     wrapper: PropTypes.shape(BoxProps),
-    panel: PropTypes.shape(ExpansionPanelDetailsProps),
-    header: PropTypes.shape(ExpansionPanelSummaryProps),
+    panel: PropTypes.shape({ ...BoxProps, ...ExpansionPanelDetailsProps }),
+    header: PropTypes.shape({ ...BoxProps, ...ExpansionPanelSummaryProps }),
   }),
 };
 
 Accordion.defaultProps = {
-  icon: <ExpandMoreIcon />,
+  icon: <ExpandMoreRoundedIcon />,
   themeProps: {},
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
 import { ThemeProvider } from 'styled-components';
 import { Box, Flex } from 'rebass/styled-components';
+import { withKnobs, boolean} from '@storybook/addon-knobs';
 
 import baseTheme from '../app/themes/baseTheme';
 import Accordion from '../app/components/elements/Accordion';
@@ -21,6 +22,11 @@ export default {
 };
 
 export const AccordionStory = () => {
+  const initiallyExpanded = () => boolean('Panel 2 Initially Expanded', true);
+  const [expanded, setExpanded] = React.useState(initiallyExpanded());
+
+  const handleChange = (event, isExpanded) => setExpanded(isExpanded);
+
   const props = {
     header: 'Accordion Header',
     label: 'accordion',
@@ -38,7 +44,10 @@ export const AccordionStory = () => {
       <Accordion {...props}>
         Content 1
       </Accordion>
-      <Accordion {...props} label={'accordion2'}>
+      <Accordion disabled {...props}>
+        Disabled
+      </Accordion>
+      <Accordion {...props} expanded={expanded} onChange={handleChange} header="Controlled Panel" label={'accordion2'}>
         Content 2
       </Accordion>
       <Accordion
@@ -50,7 +59,7 @@ export const AccordionStory = () => {
             width={'100%'}
           >
             <Box>Custom Header</Box>
-            <Box color={baseTheme.colors.text.primarySubdued}>Note</Box>
+            <Box color={baseTheme.colors.text.primarySubdued} fontWeight={baseTheme.fontWeights.regular}>Note</Box>
           </Flex>
         }
       >
