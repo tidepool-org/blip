@@ -7,7 +7,14 @@ import { default as ExpansionPanelSummary, ExpansionPanelSummaryProps } from '@m
 import { default as ExpansionPanelDetails, ExpansionPanelDetailsProps } from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 
-import { borders, colors, space, fonts, fontSizes, fontWeights } from '../../themes/baseTheme';
+import {
+  borders,
+  colors,
+  space,
+  fonts,
+  fontSizes,
+  fontWeights,
+} from '../../themes/baseTheme';
 
 const StyledAccordion = styled(ExpansionPanel)`
   font-family: ${fonts.default};
@@ -15,6 +22,10 @@ const StyledAccordion = styled(ExpansionPanel)`
   color: ${colors.text.primary};
   box-shadow: none;
   border-bottom: ${borders.divider};
+
+  &.Mui-expanded {
+    margin: 0;
+  }
 `;
 
 const StyledAccordionHeader = styled(ExpansionPanelSummary)`
@@ -33,14 +44,26 @@ const StyledAccordionHeader = styled(ExpansionPanelSummary)`
 
 const StyledAccordionContent = styled(ExpansionPanelDetails)`
   padding: ${space[3]}px;
-  color: ${colors.text.primarySubdued}
+  color: ${colors.text.primarySubdued};
 `;
 
 export const Accordion = (props) => {
-  const { header, children, themeProps, icon, label, ...accordionProps } = props;
+  const {
+    header,
+    children,
+    themeProps,
+    icon,
+    label,
+    ...accordionProps
+  } = props;
 
   return (
-    <Box square as={StyledAccordion} {...themeProps.wrapper} {...accordionProps}>
+    <Box
+      square
+      as={StyledAccordion}
+      {...themeProps.wrapper}
+      {...accordionProps}
+    >
       <Box
         as={StyledAccordionHeader}
         expandIcon={icon}
