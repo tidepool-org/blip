@@ -2603,6 +2603,7 @@ describe('PatientData', function () {
         instance.queryData({ metaData: 'bar', types: 'cbg,smbg' }, { metaData: 'foo' });
         sinon.assert.calledWith(defaultProps.dataWorkerQueryDataRequest, {
           bgSource: 'smbg',
+          chartType: 'trends',
           endpoints: [100,200],
           types: 'cbg,smbg',
           metaData: 'bar',
@@ -2664,6 +2665,13 @@ describe('PatientData', function () {
           setStateSpy.resetHistory();
         });
 
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'basics',
+          });
+        });
+
         it('should set the `aggregationsByDate` query', () => {
           instance.queryData();
           sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
@@ -2676,6 +2684,13 @@ describe('PatientData', function () {
         beforeEach(() => {
           wrapper.setState({ chartType: 'daily' });
           setStateSpy.resetHistory();
+        });
+
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'daily',
+          });
         });
 
         it('should set the `types` query', () => {
@@ -2708,6 +2723,13 @@ describe('PatientData', function () {
           setStateSpy.resetHistory();
         });
 
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'bgLog',
+          });
+        });
+
         it('should set the `types` query', () => {
           instance.queryData();
           sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
@@ -2729,6 +2751,13 @@ describe('PatientData', function () {
         beforeEach(() => {
           wrapper.setState({ chartType: 'trends' });
           setStateSpy.resetHistory();
+        });
+
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'trends',
+          });
         });
 
         it('should set the `types` query', () => {
