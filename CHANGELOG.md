@@ -5,6 +5,7 @@ This node package is a dependency of Blip and was forked from tidepool/viz.
 ### Engineering use
 - PT-1249 Reduce blip & viz build time.
 ### Changed
+- PT-1256 Fix PDF generation
 - PT-1205 Display data based on timezone objects
 ### Fixed
 - PT-1244 Parameter names are not aligned in Daily tooltip

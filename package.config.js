@@ -10,7 +10,6 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 packageConfig.output.libraryTarget = 'commonjs';
 
 packageConfig.externals = {
-  'blob-stream': 'blob-stream',
   classnames: 'classnames',
   'd3-array': 'd3-array',
   'd3-format': 'd3-format',
@@ -20,7 +19,6 @@ packageConfig.externals = {
   i18next: 'i18next',
   moment: 'moment',
   'moment-timezone': 'moment-timezone',
-  pdfkit: 'pdfkit',
   react: 'react',
   'react-addons-update': 'react-addons-update',
   'react-collapse': 'react-collapse',

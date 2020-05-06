@@ -177,11 +177,19 @@ class DailyPrintView extends PrintView {
   newPage() {
     const pageIndex = this.currentPageIndex + this.initialTotalPages + 1;
     const charts = _.filter(this.chartsByDate, chart => chart.page === pageIndex);
-    const start = _.head(charts).date;
-    const end = _.last(charts).date;
+    if (charts.length > 0) {
+      const start = _.head(charts).date;
+      const end = _.last(charts).date;
 
-    super.newPage(this.getDateRange(start, end, t('YYYY-MM-DD')));
-    this.renderLegend();
+      super.newPage(this.getDateRange(start, end, t('YYYY-MM-DD')));
+      this.renderLegend();
+    } else {
+      // Something is wrong
+      const dates = _.keys(this.chartsByDate);
+      const date = _.last(dates);
+      super.newPage(this.getDateRange(date, date, t('YYYY-MM-DD')));
+      this.renderLegend();
+    }
   }
 
   calculateChartMinimums(chartArea) {
@@ -295,6 +303,15 @@ class DailyPrintView extends PrintView {
       this.chartIndex = i + 1;
       totalChartHeight += thisChartHeight + this.chartMinimums.paddingBelow;
       chartsOnThisPage += 1;
+      this.chartsPlaced += 1;
+    }
+    if (startingIndexThisPage === this.chartIndex) {
+      // We have one chart too big for one page...
+      const chart = this.chartsByDate[dates[startingIndexThisPage]];
+      chart.page = this.totalPages;
+      chart.topEdge = this.chartArea.topEdge;
+      chart.bottomEdge = this.chartArea.topEdge + chart.chartHeight;
+      this.chartIndex += 1;
       this.chartsPlaced += 1;
     }
     for (let i = startingIndexThisPage; i < startingIndexThisPage + chartsOnThisPage; ++i) {

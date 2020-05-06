@@ -15,9 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-/* global PDFDocument, blobStream */
 import _ from 'lodash';
 import i18next from 'i18next';
+import PDFDocument from 'pdfkit';
+import blobStream from 'blob-stream';
 import PrintView from './PrintView';
 import BasicsPrintView from './BasicsPrintView';
 import DailyPrintView from './DailyPrintView';
@@ -37,8 +38,8 @@ const t = i18next.t.bind(i18next);
 // Exporting utils for easy stubbing in tests
 export const utils = {
   reshapeBgClassesToBgBounds,
-  PDFDocument: class PDFDocumentStub {},
-  blobStream: function blobStreamStub() {},
+  PDFDocument,
+  blobStream,
   PrintView,
   BasicsPrintView,
   DailyPrintView,
@@ -50,10 +51,8 @@ export const utils = {
  * createPrintView
  * @param {Object} doc - PDFKit document instance
  * @param {Object} data - pre-munged data for the daily print view
- * @param {Object} bgPrefs - user's blood glucose thresholds & targets
- * @param {Object} timePrefs - object containing timezoneAware Boolean, timezoneName String or null
- * @param {Number} numDays - number of days of daily view to include in printout
- * @param {Object} patient - full tidepool patient object
+ * @param {Object} opts - options
+ * @param {Object} type - render type
  *
  * @return {Object} dailyPrintView instance
  */
@@ -130,58 +129,61 @@ export function createPrintView(type, data, opts, doc) {
 
 /**
  * createPrintPDFPackage
- * @param {String} mostRecent - an ISO 8601-formatted timestamp of the most recent diabetes datum
- * @param {Array} groupedData - Object of tideline-preprocessed Tidepool diabetes data & notes;
+ * @param {Object} data - Object of tideline-preprocessed Tidepool diabetes data & notes;
  *                       grouped by type
  * @param {Object} opts - an object of print options (see destructured param below)
  *
  * @return {Promise} - Promise that resolves with an object containing the pdf blob and url
  */
 export function createPrintPDFPackage(data, opts) {
-  const {
-    bgPrefs,
-    patient,
-  } = opts;
-
-  if (_.get(patient, 'preferences.displayLanguageCode')) {
-    i18next.changeLanguage(patient.preferences.displayLanguageCode);
-  }
-
-  const pdfOpts = _.cloneDeep(opts);
-
   return new Promise((resolve, reject) => {
-    pdfOpts.bgPrefs.bgBounds = utils.reshapeBgClassesToBgBounds(bgPrefs);
-    const DocLib = typeof PDFDocument !== 'undefined' ? PDFDocument : utils.PDFDocument;
-    const streamLib = typeof blobStream !== 'undefined' ? blobStream : utils.blobStream;
+    try {
+      const {
+        bgPrefs,
+        // patient,
+      } = opts;
 
-    /* NB: if you don't set the `margin` (or `margins` if not all are the same)
-    then when you are using the .text() command a new page will be added if you specify
-    coordinates outside of the default margin (or outside of the margins you've specified)
-    */
-    const doc = new DocLib({ autoFirstPage: false, bufferPages: true, margin: constants.MARGIN });
-    const stream = doc.pipe(streamLib());
+      // if (_.get(patient, 'preferences.displayLanguageCode')) {
+      //   i18next.changeLanguage(patient.preferences.displayLanguageCode);
+      // }
 
-    if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
-    if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
-    if (data.bgLog) createPrintView('bgLog', data.bgLog, pdfOpts, doc).render();
-    if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
+      const pdfOpts = _.cloneDeep(opts);
+      pdfOpts.bgPrefs.bgBounds = utils.reshapeBgClassesToBgBounds(bgPrefs);
+      /* NB: if you don't set the `margin` (or `margins` if not all are the same)
+      then when you are using the .text() command a new page will be added if you specify
+      coordinates outside of the default margin (or outside of the margins you've specified)
+      */
+      const doc = new utils.PDFDocument({
+        autoFirstPage: false,
+        bufferPages: true,
+        margin: constants.MARGIN,
+      });
+      const stream = doc.pipe(utils.blobStream());
 
-    PrintView.renderPageNumbers(doc);
+      if (data.basics) createPrintView('basics', data.basics, pdfOpts, doc).render();
+      if (data.daily) createPrintView('daily', data.daily, pdfOpts, doc).render();
+      if (data.bgLog) createPrintView('bgLog', data.bgLog, pdfOpts, doc).render();
+      if (data.settings) createPrintView('settings', data.settings, pdfOpts, doc).render();
 
-    doc.end();
+      PrintView.renderPageNumbers(doc);
 
-    stream.on('finish', () => {
-      const pdf = {
-        blob: stream.toBlob(),
-        url: stream.toBlobURL('application/pdf'),
-      };
-      return resolve(pdf);
-    });
+      doc.end();
 
-    stream.on('error', (error) => {
-      stream.end();
-      return reject(error);
-    });
+      stream.on('finish', () => {
+        const pdf = {
+          blob: stream.toBlob(),
+          url: stream.toBlobURL('application/pdf'),
+        };
+        return resolve(pdf);
+      });
+
+      stream.on('error', (error) => {
+        stream.end();
+        return reject(error);
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 

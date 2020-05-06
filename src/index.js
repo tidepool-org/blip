@@ -55,6 +55,7 @@ import {
   statFetchMethods,
 } from './utils/stat';
 import DataUtil from './utils/data';
+import createPrintPDFPackage from './modules/print';
 import { selectDailyViewData, selectBgLogViewData } from './utils/print/data';
 
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
@@ -123,4 +124,5 @@ export {
   containers,
   utils,
   reducers,
+  createPrintPDFPackage,
 };

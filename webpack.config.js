@@ -119,7 +119,7 @@ const output = {
 
 const resolve = {
   alias: {
-    crossfilter: 'crossfilter2',
+    pdfkit: 'pdfkit/js/pdfkit.standalone.js',
   },
   extensions: [
     '.js',
