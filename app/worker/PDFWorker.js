@@ -22,7 +22,7 @@ import _ from 'lodash';
 
 import * as actions from '../redux/actions/worker';
 import * as actionTypes from '../redux/constants/actionTypes';
-import { createPrintPDFPackage } from '@tidepool/viz/dist/print';
+import { createPrintPDFPackage } from '@tidepool/viz/src/modules/print';
 
 export default class PDFWorker {
   constructor(importer, renderer) {

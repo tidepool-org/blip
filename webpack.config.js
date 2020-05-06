@@ -11,6 +11,7 @@ const DblpHtmlWebpackPlugin = require('./dblp-webpack-html-plugin');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
+const isProduction = (process.env.NODE_ENV === 'production');
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -20,31 +21,52 @@ const localIdentName = process.env.NODE_ENV === 'test'
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
-const styleLoaderConfiguration = {
-  test: /\.less$/,
+const lessLoaderConfiguration = {
+    test: /\.less$/,
+    use: [
+      (isProduction) ? MiniCssExtractPlugin.loader : 'style-loader',
+      {
+        loader: 'css-loader',
+        query: {
+          importLoaders: 2,
+          localIdentName,
+          sourceMap: true,
+        },
+      },
+      {
+        loader: 'postcss-loader',
+        options: {
+          sourceMap: true,
+        },
+      },
+      {
+        loader: 'less-loader',
+        options: {
+          sourceMap: true,
+          javascriptEnabled: true,
+        },
+      },
+    ],
+  };
+const cssLoaderConfiguration = {
+  test: /\.css$/,
   use: [
-    (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
+    (isProduction) ? MiniCssExtractPlugin.loader : 'style-loader',
     {
       loader: 'css-loader',
       query: {
         importLoaders: 2,
         localIdentName,
-        sourceMap: isDev,
+        modules: true,
+        sourceMap: true,
       },
     },
     {
       loader: 'postcss-loader',
       options: {
-        sourceMap: isDev,
+        sourceMap: true,
       },
-    },
-    {
-      loader: 'less-loader',
-      options: {
-        sourceMap: isDev,
-        javascriptEnabled: true,
-      },
-    },
+    }
   ],
 };
 
@@ -52,7 +74,7 @@ const babelLoaderConfiguration = [
   {
     test: /\.js$/,
     exclude: function(modulePath) {
-      return /node_modules/.test(modulePath) && !/node_modules\/(tideline|tidepool-platform-client)/.test(modulePath);
+      return /node_modules/.test(modulePath) && !/node_modules\/(tideline|tidepool-platform-client|.*viz)/.test(modulePath);
     },
     use: {
       loader: 'babel-loader',
@@ -227,7 +249,8 @@ module.exports = {
     rules: [
       ...babelLoaderConfiguration,
       imageLoaderConfiguration,
-      styleLoaderConfiguration,
+      lessLoaderConfiguration,
+      cssLoaderConfiguration,
       ...fontLoaderConfiguration,
     ],
   },
@@ -254,7 +277,7 @@ module.exports = {
         },
         cache: true,
         parallel: true,
-        sourceMap: false, // set to true if you want JS source maps
+        sourceMap: true,
       }),
       new OptimizeCSSAssetsPlugin({}),
     ],
