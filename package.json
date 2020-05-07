@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -18,7 +18,6 @@
     "clean": "NODE_ENV=production rimraf ./dist/*",
     "lint": "NODE_ENV=test eslint src/ stories/ storiesDatatypes/ test/ *.js",
     "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
-    "prepare": "NODE_ENV=production npm run build",
     "pretest": "NODE_ENV=test npm run lint",
     "serve-docs": "gitbook serve",
     "start": "NODE_ENV=development webpack --config package.config.js --watch",

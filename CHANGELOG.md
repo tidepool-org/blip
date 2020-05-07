@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.12.1 - 2020-05-07
+### Fixed
+- PT-1249 Reduce blip & viz build time: Missing a change
+
 ## 0.12.0 - 2020-05-06
 ### Engineering use
 - PT-1249 Reduce blip & viz build time.
