@@ -38,9 +38,12 @@ export const Stepper = props => {
   const [activeSubStep, setActiveSubStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 
+  console.log('activeStep', activeStep);
+  console.log('activeSubStep', activeSubStep);
+
   const isStepOptional = stepIndex => steps[stepIndex].optional;
   const isStepSkipped = stepIndex => skipped.has(stepIndex);
-  const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length;
+  const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length > 0;
 
   const handleNext = () => {
     let newSkipped = skipped;
@@ -50,21 +53,28 @@ export const Stepper = props => {
     }
     setSkipped(newSkipped);
 
-    if (stepHasSubSteps && (activeSubStep < steps[activeStep].subSteps.length - 1)) {
+    if (stepHasSubSteps(activeStep) && (activeSubStep < steps[activeStep].subSteps.length - 1)) {
       if (isFunction(steps[activeStep].subSteps[activeSubStep].onComplete)) {
         steps[activeStep].subSteps[activeSubStep].onComplete();
       }
-      setActiveStep((prevActiveSubStep) => prevActiveSubStep + 1);
+      setActiveSubStep((prevActiveSubStep) => prevActiveSubStep + 1);
     } else if (activeStep < steps.length - 1) {
       if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setActiveSubStep(0);
     }
-
   };
 
   const handleBack = () => {
-    if (activeStep > 0) setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    if (stepHasSubSteps(activeStep) && (activeSubStep > 0)) {
+      setActiveSubStep((prevActiveSubStep) => prevActiveSubStep - 1);
+    } else if (activeStep > 0) {
+      const newActiveStep = activeStep - 1;
+      setActiveStep(newActiveStep);
+      setActiveSubStep(stepHasSubSteps(newActiveStep)
+        ? steps[newActiveStep].subSteps.length - 1
+        : 0);
+    }
   };
 
   const handleSkip = () => {
@@ -81,13 +91,20 @@ export const Stepper = props => {
     hidden: activeStep !== index,
     id: `${id}-step-panel-${index}`,
     'aria-labelledby': `${id}-step-${index}`,
+    children: stepHasSubSteps(index)
+      ? map(Panel.props.children, (Child, childIndex) => React.cloneElement(Child, {
+        key: childIndex,
+        hidden: stepHasSubSteps(index) ? activeSubStep !== childIndex : false,
+        id: `${id}-step-panel-${index}-subpanel-${childIndex}`,
+      }))
+      : Panel.props.children,
   });
 
   const renderStepActions = () => (
     <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
       {!steps[activeStep].hideBack && (
         <Button
-          disabled={activeStep === 0}
+          disabled={activeStep === 0 && activeSubStep === 0}
           variant="secondary"
           className="step-back"
           onClick={handleBack}

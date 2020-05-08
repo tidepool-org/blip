@@ -37,6 +37,21 @@ const steps = [
   {
     label: 'Create Patient Account',
     onComplete: action('Patient Account Created'),
+    subSteps: [
+      {
+        label: 'Step One',
+        onComplete: action('Account Step One Complete'),
+      },
+      {
+        label: 'Step Two',
+        onComplete: action('Account Step Two Complete'),
+      },
+      {
+        label: 'Step Three',
+        onComplete: action('Account Step Three Complete'),
+        hideComplete: true,
+      },
+    ],
   },
   {
     label: 'Complete Patient Profile',
@@ -108,7 +123,15 @@ export const StepperStory = () => {
   return (
     <Stepper {...props}>
       <Box>
-        Account Creation Form
+        <Box>
+          Patient Account Step One
+        </Box>
+        <Box>
+          Patient Account Step Two
+        </Box>
+        <Box>
+          Patient Account Step Three
+        </Box>
       </Box>
       <Box>
         <Box>
@@ -122,7 +145,8 @@ export const StepperStory = () => {
         </Box>
       </Box>
       <Box>
-        Therapy Settings Form
+        <Box>Therapy Settings Form</Box>
+        <Box>And other stuff</Box>
       </Box>
       <Box>
         Final Prescription Details
