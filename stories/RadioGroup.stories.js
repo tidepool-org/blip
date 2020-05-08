@@ -32,6 +32,8 @@ export const RadioGroupStory = () => {
   const label = () => text('Label', 'Group Label');
   const defaultValue = () => options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
   const disabled = () => boolean('Disabled', false);
+  const error = () => boolean('Errored', false);
+  const required = () => boolean('Required', false);
 
   const orientations = {
     Horizontal: 'horizontal',
@@ -56,6 +58,8 @@ export const RadioGroupStory = () => {
       value={selected}
       onChange={handleChange}
       variant={orientation()}
+      required={required()}
+      error={error() ? 'Invalid selection' : null}
     />
   );
 };

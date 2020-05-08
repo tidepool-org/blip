@@ -35,6 +35,8 @@ export const Simple = () => {
   const label = () => text('Label', 'Field Label');
   const defaultValue = () => options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
   const disabled = () => boolean('Disabled', false);
+  const error = () => boolean('Errored', false);
+  const required = () => boolean('Required', false);
 
   const variants = {
     Default: 'default',
@@ -54,6 +56,8 @@ export const Simple = () => {
       variant={variant()}
       disabled={disabled()}
       label={label()}
+      required={required()}
+      error={error() ? 'Invalid selection' : null}
       name="mySelect"
       options={selectOptions}
       value={selected}
