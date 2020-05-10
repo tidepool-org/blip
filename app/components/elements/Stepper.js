@@ -6,6 +6,7 @@ import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
+import StepConnector from '@material-ui/core/StepConnector';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
@@ -19,6 +20,14 @@ const StyledStepper = styled(Base)`
   color: inherit;
   background-color: inherit;
   padding: initial;
+
+  .MuiStepConnector-lineHorizontal::after {
+    content: "";
+    display: block;
+    width: ${props => props.connectorWidth};
+    height: 3px;
+    background-color: blue;
+  }
 `;
 
 export const Stepper = props => {
@@ -27,19 +36,22 @@ export const Stepper = props => {
     children,
     id,
     activeStep: initialActiveStep = 0,
+    location,
     themeProps,
     variant,
     ...stepperProps
   } = props;
 
   const isHorizontal = variant === 'horizontal';
+  const getStepId = stepIndex => `${id}-step-${stepIndex}`;
 
   const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep, 10));
+  React.useEffect(() => {
+    location.hash = `#${getStepId(activeStep)}`;
+  });
+
   const [activeSubStep, setActiveSubStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
-
-  console.log('activeStep', activeStep);
-  console.log('activeSubStep', activeSubStep);
 
   const isStepOptional = stepIndex => steps[stepIndex].optional;
   const isStepSkipped = stepIndex => skipped.has(stepIndex);
@@ -53,15 +65,20 @@ export const Stepper = props => {
     }
     setSkipped(newSkipped);
 
-    if (stepHasSubSteps(activeStep) && (activeSubStep < steps[activeStep].subSteps.length - 1)) {
+    if (stepHasSubSteps(activeStep)) {
       if (isFunction(steps[activeStep].subSteps[activeSubStep].onComplete)) {
         steps[activeStep].subSteps[activeSubStep].onComplete();
       }
-      setActiveSubStep((prevActiveSubStep) => prevActiveSubStep + 1);
-    } else if (activeStep < steps.length - 1) {
+      if (activeSubStep < steps[activeStep].subSteps.length - 1) {
+        setActiveSubStep((prevActiveSubStep) => prevActiveSubStep + 1);
+      }
+    } else {
       if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setActiveSubStep(0);
+      if (activeStep < steps.length - 1) {
+        const newActiveStep = activeStep + 1;
+        setActiveStep(newActiveStep);
+        setActiveSubStep(0);
+      }
     }
   };
 
@@ -90,7 +107,7 @@ export const Stepper = props => {
     key: index,
     hidden: activeStep !== index,
     id: `${id}-step-panel-${index}`,
-    'aria-labelledby': `${id}-step-${index}`,
+    'aria-labelledby': getStepId(index),
     children: stepHasSubSteps(index)
       ? map(Panel.props.children, (Child, childIndex) => React.cloneElement(Child, {
         key: childIndex,
@@ -142,13 +159,21 @@ export const Stepper = props => {
     </React.Fragment>
   );
 
+  const ProgressConnector = () => (
+    <Box as={StepConnector} className="connector">
+      <Box>foo</Box>
+    </Box>
+  );
+
   return (
     <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
+          connectorWidth="40%"
           orientation={variant}
           activeStep={activeStep}
           alternativeLabel={isHorizontal}
+          connector={<ProgressConnector />}
           {...stepperProps}
         >
           {map(steps, ({ label, disabled }, index) => {
@@ -159,7 +184,7 @@ export const Stepper = props => {
             return (
               <Step
                 key={index}
-                id={`${id}-step-${index}`}
+                id={getStepId(index)}
                 active={activeStep === index}
                 disabled={disabled}
                 {...stepProps}

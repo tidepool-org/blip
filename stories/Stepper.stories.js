@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
-import reduce from 'lodash/reduce';
+import { forceReRender } from '@storybook/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';
@@ -86,14 +86,11 @@ const steps = [
   },
 ];
 
-const stepOptions = reduce(steps, (result, value, index) => {
-  result[index + 1] = index.toString(); // eslint-disable-line no-param-reassign
-  return result;
-}, {});
+window.top.onhashchange = () => forceReRender();
+const getActiveStepFromHash = () => window.top.location.hash.split('-step-')[1];
 
 const orientation = () => options('Stepper Orientation', orientations, 'horizontal', { display: 'inline-radio' });
 const background = () => options('Stepper Background', backgrounds, 'transparent', { display: 'inline-radio' });
-const initialActiveStep = () => options('Initial Active Step', stepOptions, '0', { display: 'inline-radio' });
 
 export const StepperStory = () => {
   const props = {
@@ -101,7 +98,9 @@ export const StepperStory = () => {
     variant: orientation(),
     'aria-label': 'My Stepper',
     id: 'my-stepper',
-    activeStep: parseInt(initialActiveStep(), 10),
+    activeStep: parseInt(getActiveStepFromHash(), 10) || 0,
+    history: window.top.history,
+    location: window.top.location,
     themeProps: {
       wrapper: {
         margin: 2,
