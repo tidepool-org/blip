@@ -75,6 +75,12 @@ export const Stepper = props => {
     : 1
   );
 
+  const advanceActiveStep = (complete = true) => {
+    if (complete && isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+    if (activeStep < steps.length - 1) setActiveStep(activeStep + 1);
+    setActiveSubStep(0);
+  };
+
   const handleNext = () => {
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -89,14 +95,11 @@ export const Stepper = props => {
       }
       if (activeSubStep < steps[activeStep].subSteps.length - 1) {
         setActiveSubStep((prevActiveSubStep) => prevActiveSubStep + 1);
+      } else {
+        advanceActiveStep();
       }
     } else {
-      if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
-      if (activeStep < steps.length - 1) {
-        const newActiveStep = activeStep + 1;
-        setActiveStep(newActiveStep);
-        setActiveSubStep(0);
-      }
+      advanceActiveStep();
     }
   };
 
@@ -113,7 +116,7 @@ export const Stepper = props => {
   };
 
   const handleSkip = () => {
-    if (activeStep < steps.length - 1) setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    advanceActiveStep(false);
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
