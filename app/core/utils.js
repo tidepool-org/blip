@@ -79,6 +79,11 @@ utils.isChrome = () => {
     || userAgent.indexOf('crios') > -1);
 };
 
+utils.isFirefox = () => {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return userAgent.indexOf('firefox') > -1;
+};
+
 utils.isMobile = () => {
   var userAgent = navigator.userAgent.toLowerCase();
   return (userAgent.indexOf('mobi') > -1);

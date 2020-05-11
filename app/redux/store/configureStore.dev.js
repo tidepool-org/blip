@@ -27,15 +27,11 @@ import mutationTracker from 'redux-immutable-state-invariant';
 
 import { reducers as vizReducers } from '@tidepool/viz/';
 
-// eslint-disable-next-line import/no-unresolved
-import Worker from 'worker-loader?inline!./../../worker/index';
-
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
-import createWorkerMiddleware from '../utils/workerMiddleware';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -55,15 +51,11 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-const worker = new Worker;
-const workerMiddleware = createWorkerMiddleware(worker);
-
 let enhancer;
 if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     return compose(
       applyMiddleware(
-        workerMiddleware,
         thunkMiddleware,
         reduxRouterMiddleware,
         createErrorLogger(api),
@@ -77,7 +69,6 @@ if (!__DEV_TOOLS__) {
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     return composeEnhancers(
       applyMiddleware(
-        workerMiddleware,
         thunkMiddleware,
         loggerMiddleware,
         reduxRouterMiddleware,

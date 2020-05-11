@@ -42,7 +42,7 @@ const Settings = translate()(React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
+    canPrint: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -69,10 +69,10 @@ const Settings = translate()(React.createClass({
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
+          canPrint={this.props.canPrint}
           onClickMostRecent={this.handleClickMostRecent}
           onClickBasics={this.props.onSwitchToBasics}
           onClickOneDay={this.handleClickOneDay}
@@ -80,7 +80,7 @@ const Settings = translate()(React.createClass({
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
           onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.handleClickPrint}
+          onClickPrint={this.props.onClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -181,14 +181,6 @@ const Settings = translate()(React.createClass({
       e.preventDefault();
     }
     return;
-  },
-
-  handleClickPrint: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    this.props.onClickPrint(this.props.pdf);
   },
 
   handleClickBgLog: function(e) {

@@ -28,7 +28,7 @@ import launchCustomProtocol from 'custom-protocol-detection';
 import config from '../../config';
 
 import * as actions from '../../redux/actions';
-import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
+import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from '@tidepool/viz';
 import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';
@@ -68,8 +68,6 @@ export let PatientData = translate()(React.createClass({
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingPatientData: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
-    generatePDFRequest: PropTypes.func.isRequired,
-    generatingPDF: PropTypes.bool.isRequired,
     isUserPatient: PropTypes.bool.isRequired,
     messageThread: PropTypes.array,
     onCloseMessageThread: PropTypes.func.isRequired,
@@ -82,7 +80,6 @@ export let PatientData = translate()(React.createClass({
     patientDataMap: PropTypes.object.isRequired,
     patientNotesMap: PropTypes.object.isRequired,
     queryParams: PropTypes.object.isRequired,
-    removeGeneratedPDFS: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updatePatientNote: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string,
@@ -142,6 +139,8 @@ export let PatientData = translate()(React.createClass({
         timezoneName: null
       },
       showUploadOverlay: false,
+      pdf: null,
+      canPrint: false,
     };
 
     return state;
@@ -188,6 +187,7 @@ export let PatientData = translate()(React.createClass({
         inTransition={false}
         atMostRecent={false}
         title={t('Data')}
+        canPrint={false}
         ref="header" />
       );
   },
@@ -314,7 +314,8 @@ export let PatientData = translate()(React.createClass({
     return false;
   },
 
-  renderSettings: function(){
+  renderSettings: function() {
+    const { canPrint } = this.state;
     return (
       <div>
         <div className="app-no-print">
@@ -325,6 +326,7 @@ export let PatientData = translate()(React.createClass({
             timePrefs={this.state.timePrefs}
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
+            canPrint={canPrint}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -335,7 +337,6 @@ export let PatientData = translate()(React.createClass({
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -343,6 +344,7 @@ export let PatientData = translate()(React.createClass({
   },
 
   renderChart: function() {
+    const { canPrint } = this.state;
     switch (this.state.chartType) {
       case 'basics':
         return (
@@ -355,6 +357,7 @@ export let PatientData = translate()(React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            canPrint={canPrint}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -370,7 +373,6 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'daily':
@@ -384,6 +386,7 @@ export let PatientData = translate()(React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            canPrint={canPrint}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -397,7 +400,6 @@ export let PatientData = translate()(React.createClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
           );
       case 'trends':
@@ -438,6 +440,7 @@ export let PatientData = translate()(React.createClass({
             patient={this.props.patient}
             patientData={this.state.processedPatientData}
             loading={this.state.loading}
+            canPrint={canPrint}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
@@ -451,7 +454,6 @@ export let PatientData = translate()(React.createClass({
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline"
             isClinicAccount={personUtils.isClinic(this.props.user)} />
           );
@@ -583,53 +585,48 @@ export let PatientData = translate()(React.createClass({
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
-    if (diabetesData.length > 0) {
-      const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
-      const opts = {
-        bgPrefs: state.bgPrefs,
-        numDays: state.printOpts.numDays,
-        patient: pdfPatient,
-        timePrefs: state.timePrefs,
-        mostRecent,
-      };
+    const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
+    const opts = {
+      bgPrefs: state.bgPrefs,
+      numDays: state.printOpts.numDays,
+      patient: pdfPatient,
+      timePrefs: state.timePrefs,
+      mostRecent,
+    };
 
-      const dailyData = vizUtils.data.selectDailyViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']
-        ),
-        state.printOpts.numDays.daily,
-        state.timePrefs,
-      );
+    const dailyData = vizUtils.data.selectDailyViewData(
+      mostRecent,
+      _.pick(
+        data.grouped,
+        ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']
+      ),
+      state.printOpts.numDays.daily,
+      state.timePrefs,
+    );
 
-      const bgLogData = vizUtils.data.selectBgLogViewData(
-        mostRecent,
-        _.pick(
-          data.grouped,
-          ['smbg']
-        ),
-        state.printOpts.numDays.bgLog,
-        state.timePrefs,
-      );
+    const bgLogData = vizUtils.data.selectBgLogViewData(
+      mostRecent,
+      _.pick(
+        data.grouped,
+        ['smbg']
+      ),
+      state.printOpts.numDays.bgLog,
+      state.timePrefs,
+    );
 
-      const pdfData = {
-        basics: data.basicsData,
-        daily: dailyData,
-        settings: _.last(data.grouped.pumpSettings),
-        bgLog: bgLogData,
-      }
-
-      this.generatePDFStats(pdfData, state);
-
-      this.log('Generating PDF with', pdfData, opts);
-
-      props.generatePDFRequest(
-        'combined',
-        pdfData,
-        opts,
-      );
+    const pdfData = {
+      basics: data.basicsData,
+      daily: dailyData,
+      settings: _.last(data.grouped.pumpSettings),
+      bgLog: bgLogData,
     }
+
+    this.generatePDFStats(pdfData, state);
+
+    this.log('Generating PDF with', pdfData, opts);
+
+    return createPrintPDFPackage(pdfData, opts);
+
   },
 
   subtractTimezoneOffset: function(datetime, timezoneSettings = this.state.timePrefs) {
@@ -830,16 +827,51 @@ export let PatientData = translate()(React.createClass({
     });
   },
 
-  handleClickPrint: function(pdf = {}) {
+  handleClickPrint: function() {
+    function openPDFWindow(pdf) {
+      const printWindow = window.open(pdf.url);
+      if (printWindow !== null) {
+        printWindow.focus();
+        if (!utils.isFirefox()) {
+          printWindow.print();
+        }
+      }
+    }
+
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
 
-    if (pdf.url) {
-      const printWindow = window.open(pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
+    // Return a promise for the tests
+    return new Promise((resolve, reject) => {
+      if (this.state.pdf !== null) {
+        openPDFWindow(this.state.pdf);
+        resolve();
+      } else {
+        const { fetchingUser } = this.props;
+        const { processingData, processedPatientData } = this.state;
+        let hasDiabetesData = false;
+        if (processedPatientData !== null) {
+          hasDiabetesData = _.get(processedPatientData, 'diabetesData.length', 0) > 0;
+        }
+
+        if (!fetchingUser && !processingData && hasDiabetesData) {
+          this.generatePDF(this.props, this.state).then((pdf) => {
+            openPDFWindow(pdf);
+            this.setState({ pdf });
+            resolve();
+          }).catch((err) => {
+            this.log('generatePDF:', err);
+            if (_.isFunction(window.onerror)) {
+              window.onerror('print', 'patient-data', 0, 0, err);
+            }
+            reject(err);
+          });
+        } else {
+          resolve();
+        }
+      }
+    });
   },
 
   handleClickRefresh: function(e) {
@@ -860,7 +892,6 @@ export let PatientData = translate()(React.createClass({
     var refresh = this.props.onRefresh;
     if (refresh) {
       this.props.clearPatientData(this.props.currentPatientInViewId);
-      this.props.removeGeneratedPDFS();
 
       this.setState({
         endpoints: [],
@@ -872,6 +903,8 @@ export let PatientData = translate()(React.createClass({
         processEarlierDataCount: 0,
         processedPatientData: null,
         title: this.DEFAULT_TITLE,
+        pdf: null,
+        canPrint: false,
       }, () => refresh(this.props.currentPatientInViewId));
     }
   },
@@ -895,7 +928,7 @@ export let PatientData = translate()(React.createClass({
     // the PDF with the updated settings.
     const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
     if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
-      this.setState({ updatedSiteChangeSource: settings.siteChangeSource }, this.props.removeGeneratedPDFS);
+      this.setState({ updatedSiteChangeSource: settings.siteChangeSource, pdf: null });
     }
   },
 
@@ -938,10 +971,6 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  componentWillUnmount: function() {
-    this.props.removeGeneratedPDFS();
-  },
-
   componentWillReceiveProps: function(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
@@ -960,13 +989,13 @@ export let PatientData = translate()(React.createClass({
     if (patientSettings && nextPatientData) {
       if (newDiabetesDataReturned || this.state.lastDatumProcessedIndex < 0) {
         this.log(`${nextFetchedDataRange.count - currentFetchedDataRange.count} new datums received and off to processing.`)
-        this.processData(nextProps);
+        this.processData(nextProps, _.noop);
       }
       else if (!newDiabetesDataReturned && newDataRangeFetched) {
         if (!allDataFetched) {
           // Our latest data fetch yeilded no new data. We now request the remainder of the available
           // data to make sure that we don't miss any.
-          this.fetchEarlierData({ startDate: null });
+          this.fetchEarlierData({ startDate: null }, _.noop);
         }
         else {
           this.setState({ loading: false });
@@ -975,18 +1004,17 @@ export let PatientData = translate()(React.createClass({
     }
   },
 
-  componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF;
-    const pdfGenerated = _.get(nextProps, 'pdf.combined', false);
-    const patientDataProcessed = (!nextState.processingData && !!nextState.processedPatientData);
-    const userFetched = !nextProps.fetchingUser;
-    const hasDiabetesData = _.get(nextState, 'processedPatientData.diabetesData.length');
+  componentDidUpdate: function() {
+    const { fetchingUser } = this.props;
+    const { canPrint, processingData, processedPatientData, loading } = this.state;
+    let hasDiabetesData = false;
+    if (processedPatientData !== null) {
+      hasDiabetesData = _.get(processedPatientData, 'diabetesData.length', 0) > 0;
+    }
 
-    // Ahead-Of-Time pdf generation for non-blocked print popup.
-    // Whenever patientData is processed or the chartType changes, such as after a refresh
-    // we check to see if we need to generate a new pdf to avoid stale data
-    if (userFetched && patientDataProcessed && hasDiabetesData && !pdfGenerating && !pdfGenerated) {
-      this.generatePDF(nextProps, nextState);
+    const hableToPrint = !fetchingUser && !processingData && hasDiabetesData && !loading;
+    if (canPrint !== hableToPrint) {
+      this.setState({ canPrint: hableToPrint });
     }
   },
 
@@ -1105,6 +1133,7 @@ export let PatientData = translate()(React.createClass({
       loading: true,
       requestedPatientDataRange,
       fetchEarlierDataCount: count,
+      canPrint: false,
     }, () => {
       const fetchOpts = _.defaults(options, {
         startDate: requestedPatientDataRange.start,
@@ -1175,6 +1204,7 @@ export let PatientData = translate()(React.createClass({
     this.setState({
       loading: true,
       processingData: true,
+      canPrint: false,
     }, () => {
       const unprocessedPatientData = patientData.slice(this.state.lastDatumProcessedIndex + 1);
       const isInitialProcessing = this.state.lastDatumProcessedIndex < 0;
@@ -1314,8 +1344,9 @@ export let PatientData = translate()(React.createClass({
           processedPatientData,
           processingData: false,
         }, () => {
-          this.hideLoading(250, cb);
+          this.hideLoading(250);
           props.trackMetric('Processed earlier patient data', { patientID, count });
+          cb();
         });
       }
     });
@@ -1524,8 +1555,6 @@ export function mapStateToProps(state, props) {
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
-    generatingPDF: state.blip.working.generatingPDF.inProgress,
-    pdf: state.blip.pdf,
     viz: state.viz,
   };
 }
@@ -1539,8 +1568,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatientData: actions.async.fetchPatientData,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
-  generatePDFRequest: actions.worker.generatePDFRequest,
-  removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
   updatePatientNote: actions.sync.updatePatientNote,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
@@ -1553,9 +1580,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const assignedDispatchProps = [
     'addPatientNote',
     'clearPatientData',
-    'generatePDFRequest',
     'processPatientDataRequest',
-    'removeGeneratedPDFS',
     'updatePatientNote',
   ];
 

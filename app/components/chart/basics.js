@@ -30,8 +30,8 @@ class Basics extends Component {
     timePrefs: React.PropTypes.object.isRequired,
     patient: React.PropTypes.object,
     patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
     permsOfLoggedInUser: React.PropTypes.object.isRequired,
+    canPrint: React.PropTypes.bool.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
@@ -82,17 +82,17 @@ class Basics extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
+          canPrint={this.props.canPrint}
           onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickOneDay}
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.handleClickPrint}
+          onClickPrint={this.props.onClickPrint}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -251,14 +251,6 @@ class Basics extends Component {
     }
     const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
     this.props.onSwitchToDaily(dateRange[1]);
-  };
-
-  handleClickPrint = e => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    this.props.onClickPrint(this.props.pdf);
   };
 
   handleClickBgLog = e => {

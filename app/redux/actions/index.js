@@ -17,6 +17,5 @@
 
 import * as async from './async';
 import * as sync from './sync';
-import * as worker from './worker';
 
-export { async, sync, worker };
+export { async, sync };

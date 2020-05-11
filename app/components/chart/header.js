@@ -19,7 +19,6 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Loading from 'react-loading';
 import { translate } from 'react-i18next';
 import config from '../../config';
 
@@ -28,7 +27,6 @@ import printPng from './img/print-icon-2x.png';
 const TidelineHeader = translate()(class TidelineHeader extends React.Component {
   static propTypes = {
     patient: PropTypes.object,
-    printReady: PropTypes.bool,
     title: PropTypes.node.isRequired,
     chartType: PropTypes.string.isRequired,
     inTransition: PropTypes.bool,
@@ -36,6 +34,7 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
     iconBack: PropTypes.string,
     iconNext: PropTypes.string,
     iconMostRecent: PropTypes.string,
+    canPrint: PropTypes.bool.isRequired,
     onClickBack: PropTypes.func,
     onClickBasics: PropTypes.func,
     onClickTrends: PropTypes.func,
@@ -49,11 +48,10 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
 
   static defaultProps = {
     inTransition: false,
-    printReady: true,
   };
 
   renderStandard = () => {
-    const { t } = this.props;
+    const { t, canPrint } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, this.props.chartType);
@@ -129,15 +127,25 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    const printLinkClass = cx({
-      'js-print-settings': this.props.chartType === 'settings',
-      'printview-print-icon': true,
-      'patient-data-subnav-right': true,
-      'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': showPrintLink,
-      'patient-data-subnav-hidden': !showPrintLink,
-      'patient-data-subnav-disabled': !this.props.printReady,
-    });
+    let printLink = null;
+    if (canPrint && showPrintLink) {
+      const printLinkClass = cx({
+        'js-print-settings': this.props.chartType === 'settings',
+        'printview-print-icon': true,
+        'patient-data-subnav-right': true,
+        'patient-data-subnav-right-label': true,
+        'patient-data-subnav-active': true,
+        'patient-data-subnav-hidden': false,
+        'patient-data-subnav-disabled': false,
+      });
+
+      printLink = (
+        <a href="" className={printLinkClass} onClick={this.onClickPrint}>
+          {<img className="print-icon" src={printPng} alt={t('Print')} />}
+          {t('Print')}
+      </a>
+      );
+    }
 
     return (
       <div className="grid patient-data-subnav">
@@ -157,11 +165,7 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
         </div>
         <div className="app-no-print patient-data-subnav-right">
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
-          <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
-            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
-            {t('Print')}
-          </a>
+          {printLink}
         </div>
       </div>
     );
@@ -218,6 +222,14 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
       return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
     }
   };
+
+  /**
+   * @param {React.MouseEvent<HTMLAnchorElement, MouseEvent>} event The DOM/React event
+   */
+  onClickPrint = (event) => {
+    event.preventDefault();
+    this.props.onClickPrint();
+  }
 });
 
 export default TidelineHeader;

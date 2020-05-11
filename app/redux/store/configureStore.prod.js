@@ -22,15 +22,11 @@ import { syncHistory, routeReducer } from 'react-router-redux';
 
 import { reducers as vizReducers } from '@tidepool/viz';
 
-// eslint-disable-next-line import/no-unresolved
-import Worker from 'worker-loader?inline!./../../worker/index';
-
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
-import createWorkerMiddleware from '../utils/workerMiddleware';
 
 const reduxRouterMiddleware = syncHistory(browserHistory);
 
@@ -40,14 +36,10 @@ const reducer = combineReducers({
   viz: vizReducers,
 });
 
-const worker = new Worker;
-const workerMiddleware = createWorkerMiddleware(worker);
-
 let initialState = { blip: blipState };
 
 function _createStore(api) {
   const createStoreWithMiddleware = applyMiddleware(
-    workerMiddleware,
     thunkMiddleware,
     reduxRouterMiddleware,
     createErrorLogger(api),

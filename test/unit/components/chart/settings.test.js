@@ -55,9 +55,7 @@ describe('Settings', function () {
         onSwitchToBgLog: function() {},
         trackMetric: function() {},
         uploadUrl: '',
-        pdf: {
-          url: 'blobURL',
-        },
+        canPrint: true,
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = renderer.render(settingsElem);
@@ -79,9 +77,7 @@ describe('Settings', function () {
         onSwitchToBgLog: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
-        pdf: {
-          url: 'blobURL',
-        },
+        canPrint: true,
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
@@ -103,9 +99,7 @@ describe('Settings', function () {
         onSwitchToBgLog: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
-        pdf: {
-          url: 'blobURL',
-        },
+        canPrint: true,
       };
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
@@ -121,15 +115,18 @@ describe('Settings', function () {
         bgPrefs,
         chartPrefs: {},
         patientData: {},
-        printReady: false,
-        pdf: {},
+        canPrint: false,
       };
 
       var dailyElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
 
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
-      var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
+      try {
+        TestUtils.findRenderedDOMComponentWithClass(elem, ['printview-print-icon']);
+        expect(true, 'Should not a a print link').to.be.false;
+      } catch (err) {
+        // No component found, we are happy
+      }
     });
 
     it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
@@ -138,9 +135,7 @@ describe('Settings', function () {
         chartPrefs: {},
         patientData: {},
         printReady: true,
-        pdf: {
-          url: 'blobURL',
-        },
+        canPrint: true,
         onClickPrint: sinon.spy(),
       };
 

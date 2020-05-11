@@ -165,6 +165,7 @@ class BgLog extends Component {
     dataUtil: React.PropTypes.object,
     initialDatetimeLocation: React.PropTypes.string,
     isClinicAccount: React.PropTypes.bool.isRequired,
+    canPrint: React.PropTypes.bool.isRequired,
     onClickNoDataRefresh: React.PropTypes.func.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onClickPrint: React.PropTypes.func.isRequired,
@@ -174,7 +175,6 @@ class BgLog extends Component {
     onSwitchToBgLog: React.PropTypes.func.isRequired,
     onUpdateChartDateRange: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    pdf: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -277,13 +277,13 @@ class BgLog extends Component {
       <Header
         chartType={this.chartType}
         patient={this.props.patient}
-        printReady={!!this.props.pdf.url}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}
         iconBack={'icon-back-down'}
         iconNext={'icon-next-up'}
         iconMostRecent={'icon-most-recent-up'}
+        canPrint={this.props.canPrint}
         onClickBack={this.handlePanBack}
         onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
@@ -292,7 +292,7 @@ class BgLog extends Component {
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
-        onClickPrint={this.handleClickPrint}
+        onClickPrint={this.props.onClickPrint}
       ref="header" />
     );
   };
@@ -304,13 +304,13 @@ class BgLog extends Component {
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={''}
+        canPrint={this.props.canPrint}
         onClickOneDay={this.handleClickOneDay}
         onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
-        onClickPrint={this.handleClickPrint}
-        printReady={!!this.props.pdf.url}
+        onClickPrint={this.props.onClickPrint}
       ref="header" />
     );
   };
@@ -386,14 +386,6 @@ class BgLog extends Component {
       datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
-  };
-
-  handleClickPrint = e => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    this.props.onClickPrint(this.props.pdf);
   };
 
   handleClickBgLog = e => {
