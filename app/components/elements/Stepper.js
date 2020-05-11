@@ -6,12 +6,13 @@ import { default as Base, StepperProps } from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
-import StepConnector from '@material-ui/core/StepConnector';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import isFunction from 'lodash/isFunction';
+import cx from 'classnames';
 
 import Button from './Button';
+import { colors } from '../../themes/baseTheme';
 
 const StyledStepper = styled(Base)`
   font-size: inherit;
@@ -24,9 +25,21 @@ const StyledStepper = styled(Base)`
   .MuiStepConnector-lineHorizontal::after {
     content: "";
     display: block;
-    width: ${props => props.connectorWidth};
+    width: 100%;
     height: 3px;
-    background-color: blue;
+    top: -2px;
+    position: relative;
+    background-color: ${colors.text.link};
+    transition: width .2s ease-in-out;
+  }
+
+  .MuiStep-horizontal.active {
+    ~ .MuiStep-horizontal .MuiStepConnector-lineHorizontal::after {
+      width: 0;
+    }
+    + .MuiStep-horizontal .MuiStepConnector-lineHorizontal::after {
+      width: ${props => props.connectorWidth};
+    }
   }
 `;
 
@@ -56,6 +69,11 @@ export const Stepper = props => {
   const isStepOptional = stepIndex => steps[stepIndex].optional;
   const isStepSkipped = stepIndex => skipped.has(stepIndex);
   const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length > 0;
+
+  const getStepSubStepLength = stepIndex => (stepHasSubSteps(stepIndex)
+    ? get(steps[stepIndex], 'subSteps', []).length
+    : 1
+  );
 
   const handleNext = () => {
     let newSkipped = skipped;
@@ -159,21 +177,14 @@ export const Stepper = props => {
     </React.Fragment>
   );
 
-  const ProgressConnector = () => (
-    <Box as={StepConnector} className="connector">
-      <Box>foo</Box>
-    </Box>
-  );
-
   return (
     <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
-          connectorWidth="40%"
+          connectorWidth={`${(activeSubStep / getStepSubStepLength(activeStep)) * 100}%`}
           orientation={variant}
           activeStep={activeStep}
           alternativeLabel={isHorizontal}
-          connector={<ProgressConnector />}
           {...stepperProps}
         >
           {map(steps, ({ label, disabled }, index) => {
@@ -187,6 +198,7 @@ export const Stepper = props => {
                 id={getStepId(index)}
                 active={activeStep === index}
                 disabled={disabled}
+                className={cx({ active: activeStep === index })}
                 {...stepProps}
               >
                 <StepLabel
