@@ -4,6 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
+import { forceReRender } from '@storybook/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';
@@ -91,6 +92,8 @@ const orientation = () => options('Stepper Orientation', orientations, 'horizont
 const background = () => options('Stepper Background', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const StepperStory = () => {
+  window.top.onhashchange = () => forceReRender();
+
   const props = {
     steps,
     variant: orientation(),
@@ -98,7 +101,6 @@ export const StepperStory = () => {
     id: 'my-stepper',
     activeStep: parseInt(getActiveStepFromHash(), 10) || 0,
     history: window.top.history,
-    location: window.top.location,
     themeProps: {
       wrapper: {
         margin: 2,

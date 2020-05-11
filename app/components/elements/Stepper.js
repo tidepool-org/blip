@@ -12,7 +12,7 @@ import isFunction from 'lodash/isFunction';
 import cx from 'classnames';
 
 import Button from './Button';
-import { colors } from '../../themes/baseTheme';
+import { colors, transitions } from '../../themes/baseTheme';
 
 const StyledStepper = styled(Base)`
   font-size: inherit;
@@ -30,7 +30,7 @@ const StyledStepper = styled(Base)`
     top: -2px;
     position: relative;
     background-color: ${colors.text.link};
-    transition: width .2s ease-in-out;
+    transition: ${transitions.easeOut};
   }
 
   .MuiStep-horizontal.active {
@@ -49,7 +49,7 @@ export const Stepper = props => {
     children,
     id,
     activeStep: initialActiveStep = 0,
-    location,
+    history,
     themeProps,
     variant,
     ...stepperProps
@@ -60,7 +60,7 @@ export const Stepper = props => {
 
   const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep, 10));
   React.useEffect(() => {
-    location.hash = `#${getStepId(activeStep)}`;
+    history.pushState(null, null, `#${getStepId(activeStep)}`);
   });
 
   const [activeSubStep, setActiveSubStep] = React.useState(0);
@@ -270,6 +270,7 @@ Stepper.defaultProps = {
   themeProps: {},
   value: 0,
   variant: 'horizontal',
+  history: window.history,
 };
 
 export default Stepper;
