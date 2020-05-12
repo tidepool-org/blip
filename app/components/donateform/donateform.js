@@ -40,7 +40,7 @@ export default translate()(class DonateForm extends Component {
   constructor(props) {
     super(props);
     const initialFormValues = this.getInitialFormValues();
-
+    const { t } = props;
     this.state = {
       formValues: initialFormValues,
       initialFormValues: initialFormValues,
@@ -149,14 +149,14 @@ export default translate()(class DonateForm extends Component {
   }
 
   getSubmitButtonText = () => {
+    const { t } = this.props;
     if (this.props.working) {
-      return 'Saving...';
+      return t('Saving...');
     }
     if (this.formIsUpdated()) {
-      return 'Save';
+      return t('Save');
     }
-
-    return this.props.dataDonationAccounts.length || this.state.formSubmitted ? 'Saved' : 'Save';
+    return this.props.dataDonationAccounts.length || this.state.formSubmitted ? t('Saved') : t('Save');
   }
 
   formIsUpdated = () => {

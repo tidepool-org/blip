@@ -762,10 +762,12 @@ var PatientInfo = translate()(class extends React.Component {
       }
     }
 
-    if (!formValues.mrn) {
-      delete updatedPatientProfile.mrn;
-    } else {
-      updatedPatientProfile.mrn = formValues.mrn;
+    if (personUtils.isClinic(this.props.user)) {
+      if (!formValues.mrn && updatedPatientProfile.mrn) {
+        delete updatedPatientProfile.mrn;
+      } else {
+        updatedPatientProfile.mrn = formValues.mrn;
+      }
     }
 
     return updatedPatient;

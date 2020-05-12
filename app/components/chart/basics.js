@@ -63,6 +63,12 @@ class Basics extends Component {
 
   render = () => {
     const { t } = this.props;
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
+    let renderedContent;
+
+    if (dataQueryComplete) {
+      renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
+    }
 
     return (
       <div id="tidelineMain" className="basics">
@@ -85,7 +91,7 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.isMissingBasics() ? (this.props.loading ? null : this.renderMissingBasicsMessage()) : this.renderChart()}
+              {renderedContent}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -176,7 +182,7 @@ class Basics extends Component {
 
     const dtMask = t('MMM D, YYYY');
     return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1], timezone, dtMask);
+      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
   }
 
   isMissingBasics = () => {

@@ -35,8 +35,11 @@ import utils from '../../core/utils';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
-  if (apiError && apiError.status) {
-    err.status = apiError.status;
+  if (apiError) {
+    err.originalError = apiError;
+    if (apiError.status){
+      err.status = apiError.status;
+    }
   }
   return err;
 }
@@ -279,9 +282,10 @@ export function login(api, credentials, options, postLoginAction) {
  * @param  {Object} api an instance of the API wrapper
  */
 export function logout(api) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { currentPatientInViewId } } = getState();
     dispatch(sync.logoutRequest());
-    dispatch(worker.dataWorkerRemoveDataRequest());
+    dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
       dispatch(routeActions.push('/'));
@@ -907,6 +911,8 @@ export function fetchPatientData(api, options, id) {
     initial: true,
   });
 
+  let latestUpload;
+
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
     const cacheOptions = {
@@ -921,35 +927,75 @@ export function fetchPatientData(api, options, id) {
     }
 
     if (options.initial) {
-      // On the initial fetch, we want to first find the latest diabetes datum time, and use that to
-      // determine the ideal start and end date ranges for our data fetch
-      const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload'];
+      // On the initial fetch for latest diabetes datums, we want to use the server time if we can
+      // in case the user's local computer time is off and set the endDate to one day in the future
+      // since we can get `time` fields that are slightly (or not-so-slightly) in the future due to
+      // incorrect device time and/or computer time upon upload.
+      dispatch(sync.fetchServerTimeRequest());
+      api.server.getTime((err, results) => {
+        let serverTime;
 
-      api.patientData.get(id, {
-        type: datumTypesToFetch.join(','),
-        latest: 1,
-      }, (err, results) => {
         if (err) {
-          dispatch(sync.fetchPatientDataFailure(
-            createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+          dispatch(sync.fetchServerTimeFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_SERVER_TIME, err), err
           ));
-        } else {
-          const latestDatumTime = _.max(_.map(results, d => (d.time)));
-          options.startDate = moment.utc(latestDatumTime || options.browserTimeStub).subtract(30, 'days').startOf('day').toISOString();
-          options.endDate = moment.utc(latestDatumTime || options.browserTimeStub).add(1, 'days').toISOString();
-
-          const latestPumpSettings = _.find(results, { type: 'pumpSettings' });
-          const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
-          const uploadRecord = _.find(results, { type: 'upload', latestPumpSettingsUploadId });
-
-          if (latestPumpSettingsUploadId && !uploadRecord) {
-            // If we have pump settings, but we don't have the corresponing upload record used
-            // to get the device source, we need to fetch it
-            options.getPumpSettingsUploadRecordById = latestPumpSettings.uploadId;
-          }
-
-          fetchData(options);
         }
+        else {
+          serverTime = _.get(results, 'data.time');
+          dispatch(sync.fetchServerTimeSuccess(serverTime));
+        }
+
+        // Now that we have the server time, we want to find the latest non-future diabetes datum
+        // times, and use that to determine the ideal start and end date ranges for our data fetch
+        const datumTypesToFetch = [...DIABETES_DATA_TYPES, 'pumpSettings', 'upload'];
+
+        const latestDatumsFetchParams = {
+          type: datumTypesToFetch.join(','),
+          latest: 1,
+          endDate: moment.utc(serverTime).add(1, 'days').toISOString(),
+        };
+
+        // As a temporary workaround to some inefficiencies for this query on large datasets, we are
+        // passing in an initial startDate param in the patientdata.js initial data fetcher.
+        if (options.initialStartDate) latestDatumsFetchParams.startDate = options.initialStartDate;
+
+        api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
+          if (err) {
+            dispatch(sync.fetchPatientDataFailure(
+              createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+            ));
+          } else {
+            // We then determine the date range to fetch data for by first finding the latest
+            // diabetes datum time and going back 30 days
+            const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload'], d.type));
+            const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
+
+            // If we have no latest diabetes datum time, we fall back to use the server time as the
+            // ideal end date.
+            const fetchFromTime = latestDiabetesDatumTime || serverTime;
+
+            options.startDate = moment.utc(fetchFromTime).subtract(30, 'days').startOf('day').toISOString();
+
+            // We add a 1 day buffer to the end date since we can get `time` fields that are slightly
+            // in the future due to timezones or incorrect device and/or computer time upon upload.
+            options.endDate = moment.utc(fetchFromTime).add(1, 'days').toISOString();
+
+            // We want to make sure the latest upload, which may be beyond the data range we'll be
+            // fetching, is stored so we can include it with the fetched results
+            latestUpload = _.find(latestDatums, { type: 'upload' });
+            const latestPumpSettings = _.find(latestDatums, { type: 'pumpSettings' });
+            const latestPumpSettingsUploadId = _.get(latestPumpSettings || {}, 'uploadId');
+            const latestPumpSettingsUpload = _.find(latestDatums, { type: 'upload', uploadId: latestPumpSettingsUploadId });
+
+            if (latestPumpSettingsUploadId && !latestPumpSettingsUpload) {
+              // If we have pump settings, but we don't have the corresponing upload record used
+              // to get the device source, we need to fetch it
+              options.getPumpSettingsUploadRecordById = latestPumpSettingsUploadId;
+            }
+
+            fetchData(options);
+          }
+        });
       });
     }
     else {
@@ -1023,6 +1069,12 @@ export function fetchPatientData(api, options, id) {
             ...resultsVal.teamNotes,
           ];
 
+          // If the latest upload is later than the latest diabetes datum, it would have been
+          // outside of the fetched data range, and needs to be added.
+          if (latestUpload && !_.find(combinedData, { id: latestUpload.id })) {
+            combinedData.push(latestUpload);
+          }
+
           handleFetchSuccess(combinedData, id, options);
         }
       });
@@ -1086,7 +1138,7 @@ export function createMessageThread(api, message, cb = _.noop) {
  * @param  {Object} updated message
  */
 export function editMessageThread(api, message, cb = _.noop) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.editMessageThreadRequest());
 
     api.team.editMessage(message, err => {
@@ -1097,8 +1149,9 @@ export function editMessageThread(api, message, cb = _.noop) {
           createActionError(ErrorMessages.ERR_EDITING_MESSAGE_THREAD, err), err
         ));
       } else {
+        const { blip: { currentPatientInViewId } } = getState();
         dispatch(sync.editMessageThreadSuccess(message));
-        dispatch(worker.dataWorkerUpdateDatumRequest(message));
+        dispatch(worker.dataWorkerUpdateDatumRequest(message, currentPatientInViewId));
       }
     });
   };

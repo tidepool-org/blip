@@ -300,7 +300,7 @@ export let Patients = translate()(class extends React.Component {
   };
 
   UNSAFE_componentWillMount() {
-    this.props.dataWorkerRemoveDataRequest();
+    this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
     if (this.props.clearPatientInView) {
       this.props.clearPatientInView();

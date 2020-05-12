@@ -138,20 +138,22 @@ describe('DataWorker', () => {
 
   describe('DATA_WORKER_QUERY_DATA_REQUEST', () => {
     const query = { foo: 'bar' };
+    const patientId = 'abc123';
+    const destination = 'foo';
 
     let postMessage;
     let action;
 
     beforeEach(() => {
       postMessage = sinon.stub();
-      action = actions.dataWorkerQueryDataRequest(query);
+      action = actions.dataWorkerQueryDataRequest(query, patientId, destination);
     });
 
     it('should call the query method for the dataUtil and post successful result', () => {
       Worker.handleMessage({ data: action }, postMessage);
       sinon.assert.calledWith(Worker.dataUtil.query, query);
 
-      const expectedResult = actions.dataWorkerQueryDataSuccess('queried data');
+      const expectedResult = actions.dataWorkerQueryDataSuccess('queried data', destination);
       sinon.assert.calledWith(postMessage, expectedResult);
     });
 
