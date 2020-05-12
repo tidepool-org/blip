@@ -278,7 +278,7 @@ function TidelineData(data, opts) {
           method: 'guessed',
         };
         this.data.push(datumTimezoneChange);
-        log.info('Timezone change', datumTimezoneChange);
+        log('Timezone change', datumTimezoneChange);
       } else if (timezone !== null && datum.timezone === timezone) {
         // Offset change in the same timezone (daily saving time)
         const mTime = moment.tz(datum.normalTime, datum.timezone);
@@ -319,14 +319,14 @@ function TidelineData(data, opts) {
             method: 'guessed',
           };
           this.data.push(datumOffsetChange);
-          log.info('Offset change', datumOffsetChange);
+          log('Offset change', datumOffsetChange);
         }
       }
     }
 
     // Keep last offset
     opts.timePrefs.timezoneOffset = timezoneOffset;
-    log.info('Number of datum source updated:', nUpdate);
+    log('Number of datum source updated:', nUpdate);
     endTimer('checkTimezone');
   }
 
