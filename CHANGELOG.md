@@ -1,6 +1,12 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.10.1 - 2020-05-11
+### Engineering use
+- Fetch npm packages from nexus.ci.diabeloop.eu
+### Fixed
+- Bump acorn from 6.4.0 to 6.4.1 (security fix)
+
 ## 1.10.0 - 2020-05-06
 ### Fixed 
 - PT-1205 Add timezone info on tooltips when necessary
