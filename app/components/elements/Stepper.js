@@ -45,27 +45,40 @@ const StyledStepper = styled(Base)`
 
 export const Stepper = props => {
   const {
-    steps,
+    activeStep: initialActiveStep = 0,
+    activeSubStep: initialActiveSubStep = 0,
     children,
     id,
-    activeStep: initialActiveStep = 0,
     history,
+    location,
+    steps,
     themeProps,
     variant,
     ...stepperProps
   } = props;
 
-  const isHorizontal = variant === 'horizontal';
-  const getStepId = stepIndex => `${id}-step-${stepIndex}`;
+  let initialActiveStepState = initialActiveStep;
+  let initialActiveSubStepState = initialActiveSubStep;
 
-  const [activeStep, setActiveStep] = React.useState(parseInt(initialActiveStep, 10));
-  React.useEffect(() => {
-    history.pushState(null, null, `#${getStepId(activeStep)}`);
-  });
+  const activeStepsHash = location.hash.split('-step-')[1];
+  if (activeStepsHash) {
+    const activeStepParts = activeStepsHash.split('-');
+    initialActiveStepState = parseInt(activeStepParts[0], 10);
+    initialActiveSubStepState = parseInt(activeStepParts[1], 10);
+  }
 
-  const [activeSubStep, setActiveSubStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
+  const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
   const [skipped, setSkipped] = React.useState(new Set());
 
+  const getStepId = stepIndex => `${id}-step-${stepIndex}`;
+
+  React.useEffect(() => {
+    const newHash = `#${getStepId(activeStep)}-${activeSubStep}`;
+    if (newHash !== location.hash) history.pushState(null, null, newHash);
+  });
+
+  const isHorizontal = variant === 'horizontal';
   const isStepOptional = stepIndex => steps[stepIndex].optional;
   const isStepSkipped = stepIndex => skipped.has(stepIndex);
   const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length > 0;
@@ -257,6 +270,8 @@ const StepPropTypes = PropTypes.shape({
 Stepper.propTypes = {
   ...StepperProps,
   'aria-label': PropTypes.string.isRequired,
+  activeStep: PropTypes.number,
+  activeSubStep: PropTypes.number,
   id: PropTypes.string.isRequired,
   onStepChange: PropTypes.func.isRequired,
   steps: PropTypes.arrayOf({
@@ -278,6 +293,7 @@ Stepper.defaultProps = {
   value: 0,
   variant: 'horizontal',
   history: window.history,
+  location: window.location,
 };
 
 export default Stepper;

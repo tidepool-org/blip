@@ -24,6 +24,7 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
+window.top.onhashchange = () => forceReRender();
 
 export const StepperStory = () => {
   const orientations = {
@@ -38,9 +39,6 @@ export const StepperStory = () => {
 
   const orientation = () => options('Stepper Orientation', orientations, 'horizontal', { display: 'inline-radio' });
   const background = () => options('Stepper Background', backgrounds, 'transparent', { display: 'inline-radio' });
-
-  const getActiveStepFromHash = () => window.top.location.hash.split('-step-')[1];
-  window.top.onhashchange = () => forceReRender();
 
   const [profileValid, setProfileValid] = React.useState(false);
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
@@ -107,8 +105,8 @@ export const StepperStory = () => {
     variant: orientation(),
     'aria-label': 'My Stepper',
     id: 'my-stepper',
-    activeStep: parseInt(getActiveStepFromHash(), 10) || 0,
     history: window.top.history,
+    location: window.top.location,
     themeProps: {
       wrapper: {
         margin: 2,
