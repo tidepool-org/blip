@@ -24,24 +24,23 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-const orientations = {
-  Horizontal: 'horizontal',
-  Vertical: 'vertical',
-};
-
-const backgrounds = {
-  None: 'transparent',
-  'Light Grey': 'lightGrey',
-};
-
-const getActiveStepFromHash = () => window.top.location.hash.split('-step-')[1];
-
-const orientation = () => options('Stepper Orientation', orientations, 'horizontal', { display: 'inline-radio' });
-const background = () => options('Stepper Background', backgrounds, 'transparent', { display: 'inline-radio' });
 
 export const StepperStory = () => {
-  window.top.onhashchange = () => forceReRender();
+  const orientations = {
+    Horizontal: 'horizontal',
+    Vertical: 'vertical',
+  };
 
+  const backgrounds = {
+    None: 'transparent',
+    'Light Grey': 'lightGrey',
+  };
+
+  const orientation = () => options('Stepper Orientation', orientations, 'horizontal', { display: 'inline-radio' });
+  const background = () => options('Stepper Background', backgrounds, 'transparent', { display: 'inline-radio' });
+
+  const getActiveStepFromHash = () => window.top.location.hash.split('-step-')[1];
+  window.top.onhashchange = () => forceReRender();
 
   const [profileValid, setProfileValid] = React.useState(false);
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);

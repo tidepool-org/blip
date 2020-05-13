@@ -36,6 +36,14 @@ export default ({ colors, fonts, fontWeights, fontSizes }) => {
         },
       },
     },
+
+    '.skipped .MuiStepLabel-label': {
+      color: colors.text.primaryDisabled,
+
+      '&.MuiStepLabel-active': {
+        color: colors.text.link,
+      },
+    },
   };
 
   return {

@@ -208,7 +208,7 @@ export const Stepper = props => {
                 id={getStepId(index)}
                 active={activeStep === index}
                 disabled={disabled}
-                className={cx({ active: activeStep === index })}
+                className={cx({ active: activeStep === index, skipped: isStepSkipped(index) })}
                 {...stepProps}
               >
                 <StepLabel
