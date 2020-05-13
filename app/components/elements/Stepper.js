@@ -138,40 +138,47 @@ export const Stepper = props => {
       : Panel.props.children,
   });
 
-  const renderStepActions = () => (
-    <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
-      {!steps[activeStep].hideBack && (
-        <Button
-          disabled={activeStep === 0 && activeSubStep === 0}
-          variant="secondary"
-          className="step-back"
-          onClick={handleBack}
-        >
-          {steps[activeStep].backText || 'Back'}
-        </Button>
-      )}
-      {isStepOptional(activeStep) && (
-        <Button
-          variant="primary"
-          ml={2}
-          className="step-skip"
-          onClick={handleSkip}
-        >
-          Skip
-        </Button>
-      )}
-      {!steps[activeStep].hideComplete && (
-        <Button
-          variant="primary"
-          ml={2}
-          className="step-next"
-          onClick={handleNext}
-        >
-          {steps[activeStep].completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
-        </Button>
-      )}
-    </Flex>
-  );
+  const renderStepActions = () => {
+    const step = stepHasSubSteps(activeStep)
+      ? steps[activeStep].subSteps[activeSubStep]
+      : steps[activeStep];
+
+    return (
+      <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
+        {!step.hideBack && (
+          <Button
+            disabled={activeStep === 0 && activeSubStep === 0}
+            variant="secondary"
+            className="step-back"
+            onClick={handleBack}
+          >
+            {step.backText || 'Back'}
+          </Button>
+        )}
+        {isStepOptional(activeStep) && (
+          <Button
+            variant="primary"
+            ml={2}
+            className="step-skip"
+            onClick={handleSkip}
+          >
+            Skip
+          </Button>
+        )}
+        {!step.hideComplete && (
+          <Button
+            variant="primary"
+            ml={2}
+            className="step-next"
+            disabled={step.disableComplete}
+            onClick={handleNext}
+          >
+            {step.completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
+          </Button>
+        )}
+      </Flex>
+    );
+  };
 
   const renderStepPanels = () => (
     <React.Fragment>

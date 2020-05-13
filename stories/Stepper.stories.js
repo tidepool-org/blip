@@ -8,6 +8,7 @@ import { forceReRender } from '@storybook/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';
+import Checkbox from '../app/components/elements/Checkbox';
 
 /* eslint-disable max-len */
 
@@ -33,59 +34,6 @@ const backgrounds = {
   'Light Grey': 'lightGrey',
 };
 
-const steps = [
-  {
-    label: 'Create Patient Account',
-    onComplete: action('Patient Account Created'),
-    subSteps: [
-      {
-        label: 'Step One',
-        onComplete: action('Account Step One Complete'),
-      },
-      {
-        label: 'Step Two',
-        onComplete: action('Account Step Two Complete'),
-      },
-      {
-        label: 'Step Three',
-        onComplete: action('Account Step Three Complete'),
-        hideComplete: true,
-      },
-    ],
-  },
-  {
-    label: 'Complete Patient Profile',
-    onComplete: action('Patient Profile Completed'),
-    optional: true,
-    subSteps: [
-      {
-        label: 'Step One',
-        onComplete: action('Profile Step One Complete'),
-      },
-      {
-        label: 'Step Two',
-        onComplete: action('Profile Step Two Complete'),
-      },
-      {
-        label: 'Step Three',
-        onComplete: action('Profile Step Three Complete'),
-        hideComplete: true,
-        backText: 'Back to Step Two',
-      },
-    ],
-  },
-  {
-    label: 'Enter Therapy Settings',
-    onComplete: action('Therapy Settings Completed'),
-    completeText: 'Review Prescription',
-  },
-  {
-    label: 'Review and Send Prescription',
-    onComplete: action('Prescription Sent'),
-    completeText: 'Send Prescription',
-  },
-];
-
 const getActiveStepFromHash = () => window.top.location.hash.split('-step-')[1];
 
 const orientation = () => options('Stepper Orientation', orientations, 'horizontal', { display: 'inline-radio' });
@@ -93,6 +41,67 @@ const background = () => options('Stepper Background', backgrounds, 'transparent
 
 export const StepperStory = () => {
   window.top.onhashchange = () => forceReRender();
+
+
+  const [profileValid, setProfileValid] = React.useState(false);
+  const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
+  const handleCheckProfile = (e) => setProfileValid(e.target.checked);
+  const handleCheckReview = (e) => setPrescriptionReviewed(e.target.checked);
+
+  const steps = [
+    {
+      label: 'Create Patient Account',
+      onComplete: action('Patient Account Created'),
+      subSteps: [
+        {
+          label: 'Step One',
+          onComplete: action('Account Step One Complete'),
+        },
+        {
+          label: 'Step Two',
+          onComplete: action('Account Step Two Complete'),
+        },
+        {
+          label: 'Step Three',
+          onComplete: action('Account Step Three Complete'),
+        },
+      ],
+    },
+    {
+      label: 'Complete Patient Profile',
+      onComplete: action('Patient Profile Completed'),
+      optional: true,
+      subSteps: [
+        {
+          label: 'Step One',
+          onComplete: action('Profile Step One Complete'),
+        },
+        {
+          label: 'Step Two',
+          onComplete: action('Profile Step Two Complete'),
+          backText: 'Back to Profile Step One',
+        },
+        {
+          label: 'Step Three',
+          onComplete: action('Profile Step Three Complete'),
+          disableComplete: !profileValid,
+          completeText: profileValid ? 'Good to Go!' : 'Not yet...',
+          backText: 'Back to Profile Step Two',
+        },
+      ],
+    },
+    {
+      label: 'Enter Therapy Settings',
+      onComplete: action('Therapy Settings Completed'),
+      completeText: 'Review Prescription',
+    },
+    {
+      label: 'Review and Send Prescription',
+      onComplete: action('Prescription Sent'),
+      disableComplete: !prescriptionReviewed,
+      completeText: 'Send Prescription',
+    },
+  ];
 
   const props = {
     steps,
@@ -141,6 +150,13 @@ export const StepperStory = () => {
         </Box>
         <Box>
           Patient Profile Step Three
+          <Checkbox
+            checked={profileValid}
+            name="my-checkbox"
+            label={'The profile details are correct'}
+            onChange={handleCheckProfile}
+            required
+          />
         </Box>
       </Box>
       <Box>
@@ -149,6 +165,13 @@ export const StepperStory = () => {
       </Box>
       <Box>
         Final Prescription Details
+        <Checkbox
+          checked={prescriptionReviewed}
+          name="my-checkbox"
+          label={'The prescription details are correct'}
+          onChange={handleCheckReview}
+          required
+        />
       </Box>
     </Stepper>
   );
