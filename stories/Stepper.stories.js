@@ -148,7 +148,6 @@ export const StepperStory = () => {
           Patient Profile Step Two
         </Box>
         <Box>
-          Patient Profile Step Three
           <Checkbox
             checked={profileValid}
             name="my-checkbox"
@@ -160,10 +159,8 @@ export const StepperStory = () => {
       </Box>
       <Box>
         <Box>Therapy Settings Form</Box>
-        <Box>And other stuff</Box>
       </Box>
       <Box>
-        Final Prescription Details
         <Checkbox
           checked={prescriptionReviewed}
           name="my-checkbox"
