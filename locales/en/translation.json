@@ -678,7 +678,7 @@
   "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.": "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from changing the date & time settings on the system or switching to a new system. As a result, this basal segment may be inaccurate.",
   "Would you like to set up data storage for someone’s diabetes data?": "Would you like to set up data storage for someone’s diabetes data?",
   "Wrong username or password.": "Wrong username or password.",
-  "Your account has been locked for {{delayBeforeNextLoginAttempt}} minutes. You have reached the maximum number of login attempts.": "Your account has been locked for {{delayBeforeNextLoginAttempt}} minutes. You have reached the maximum number of login attempts.",
+  "Your account has been locked for {{delayBeforeNextLoginAttempt}} minutes. You have reached the maximum number of login attempts.": "Too many failed login attempts. Please try again in {{delayBeforeNextLoginAttempt}} minutes.",
   "year": "year",
   "Year": "Year",
   "year_timeago": "year",
