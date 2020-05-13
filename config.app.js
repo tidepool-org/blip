@@ -31,6 +31,8 @@
 /* global __HELP_LINK__ */
 /* global __ASSETS_URL__ */
 /* global __HIDE_UPLOAD_LINK__ */
+/* global __BRANDING__ */
+/* global __METRICS_SERVICE__ */
 /* global __MAX_FAILED_LOGIN_ATTEMPTS__ */
 /* global __DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__ */
 /* global __TERMS_PRIVACY_DATE__ */
@@ -46,7 +48,7 @@ function booleanFromText(value, defaultValue) {
     return false;
   }
 
-  return defaultValue || false;
+  return !!defaultValue;
 }
 
 function integerFromText(value, defaultValue) {
@@ -66,12 +68,19 @@ function integerFromText(value, defaultValue) {
   return intValue;
 }
 
+function stringOption(value, defaultValue) {
+  if (typeof value === 'string' && value !== 'disabled') {
+    return value;
+  }
+  return defaultValue;
+}
+
 const config = {
   VERSION: pkg.version,
-  UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
-  API_HOST: __API_HOST__ || `${window.location.protocol}//${window.location.host}`,
-  INVITE_KEY: __INVITE_KEY__ || '',
-  LATEST_TERMS: __LATEST_TERMS__ || null,
+  UPLOAD_API: stringOption(__UPLOAD_API__, 'https://tidepool.org/uploader'),
+  API_HOST: stringOption(__API_HOST__, `${window.location.protocol}//${window.location.host}`),
+  INVITE_KEY: stringOption(__INVITE_KEY__, ''),
+  LATEST_TERMS: stringOption(__LATEST_TERMS__, null),
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   PASSWORD_MAX_LENGTH: integerFromText(__PASSWORD_MAX_LENGTH__, 72),
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
@@ -82,15 +91,16 @@ const config = {
   CAN_SEE_PWD_LOGIN: booleanFromText(__CAN_SEE_PWD_LOGIN__, true),
   SUPPORT_EMAIL_ADDRESS: __SUPPORT_EMAIL_ADDRESS__,
   SUPPORT_WEB_ADDRESS: __SUPPORT_WEB_ADDRESS__,
-  HELP_LINK: __HELP_LINK__ || null,
-  ASSETS_URL: __ASSETS_URL__ || null,
+  HELP_LINK: stringOption(__HELP_LINK__, null),
+  ASSETS_URL: stringOption(__ASSETS_URL__, 'https://url.com/'),
   HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),
   HIDE_DEXCOM_BANNER: booleanFromText(__HIDE_DEXCOM_BANNER__ , false),
   HIDE_UPLOAD_LINK: booleanFromText(__HIDE_UPLOAD_LINK__, false),
-  BRANDING: __BRANDING__ || 'tidepool',
+  BRANDING: stringOption(__BRANDING__, 'tidepool'),
+  METRICS_SERVICE: stringOption(__METRICS_SERVICE__, 'disabled'),
   MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(__MAX_FAILED_LOGIN_ATTEMPTS__, 5),
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(__DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__, 10),
-  TERMS_PRIVACY_DATE: __TERMS_PRIVACY_DATE__ || ''
+  TERMS_PRIVACY_DATE: stringOption(__TERMS_PRIVACY_DATE__, '')
 }
 
 if (__DEV__) {

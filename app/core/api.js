@@ -775,29 +775,43 @@ api.getUploadUrl = function() {
 api.metrics = {};
 
 api.metrics.track = function(eventName, properties, cb) {
-  if (typeof window._paq !== 'undefined') {
-    // Using Matomo Tracker
-    api.log(`Matomo trackEvent ${eventName}:`, properties);
-    if (eventName === 'CookieConsent') {
-      window._paq.push(['setConsentGiven', properties]);
-    } else if (eventName === 'setCustomUrl') {
-      window._paq.push(['setCustomUrl', properties]);
-    } else if (eventName === 'setUserId') {
-      window._paq.push(['setUserId', properties]);
-    } else if (eventName === 'resetUserId') {
-      window._paq.push(['resetUserId']);
-    } else if (eventName === 'setDocumentTitle' && typeof properties === 'string') {
-      window._paq.push(['setDocumentTitle', properties]);
-    } else if (typeof properties === 'undefined') {
-      window._paq.push(['trackEvent', eventName]);
+  const metricsService = _.get(config, 'METRICS_SERVICE', 'disabled');
+
+  switch (metricsService) {
+  case 'matomo':
+    if (typeof window._paq !== 'undefined') {
+      // Using Matomo Tracker
+      api.log(`Matomo trackEvent ${eventName}:`, properties);
+      if (eventName === 'CookieConsent') {
+        window._paq.push(['setConsentGiven', properties]);
+      } else if (eventName === 'setCustomUrl') {
+        window._paq.push(['setCustomUrl', properties]);
+      } else if (eventName === 'setUserId') {
+        window._paq.push(['setUserId', properties]);
+      } else if (eventName === 'resetUserId') {
+        window._paq.push(['resetUserId']);
+      } else if (eventName === 'setDocumentTitle' && typeof properties === 'string') {
+        window._paq.push(['setDocumentTitle', properties]);
+      } else if (typeof properties === 'undefined') {
+        window._paq.push(['trackEvent', eventName]);
+      } else {
+        window._paq.push(['trackEvent', eventName, JSON.stringify(properties)]);
+      }
     } else {
-      window._paq.push(['trackEvent', eventName, JSON.stringify(properties)]);
+      api.log.error('Matomo tracker is not well configured', eventName, properties);
     }
-  } else {
-    // using highwater
+    break;
+  case 'highwater':
     api.log('GET /metrics/' + window.encodeURIComponent(eventName));
     tidepool.trackMetric(eventName, properties);
+    break;
+  case 'disabled':
+    api.log.debug('metric', eventName, properties);
+    break;
+  default:
+    api.log.error(`Unknown metrics service ${metricsService}`, eventName, properties);
   }
+
   if (cb) {
     cb();
   }
@@ -808,9 +822,14 @@ api.metrics.track = function(eventName, properties, cb) {
 api.errors = {};
 
 api.errors.log = function(error, message, properties, cb) {
-  api.log('POST /errors');
+  const metricsService = _.get(config, 'METRICS_SERVICE', 'disabled');
 
-  return tidepool.logAppError(error, message, properties, cb);
+  if (metricsService === 'highwater') {
+    api.log('POST /errors');
+    tidepool.logAppError(error, message, properties, cb);
+  } else {
+    api.metrics.track('error', { error, message, properties }, cb);
+  }
 };
 
 module.exports = api;

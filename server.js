@@ -121,14 +121,14 @@ if (config.httpPort) {
   });
 }
 
-if (config.httpsPort) {
+if (config.httpsPort && config.httpsConfig) {
   https.createServer(config.httpsConfig, app).listen(config.httpsPort, () => {
     console.log('Connect server started on HTTPS port', config.httpsPort);
     console.log('Serving static directory "' + staticDir + '/"');
   });
 }
 
-if (config.discovery && config.publishHost) {
+if (config.skipHakken === false) {
   const hakken = require('hakken')(config.discovery).client();
   hakken.start();
 

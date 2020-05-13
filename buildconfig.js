@@ -3,6 +3,7 @@ require('shelljs/global');
 var fs = require('fs');
 var crypto = require('crypto');
 var ms = require('ms');
+const _ = require('lodash');
 
 var reTitle = /<title>([^<]*)<\/title>/;
 var reConfig = /(<!-- config -->)|(<script [^>]*src="config(\.[\w]*)*\.js"[^>]*><\/script>)/m;
@@ -12,7 +13,7 @@ var reTrackerUrl = /const u = '(.*)';/;
 var reTrackerSiteId = /const id = ([0-9]);/;
 var reCrowdin = /<!-- Crowdin Start -->([\s\S]*)<!-- Crowdin End -->/m;
 
-var start = new Date();
+var start = Date.now();
 
 // NOTE: Webpack's hash also uses the absolute path on the filesystem
 // Since config is built in `start.sh` and apps can be on different
@@ -55,26 +56,41 @@ if (reConfig.test(indexHtml)) {
 if (typeof process.env.HELP_LINK === 'string') {
   console.log('Using HELP_LINK:', process.env.HELP_LINK);
 
-  if (process.env.HELP_LINK === 'disable') {
+  if (process.env.HELP_LINK === 'disabled') {
     indexHtml = indexHtml.replace(reZendesk, zendeskDisable);
-
   } else {
     indexHtml = indexHtml.replace(reZendesk, `<script id="ze-snippet" type="text/javascript" src="${process.env.HELP_LINK}"></script>`);
   }
 }
-var matomoJs = fs.readFileSync('matomo.js', 'utf8');
-// Replace tracker Javascript
-if (typeof process.env.MATOMO_TRACKER_URL === 'string' && process.env.MATOMO_TRACKER_URL !== 'disable') {
-  console.info(`Setting up tracker code: ${process.env.MATOMO_TRACKER_URL}`);
-  const updatedSrc = matomoJs.replace(reTrackerUrl, (m, u) => {
-    return m.replace(u, process.env.MATOMO_TRACKER_URL);
-  });
-  matomoJs = updatedSrc.replace(reTrackerSiteId, (m, u) => {
-    return m.replace(u, process.env.MATOMO_TRACKER_SITEID !== null ? process.env.MATOMO_TRACKER_SITEID : 1);
-  });
-} else {
-    console.info('Tracker code is disabled');
-    matomoJs = '/* MaToMo tracker is disabled */';
+
+var matomoJs = '/* MaToMo tracker is disabled */';
+switch (_.get(process, 'env.METRICS_SERVICE', 'disabled')) {
+case 'matomo':
+  console.info('Using matomo tracker code');
+  if (!_.isEmpty(process.env.MATOMO_TRACKER_URL) && process.env.MATOMO_TRACKER_URL.startsWith('http')) {
+    // Replace tracker Javascript
+    matomoJs = fs.readFileSync('matomo.js', 'utf8');
+    console.info(`Setting up matomo tracker code: ${process.env.MATOMO_TRACKER_URL}`);
+    const updatedSrc = matomoJs.replace(reTrackerUrl, (m, u) => {
+      return m.replace(u, process.env.MATOMO_TRACKER_URL);
+    });
+    const siteId = _.get(process, 'env.MATOMO_TRACKER_SITEID', 1);
+    matomoJs = updatedSrc.replace(reTrackerSiteId, (m, u) => {
+      return m.replace(u, siteId);
+    });
+  } else {
+    console.error('Invalid matomo config url, please verify your MATOMO_TRACKER_URL env variable');
+  }
+  break;
+case 'highwater':
+  console.info('Using highwater tracker code');
+  break;
+case 'disabled':
+  console.info('Tracker code is disabled');
+  break;
+default:
+  console.error(`Unknown tracker ${process.env.METRICS_SERVICE}`);
+  break;
 }
 
 // Replace Crowdin Javascript
@@ -99,5 +115,5 @@ if (typeof process.env.CROWDIN === 'string' && process.env.CROWDIN === 'enabled'
 matomoJs.to('dist/matomo.js')
 indexHtml.to('dist/index.html');
 
-var end = new Date();
+var end = Date.now();
 console.log('Config built in ' + ms(end - start));
