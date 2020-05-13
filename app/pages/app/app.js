@@ -17,6 +17,7 @@ import Navbar from '../../components/navbar';
 import DonateBanner from '../../components/donatebanner';
 import DexcomBanner from '../../components/dexcombanner';
 import AddEmailBanner from '../../components/addemailbanner';
+import SendVerificationBanner from '../../components/sendverificationbanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 
@@ -74,6 +75,8 @@ export class AppComponent extends React.Component {
     userIsDonor: PropTypes.bool.isRequired,
     userIsSupportingNonprofit: PropTypes.bool.isRequired,
     permsOfLoggedInUser: PropTypes.object,
+    resendEmailVerificationProgress: PropTypes.bool.isRequired,
+    resentEmailVerification: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -296,17 +299,36 @@ export class AppComponent extends React.Component {
 
     const {
       patient,
-      permsOfLoggedInUser
+      permsOfLoggedInUser,
+      onResendEmailVerification,
+      resendEmailVerificationInProgress,
+      resentEmailVerification,
     } = this.props;
-    if(_.has(permsOfLoggedInUser, 'custodian') && !_.has(patient, 'username')){
-      this.props.context.trackMetric('Banner displayed Add Email');
-      return (
-        <div className="App-addemailbanner">
-          <AddEmailBanner
-            trackMetric={this.props.context.trackMetric}
-            patient={patient} />
-        </div>
-      );
+    if (_.has(permsOfLoggedInUser, 'custodian')) {
+      if (!_.has(patient, 'username')) {
+        this.props.context.trackMetric('Banner displayed Add Email');
+        return (
+          <div className="App-addemailbanner">
+            <AddEmailBanner
+              trackMetric={this.props.context.trackMetric}
+              patient={patient}
+            />
+          </div>
+        );
+      } else {
+        this.props.context.trackMetric('Banner displayed Send Verification');
+        return (
+          <div className="App-sendverificationbanner">
+            <SendVerificationBanner
+              trackMetric={this.props.context.trackMetric}
+              patient={patient}
+              resendVerification={onResendEmailVerification}
+              resendEmailVerificationInProgress={resendEmailVerificationInProgress}
+              resentEmailVerification={resentEmailVerification}
+            />
+          </div>
+        );
+      }
     }
     return null;
   }
@@ -534,6 +556,8 @@ export function mapStateToProps(state) {
     userIsDonor,
     userHasConnectedDataSources,
     userIsSupportingNonprofit,
+    resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
+    resentEmailVerification: state.blip.resentEmailVerification,
   };
 }
 
@@ -549,6 +573,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
+  resendEmailVerification: actions.async.resendEmailVerification,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
@@ -566,6 +591,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,
+    onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
     onLogout: dispatchProps.logout.bind(null, api)
   });
 };

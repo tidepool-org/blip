@@ -96,7 +96,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     //setup default sorting but don't track via metrics
     this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
-  
+
   //nextProps contains list of people being watched
   UNSAFE_componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
@@ -124,7 +124,11 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
       };
     });
 
-    return _.orderBy(list, ['fullNameOrderable'], [SortTypes.DESC]);
+    return _.orderBy(
+      list,
+      ['fullNameOrderable'],
+      _.get(this.state, 'colSortDirs.fullNameOrderable', [SortTypes.ASC])
+    );
   }
 
   handleFilterChange(e) {

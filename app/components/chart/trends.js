@@ -425,6 +425,7 @@ const Trends = translate()(class Trends extends PureComponent {
 
   render() {
     const { currentPatientInViewId, t } = this.props;
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'trends';
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -435,11 +436,11 @@ const Trends = translate()(class Trends extends PureComponent {
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               <div id="tidelineContainer" className="patient-data-chart-trends">
-                {this.renderChart()}
+                {dataQueryComplete && this.renderChart()}
               </div>
-              {this.renderFocusedCbgDateTraceLabel()}
-              {this.renderFocusedSMBGPointLabel()}
-              {this.renderFocusedRangeLabels()}
+              {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
+              {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
+              {dataQueryComplete && this.renderFocusedRangeLabels()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">

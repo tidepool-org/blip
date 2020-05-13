@@ -171,6 +171,9 @@ export const resentEmailVerification = (state = initialState.resentEmailVerifica
   switch(action.type) {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
       return true;
+    case types.CLEAR_PATIENT_IN_VIEW:
+    case types.FETCH_PATIENT_SUCCESS:
+      return false;
     default:
       return state;
   }

@@ -65,8 +65,8 @@ export default translate()(class Export extends Component {
     if (this.state.allTime) {
       options = _.omit(options, ['endDate', 'startDate']);
     } else {
-      options.endDate = moment.utc(this.state.endDate).toISOString();
-      options.startDate = moment.utc(this.state.startDate).toISOString();
+      options.endDate = moment(this.state.endDate).endOf('day').utc().toISOString();
+      options.startDate = moment(this.state.startDate).utc().toISOString();
     }
 
     this.props.api.tidepool.getExportDataURL(
@@ -106,7 +106,6 @@ export default translate()(class Export extends Component {
         value = moment().format(JS_DATE_FORMAT);
       }
     }
-    
 
     this.setState({
       [name]: value
@@ -209,7 +208,7 @@ export default translate()(class Export extends Component {
             />{' '}
             {MMOLL_UNITS}
           </div>
-          
+
           <div className="Export-filetype">
             File type:
             <input

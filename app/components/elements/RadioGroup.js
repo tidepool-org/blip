@@ -7,13 +7,17 @@ import map from 'lodash/map';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
-import { default as baseTheme, colors, transitions } from '../../themes/baseTheme';
+import {
+  default as baseTheme,
+  colors,
+  transitions,
+} from '../../themes/baseTheme';
 
 const StyledRadio = styled(Base)`
   color: ${colors.border.default};
   width: 1.5em;
   height: 1.5em;
-  margin-right: .5em;
+  margin-right: 0.5em;
 
   cursor: pointer;
   transition: ${transitions.easeOut};
@@ -27,6 +31,10 @@ const StyledRadio = styled(Base)`
     pointer-events: none;
     color: ${colors.text.primaryDisabled};
   }
+
+  &.error {
+    color: ${colors.orange};
+  }
 `;
 
 const StyledRadioLabel = styled(Text)`
@@ -35,20 +43,27 @@ const StyledRadioLabel = styled(Text)`
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
+
+  &.error {
+    color: ${colors.orange};
+  }
 `;
 
-const Radio = props => {
-  const { label, ...radioProps } = props;
+const Radio = (props) => {
+  const { error, label, ...radioProps } = props;
 
   const classNames = cx({
     checked: props.checked,
     disabled: props.disabled,
+    error,
   });
 
   return (
     <Label width="auto" mb={2} alignItems="center">
       <StyledRadio className={classNames} {...radioProps} />
-      <StyledRadioLabel className={classNames} as="span">{label}</StyledRadioLabel>
+      <StyledRadioLabel className={classNames} as="span">
+        {label}
+      </StyledRadioLabel>
     </Label>
   );
 };
@@ -58,17 +73,37 @@ Radio.propTypes = {
   label: PropTypes.string.isRequired,
 };
 
-export const RadioGroup = props => {
-  const { disabled, id, label, name, options, value, variant, ...wrapperProps } = props;
+export const RadioGroup = (props) => {
+  const {
+    disabled,
+    id,
+    label,
+    name,
+    options,
+    value,
+    variant,
+    required,
+    error,
+    ...wrapperProps
+  } = props;
 
   const labelId = `${id}-label`;
   const ariaLabelledBy = label ? labelId : undefined;
+  const inputClasses = cx({
+    required,
+    error,
+  });
 
   return (
-    <Box role="radiogroup" id={id} aria-labelledby={ariaLabelledBy} {...wrapperProps}>
+    <Box
+      role="radiogroup"
+      id={id}
+      aria-labelledby={ariaLabelledBy}
+      {...wrapperProps}
+    >
       {label && (
         <Label mb={2} id={labelId}>
-          <Caption>{label}</Caption>
+          <Caption className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <Flex
@@ -85,9 +120,15 @@ export const RadioGroup = props => {
             value={option.value}
             checked={value === option.value}
             label={option.label}
+            error={error}
           />
         ))}
       </Flex>
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
     </Box>
   );
 };
@@ -100,10 +141,14 @@ RadioGroup.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   variant: PropTypes.oneOf(['horizontal', 'vertical']),
-  options: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-  })).isRequired,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  required: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 RadioGroup.defaultProps = {

@@ -49,16 +49,22 @@ export const Select = props => {
     onChange,
     themeProps,
     width,
+    required,
+    error,
     ...selectProps
   } = props;
 
-  const classNames = cx({ disabled });
+  const classNames = cx({ disabled, error });
+  const inputClasses = cx({
+    error,
+    required,
+  });
 
   return (
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
-          <Caption>{label}</Caption>
+          <Caption className={inputClasses}>{label}</Caption>
         </Label>
       )}
       <StyledSelect alignItems="center" className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
@@ -81,6 +87,11 @@ export const Select = props => {
         </Base>
         <KeyboardArrowDownRoundedIcon />
       </StyledSelect>
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
     </Box>
   );
 };
@@ -98,6 +109,8 @@ Select.propTypes = {
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   })).isRequired,
+  required: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 Select.defaultProps = {

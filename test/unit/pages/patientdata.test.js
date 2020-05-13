@@ -45,7 +45,7 @@ describe('PatientData', function () {
     fetchingPatientData: false,
     fetchingUser: false,
     generatePDFRequest: sinon.stub(),
-    generatingPDF: false,
+    generatingPDF: {},
     isUserPatient: false,
     messageThread: [],
     onCloseMessageThread: sinon.stub(),
@@ -343,6 +343,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -369,6 +370,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -395,6 +397,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
             trackMetric: sinon.stub(),
           };
 
@@ -430,6 +433,7 @@ describe('PatientData', function () {
             fetchingPatient: false,
             fetchingPatientData: false,
             generatingPDF: { inProgress: false },
+            pdf: {},
             trackMetric: sinon.stub()
           };
 
@@ -1067,6 +1071,7 @@ describe('PatientData', function () {
       dataWorkerRemoveDataRequest: sinon.stub(),
       removeGeneratedPDFS: sinon.stub(),
       generatingPDF: { inProgress: false },
+      pdf: {},
     };
 
     it('should clear patient data upon refresh', function() {
@@ -1099,17 +1104,14 @@ describe('PatientData', function () {
       sinon.assert.callCount(setStateSpy, 0);
       instance.handleRefresh();
       sinon.assert.calledWithMatch(setStateSpy, {
+        ...instance.getInitialState(),
         bgPrefs: undefined,
         chartType: undefined,
+        chartEndpoints: undefined,
         datetimeLocation: undefined,
         mostRecentDatetimeLocation: undefined,
-        endpoints: [],
-        fetchEarlierDataCount: 0,
-        loading: true,
-        queryDataCount: 0,
+        endpoints: undefined,
         refreshChartType: 'currentChartType',
-        timePrefs: {},
-        title: 'defaultTitle',
       });
 
       PatientData.WrappedComponent.prototype.setState.restore();
@@ -2365,6 +2367,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2394,6 +2397,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: true },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2420,6 +2424,7 @@ describe('PatientData', function () {
           metaData: { size: undefined },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2446,6 +2451,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2472,6 +2478,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false, completed: true },
+        pdf: { combined: {} },
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2498,6 +2505,7 @@ describe('PatientData', function () {
           metaData: { size: 1 },
         },
         generatingPDF: { inProgress: false, notification: { type: 'error' } },
+        pdf: {},
       };
 
       const wrapper = mount(<PatientData {...props} />);
@@ -2532,15 +2540,6 @@ describe('PatientData', function () {
 
     it('should return without doing anything if `state.queryingData` is `true`', () => {
       wrapper.setState({ queryingData: true });
-      setStateSpy.resetHistory();
-      instance.queryData();
-      sinon.assert.notCalled(setStateSpy);
-    });
-
-    it('should return without doing anything if `props.generatingPDF.inProgress` is `true`', () => {
-      wrapper.setProps(_.assign({}, defaultProps, {
-        generatingPDF: { inProgress: true },
-      }));
       setStateSpy.resetHistory();
       instance.queryData();
       sinon.assert.notCalled(setStateSpy);
@@ -2605,6 +2604,7 @@ describe('PatientData', function () {
         instance.queryData({ metaData: 'bar', types: 'cbg,smbg' }, { metaData: 'foo' });
         sinon.assert.calledWith(defaultProps.dataWorkerQueryDataRequest, {
           bgSource: 'smbg',
+          chartType: 'trends',
           endpoints: [100,200],
           types: 'cbg,smbg',
           metaData: 'bar',
@@ -2666,6 +2666,13 @@ describe('PatientData', function () {
           setStateSpy.resetHistory();
         });
 
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'basics',
+          });
+        });
+
         it('should set the `aggregationsByDate` query', () => {
           instance.queryData();
           sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
@@ -2678,6 +2685,13 @@ describe('PatientData', function () {
         beforeEach(() => {
           wrapper.setState({ chartType: 'daily' });
           setStateSpy.resetHistory();
+        });
+
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'daily',
+          });
         });
 
         it('should set the `types` query', () => {
@@ -2710,6 +2724,13 @@ describe('PatientData', function () {
           setStateSpy.resetHistory();
         });
 
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'bgLog',
+          });
+        });
+
         it('should set the `types` query', () => {
           instance.queryData();
           sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
@@ -2731,6 +2752,13 @@ describe('PatientData', function () {
         beforeEach(() => {
           wrapper.setState({ chartType: 'trends' });
           setStateSpy.resetHistory();
+        });
+
+        it('should add `chartType` to the query', () => {
+          instance.queryData();
+          sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
+            chartType: 'trends',
+          });
         });
 
         it('should set the `types` query', () => {
@@ -3582,6 +3610,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3636,6 +3665,7 @@ describe('PatientData', function () {
         trackMetric: sinon.stub(),
         t,
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
@@ -3703,6 +3733,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3778,6 +3809,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3845,6 +3877,7 @@ describe('PatientData', function () {
         fetchingUser: false,
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
+        pdf: {},
       };
 
       var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
@@ -3879,7 +3912,8 @@ describe('PatientData', function () {
     };
 
     const ownProps = {
-      routeParams: { id: '12345' }
+      routeParams: { id: '12345' },
+      location: { query: {} },
     };
 
     const dispatchProps = {

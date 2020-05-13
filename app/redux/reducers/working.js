@@ -183,7 +183,6 @@ export default (state = initialWorkingState, action) => {
           });
         } else if (action.type === types.REMOVE_GENERATED_PDFS) {
           const generatingPDFWorkingKey = actionWorkingMap(types.GENERATE_PDF_SUCCESS);
-          console.log('generatingPDFWorkingKey', generatingPDFWorkingKey, initialState.working[generatingPDFWorkingKey]);
           return update(initialWorkingState, {
             [generatingPDFWorkingKey]: {
               $set: initialState.working[generatingPDFWorkingKey],

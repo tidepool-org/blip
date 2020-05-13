@@ -9,13 +9,18 @@ const RollbarSourceMapPlugin = require('rollbar-sourcemap-webpack-plugin');
 const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
+const cp = require('child_process');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
 
 const VERSION = pkg.version;
-const ROLLBAR_POST_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
+const ROLLBAR_POST_SERVER_TOKEN = process.env.ROLLBAR_POST_SERVER_TOKEN;
+
+const VERSION_SHA = process.env.TRAVIS_COMMIT
+  || cp.execSync('git rev-parse HEAD || true', { cwd: __dirname, encoding: 'utf8' });
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -138,7 +143,8 @@ const plugins = [
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
     __VERSION__: JSON.stringify(VERSION),
-    __ROLLBAR_POST_TOKEN__: JSON.stringify(ROLLBAR_POST_TOKEN),
+    __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
+    __VERSION_SHA__: JSON.stringify(VERSION_SHA),
     __DEV__: isDev,
     __TEST__: isTest,
     __PROD__: isProd,
@@ -173,9 +179,9 @@ if (isDev) {
   plugins.push(
     /** Upload sourcemap to Rollbar */
     new RollbarSourceMapPlugin({
-      accessToken: ROLLBAR_POST_TOKEN,
-      version: VERSION,
-      publicPath: 'http://dynamichost/dist',
+      accessToken: ROLLBAR_POST_SERVER_TOKEN,
+      version: VERSION_SHA,
+      publicPath: 'https://dynamichost',
     })
   );
 }

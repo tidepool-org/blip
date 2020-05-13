@@ -24,6 +24,8 @@ export const CheckboxStory = () => {
   const [isChecked, setChecked] = useState(defaultChecked());
   const handleCheckbox = (e) => setChecked(e.target.checked);
   const labelText = () => text('Label Text', 'Check Me');
+  const error = () => boolean('Errored', false);
+  const required = () => boolean('Required', false);
 
   return (
     <Checkbox
@@ -32,6 +34,8 @@ export const CheckboxStory = () => {
       name="my-checkbox"
       label={labelText()}
       onChange={handleCheckbox}
+      required={required()}
+      error={error() ? 'Invalid selection' : null}
     />
   );
 };

@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-/* global importScripts, postMessage, __DEV__ */
+/* global __DEV__ */
 import '../core/language'; // Needed to load i18next config in the web worker
 import bows from 'bows';
 import _ from 'lodash';
@@ -75,7 +75,7 @@ export default class DataWorker {
         try {
           const query = JSON.parse(action.payload.query);
           const result = this.dataUtil.query(query);
-          postMessage(actions.dataWorkerQueryDataSuccess(result));
+          postMessage(actions.dataWorkerQueryDataSuccess(result, action.meta.destination));
         } catch (error) {
           postMessage(actions.dataWorkerQueryDataFailure(error));
         }

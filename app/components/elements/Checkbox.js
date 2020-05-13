@@ -4,12 +4,9 @@ import { Text } from 'rebass/styled-components';
 import { Checkbox as Base, Label, CheckboxProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
+import { Caption } from './FontStyles';
 
-import {
-  colors,
-  fonts,
-  fontSizes,
-  fontWeights } from '../../themes/baseTheme';
+import { colors, fonts, fontSizes, fontWeights } from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.border.default};
@@ -30,6 +27,10 @@ const StyledCheckbox = styled(Base)`
     pointer-events: none;
     color: ${colors.text.primaryDisabled};
   }
+
+  &.error {
+    color: ${colors.orange};
+  }
 `;
 
 const StyledCheckboxLabel = styled(Text)`
@@ -37,29 +38,46 @@ const StyledCheckboxLabel = styled(Text)`
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
 
-  color: ${props => (props.color ? props.color : colors.text.primary)};
+  color: ${(props) => (props.color ? props.color : colors.text.primary)};
 
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
+
+  &.error {
+    color: ${colors.orange};
+  }
+
+  &.required::after {
+    content: ' *';
+    display: inline;
+  }
 `;
 
-export const Checkbox = props => {
-  const { label, ...checkboxProps } = props;
+export const Checkbox = (props) => {
+  const { error, required, label, ...checkboxProps } = props;
 
   const classNames = cx({
     checked: props.checked,
     disabled: props.disabled,
+    error,
+    required,
   });
 
   return (
-    <Label width="auto" mb={2} alignItems="center">
-      <StyledCheckbox
-        className={classNames}
-        {...checkboxProps}
-      />
-      <StyledCheckboxLabel className={classNames} as="span">{label}</StyledCheckboxLabel>
-    </Label>
+    <>
+      <Label width="auto" mb={2} alignItems="center">
+        <StyledCheckbox className={classNames} {...checkboxProps} />
+        <StyledCheckboxLabel className={classNames} as="span">
+          {label}
+        </StyledCheckboxLabel>
+      </Label>
+      {error && (
+        <Caption ml={2} mt={2} className={classNames}>
+          {error}
+        </Caption>
+      )}
+    </>
   );
 };
 
