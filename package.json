@@ -33,7 +33,7 @@
     "@material-ui/core": "4.9.10",
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "4.0.0-alpha.49",
-    "@rebass/forms": "^4.0.6",
+    "@rebass/forms": "4.0.6",
     "body-parser": "1.18.3",
     "express": "4.16.3",
     "hakken": "0.1.11",
