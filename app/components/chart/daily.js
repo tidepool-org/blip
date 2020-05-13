@@ -276,6 +276,7 @@ class Daily extends Component {
   };
 
   render = () => {
+    const { timePrefs } = this.props.patientData.opts;
     return (
       <div id="tidelineMain" className="daily">
         <Header
@@ -309,7 +310,7 @@ class Daily extends Component {
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
                 patientData={this.props.patientData}
-                timePrefs={this.props.timePrefs}
+                timePrefs={timePrefs}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
@@ -368,7 +369,7 @@ class Daily extends Component {
             side={this.state.hoveredBolus.side}
             bolus={this.state.hoveredBolus.data}
             bgPrefs={this.props.bgPrefs}
-            timePrefs={this.props.timePrefs}
+            timePrefs={timePrefs}
           />}
         {this.state.hoveredSMBG && <SMBGTooltip
             position={{
@@ -377,7 +378,7 @@ class Daily extends Component {
             }}
             side={this.state.hoveredSMBG.side}
             smbg={this.state.hoveredSMBG.data}
-            timePrefs={this.props.timePrefs}
+            timePrefs={timePrefs}
             bgPrefs={this.props.bgPrefs}
           />}
         {this.state.hoveredCBG && <CBGTooltip
@@ -387,7 +388,7 @@ class Daily extends Component {
           }}
           side={this.state.hoveredCBG.side}
           cbg={this.state.hoveredCBG.data}
-          timePrefs={this.props.timePrefs}
+          timePrefs={timePrefs}
           bgPrefs={this.props.bgPrefs}
         />}
         {this.state.hoveredCarb && <FoodTooltip
@@ -398,7 +399,7 @@ class Daily extends Component {
           side={this.state.hoveredCarb.side}
           food={this.state.hoveredCarb.data}
           bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          timePrefs={timePrefs}
         />}
         {this.state.hoveredReservoir && <ReservoirTooltip
           position={{
@@ -408,7 +409,7 @@ class Daily extends Component {
           side={this.state.hoveredReservoir.side}
           reservoir={this.state.hoveredReservoir.data}
           bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          timePrefs={timePrefs}
         />}
         {this.state.hoveredPhysical && <PhysicalTooltip
           position={{
@@ -418,7 +419,7 @@ class Daily extends Component {
           side={this.state.hoveredPhysical.side}
           physicalActivity={this.state.hoveredPhysical.data}
           bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          timePrefs={timePrefs}
         />}
         {this.state.hoveredParameter && <ParameterTooltip
           position={{
@@ -428,7 +429,7 @@ class Daily extends Component {
           side={this.state.hoveredParameter.side}
           parameter={this.state.hoveredParameter.data}
           bgPrefs={this.props.bgPrefs}
-          timePrefs={this.props.timePrefs}
+          timePrefs={timePrefs}
         />}
 
         <WindowSizeListener onResize={this.handleWindowResize} />

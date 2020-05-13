@@ -113,6 +113,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
       showModalOverlay: false,
       dialog: '',
       tableHeight: 590,
+      tableWidth: 880,
       showSearchReset: false,
     };
 
@@ -127,7 +128,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
     //setup default sorting but don't track via metrics
     this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
-  
+
   //nextProps contains list of people being watched
   componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
@@ -222,13 +223,13 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
           placeholder={t('Search by Name')}
           value={this.state.searchPattern}
         />
-        { 
-        this.state.showSearchReset ? 
+        {
+        this.state.showSearchReset ?
           <img
             onClick={this.handleEmptySearch}
             className="peopletable-reset-image"
             src={resetSearchImageSrc}
-            title={t('Reset Search')}/> : null 
+            title={t('Reset Search')}/> : null
         }
         </div>
       </div>

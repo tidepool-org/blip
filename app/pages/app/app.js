@@ -54,11 +54,11 @@ export class AppComponent extends React.Component {
     fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.shape({
       inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+      completed: React.PropTypes.bool,
     }).isRequired,
     fetchingDataSources: React.PropTypes.shape({
       inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+      completed: React.PropTypes.bool,
     }).isRequired,
     location: React.PropTypes.string.isRequired,
     loggingOut: React.PropTypes.bool.isRequired,

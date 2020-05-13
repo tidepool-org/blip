@@ -65,7 +65,6 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToBgLog: () => {},
     onSwitchToTrends: () => {},
-    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     patient: {
       profile: {
@@ -77,6 +76,13 @@ describe('Daily', () => {
       }
     },
     patientData: {
+      opts: {
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'UTC',
+          timezoneOffset: 0,
+        },
+      },
       grouped: { foo: 'bar' }
     },
     canPrint: false,
