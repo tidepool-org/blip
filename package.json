@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "private": true,
   "scripts": {
     "mrproper": "rm -rf dist node_modules coverage",
@@ -33,10 +33,12 @@
     "npm": ">=6.x"
   },
   "dependencies": {
-    "body-parser": "1.18.3",
-    "express": "4.16.3",
+    "body-parser": "1.19.0",
+    "compression": "1.7.4",
+    "express": "4.17.1",
     "hakken": "mdblp/hakken#dblp.0.2.0",
-    "helmet": "3.13.0"
+    "helmet": "3.22.0",
+    "morgan": "1.10.0"
   },
   "devDependencies": {
     "@babel/cli": "7.1.0",
@@ -136,8 +138,8 @@
     "source-map-loader": "0.2.4",
     "style-loader": "0.23.0",
     "sundial": "mdblp/sundial#dblp.0.1.0",
-    "tideline": "mdblp/tideline#dblp.1.10.0",
-    "tidepool-platform-client": "0.41.0",
+    "tideline": "mdblp/tideline#dblp.1.10.2",
+    "tidepool-platform-client": "mdblp/platform-client#dblp.0.2.0",
     "tidepool-standard-action": "0.1.1",
     "terser-webpack-plugin": "3.0.1",
     "url-loader": "1.1.1",

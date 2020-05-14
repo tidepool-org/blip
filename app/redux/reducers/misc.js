@@ -215,6 +215,19 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       });
 
       return update(state, { $merge: patientsMap });
+    case types.FETCH_METRICS_SUCCESS: {
+      const tirs = action.payload.metrics;
+      let tirsMap = {};
+      let newState = Object.assign({}, state);
+      _.each(tirs, function(tir) {
+        if (newState[tir.userId]) {
+          newState = update(newState, {
+            [tir.userId]: { ['metric']: {$set : tir} }
+          });
+        }
+      });
+      return newState;
+    }
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: {

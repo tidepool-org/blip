@@ -819,6 +819,29 @@ export function fetchAssociatedAccountsFailure(error, apiError) {
   };
 }
 
+export function fetchMetricsRequest() {
+  return {
+    type: ActionTypes.FETCH_METRICS_REQUEST,
+  };
+}
+
+export function fetchMetricsSuccess(tirs) {
+  return {
+    type: ActionTypes.FETCH_METRICS_SUCCESS,
+    payload: tirs,
+  };
+}
+
+export function fetchMetricsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_METRICS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null
+    },
+  };
+}
+
 export function fetchPatientDataRequest() {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_REQUEST,

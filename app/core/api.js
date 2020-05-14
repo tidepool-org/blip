@@ -432,6 +432,17 @@ api.user.getAssociatedAccounts = function(cb) {
   });
 };
 
+api.user.getPatientsMetrics = function(accounts, cb) {
+  api.log('GET /aggregates/tir');
+
+  var userIds = accounts.patients.map(user => user.userid);
+  tidepool.getUsersTir(userIds, function(err, tirs) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, {metrics: tirs});
+  });
+}
 // ----- Patient -----
 
 api.patient = {};

@@ -32,6 +32,8 @@ import PeopleTable from '../../components/peopletable';
 import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
+const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export let Patients = translate()(React.createClass({
   propTypes: {
     clearPatientData: React.PropTypes.func.isRequired,
@@ -41,6 +43,7 @@ export let Patients = translate()(React.createClass({
     fetchingUser: React.PropTypes.bool.isRequired,
     fetchingPendingReceivedInvites: React.PropTypes.object.isRequired,
     fetchingAssociatedAccounts: React.PropTypes.object.isRequired,
+    fetchingMetrics: React.PropTypes.object.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
@@ -53,7 +56,7 @@ export let Patients = translate()(React.createClass({
     showWelcomeMessage: React.PropTypes.func.isRequired,
     showingWelcomeMessage: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
+    uploadUrl: React.PropTypes.string,
     user: React.PropTypes.object,
   },
 
@@ -207,6 +210,7 @@ export let Patients = translate()(React.createClass({
               people={patients}
               trackMetric={this.props.trackMetric}
               onRemovePatient={this.props.onRemovePatient}
+              timezone={browserTimezone}
             />
           </div>
         </div>
@@ -373,6 +377,9 @@ export function getFetchers(dispatchProps, stateProps, api) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  if(stateProps.fetchingAssociatedAccounts.completed && !stateProps.fetchingMetrics.inProgress && (!stateProps.fetchingMetrics.completed && !(stateProps.fetchingMetrics.notification && stateProps.fetchingMetrics.notification.type === 'error'))) {
+    dispatchProps.fetchMetrics(api, stateProps);
+  }
   return fetchers;
 };
 
@@ -420,6 +427,7 @@ export function mapStateToProps(state) {
     fetchingUser: { inProgress: fetchingUser },
     fetchingAssociatedAccounts,
     fetchingPendingReceivedInvites,
+    fetchingMetrics,
   } = state.blip.working;
 
   return {
@@ -428,7 +436,8 @@ export function mapStateToProps(state) {
     fetchingUser: fetchingUser,
     fetchingPendingReceivedInvites,
     fetchingAssociatedAccounts,
-    loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
+    fetchingMetrics,
+    loading: !fetchingMetrics.completed && !(fetchingMetrics.notification && fetchingMetrics.notification.type === 'error'),
     loggedInUserId: state.blip.loggedInUserId,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
@@ -442,6 +451,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
+  fetchMetrics: actions.async.fetchMetrics,
   clearPatientData: actions.sync.clearPatientData,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,

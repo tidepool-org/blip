@@ -904,6 +904,22 @@ export function fetchAssociatedAccounts(api) {
   };
 }
 
+export function fetchMetrics(api, accounts) {
+  return (dispatch) => {
+    dispatch(sync.fetchMetricsRequest());
+
+    api.user.getPatientsMetrics(accounts, function(err, tirs) {
+      if (err) {
+        dispatch(sync.fetchMetricsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchMetricsSuccess(tirs));
+      }
+    });
+  };
+}
+
 /**
  * Fetch Patient Data Action Creator
  *

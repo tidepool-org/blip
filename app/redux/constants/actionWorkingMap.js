@@ -22,6 +22,11 @@ export default (type) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
       return 'fetchingAssociatedAccounts';
 
+    case types.FETCH_METRICS_REQUEST:
+    case types.FETCH_METRICS_SUCCESS:
+    case types.FETCH_METRICS_FAILURE:
+      return 'fetchingMetrics';
+    
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_FAILURE:

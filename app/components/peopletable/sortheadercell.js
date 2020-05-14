@@ -49,7 +49,7 @@ class SortHeaderCell extends React.Component {
   }
 
   render() {
-    const { onSortChange, sortDir, children, ...props } = this.props;
+    const { onSortChange, sortDir, children, title, ...props } = this.props;
     let sortDirectionClass = 'peopletable-search-icon';
 
     if (sortDir === SortTypes.DESC) {
@@ -60,7 +60,7 @@ class SortHeaderCell extends React.Component {
 
     return (
       <Cell {...props}>
-        <a onClick={this.handleSortChange}>
+        <a onClick={this.handleSortChange} title={title}>
           {children} <i className={sortDirectionClass}></i>
         </a>
       </Cell>
@@ -72,6 +72,7 @@ SortHeaderCell.propTypes = {
   columnKey: React.PropTypes.string,
   onSortChange: React.PropTypes.func,
   sortDir: React.PropTypes.string,
+  title: React.PropTypes.string,
 };
 
 export { SortHeaderCell, SortTypes };

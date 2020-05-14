@@ -75,6 +75,7 @@ export function mapStateToProps(state) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
+    fetchingMetrics: state.blip.working.fetchingMetrics,
     pendingSentInvites: state.blip.pendingSentInvites,
     changingMemberPermissions: state.blip.working.settingMemberPermissions.inProgress,
     removingMember: state.blip.working.removingMemberFromTargetCareTeam.inProgress,

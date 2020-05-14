@@ -56,6 +56,8 @@ The various `working` leaves are fairly self-explanatory, but just in case (and 
 
 - `fetchingAssociatedAccounts` occurs when fetching the profiles of the PWDs whose data the logged-in user has access to, as well as their care team members and linked data donation accounts (`/patients`)
 
+- `fetchingMetrics` occurs when fetching metrics
+
 - `fetchingPendingReceivedInvites` occurs when fetching the incoming care team invitations for the logged-in user (`/patients`)
 
 - `fetchingPendingSentInvites` occurs when fetching the outgoing but still pending invitations to the target care team sent by the logged-in user (`/patients/:id/share`)

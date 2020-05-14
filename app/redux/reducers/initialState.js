@@ -64,6 +64,7 @@ const initialState = {
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
     fetchingAssociatedAccounts: Object.assign({}, working),
+    fetchingMetrics: Object.assign({}, working),
     fetchingPendingReceivedInvites: Object.assign({}, working),
     fetchingPendingSentInvites: Object.assign({}, working),
     fetchingUser: Object.assign({}, working),

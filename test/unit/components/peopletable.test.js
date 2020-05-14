@@ -38,6 +38,16 @@ describe('PeopleTable', () => {
         },
         permissions: { root: {} },
         userid: 10,
+        metric: {
+          lastCbgTime: '2020-03-06T23:50:21.000Z',
+          rate: {
+            high: 10.3,
+            low: 0,
+            target: 6.9,
+            veryHigh: 82.8,
+            veryLow: 0,
+          },
+        },
       },
       {
         profile: {
@@ -54,6 +64,16 @@ describe('PeopleTable', () => {
           link: 'http://localhost:3000/patients/0cc2ccd188/data',
         },
         userid: 30,
+        metric: {
+          lastCbgTime: '2020-03-06T23:50:21+01:00',
+          rate: {
+            high: 10.3,
+            low: 0,
+            target: 6.9,
+            veryHigh: 82.8,
+            veryLow: 0,
+          },
+        }
       },
       {
         profile: {
@@ -74,6 +94,7 @@ describe('PeopleTable', () => {
     ],
     trackMetric: sinon.stub(),
     onRemovePatient: sinon.stub(),
+    timezone: 'Europe/Paris',
   };
 
   let wrapper;
@@ -87,6 +108,8 @@ describe('PeopleTable', () => {
         {...props}
       />
     );
+    wrapper.instance().getWrappedInstance().setState({ fullDisplayMode: true });
+    wrapper.update();
   });
 
   it('should be a function', function () {
@@ -124,9 +147,9 @@ describe('PeopleTable', () => {
   });
 
   describe('sorting', function () {
-    it('should find 2 sort links', function () {
+    it('should find 7 sort link', function () {
       const links = wrapper.find('.peopletable-search-icon');
-      expect(links).to.have.length(1);
+      expect(links).to.have.length(7);
     });
 
     it('should trigger a call to trackMetric with correct parameters', function () {
@@ -134,6 +157,13 @@ describe('PeopleTable', () => {
       link.simulate('click');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Sort by Name desc')).to.be.true;
+    });
+
+    it('should find 3 sort link on small display', function () {
+      wrapper.instance().getWrappedInstance().setState({ fullDisplayMode: false });
+      wrapper.update();
+      const links = wrapper.find('.peopletable-search-icon');
+      expect(links).to.have.length(3);
     });
   });
 
@@ -165,6 +195,32 @@ describe('PeopleTable', () => {
       wrapper.find('input').simulate('change', {target: {value: 'a'}});
       expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
     });
+
+    it('should have tir displayed when available', function () {
+      const expectedCells = props.people.length * 6;
+      expect(wrapper.find('.peopletable-cell-metric')).to.have.length(expectedCells);
+    });
+
+    it('should have tir displayed when available on small display', function () {
+      wrapper.instance().getWrappedInstance().setState({ fullDisplayMode: false });
+      wrapper.update();
+      const expectedCells = props.people.length * 2;
+      expect(wrapper.find('.peopletable-cell-metric')).to.have.length(expectedCells);
+    });
+
+    it('should have message displayed for 1st patient in the list', function () {
+      expect(wrapper.find('.peopletable-cell-metric').at(0).text()).to.equal('No data in the last 24 hours');
+    });
+
+    it('should have message displayed when tir not available', function () {
+      const cells = wrapper.find('.peopletable-cell-metric');
+      let nbrOfDataNotAvailable = 0;
+      cells.forEach(cell => {
+        nbrOfDataNotAvailable = (cell.text() === 'No data in the last 24 hours') ? nbrOfDataNotAvailable + 1 : nbrOfDataNotAvailable;
+      });
+      expect(nbrOfDataNotAvailable).to.equal(3);
+    });
+
   });
 
   describe('patient removal link', function () {

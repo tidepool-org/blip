@@ -246,11 +246,16 @@ describe('Patients', () => {
         inProgress: false,
         completed: null,
       },
+      fetchingMetrics: {
+        inProgress: false,
+        completed: null,
+      },
     };
 
     const dispatchProps = {
       fetchPendingReceivedInvites: sinon.stub().returns('fetchPendingReceivedInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
+      fetchMetrics: sinon.stub().returns('fetchMetrics'),
     };
 
     const api = {};
@@ -276,6 +281,10 @@ describe('Patients', () => {
           inProgress: true,
           completed: null,
         },
+        fetchingMetrics: {
+          inProgress: false,
+          completed: null,
+        },
       }, api);
 
       expect(inProgressResult.length).to.equal(0);
@@ -290,6 +299,10 @@ describe('Patients', () => {
           inProgress: false,
           completed: true,
         },
+        fetchingMetrics: {
+          inProgress: false,
+          completed: null,
+        },  
       }, api);
       expect(completedResult.length).to.equal(0);
     });
@@ -327,7 +340,8 @@ describe('Patients', () => {
         working: {
           fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: true},
-          fetchingUser: {inProgress: false}
+          fetchingUser: {inProgress: false},
+          fetchingMetrics: {inProgress: false, completed: false}
         }
       };
 
@@ -372,7 +386,7 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
+      it('should map fetchingMetrics not completed field to loading', () => {
         expect(result.loading).to.equal(true);
       });
 
@@ -410,7 +424,8 @@ describe('Patients', () => {
         working: {
           fetchingAssociatedAccounts: {inProgress: false},
           fetchingPendingReceivedInvites: {inProgress: false},
-          fetchingUser: {inProgress: false}
+          fetchingUser: {inProgress: false},
+          fetchingMetrics: {inProgress: false, completed: true}
         }
       };
       const tracked = mutationTracker.trackObj(state);
@@ -443,7 +458,101 @@ describe('Patients', () => {
         expect(result.pendingReceivedInvites)
       });
 
-      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingAssociatedAccounts inProgress fields to loading', () => {
+      it('should map fetchingMetrics not completed field to loading', () => {
+        expect(result.loading).to.equal(false);
+      });
+
+      it('should map showingWelcomeMessage to showingWelcomeMessage', () => {
+        expect(result.showingWelcomeMessage).to.equal(state.showingWelcomeMessage);
+      });
+
+      it('should map working.fetchingPendingReceivedInvites to fetchingPendingReceivedInvites', () => {
+        expect(result.fetchingPendingReceivedInvites).to.deep.equal(state.working.fetchingPendingReceivedInvites)
+      });
+
+      it('should map working.fetchingAssociatedAccounts to fetchingAssociatedAccounts', () => {
+        expect(result.fetchingAssociatedAccounts).to.deep.equal(state.working.fetchingAssociatedAccounts)
+      });
+    });
+
+    describe('loggedInUser has DSA but Indicators are not available', () => {
+      const state = {
+        allUsersMap: {
+          a1b2c3: {
+            userid: 'a1b2c3'
+          },
+          d4e5f6: {
+            userid: 'd4e5f6'
+          },
+          x1y2z3: {
+            userid: 'x1y2z3'
+          }
+        },
+        loggedInUserId: 'a1b2c3',
+        membershipInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
+        membershipPermissionsInOtherCareTeams: {
+          'd4e5f6': { view: {}},
+          'x1y2z3': { view: {}, upload: {} }
+        },
+        pendingReceivedInvites: ['g4h5i6'],
+        permissionsOfMembersInTargetCareTeam: {
+          a1b2c3: {root: {}}
+        },
+        showingWelcomeMessage: true,
+        targetUserId: 'a1b2c3',
+        working: {
+          fetchingAssociatedAccounts: {inProgress: false},
+          fetchingPendingReceivedInvites: {inProgress: false},
+          fetchingUser: {inProgress: false},
+          fetchingMetrics: {
+            inProgress: false,
+            notification: {type: 'error',message: 'not available'}, 
+            completed: false}
+        }
+      };
+
+      const tracked = mutationTracker.trackObj(state);
+      const result = mapStateToProps({blip: state});
+
+      it('should not mutate the state', () => {
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should map loggedInUserId to loggedInUserId', () => {
+        expect(result.loggedInUserId).to.equal(state.loggedInUserId);
+      });
+
+      it('should map allUsersMap.a1b2c3 to user', () => {
+        expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+      });
+
+      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+        expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+      });
+
+      it('should extract the targetUserId and membershipInOtherCareTeams as patients', () => {
+        var u1 = Object.assign({},
+          state.allUsersMap.d4e5f6,
+          { permissions: state.membershipPermissionsInOtherCareTeams.d4e5f6 }
+        );
+
+        var u2 = Object.assign({},
+          state.allUsersMap.x1y2z3,
+          { permissions: state.membershipPermissionsInOtherCareTeams.x1y2z3 }
+        );
+
+        expect(result.patients).to.deep.equal([
+          Object.assign({}, state.allUsersMap.a1b2c3, { permissions: { root: {} } }),
+          u1,
+          u2
+        ]);
+      });
+
+      it('should map pendingReceivedInvites to invites', () => {
+        expect(result.pendingReceivedInvites)
+      });
+
+      it('should map fetchingMetrics on error field to loading done', () => {
         expect(result.loading).to.equal(false);
       });
 
