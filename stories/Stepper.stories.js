@@ -26,6 +26,8 @@ export default {
 
 window.top.onhashchange = () => forceReRender();
 
+const sleep = m => new Promise(r => setTimeout(r, m));
+
 export const StepperStory = () => {
   const orientations = {
     Horizontal: 'horizontal',
@@ -44,6 +46,7 @@ export const StepperStory = () => {
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
   const handleCheckProfile = (e) => setProfileValid(e.target.checked);
   const handleCheckReview = (e) => setPrescriptionReviewed(e.target.checked);
+  const [profileCompleteState, setProfileCompleteState] = React.useState({ pending: false, complete: false });
 
   const steps = [
     {
@@ -66,7 +69,7 @@ export const StepperStory = () => {
     },
     {
       label: 'Complete Patient Profile',
-      onComplete: action('Patient Profile Completed'),
+      onComplete: action('Patient Profile Uploaded'),
       optional: true,
       subSteps: [
         {
@@ -80,9 +83,14 @@ export const StepperStory = () => {
         },
         {
           label: 'Step Three',
-          onComplete: action('Profile Step Three Complete'),
+          onComplete: async () => {
+            setProfileCompleteState({ pending: true, complete: false });
+            await sleep(3000);
+            setProfileCompleteState({ pending: false, complete: true });
+          },
           disableComplete: !profileValid,
           completeText: profileValid ? 'Good to Go!' : 'Not yet...',
+          completeState: profileCompleteState,
           backText: 'Back to Profile Step Two',
         },
       ],

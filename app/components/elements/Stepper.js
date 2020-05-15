@@ -70,17 +70,15 @@ export const Stepper = props => {
   const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
   const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
   const [skipped, setSkipped] = React.useState(new Set());
-
-  const getStepId = stepIndex => `${id}-step-${stepIndex}`;
-
-  React.useEffect(() => {
-    const newHash = `#${getStepId(activeStep)}-${activeSubStep}`;
-    if (newHash !== location.hash) history.pushState(null, null, newHash);
-  });
+  const [processing, setProcessing] = React.useState(false);
+  const [pendingStep, setPendingStep] = React.useState([]);
 
   const isHorizontal = variant === 'horizontal';
   const isStepOptional = stepIndex => steps[stepIndex].optional;
   const isStepSkipped = stepIndex => skipped.has(stepIndex);
+
+  const getStepId = stepIndex => `${id}-step-${stepIndex}`;
+
   const stepHasSubSteps = stepIndex => get(steps[stepIndex], 'subSteps', []).length > 0;
 
   const getStepSubStepLength = stepIndex => (stepHasSubSteps(stepIndex)
@@ -88,13 +86,60 @@ export const Stepper = props => {
     : 1
   );
 
-  const advanceActiveStep = (complete = true) => {
-    if (complete && isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+  const getActiveStepCompleteState = () => {
+    const state = stepHasSubSteps(activeStep)
+      ? steps[activeStep].subSteps[activeSubStep].completeState
+      : steps[activeStep].completeState;
+
+    return state;
+  };
+
+  const advanceActiveStep = () => {
     if (activeStep < steps.length - 1) setActiveStep(activeStep + 1);
     setActiveSubStep(0);
   };
 
+  const completeActiveStep = () => {
+    if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+  };
+
+  React.useEffect(() => {
+    const { pending, complete } = getActiveStepCompleteState() || {};
+
+    if (!pending && pendingStep.length) {
+      if (complete) {
+        setActiveStep(pendingStep[0]);
+        setActiveSubStep(pendingStep[1]);
+        setPendingStep([]);
+        setProcessing(false);
+        completeActiveStep();
+      }
+    }
+  }, [steps]);
+
+  React.useEffect(() => {
+    const newHash = `#${getStepId(activeStep)}-${activeSubStep}`;
+    if (newHash !== location.hash) history.pushState(null, null, newHash);
+  }, [activeStep, activeSubStep]);
+
   const handleNext = () => {
+    const activeStepCompleteState = getActiveStepCompleteState();
+    let { pending } = activeStepCompleteState || {};
+
+    if (activeStepCompleteState) {
+      if (pending) return;
+
+      pending = true;
+      setProcessing(true);
+
+      setPendingStep([
+        (activeStep < steps.length - 1) ? activeStep + 1 : activeStep,
+        (stepHasSubSteps(activeStep) && activeSubStep < steps[activeStep].subSteps.length - 1)
+          ? activeSubStep + 1
+          : 0,
+      ]);
+    }
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
@@ -107,18 +152,24 @@ export const Stepper = props => {
         steps[activeStep].subSteps[activeSubStep].onComplete();
       }
       if (activeSubStep < steps[activeStep].subSteps.length - 1) {
-        setActiveSubStep((prevActiveSubStep) => prevActiveSubStep + 1);
+        setActiveSubStep(activeSubStep + 1);
       } else {
-        advanceActiveStep();
+        if (!pending) {
+          completeActiveStep();
+          advanceActiveStep();
+        }
       }
     } else {
-      advanceActiveStep();
+      if (!pending) {
+        completeActiveStep();
+        advanceActiveStep();
+      }
     }
   };
 
   const handleBack = () => {
     if (stepHasSubSteps(activeStep) && (activeSubStep > 0)) {
-      setActiveSubStep((prevActiveSubStep) => prevActiveSubStep - 1);
+      setActiveSubStep(activeSubStep - 1);
     } else if (activeStep > 0) {
       const newActiveStep = activeStep - 1;
       setActiveStep(newActiveStep);
@@ -129,7 +180,7 @@ export const Stepper = props => {
   };
 
   const handleSkip = () => {
-    advanceActiveStep(false);
+    advanceActiveStep();
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
@@ -185,6 +236,7 @@ export const Stepper = props => {
             className="step-next"
             disabled={step.disableComplete}
             onClick={handleNext}
+            processing={processing}
           >
             {step.completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
           </Button>
