@@ -46,7 +46,10 @@ export const StepperStory = () => {
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
   const handleCheckProfile = (e) => setProfileValid(e.target.checked);
   const handleCheckReview = (e) => setPrescriptionReviewed(e.target.checked);
-  const [profileCompleteState, setProfileCompleteState] = React.useState({ pending: false, complete: false });
+
+  const initialAsyncState = () => ({ pending: false, complete: false });
+  const [profileAsyncState, setProfileAsyncState] = React.useState(initialAsyncState());
+  const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
 
   const steps = [
     {
@@ -84,13 +87,13 @@ export const StepperStory = () => {
         {
           label: 'Step Three',
           onComplete: async () => {
-            setProfileCompleteState({ pending: true, complete: false });
-            await sleep(3000);
-            setProfileCompleteState({ pending: false, complete: true });
+            setProfileAsyncState({ pending: true, complete: false });
+            await sleep(2000);
+            setProfileAsyncState({ pending: false, complete: true });
           },
           disableComplete: !profileValid,
           completeText: profileValid ? 'Good to Go!' : 'Not yet...',
-          completeState: profileCompleteState,
+          asyncState: profileAsyncState,
           backText: 'Back to Profile Step Two',
         },
       ],
@@ -102,8 +105,14 @@ export const StepperStory = () => {
     },
     {
       label: 'Review and Send Prescription',
-      onComplete: action('Prescription Sent'),
+      onComplete: async () => {
+        setFinalAsyncState({ pending: true, complete: false });
+        await sleep(2000);
+        setFinalAsyncState({ pending: false, complete: true });
+      },
       disableComplete: !prescriptionReviewed,
+      asyncState: finalAsyncState,
+      completed: finalAsyncState.complete,
       completeText: 'Send Prescription',
     },
   ];

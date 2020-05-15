@@ -8,6 +8,7 @@ import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import get from 'lodash/get';
 import map from 'lodash/map';
+import omit from 'lodash/omit';
 import isFunction from 'lodash/isFunction';
 import cx from 'classnames';
 
@@ -38,10 +39,15 @@ const StyledStepper = styled(Base)`
       width: 0;
     }
     + .MuiStep-horizontal .MuiStepConnector-lineHorizontal::after {
-      width: ${props => props.connectorWidth};
+      width: ${props => props.connectorwidth};
     }
   }
 `;
+
+StyledStepper.propTypes = {
+  ...StepperProps,
+  connectorwidth: PropTypes.string,
+};
 
 export const Stepper = props => {
   const {
@@ -86,10 +92,10 @@ export const Stepper = props => {
     : 1
   );
 
-  const getActiveStepCompleteState = () => {
+  const getActiveStepAsyncState = () => {
     const state = stepHasSubSteps(activeStep)
-      ? steps[activeStep].subSteps[activeSubStep].completeState
-      : steps[activeStep].completeState;
+      ? steps[activeStep].subSteps[activeSubStep].asyncState
+      : steps[activeStep].asyncState;
 
     return state;
   };
@@ -99,20 +105,22 @@ export const Stepper = props => {
     setActiveSubStep(0);
   };
 
-  const completeActiveStep = () => {
+  const handleActiveStepOnComplete = () => {
     if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
   };
 
   React.useEffect(() => {
-    const { pending, complete } = getActiveStepCompleteState() || {};
+    const { pending, complete } = getActiveStepAsyncState() || {};
 
-    if (!pending && pendingStep.length) {
+    if (!pending) {
       if (complete) {
-        setActiveStep(pendingStep[0]);
-        setActiveSubStep(pendingStep[1]);
-        setPendingStep([]);
+        if (pendingStep.length) {
+          setActiveStep(pendingStep[0]);
+          setActiveSubStep(pendingStep[1]);
+          if (stepHasSubSteps(activeStep) && pendingStep[1] === 0) handleActiveStepOnComplete();
+          setPendingStep([]);
+        }
         setProcessing(false);
-        completeActiveStep();
       }
     }
   }, [steps]);
@@ -123,10 +131,12 @@ export const Stepper = props => {
   }, [activeStep, activeSubStep]);
 
   const handleNext = () => {
-    const activeStepCompleteState = getActiveStepCompleteState();
-    let { pending } = activeStepCompleteState || {};
+    const activeStepAsyncState = getActiveStepAsyncState();
+    let { pending } = activeStepAsyncState || {};
 
-    if (activeStepCompleteState) {
+    setProcessing(pending);
+
+    if (activeStepAsyncState) {
       if (pending) return;
 
       pending = true;
@@ -155,13 +165,13 @@ export const Stepper = props => {
         setActiveSubStep(activeSubStep + 1);
       } else {
         if (!pending) {
-          completeActiveStep();
+          handleActiveStepOnComplete();
           advanceActiveStep();
         }
       }
     } else {
+      handleActiveStepOnComplete();
       if (!pending) {
-        completeActiveStep();
         advanceActiveStep();
       }
     }
@@ -256,7 +266,7 @@ export const Stepper = props => {
     <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
-          connectorWidth={`${(activeSubStep / getStepSubStepLength(activeStep)) * 100}%`}
+          connectorwidth={`${(activeSubStep / getStepSubStepLength(activeStep)) * 100}%`}
           orientation={variant}
           activeStep={activeStep}
           alternativeLabel={isHorizontal}
@@ -264,9 +274,10 @@ export const Stepper = props => {
         >
           {map(steps, ({ label, disabled }, index) => {
             const stepProps = {};
-            if (isStepSkipped(index)) {
-              stepProps.completed = false;
-            }
+
+            if (activeStep >= index && steps[index].completed) stepProps.completed = true;
+            if (isStepSkipped(index)) stepProps.completed = false;
+
             return (
               <Step
                 key={index}
@@ -308,16 +319,21 @@ export const Stepper = props => {
   );
 };
 
-const StepPropTypes = PropTypes.shape({
+const StepPropTypes = {
+  asyncState: PropTypes.shape({
+    complete: PropTypes.bool,
+    pending: PropTypes.bool,
+  }),
   backText: PropTypes.string,
   completed: PropTypes.bool,
   completeText: PropTypes.string,
+  disableComplete: PropTypes.bool,
   hideBack: PropTypes.bool,
   hideComplete: PropTypes.bool,
   label: PropTypes.string,
   onComplete: PropTypes.func,
   optional: PropTypes.bool,
-});
+};
 
 Stepper.propTypes = {
   ...StepperProps,
@@ -325,11 +341,13 @@ Stepper.propTypes = {
   activeStep: PropTypes.number,
   activeSubStep: PropTypes.number,
   id: PropTypes.string.isRequired,
-  onStepChange: PropTypes.func.isRequired,
-  steps: PropTypes.arrayOf({
+  onStepChange: PropTypes.func,
+  steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
-    subSteps: PropTypes.arrayOf(StepPropTypes),
-  }),
+    subSteps: PropTypes.arrayOf(
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed'])),
+    ),
+  })),
   themeProps: PropTypes.shape({
     wrapper: PropTypes.shape(FlexProps),
     panel: PropTypes.shape(BoxProps),
