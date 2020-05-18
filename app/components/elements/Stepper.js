@@ -57,6 +57,7 @@ export const Stepper = props => {
     id,
     history,
     location,
+    onStepChange,
     steps,
     themeProps,
     variant,
@@ -126,8 +127,10 @@ export const Stepper = props => {
   }, [steps]);
 
   React.useEffect(() => {
-    const newHash = `#${getStepId(activeStep)}-${activeSubStep}`;
+    const newStep = [activeStep, activeSubStep];
+    const newHash = `#${getStepId(newStep[0])}-${newStep[1]}`;
     if (newHash !== location.hash) history.pushState(null, null, newHash);
+    if (isFunction(onStepChange)) onStepChange(newStep);
   }, [activeStep, activeSubStep]);
 
   const handleNext = () => {

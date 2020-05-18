@@ -1,6 +1,6 @@
 import React from 'react';
 import { withDesign } from 'storybook-addon-designs';
-import { action } from '@storybook/addon-actions';
+import { action, decorate } from '@storybook/addon-actions';
 import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
@@ -110,7 +110,7 @@ export const StepperStory = () => {
         await sleep(2000);
         setFinalAsyncState({ pending: false, complete: true });
       },
-      disableComplete: !prescriptionReviewed,
+      disableComplete: !prescriptionReviewed || finalAsyncState.complete,
       asyncState: finalAsyncState,
       completed: finalAsyncState.complete,
       completeText: 'Send Prescription',
@@ -124,6 +124,11 @@ export const StepperStory = () => {
     id: 'my-stepper',
     history: window.top.history,
     location: window.top.location,
+    onStepChange: decorate([args => {
+      setPrescriptionReviewed(false);
+      setFinalAsyncState(initialAsyncState());
+      return args.slice(0, 1)[0];
+    }]).action('On Step'),
     themeProps: {
       wrapper: {
         margin: 2,
