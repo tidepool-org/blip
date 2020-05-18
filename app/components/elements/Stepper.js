@@ -343,7 +343,13 @@ Stepper.propTypes = {
   'aria-label': PropTypes.string.isRequired,
   activeStep: PropTypes.number,
   activeSubStep: PropTypes.number,
+  history: PropTypes.shape({
+    pushState: PropTypes.func.isRequired,
+  }),
   id: PropTypes.string.isRequired,
+  location: PropTypes.shape({
+    hash: PropTypes.string,
+  }),
   onStepChange: PropTypes.func,
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
@@ -357,13 +363,11 @@ Stepper.propTypes = {
     steps: PropTypes.shape(BoxProps),
     actions: PropTypes.shape(FlexProps),
   }),
-  value: PropTypes.number.isRequired,
   variant: PropTypes.oneOf(['horizontal', 'vertical']),
 };
 
 Stepper.defaultProps = {
   themeProps: {},
-  value: 0,
   variant: 'horizontal',
   history: window.history,
   location: window.location,
