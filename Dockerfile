@@ -29,8 +29,12 @@ ENV \
 ### Stage 2 - Create cached `node_modules`
 # Only rebuild layer if `package.json` has changed
 FROM base as dependencies
-COPY package.json .
-ENV nexus_token=''
+
+ARG npm_token
+ENV nexus_token=$npm_token
+
+COPY package.json .npmrc ./
+
 # Run as node user, so that npm run the prepare scripts in dependencies
 USER node
 RUN \

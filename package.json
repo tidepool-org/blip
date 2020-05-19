@@ -26,7 +26,8 @@
     "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0",
     "build-docs": "./update-gh-pages.sh",
     "serve-docs": "./node_modules/.bin/gitbook serve",
-    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/src/**/*.js' -c i18next-parser.config.json -o ."
+    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/src/**/*.js' -c i18next-parser.config.json -o .",
+    "build-soup": "release-helper gen-dep-report --deep-dep @tidepool/viz,tideline doc/${npm_package_name}-${npm_package_version}-soup.md"
   },
   "engines": {
     "node": ">=10.x",
@@ -38,7 +39,9 @@
     "express": "4.17.1",
     "hakken": "mdblp/hakken#dblp.0.2.0",
     "helmet": "3.22.0",
-    "morgan": "1.10.0"
+    "morgan": "1.10.0",
+    "@tidepool/viz": "mdblp/viz#dblp.0.12.1",
+    "tideline": "mdblp/tideline#dblp.1.10.0"
   },
   "devDependencies": {
     "@babel/cli": "7.1.0",
@@ -46,7 +49,6 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
-    "@tidepool/viz": "mdblp/viz#dblp.0.12.1",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
     "babel-core": "7.0.0-bridge.0",
@@ -138,7 +140,6 @@
     "source-map-loader": "0.2.4",
     "style-loader": "0.23.0",
     "sundial": "mdblp/sundial#dblp.0.1.0",
-    "tideline": "mdblp/tideline#dblp.1.10.2",
     "tidepool-platform-client": "mdblp/platform-client#dblp.0.2.0",
     "tidepool-standard-action": "0.1.1",
     "terser-webpack-plugin": "3.0.1",
