@@ -222,7 +222,7 @@ export const Stepper = props => {
             className="step-back"
             onClick={handleBack}
           >
-            {step.backText || 'Back'}
+            {step.backText || props.backText}
           </Button>
         )}
         {isStepOptional(activeStep) && (
@@ -232,7 +232,7 @@ export const Stepper = props => {
             className="step-skip"
             onClick={handleSkip}
           >
-            Skip
+            {step.skipText || props.skipText}
           </Button>
         )}
         {!step.hideComplete && (
@@ -244,7 +244,7 @@ export const Stepper = props => {
             onClick={handleNext}
             processing={processing}
           >
-            {step.completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
+            {step.completeText || props.completeText}
           </Button>
         )}
       </Flex>
@@ -343,6 +343,8 @@ Stepper.propTypes = {
   'aria-label': PropTypes.string.isRequired,
   activeStep: PropTypes.number,
   activeSubStep: PropTypes.number,
+  backText: PropTypes.string,
+  completeText: PropTypes.string,
   history: PropTypes.shape({
     pushState: PropTypes.func.isRequired,
   }),
@@ -352,6 +354,7 @@ Stepper.propTypes = {
     search: PropTypes.string,
   }),
   onStepChange: PropTypes.func,
+  skipText: PropTypes.string,
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
@@ -368,10 +371,13 @@ Stepper.propTypes = {
 };
 
 Stepper.defaultProps = {
-  themeProps: {},
-  variant: 'horizontal',
+  backText: 'Back',
+  completeText: 'Continue',
   history: window.history,
   location: window.location,
+  skipText: 'Skip',
+  themeProps: {},
+  variant: 'horizontal',
 };
 
 export default Stepper;
