@@ -24,7 +24,7 @@ export default {
   decorators: [withDesign, withKnobs, withTheme],
 };
 
-window.top.onhashchange = () => forceReRender();
+window.top.onpopstate = () => forceReRender();
 
 const sleep = m => new Promise(r => setTimeout(r, m));
 

@@ -67,9 +67,12 @@ export const Stepper = props => {
   let initialActiveStepState = initialActiveStep;
   let initialActiveSubStepState = initialActiveSubStep;
 
-  const activeStepsHash = location.hash.split('-step-')[1];
-  if (activeStepsHash) {
-    const activeStepParts = activeStepsHash.split('-');
+  const params = new URLSearchParams(location.search);
+  const activeStepParamKey = `${id}-step`;
+  const activeStepsParam = params.get(activeStepParamKey);
+
+  if (activeStepsParam) {
+    const activeStepParts = activeStepsParam.split(',');
     initialActiveStepState = parseInt(activeStepParts[0], 10);
     initialActiveSubStepState = parseInt(activeStepParts[1], 10);
   }
@@ -128,8 +131,12 @@ export const Stepper = props => {
 
   React.useEffect(() => {
     const newStep = [activeStep, activeSubStep];
-    const newHash = `#${getStepId(newStep[0])}-${newStep[1]}`;
-    if (newHash !== location.hash) history.pushState(null, null, newHash);
+
+    if (params.get(activeStepParamKey) !== newStep.join(',')) {
+      params.set(activeStepParamKey, newStep);
+      history.pushState({}, '', decodeURIComponent(`${location.pathname}?${params}`));
+    }
+
     if (isFunction(onStepChange)) onStepChange(newStep);
   }, [activeStep, activeSubStep]);
 
@@ -341,7 +348,8 @@ Stepper.propTypes = {
   }),
   id: PropTypes.string.isRequired,
   location: PropTypes.shape({
-    hash: PropTypes.string,
+    pathname: PropTypes.string,
+    search: PropTypes.string,
   }),
   onStepChange: PropTypes.func,
   steps: PropTypes.arrayOf(PropTypes.shape({
