@@ -51,6 +51,18 @@ export const StepperStory = () => {
   const [profileAsyncState, setProfileAsyncState] = React.useState(initialAsyncState());
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
 
+  const renderStepContent = text => <Box>{text}</Box>;
+
+  const renderStepConfirmation = (name, label, checked, onChange) => (
+    <Checkbox
+      checked={checked}
+      name={name}
+      label={label}
+      onChange={onChange}
+      required
+    />
+  );
+
   const steps = [
     {
       label: 'Create Patient Account',
@@ -59,14 +71,17 @@ export const StepperStory = () => {
         {
           label: 'Step One',
           onComplete: action('Account Step One Complete'),
+          panelContent: renderStepContent('Patient Account Step One'),
         },
         {
           label: 'Step Two',
           onComplete: action('Account Step Two Complete'),
+          panelContent: renderStepContent('Patient Account Step Two'),
         },
         {
           label: 'Step Three',
           onComplete: action('Account Step Three Complete'),
+          panelContent: renderStepContent('Patient Account Step Three'),
         },
       ],
     },
@@ -78,11 +93,13 @@ export const StepperStory = () => {
         {
           label: 'Step One',
           onComplete: action('Profile Step One Complete'),
+          panelContent: renderStepContent('Patient Profile Step One'),
         },
         {
           label: 'Step Two',
           onComplete: action('Profile Step Two Complete'),
           backText: 'Back to Profile Step One',
+          panelContent: renderStepContent('Patient Profile Step Two'),
         },
         {
           label: 'Step Three',
@@ -95,6 +112,12 @@ export const StepperStory = () => {
           completeText: profileValid ? 'Good to Go!' : 'Not yet...',
           asyncState: profileAsyncState,
           backText: 'Back to Profile Step Two',
+          panelContent: renderStepConfirmation(
+            'profile-checkbox',
+            'The profile details are correct',
+            profileValid,
+            handleCheckProfile,
+          ),
         },
       ],
     },
@@ -102,6 +125,7 @@ export const StepperStory = () => {
       label: 'Enter Therapy Settings',
       onComplete: action('Therapy Settings Completed'),
       completeText: 'Review Prescription',
+      panelContent: renderStepContent('Therapy Settings Form'),
     },
     {
       label: 'Review and Send Prescription',
@@ -114,6 +138,12 @@ export const StepperStory = () => {
       asyncState: finalAsyncState,
       completed: finalAsyncState.complete,
       completeText: 'Send Prescription',
+      panelContent: renderStepConfirmation(
+        'review-checkbox',
+        'The prescription details are correct',
+        prescriptionReviewed,
+        handleCheckReview,
+      ),
     },
   ];
 
@@ -147,50 +177,7 @@ export const StepperStory = () => {
     },
   };
 
-  return (
-    <Stepper {...props}>
-      <Box>
-        <Box>
-          Patient Account Step One
-        </Box>
-        <Box>
-          Patient Account Step Two
-        </Box>
-        <Box>
-          Patient Account Step Three
-        </Box>
-      </Box>
-      <Box>
-        <Box>
-          Patient Profile Step One
-        </Box>
-        <Box>
-          Patient Profile Step Two
-        </Box>
-        <Box>
-          <Checkbox
-            checked={profileValid}
-            name="my-checkbox"
-            label={'The profile details are correct'}
-            onChange={handleCheckProfile}
-            required
-          />
-        </Box>
-      </Box>
-      <Box>
-        <Box>Therapy Settings Form</Box>
-      </Box>
-      <Box>
-        <Checkbox
-          checked={prescriptionReviewed}
-          name="my-checkbox"
-          label={'The prescription details are correct'}
-          onChange={handleCheckReview}
-          required
-        />
-      </Box>
-    </Stepper>
-  );
+  return <Stepper {...props} />;
 };
 
 StepperStory.story = {

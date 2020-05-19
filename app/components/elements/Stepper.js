@@ -201,20 +201,6 @@ export const Stepper = props => {
     });
   };
 
-  const renderStepPanel = (Panel, index) => React.cloneElement(Panel, {
-    key: index,
-    hidden: activeStep !== index,
-    id: `${id}-step-panel-${index}`,
-    'aria-labelledby': getStepId(index),
-    children: stepHasSubSteps(index)
-      ? map(Panel.props.children, (Child, childIndex) => React.cloneElement(Child, {
-        key: childIndex,
-        hidden: stepHasSubSteps(index) ? activeSubStep !== childIndex : false,
-        id: `${id}-step-panel-${index}-subpanel-${childIndex}`,
-      }))
-      : Panel.props.children,
-  });
-
   const renderStepActions = () => {
     const step = stepHasSubSteps(activeStep)
       ? steps[activeStep].subSteps[activeSubStep]
@@ -258,12 +244,17 @@ export const Stepper = props => {
     );
   };
 
-  const renderStepPanels = () => (
-    <React.Fragment>
-      {map(children, renderStepPanel)}
-      {renderStepActions()}
-    </React.Fragment>
-  );
+  const renderActiveStepPanel = () => {
+    const Panel = stepHasSubSteps(activeStep)
+      ? steps[activeStep].subSteps[activeSubStep].panelContent
+      : steps[activeStep].panelContent;
+
+    return React.cloneElement(Panel, {
+      key: activeStep,
+      id: `${id}-step-panel-${activeStep}`,
+      'aria-labelledby': getStepId(activeStep),
+    });
+  };
 
   return (
     <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
@@ -304,7 +295,7 @@ export const Stepper = props => {
                 </StepLabel>
                 {!isHorizontal && (
                   <StepContent>
-                    {renderStepPanel(children[index], index)}
+                    {renderActiveStepPanel()}
                     {renderStepActions()}
                   </StepContent>
                 )}
@@ -314,8 +305,9 @@ export const Stepper = props => {
         </StyledStepper>
       </Box>
       {isHorizontal && (
-        <Box className="step-panels" {...themeProps.panel}>
-          {renderStepPanels()}
+        <Box {...themeProps.panel}>
+          {renderActiveStepPanel()}
+          {renderStepActions()}
         </Box>
       )}
     </Flex>
@@ -336,6 +328,7 @@ const StepPropTypes = {
   label: PropTypes.string,
   onComplete: PropTypes.func,
   optional: PropTypes.bool,
+  panelContent: PropTypes.node,
 };
 
 Stepper.propTypes = {
