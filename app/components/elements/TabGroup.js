@@ -124,7 +124,6 @@ export const TabGroup = props => {
 };
 
 TabGroup.propTypes = {
-  ...BoxProps,
   ...TabsProps,
   'aria-label': PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'rebass/styled-components';
-import { Checkbox as Base, Label, CheckboxProps } from '@rebass/forms';
+import { Checkbox as Base, Label, LabelProps, CheckboxProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Caption } from './FontStyles';
@@ -10,8 +10,8 @@ import { colors, fonts, fontSizes, fontWeights } from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.border.default};
-  height: 1em;
-  width: 1em;
+  height: 1.25em;
+  width: 1.25em;
   padding: 0;
   margin-right: 0.5em;
   cursor: pointer;
@@ -19,8 +19,6 @@ const StyledCheckbox = styled(Base)`
   &.checked {
     color: ${colors.purpleMedium};
     background-color: ${colors.white};
-    height: 1em;
-    width: 1em;
   }
 
   &.disabled {
@@ -34,7 +32,7 @@ const StyledCheckbox = styled(Base)`
 `;
 
 const StyledCheckboxLabel = styled(Text)`
-  font-size: ${fontSizes[1]}px;
+  font-size: inherit;
   font-weight: ${fontWeights.medium};
   font-family: ${fonts.default};
 
@@ -55,7 +53,7 @@ const StyledCheckboxLabel = styled(Text)`
 `;
 
 export const Checkbox = (props) => {
-  const { error, required, label, ...checkboxProps } = props;
+  const { error, required, label, themeProps, ...checkboxProps } = props;
 
   const classNames = cx({
     checked: props.checked,
@@ -66,7 +64,7 @@ export const Checkbox = (props) => {
 
   return (
     <>
-      <Label width="auto" mb={2} alignItems="center">
+      <Label width="auto" mb={2} alignItems="center" fontSize={fontSizes[1]} {...themeProps}>
         <StyledCheckbox className={classNames} {...checkboxProps} />
         <StyledCheckboxLabel className={classNames} as="span">
           {label}
@@ -83,10 +81,12 @@ export const Checkbox = (props) => {
 
 Checkbox.propTypes = {
   ...CheckboxProps,
+  themeProps: PropTypes.shape(LabelProps),
   label: PropTypes.string,
 };
 
 Checkbox.defaultProps = {
+  themeProps: {},
   width: ['50%', '25%'], // eslint-disable-line space-infix-ops
   p: 1,
 };

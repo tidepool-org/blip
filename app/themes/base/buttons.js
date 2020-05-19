@@ -4,7 +4,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
     fontWeight: fontWeights.regular,
     lineHeight: lineHeights[0],
     fontFamily: fonts.default,
-    padding: `${space[2]}px ${space[3]}px`,
+    padding: `${space[1]}px ${space[3]}px`,
     height: 'auto',
 
     '.icon': {
@@ -117,7 +117,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       borderColor: colors.grays[1],
       borderRadius: radii.default,
       fontSize: `${fontSizes[0]}px`,
-      padding: `${space[2]}px`,
+      padding: `${space[1]}px ${space[2]}px`,
 
       '.icon': {
         fontSize: `${fontSizes[2]}px`,
