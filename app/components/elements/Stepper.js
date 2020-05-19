@@ -11,9 +11,12 @@ import map from 'lodash/map';
 import omit from 'lodash/omit';
 import isFunction from 'lodash/isFunction';
 import cx from 'classnames';
+import i18next from '../../core/language';
 
 import Button from './Button';
 import { colors, transitions } from '../../themes/baseTheme';
+
+const t = i18next.t.bind(i18next);
 
 const StyledStepper = styled(Base)`
   font-size: inherit;
@@ -53,11 +56,14 @@ export const Stepper = props => {
   const {
     activeStep: initialActiveStep = 0,
     activeSubStep: initialActiveSubStep = 0,
+    backText,
     children,
+    completeText,
     id,
     history,
     location,
     onStepChange,
+    skipText,
     steps,
     themeProps,
     variant,
@@ -222,7 +228,7 @@ export const Stepper = props => {
             className="step-back"
             onClick={handleBack}
           >
-            {step.backText || props.backText}
+            {step.backText || backText}
           </Button>
         )}
         {isStepOptional(activeStep) && (
@@ -232,7 +238,7 @@ export const Stepper = props => {
             className="step-skip"
             onClick={handleSkip}
           >
-            {step.skipText || props.skipText}
+            {step.skipText || skipText}
           </Button>
         )}
         {!step.hideComplete && (
@@ -244,7 +250,7 @@ export const Stepper = props => {
             onClick={handleNext}
             processing={processing}
           >
-            {step.completeText || props.completeText}
+            {step.completeText || completeText}
           </Button>
         )}
       </Flex>
@@ -371,11 +377,11 @@ Stepper.propTypes = {
 };
 
 Stepper.defaultProps = {
-  backText: 'Back',
-  completeText: 'Continue',
+  backText: t('Back'),
+  completeText: t('Continue'),
   history: window.history,
   location: window.location,
-  skipText: 'Skip',
+  skipText: t('Skip'),
   themeProps: {},
   variant: 'horizontal',
 };
