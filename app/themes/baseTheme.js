@@ -9,6 +9,7 @@ import steppers from './base/steppers';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
 import tables from './base/tables';
+import forms from './base/forms';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
@@ -109,6 +110,7 @@ export default {
   fonts,
   fontSizes,
   fontWeights,
+  forms: forms({ colors }),
   lineHeights,
   mediaQueries,
   radii,

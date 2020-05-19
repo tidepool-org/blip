@@ -1,0 +1,46 @@
+.sendVerificationBanner {
+  font-size: @font-size-tiny;
+  color: @white-color;
+
+  .container-box-inner {
+    background-color: @purple-dark;
+    display: flex;
+    justify-content: center;
+    padding: 4px 10px;
+    flex-direction: row;
+    align-items: center;
+    min-height: 50px;
+  }
+}
+
+.sendVerificationBanner-message {
+  .message-text {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+.sendVerificationBanner-action {
+  text-align: right;
+  margin-right: 16px;
+
+  button {
+    background-color: #8095f8;
+    color: @purple-dark;
+    border: 0;
+    border-radius: 4px;
+    padding: 4px 15px;
+    font-weight: 600;
+
+    &:hover {
+      background-color: @white-color;
+      color: @purple-dark;
+    }
+
+    &:disabled {
+      background-color: @white-color;
+      color: @gray-dark;
+      cursor: not-allowed;
+    }
+  }
+}
