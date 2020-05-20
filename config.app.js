@@ -30,6 +30,7 @@
 /* global __SUPPORT_WEB_ADDRESS__ */
 /* global __HELP_LINK__ */
 /* global __ASSETS_URL__ */
+/* global __REGULATORY_WEB_ADDRESS__ */
 /* global __HIDE_UPLOAD_LINK__ */
 /* global __BRANDING__ */
 /* global __METRICS_SERVICE__ */
@@ -91,6 +92,7 @@ const config = {
   CAN_SEE_PWD_LOGIN: booleanFromText(__CAN_SEE_PWD_LOGIN__, true),
   SUPPORT_EMAIL_ADDRESS: __SUPPORT_EMAIL_ADDRESS__,
   SUPPORT_WEB_ADDRESS: __SUPPORT_WEB_ADDRESS__,
+  REGULATORY_WEB_ADDRESS: stringOption(__REGULATORY_WEB_ADDRESS__, ''),
   HELP_LINK: stringOption(__HELP_LINK__, null),
   ASSETS_URL: stringOption(__ASSETS_URL__, 'https://url.com/'),
   HIDE_DONATE: booleanFromText(__HIDE_DONATE__ , false),

@@ -21,6 +21,7 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __CAN_SEE_PWD_LOGIN__: JSON.stringify(process.env.CAN_SEE_PWD_LOGIN || true),
   __SUPPORT_EMAIL_ADDRESS__: JSON.stringify(process.env.SUPPORT_EMAIL_ADDRESS || 'support@tidepool.org'),
   __SUPPORT_WEB_ADDRESS__: JSON.stringify(process.env.SUPPORT_WEB_ADDRESS || 'http://support.tidepool.org'),
+  __REGULATORY_WEB_ADDRESS__: JSON.stringify(process.env.REGULATORY_WEB_ADDRESS || ''),
   __HELP_LINK__: JSON.stringify(process.env.HELP_LINK || null),
   __ASSETS_URL__: JSON.stringify(process.env.ASSETS_URL || null),
   __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || null),

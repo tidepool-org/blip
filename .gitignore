@@ -27,6 +27,7 @@ config/*
 test/bin
 web/
 artifact_node.sh
+artifact_images.sh
 coverage/
 packageMounts/*
 !packageMounts/stub
@@ -35,8 +36,11 @@ packageMounts/*
 _book/
 
 yarn.lock
-package-lock.json
 
 # Ignore old translation files
 locales/*/*_old.json
 locales/*/parameter.*.json*
+
+# Aqua microscanner
+scanDockerImage.sh
+microscanner

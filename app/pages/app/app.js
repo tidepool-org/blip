@@ -34,7 +34,6 @@ import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
 
 import FooterLinks from '../../components/footerlinks';
-import Version from '../../components/version';
 
 import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
 
@@ -355,7 +354,7 @@ export class AppComponent extends React.Component {
   }
 
   renderFooter() {
-    var shouldDisplayFooterLinks = !_.includes(
+    const shouldDisplayFooterLinks = !_.includes(
       [
         '/signup',
         '/signup/personal',
@@ -369,26 +368,10 @@ export class AppComponent extends React.Component {
     );
 
     return (
-      <div className='container-nav-outer footer'>
-        <div className='container-nav-inner'>
-          {shouldDisplayFooterLinks ?
-              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
-          <div className='footer-section'>
-            {this.renderVersion()}
-          </div>
-        </div>
+      <div className='container-nav-outer'>
+        <FooterLinks shouldDisplayFooterLinks={shouldDisplayFooterLinks} trackMetric={this.props.context.trackMetric} />
       </div>
     );
-  }
-
-  renderVersion() {
-    var version = this.props.context.config.VERSION;
-    if (version) {
-      return (
-        <Version version={version} />
-      );
-    }
-    return null;
   }
 
   render() {

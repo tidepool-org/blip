@@ -1,6 +1,7 @@
 /* global afterEach, before, chai, describe, it, sinon */
 
 import React from 'react';
+import sinon from 'sinon';
 import { shallow } from 'enzyme';
 
 import FooterLinks from '../../../app/components/footerlinks/';
@@ -11,6 +12,7 @@ describe('FooterLinks', () => {
   let wrapper;
   const props = {
     trackMetric: sinon.spy(),
+    shouldDisplayFooterLinks: true,
   };
 
   before(() => {
@@ -25,6 +27,12 @@ describe('FooterLinks', () => {
     it('should render six links', () => {
       expect(wrapper.find('a').length).to.equal(6);
     });
+
+    it('should only render the version when requested', () => {
+      let fLinks = shallow(<FooterLinks trackMetric={() => {}} shouldDisplayFooterLinks={false} />);
+      expect(fLinks.find('a').length).to.equal(0);
+      expect(fLinks.find('.footer-version').length).to.equal(1);
+    })
   });
 
   describe('interactions', () => {

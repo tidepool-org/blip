@@ -477,6 +477,7 @@
   "Readings In Range": "Readings In Range",
   "Ready!": "Ready!",
   "Refresh": "Refresh",
+  "Regulatory Information": "Intended Use",
   "Remember me": "Remember me",
   "Remove": "Remove",
   "Remove People": "Remove People",
@@ -704,5 +705,6 @@
   "You want to manage your diabetes data. You are caring for or supporting someone with diabetes.": "You want to manage your diabetes data. You are caring for or supporting someone with diabetes.",
   "You've been invited to Tidepool.": "You've been invited to YourLoops.",
   "Your password was changed successfully. You can now log in with your new password.": "Your password was changed successfully. You can now log in with your new password.",
+  "Yourloops": "Yourloops",
   "YYYY-MM-DD": "YYYY-MM-DD"
 }
