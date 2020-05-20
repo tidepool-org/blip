@@ -6,6 +6,8 @@ import { Box } from 'rebass/styled-components';
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
+import { accountSteps, AccountType } from './NewPrescriptionAccount';
+
 /* global Promise */
 const log = bows('NewPrescription');
 const sleep = m => new Promise(r => setTimeout(r, m));
@@ -40,38 +42,40 @@ const NewPrescription = () => {
       setFinalAsyncState(initialAsyncState());
     },
     steps: [
-      {
-        label: 'Create Patient Account',
-        onComplete: log('Patient Account Created'),
-        subSteps: [
-          {
-            label: 'Step One',
-            onComplete: log('Account Step One Complete'),
-            panelContent: renderStepContent('Patient Account Step One'),
-          },
-          {
-            label: 'Step Two',
-            onComplete: log('Account Step Two Complete'),
-            panelContent: renderStepContent('Patient Account Step Two'),
-          },
-          {
-            label: 'Step Three',
-            onComplete: async () => {
-              setAccountAsyncState({ pending: true, complete: false });
-              await sleep(2000);
-              setAccountAsyncState({ pending: false, complete: true });
-            },
-            disableComplete: !accountValid,
-            asyncState: accountAsyncState,
-            panelContent: renderStepConfirmation(
-              'account-checkbox',
-              'The account details are correct',
-              accountValid,
-              (e) => setAccountValid(e.target.checked),
-            ),
-          },
-        ],
-      },
+      // {
+      //   label: 'Create Patient Account',
+      //   onComplete: log('Patient Account Created'),
+      //   subSteps: [
+      //     {
+      //       label: 'Step One',
+      //       onComplete: log('Account Step One Complete'),
+      //       panelContent: <AccountType />,
+      //       disableComplete: !accountValid,
+      //     },
+      //     {
+      //       label: 'Step Two',
+      //       onComplete: log('Account Step Two Complete'),
+      //       panelContent: renderStepContent('Patient Account Step Two'),
+      //     },
+      //     {
+      //       label: 'Step Three',
+      //       onComplete: async () => {
+      //         setAccountAsyncState({ pending: true, complete: false });
+      //         await sleep(2000);
+      //         setAccountAsyncState({ pending: false, complete: true });
+      //       },
+      //       disableComplete: !accountValid,
+      //       asyncState: accountAsyncState,
+      //       panelContent: renderStepConfirmation(
+      //         'account-checkbox',
+      //         'The account details are correct',
+      //         accountValid,
+      //         (e) => setAccountValid(e.target.checked),
+      //       ),
+      //     },
+      //   ],
+      // },
+      accountSteps(),
       {
         label: 'Complete Patient Profile',
         panelContent: renderStepContent('Patient Profile Form'),
