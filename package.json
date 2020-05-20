@@ -165,7 +165,8 @@
     "webpack": "4.39.1",
     "webpack-cli": "3.3.6",
     "webpack-dev-server": "3.8.0",
-    "worker-loader": "2.0.0"
+    "worker-loader": "2.0.0",
+    "yup": "0.29.0"
   },
   "peerDependencies": {
     "babel-core": "6.x || 7.0.0-bridge.0"
