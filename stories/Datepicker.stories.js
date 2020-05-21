@@ -5,9 +5,6 @@ import WindowSizeListener from 'react-window-size-listener';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean, date, optionsKnob as options } from '@storybook/addon-knobs';
 
-import 'react-dates/lib/css/_datepicker.css';
-import 'react-dates/initialize';
-
 import DatePicker from '../app/components/elements/DatePicker';
 import DateRangePicker from '../app/components/elements/DateRangePicker';
 
@@ -30,6 +27,7 @@ export const DatePickerStory = () => {
   const getFocused = () => boolean('Initially Focused', true);
 
   return <DatePicker
+    label="Pick a date"
     id="singleDatePicker"
     focused={getFocused()}
     date={dateKnob('Initial Date', initialDate)}
@@ -81,6 +79,7 @@ export const DateRangePickerStory = () => {
   return (
     <React.Fragment>
       <DateRangePicker
+        label="Pick a date range"
         startDateId="dateRangeStart"
         endDateId="dateRangeEnd"
         orientation={orientation}

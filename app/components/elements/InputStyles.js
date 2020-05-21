@@ -1,6 +1,9 @@
 import { Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import 'react-dates/lib/css/_datepicker.css';
+import 'react-dates/initialize';
+
 import {
   borders,
   colors,

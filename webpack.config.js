@@ -31,7 +31,7 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.less$/,
+  test: /\.(less|css)$/,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
