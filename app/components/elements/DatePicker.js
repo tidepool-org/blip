@@ -5,7 +5,10 @@ import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
+import { Label } from '@rebass/forms';
+import cx from 'classnames';
 
+import { Caption } from './FontStyles';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
@@ -37,16 +40,29 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
 export const DatePicker = props => {
   const {
     date: dateProp,
+    error,
     focused: focusedProp,
+    label,
     onDateChange,
     onFocusChange,
+    required,
     ...datePickerProps
   } = props;
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
 
+  const inputClasses = cx({
+    error,
+    required,
+  });
+
   return (
     <StyledDatePicker>
+      {label && (
+        <Label htmlFor={name}>
+          <Caption className={inputClasses}>{label}</Caption>
+        </Label>
+      )}
       <SingleDatePicker
         date={date}
         onDateChange={newDate => {
@@ -59,6 +75,7 @@ export const DatePicker = props => {
           onFocusChange(newFocused);
         }}
         id={props.id}
+        name={props.name}
         numberOfMonths={1}
         placeholder="mm/dd/yyyy"
         displayFormat="MMM D, YYYY"

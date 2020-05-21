@@ -6,7 +6,10 @@ import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
+import { Label } from '@rebass/forms';
+import cx from 'classnames';
 
+import { Caption } from './FontStyles';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
@@ -69,17 +72,30 @@ export const DateRangePicker = props => {
   const {
     startDate,
     endDate,
+    error,
     focusedInput: focusedInputProp,
+    label,
     onDatesChange,
     onFocusChange,
+    required,
     ...datePickerProps
   } = props;
 
   const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
 
+  const inputClasses = cx({
+    error,
+    required,
+  });
+
   return (
     <StyledDateRangePicker>
+      {label && (
+        <Label htmlFor={name}>
+          <Caption className={inputClasses}>{label}</Caption>
+        </Label>
+      )}
       <DateRangePickerBase
         startDate={dates.startDate}
         startDateId={props.startDateId}
