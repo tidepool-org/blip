@@ -16,6 +16,10 @@ export const AccountType = translate()((props) => {
   const { t } = props;
   const { getFieldMeta } = useFormikContext();
 
+  const meta = {
+    'type': getFieldMeta('type'),
+  };
+
   return (
     <Box width={0.5} margin="auto">
       <Headline>{t('Who are you creating your account for?')}</Headline>
@@ -27,7 +31,7 @@ export const AccountType = translate()((props) => {
           { value: 'patient', label: t('Patient') },
           { value: 'caregiver', label: t('Patient and caregiver') },
         ]}
-        error={getFieldMeta('type').error}
+        error={meta['type'].touched && meta['type'].error}
       />
     </Box>
   );
@@ -41,7 +45,7 @@ export const PersonalInfo = translate()((props) => {
     'name.first': getFieldMeta('name.first'),
     'name.last': getFieldMeta('name.last'),
     'birthday': getFieldMeta('birthday'),
-  }
+  };
 
   return (
     <Box width={0.5} margin="auto">
@@ -81,9 +85,9 @@ export const PersonalInfo = translate()((props) => {
 const accountSteps = () => {
   const {errors, touched, values} = useFormikContext();
 
-  console.log('errors', errors);
-  console.log('touched', touched);
-  console.log('values', values);
+  this.log('errors', errors);
+  this.log('touched', touched);
+  this.log('values', values);
 
   return {
     label: 'Create Patient Account',

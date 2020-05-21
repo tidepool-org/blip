@@ -16,10 +16,7 @@ const sleep = m => new Promise(r => setTimeout(r, m));
 
 const NewPrescription = () => {
   const initialAsyncState = () => ({ pending: false, complete: false });
-  const [accountAsyncState, setAccountAsyncState] = React.useState(initialAsyncState());
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
-
-  const [accountValid, setAccountValid] = React.useState(false);
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
 
   const renderStepContent = text => <Box>{text}</Box>;
