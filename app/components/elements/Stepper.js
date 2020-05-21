@@ -249,6 +249,9 @@ export const Stepper = props => {
             disabled={step.disableComplete}
             onClick={handleNext}
             processing={processing}
+            type={(activeStep === steps.length - 1 && activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1)
+              ? 'submit' : 'button'
+            }
           >
             {step.completeText || completeText}
           </Button>
