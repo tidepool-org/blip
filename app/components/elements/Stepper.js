@@ -364,7 +364,7 @@ Stepper.propTypes = {
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
-      PropTypes.shape(omit({ ...StepPropTypes }, ['completed'])),
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label'])),
     ),
   })),
   themeProps: PropTypes.shape({

@@ -42,39 +42,6 @@ const NewPrescription = () => {
       setFinalAsyncState(initialAsyncState());
     },
     steps: [
-      // {
-      //   label: 'Create Patient Account',
-      //   onComplete: log('Patient Account Created'),
-      //   subSteps: [
-      //     {
-      //       label: 'Step One',
-      //       onComplete: log('Account Step One Complete'),
-      //       panelContent: <AccountType />,
-      //       disableComplete: !accountValid,
-      //     },
-      //     {
-      //       label: 'Step Two',
-      //       onComplete: log('Account Step Two Complete'),
-      //       panelContent: renderStepContent('Patient Account Step Two'),
-      //     },
-      //     {
-      //       label: 'Step Three',
-      //       onComplete: async () => {
-      //         setAccountAsyncState({ pending: true, complete: false });
-      //         await sleep(2000);
-      //         setAccountAsyncState({ pending: false, complete: true });
-      //       },
-      //       disableComplete: !accountValid,
-      //       asyncState: accountAsyncState,
-      //       panelContent: renderStepConfirmation(
-      //         'account-checkbox',
-      //         'The account details are correct',
-      //         accountValid,
-      //         (e) => setAccountValid(e.target.checked),
-      //       ),
-      //     },
-      //   ],
-      // },
       accountSteps(),
       {
         label: 'Complete Patient Profile',
