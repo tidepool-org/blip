@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
@@ -6,6 +7,7 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 import { Label } from '@rebass/forms';
+import { Box, BoxProps } from 'rebass/styled-components';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -46,8 +48,10 @@ export const DatePicker = props => {
     onDateChange,
     onFocusChange,
     required,
+    themeProps,
     ...datePickerProps
   } = props;
+
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
 
@@ -57,7 +61,7 @@ export const DatePicker = props => {
   });
 
   return (
-    <StyledDatePicker>
+    <Box as={StyledDatePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
           <Caption className={inputClasses}>{label}</Caption>
@@ -94,11 +98,14 @@ export const DatePicker = props => {
           {error}
         </Caption>
       )}
-    </StyledDatePicker>
+    </Box>
   );
 };
 
-DatePicker.propTypes = SingleDatePickerShape;
+DatePicker.propTypes = {
+  ...SingleDatePickerShape,
+  themeProps: PropTypes.shape(BoxProps),
+};
 
 DatePicker.defaultProps = {
   date: null,

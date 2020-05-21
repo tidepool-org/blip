@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { DateRangePicker as DateRangePickerBase, DateRangePickerShape } from 'react-dates';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
@@ -7,6 +8,7 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
 import { Label } from '@rebass/forms';
+import { Box, BoxProps } from 'rebass/styled-components';
 import cx from 'classnames';
 
 import { Caption } from './FontStyles';
@@ -78,6 +80,7 @@ export const DateRangePicker = props => {
     onDatesChange,
     onFocusChange,
     required,
+    themeProps,
     ...datePickerProps
   } = props;
 
@@ -90,7 +93,7 @@ export const DateRangePicker = props => {
   });
 
   return (
-    <StyledDateRangePicker>
+    <Box as={StyledDateRangePicker} {...themeProps}>
       {label && (
         <Label htmlFor={name}>
           <Caption className={inputClasses}>{label}</Caption>
@@ -127,11 +130,14 @@ export const DateRangePicker = props => {
           {error}
         </Caption>
       )}
-    </StyledDateRangePicker>
+    </Box>
   );
 };
 
-DateRangePicker.propTypes = DateRangePickerShape;
+DateRangePicker.propTypes = {
+  ...DateRangePickerShape,
+  themeProps: PropTypes.shape(BoxProps),
+};
 
 DateRangePicker.defaultProps = {
   startDate: null,
