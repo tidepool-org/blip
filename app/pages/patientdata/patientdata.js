@@ -1258,6 +1258,7 @@ export let PatientData = translate()(React.createClass({
 
     let chartQuery = {
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
+      chartType: this.state.chartType,
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };
