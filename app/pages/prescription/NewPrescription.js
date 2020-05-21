@@ -2,11 +2,13 @@ import React from 'react';
 import { translate } from 'react-i18next';
 import bows from 'bows';
 import { Box } from 'rebass/styled-components';
+import { withFormik, useFormikContext } from 'formik';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
-import { accountSteps, AccountType } from './NewPrescriptionAccount';
+import accountSteps from './NewPrescriptionAccount';
+import prescriptionForm from './prescriptionForm';
 
 /* global Promise */
 const log = bows('NewPrescription');
@@ -84,7 +86,13 @@ const NewPrescription = () => {
     },
   };
 
-  return <Stepper {...stepperProps} />;
+  const { handleSubmit } = useFormikContext();
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Stepper {...stepperProps} />
+    </form>
+  );
 };
 
-export default translate()(NewPrescription);
+export default translate()(withFormik(prescriptionForm)(NewPrescription));
