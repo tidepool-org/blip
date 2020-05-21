@@ -2,12 +2,12 @@ import prescriptionSchema from './prescriptionSchema';
 
 export default {
   mapPropsToValues: () => ({
-    type: null,
-    name: {
-      first: '',
-      last: '',
-    },
+    type: '',
+    firstName: '',
+    lastName: '',
     birthday: null,
+    email: '',
+    emailConfirm: '',
   }),
   validationSchema: prescriptionSchema,
   displayName: 'PrescriptionForm',

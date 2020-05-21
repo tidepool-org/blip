@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { useFormikContext, FastField } from 'formik';
-import { Box } from 'rebass/styled-components';
+import { Box, Text } from 'rebass/styled-components';
 import bows from 'bows';
 import moment from 'moment';
 
@@ -17,12 +17,12 @@ export const AccountType = translate()((props) => {
   const { getFieldMeta } = useFormikContext();
 
   const meta = {
-    'type': getFieldMeta('type'),
+    type: getFieldMeta('type'),
   };
 
   return (
     <Box width={0.5} margin="auto">
-      <Headline>{t('Who are you creating your account for?')}</Headline>
+      <Headline mb={3}>{t('Who are you creating your account for?')}</Headline>
       <FastField
         as={RadioGroup}
         id="type"
@@ -31,38 +31,41 @@ export const AccountType = translate()((props) => {
           { value: 'patient', label: t('Patient') },
           { value: 'caregiver', label: t('Patient and caregiver') },
         ]}
-        error={meta['type'].touched && meta['type'].error}
+        error={meta.type.touched && meta.type.error}
+        themeProps={{ mb: 3 }}
       />
     </Box>
   );
 });
 
-export const PersonalInfo = translate()((props) => {
+export const PatientInfo = translate()((props) => {
   const { t } = props;
   const { setFieldValue, setFieldTouched, values, getFieldMeta } = useFormikContext();
 
   const meta = {
-    'name.first': getFieldMeta('name.first'),
-    'name.last': getFieldMeta('name.last'),
-    'birthday': getFieldMeta('birthday'),
+    firstName: getFieldMeta('firstName'),
+    lastName: getFieldMeta('lastName'),
+    birthday: getFieldMeta('birthday'),
   };
 
   return (
     <Box width={0.5} margin="auto">
-      <Headline>{t('Please enter patient\'s name and birthdate')}</Headline>
+      <Headline mb={3}>{t('Please enter patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
         label={t('First Name')}
-        id="name.first"
-        name="name.first"
-        error={meta['name.first'].touched && meta['name.first'].error}
+        id="firstName"
+        name="firstName"
+        error={meta.firstName.touched && meta.firstName.error}
+        themeProps={{ mb: 3 }}
       />
       <FastField
         as={TextInput}
         label={t('Last Name')}
-        id="name.last"
-        name="name.last"
-        error={meta['name.last'].touched && meta['name.last'].error}
+        id="lastName"
+        name="lastName"
+        error={meta.lastName.touched && meta.lastName.error}
+        themeProps={{ mb: 3 }}
       />
       <FastField
         as={DatePicker}
@@ -76,8 +79,44 @@ export const PersonalInfo = translate()((props) => {
         onFocusChange={newFocused => {
           if (!newFocused) setFieldTouched('birthday', true)
         }}
-        error={meta['birthday'].touched && meta['birthday'].error}
+        error={meta.birthday.touched && meta.birthday.error}
+        themeProps={{ mb: 3 }}
       />
+    </Box>
+  );
+});
+
+export const PatientEmail = translate()((props) => {
+  const { t } = props;
+  const { getFieldMeta } = useFormikContext();
+
+  const meta = {
+    email: getFieldMeta('email'),
+    emailConfirm: getFieldMeta('emailConfirm'),
+  };
+
+  return (
+    <Box width={0.5} margin="auto">
+      <Headline mb={3}>{t('What is the patient\'s email address?')}</Headline>
+      <FastField
+        as={TextInput}
+        label={t('Email Address')}
+        id="email"
+        name="email"
+        error={meta.email.touched && meta.email.error}
+        themeProps={{ mb: 3 }}
+      />
+      <FastField
+        as={TextInput}
+        label={t('Confirm Email Address')}
+        id="emailConfirm"
+        name="emailConfirm"
+        error={meta.emailConfirm.touched && meta.emailConfirm.error}
+        themeProps={{ mb: 3 }}
+      />
+      <Text>
+        {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}
+      </Text>
     </Box>
   );
 });
@@ -85,9 +124,9 @@ export const PersonalInfo = translate()((props) => {
 const accountSteps = () => {
   const {errors, touched, values} = useFormikContext();
 
-  this.log('errors', errors);
-  this.log('touched', touched);
-  this.log('values', values);
+  log('errors', errors);
+  log('touched', touched);
+  log('values', values);
 
   return {
     label: 'Create Patient Account',
@@ -96,13 +135,18 @@ const accountSteps = () => {
       {
         disableComplete: !values.type,
         hideBack: true,
-        onComplete: () => log('Account Step One Complete'),
+        onComplete: () => log('Account Type Complete'),
         panelContent: <AccountType />
       },
       {
-        disableComplete: !values.name.first || !values.name.last,
-        onComplete: log('Account Step Two Complete'),
-        panelContent: <PersonalInfo />,
+        disableComplete: !values.firstName || !values.lastName,
+        onComplete: log('Patient Info Complete'),
+        panelContent: <PatientInfo />,
+      },
+      {
+        disableComplete: !values.email || !values.emailConfirm,
+        onComplete: log('Patient Email Complete'),
+        panelContent: <PatientEmail />,
       },
     ],
   };
