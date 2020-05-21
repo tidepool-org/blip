@@ -21,8 +21,8 @@ export const AccountType = translate()((props) => {
   };
 
   return (
-    <Box width={0.5} margin="auto">
-      <Headline mb={3}>{t('Who are you creating your account for?')}</Headline>
+    <Box width={0.5} my={5} mx="auto">
+      <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
       <FastField
         as={RadioGroup}
         id="type"
@@ -32,7 +32,7 @@ export const AccountType = translate()((props) => {
           { value: 'caregiver', label: t('Patient and caregiver') },
         ]}
         error={meta.type.touched && meta.type.error}
-        themeProps={{ mb: 3 }}
+        themeProps={{ mb: 5 }}
       />
     </Box>
   );
@@ -49,8 +49,8 @@ export const PatientInfo = translate()((props) => {
   };
 
   return (
-    <Box width={0.5} margin="auto">
-      <Headline mb={3}>{t('Please enter patient\'s name and birthdate')}</Headline>
+    <Box width={0.5} my={5} mx="auto">
+      <Headline mb={4}>{t('Please enter patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
         label={t('First Name')}
@@ -80,7 +80,7 @@ export const PatientInfo = translate()((props) => {
           if (!newFocused) setFieldTouched('birthday', true)
         }}
         error={meta.birthday.touched && meta.birthday.error}
-        themeProps={{ mb: 3 }}
+        themeProps={{ mb: 5 }}
       />
     </Box>
   );
@@ -96,8 +96,8 @@ export const PatientEmail = translate()((props) => {
   };
 
   return (
-    <Box width={0.5} margin="auto">
-      <Headline mb={3}>{t('What is the patient\'s email address?')}</Headline>
+    <Box width={0.5} my={5} mx="auto">
+      <Headline mb={4}>{t('What is the patient\'s email address?')}</Headline>
       <FastField
         as={TextInput}
         label={t('Email Address')}
@@ -112,9 +112,9 @@ export const PatientEmail = translate()((props) => {
         id="emailConfirm"
         name="emailConfirm"
         error={meta.emailConfirm.touched && meta.emailConfirm.error}
-        themeProps={{ mb: 3 }}
+        themeProps={{ mb: 5 }}
       />
-      <Text>
+      <Text mb={5}>
         {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}
       </Text>
     </Box>
