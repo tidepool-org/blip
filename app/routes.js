@@ -289,7 +289,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='patients/prescription/new' component={NewPrescription} onEnter={requireAuth(api, store)} />
+      <Route path='prescriptions/new' component={NewPrescription} onEnter={requireAuth(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/share' component={Share} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requiresChrome(utils, requireAuth(api, store))} />
