@@ -89,6 +89,11 @@ export const DatePicker = props => {
         showClearDate
         {...datePickerProps}
       />
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
     </StyledDatePicker>
   );
 };

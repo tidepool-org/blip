@@ -122,6 +122,11 @@ export const DateRangePicker = props => {
         showClearDates
         {...datePickerProps}
       />
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
     </StyledDateRangePicker>
   );
 };
