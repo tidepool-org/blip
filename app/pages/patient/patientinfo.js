@@ -159,7 +159,7 @@ var PatientInfo = translate()(class extends React.Component {
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
         {this.renderDataSources()}
-        {/*this.renderExport()*/}
+        {this.renderExport()}
       </div>
     );
   }
