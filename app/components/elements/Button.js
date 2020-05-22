@@ -67,4 +67,8 @@ Button.propTypes = {
   iconLabel: PropTypes.string,
 };
 
+Button.defaultProps = {
+  type: 'button',
+};
+
 export default Button;
