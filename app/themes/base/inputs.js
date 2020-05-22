@@ -6,6 +6,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
     boxShadow: 'none',
     fontFamily: fonts.default,
     fontSize: fontSizes[1],
+    lineHeight: 'inherit',
   };
 
   const textInputs = {
