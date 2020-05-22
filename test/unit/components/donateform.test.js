@@ -87,10 +87,10 @@ describe('DonateForm', () => {
     it('should return a slice of the data donation accounts array with the primary account filtered out', () => {
       expect(wrapper.instance().getWrappedInstance().getNonProfitAccounts([
         { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-        { email: 'bigdata+CARBDM@tidepool.org' },
+        { email: 'bigdata+BT1@tidepool.org' },
         { email: 'bigdata+CWD@tidepool.org' },
       ])).to.eql([
-        { email: 'bigdata+CARBDM@tidepool.org' },
+        { email: 'bigdata+BT1@tidepool.org' },
         { email: 'bigdata+CWD@tidepool.org' },
       ]);
     });
@@ -161,14 +161,14 @@ describe('DonateForm', () => {
       const newProps = _.assign({}, props, {
         dataDonationAccounts: [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
-          { email: 'bigdata+CARBDM@tidepool.org' },
+          { email: 'bigdata+BT1@tidepool.org' },
           { email: 'bigdata+CWD@tidepool.org' },
         ],
       });
 
       const expectedFormValues = _.assign({}, expectedInitialFormValues, {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD',
+        dataDonateDestination: 'BT1,CWD',
       });
 
       const element = mount(<DonateForm {...newProps} />)
@@ -181,13 +181,13 @@ describe('DonateForm', () => {
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
           { email: 'bigdata+CWD@tidepool.org' },
           { email: 'bigdata+NSF@tidepool.org' },
-          { email: 'bigdata+CARBDM@tidepool.org' },
+          { email: 'bigdata+BT1@tidepool.org' },
         ],
       });
 
       const expectedFormValues = _.assign({}, expectedInitialFormValues, {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD,NSF',
+        dataDonateDestination: 'BT1,CWD,NSF',
       });
 
       const element = mount(<DonateForm {...newProps} />);
@@ -237,7 +237,7 @@ describe('DonateForm', () => {
     it('should return true if the form has been updated', () => {
       wrapper.instance().getWrappedInstance().setState({ formValues: {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD',
+        dataDonateDestination: 'BT1,CWD',
       }})
       expect(wrapper.instance().getWrappedInstance().formIsUpdated()).to.be.true;
     });
@@ -326,10 +326,10 @@ describe('DonateForm', () => {
 
       wrapper.instance().getWrappedInstance().handleChange({
         name: 'dataDonateDestination',
-        value: ['CWD', 'NSF', 'CARBDM'].map(value => ({ value }))
+        value: ['CWD', 'NSF', 'BT1'].map(value => ({ value }))
       });
 
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,NSF');
+      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('BT1,CWD,NSF');
     });
   });
 
@@ -367,12 +367,12 @@ describe('DonateForm', () => {
     it('should add donation accounts and track metrics', () => {
       const formValues = {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD',
+        dataDonateDestination: 'BT1,CWD',
       };
 
       const expectedAddAccounts = [
         TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
-        'bigdata+CARBDM@tidepool.org',
+        'bigdata+BT1@tidepool.org',
         'bigdata+CWD@tidepool.org',
       ];
 
@@ -386,7 +386,7 @@ describe('DonateForm', () => {
 
       sinon.assert.calledThrice(props.trackMetric);
       expect(props.trackMetric.getCall(0).args).to.eql(['web - big data sign up', { source: 'none', location }]);
-      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data sign up', { source: 'CARBDM', location }]);
+      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data sign up', { source: 'BT1', location }]);
       expect(props.trackMetric.getCall(2).args).to.eql(['web - big data sign up', { source: 'CWD', location }]);
     });
 
@@ -400,11 +400,11 @@ describe('DonateForm', () => {
 
       const formValues = {
         dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD',
+        dataDonateDestination: 'BT1,CWD',
       };
 
       const expectedAddAccounts = [
-        'bigdata+CARBDM@tidepool.org',
+        'bigdata+BT1@tidepool.org',
       ];
 
       wrapper.instance().getWrappedInstance().setState({ formValues });
@@ -420,7 +420,7 @@ describe('DonateForm', () => {
         dataDonationAccounts: [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
           { email: 'bigdata+CWD@tidepool.org' },
-          { email: 'bigdata+CARBDM@tidepool.org' },
+          { email: 'bigdata+BT1@tidepool.org' },
         ],
       });
 
@@ -431,7 +431,7 @@ describe('DonateForm', () => {
 
       const expectedRemoveAccounts = [
         { email: 'bigdata+CWD@tidepool.org' },
-        { email: 'bigdata+CARBDM@tidepool.org' },
+        { email: 'bigdata+BT1@tidepool.org' },
       ];
 
       wrapper.instance().getWrappedInstance().setState({ formValues });
@@ -443,7 +443,7 @@ describe('DonateForm', () => {
 
       sinon.assert.calledTwice(props.trackMetric);
       expect(props.trackMetric.getCall(0).args).to.eql(['web - big data cancellation', { source: 'CWD' }]);
-      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data cancellation', { source: 'CARBDM' }]);
+      expect(props.trackMetric.getCall(1).args).to.eql(['web - big data cancellation', { source: 'BT1' }]);
     });
   });
 });
