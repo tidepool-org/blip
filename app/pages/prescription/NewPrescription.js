@@ -4,10 +4,13 @@ import bows from 'bows';
 import { Box } from 'rebass/styled-components';
 import { withFormik, useFormikContext } from 'formik';
 
+import { getFieldsMeta } from '../../core/forms';
+import prescriptionSchema from './prescriptionSchema';
+
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
-import accountSteps from './NewPrescriptionAccount';
+import accountFormSteps from './accountFormSteps';
 import prescriptionForm from './prescriptionForm';
 
 /* global Promise */
@@ -15,6 +18,15 @@ const log = bows('NewPrescription');
 const sleep = m => new Promise(r => setTimeout(r, m));
 
 const NewPrescription = () => {
+  const { errors, touched, values, getFieldMeta } = useFormikContext();
+  log('errors', errors);
+  log('touched', touched);
+  log('values', values);
+
+  const meta = getFieldsMeta(prescriptionSchema, getFieldMeta)
+  log('meta', meta);
+
+  /* WIP Scaffolding Start */
   const initialAsyncState = () => ({ pending: false, complete: false });
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
@@ -30,6 +42,7 @@ const NewPrescription = () => {
       required
     />
   );
+  /* WIP Scaffolding End */
 
   const stepperProps = {
     'aria-label': 'New Prescription Form',
@@ -41,7 +54,7 @@ const NewPrescription = () => {
       setFinalAsyncState(initialAsyncState());
     },
     steps: [
-      accountSteps(),
+      accountFormSteps(meta),
       {
         label: 'Complete Patient Profile',
         panelContent: renderStepContent('Patient Profile Form'),

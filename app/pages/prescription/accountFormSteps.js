@@ -1,15 +1,10 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { useFormikContext, FastField } from 'formik';
+import { FastField } from 'formik';
 import { Box, Text } from 'rebass/styled-components';
 import bows from 'bows';
-import map from 'lodash/map';
-import reduce from 'lodash/reduce';
-import includes from 'lodash/includes';
-import isEmpty from 'lodash/isEmpty';
-import keys from 'lodash/keys';
 
-import prescriptionSchema from './prescriptionSchema';
+import { fieldsAreValid } from '../../core/forms';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
@@ -102,45 +97,24 @@ export const PatientEmail = translate()((props) => {
   );
 });
 
-const accountSteps = () => {
-  const { errors, touched, values, getFieldMeta } = useFormikContext();
-
-  log('errors', errors);
-  log('touched', touched);
-  log('values', values);
-
-  const fields = keys(prescriptionSchema.fields);
-
-  const meta = reduce(fields, (result, field) => {
-    const fieldMeta = getFieldMeta(field);
-    result[field] = {
-      ...fieldMeta,
-      valid: (!isEmpty(fieldMeta.value) || fieldMeta.touched) && !fieldMeta.error,
-    };
-    return result;
-  }, {});
-
-  log('meta', meta);
-
-  const fieldsAreValid = fieldNames => !includes(map(fieldNames, fieldName => meta[fieldName].valid), false);
-
+const accountFormSteps = (meta) => {
   return {
     label: 'Create Patient Account',
     onComplete: () => log('Patient Account Created'),
     subSteps: [
       {
-        disableComplete: !fieldsAreValid(['type']),
+        disableComplete: !fieldsAreValid(['type'], meta),
         hideBack: true,
         onComplete: () => log('Account Type Complete'),
         panelContent: <AccountType meta={meta} />
       },
       {
-        disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday']),
+        disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday'], meta),
         onComplete: log('Patient Info Complete'),
         panelContent: <PatientInfo meta={meta} />,
       },
       {
-        disableComplete: !fieldsAreValid(['email', 'emailConfirm']),
+        disableComplete: !fieldsAreValid(['email', 'emailConfirm'], meta),
         onComplete: log('Patient Email Complete'),
         panelContent: <PatientEmail meta={meta} />,
       },
@@ -148,4 +122,4 @@ const accountSteps = () => {
   };
 };
 
-export default accountSteps;
+export default accountFormSteps;
