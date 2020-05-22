@@ -3,22 +3,21 @@ import { translate } from 'react-i18next';
 import { useFormikContext, FastField } from 'formik';
 import { Box, Text } from 'rebass/styled-components';
 import bows from 'bows';
-import moment from 'moment';
+import map from 'lodash/map';
+import reduce from 'lodash/reduce';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
+import keys from 'lodash/keys';
 
+import prescriptionSchema from './prescriptionSchema';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
-import DatePicker from '../../components/elements/DatePicker';
 import { Headline } from '../../components/elements/FontStyles';
 
 const log = bows('NewPrescriptionAccount');
 
 export const AccountType = translate()((props) => {
-  const { t } = props;
-  const { getFieldMeta } = useFormikContext();
-
-  const meta = {
-    type: getFieldMeta('type'),
-  };
+  const { t, meta } = props;
 
   return (
     <Box width={0.5} my={5} mx="auto">
@@ -39,14 +38,7 @@ export const AccountType = translate()((props) => {
 });
 
 export const PatientInfo = translate()((props) => {
-  const { t } = props;
-  const { setFieldValue, setFieldTouched, values, getFieldMeta } = useFormikContext();
-
-  const meta = {
-    firstName: getFieldMeta('firstName'),
-    lastName: getFieldMeta('lastName'),
-    birthday: getFieldMeta('birthday'),
-  };
+  const { t, meta } = props;
 
   return (
     <Box width={0.5} my={5} mx="auto">
@@ -68,17 +60,12 @@ export const PatientInfo = translate()((props) => {
         themeProps={{ mb: 3 }}
       />
       <FastField
-        as={DatePicker}
+        as={TextInput}
+        type="date"
         label={t('Patient\'s Birthday')}
         id="birthday"
         name="birthday"
-        date={values.birthday ? moment.utc(values.birthday) : null}
-        onDateChange={newDate => {
-          setFieldValue('birthday', newDate.toISOString())
-        }}
-        onFocusChange={newFocused => {
-          if (!newFocused) setFieldTouched('birthday', true)
-        }}
+        placeholder="YYYY-MM-DD"
         error={meta.birthday.touched && meta.birthday.error}
         themeProps={{ mb: 5 }}
       />
@@ -87,13 +74,7 @@ export const PatientInfo = translate()((props) => {
 });
 
 export const PatientEmail = translate()((props) => {
-  const { t } = props;
-  const { getFieldMeta } = useFormikContext();
-
-  const meta = {
-    email: getFieldMeta('email'),
-    emailConfirm: getFieldMeta('emailConfirm'),
-  };
+  const { t, meta } = props;
 
   return (
     <Box width={0.5} my={5} mx="auto">
@@ -122,31 +103,46 @@ export const PatientEmail = translate()((props) => {
 });
 
 const accountSteps = () => {
-  const {errors, touched, values} = useFormikContext();
+  const { errors, touched, values, getFieldMeta } = useFormikContext();
 
   log('errors', errors);
   log('touched', touched);
   log('values', values);
+
+  const fields = keys(prescriptionSchema.fields);
+
+  const meta = reduce(fields, (result, field) => {
+    const fieldMeta = getFieldMeta(field);
+    result[field] = {
+      ...fieldMeta,
+      valid: (!isEmpty(fieldMeta.value) || fieldMeta.touched) && !fieldMeta.error,
+    };
+    return result;
+  }, {});
+
+  log('meta', meta);
+
+  const fieldsAreValid = fieldNames => !includes(map(fieldNames, fieldName => meta[fieldName].valid), false);
 
   return {
     label: 'Create Patient Account',
     onComplete: () => log('Patient Account Created'),
     subSteps: [
       {
-        disableComplete: !values.type,
+        disableComplete: !fieldsAreValid(['type']),
         hideBack: true,
         onComplete: () => log('Account Type Complete'),
-        panelContent: <AccountType />
+        panelContent: <AccountType meta={meta} />
       },
       {
-        disableComplete: !values.firstName || !values.lastName,
+        disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday']),
         onComplete: log('Patient Info Complete'),
-        panelContent: <PatientInfo />,
+        panelContent: <PatientInfo meta={meta} />,
       },
       {
-        disableComplete: !values.email || !values.emailConfirm,
+        disableComplete: !fieldsAreValid(['email', 'emailConfirm']),
         onComplete: log('Patient Email Complete'),
-        panelContent: <PatientEmail />,
+        panelContent: <PatientEmail meta={meta} />,
       },
     ],
   };
