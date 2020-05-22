@@ -73,18 +73,36 @@ export const Stepper = props => {
   let initialActiveStepState = initialActiveStep;
   let initialActiveSubStepState = initialActiveSubStep;
 
-  const params = new URLSearchParams(location.search);
+  const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${id}-step`;
-  const activeStepsParam = params.get(activeStepParamKey);
 
-  if (activeStepsParam) {
-    const activeStepParts = activeStepsParam.split(',');
-    initialActiveStepState = parseInt(activeStepParts[0], 10);
-    initialActiveSubStepState = parseInt(activeStepParts[1], 10);
-  }
+  const setInitialActiveStepStateFromParams = () => {
+    const activeStepsParam = params().get(activeStepParamKey);
 
+    if (activeStepsParam) {
+      const activeStepParts = activeStepsParam.split(',');
+      initialActiveStepState = parseInt(activeStepParts[0], 10);
+      initialActiveSubStepState = parseInt(activeStepParts[1], 10);
+    }
+  };
+
+  setInitialActiveStepStateFromParams();
+
+  const [transitioningToStep, setTransitioningToStep] = React.useState();
   const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
   const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
+
+  window.top.addEventListener('popstate', (e) => {
+    e.preventDefault();
+    setInitialActiveStepStateFromParams();
+    setTransitioningToStep([initialActiveStepState, initialActiveSubStepState].join(','));
+    setActiveStep(initialActiveStepState);
+    setActiveSubStep(initialActiveSubStepState);
+    setTimeout(() => {
+      setTransitioningToStep(null);
+    }, 0);
+  });
+
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
   const [pendingStep, setPendingStep] = React.useState([]);
@@ -136,11 +154,14 @@ export const Stepper = props => {
   }, [steps]);
 
   React.useEffect(() => {
+    if (transitioningToStep) return;
+
     const newStep = [activeStep, activeSubStep];
 
-    if (params.get(activeStepParamKey) !== newStep.join(',')) {
-      params.set(activeStepParamKey, newStep);
-      history.pushState({}, '', decodeURIComponent(`${location.pathname}?${params}`));
+    const currentParams = params();
+    if (currentParams.get(activeStepParamKey) !== newStep.join(',')) {
+      currentParams.set(activeStepParamKey, newStep);
+      history.pushState({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
     }
 
     if (isFunction(onStepChange)) onStepChange(newStep);
