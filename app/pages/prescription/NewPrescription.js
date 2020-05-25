@@ -112,9 +112,9 @@ const NewPrescription = () => {
   const activeStepsParam = params().get(activeStepParamKey);
   const storageKey = 'prescriptionForm';
 
-  if (get(localStorage, storageKey) && activeStepsParam === null) {
-    delete localStorage[storageKey];
-  }
+  // When a user comes to this component initially, without the active step and subStep set by the
+  // Stepper component in the url, we delete any persisted state from localStorage.
+  if (get(localStorage, storageKey) && activeStepsParam === null) delete localStorage[storageKey];
 
   return (
     <form onSubmit={handleSubmit}>
