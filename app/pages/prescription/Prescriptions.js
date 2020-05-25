@@ -29,7 +29,7 @@ const Prescriptions = props => {
   const columns = [
     { title: 'First Name', field: 'firstName', align: 'left', sortable: true, searchable: true },
     { title: 'Last Name', field: 'lastName', align: 'left', sortable: true, searchable: true },
-    { title: 'MRN', field: 'mrn', align: 'left', sortable: true, searchable: true },
+    { title: 'MRN', field: 'mrn', align: 'left', searchable: true },
     { title: 'Status', field: 'state', align: 'left', sortable: true},
     { title: 'Edit', field: 'edit', render: renderEdit, align: 'left' },
   ];
