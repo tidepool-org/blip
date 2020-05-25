@@ -110,16 +110,16 @@ const NewPrescription = () => {
   const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${stepperProps.id}-step`;
   const activeStepsParam = params().get(activeStepParamKey);
-  const localStorageKey = 'prescriptionForm';
+  const storageKey = 'prescriptionForm';
 
-  if (get(localStorage, localStorageKey) && activeStepsParam === null) {
-    delete localStorage[localStorageKey];
+  if (get(localStorage, storageKey) && activeStepsParam === null) {
+    delete localStorage[storageKey];
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <Stepper {...stepperProps} />
-      <Persist name={localStorageKey} />
+      <Persist name={storageKey} />
     </form>
   );
 };
