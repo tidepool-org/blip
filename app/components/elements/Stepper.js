@@ -15,6 +15,7 @@ import i18next from '../../core/language';
 
 import Button from './Button';
 import { colors, transitions } from '../../themes/baseTheme';
+import { usePrevious } from '../../core/hooks';
 
 const t = i18next.t.bind(i18next);
 
@@ -91,6 +92,7 @@ export const Stepper = props => {
   const [transitioningToStep, setTransitioningToStep] = React.useState();
   const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
   const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
+  const prevActiveStep = usePrevious(activeStep);
 
   window.top.addEventListener('popstate', (e) => {
     e.preventDefault();
@@ -158,10 +160,15 @@ export const Stepper = props => {
 
     const newStep = [activeStep, activeSubStep];
 
+    // At init, the previous activeStep is `undefined`. In this case, we want to replace the current
+    // state rather than push a new one to avoid having to hit the browser back button twice to go
+    // back to the previous location
+    const updateMethod = prevActiveStep === undefined ? 'replaceState' : 'pushState';
+
     const currentParams = params();
     if (currentParams.get(activeStepParamKey) !== newStep.join(',')) {
       currentParams.set(activeStepParamKey, newStep);
-      history.pushState({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
+      history[updateMethod]({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
     }
 
     if (isFunction(onStepChange)) onStepChange(newStep);
