@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import bows from 'bows';
 import { Box } from 'rebass/styled-components';
 import { withFormik, useFormikContext } from 'formik';
+import { Persist } from 'formik-persist'
 
 import { getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -101,6 +102,7 @@ const NewPrescription = () => {
   return (
     <form onSubmit={handleSubmit}>
       <Stepper {...stepperProps} />
+      <Persist name="prescriptionForm" />
     </form>
   );
 };
