@@ -8,7 +8,7 @@ import ClinicianDetails from './pages/cliniciandetails';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
-import NewPrescription from './pages/prescription';
+import { Prescriptions, NewPrescription } from './pages/prescription';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
 import PatientProfile from './pages/patientprofile/patientprofile';
@@ -289,7 +289,9 @@ export const getRoutes = (appContext, store) => {
       <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
+      <Route path='prescriptions' component={Prescriptions} onEnter={requireAuth(api, store)} />
       <Route path='prescriptions/new' component={NewPrescription} onEnter={requireAuth(api, store)} />
+      <Route path='prescriptions/:id/edit' component={NewPrescription} onEnter={requireAuth(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/share' component={Share} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requiresChrome(utils, requireAuth(api, store))} />
