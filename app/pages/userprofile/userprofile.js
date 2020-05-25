@@ -71,9 +71,7 @@ export var UserProfile = translate()(React.createClass({
     if (config.I18N_ENABLED) {
       let locales = [
         {value: 'en', label: 'English'},
-        {value: 'fr', label: 'Français'},
-        {value: 'de', label: 'Deutsch'}
-      ];
+        {value: 'fr', label: 'Français'}      ];
       // Special "pseudo" language for crowdin live preview
       if (typeof _jipt === 'object') {
         locales.push({value: 'it', label: 'Crowdin'});

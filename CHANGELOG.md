@@ -2,6 +2,13 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## 1.0.0 - 2020-05-25
+### Added
+- Blip Medical Device published as major version.  
+### Fixed 
+- Fix regression introduced in PT-1309
+- Disable German language 
+
 ## 0.17.0 - 2020-05-20
 ### Changed
 - PT-1309 Ensure Blip SOUP list includes viz and tideline SOUPs

@@ -58,10 +58,6 @@ const i18nOptions = {
     fr: {
       main: mainFR,
       params: parameterFR
-    },
-    de: {
-      main: mainDE,
-      params: parameterDE
     }
   }
 }

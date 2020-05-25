@@ -96,6 +96,8 @@ ENV \
 
 ### Stage 6 - Build production-ready release
 FROM buildBase as build
+ARG npm_token
+ENV nexus_token=$npm_token
 # Copy all `node_modules` from `dependancies` layer
 COPY --from=dependencies /app/node_modules ./node_modules
 # Copy source files, and possibily invalidate so we have to rebuild
