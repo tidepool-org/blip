@@ -1,2 +1,2 @@
 export { default as Prescriptions } from './Prescriptions';
-export { default as NewPrescription } from './NewPrescription';
+export { default as PrescriptionForm } from './PrescriptionForm';

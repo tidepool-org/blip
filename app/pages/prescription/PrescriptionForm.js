@@ -9,18 +9,29 @@ import get from 'lodash/get';
 
 import { getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
+import accountFormSteps from './accountFormSteps';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
-import accountFormSteps from './accountFormSteps';
-import prescriptionForm from './prescriptionForm';
-
 /* global Promise */
-const log = bows('NewPrescription');
+const log = bows('PrescriptionForm');
 const sleep = m => new Promise(r => setTimeout(r, m));
 
-const NewPrescription = () => {
+const _prescriptionForm = {
+  mapPropsToValues: () => ({
+    type: '',
+    firstName: '',
+    lastName: '',
+    birthday: null,
+    email: '',
+    emailConfirm: '',
+  }),
+  validationSchema: prescriptionSchema,
+  displayName: 'PrescriptionForm',
+}
+
+const PrescriptionForm = () => {
   const {
     errors,
     getFieldMeta,
@@ -124,15 +135,15 @@ const NewPrescription = () => {
   );
 };
 
-NewPrescription.propTypes = {
+PrescriptionForm.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string,
     search: PropTypes.string,
   }),
 };
 
-NewPrescription.defaultProps = {
+PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withFormik(prescriptionForm)(NewPrescription));
+export default translate()(withFormik(_prescriptionForm)(PrescriptionForm));

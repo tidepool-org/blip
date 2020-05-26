@@ -9,7 +9,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 
-const log = bows('NewPrescriptionAccount');
+const log = bows('PrescriptionAccount');
 
 export const AccountType = translate()((props) => {
   const { t, meta } = props;
