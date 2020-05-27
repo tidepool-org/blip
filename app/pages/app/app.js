@@ -33,6 +33,7 @@ import DexcomBanner from '../../components/dexcombanner';
 import AddEmailBanner from '../../components/addemailbanner';
 import SendVerificationBanner from '../../components/sendverificationbanner';
 import LogoutOverlay from '../../components/logoutoverlay';
+import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
 
 import FooterLinks from '../../components/footerlinks';
@@ -160,12 +161,36 @@ export class AppComponent extends React.Component {
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
+
+    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+    let displayShareDataBanner = false;
+
+    // Determine whether or not to show the share data banner.
+    // If showingShareDataBanner is false, it means it was dismissed,
+    // or was shown to the user 3 times already and we do not show it again.
+    if (showingDexcomConnectBanner !== false) {
+      // const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+      if (showShareDataBanner) {
+        this.props.showBanner('sharedata');
+        displayShareDataBanner = true;
+
+        // if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+        //   this.props.context.trackMetric('Dexcom OAuth banner displayed');
+        //   this.setState({ dexcomShowBannerMetricTracked: true });
+        // }
+      } else if (showingDexcomConnectBanner) {
+        this.props.hideBanner('sharedata');
+      }
+    }
+
     const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
     let displayDonateBanner = false;
 
     // Determine whether or not to show the donate banner.
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDonateBanner !== false) {
+    if (showingDonateBanner === false) { //changed from !== for testing
+    // if (showingDonateBanner !== false && !displayShareDataBanner) {
+      // when share data banner is live and should be shown first
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
@@ -181,7 +206,9 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    if (showingDexcomConnectBanner === false && !displayDonateBanner) { //changed from !== for testing
+    // if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
+            // when share data banner is live and should be shown first
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
@@ -195,6 +222,7 @@ export class AppComponent extends React.Component {
       }
     }
   }
+
 
   /**
    * Render Functions
@@ -296,7 +324,7 @@ export class AppComponent extends React.Component {
     if (showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
-          <DexcomBanner
+          <ShareDataBanner
             onClick={onClickDexcomConnectBanner}
             onClose={onDismissDexcomConnectBanner}
             trackMetric={this.props.context.trackMetric}
