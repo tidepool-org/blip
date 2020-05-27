@@ -68,6 +68,7 @@ export class AppComponent extends React.Component {
     onCloseNotification: React.PropTypes.func.isRequired,
     onDismissDonateBanner: React.PropTypes.func.isRequired,
     onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
+    onDismissShareDataBanner: React.PropTypes.func.isRequired,
     onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
     onLogout: React.PropTypes.func.isRequired,
     patient: React.PropTypes.object,
@@ -329,7 +330,7 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
     const {
       showingShareDataBanner,
       onClickDexcomConnectBanner,
-      onDismissDexcomConnectBanner,
+      onDismissShareDataBanner,
       patient,
     } = this.props;
 
@@ -338,7 +339,7 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
         <div className="App-sharedatabanner">
           <ShareDataBanner
             onClick={onClickDexcomConnectBanner}
-            onClose={onDismissDexcomConnectBanner}
+            onClose={onDismissShareDataBanner}
             trackMetric={this.props.context.trackMetric}
             patient={patient} />
         </div>
@@ -679,7 +680,9 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
   onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
+  onDismissShareDataBanner: actions.async.dismissShareDataBanner,
   onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
+  onClickShareDataBanner: actions.async.clickShareDataBanner,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
@@ -697,7 +700,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
+    onDismissShareDataBanner: dispatchProps.onDismissShareDataBanner.bind(null, api),
     onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
+    onClickShareDataBanner: dispatchProps.onClickShareDataBanner.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,

@@ -121,7 +121,7 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       return (action.payload.type === 'dexcom') ? false : state;
     case types.FETCH_USER_SUCCESS:
       const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
         return (action.payload.type === 'dexcom') ? null : state;
@@ -139,8 +139,8 @@ export const showingShareDataBanner = (state = initialState.showingShareDataBann
     case types.DISMISS_BANNER:
       return (action.payload.type === 'sharedata') ? false : state;
     case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedSharedDataBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
         return (action.payload.type === 'sharedata') ? null : state;

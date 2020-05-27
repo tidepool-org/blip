@@ -1242,7 +1242,7 @@ export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
 }
 
 /**
- * Click Donate Banner Action Creator
+ * Click Dexcom Banner Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
@@ -1254,6 +1254,45 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
 
     const preferences = {
       clickedDexcomConnectBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+
+/**
+ * Dismiss Share Data Connect Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissShareDataBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      dismissedShareDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Share Data Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickShareDataBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      clickedShareDataBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));
