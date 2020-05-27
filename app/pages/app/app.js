@@ -81,6 +81,7 @@ export class AppComponent extends React.Component {
     }).isRequired,
     showingDonateBanner: React.PropTypes.bool,
     showingDexcomConnectBanner: React.PropTypes.bool,
+    showingShareDataBanner: React.PropTypes.bool,
     showBanner: React.PropTypes.func.isRequired,
     hideBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
@@ -149,6 +150,7 @@ export class AppComponent extends React.Component {
     const {
       showingDonateBanner,
       showingDexcomConnectBanner,
+      showingShareDataBanner,
       location,
       userHasData,
       userHasConnectedDataSources,
@@ -163,12 +165,14 @@ export class AppComponent extends React.Component {
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
     const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+
     let displayShareDataBanner = false;
 
     // Determine whether or not to show the share data banner.
     // If showingShareDataBanner is false, it means it was dismissed,
     // or was shown to the user 3 times already and we do not show it again.
-    if (showingDexcomConnectBanner !== false) {
+    if (showingShareDataBanner !== false) {
       // const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
@@ -178,19 +182,39 @@ export class AppComponent extends React.Component {
         //   this.props.context.trackMetric('Dexcom OAuth banner displayed');
         //   this.setState({ dexcomShowBannerMetricTracked: true });
         // }
-      } else if (showingDexcomConnectBanner) {
+      } else if (showingShareDataBanner) {
         this.props.hideBanner('sharedata');
       }
     }
 
-    const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    // const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    // let displayDonateBanner = false;
+
+    // // Determine whether or not to show the donate banner.
+    // // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
+    // if (showingDonateBanner === false) { //changed from !== for testing
+    // // if (showingDonateBanner !== false && !displayShareDataBanner) {
+    //   // when share data banner is live and should be shown first
+    //   if (showDonateBanner) {
+    //     this.props.showBanner('donate');
+    //     displayDonateBanner = true;
+
+    //     if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+    //       this.props.context.trackMetric('Big Data banner displayed');
+    //       this.setState({ donateShowBannerMetricTracked: true });
+    //     }
+    //   } else if (showingDonateBanner) {
+    //     this.props.hideBanner('donate');
+    //   }
+    // }
+
+
+// UPDATED Donate Banner Setup
+
     let displayDonateBanner = false;
 
-    // Determine whether or not to show the donate banner.
-    // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDonateBanner === false) { //changed from !== for testing
-    // if (showingDonateBanner !== false && !displayShareDataBanner) {
-      // when share data banner is live and should be shown first
+if (showingDonateBanner !== false && !displayShareDataBanner) {
+  const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
@@ -204,23 +228,39 @@ export class AppComponent extends React.Component {
       }
     }
 
+
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDexcomConnectBanner === false && !displayDonateBanner) { //changed from !== for testing
-    // if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
-            // when share data banner is live and should be shown first
-      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
-      if (showDexcomBanner) {
-        this.props.showBanner('dexcom');
+    // if (showingDexcomConnectBanner === false && !displayDonateBanner) { //changed from !== for testing
+    // // if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
+    //         // when share data banner is live and should be shown first
+    //   const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+    //   if (showDexcomBanner) {
+    //     this.props.showBanner('dexcom');
 
-        if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
-          this.props.context.trackMetric('Dexcom OAuth banner displayed');
-          this.setState({ dexcomShowBannerMetricTracked: true });
+    //     if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+    //       this.props.context.trackMetric('Dexcom OAuth banner displayed');
+    //       this.setState({ dexcomShowBannerMetricTracked: true });
+    //     }
+    //   } else if (showingDexcomConnectBanner) {
+    //     this.props.hideBanner('dexcom');
+    //   }
+    // }
+
+    //Updated Dexcom Banner Setup
+      if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
+        const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+        if (showDexcomBanner) {
+          this.props.showBanner('dexcom');
+
+          if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+            this.props.context.trackMetric('Dexcom OAuth banner displayed');
+            this.setState({ dexcomShowBannerMetricTracked: true });
+          }
+        } else if (showingDexcomConnectBanner) {
+          this.props.hideBanner('dexcom');
         }
-      } else if (showingDexcomConnectBanner) {
-        this.props.hideBanner('dexcom');
       }
-    }
   }
 
 
@@ -283,6 +323,31 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderShareDataBanner() {
+    this.props.context.log('Rendering share data banner');
+
+    const {
+      showingShareDataBanner,
+      onClickDexcomConnectBanner,
+      onDismissDexcomConnectBanner,
+      patient,
+    } = this.props;
+
+    if (showingShareDataBanner) {
+      return (
+        <div className="App-sharedatabanner">
+          <ShareDataBanner
+            onClick={onClickDexcomConnectBanner}
+            onClose={onDismissDexcomConnectBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderDonateBanner() {
     this.props.context.log('Rendering donation banner');
 
@@ -324,7 +389,7 @@ export class AppComponent extends React.Component {
     if (showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
-          <ShareDataBanner
+          <DexcomBanner
             onClick={onClickDexcomConnectBanner}
             onClose={onDismissDexcomConnectBanner}
             trackMetric={this.props.context.trackMetric}
@@ -448,6 +513,7 @@ export class AppComponent extends React.Component {
     var notification = this.renderNotification();
     var donatebanner = this.renderDonateBanner();
     var dexcombanner = this.renderDexcomConnectBanner();
+    var sharedatabanner = this.renderShareDataBanner();
     var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
@@ -459,6 +525,7 @@ export class AppComponent extends React.Component {
         {notification}
         {donatebanner}
         {dexcombanner}
+        {sharedatabanner}
         {this.props.children}
         {footer}
       </div>
@@ -593,6 +660,7 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
+    showingShareDataBanner: state.blip.showingShareDataBanner,
     userIsCurrentPatient,
     userHasData,
     userIsDonor,

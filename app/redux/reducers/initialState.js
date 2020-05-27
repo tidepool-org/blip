@@ -30,6 +30,7 @@ const initialState = {
   showingWelcomeMessage: null,
   showingDonateBanner: null,
   showingDexcomConnectBanner: null,
+  showingShareDataBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

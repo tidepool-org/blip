@@ -116,6 +116,25 @@ export const showingDonateBanner = (state = initialState.showingDonateBanner, ac
 export const showingDexcomConnectBanner = (state = initialState.showingDexcomConnectBanner, action) => {
   switch (action.type) {
     case types.SHOW_BANNER:
+      return (action.payload.type === 'dexcom' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'dexcom') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'dexcom') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
       return (action.payload.type === 'sharedata' && state !== false) ? true : state;
     case types.DISMISS_BANNER:
       return (action.payload.type === 'sharedata') ? false : state;
