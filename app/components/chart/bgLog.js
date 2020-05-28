@@ -60,6 +60,10 @@ class BgLogChart extends Component {
     this.log = bows('BgLog Chart');
   }
 
+  componentDidMount = () => {
+    this.mount();
+  };
+
   mount = (props = this.props) => {
     this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(props.data, props.initialDatetimeLocation, props.showingValues);
@@ -79,7 +83,7 @@ class BgLogChart extends Component {
 
   unmountChart = () => {
     this.log('Unmounting...');
-    this.chart.destroy();
+    if (this.chart) this.chart.destroy();
   };
 
   remountChart = (props = this.props) => {
@@ -206,12 +210,6 @@ class BgLog extends Component {
     };
   };
 
-  componentDidMount = () => {
-    if (this.refs.chart) {
-      this.refs.chart.mount();
-    }
-  };
-
   componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
@@ -231,6 +229,13 @@ class BgLog extends Component {
   };
 
   render = () => {
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
+    let renderedContent;
+
+    if (dataQueryComplete) {
+      renderedContent = this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart();
+    }
+
     return (
       <div id="tidelineMain" className="bgLog">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -238,7 +243,7 @@ class BgLog extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.isMissingSMBG() ? (this.props.loading ? null : this.renderMissingSMBGMessage()) : this.renderChart()}
+              {renderedContent}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -252,11 +257,12 @@ class BgLog extends Component {
           </div>
         </div>
         <Footer
-         chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
-         onClickValues={this.toggleValues}
-         onClickRefresh={this.props.onClickRefresh}
-         showingValues={this.state.showingValues}
-        ref="footer" />
+          chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
+          onClickValues={this.toggleValues}
+          onClickRefresh={this.props.onClickRefresh}
+          showingValues={this.state.showingValues}
+          ref="footer"
+        />
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );

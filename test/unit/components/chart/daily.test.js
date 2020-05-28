@@ -169,12 +169,20 @@ describe('Daily', () => {
       sinon.assert.callCount(props.onClickPrint, 1);
     });
 
-    it('should show a loader when loading prop is true', () => {
-      var props = _.assign({}, baseProps, {
+    it('should show a loader when loading prop is true and the daily chart is rendered', () => {
+      var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
       });
 
-      wrapper.setProps(props);
+      wrapper.setProps(dayDataReadyProps);
 
       const loader = () => wrapper.find(Loader);
 
@@ -183,6 +191,27 @@ describe('Daily', () => {
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
+    });
+
+    it('should only render the daily chart when the daily data is ready', () => {
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
+      });
+
+      const chart = () => wrapper.find('.fake-daily-chart');
+
+      expect(chart().length).to.equal(0);
+
+      wrapper.setProps(dayDataReadyProps);
+      expect(chart().length).to.equal(1);
     });
 
     it('should render the bg toggle', () => {

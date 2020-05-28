@@ -254,9 +254,10 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    const wrappedInstance = _.get(this.refs, 'chart.wrappedInstance');
 
-    if (this.refs.chart && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
-      this.refs.chart.getWrappedInstance().rerenderChart(nextProps);
+    if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
+      wrappedInstance.rerenderChart(nextProps);
     }
   };
 
@@ -269,6 +270,7 @@ class Daily extends Component {
   render = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'daily';
 
     return (
       <div id="tidelineMain" className="daily">
@@ -296,7 +298,7 @@ class Daily extends Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              {this.renderChart()}
+              {dataQueryComplete && this.renderChart()}
             </div>
           </div>
           <div className="container-box-inner patient-data-sidebar">
@@ -318,27 +320,28 @@ class Daily extends Component {
         <Footer
           chartType={this.chartType}
           onClickRefresh={this.props.onClickRefresh}
-          ref="footer" />
+          ref="footer"
+        />
         {this.state.hoveredBolus && <BolusTooltip
-            position={{
-              top: this.state.hoveredBolus.top,
-              left: this.state.hoveredBolus.left
-            }}
-            side={this.state.hoveredBolus.side}
-            bolus={this.state.hoveredBolus.data}
-            bgPrefs={bgPrefs}
-            timePrefs={timePrefs}
-          />}
+          position={{
+            top: this.state.hoveredBolus.top,
+            left: this.state.hoveredBolus.left
+          }}
+          side={this.state.hoveredBolus.side}
+          bolus={this.state.hoveredBolus.data}
+          bgPrefs={bgPrefs}
+          timePrefs={timePrefs}
+        />}
         {this.state.hoveredSMBG && <SMBGTooltip
-            position={{
-              top: this.state.hoveredSMBG.top,
-              left: this.state.hoveredSMBG.left
-            }}
-            side={this.state.hoveredSMBG.side}
-            smbg={this.state.hoveredSMBG.data}
-            timePrefs={timePrefs}
-            bgPrefs={bgPrefs}
-          />}
+          position={{
+            top: this.state.hoveredSMBG.top,
+            left: this.state.hoveredSMBG.left
+          }}
+          side={this.state.hoveredSMBG.side}
+          smbg={this.state.hoveredSMBG.data}
+          timePrefs={timePrefs}
+          bgPrefs={bgPrefs}
+        />}
         {this.state.hoveredCBG && <CBGTooltip
           position={{
             top: this.state.hoveredCBG.top,
