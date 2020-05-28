@@ -3713,6 +3713,22 @@ describe('PatientData', function () {
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
     });
+
+    it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'daily', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+        updateChartEndpoints: true,
+      });
+    });
   });
 
   describe('handleSwitchToTrends', function() {
@@ -3789,6 +3805,22 @@ describe('PatientData', function () {
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T00:00:00.000Z');
     });
+
+    it('should set the `datetimeLocation` state to the end of day for the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-05T00:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T08:00:00.000Z',
+        updateChartEndpoints: true,
+      });
+    });
   });
 
   describe('handleSwitchToBgLog', function() {
@@ -3856,6 +3888,22 @@ describe('PatientData', function () {
 
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'bgLog', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+        updateChartEndpoints: true,
+      });
     });
   });
 
