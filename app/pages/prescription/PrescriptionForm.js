@@ -1,37 +1,54 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import bows from 'bows';
 import { Box } from 'rebass/styled-components';
-import { withFormik, useFormikContext } from 'formik';
+import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getFieldsMeta } from '../../core/forms';
+import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
-/* global Promise */
-const log = bows('PrescriptionForm');
-const sleep = m => new Promise(r => setTimeout(r, m));
+/* global crypto, Uint8Array, Promise */
 
-const _prescriptionForm = {
-  mapPropsToValues: () => ({
-    type: '',
-    firstName: '',
-    lastName: '',
-    birthday: null,
-    email: '',
-    emailConfirm: '',
+const log = bows('PrescriptionForm');
+
+const prescriptionForm = {
+  mapPropsToValues: (props) => ({
+    id: get(props, 'routeParams.id', ''),
+    type: get(props, 'prescription.type', ''),
+    firstName: get(props, 'prescription.firstName', ''),
+    lastName: get(props, 'prescription.lastName', ''),
+    birthday: get(props, 'prescription.birthday', ''),
+    email: get(props, 'prescription.email', ''),
+    emailConfirm: get(props, 'prescription.email', ''),
   }),
   validationSchema: prescriptionSchema,
   displayName: 'PrescriptionForm',
 }
 
-const PrescriptionForm = () => {
+const withPrescription = Component => props => {
+  // Until backend service is ready, get prescriptions from localStorage
+  const [prescriptions] = useLocalStorage('prescriptions', {});
+
+  const id = get(props, 'routeParams.id', '');
+  const prescription = get(prescriptions, id);
+
+  return <Component prescription={prescription} {...props} />
+};
+
+const PrescriptionForm = props => {
+  console.log('props', props);
+  const { id, t } = props;
+
   const {
     errors,
     getFieldMeta,
@@ -44,12 +61,20 @@ const PrescriptionForm = () => {
   log('touched', touched);
   log('values', values);
 
-  const meta = getFieldsMeta(prescriptionSchema, getFieldMeta)
+  const meta = cloneDeep(getFieldsMeta(prescriptionSchema, getFieldMeta))
   log('meta', meta);
 
+  const [prescriptionId, setPrescriptionId] = React.useState(id)
+
   /* WIP Scaffolding Start */
+  const sleep = m => new Promise(r => setTimeout(r, m));
+
+  // Until backend service is ready, save prescriptions to localStorage
+  const [prescriptions, setPrescriptions] = useLocalStorage('prescriptions', {});
+
   const initialAsyncState = () => ({ pending: false, complete: false });
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
+  const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
 
   const renderStepContent = text => <Box>{text}</Box>;
@@ -63,20 +88,59 @@ const PrescriptionForm = () => {
       required
     />
   );
+
+  const handleStepSubmit = async () => {
+    log('handleStepSubmit called')
+    function uuidv4() {
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16) // eslint-disable-line no-bitwise
+      );
+    }
+
+    const prescriptionValues = values => {
+      const prescription = { ...values };
+      delete prescription.emailConfirm;
+      prescription.state = 'draft';
+      return prescription;
+    };
+
+    setStepAsyncState({ pending: true, complete: false });
+
+    const id = values.id || uuidv4();
+
+    await sleep(1000);
+
+    setPrescriptions({
+      ...prescriptions,
+      [id]: {
+        id,
+        ...prescriptionValues(values),
+      },
+    });
+
+    if (!prescriptionId) setPrescriptionId(id);
+
+    setStepAsyncState({ pending: false, complete: true });
+  };
   /* WIP Scaffolding End */
 
   const stepperProps = {
-    'aria-label': 'New Prescription Form',
-    backText: 'Previous Step',
-    completeText: 'Save and Continue',
+    'aria-label': t('New Prescription Form'),
+    backText: t('Previous Step'),
+    completeText: t('Save and Continue'),
     id: 'new-prescription',
     onStepChange: (newStep) => {
       setPrescriptionReviewed(false);
       setFinalAsyncState(initialAsyncState());
+      setStepAsyncState(initialAsyncState());
       log('newStep', newStep.join(','));
     },
     steps: [
-      accountFormSteps(meta),
+      {
+        ...accountFormSteps(meta),
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
+      },
       {
         label: 'Complete Patient Profile',
         panelContent: renderStepContent('Patient Profile Form'),
@@ -95,7 +159,7 @@ const PrescriptionForm = () => {
         disableComplete: !prescriptionReviewed || finalAsyncState.complete,
         asyncState: finalAsyncState,
         completed: finalAsyncState.complete,
-        completeText: 'Send Prescription',
+        completeText: finalAsyncState.complete ? t('Prescription Sent') : t('Send Prescription'),
         panelContent: renderStepConfirmation(
           'review-checkbox',
           'The prescription details are correct',
@@ -125,10 +189,13 @@ const PrescriptionForm = () => {
 
   // When a user comes to this component initially, without the active step and subStep set by the
   // Stepper component in the url, we delete any persisted state from localStorage.
-  if (get(localStorage, storageKey) && activeStepsParam === null) delete localStorage[storageKey];
+  // As well, when editing an existing prescription, we delete it so that the current prescription
+  // values replace whatever values were previously stored
+  if (props.prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
 
   return (
     <form onSubmit={handleSubmit}>
+      <FastField type="hidden" name="id" />
       <Stepper {...stepperProps} />
       <Persist name={storageKey} />
     </form>
@@ -146,4 +213,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withFormik(_prescriptionForm)(PrescriptionForm));
+export default translate()(withPrescription(withFormik(prescriptionForm)(PrescriptionForm)));
