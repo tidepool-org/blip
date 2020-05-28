@@ -123,11 +123,22 @@ export const Stepper = props => {
   );
 
   const getActiveStepAsyncState = () => {
-    const state = stepHasSubSteps(activeStep)
-      ? steps[activeStep].subSteps[activeSubStep].asyncState
-      : steps[activeStep].asyncState;
+    let activeStepAsyncState = get(steps[activeStep], 'asyncState');
 
-    return state;
+    if (stepHasSubSteps(activeStep) && activeSubStep < steps[activeStep].subSteps.length - 1) {
+      activeStepAsyncState = undefined;
+    }
+
+    const activeSubStepAsyncState = get(steps[activeStep], ['subSteps', activeSubStep, 'asyncState']);
+
+    const asyncState = {
+      stepIsAsync: !!activeStepAsyncState,
+      subStepIsAsync: !!activeSubStepAsyncState,
+      step: activeStepAsyncState,
+      subStep: activeSubStepAsyncState,
+    };
+
+    return asyncState;
   };
 
   const advanceActiveStep = () => {
@@ -139,21 +150,47 @@ export const Stepper = props => {
     if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
   };
 
-  React.useEffect(() => {
-    const { pending, complete } = getActiveStepAsyncState() || {};
-
-    if (!pending) {
-      if (complete) {
-        if (pendingStep.length) {
-          setActiveStep(pendingStep[0]);
-          setActiveSubStep(pendingStep[1]);
-          if (stepHasSubSteps(activeStep) && pendingStep[1] === 0) handleActiveStepOnComplete();
-          setPendingStep([]);
-        }
-        setProcessing(false);
-      }
+  const completeAsyncStep = () => {
+    if (pendingStep.length) {
+      setActiveStep(pendingStep[0]);
+      setActiveSubStep(pendingStep[1]);
+      setPendingStep([]);
     }
-  }, [steps]);
+    setProcessing(false);
+  };
+
+  React.useEffect(() => {
+    const { subStepIsAsync, stepIsAsync, step = {}, subStep = {} } = getActiveStepAsyncState();
+
+    console.log('pendingStep', pendingStep);
+
+    if (pendingStep.length && (subStepIsAsync || stepIsAsync)) {
+      const { pending: subStepPending, complete: subStepComplete } = subStep;
+      const { pending: stepPending, complete: stepComplete } = step;
+      console.log('subStepPending', subStepPending);
+      console.log('subStepComplete', subStepComplete);
+      console.log('stepPending', stepPending);
+      console.log('stepComplete', stepComplete);
+
+      if (subStepIsAsync && !subStepPending && subStepComplete) {
+        if (!stepIsAsync) {
+          completeAsyncStep();
+        }
+        if (pendingStep[1] === 0 && !stepPending) handleActiveStepOnComplete();
+      } else if (activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1) {
+        if (stepIsAsync && !stepPending) {
+          if (!stepComplete) {
+            handleActiveStepOnComplete();
+          } else {
+            completeAsyncStep();
+          }
+        }
+      }
+    } else {
+      if (pendingStep.length) setPendingStep([]);
+      if (processing) setProcessing(false);
+    }
+  }, [steps, pendingStep]);
 
   React.useEffect(() => {
     if (transitioningToStep) return;
@@ -175,14 +212,12 @@ export const Stepper = props => {
   }, [activeStep, activeSubStep]);
 
   const handleNext = () => {
-    const activeStepAsyncState = getActiveStepAsyncState();
-    let { pending } = activeStepAsyncState || {};
+    const { subStepIsAsync, stepIsAsync } = getActiveStepAsyncState();
 
-    setProcessing(pending);
+    setProcessing(false);
+    let pending;
 
-    if (activeStepAsyncState) {
-      if (pending) return;
-
+    if (stepIsAsync || subStepIsAsync) {
       pending = true;
       setProcessing(true);
 
@@ -214,8 +249,8 @@ export const Stepper = props => {
         }
       }
     } else {
-      handleActiveStepOnComplete();
       if (!pending) {
+        handleActiveStepOnComplete();
         advanceActiveStep();
       }
     }
@@ -251,7 +286,7 @@ export const Stepper = props => {
       <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
-            disabled={activeStep === 0 && activeSubStep === 0}
+            disabled={processing || (activeStep === 0 && activeSubStep === 0)}
             variant="secondary"
             className="step-back"
             onClick={handleBack}
