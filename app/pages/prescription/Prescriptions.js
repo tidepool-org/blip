@@ -3,27 +3,23 @@ import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import values from 'lodash/values';
 
 import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
-
-const createPlaceholderPrescription = (id, firstName, lastName, mrn, state) => ({ id, firstName, lastName, mrn, state });
-
-const stubPrescriptions = [
-  createPlaceholderPrescription('0', 'Claire', 'Clownfish', '0123', 'draft'),
-  createPlaceholderPrescription('1', 'James', 'Jellyfish', '1234', 'draft'),
-  createPlaceholderPrescription('2', 'Bill', 'Barracuda', '2345', 'pending'),
-  createPlaceholderPrescription('3', 'Sam', 'Jellyfish', '3456', 'draft'),
-  createPlaceholderPrescription('4', 'Oprah', 'Orca', '4567', 'pending'),
-  createPlaceholderPrescription('5', 'Wendy', 'Barracuda', '5678', 'submitted'),
-];
+import { useLocalStorage } from '../../core/hooks';
 
 const Prescriptions = props => {
-  const { prescriptions = stubPrescriptions, t } = props;
+  const { t } = props;
 
   const [searchText, setSearchText] = React.useState();
+
+  // TODO: Get prescriptions from backend service when ready
+  const [prescriptions] = useLocalStorage('prescriptions', {});
+
+  const data = values(prescriptions);
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
@@ -31,9 +27,17 @@ const Prescriptions = props => {
 
   const handleAddNew = () => browserHistory.push('prescriptions/new');
 
+  const handleEdit = id => () => browserHistory.push({
+    pathname: `prescriptions/${id}/edit`,
+    state: {
+      prescription: prescriptions[id],
+      foo: 'bar',
+    },
+  });
+
 
   const renderEdit = ({ id }) => (
-    <Button p={0} fontSize="inherit" variant="textPrimary" onClick={() => browserHistory.push(`prescriptions/${id}/edit`)}>{t('Edit')}</Button>
+    <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>
   );
 
   const renderState = ({ state }) => {
@@ -93,7 +97,7 @@ const Prescriptions = props => {
       <Table
         label="Sample clinician list"
         id="prescriptions-table"
-        data={prescriptions}
+        data={data}
         columns={columns}
         searchText={searchText}
         orderBy="lastName"
