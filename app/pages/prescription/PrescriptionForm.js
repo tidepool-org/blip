@@ -52,6 +52,7 @@ const PrescriptionForm = props => {
   const {
     errors,
     getFieldMeta,
+    setFieldValue,
     handleSubmit,
     touched,
     values,
@@ -63,8 +64,6 @@ const PrescriptionForm = props => {
 
   const meta = cloneDeep(getFieldsMeta(prescriptionSchema, getFieldMeta))
   log('meta', meta);
-
-  const [prescriptionId, setPrescriptionId] = React.useState(id)
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));
@@ -107,18 +106,17 @@ const PrescriptionForm = props => {
     setStepAsyncState({ pending: true, complete: false });
 
     const id = values.id || uuidv4();
+    if (!values.id) setFieldValue('id', id);
 
     await sleep(1000);
 
     setPrescriptions({
       ...prescriptions,
       [id]: {
-        id,
         ...prescriptionValues(values),
+        id,
       },
     });
-
-    if (!prescriptionId) setPrescriptionId(id);
 
     setStepAsyncState({ pending: false, complete: true });
   };
