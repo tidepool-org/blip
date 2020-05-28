@@ -10,6 +10,7 @@ import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 
 const log = bows('PrescriptionAccount');
+/* global Promise */
 
 export const AccountType = translate()((props) => {
   const { t, meta } = props;
@@ -97,10 +98,13 @@ export const PatientEmail = translate()((props) => {
   );
 });
 
-const accountFormSteps = (meta) => {
+const accountFormSteps = (meta, submitAsyncState, handleStepSubmit) => {
+  const sleep = m => new Promise(r => setTimeout(r, m));
+  const initialAsyncState = () => ({ pending: false, complete: false });
+  const [asyncState, setAsyncState] = React.useState(initialAsyncState());
+
   return {
     label: 'Create Patient Account',
-    onComplete: () => log('Patient Account Created'),
     subSteps: [
       {
         disableComplete: !fieldsAreValid(['type'], meta),
@@ -110,12 +114,18 @@ const accountFormSteps = (meta) => {
       },
       {
         disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday'], meta),
-        onComplete: log('Patient Info Complete'),
+        onComplete: () => log('Patient Info Complete'),
         panelContent: <PatientInfo meta={meta} />,
       },
       {
         disableComplete: !fieldsAreValid(['email', 'emailConfirm'], meta),
-        onComplete: log('Patient Email Complete'),
+        onComplete: async () => {
+          setAsyncState({ pending: true, complete: false });
+          await sleep(3000);
+          log('Patient Email Complete')
+          setAsyncState({ pending: false, complete: true });
+        },
+        asyncState,
         panelContent: <PatientEmail meta={meta} />,
       },
     ],
