@@ -162,23 +162,17 @@ export const Stepper = props => {
   React.useEffect(() => {
     const { subStepIsAsync, stepIsAsync, step = {}, subStep = {} } = getActiveStepAsyncState();
 
-    console.log('pendingStep', pendingStep);
-
     if (pendingStep.length && (subStepIsAsync || stepIsAsync)) {
       const { pending: subStepPending, complete: subStepComplete } = subStep;
       const { pending: stepPending, complete: stepComplete } = step;
-      console.log('subStepPending', subStepPending);
-      console.log('subStepComplete', subStepComplete);
-      console.log('stepPending', stepPending);
-      console.log('stepComplete', stepComplete);
 
       if (subStepIsAsync && !subStepPending && subStepComplete) {
-        if (!stepIsAsync) {
+        if (!stepIsAsync || stepComplete) {
           completeAsyncStep();
         }
-        if (pendingStep[1] === 0 && !stepPending) handleActiveStepOnComplete();
+        if (pendingStep[1] === 0 && !stepPending && !stepComplete) handleActiveStepOnComplete();
       } else if (activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1) {
-        if (stepIsAsync && !stepPending) {
+        if (!subStepPending && stepIsAsync && !stepPending) {
           if (!stepComplete) {
             handleActiveStepOnComplete();
           } else {
