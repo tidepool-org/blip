@@ -22,7 +22,7 @@ import Stepper from '../../components/elements/Stepper';
 const log = bows('PrescriptionForm');
 
 const prescriptionForm = {
-  mapPropsToValues: (props) => ({
+  mapPropsToValues: props => ({
     id: get(props, 'routeParams.id', ''),
     type: get(props, 'prescription.type', ''),
     firstName: get(props, 'prescription.firstName', ''),
@@ -46,24 +46,17 @@ const withPrescription = Component => props => {
 };
 
 const PrescriptionForm = props => {
-  console.log('props', props);
-  const { id, t } = props;
+  const { t } = props;
 
   const {
-    errors,
     getFieldMeta,
     setFieldValue,
     handleSubmit,
-    touched,
     values,
   } = useFormikContext();
 
-  log('errors', errors);
-  log('touched', touched);
-  log('values', values);
-
-  const meta = cloneDeep(getFieldsMeta(prescriptionSchema, getFieldMeta))
-  log('meta', meta);
+  // const meta = cloneDeep(getFieldsMeta(prescriptionSchema, getFieldMeta))
+  const meta = getFieldsMeta(prescriptionSchema, getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));
@@ -89,7 +82,6 @@ const PrescriptionForm = props => {
   );
 
   const handleStepSubmit = async () => {
-    log('handleStepSubmit called')
     function uuidv4() {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16) // eslint-disable-line no-bitwise
@@ -131,7 +123,7 @@ const PrescriptionForm = props => {
       setPrescriptionReviewed(false);
       setFinalAsyncState(initialAsyncState());
       setStepAsyncState(initialAsyncState());
-      log('newStep', newStep.join(','));
+      log('Step to', newStep.join(','));
     },
     steps: [
       {

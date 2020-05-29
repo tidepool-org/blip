@@ -10,9 +10,8 @@ import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 
 const log = bows('PrescriptionAccount');
-/* global Promise */
 
-export const AccountType = translate()((props) => {
+export const AccountType = translate()(props => {
   const { t, meta } = props;
 
   return (
@@ -33,7 +32,7 @@ export const AccountType = translate()((props) => {
   );
 });
 
-export const PatientInfo = translate()((props) => {
+export const PatientInfo = translate()(props => {
   const { t, meta } = props;
 
   return (
@@ -69,7 +68,7 @@ export const PatientInfo = translate()((props) => {
   );
 });
 
-export const PatientEmail = translate()((props) => {
+export const PatientEmail = translate()(props => {
   const { t, meta } = props;
 
   return (
@@ -98,38 +97,26 @@ export const PatientEmail = translate()((props) => {
   );
 });
 
-const accountFormSteps = (meta, submitAsyncState, handleStepSubmit) => {
-  const sleep = m => new Promise(r => setTimeout(r, m));
-  const initialAsyncState = () => ({ pending: false, complete: false });
-  const [asyncState, setAsyncState] = React.useState(initialAsyncState());
-
-  return {
-    label: 'Create Patient Account',
-    subSteps: [
-      {
-        disableComplete: !fieldsAreValid(['type'], meta),
-        hideBack: true,
-        onComplete: () => log('Account Type Complete'),
-        panelContent: <AccountType meta={meta} />
-      },
-      {
-        disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday'], meta),
-        onComplete: () => log('Patient Info Complete'),
-        panelContent: <PatientInfo meta={meta} />,
-      },
-      {
-        disableComplete: !fieldsAreValid(['email', 'emailConfirm'], meta),
-        onComplete: async () => {
-          setAsyncState({ pending: true, complete: false });
-          await sleep(3000);
-          log('Patient Email Complete')
-          setAsyncState({ pending: false, complete: true });
-        },
-        asyncState,
-        panelContent: <PatientEmail meta={meta} />,
-      },
-    ],
-  };
-};
+const accountFormSteps = meta => ({
+  label: 'Create Patient Account',
+  subSteps: [
+    {
+      disableComplete: !fieldsAreValid(['type'], meta),
+      hideBack: true,
+      onComplete: () => log('Account Type Complete'),
+      panelContent: <AccountType meta={meta} />
+    },
+    {
+      disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday'], meta),
+      onComplete: () => log('Patient Info Complete'),
+      panelContent: <PatientInfo meta={meta} />,
+    },
+    {
+      disableComplete: !fieldsAreValid(['email', 'emailConfirm'], meta),
+      onComplete: () => log('Patient Email Complete'),
+      panelContent: <PatientEmail meta={meta} />,
+    },
+  ],
+});
 
 export default accountFormSteps;
