@@ -5,10 +5,13 @@ import { Box, Text } from 'rebass/styled-components';
 import bows from 'bows';
 
 import { fieldsAreValid } from '../../core/forms';
+import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
+import { typeOptions } from './prescriptionSchema';
 
+const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
 
 export const AccountType = translate()(props => {
@@ -21,10 +24,7 @@ export const AccountType = translate()(props => {
         as={RadioGroup}
         id="type"
         name="type"
-        options={[
-          { value: 'patient', label: t('Patient') },
-          { value: 'caregiver', label: t('Patient and caregiver') },
-        ]}
+        options={typeOptions}
         error={meta.type.touched && meta.type.error}
         themeProps={{ mb: 5 }}
       />
@@ -98,7 +98,7 @@ export const PatientEmail = translate()(props => {
 });
 
 const accountFormSteps = meta => ({
-  label: 'Create Patient Account',
+  label: t('Create Patient Account'),
   subSteps: [
     {
       disableComplete: !fieldsAreValid(['type'], meta),
