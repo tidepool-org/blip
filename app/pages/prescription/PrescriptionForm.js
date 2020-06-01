@@ -13,6 +13,7 @@ import { getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
+import profileFormSteps from './profileFormSteps';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
@@ -24,12 +25,23 @@ const log = bows('PrescriptionForm');
 const prescriptionForm = {
   mapPropsToValues: props => ({
     id: get(props, 'routeParams.id', ''),
+    state: get(props, 'prescription.state', 'draft'),
     type: get(props, 'prescription.type', ''),
     firstName: get(props, 'prescription.firstName', ''),
     lastName: get(props, 'prescription.lastName', ''),
     birthday: get(props, 'prescription.birthday', ''),
     email: get(props, 'prescription.email', ''),
     emailConfirm: get(props, 'prescription.email', ''),
+    phoneNumber: {
+      countryCode: get(props, 'prescription.phoneNumber.countryCode', 1),
+      number: get(props, 'prescription.phoneNumber.number', ''),
+    },
+    mrn: get(props, 'prescription.mrn', ''),
+    sex: get(props, 'prescription.sex', ''),
+    initialSettings: {
+      pumpType: get(props, 'prescription.initialSettings.pumpType', ''),
+      cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
+    },
   }),
   validationSchema: prescriptionSchema,
   displayName: 'PrescriptionForm',
@@ -55,7 +67,6 @@ const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
-  // const meta = cloneDeep(getFieldsMeta(prescriptionSchema, getFieldMeta))
   const meta = getFieldsMeta(prescriptionSchema, getFieldMeta);
 
   /* WIP Scaffolding Start */
@@ -132,8 +143,9 @@ const PrescriptionForm = props => {
         asyncState: stepAsyncState,
       },
       {
-        label: 'Complete Patient Profile',
-        panelContent: renderStepContent('Patient Profile Form'),
+        ...profileFormSteps(meta, setFieldValue),
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
       },
       {
         label: 'Enter Therapy Settings',
