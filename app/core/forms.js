@@ -26,7 +26,7 @@ export const getFieldsMeta = (schema, getFieldMeta) => {
     return result;
   }, {});
 
-  return reduceFields(fieldKeys)
+  return reduceFields(fieldKeys);
 };
 
 export const fieldsAreValid = (fieldNames, fieldsMeta) => !includes(map(fieldNames, fieldName => get(fieldsMeta, `${fieldName}.valid`)), false);
