@@ -1,7 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
 import { Heading, Text, Link } from 'rebass';
-import { NavLink } from 'react-router-dom';
 
 import {
   borders,
@@ -184,19 +183,4 @@ export const BadgeFont = Styled(Text)`
   height: auto;
   text-transform: uppercase;
   vertical-align: baseline;
-`;
-
-export const TopNavLink = Styled(NavLink)`
-  font-size: ${fontSizes[1]}px;
-  margin: 0;
-  font-family: ${fonts.default};
-  line-height: ${lineHeights[0]};
-  font-weight: ${fontWeights.regular};
-  color: ${colors.text.primary};
-  text-decoration: none;
-  &:hover {
-    color: ${colors.text.link};
-    box-shadow: none;
-    text-decoration: none;
-  }
 `;

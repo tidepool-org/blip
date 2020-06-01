@@ -29,12 +29,10 @@
     "npm": ">=6.x"
   },
   "dependencies": {
-    "@hot-loader/react-dom": "16.11.0",
     "body-parser": "1.18.3",
     "express": "4.16.3",
     "hakken": "0.1.11",
     "helmet": "3.13.0",
-    "react-router-dom": "5.1.2",
     "rollbar": "2.14.4"
   },
   "devDependencies": {
@@ -43,6 +41,7 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
+    "@hot-loader/react-dom": "16.11.0",
     "@material-ui/core": "4.9.10",
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "4.0.0-alpha.49",
