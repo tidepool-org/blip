@@ -1,15 +1,16 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { FastField } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Text } from 'rebass/styled-components';
 import bows from 'bows';
+import InputMask from 'react-input-mask';
 
 import { fieldsAreValid } from '../../core/forms';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
-import { typeOptions } from './prescriptionSchema';
+import { typeOptions, dateFormat } from './prescriptionSchema';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -35,6 +36,15 @@ export const AccountType = translate()(props => {
 export const PatientInfo = translate()(props => {
   const { t, meta } = props;
 
+  const {
+    setFieldValue,
+    setFieldTouched,
+  } = useFormikContext();
+
+  const dateFormatRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
+  const dateInputFormat = 'MM/DD/YYYY';
+  const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
+
   return (
     <Box width={0.5} my={5} mx="auto">
       <Headline mb={4}>{t('Please enter patient\'s name and birthdate')}</Headline>
@@ -54,15 +64,27 @@ export const PatientInfo = translate()(props => {
         error={meta.lastName.touched && meta.lastName.error}
         themeProps={{ mb: 3 }}
       />
-      <FastField
-        as={TextInput}
-        type="date"
-        label={t('Patient\'s Birthday')}
-        id="birthday"
-        name="birthday"
-        placeholder="YYYY-MM-DD"
-        error={meta.birthday.touched && meta.birthday.error}
-        themeProps={{ mb: 5 }}
+      <Field
+        as={() => (
+          <InputMask
+            mask={maskFormat}
+            maskPlaceholder={dateInputFormat}
+            alwaysShowMask
+            defaultValue={meta.birthday.value.replace(dateFormatRegex, '$2/$3/$1')}
+            onBlur={e => {
+              setFieldTouched('birthday', true);
+              setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))
+            }}
+          >
+            <TextInput
+              name="birthday"
+              id="birthday"
+              label={t('Patient\'s Birthday')}
+              error={meta.birthday.touched && meta.birthday.error}
+              themeProps={{ mb: 5 }}
+            />
+          </InputMask>
+        )}
       />
     </Box>
   );

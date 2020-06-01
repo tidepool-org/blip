@@ -32,19 +32,22 @@ export const PatientPhone = translate()(props => {
       <FastField
         as={() => (
           <InputMask
-            name="phoneNumber.number"
-            id="phoneNumber.number"
             mask="(999) 999-9999"
-            label={t('Patient Phone Number')}
-            value={meta.phoneNumber.number.value}
+            alwaysShowMask
+            defaultValue={meta.phoneNumber.number.value}
             onBlur={e => {
               setFieldTouched('phoneNumber.number', true);
               setFieldValue('phoneNumber.number', e.target.value);
             }}
-            error={meta.phoneNumber.number.touched && meta.phoneNumber.number.error}
-            themeProps={{ mb: 3 }}
-            children={TextInput}
-          />
+          >
+            <TextInput
+              name="phoneNumber.number"
+              id="phoneNumber.number"
+              label={t('Patient Phone Number')}
+              error={meta.phoneNumber.number.touched && meta.phoneNumber.number.error}
+              themeProps={{ mb: 3 }}
+            />
+          </InputMask>
         )}
       />
       <Text mb={5}>
