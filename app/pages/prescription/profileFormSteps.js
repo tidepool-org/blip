@@ -1,19 +1,20 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Text } from 'rebass/styled-components';
+import { Box, Flex, Text } from 'rebass/styled-components';
 import bows from 'bows';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import InputMask from 'react-input-mask';
 
-import { fieldsAreValid } from '../../core/forms';
+import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
-import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionSchema';
+import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
+import { formWrapperStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -27,7 +28,7 @@ export const PatientPhone = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box width={0.5} my={5} mx="auto">
+    <Box {...formWrapperStyles}>
       <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
       <FastField
         as={() => (
@@ -44,13 +45,13 @@ export const PatientPhone = translate()(props => {
               name="phoneNumber.number"
               id="phoneNumber.number"
               label={t('Patient Phone Number')}
-              error={meta.phoneNumber.number.touched && meta.phoneNumber.number.error}
-              themeProps={{ mb: 3 }}
+              error={getFieldError(meta.phoneNumber.number)}
+              {...inputStyles}
             />
           </InputMask>
         )}
       />
-      <Text mb={5}>
+      <Text fontSize={0}>
         {t('The patient\'s phone number may be used to provided direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
       </Text>
     </Box>
@@ -61,15 +62,15 @@ export const PatientMRN = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box width={0.5} my={5} mx="auto">
+    <Box {...formWrapperStyles}>
       <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
       <FastField
         as={TextInput}
         label={t('Medical Record Number')}
         id="mrn"
         name="mrn"
-        error={meta.mrn.touched && meta.mrn.error}
-        themeProps={{ mb: 3 }}
+        error={getFieldError(meta.mrn)}
+        {...inputStyles}
       />
     </Box>
   );
@@ -79,15 +80,15 @@ export const PatientGender = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box width={0.5} my={5} mx="auto">
+    <Box {...formWrapperStyles}>
       <Headline mb={4}>{t('What is the patient\'s gender?')}</Headline>
       <FastField
         as={RadioGroup}
+        variant="verticalBordered"
         id="sex"
         name="sex"
         options={sexOptions}
-        error={meta.sex.touched && meta.sex.error}
-        themeProps={{ mb: 5 }}
+        error={getFieldError(meta.sex)}
       />
     </Box>
   );
@@ -101,40 +102,47 @@ export const PatientDevices = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box width={0.5} my={5} mx="auto">
+    <Box {...formWrapperStyles}>
       <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
-      <Box mb={3}>
+      <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions, device => (
-          <FastField
-            as={Checkbox}
-            id="initialSettings.pumpType"
-            name="initialSettings.pumpType"
-            key={device.value}
-            checked={!isEmpty(meta.initialSettings.pumpType.value)}
-            label={device.label}
-            onChange={e => {
-              setFieldValue('initialSettings.pumpType', e.target.checked ? device.value : '')
-            }}
-            error={meta.initialSettings.pumpType.touched && meta.initialSettings.pumpType.error}
-          />
+          <React.Fragment key={device.value}>
+            <FastField
+              as={Checkbox}
+              id="initialSettings.pumpType"
+              name="initialSettings.pumpType"
+              key={device.value}
+              checked={!isEmpty(meta.initialSettings.pumpType.value)}
+              label={device.label}
+              onChange={e => {
+                setFieldValue('initialSettings.pumpType', e.target.checked ? device.value : '')
+              }}
+              error={getFieldError(meta.initialSettings.pumpType)}
+              {...checkboxStyles}
+            />
+            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+          </React.Fragment>
         ))}
-      </Box>
-      <Box mb={3}>
+      </Flex>
+      <Flex {...checkboxGroupStyles}>
         {map(cgmDeviceOptions, device => (
-          <FastField
-            as={Checkbox}
-            id="initialSettings.cgmType"
-            name="initialSettings.cgmType"
-            key={device.value}
-            checked={!isEmpty(meta.initialSettings.cgmType.value)}
-            label={device.label}
-            onChange={e => {
-              setFieldValue('initialSettings.cgmType', e.target.checked ? device.value : '')
-            }}
-            error={meta.initialSettings.cgmType.touched && meta.initialSettings.cgmType.error}
-          />
+          <React.Fragment key={device.value}>
+            <FastField
+              as={Checkbox}
+              id="initialSettings.cgmType"
+              name="initialSettings.cgmType"
+              checked={!isEmpty(meta.initialSettings.cgmType.value)}
+              label={device.label}
+              onChange={e => {
+                setFieldValue('initialSettings.cgmType', e.target.checked ? device.value : '')
+              }}
+              error={getFieldError(meta.initialSettings.cgmType)}
+              {...checkboxStyles}
+            />
+            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+          </React.Fragment>
         ))}
-      </Box>
+      </Flex>
     </Box>
   );
 });
