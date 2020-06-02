@@ -30,3 +30,5 @@ export const getFieldsMeta = (schema, getFieldMeta) => {
 };
 
 export const fieldsAreValid = (fieldNames, fieldsMeta) => !includes(map(fieldNames, fieldName => get(fieldsMeta, `${fieldName}.valid`)), false);
+
+export const getFieldError = fieldMeta => fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
