@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import bows from 'bows';
 import { Box } from 'rebass/styled-components';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
