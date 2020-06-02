@@ -92,7 +92,7 @@ const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
-  inputs: inputs({ borders, colors, fonts, radii, fontSizes, space }),
+  inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
   link: linkVariants.default,
   links: linkVariants,
   paginators: paginators({ colors, fonts, fontSizes }),

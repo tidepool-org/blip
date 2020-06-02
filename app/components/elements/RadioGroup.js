@@ -140,7 +140,7 @@ RadioGroup.propTypes = {
   disabled: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-  variant: PropTypes.oneOf(['horizontal', 'vertical']),
+  variant: PropTypes.oneOf(['horizontal', 'vertical', 'verticalBordered']),
   options: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string.isRequired,

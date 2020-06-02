@@ -1,12 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text } from 'rebass/styled-components';
+import { Box, Text } from 'rebass/styled-components';
 import { Checkbox as Base, Label, LabelProps, CheckboxProps } from '@rebass/forms';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Caption } from './FontStyles';
 
-import { colors, fonts, fontSizes, fontWeights } from '../../themes/baseTheme';
+import {
+  default as baseTheme,
+  colors,
+} from '../../themes/baseTheme';
 
 const StyledCheckbox = styled(Base)`
   color: ${colors.border.default};
@@ -32,12 +35,6 @@ const StyledCheckbox = styled(Base)`
 `;
 
 const StyledCheckboxLabel = styled(Text)`
-  font-size: inherit;
-  font-weight: ${fontWeights.medium};
-  font-family: ${fonts.default};
-
-  color: ${(props) => (props.color ? props.color : colors.text.primary)};
-
   &.disabled {
     color: ${colors.text.primaryDisabled};
   }
@@ -53,7 +50,7 @@ const StyledCheckboxLabel = styled(Text)`
 `;
 
 export const Checkbox = (props) => {
-  const { error, required, label, themeProps, ...checkboxProps } = props;
+  const { error, required, label, themeProps, variant, ...checkboxProps } = props;
 
   const classNames = cx({
     checked: props.checked,
@@ -64,12 +61,17 @@ export const Checkbox = (props) => {
 
   return (
     <>
-      <Label width="auto" mb={2} alignItems="center" fontSize={fontSizes[1]} {...themeProps}>
+      <Box
+        as={Label}
+        theme={baseTheme}
+        variant={`inputs.checkboxes.${variant}`}
+        {...themeProps}
+      >
         <StyledCheckbox className={classNames} {...checkboxProps} />
         <StyledCheckboxLabel className={classNames} as="span">
           {label}
         </StyledCheckboxLabel>
-      </Label>
+      </Box>
       {error && (
         <Caption ml={2} mt={2} className={classNames}>
           {error}
@@ -83,12 +85,12 @@ Checkbox.propTypes = {
   ...CheckboxProps,
   themeProps: PropTypes.shape(LabelProps),
   label: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'enlarged']),
 };
 
 Checkbox.defaultProps = {
+  variant: 'default',
   themeProps: {},
-  width: ['50%', '25%'], // eslint-disable-line space-infix-ops
-  p: 1,
 };
 
 export default Checkbox;

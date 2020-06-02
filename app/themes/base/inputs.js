@@ -1,4 +1,4 @@
-export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
+export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }) => {
   const common = {
     border: borders.input,
     borderRadius: `${radii.input}px`,
@@ -47,6 +47,22 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
     fontSize: fontSizes[0],
   };
 
+  const checkboxes = {
+    ...common,
+    border: 0,
+    borderRadius: 0,
+    color: colors.text.primary,
+    width: 'auto',
+    marginBottom: 2,
+    alignItems: 'center',
+    fontSize: fontSizes[1],
+    fontWeight: fontWeights.medium,
+  };
+
+  const checkboxGroup = {
+    display: 'flex',
+  };
+
   const selects = {
     ...common,
     color: colors.text.primary,
@@ -90,6 +106,33 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
         },
       },
     },
+    checkboxes: {
+      default: {
+        ...checkboxes,
+      },
+    },
+    checkboxGroup: {
+      horizontal: {
+        ...checkboxGroup,
+        flexDirection: 'row',
+      },
+      vertical: {
+        ...checkboxGroup,
+        flexDirection: 'column',
+      },
+      verticalBordered: {
+        ...checkboxGroup,
+        flexDirection: 'column',
+        padding: `${space[3]}px`,
+        border: borders.input,
+        marginBottom: `${space[3]}px`,
+        fontSize: fontSizes[1],
+
+        '&:last-child': {
+          marginBottom: 0,
+        },
+      },
+    },
     radios: {
       horizontal: {
         ...radios,
@@ -98,6 +141,20 @@ export default ({ borders, colors, fonts, radii, fontSizes, space }) => {
       vertical: {
         ...radios,
         flexDirection: 'column',
+      },
+      verticalBordered: {
+        ...radios,
+        flexDirection: 'column',
+        label: {
+          padding: `${space[3]}px`,
+          border: borders.input,
+          marginBottom: `${space[3]}px`,
+          fontSize: fontSizes[1],
+
+          '&:last-child': {
+            marginBottom: 0,
+          },
+        },
       },
     },
   };
