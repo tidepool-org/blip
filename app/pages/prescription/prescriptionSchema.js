@@ -3,34 +3,18 @@ import i18next from '../../core/language';
 import map from 'lodash/map';
 import moment from 'moment';
 
+import {
+  dateFormat,
+  phoneRegex,
+  revisionStates,
+  pumpDeviceOptions,
+  cgmDeviceOptions,
+  typeOptions,
+  sexOptions,
+  validCountryCodes,
+} from './prescriptionFormConstants';
+
 const t = i18next.t.bind(i18next);
-
-export const dateFormat = 'YYYY-MM-DD';
-export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-
-const revisionStates = ['draft', 'pending', 'submitted'];
-
-// TODO: placeholder device id's until provided by upcoming devices api
-export const pumpDeviceOptions = [
-  { value: 'omnipodId', label: t('Omnipod Horizon') },
-];
-
-export const cgmDeviceOptions = [
-  { value: 'dexcomId', label: t('Dexcom G6') },
-];
-
-export const typeOptions = [
-  { value: 'patient', label: t('Patient') },
-  { value: 'caregiver', label: t('Patient and caregiver') },
-];
-
-export const sexOptions = [
-  { value: 'female', label: t('Female') },
-  { value: 'male', label: t('Male') },
-  { value: 'undisclosed', label: t('Prefer not to specify') },
-];
-
-const validCountryCodes = [1];
 
 export default yup.object().shape({
   id: yup.string(),
