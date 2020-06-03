@@ -43,13 +43,13 @@ const ShareDataBanner = (props) => {
     onClose(patient.userid);
 
     if (trackMetric) {
-      trackMetric('dismiss Dexcom OAuth banner');
+      trackMetric('dismiss Share Data banner');
     }
   };
 
   const handleClickLearnMore = () => {
     if (trackMetric) {
-      trackMetric('clicked learn more Dexcom OAuth banner');
+      trackMetric('clicked learn more Share Data banner');
     }
   };
 
