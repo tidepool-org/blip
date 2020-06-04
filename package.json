@@ -5,8 +5,8 @@
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
     "pretest": "NODE_ENV=test npm run lint",
-    "browser-tests": "NODE_ENV=test ./node_modules/karma/bin/karma start--browsers Chrome",
-    "test-watch": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
+    "browser-tests": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start --browsers Chrome",
+    "test-watch": "TZ=UTC NODE_ENV=test DEVTOOL=false ./node_modules/karma/bin/karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --color --progress --port 3000 --host 0.0.0.0",
     "watchViz": "export NODE_OPTIONS='--max-old-space-size=4096' && cd ./packageMounts/@tidepool/viz && npm run start",
     "buildViz": "cd ./packageMounts/@tidepool/viz && npm run build-dev",
