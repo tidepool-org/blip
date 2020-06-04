@@ -102,6 +102,7 @@ export class AppComponent extends React.Component {
     this.state = {
       dexcomShowBannerMetricTracked: false,
       donateShowBannerMetricTracked: false,
+      shareDataBannerMetricTracked: false,
     }
   }
 
@@ -156,7 +157,6 @@ export class AppComponent extends React.Component {
       userHasData,
       userHasConnectedDataSources,
       userHasSharedData,
-      userHasSeenShareDataBannerMax,
       userIsCurrentPatient,
       userIsSupportingNonprofit
     } = nextProps;
@@ -168,8 +168,10 @@ export class AppComponent extends React.Component {
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
     // const showShareDataBanner = false;
-    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData;
-    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData && !userHasSeenShareDataBannerMax;
+    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData;
+    // userHasDismissedForeverDataBanner does not exist yet
+    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData && !userHasDismissedForeverDataBanner;
     // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
     // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
     let displayShareDataBanner = false;
@@ -181,10 +183,6 @@ export class AppComponent extends React.Component {
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
         displayShareDataBanner = true;
-
-        console.log(userHasSeenShareDataBannerMax);
-// counter userHasSeenShareDataBannerCounter += 1
-// if userHasSeenShareDataBannerCounter > 2 --> userHasSeenShareDataBannerMax = true
 
         if (this.props.context.trackMetric && !this.state.shareDataBannerMetricTracked) {
           this.props.context.trackMetric('Share Data banner displayed');
@@ -292,7 +290,7 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
 
     const {
       showingShareDataBanner,
-      onClickDexcomConnectBanner,
+      onClickShareDataBanner,
       onDismissShareDataBanner,
       patient,
     } = this.props;
@@ -301,7 +299,7 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
       return (
         <div className="App-sharedatabanner">
           <ShareDataBanner
-            onClick={onClickDexcomConnectBanner}
+            onClick={onClickShareDataBanner}
             onClose={onDismissShareDataBanner}
             trackMetric={this.props.context.trackMetric}
             patient={patient} />
@@ -523,7 +521,6 @@ export function mapStateToProps(state) {
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
-  let userHasSeenShareDataBannerMax = _.get(state, 'blip.membersOfTargetCareTeam').length > 0;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
@@ -632,7 +629,6 @@ export function mapStateToProps(state) {
     userIsDonor,
     userHasConnectedDataSources,
     userHasSharedData,
-    userHasSeenShareDataBannerMax,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
