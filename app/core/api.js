@@ -834,7 +834,8 @@ api.errors.log = function(error, message, properties, cb) {
   // Log error to Rollbar
   if (_.isFunction(rollbar.error)) {
     const extra = {};
-    _.assign(extra, properties, message ? { message } : {});
+    _.assign(extra, message ? { message } : {}, properties);
+    if (extra.error) extra.apiError = extra.error;
     if (_.isError(error.originalError)) {
       _.assign(extra, { displayError: _.omit(error, ['originalError']) });
       error = error.originalError;
