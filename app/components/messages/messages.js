@@ -128,7 +128,8 @@ var Messages = translate()(React.createClass({
     );
   },
   renderClose:function(){
-    return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
+    const { t } = this.props;
+    return (<a className='messages-close' onClick={this.handleClose}>{t('Close')}</a>);
 
   },
   render: function() {

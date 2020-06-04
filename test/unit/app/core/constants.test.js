@@ -46,7 +46,6 @@ describe('constants', function() {
     expect(_.map(Constants.DATA_DONATION_NONPROFITS(), 'value')).to.eql([ // eslint-disable-line new-cap
       'ADCES',
       'BT1',
-      'CARBDM',
       'CWD',
       'CDN',
       'DYF',

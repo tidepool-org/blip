@@ -23,12 +23,14 @@ var sundial = require('sundial');
 var MessageForm = require('./messageform');
 var MessageMixins = require('./messagemixins');
 
+import { translate } from 'react-i18next';
+
 if (!window.process) {
   var profileLargeSrc = require('./images/profile-100x100.png');
   var profileSmallSrc = require('./images/profile-64x64.png');
 }
 
-var Message = React.createClass({
+var Message = translate() (React.createClass({
   mixins: [MessageMixins],
   propTypes: {
     theNote : React.PropTypes.object.isRequired,
@@ -108,6 +110,7 @@ var Message = React.createClass({
 
   },
   renderEditLink: function() {
+    const { t } = this.props;
     if (this.state.editing === false && this.props.onSaveEdit) {
       return (
 
@@ -115,7 +118,7 @@ var Message = React.createClass({
           className='message-edit'
           href=''
           onClick={this.handleAllowEdit}
-          ref='editNote'>Edit</a>
+          ref='editNote'>{t('Edit')}</a>
 
       );
     }
@@ -219,6 +222,6 @@ var Message = React.createClass({
 
     );
   }
-});
+}));
 
 module.exports = Message;
