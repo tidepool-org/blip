@@ -9,7 +9,7 @@ import get from 'lodash/get';
 
 const expect = chai.expect;
 
-describe.only('forms', function() {
+describe('forms', function() {
   const touchedAndError = {
     touched: true,
     error: 'error!',

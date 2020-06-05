@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+// c.f. https://usehooks.com/usePrevious/
 export const usePrevious = value => {
   const ref = useRef();
   useEffect(() => {
