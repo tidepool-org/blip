@@ -207,10 +207,13 @@ const output = {
 };
 
 const resolve = {
-  modules: [
-    path.join(__dirname, 'node_modules'),
-    'node_modules',
-  ],
+  alias: {
+    react: path.resolve('node_modules/react'),
+    'react-dom': path.resolve('node_modules/react-dom'),
+    'react-addons-update': path.resolve('node_modules/react-addons-update'),
+    'react-redux': path.resolve('node_modules/react-redux'),
+    redux: path.resolve('node_modules/redux'),
+  },
 };
 
 let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';
