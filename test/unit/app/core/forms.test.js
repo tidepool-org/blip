@@ -102,30 +102,32 @@ describe.only('forms', function() {
   });
 
   describe('fieldsAreValid', () => {
-    it('should return `true` when all provided fields are valid', () => {
+    const fieldsMeta = formUtils.getFieldsMeta(schema, getFieldMeta);
 
+    it('should return `true` when all provided fields are valid', () => {
+      expect(formUtils.fieldsAreValid(['phoneNumber.number', 'other.deeply.nestedField'], fieldsMeta)).to.be.true;
     });
 
     it('should return `false` when at least one of the provided fields are not valid', () => {
-
+      expect(formUtils.fieldsAreValid(['phoneNumber.number', 'phoneNumber.countryCode'], fieldsMeta)).to.be.false;
     });
   });
 
   describe('getFieldError', () => {
     it('should return `null` when field has not been touched and is not in an error state', () => {
-
+      expect(formUtils.getFieldError(notTouchedAndNoError)).to.be.null;
     });
 
     it('should return `null` when field has not been touched and is in an error state', () => {
-
+      expect(formUtils.getFieldError(notTouchedAndError)).to.be.null;
     });
 
     it('should return `null` when field has been touched and is not in an error state', () => {
-
+      expect(formUtils.getFieldError(touchedAndNoError)).to.be.null;
     });
 
     it('should return an error string when field has been touched and is in an error state', () => {
-
+      expect(formUtils.getFieldError(touchedAndError)).to.equal('error!');
     });
   });
 });
