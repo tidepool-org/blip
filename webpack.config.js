@@ -208,6 +208,10 @@ const output = {
 
 const resolve = {
   alias: {
+    'babel-core': path.resolve('node_modules/babel-core'),
+    classnames: path.resolve('node_modules/classnames'),
+    lodash: path.resolve('node_modules/lodash'),
+    'moment-timezone': path.resolve('node_modules/moment-timezone'),
     react: path.resolve('node_modules/react'),
     'react-dom': path.resolve('node_modules/react-dom'),
     'react-addons-update': path.resolve('node_modules/react-addons-update'),
