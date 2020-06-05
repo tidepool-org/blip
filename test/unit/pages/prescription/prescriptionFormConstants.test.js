@@ -7,7 +7,7 @@ import * as prescriptionFormConstants from '../../../../app/pages/prescription/p
 
 const expect = chai.expect;
 
-describe.only('prescriptionFormConstants', function() {
+describe('prescriptionFormConstants', function() {
   it('should export an object', function() {
     expect(prescriptionFormConstants).to.be.an('object');
   });
