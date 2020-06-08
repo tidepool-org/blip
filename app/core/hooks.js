@@ -7,9 +7,10 @@ export const usePrevious = value => {
     ref.current = value;
   });
   return ref.current;
-}
+};
 
 // c.f. https://usehooks.com/useLocalStorage/
+// Note: this is currently only used as a mock data store for use while backend services are not yet implemented
 export const useLocalStorage = (key, initialValue) => {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
@@ -44,4 +45,4 @@ export const useLocalStorage = (key, initialValue) => {
   };
 
   return [storedValue, setValue];
-}
+};
