@@ -44,7 +44,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     border: 0,
     borderRadius: 0,
     color: colors.text.primary,
-    fontSize: fontSizes[0],
+    fontSize: fontSizes[1],
   };
 
   const checkboxes = {
@@ -149,7 +149,6 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           padding: `${space[3]}px`,
           border: borders.input,
           marginBottom: `${space[3]}px`,
-          fontSize: fontSizes[1],
 
           '&:last-child': {
             marginBottom: 0,
