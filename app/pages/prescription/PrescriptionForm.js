@@ -12,6 +12,7 @@ import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
+import therapySettingsFormSteps from './therapySettingsFormSteps';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
@@ -141,13 +142,14 @@ const PrescriptionForm = props => {
         asyncState: stepAsyncState,
       },
       {
-        ...profileFormSteps(meta, setFieldValue),
+        ...profileFormSteps(meta),
         onComplete: handleStepSubmit,
         asyncState: stepAsyncState,
       },
       {
-        label: 'Enter Therapy Settings',
-        panelContent: renderStepContent('Therapy Settings Form'),
+        ...therapySettingsFormSteps(meta),
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
       },
       {
         label: 'Review and Send Prescription',
