@@ -127,7 +127,7 @@ const PrescriptionForm = props => {
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
-    id: 'new-prescription',
+    id: 'prescription-form-steps',
     onStepChange: (newStep) => {
       setPrescriptionReviewed(false);
       setFinalAsyncState(initialAsyncState());
@@ -194,7 +194,7 @@ const PrescriptionForm = props => {
   if (props.prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
       <Stepper {...stepperProps} />
       <Persist name={storageKey} />

@@ -330,7 +330,7 @@ export const Stepper = props => {
   };
 
   return (
-    <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
+    <Flex variant={`steppers.${variant}`} {...themeProps.wrapper} id={id}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
           connectorwidth={`${(activeSubStep / getStepSubStepLength(activeStep)) * 100}%`}
