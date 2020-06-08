@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
+import { FastField } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import get from 'lodash/get';
 
-import { fieldsAreValid } from '../../core/forms';
+import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
 import { Headline } from '../../components/elements/FontStyles';
+import RadioGroup from '../../components/elements/RadioGroup';
+import { deviceVocabulary, trainingOptions } from './prescriptionFormConstants';
 
 import {
   fieldsetStyles,
@@ -45,15 +49,41 @@ export const PatientInfo = props => {
 
 PatientInfo.propTypes = fieldsetPropTypes;
 
+export const PatientTraining = props => {
+  const { t, meta, ...themeProps } = props;
+  const pumpType = meta.initialSettings.pumpType.value;
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Text fontSize={2} mb={3}>
+        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpType}}.', {
+          pumpType: get(deviceVocabulary[pumpType], 'manufacturerName')
+        })}
+      </Text>
+      <FastField
+        as={RadioGroup}
+        variant="vertical"
+        id="training"
+        name="training"
+        options={trainingOptions}
+        error={getFieldError(meta.training)}
+      />
+    </Box>
+  );
+};
+
+PatientTraining.propTypes = fieldsetPropTypes;
+
 export const TherapySettings = translate()(props => (
   <Box>
     <PatientInfo mb={4} {...props} />
+    <PatientTraining mt={0} mb={4} {...props} />
   </Box>
 ));
 
 const therapySettingsFormSteps = (meta) => ({
   label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid(['phoneNumber.number'], meta),
+  disableComplete: !fieldsAreValid(['training'], meta),
   panelContent: <TherapySettings meta={meta} />
 });
 

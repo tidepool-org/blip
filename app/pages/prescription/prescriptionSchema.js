@@ -11,6 +11,7 @@ import {
   cgmDeviceOptions,
   typeOptions,
   sexOptions,
+  trainingOptions,
   validCountryCodes,
 } from './prescriptionFormConstants';
 
@@ -58,4 +59,7 @@ export default yup.object().shape({
       .oneOf(map(cgmDeviceOptions, 'value'))
       .required(t('A cgm type must be specified')),
   }),
+  training: yup.string()
+    .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
+    .required(t('Training type is required')),
 });
