@@ -1,12 +1,12 @@
+import { useState } from 'react'
+import { usePrevious } from '../../../../app/core/hooks';
+import { renderHook, act } from '@testing-library/react-hooks'
+
 /* global chai */
 /* global sinon */
 /* global describe */
 /* global it */
 /* global beforeEach */
-
-import { useState } from 'react'
-import { usePrevious } from '../../../../app/core/hooks';
-import { renderHook, act } from '@testing-library/react-hooks'
 
 const expect = chai.expect;
 

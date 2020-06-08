@@ -1,9 +1,9 @@
+import _ from 'lodash';
+import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
+
 /* global chai */
 /* global describe */
 /* global it */
-
-import _ from 'lodash';
-import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
 
 const expect = chai.expect;
 

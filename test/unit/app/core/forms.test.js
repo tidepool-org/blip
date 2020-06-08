@@ -1,11 +1,11 @@
+import * as formUtils from '../../../../app/core/forms';
+import get from 'lodash/get';
+
 /* global chai */
 /* global sinon */
 /* global describe */
 /* global it */
 /* global beforeEach */
-
-import * as formUtils from '../../../../app/core/forms';
-import get from 'lodash/get';
 
 const expect = chai.expect;
 

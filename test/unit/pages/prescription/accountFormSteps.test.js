@@ -1,9 +1,10 @@
-/* global chai */
-/* global describe */
-/* global it */
 import _ from 'lodash';
 
 import accountFormSteps from '../../../../app/pages/prescription/accountFormSteps';
+
+/* global chai */
+/* global describe */
+/* global it */
 
 const expect = chai.expect;
 

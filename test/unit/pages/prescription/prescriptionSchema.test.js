@@ -1,9 +1,9 @@
+import _ from 'lodash';
+import prescriptionSchema from '../../../../app/pages/prescription/prescriptionSchema';
+
 /* global chai */
 /* global describe */
 /* global it */
-
-import _ from 'lodash';
-import prescriptionSchema from '../../../../app/pages/prescription/prescriptionSchema';
 
 const expect = chai.expect;
 
