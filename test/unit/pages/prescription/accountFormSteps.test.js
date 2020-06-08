@@ -16,7 +16,7 @@ const meta = {
   emailConfirm: { valid: true },
 };
 
-describe('prescriptionSchema', function() {
+describe('accountFormSteps', function() {
   it('should export an accountFormSteps function', function() {
     expect(accountFormSteps).to.be.a('function');
   });

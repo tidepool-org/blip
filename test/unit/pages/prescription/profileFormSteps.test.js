@@ -19,7 +19,7 @@ const meta = {
   },
 };
 
-describe('prescriptionSchema', function() {
+describe('profileFormSteps', function() {
   it('should export an profileFormSteps function', function() {
     expect(profileFormSteps).to.be.a('function');
   });
