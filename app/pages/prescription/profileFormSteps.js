@@ -14,7 +14,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
-import { formWrapperStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -28,7 +28,7 @@ export const PatientPhone = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
       <FastField
         as={() => (
@@ -62,7 +62,7 @@ export const PatientMRN = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
       <FastField
         as={TextInput}
@@ -80,7 +80,7 @@ export const PatientGender = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s gender?')}</Headline>
       <FastField
         as={RadioGroup}
@@ -102,7 +102,7 @@ export const PatientDevices = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions, device => (

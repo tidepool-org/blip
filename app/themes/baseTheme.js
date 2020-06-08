@@ -68,6 +68,7 @@ export const mediaQueries = {
 };
 
 export const radii = {
+  large: 8,
   default: 4,
   input: 3,
 };

@@ -11,7 +11,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 import { typeOptions } from './prescriptionFormConstants';
-import { formWrapperStyles, inputStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, inputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -20,7 +20,7 @@ export const AccountType = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
       <FastField
         as={RadioGroup}
@@ -47,7 +47,7 @@ export const PatientInfo = translate()(props => {
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Please enter patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
@@ -95,7 +95,7 @@ export const PatientEmail = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s email address?')}</Headline>
       <FastField
         as={TextInput}
