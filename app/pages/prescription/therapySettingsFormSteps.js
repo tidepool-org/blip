@@ -8,9 +8,9 @@ import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
-import { Headline } from '../../components/elements/FontStyles';
+import { Body2, Headline } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
-import { deviceVocabulary, trainingOptions } from './prescriptionFormConstants';
+import { deviceSpecificValues, trainingOptions } from './prescriptionFormConstants';
 
 import {
   fieldsetStyles,
@@ -55,11 +55,11 @@ export const PatientTraining = props => {
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Text fontSize={2} mb={3}>
+      <Body2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpType}}.', {
-          pumpType: get(deviceVocabulary[pumpType], 'manufacturerName')
+          pumpType: get(deviceSpecificValues[pumpType], 'manufacturerName')
         })}
-      </Text>
+      </Body2>
       <FastField
         as={RadioGroup}
         variant="vertical"
@@ -74,10 +74,23 @@ export const PatientTraining = props => {
 
 PatientTraining.propTypes = fieldsetPropTypes;
 
+export const InModuleTrainingNotification = props => {
+  const { t, meta, ...themeProps } = props;
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Body2>
+        {t('You have selected Tidepool Loop in-app tutorial self start. A request will not be sent for this patient to receive CPT training.')}
+      </Body2>
+    </Box>
+  );
+};
+
 export const TherapySettings = translate()(props => (
   <Box>
     <PatientInfo mb={4} {...props} />
     <PatientTraining mt={0} mb={4} {...props} />
+    {props.meta.training.value === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
   </Box>
 ));
 
