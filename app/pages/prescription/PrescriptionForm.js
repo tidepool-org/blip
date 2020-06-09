@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import bows from 'bows';
-import { Box } from 'rebass/styled-components';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
@@ -41,6 +40,7 @@ const prescriptionForm = {
       pumpType: get(props, 'prescription.initialSettings.pumpType', ''),
       cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
     },
+    training: get(props, 'prescription.training', ''),
   }),
   validationSchema: prescriptionSchema,
   displayName: 'PrescriptionForm',
@@ -78,8 +78,6 @@ const PrescriptionForm = props => {
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
   const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
-
-  const renderStepContent = text => <Box>{text}</Box>;
 
   const renderStepConfirmation = (name, label, checked, onChange) => (
     <Checkbox
