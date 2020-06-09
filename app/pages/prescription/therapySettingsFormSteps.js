@@ -8,7 +8,7 @@ import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
-import { Body2, Headline } from '../../components/elements/FontStyles';
+import { Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { deviceSpecificValues, trainingOptions } from './prescriptionFormConstants';
 
@@ -86,11 +86,39 @@ export const InModuleTrainingNotification = props => {
   );
 };
 
+InModuleTrainingNotification.propTypes = fieldsetPropTypes;
+
+export const GlucoseSettings = props => {
+  const { t, meta, ...themeProps } = props;
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Title>{t('Glucose Settings')}</Title>
+    </Box>
+  );
+};
+
+GlucoseSettings.propTypes = fieldsetPropTypes;
+
+export const InsulinSettings = props => {
+  const { t, meta, ...themeProps } = props;
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Title>{t('Insulin Settings')}</Title>
+    </Box>
+  );
+};
+
+InsulinSettings.propTypes = fieldsetPropTypes;
+
 export const TherapySettings = translate()(props => (
   <Box>
     <PatientInfo mb={4} {...props} />
     <PatientTraining mt={0} mb={4} {...props} />
     {props.meta.training.value === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
+    <GlucoseSettings mt={0} mb={4} {...props} />
+    <InsulinSettings mt={0} {...props} />
   </Box>
 ));
 

@@ -63,11 +63,15 @@ export const Headline = Styled(H2)`
 `;
 
 export const Title = Styled(H3)`
-  font-size: 18px;
+  font-size: ${fontSizes[3]}px;
   line-height: ${lineHeights[3]};
-  font-weight: ${fontWeights.medium};
+  font-weight: ${fontWeights.regular};
   font-family: ${fonts.default};
   color: ${colors.text.primary};
+`;
+
+export const MediumTitle = Styled(Title)`
+  font-weight: ${fontWeights.medium};
 `;
 
 export const Subheading = Styled(H4)`

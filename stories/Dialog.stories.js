@@ -7,7 +7,7 @@ import { ThemeProvider } from 'styled-components';
 import baseTheme from '../app/themes/baseTheme';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../app/components/elements/Dialog';
 import Button from '../app/components/elements/Button';
-import { Body1, Title } from '../app/components/elements/FontStyles';
+import { Body1, MediumTitle } from '../app/components/elements/FontStyles';
 
 /* eslint-disable max-len */
 
@@ -91,7 +91,7 @@ export const DialogStory = () => {
       >
         {showTitle() && (
           <DialogTitle divider={showDividers()} onClose={handleClose} closeIcon={showTitleClose()}>
-            <Title id="dialog-title">{titleText()}</Title>
+            <MediumTitle id="dialog-title">{titleText()}</MediumTitle>
           </DialogTitle>
         )}
 
