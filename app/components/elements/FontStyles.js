@@ -82,11 +82,10 @@ export const Body2 = Styled(Text)`
   font-size: ${fontSizes[2]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
-  color: ${colors.text.primary};
-  margin-block-start: 0em;
-  margin-block-end: 1em;
-  &.m0 {
-    margin: 0;
+  color: ${props => (props.color ? props.color : colors.text.primary)};
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -94,10 +93,11 @@ export const Body1 = Styled(Text)`
   font-size: ${fontSizes[1]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
-  margin-block-start: 1em;
-  margin-block-end: 1em;
-  margin-bottom: 1em;
   color: ${props => (props.color ? props.color : colors.text.primary)};
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 export const Caption = Styled(Text)`
