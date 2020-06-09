@@ -52,7 +52,7 @@ export const PatientPhone = translate()(props => {
         )}
       />
       <Text fontSize={0}>
-        {t('The patient\'s phone number may be used to provided direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
+        {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
       </Text>
     </Box>
   );

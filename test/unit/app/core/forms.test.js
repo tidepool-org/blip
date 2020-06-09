@@ -20,7 +20,6 @@ describe('forms', function() {
     error: null,
   };
 
-
   const notTouchedAndError = {
     touched: false,
     error: 'error!',
