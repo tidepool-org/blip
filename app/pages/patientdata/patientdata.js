@@ -720,7 +720,7 @@ export let PatientData = translate()(createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
@@ -742,7 +742,7 @@ export let PatientData = translate()(createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(datetime || mostRecentDatumTime, this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
@@ -764,10 +764,6 @@ export let PatientData = translate()(createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
-    // TODO: for all views, we will not be able to determine mostRecentDatumTime till after the data has been queried.
-    // It will currently be based on the current data, not the data for the upcoming view.
-    // This is likely what's causing all sorts of issues. In fact, we should likely not change the chartType till
-    // the new data has been loaded.
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
