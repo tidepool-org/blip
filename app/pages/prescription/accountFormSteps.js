@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Text } from 'rebass/styled-components';
+import { Box } from 'rebass/styled-components';
 import bows from 'bows';
 import InputMask from 'react-input-mask';
 
@@ -9,7 +9,7 @@ import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
-import { Headline } from '../../components/elements/FontStyles';
+import { Caption, Headline } from '../../components/elements/FontStyles';
 import { typeOptions } from './prescriptionFormConstants';
 import { fieldsetStyles, inputStyles } from './prescriptionFormStyles';
 
@@ -113,9 +113,9 @@ export const PatientEmail = translate()(props => {
         error={getFieldError(meta.emailConfirm)}
         {...inputStyles}
       />
-      <Text fontSize={0} mt={5} mb={3}>
+      <Caption mt={5} mb={3}>
         {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}
-      </Text>
+      </Caption>
     </Box>
   );
 });

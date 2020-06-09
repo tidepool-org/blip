@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex } from 'rebass/styled-components';
 import bows from 'bows';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
@@ -12,7 +12,7 @@ import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
-import { Headline } from '../../components/elements/FontStyles';
+import { Caption, Headline } from '../../components/elements/FontStyles';
 import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
 import { fieldsetStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
 
@@ -51,9 +51,9 @@ export const PatientPhone = translate()(props => {
           </InputMask>
         )}
       />
-      <Text fontSize={0}>
+      <Caption>
         {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
-      </Text>
+      </Caption>
     </Box>
   );
 });
@@ -120,7 +120,7 @@ export const PatientDevices = translate()(props => {
               error={getFieldError(meta.initialSettings.pumpType)}
               {...checkboxStyles}
             />
-            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+            <Caption mt={1}>{device.extraInfo}</Caption>
           </React.Fragment>
         ))}
       </Flex>
@@ -139,7 +139,7 @@ export const PatientDevices = translate()(props => {
               error={getFieldError(meta.initialSettings.cgmType)}
               {...checkboxStyles}
             />
-            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+            <Caption mt={1}>{device.extraInfo}</Caption>
           </React.Fragment>
         ))}
       </Flex>
