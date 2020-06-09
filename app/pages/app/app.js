@@ -223,6 +223,43 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
           this.props.hideBanner('dexcom');
         }
       }
+
+
+// Previous Code to test passing tests
+    // const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    // let displayDonateBanner = false;
+
+    //   // Determine whether or not to show the donate banner.
+    //   // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
+    //   if (showingDonateBanner !== false) {
+    //     if (showDonateBanner) {
+    //       this.props.showBanner('donate');
+    //       displayDonateBanner = true;
+
+    //       if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+    //         this.props.context.trackMetric('Big Data banner displayed');
+    //         this.setState({ donateShowBannerMetricTracked: true });
+    //       }
+    //     } else if (showingDonateBanner) {
+    //       this.props.hideBanner('donate');
+    //     }
+    //   }
+
+    //   // Determine whether or not to show the dexcom banner.
+    //   // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
+    //   if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    //     const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+    //     if (showDexcomBanner) {
+    //       this.props.showBanner('dexcom');
+
+    //       if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+    //         this.props.context.trackMetric('Dexcom OAuth banner displayed');
+    //         this.setState({ dexcomShowBannerMetricTracked: true });
+    //       }
+    //     } else if (showingDexcomConnectBanner) {
+    //       this.props.hideBanner('dexcom');
+    //     }
+    //   }
   }
 
 

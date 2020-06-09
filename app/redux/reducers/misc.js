@@ -121,7 +121,7 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       return (action.payload.type === 'dexcom') ? false : state;
     case types.FETCH_USER_SUCCESS:
       const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDexcomConnectBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedDexcomConnectBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
         return (action.payload.type === 'dexcom') ? null : state;
