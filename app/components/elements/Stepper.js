@@ -55,8 +55,8 @@ StyledStepper.propTypes = {
 
 export const Stepper = props => {
   const {
-    activeStep: initialActiveStep = 0,
-    activeSubStep: initialActiveSubStep = 0,
+    activeStep: activeStepProp = 0,
+    activeSubStep: activeSubStepProp = 0,
     backText,
     children,
     completeText,
@@ -71,39 +71,44 @@ export const Stepper = props => {
     ...stepperProps
   } = props;
 
-  let initialActiveStepState = initialActiveStep;
-  let initialActiveSubStepState = initialActiveSubStep;
+  let initialActiveStep = activeStepProp;
+  let initialActiveSubStep = activeSubStepProp;
 
   const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${id}-step`;
 
-  const setInitialActiveStepStateFromParams = () => {
+  const setInitialActiveStepFromParams = () => {
     const activeStepsParam = params().get(activeStepParamKey);
 
     if (activeStepsParam) {
       const activeStepParts = activeStepsParam.split(',');
-      initialActiveStepState = parseInt(activeStepParts[0], 10);
-      initialActiveSubStepState = parseInt(activeStepParts[1], 10);
+      initialActiveStep = parseInt(activeStepParts[0], 10);
+      initialActiveSubStep = parseInt(activeStepParts[1], 10);
     }
   };
 
-  setInitialActiveStepStateFromParams();
+  setInitialActiveStepFromParams();
 
   const [transitioningToStep, setTransitioningToStep] = React.useState();
-  const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
-  const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
+  const [activeStep, setActiveStep] = React.useState(initialActiveStep);
+  const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStep);
   const prevActiveStep = usePrevious(activeStep);
 
-  window.top.addEventListener('popstate', (e) => {
-    e.preventDefault();
-    setInitialActiveStepStateFromParams();
-    setTransitioningToStep([initialActiveStepState, initialActiveSubStepState].join(','));
-    setActiveStep(initialActiveStepState);
-    setActiveSubStep(initialActiveSubStepState);
-    setTimeout(() => {
-      setTransitioningToStep(null);
-    }, 0);
-  });
+  React.useEffect(() => {
+    const handlePopState = event => {
+      event.preventDefault();
+      setInitialActiveStepFromParams();
+      setTransitioningToStep([initialActiveStep, initialActiveSubStep].join(','));
+      setActiveStep(initialActiveStep);
+      setActiveSubStep(initialActiveSubStep);
+      setTimeout(() => {
+        setTransitioningToStep(null);
+      }, 0);
+    };
+
+    window.top.addEventListener('popstate', handlePopState);
+    return () => window.top.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
