@@ -157,8 +157,9 @@ export class AppComponent extends React.Component {
       userHasData,
       userHasConnectedDataSources,
       userHasSharedData,
+      userCareTeam,
       userIsCurrentPatient,
-      userIsSupportingNonprofit
+      userIsSupportingNonprofit,
     } = nextProps;
 
     if (!utils.isOnSamePage(this.props, nextProps)) {
@@ -200,6 +201,7 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
+        console.log(userCareTeam);
 
         if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
           this.props.context.trackMetric('Big Data banner displayed');
@@ -558,9 +560,17 @@ export function mapStateToProps(state) {
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
+  let userCareTeam = null;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
+
+  if (state.blip.membersOfTargetCareTeam) {
+    userCareTeam = _.get(state, 'blip.membersOfTargetCareTeam');
+    //c09f30c366
+    let teamMember = _.find(userCareTeam, {});
+    console.log(teamMember);
+  }
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -666,6 +676,7 @@ export function mapStateToProps(state) {
     userIsDonor,
     userHasConnectedDataSources,
     userHasSharedData,
+    userCareTeam,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
