@@ -35,6 +35,16 @@ export const cgmDeviceOptions = [
   },
 ];
 
+// TODO: placeholder device-specific values until provided by the upcoming devices api.
+export const deviceSpecificValues = {
+  dexcomId: {
+    manufacturerName: 'Dexcom',
+  },
+  omnipodId: {
+    manufacturerName: 'Omnipod',
+  },
+}
+
 export const typeOptions = [
   { value: 'patient', label: t('Patient') },
   { value: 'caregiver', label: t('Patient and caregiver') },
@@ -52,13 +62,3 @@ export const trainingOptions = [
 ];
 
 export const validCountryCodes = [1];
-
-// Note: prior to launch, this will be coming from an upcoming backend service.
-export const deviceVocabulary = {
-  dexcomId: {
-    manufacturerName: 'Dexcom',
-  },
-  omnipodId: {
-    manufacturerName: 'Omnipod',
-  },
-}
