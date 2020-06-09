@@ -11,9 +11,13 @@ import map from 'lodash/map';
 import omit from 'lodash/omit';
 import isFunction from 'lodash/isFunction';
 import cx from 'classnames';
+import i18next from '../../core/language';
 
 import Button from './Button';
 import { colors, transitions } from '../../themes/baseTheme';
+import { usePrevious } from '../../core/hooks';
+
+const t = i18next.t.bind(i18next);
 
 const StyledStepper = styled(Base)`
   font-size: inherit;
@@ -51,34 +55,61 @@ StyledStepper.propTypes = {
 
 export const Stepper = props => {
   const {
-    activeStep: initialActiveStep = 0,
-    activeSubStep: initialActiveSubStep = 0,
+    activeStep: activeStepProp = 0,
+    activeSubStep: activeSubStepProp = 0,
+    backText,
     children,
+    completeText,
     id,
     history,
     location,
     onStepChange,
+    skipText,
     steps,
     themeProps,
     variant,
     ...stepperProps
   } = props;
 
-  let initialActiveStepState = initialActiveStep;
-  let initialActiveSubStepState = initialActiveSubStep;
+  let initialActiveStep = activeStepProp;
+  let initialActiveSubStep = activeSubStepProp;
 
-  const params = new URLSearchParams(location.search);
+  const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${id}-step`;
-  const activeStepsParam = params.get(activeStepParamKey);
 
-  if (activeStepsParam) {
-    const activeStepParts = activeStepsParam.split(',');
-    initialActiveStepState = parseInt(activeStepParts[0], 10);
-    initialActiveSubStepState = parseInt(activeStepParts[1], 10);
-  }
+  const setInitialActiveStepFromParams = () => {
+    const activeStepsParam = params().get(activeStepParamKey);
 
-  const [activeStep, setActiveStep] = React.useState(initialActiveStepState);
-  const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStepState);
+    if (activeStepsParam) {
+      const activeStepParts = activeStepsParam.split(',');
+      initialActiveStep = parseInt(activeStepParts[0], 10);
+      initialActiveSubStep = parseInt(activeStepParts[1], 10);
+    }
+  };
+
+  setInitialActiveStepFromParams();
+
+  const [transitioningToStep, setTransitioningToStep] = React.useState();
+  const [activeStep, setActiveStep] = React.useState(initialActiveStep);
+  const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStep);
+  const prevActiveStep = usePrevious(activeStep);
+
+  React.useEffect(() => {
+    const handlePopState = event => {
+      event.preventDefault();
+      setInitialActiveStepFromParams();
+      setTransitioningToStep([initialActiveStep, initialActiveSubStep].join(','));
+      setActiveStep(initialActiveStep);
+      setActiveSubStep(initialActiveSubStep);
+      setTimeout(() => {
+        setTransitioningToStep(null);
+      }, 0);
+    };
+
+    window.top.addEventListener('popstate', handlePopState);
+    return () => window.top.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
   const [pendingStep, setPendingStep] = React.useState([]);
@@ -97,11 +128,22 @@ export const Stepper = props => {
   );
 
   const getActiveStepAsyncState = () => {
-    const state = stepHasSubSteps(activeStep)
-      ? steps[activeStep].subSteps[activeSubStep].asyncState
-      : steps[activeStep].asyncState;
+    let activeStepAsyncState = get(steps[activeStep], 'asyncState');
 
-    return state;
+    if (stepHasSubSteps(activeStep) && activeSubStep < steps[activeStep].subSteps.length - 1) {
+      activeStepAsyncState = undefined;
+    }
+
+    const activeSubStepAsyncState = get(steps[activeStep], ['subSteps', activeSubStep, 'asyncState']);
+
+    const asyncState = {
+      stepIsAsync: !!activeStepAsyncState,
+      subStepIsAsync: !!activeSubStepAsyncState,
+      step: activeStepAsyncState,
+      subStep: activeSubStepAsyncState,
+    };
+
+    return asyncState;
   };
 
   const advanceActiveStep = () => {
@@ -113,42 +155,68 @@ export const Stepper = props => {
     if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
   };
 
-  React.useEffect(() => {
-    const { pending, complete } = getActiveStepAsyncState() || {};
-
-    if (!pending) {
-      if (complete) {
-        if (pendingStep.length) {
-          setActiveStep(pendingStep[0]);
-          setActiveSubStep(pendingStep[1]);
-          if (stepHasSubSteps(activeStep) && pendingStep[1] === 0) handleActiveStepOnComplete();
-          setPendingStep([]);
-        }
-        setProcessing(false);
-      }
+  const completeAsyncStep = () => {
+    if (pendingStep.length) {
+      setActiveStep(pendingStep[0]);
+      setActiveSubStep(pendingStep[1]);
+      setPendingStep([]);
     }
-  }, [steps]);
+    setProcessing(false);
+  };
 
   React.useEffect(() => {
+    const { subStepIsAsync, stepIsAsync, step = {}, subStep = {} } = getActiveStepAsyncState();
+
+    if (pendingStep.length && (subStepIsAsync || stepIsAsync)) {
+      const { pending: subStepPending, complete: subStepComplete } = subStep;
+      const { pending: stepPending, complete: stepComplete } = step;
+
+      if (subStepIsAsync && !subStepPending && subStepComplete) {
+        if (!stepIsAsync || stepComplete) {
+          completeAsyncStep();
+        }
+        if (pendingStep[1] === 0 && !stepPending && !stepComplete) handleActiveStepOnComplete();
+      } else if (activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1) {
+        if (!subStepPending && stepIsAsync && !stepPending) {
+          if (!stepComplete) {
+            handleActiveStepOnComplete();
+          } else {
+            completeAsyncStep();
+          }
+        }
+      }
+    } else {
+      if (pendingStep.length) setPendingStep([]);
+      if (processing) setProcessing(false);
+    }
+  }, [steps, pendingStep]);
+
+  React.useEffect(() => {
+    if (transitioningToStep) return;
+
     const newStep = [activeStep, activeSubStep];
 
-    if (params.get(activeStepParamKey) !== newStep.join(',')) {
-      params.set(activeStepParamKey, newStep);
-      history.pushState({}, '', decodeURIComponent(`${location.pathname}?${params}`));
+    // At init, the previous activeStep is `undefined`. In this case, we want to replace the current
+    // state rather than push a new one to avoid having to hit the browser back button twice to go
+    // back to the previous location
+    const updateMethod = prevActiveStep === undefined ? 'replaceState' : 'pushState';
+
+    const currentParams = params();
+    if (currentParams.get(activeStepParamKey) !== newStep.join(',')) {
+      currentParams.set(activeStepParamKey, newStep);
+      history[updateMethod]({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
     }
 
     if (isFunction(onStepChange)) onStepChange(newStep);
   }, [activeStep, activeSubStep]);
 
   const handleNext = () => {
-    const activeStepAsyncState = getActiveStepAsyncState();
-    let { pending } = activeStepAsyncState || {};
+    const { subStepIsAsync, stepIsAsync } = getActiveStepAsyncState();
 
-    setProcessing(pending);
+    setProcessing(false);
+    let pending;
 
-    if (activeStepAsyncState) {
-      if (pending) return;
-
+    if (stepIsAsync || subStepIsAsync) {
       pending = true;
       setProcessing(true);
 
@@ -180,8 +248,8 @@ export const Stepper = props => {
         }
       }
     } else {
-      handleActiveStepOnComplete();
       if (!pending) {
+        handleActiveStepOnComplete();
         advanceActiveStep();
       }
     }
@@ -217,12 +285,12 @@ export const Stepper = props => {
       <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
-            disabled={activeStep === 0 && activeSubStep === 0}
+            disabled={processing || (activeStep === 0 && activeSubStep === 0)}
             variant="secondary"
             className="step-back"
             onClick={handleBack}
           >
-            {step.backText || 'Back'}
+            {step.backText || backText}
           </Button>
         )}
         {isStepOptional(activeStep) && (
@@ -232,7 +300,7 @@ export const Stepper = props => {
             className="step-skip"
             onClick={handleSkip}
           >
-            Skip
+            {step.skipText || skipText}
           </Button>
         )}
         {!step.hideComplete && (
@@ -243,8 +311,11 @@ export const Stepper = props => {
             disabled={step.disableComplete}
             onClick={handleNext}
             processing={processing}
+            type={(activeStep === steps.length - 1 && activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1)
+              ? 'submit' : 'button'
+            }
           >
-            {step.completeText || (activeStep === (steps.length - 1) ? 'Finish' : 'Next')}
+            {step.completeText || completeText}
           </Button>
         )}
       </Flex>
@@ -264,7 +335,7 @@ export const Stepper = props => {
   };
 
   return (
-    <Flex variant={`steppers.${variant}`} {...themeProps.wrapper}>
+    <Flex variant={`steppers.${variant}`} {...themeProps.wrapper} id={id}>
       <Box className="steps" {...themeProps.steps}>
         <StyledStepper
           connectorwidth={`${(activeSubStep / getStepSubStepLength(activeStep)) * 100}%`}
@@ -343,6 +414,8 @@ Stepper.propTypes = {
   'aria-label': PropTypes.string.isRequired,
   activeStep: PropTypes.number,
   activeSubStep: PropTypes.number,
+  backText: PropTypes.string,
+  completeText: PropTypes.string,
   history: PropTypes.shape({
     pushState: PropTypes.func.isRequired,
   }),
@@ -352,10 +425,11 @@ Stepper.propTypes = {
     search: PropTypes.string,
   }),
   onStepChange: PropTypes.func,
+  skipText: PropTypes.string,
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
-      PropTypes.shape(omit({ ...StepPropTypes }, ['completed'])),
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label'])),
     ),
   })),
   themeProps: PropTypes.shape({
@@ -368,10 +442,13 @@ Stepper.propTypes = {
 };
 
 Stepper.defaultProps = {
-  themeProps: {},
-  variant: 'horizontal',
+  backText: t('Back'),
+  completeText: t('Continue'),
   history: window.history,
   location: window.location,
+  skipText: t('Skip'),
+  themeProps: {},
+  variant: 'horizontal',
 };
 
 export default Stepper;

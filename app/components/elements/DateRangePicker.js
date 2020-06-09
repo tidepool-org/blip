@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { DateRangePicker as DateRangePickerBase, DateRangePickerShape } from 'react-dates';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
@@ -6,7 +7,11 @@ import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
+import { Label } from '@rebass/forms';
+import { Box, BoxProps } from 'rebass/styled-components';
+import cx from 'classnames';
 
+import { Caption } from './FontStyles';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
@@ -69,17 +74,31 @@ export const DateRangePicker = props => {
   const {
     startDate,
     endDate,
+    error,
     focusedInput: focusedInputProp,
+    label,
     onDatesChange,
     onFocusChange,
+    required,
+    themeProps,
     ...datePickerProps
   } = props;
 
   const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
 
+  const inputClasses = cx({
+    error,
+    required,
+  });
+
   return (
-    <StyledDateRangePicker>
+    <Box as={StyledDateRangePicker} {...themeProps}>
+      {label && (
+        <Label htmlFor={name}>
+          <Caption className={inputClasses}>{label}</Caption>
+        </Label>
+      )}
       <DateRangePickerBase
         startDate={dates.startDate}
         startDateId={props.startDateId}
@@ -106,11 +125,19 @@ export const DateRangePicker = props => {
         showClearDates
         {...datePickerProps}
       />
-    </StyledDateRangePicker>
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
+    </Box>
   );
 };
 
-DateRangePicker.propTypes = DateRangePickerShape;
+DateRangePicker.propTypes = {
+  ...DateRangePickerShape,
+  themeProps: PropTypes.shape(BoxProps),
+};
 
 DateRangePicker.defaultProps = {
   startDate: null,

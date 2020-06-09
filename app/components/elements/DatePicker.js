@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { SingleDatePicker, SingleDatePickerShape } from 'react-dates';
 import NavigateBeforeRoundedIcon from '@material-ui/icons/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@material-ui/icons/NavigateNextRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import noop from 'lodash/noop';
 import styled from 'styled-components';
+import { Label } from '@rebass/forms';
+import { Box, BoxProps } from 'rebass/styled-components';
+import cx from 'classnames';
 
+import { Caption } from './FontStyles';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
 import { Icon } from './Icon';
 
@@ -37,16 +42,31 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
 export const DatePicker = props => {
   const {
     date: dateProp,
+    error,
     focused: focusedProp,
+    label,
     onDateChange,
     onFocusChange,
+    required,
+    themeProps,
     ...datePickerProps
   } = props;
+
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
 
+  const inputClasses = cx({
+    error,
+    required,
+  });
+
   return (
-    <StyledDatePicker>
+    <Box as={StyledDatePicker} {...themeProps}>
+      {label && (
+        <Label htmlFor={name}>
+          <Caption className={inputClasses}>{label}</Caption>
+        </Label>
+      )}
       <SingleDatePicker
         date={date}
         onDateChange={newDate => {
@@ -59,6 +79,7 @@ export const DatePicker = props => {
           onFocusChange(newFocused);
         }}
         id={props.id}
+        name={props.name}
         numberOfMonths={1}
         placeholder="mm/dd/yyyy"
         displayFormat="MMM D, YYYY"
@@ -72,11 +93,19 @@ export const DatePicker = props => {
         showClearDate
         {...datePickerProps}
       />
-    </StyledDatePicker>
+      {error && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {error}
+        </Caption>
+      )}
+    </Box>
   );
 };
 
-DatePicker.propTypes = SingleDatePickerShape;
+DatePicker.propTypes = {
+  ...SingleDatePickerShape,
+  themeProps: PropTypes.shape(BoxProps),
+};
 
 DatePicker.defaultProps = {
   date: null,

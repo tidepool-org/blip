@@ -4,7 +4,6 @@ import { action, decorate } from '@storybook/addon-actions';
 import { withKnobs, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Box } from 'rebass/styled-components';
-import { forceReRender } from '@storybook/react';
 
 import baseTheme from '../app/themes/baseTheme';
 import Stepper from '../app/components/elements/Stepper';
@@ -23,8 +22,6 @@ export default {
   title: 'Stepper',
   decorators: [withDesign, withKnobs, withTheme],
 };
-
-window.top.onpopstate = () => forceReRender();
 
 const sleep = m => new Promise(r => setTimeout(r, m));
 

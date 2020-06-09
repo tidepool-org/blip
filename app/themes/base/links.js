@@ -3,6 +3,15 @@ export default ({ colors, fonts }) => {
     fontFamily: fonts.default,
     textDecoration: 'none',
     color: colors.text.link,
+    '&:hover, &:active': {
+      color: colors.text.link,
+      textDecoration: 'none',
+    },
+    '&:focus': {
+      color: colors.text.link,
+      outline: 'none',
+      textDecoration: 'underline',
+    },
   };
 
   return {
