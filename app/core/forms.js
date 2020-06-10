@@ -46,7 +46,14 @@ export const fieldsAreValid = (fieldNames, fieldsMeta) => !includes(map(fieldNam
 
 /**
  * Returns the error state of a field in a way that's sensible for our components
- * @param {*} fieldMeta metadata for a field provided by formik's getFieldMeta
+ * @param {Object} fieldMeta metadata for a field provided by formik's getFieldMeta
  * @returns error string or null
  */
 export const getFieldError = fieldMeta => fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
+
+/**
+ * Convert longhand version of units to a condensed version, such as Units/hour => U/h
+ * @param {String} units
+ * @returns {String} condensed version of units
+ */
+export const getCondensedUnits = units => map(units.split('/'), part => part[0]).join('/');
