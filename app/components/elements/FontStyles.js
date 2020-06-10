@@ -132,6 +132,16 @@ export const NavigationLink = Styled(Link)`
   }
 `;
 
+export const OrderedList = Styled('ol')`
+  margin: 0;
+  li {
+    margin-bottom: 0.5em;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
 export const DropdownGroupHeader = Styled(Text)`
   font-size: ${fontSizes[1]}px;
   margin: 0;
