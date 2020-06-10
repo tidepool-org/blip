@@ -12,6 +12,7 @@ import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
 import therapySettingsFormSteps from './therapySettingsFormSteps';
+import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
@@ -19,6 +20,8 @@ import Stepper from '../../components/elements/Stepper';
 /* global crypto, Uint8Array, Promise */
 
 const log = bows('PrescriptionForm');
+
+const schema = prescriptionSchema(defaultUnits.bloodGlucose);
 
 const prescriptionForm = {
   mapPropsToValues: props => ({
@@ -31,18 +34,32 @@ const prescriptionForm = {
     email: get(props, 'prescription.email', ''),
     emailConfirm: get(props, 'prescription.email', ''),
     phoneNumber: {
-      countryCode: get(props, 'prescription.phoneNumber.countryCode', 1),
+      countryCode: get(props, 'prescription.phoneNumber.countryCode', validCountryCodes[0]),
       number: get(props, 'prescription.phoneNumber.number', ''),
     },
     mrn: get(props, 'prescription.mrn', ''),
     sex: get(props, 'prescription.sex', ''),
     initialSettings: {
+      bloodGlucoseUnits: get(props, 'prescription.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
       pumpType: get(props, 'prescription.initialSettings.pumpType', ''),
       cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
+      insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
+      suspendThreshold: {
+        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues.suspendThreshold),
+        units: defaultUnits.suspendThreshold,
+      },
+      basalRateMaximum: {
+        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues.basalRateMaximum),
+        units: defaultUnits.basalRate,
+      },
+      bolusAmountMaximum: {
+        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues.bolusAmountMaximum),
+        units: defaultUnits.bolusAmount,
+      },
     },
     training: get(props, 'prescription.training', ''),
   }),
-  validationSchema: prescriptionSchema,
+  validationSchema: schema,
   displayName: 'PrescriptionForm',
 }
 
@@ -66,7 +83,7 @@ const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
-  const meta = getFieldsMeta(prescriptionSchema, getFieldMeta);
+  const meta = getFieldsMeta(schema, getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));

@@ -2,13 +2,17 @@ import * as yup from 'yup';
 import i18next from '../../core/language';
 import map from 'lodash/map';
 import moment from 'moment';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 
 import {
   dateFormat,
+  defaultUnits,
+  defaultRanges,
   phoneRegex,
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
+  insulinTypeOptions,
   typeOptions,
   sexOptions,
   trainingOptions,
@@ -17,7 +21,7 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default yup.object().shape({
+export default (bgUnits = defaultUnits.bloodGlucose) => yup.object().shape({
   id: yup.string(),
   state: yup.string()
     .oneOf(revisionStates, t('Please select a valid option')),
@@ -52,12 +56,38 @@ export default yup.object().shape({
     .oneOf(map(sexOptions, 'value'), t('Please select a valid option'))
     .required(t('Patient gender is required')),
   initialSettings: yup.object().shape({
+    bloodGlucoseUnits: yup.string()
+      .oneOf([MGDL_UNITS, MMOLL_UNITS], t('Please set a valid blood glucose units option'))
+      .default(bgUnits),
     pumpType: yup.string()
       .oneOf(map(pumpDeviceOptions, 'value'))
       .required(t('A pump type must be specified')),
     cgmType: yup.string()
       .oneOf(map(cgmDeviceOptions, 'value'))
       .required(t('A cgm type must be specified')),
+    insulinType: yup.string()
+      .oneOf(map(insulinTypeOptions, 'value'))
+      .required(t('A cgm type must be specified')),
+    suspendThreshold: yup.object().shape({
+      value: yup.number()
+        .min(defaultRanges.suspendThreshold.min, `Threshold out of range. Please select a value between ${defaultRanges.suspendThreshold.min}-${defaultRanges.suspendThreshold.max}`)
+        .max(defaultRanges.suspendThreshold.max, `Threshold out of range. Please select a value between ${defaultRanges.suspendThreshold.min}-${defaultRanges.suspendThreshold.max}`),
+      units: yup.string().default(bgUnits),
+    }),
+    basalRateMaximum: yup.object().shape({
+      value: yup.number()
+        .min(defaultRanges.basalRateMaximum.min)
+        .max(defaultRanges.basalRateMaximum.max),
+      units: yup.string()
+        .default(defaultUnits.basalRate),
+    }),
+    bolusAmountMaximum: yup.object().shape({
+      value: yup.number()
+        .min(defaultRanges.bolusAmountMaximum.min)
+        .max(defaultRanges.bolusAmountMaximum.max),
+      units: yup.string()
+        .default(defaultUnits.bolusAmount),
+    }),
   }),
   training: yup.string()
     .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))

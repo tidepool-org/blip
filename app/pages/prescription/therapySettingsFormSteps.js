@@ -6,13 +6,21 @@ import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import get from 'lodash/get';
 
-import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { fieldsAreValid, getFieldError, getCondensedUnits } from '../../core/forms';
 import i18next from '../../core/language';
-import { Body2, Headline, Title } from '../../components/elements/FontStyles';
+import { Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
-import { deviceSpecificValues, trainingOptions } from './prescriptionFormConstants';
+import PopoverLabel from '../../components/elements/PopoverLabel';
+import TextInput from '../../components/elements/TextInput';
+import {
+  deviceMeta,
+  defaultUnits,
+  insulinTypeOptions,
+  trainingOptions,
+} from './prescriptionFormConstants';
 
 import {
+  inputStyles,
   fieldsetStyles,
   wideFieldsetStyles,
   borderedFieldsetStyles,
@@ -57,7 +65,7 @@ export const PatientTraining = props => {
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Body2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpType}}.', {
-          pumpType: get(deviceSpecificValues[pumpType], 'manufacturerName')
+          pumpType: get(deviceMeta(pumpType), 'manufacturerName')
         })}
       </Body2>
       <FastField
@@ -91,9 +99,36 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
 
+  const cgmType = meta.initialSettings.cgmType.value;
+  const cgmMeta = deviceMeta(cgmType)
+
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Title>{t('Glucose Settings')}</Title>
+      <Title mb={3}>{t('Glucose Settings')}</Title>
+      <Box px={3}>
+        <PopoverLabel
+            id='suspend-threshold'
+            label={t('Suspend Threshold')}
+            mb={2}
+            popoverContent={(
+              <Box p={3}>
+                <Body2>
+                  {t('The suspend threshold is a safety feature of the loop algorithm which affects both bolus and basal recommendations by Loop. If any predicted blood glucose is below this threshold, the Loop algorithm will issue a temporary basal rate of 0 U/hr')}
+                </Body2>
+              </Box>
+            )}
+          />
+          <FastField
+            as={TextInput}
+            type="number"
+            id="initialSettings.suspendThreshold.value"
+            name="initialSettings.suspendThreshold.value"
+            suffix={meta.initialSettings.bloodGlucoseUnits.value}
+            error={getFieldError(meta.initialSettings.suspendThreshold)}
+            {...cgmMeta.ranges.suspendThreshold}
+            {...inputStyles}
+          />
+      </Box>
     </Box>
   );
 };
@@ -103,9 +138,91 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 export const InsulinSettings = props => {
   const { t, meta, ...themeProps } = props;
 
+  const pumpType = meta.initialSettings.pumpType.value;
+  const pumpMeta = deviceMeta(pumpType)
+
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Title>{t('Insulin Settings')}</Title>
+      <Title mb={3}>{t('Insulin Settings')}</Title>
+      <Box px={3}>
+        <PopoverLabel
+          id='insulin-model'
+          label={t('Insulin Model')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('There are two insulin models to choose from which have different insulin activity curves which will affect the amount of active insulin at any given time. Duration of Insulin Activity for both models is 6 hours.')}
+              </Body2>
+              <Body2>
+                <OrderedList>
+                  <li>
+                    {t('Rapid-Acting - Adults insulin model curve peaks at 75 minutes.')}
+                  </li>
+                  <li>
+                    {t('Rapid-Acting - Children curve peaks at 65 minutes.')}
+                  </li>
+                </OrderedList>
+              </Body2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={RadioGroup}
+          variant="horizontal"
+          id="initialSettings.insulinType"
+          name="initialSettings.insulinType"
+          options={insulinTypeOptions}
+          error={getFieldError(meta.initialSettings.insulinType)}
+          mb={3}
+        />
+
+        <PopoverLabel
+          id='max-basal'
+          label={t('Max Basal')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('The maximum basal rate is a safety feature of the Loop algorithm, which prevents the Loop algorithm from issuing a temporary basal rate greater than this amount.')}
+              </Body2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={TextInput}
+          type="number"
+          id="initialSettings.basalRateMaximum.value"
+          name="initialSettings.basalRateMaximum.value"
+          suffix={getCondensedUnits(defaultUnits.basalRate)}
+          error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
+          {...pumpMeta.ranges.basalRateMaximum}
+          {...inputStyles}
+        />
+
+        <PopoverLabel
+          id='max-bolus'
+          label={t('Max Bolus')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('The maximum bolus parameter governs the maximum amount of bolus insulin that is allowed to be given in any single dose.')}
+              </Body2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={TextInput}
+          type="number"
+          id="initialSettings.bolusAmountMaximum.value"
+          name="initialSettings.bolusAmountMaximum.value"
+          suffix={getCondensedUnits(defaultUnits.bolusAmount)}
+          error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
+          {...pumpMeta.ranges.bolusAmountMaximum}
+          {...inputStyles}
+        />
+      </Box>
     </Box>
   );
 };
