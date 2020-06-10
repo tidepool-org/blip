@@ -139,7 +139,7 @@ export const showingShareDataBanner = (state = initialState.showingShareDataBann
     case types.DISMISS_BANNER:
       return (action.payload.type === 'sharedata') ? false : state;
     case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedSharedDataBannerTime');
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedShareDataBannerTime');
       const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
