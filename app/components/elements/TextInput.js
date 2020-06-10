@@ -1,27 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Flex, Box, BoxProps } from 'rebass/styled-components';
+import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
 import { Label, Input as Base, InputProps } from '@rebass/forms';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { space } from '../../themes/baseTheme';
 import cx from 'classnames';
 
 const StyledWrapper = styled(Flex)`
   position: relative;
-  flex-wrap: wrap;
+  align-items: center;
 
   > input {
     flex-grow: 1;
   }
 
   .MuiSvgIcon-root {
-    position: absolute;
-    right: ${space[2]}px;
-    top: ${({ variant }) => (variant === 'inputs.text.default' ? 13 : 9)}px;
     color: inherit;
-    /* Disable pointer events so click actually applies to the text input underneath */
     pointer-events: none;
   }
 `;
@@ -32,6 +27,8 @@ export const TextInput = (props) => {
     name,
     width = ['100%', '75%', '50%'],
     icon,
+    prefix,
+    suffix,
     themeProps,
     variant,
     required,
@@ -52,6 +49,7 @@ export const TextInput = (props) => {
         </Label>
       )}
       <StyledWrapper variant={`inputs.text.${variant}`}>
+        {prefix && <Text className="prefix">{prefix}</Text>}
         <Base
           id={name}
           name={name}
@@ -59,7 +57,8 @@ export const TextInput = (props) => {
           className={inputClasses}
           {...inputProps}
         />
-        {icon && <Icon icon={icon} label={label} />}
+        {icon && <Icon className="icon" icon={icon} label={label} />}
+        {suffix && <Text className="suffix">{suffix}</Text>}
       </StyledWrapper>
       {error && (
         <Caption ml={2} mt={2} className={inputClasses}>
@@ -75,6 +74,8 @@ TextInput.propTypes = {
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  prefix: PropTypes.string,
+  suffix: PropTypes.string,
   space: PropTypes.number,
   disabled: PropTypes.bool,
   icon: PropTypes.elementType,

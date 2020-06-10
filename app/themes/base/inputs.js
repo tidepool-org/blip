@@ -15,26 +15,41 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     caretColor: colors.text.primary,
     width: '100%',
 
-    '&::placeholder': {
-      color: colors.text.primaryTextSubdued,
+    ':focus-within': {
+      outlineWidth: '2px',
+      outlineStyle: 'solid',
+      outlineColor: 'Highlight',
     },
-    '&.active': {
-      color: colors.text.primaryTextSubdued,
-      boxShadow: 'none',
+
+    '@media (-webkit-min-device-pixel-ratio:0)': {
+      ':focus-within': {
+        outlineColor: '-webkit-focus-ring-color',
+        outlineStyle: 'auto',
+      },
     },
-    '&:focus': {
-      boxShadow: 'none',
-    },
-    '&:disabled': {
-      color: colors.text.primaryDisabled,
-      borderColor: colors.lightestGrey,
-      backgroundColor: colors.lightestGrey,
-    },
-    '&.error': {
-      color: colors.orange,
-      borderColor: colors.orange,
+
+    input: {
       '&::placeholder': {
+        color: colors.text.primaryTextSubdued,
+      },
+      '&.active': {
+        color: colors.text.primaryTextSubdued,
+        boxShadow: 'none',
+      },
+      '&:focus': {
+        boxShadow: 'none',
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+        borderColor: colors.lightestGrey,
+        backgroundColor: colors.lightestGrey,
+      },
+      '&.error': {
         color: colors.orange,
+        borderColor: colors.orange,
+        '&::placeholder': {
+          color: colors.orange,
+        },
       },
     },
   };
@@ -80,15 +95,39 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
   return {
     text: {
       default: {
+        ...textInputs,
         input: {
-          ...textInputs,
+          ...textInputs.input,
           padding: `${space[2] * 1.5}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+        },
+        '.prefix': {
+          paddingLeft: `${space[2] * 1.5}px`,
+        },
+        '.suffix, .icon': {
+          paddingRight: `${space[2] * 1.5}px`,
         },
       },
       condensed: {
+        ...textInputs,
         input: {
-          ...textInputs,
+          ...textInputs.input,
           padding: `${space[2]}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+        },
+        '.prefix': {
+          paddingLeft: `${space[2]}px`,
+        },
+        '.suffix, .icon': {
+          paddingRight: `${space[2]}px`,
         },
       },
     },
