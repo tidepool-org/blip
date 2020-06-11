@@ -21,9 +21,7 @@ import Stepper from '../../components/elements/Stepper';
 
 const log = bows('PrescriptionForm');
 
-const schema = prescriptionSchema(defaultUnits.bloodGlucose);
-
-const prescriptionForm = {
+const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
     id: get(props, 'routeParams.id', ''),
     state: get(props, 'prescription.state', 'draft'),
@@ -45,23 +43,27 @@ const prescriptionForm = {
       cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
       insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
       suspendThreshold: {
-        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues.suspendThreshold),
+        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
         units: defaultUnits.suspendThreshold,
       },
       basalRateMaximum: {
-        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues.basalRateMaximum),
+        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
       },
       bolusAmountMaximum: {
-        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues.bolusAmountMaximum),
+        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
         units: defaultUnits.bolusAmount,
       },
     },
     training: get(props, 'prescription.training', ''),
   }),
-  validationSchema: schema,
+  validationSchema: props => prescriptionSchema(
+    get(props, 'prescription.initialSettings.pumpType'),
+    get(props, 'prescription.initialSettings.cgmType'),
+    bgUnits
+  ),
   displayName: 'PrescriptionForm',
-}
+});
 
 const withPrescription = Component => props => {
   // Until backend service is ready, get prescriptions from localStorage
@@ -83,7 +85,10 @@ const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
-  const meta = getFieldsMeta(schema, getFieldMeta);
+  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
+  const pumpType = get(values, 'initialSettings.pumpType');
+  const cgmType = get(values, 'initialSettings.cgmType');
+  const meta = getFieldsMeta(prescriptionSchema(pumpType, cgmType, bgUnits), getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));
@@ -230,4 +235,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withPrescription(withFormik(prescriptionForm)(PrescriptionForm)));
+export default translate()(withPrescription(withFormik(prescriptionForm())(PrescriptionForm)));

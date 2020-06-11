@@ -59,13 +59,15 @@ PatientInfo.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
   const { t, meta, ...themeProps } = props;
+  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpType = meta.initialSettings.pumpType.value;
+  const pumpMeta = deviceMeta(pumpType, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Body2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpType}}.', {
-          pumpType: get(deviceMeta(pumpType), 'manufacturerName')
+          pumpType: pumpMeta.manufacturerName,
         })}
       </Body2>
       <FastField
@@ -98,9 +100,9 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
-
+  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const cgmType = meta.initialSettings.cgmType.value;
-  const cgmMeta = deviceMeta(cgmType)
+  const cgmMeta = deviceMeta(cgmType, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -137,9 +139,9 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
   const { t, meta, ...themeProps } = props;
-
+  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpType = meta.initialSettings.pumpType.value;
-  const pumpMeta = deviceMeta(pumpType)
+  const pumpMeta = deviceMeta(pumpType, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
