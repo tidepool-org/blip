@@ -39,7 +39,7 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     sex: get(props, 'prescription.sex', ''),
     initialSettings: {
       bloodGlucoseUnits: get(props, 'prescription.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-      pumpType: get(props, 'prescription.initialSettings.pumpType', ''),
+      pumpId: get(props, 'prescription.initialSettings.pumpId', ''),
       cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
       insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
       suspendThreshold: {
@@ -58,7 +58,7 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     training: get(props, 'prescription.training', ''),
   }),
   validationSchema: props => prescriptionSchema(
-    get(props, 'prescription.initialSettings.pumpType'),
+    get(props, 'prescription.initialSettings.pumpId'),
     get(props, 'prescription.initialSettings.cgmType'),
     bgUnits
   ),
@@ -86,9 +86,9 @@ const PrescriptionForm = props => {
   } = useFormikContext();
 
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
-  const pumpType = get(values, 'initialSettings.pumpType');
+  const pumpId = get(values, 'initialSettings.pumpId');
   const cgmType = get(values, 'initialSettings.cgmType');
-  const meta = getFieldsMeta(prescriptionSchema(pumpType, cgmType, bgUnits), getFieldMeta);
+  const meta = getFieldsMeta(prescriptionSchema(pumpId, cgmType, bgUnits), getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));

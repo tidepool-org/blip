@@ -60,14 +60,14 @@ PatientInfo.propTypes = fieldsetPropTypes;
 export const PatientTraining = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpType = meta.initialSettings.pumpType.value;
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
+  const pumpId = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Body2>
-        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpType}}.', {
-          pumpType: pumpMeta.manufacturerName,
+        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpId}}.', {
+          pumpId: pumpMeta.manufacturerName,
         })}
       </Body2>
       <FastField
@@ -109,6 +109,29 @@ export const GlucoseSettings = props => {
       <Title mb={3}>{t('Glucose Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
+          id='correction-range'
+          label={t('Correction Range')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('The correction range is the blood glucose range the Loop algorithm uses to determine corrective actions (e.g., between 90 and 120 mg/dL).')}
+              </Body2>
+              <Body2>
+                {t('NOTE: Loop’s correction range is a user setting and should not be confused with the target range, typically 70-180 mg/dL, used for the purpose of calculating the percent time in range.')}
+              </Body2>
+            </Box>
+          )}
+        />
+        <Box p={3} bg="lightestGrey">
+          <FastField
+            as={TextInput}
+            type="time"
+            {...inputStyles}
+          />
+        </Box>
+
+        <PopoverLabel
             id='suspend-threshold'
             label={t('Suspend Threshold')}
             mb={2}
@@ -140,8 +163,8 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 export const InsulinSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpType = meta.initialSettings.pumpType.value;
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
+  const pumpId = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>

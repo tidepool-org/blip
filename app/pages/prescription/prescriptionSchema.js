@@ -21,8 +21,8 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default (pumpType, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
+export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
   const cgmMeta = deviceMeta(cgmType, bgUnits);
 
   return yup.object().shape({
@@ -63,7 +63,7 @@ export default (pumpType, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
       bloodGlucoseUnits: yup.string()
         .oneOf([MGDL_UNITS, MMOLL_UNITS], t('Please set a valid blood glucose units option'))
         .default(bgUnits),
-      pumpType: yup.string()
+      pumpId: yup.string()
         .oneOf(map(pumpDeviceOptions, 'value'))
         .required(t('A pump type must be specified')),
       cgmType: yup.string()

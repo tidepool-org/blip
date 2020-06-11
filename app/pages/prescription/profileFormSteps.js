@@ -109,15 +109,15 @@ export const PatientDevices = translate()(props => {
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
-              id="initialSettings.pumpType"
-              name="initialSettings.pumpType"
+              id="initialSettings.pumpId"
+              name="initialSettings.pumpId"
               key={device.value}
-              checked={!isEmpty(meta.initialSettings.pumpType.value)}
+              checked={!isEmpty(meta.initialSettings.pumpId.value)}
               label={device.label}
               onChange={e => {
-                setFieldValue('initialSettings.pumpType', e.target.checked ? device.value : '')
+                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.pumpType)}
+              error={getFieldError(meta.initialSettings.pumpId)}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>
@@ -166,7 +166,7 @@ const accountFormSteps = (meta) => ({
       panelContent: <PatientGender meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(['initialSettings.pumpType', 'initialSettings.cgmType'], meta),
+      disableComplete: !fieldsAreValid(['initialSettings.pumpId', 'initialSettings.cgmType'], meta),
       onComplete: () => log('Patient Devices Complete'),
       panelContent: <PatientDevices meta={meta} />,
     },
