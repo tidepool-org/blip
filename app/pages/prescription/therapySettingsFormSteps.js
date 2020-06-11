@@ -115,10 +115,7 @@ export const GlucoseSettings = props => {
           popoverContent={(
             <Box p={3}>
               <Body2>
-                {t('The correction range is the blood glucose range the Loop algorithm uses to determine corrective actions (e.g., between 90 and 120 mg/dL).')}
-              </Body2>
-              <Body2>
-                {t('NOTE: Loop’s correction range is a user setting and should not be confused with the target range, typically 70-180 mg/dL, used for the purpose of calculating the percent time in range.')}
+                {t('The correction range is the glucose range that you would like the app to correct your glucose to by adjusting insulin dosing.')}
               </Body2>
             </Box>
           )}
@@ -138,7 +135,7 @@ export const GlucoseSettings = props => {
             popoverContent={(
               <Box p={3}>
                 <Body2>
-                  {t('The suspend threshold is a safety feature of the loop algorithm which affects both bolus and basal recommendations by Loop. If any predicted blood glucose is below this threshold, the Loop algorithm will issue a temporary basal rate of 0 U/hr')}
+                  {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
                 </Body2>
               </Box>
             )}
@@ -177,15 +174,20 @@ export const InsulinSettings = props => {
           popoverContent={(
             <Box p={3}>
               <Body2>
-                {t('There are two insulin models to choose from which have different insulin activity curves which will affect the amount of active insulin at any given time. Duration of Insulin Activity for both models is 6 hours.')}
+                {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
+              </Body2>
+              <Body2>
+                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
               </Body2>
               <Body2>
                 <OrderedList>
                   <li>
-                    {t('Rapid-Acting - Adults insulin model curve peaks at 75 minutes.')}
+                    {t('Rapid-Acting - Adult Model')}<br />
+                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 75 })}
                   </li>
                   <li>
-                    {t('Rapid-Acting - Children curve peaks at 65 minutes.')}
+                    {t('Rapid-Acting - Child Model')}<br />
+                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 65 })}
                   </li>
                 </OrderedList>
               </Body2>
@@ -209,7 +211,10 @@ export const InsulinSettings = props => {
           popoverContent={(
             <Box p={3}>
               <Body2>
-                {t('The maximum basal rate is a safety feature of the Loop algorithm, which prevents the Loop algorithm from issuing a temporary basal rate greater than this amount.')}
+                {t('Maximum basal rate is the automatically adjusted basal rate that Tidepool Loop is allowed to enact to help reach your correction range.')}
+              </Body2>
+              <Body2>
+                {t('For first time users of an automated system, Tidepool suggests you start with 3x your highest basal rate.')}
               </Body2>
             </Box>
           )}
@@ -232,7 +237,7 @@ export const InsulinSettings = props => {
           popoverContent={(
             <Box p={3}>
               <Body2>
-                {t('The maximum bolus parameter governs the maximum amount of bolus insulin that is allowed to be given in any single dose.')}
+                {t('Maximum bolus is the highest bolus amount that you will allow Tidepool Loop to recommend at one time to cover carbs or bring down high glucose.')}
               </Body2>
             </Box>
           )}
