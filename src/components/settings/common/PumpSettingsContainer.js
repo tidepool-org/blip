@@ -16,7 +16,8 @@
  */
 
 import _ from 'lodash';
-import React, { PropTypes, PureComponent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -26,7 +27,7 @@ import NonTandem from '../NonTandem';
 import Tandem from '../Tandem';
 import Diabeloop from '../Diabeloop';
 
-export class PumpSettingsContainer extends PureComponent {
+export class PumpSettingsContainer extends React.PureComponent {
   static propTypes = {
     bgUnits: PropTypes.oneOf([MGDL_UNITS, MMOLL_UNITS]).isRequired,
     copySettingsClicked: PropTypes.func.isRequired,

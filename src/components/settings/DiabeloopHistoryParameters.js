@@ -1,10 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import i18next from 'i18next';
 import _ from 'lodash';
 import bows from 'bows';
+import moment from 'moment-timezone';
 
 import { formatParameterValue } from '../../utils/format';
 import Table from './common/Table';
+
+import { getLongDayHourFormat } from '../../utils/datetime';
 
 // @ts-ignore
 import styles from './Diabeloop.css';
@@ -139,6 +143,8 @@ export default class HistoryTable extends Table {
 
   getAllRows(history) {
     const rows = [];
+    const { timePrefs } = this.props;
+    const dateFormat = getLongDayHourFormat();
 
     if (_.isArray(history)) {
       const currentParameters = new Map();
@@ -165,7 +171,11 @@ export default class HistoryTable extends Table {
             if (latestDate.getTime() < changeDate.getTime()) {
               latestDate = changeDate;
             }
-            row.parameterDate = changeDate.toLocaleString();
+            if (timePrefs.timezoneAware) {
+              row.parameterDate = moment.tz(changeDate, timePrefs.timezoneName).format(dateFormat);
+            } else {
+              row.parameterDate = moment.utc(changeDate).format(dateFormat);
+            }
 
             switch (row.changeType) {
               case 'added':
@@ -225,3 +235,11 @@ export default class HistoryTable extends Table {
     return rows.reverse();
   }
 }
+
+HistoryTable.propTypes = {
+  ...Table.propTypes,
+  timePrefs: PropTypes.shape({
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.string,
+  }).isRequired,
+};

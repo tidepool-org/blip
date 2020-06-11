@@ -111,6 +111,16 @@ export function getLongFormat() {
 }
 
 /**
+ * Moment format for:
+ * - English: 'MMM D, YYYY h:mm a'
+ * - French: 'D MMM YYYY, H:mm'
+ * @returns {string} Format according to translation
+ */
+export function getLongDayHourFormat() {
+  return t('MMM D, YYYY h:mm a');
+}
+
+/**
  * addDuration
  * @param {String} datetime - an ISO date string
  * @param {Number} duration - milliseconds to add to date

@@ -15,7 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ClipboardButton from 'react-clipboard.js';
 import _ from 'lodash';
 import moment from 'moment-timezone';
@@ -138,6 +139,7 @@ const Diabeloop = (props) => {
         <div className={styles.categoryContainer}>
           <div className={styles.categoryTitle}>&nbsp;</div>
           <HistoryTable
+            timePrefs={timePrefs}
             title={HistoryTable.title}
             rows={history}
             columns={HistoryTable.columns}
@@ -198,7 +200,7 @@ Diabeloop.propTypes = {
   }),
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool.isRequired,
-    timezoneName: PropTypes.oneOfType([PropTypes.string]),
+    timezoneName: PropTypes.string,
   }).isRequired,
   user: PropTypes.object.isRequired,
 };
