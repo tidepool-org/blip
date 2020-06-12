@@ -223,10 +223,17 @@ export default class HistoryTable extends Table {
             rows.push(row);
           }
 
+          let mLatestDate;
+          if (timePrefs.timezoneAware) {
+            mLatestDate = moment.tz(latestDate, timePrefs.timezoneName);
+          } else {
+            mLatestDate = moment.utc(latestDate);
+          }
+
           rows.push({
             isSpanned: true,
-            spannedContent: latestDate.toLocaleString(),
-            isoDate: latestDate.toISOString(),
+            spannedContent: mLatestDate.format(dateFormat),
+            isoDate: mLatestDate.toISOString(),
           });
         }
       }
