@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "mrproper": "rm -rf dist node_modules coverage",
@@ -40,7 +40,7 @@
     "hakken": "mdblp/hakken#dblp.0.2.0",
     "helmet": "3.22.0",
     "morgan": "1.10.0",
-    "@tidepool/viz": "mdblp/viz#dblp.0.12.1",
+    "@tidepool/viz": "mdblp/viz#dblp.0.12.2",
     "tideline": "mdblp/tideline#dblp.1.10.2"
   },
   "devDependencies": {
