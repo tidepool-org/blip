@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, Field } from 'formik';
+import { FastField } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import map from 'lodash/map';
-import min from 'lodash/min';
 import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
@@ -163,7 +162,7 @@ export const GlucoseSettings = props => {
           <Box>
             {map(bloodGlucoseTargetSchedule.value, (schedule, index) => (
               <Flex key={index} alignItems="flex-start" mb={3}>
-                <Field
+                <FastField
                   as={TextInput}
                   label={index === 0 && t('Start Time')}
                   type="time"
@@ -188,7 +187,7 @@ export const GlucoseSettings = props => {
                   error={getFieldError(meta.initialSettings.bloodGlucoseTargetSchedule, index, 'start')}
                   {...inlineInputStyles}
                 />
-                <Field
+                <FastField
                   as={TextInput}
                   label={index === 0 && t('Lower Target')}
                   type="number"
@@ -199,7 +198,7 @@ export const GlucoseSettings = props => {
                   {...inlineInputStyles}
                 />
                 <Text ml={3} mr={1} mt={index === 0 ? '33px' : '12px'}>-</Text>
-                <Field
+                <FastField
                   as={TextInput}
                   label={index === 0 && t('Upper Target')}
                   type="number"
