@@ -104,6 +104,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
             outline: 'none',
             border: 'none',
           },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[2] * 1.5}px - 1px)`,
+            paddingBottom: `calc(${space[2] * 1.5}px - 1px)`,
+          },
         },
         '.prefix': {
           paddingLeft: `${space[2] * 1.5}px`,
@@ -121,6 +125,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           '&:focus': {
             outline: 'none',
             border: 'none',
+          },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[2]}px - 1px)`,
+            paddingBottom: `calc(${space[2]}px - 1px)`,
           },
         },
         '.prefix': {

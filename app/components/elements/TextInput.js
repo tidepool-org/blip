@@ -12,7 +12,7 @@ const StyledWrapper = styled(Flex)`
   align-items: center;
 
   > input {
-    flex-grow: 1;
+    flex: 1;
   }
 
   .MuiSvgIcon-root {
