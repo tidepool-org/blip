@@ -44,6 +44,7 @@ export const Icon = props => {
 
 Icon.propTypes = {
   ...BoxProps,
+  disabled: PropTypes.bool,
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(['default', 'static', 'button']),
