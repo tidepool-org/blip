@@ -1,23 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, Field } from 'formik';
-import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import { FastField } from 'formik';
+import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
-import map from 'lodash/map';
-import isInteger from 'lodash/isInteger';
-import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
-import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 
 import { fieldsAreValid, getFieldError, getCondensedUnits } from '../../core/forms';
 import i18next from '../../core/language';
-import { useFieldArray } from '../../core/hooks';
 import { Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
-import Icon from '../../components/elements/Icon';
-import Button from '../../components/elements/Button';
+import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
@@ -28,12 +22,10 @@ import {
 
 import {
   inputStyles,
-  inlineInputStyles,
   fieldsetStyles,
   wideFieldsetStyles,
   borderedFieldsetStyles,
 } from './prescriptionFormStyles';
-import { MS_IN_MIN, MS_IN_HOUR, MS_IN_DAY } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionTherapySettings');
@@ -44,16 +36,6 @@ const fieldsetPropTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export const convertMsPer24ToTimeString = msPer24 => {
-  const hours = `0${new Date(msPer24).getUTCHours()}`.slice(-2);
-  const minutes = `0${new Date(msPer24).getUTCMinutes()}`.slice(-2);
-  return `${hours}:${minutes}`;
-};
-
-export const convertTimeStringToMsPer24 = timeString => {
-  const [hours, minutes] = map(timeString.split(':'), val => parseInt(val, 10));
-  return (hours * MS_IN_HOUR) + (minutes * MS_IN_MIN);
-}
 
 export const PatientInfo = props => {
   const { t, meta, ...themeProps } = props;
@@ -124,23 +106,6 @@ export const GlucoseSettings = props => {
   const cgmType = meta.initialSettings.cgmType.value;
   const cgmMeta = deviceMeta(cgmType, bgUnits);
 
-  const [refs, setRefs] = React.useState([]);
-  const [focusedId, setFocusedId] = React.useState();
-
-  const [bloodGlucoseTargetSchedule, , { move, remove, replace, push }] = useFieldArray({ name: 'initialSettings.bloodGlucoseTargetSchedule' });
-  const schedulesLength = bloodGlucoseTargetSchedule.value.length;
-
-  React.useEffect(() => {
-    // add or remove refs as the schedule length changes
-    setRefs(refs => (
-      Array(schedulesLength).fill().map((_, i) => refs[i] || React.createRef())
-    ));
-  }, [schedulesLength]);
-
-  React.useEffect(() => {
-    isInteger(focusedId) && refs[focusedId].current.focus();
-  }, [focusedId]);
-
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Glucose Settings')}</Title>
@@ -159,86 +124,26 @@ export const GlucoseSettings = props => {
         />
 
         <Box p={3} mb={3} bg="lightestGrey">
-          <Box>
-            {map(bloodGlucoseTargetSchedule.value, (schedule, index) => (
-              <Flex key={index} alignItems="flex-start" mb={3}>
-                <Field
-                  as={TextInput}
-                  label={index === 0 && t('Start Time')}
-                  type="time"
-                  readOnly={index === 0}
-                  step={MS_IN_MIN * 30 / 1000}
-                  value={convertMsPer24ToTimeString(schedule.start, 'hh:mm')}
-                  onChange={e => {
-                    const start = convertTimeStringToMsPer24(e.target.value);
-                    const newValue = {...bloodGlucoseTargetSchedule.value[index], start};
-                    const valuesCopy = [...bloodGlucoseTargetSchedule.value];
-                    valuesCopy.splice(index, 1);
-                    const newPos = sortedLastIndexBy(valuesCopy, newValue, function(o) { return o.start; });
-                    replace(index, newValue);
-                    move(index, newPos);
-                    setFocusedId(newPos);
-                  }}
-                  onFocus={() => setFocusedId(index)}
-                  onBlur={() => setFocusedId(undefined)}
-                  innerRef={refs[index]}
-                  id={`initialSettings.bloodGlucoseTargetSchedule.${index}.start`}
-                  name={`initialSettings.bloodGlucoseTargetSchedule.${index}.start`}
-                  error={getFieldError(meta.initialSettings.bloodGlucoseTargetSchedule, index, 'start')}
-                  {...inlineInputStyles}
-                />
-                <FastField
-                  as={TextInput}
-                  label={index === 0 && t('Lower Target')}
-                  type="number"
-                  id={`initialSettings.bloodGlucoseTargetSchedule.${index}.low`}
-                  name={`initialSettings.bloodGlucoseTargetSchedule.${index}.low`}
-                  suffix={meta.initialSettings.bloodGlucoseUnits.value}
-                  error={getFieldError(meta.initialSettings.bloodGlucoseTargetSchedule, index, 'low')}
-                  {...inlineInputStyles}
-                />
-                <Text ml={3} mr={1} mt={index === 0 ? '33px' : '12px'}>-</Text>
-                <FastField
-                  as={TextInput}
-                  label={index === 0 && t('Upper Target')}
-                  type="number"
-                  id={`initialSettings.bloodGlucoseTargetSchedule.${index}.high`}
-                  name={`initialSettings.bloodGlucoseTargetSchedule.${index}.high`}
-                  suffix={meta.initialSettings.bloodGlucoseUnits.value}
-                  error={getFieldError(meta.initialSettings.bloodGlucoseTargetSchedule, index, 'high')}
-                  {...inlineInputStyles}
-                />
-                <Icon
-                  mx={2}
-                  mt={2}
-                  variant="button"
-                  label="Delete"
-                  icon={DeleteOutlineRoundedIcon}
-                  onClick={() => remove(index)}
-                  disabled={index === 0}
-                  sx={{
-                    visibility: index === 0 ? 'hidden' : 'visible',
-                  }}
-                />
-              </Flex>
-            ))}
-            <Button
-              variant="secondary"
-              disabled={(() => {
-                const lastSchedule = bloodGlucoseTargetSchedule.value[bloodGlucoseTargetSchedule.value.length - 1];
-                return lastSchedule.start >= (MS_IN_DAY - (MS_IN_MIN * 30));
-              })()}
-              onClick={() => {
-                const lastSchedule = bloodGlucoseTargetSchedule.value[bloodGlucoseTargetSchedule.value.length - 1];
-                return push({
-                  ...lastSchedule,
-                  start: lastSchedule.start + (MS_IN_MIN * 30),
-                });
-              }}
-            >
-              {t('Add an additional correction range')}
-            </Button>
-          </Box>
+          <ScheduleForm
+            addButtonText={t('Add an additional correction range')}
+            fieldArrayName='initialSettings.bloodGlucoseTargetSchedule'
+            fieldArrayMeta={meta.initialSettings.bloodGlucoseTargetSchedule}
+            fields={[
+              {
+                label: t('Lower Target'),
+                name: 'low',
+                suffix: meta.initialSettings.bloodGlucoseUnits.value,
+                type: 'number',
+              },
+              {
+                label: t('Upper Target'),
+                name: 'high',
+                suffix: meta.initialSettings.bloodGlucoseUnits.value,
+                type: 'number',
+              },
+            ]}
+            separator="-"
+          />
         </Box>
 
         <PopoverLabel
