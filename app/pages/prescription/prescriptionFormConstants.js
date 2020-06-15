@@ -1,6 +1,8 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'rebass/styled-components';
+import defaultsDeep from 'lodash/defaultsDeep';
+
 import i18next from '../../core/language';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import { translateBg, roundBgTarget } from '../../core/utils';
@@ -46,13 +48,22 @@ export const defaultUnits = {
 
 export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   const values = {
-    basalRateMaximum: 5,
+    basalRateMaximum: 0,
     bolusAmountMaximum: 10,
     suspendThreshold: 80,
+    bloodGlucoseTarget: {
+      high: 125,
+      low: 112,
+    },
   }
 
   if (bgUnits === MMOLL_UNITS) {
     values.suspendThreshold = roundBgTarget(translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
+
+    values.bloodGlucoseTarget = {
+      high: roundBgTarget(translateBg(values.bloodGlucoseTarget.high, MMOLL_UNITS), MMOLL_UNITS),
+      low: roundBgTarget(translateBg(values.bloodGlucoseTarget.low, MMOLL_UNITS), MMOLL_UNITS),
+    }
   }
 
   return values;
@@ -66,7 +77,7 @@ export const defaultThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    thresholds.suspendThreshold = roundBgTarget(translateBg(thresholds.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.warning = roundBgTarget(translateBg(thresholds.suspendThreshold.warning, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
@@ -74,13 +85,21 @@ export const defaultThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
 
 export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
   const ranges = {
-    basalRateMaximum: { min: 0, max: 30, step: 0.25 },
+    basalRate: { min: 0, max: 35, step: 0.05 }, // will need to enforce step in case user types in invalid value
+    basalRateMaximum: { min: 0, max: 35, step: 0.25 },
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
     suspendThreshold: { min: 54, max: 150, step: 1 },
+    bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    ranges.suspendThreshold = roundBgTarget(translateBg(ranges.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.min = roundBgTarget(translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.max = roundBgTarget(translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.step = 0.1;
+
+    ranges.bloodGlucoseTarget.min = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.bloodGlucoseTarget.max = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.bloodGlucoseTarget.step = 0.1;
   }
 
   return ranges;
@@ -95,7 +114,10 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
     },
     omnipodId: {
       manufacturerName: 'Omnipod',
-      ranges: defaultRanges(bgUnits),
+      ranges: defaultsDeep({
+        basalRate: { max: 30 },
+        basalRateMaximum: { max: 30 },
+      }, defaultRanges(bgUnits))
     },
   };
 

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import i18next from '../../core/language';
 import map from 'lodash/map';
 import moment from 'moment';
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
 
 import {
   dateFormat,
@@ -24,6 +24,13 @@ const t = i18next.t.bind(i18next);
 export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
   const pumpMeta = deviceMeta(pumpId, bgUnits);
   const cgmMeta = deviceMeta(cgmType, bgUnits);
+
+  const rangeErrors = {
+    suspendThreshold: `Threshold out of range. Please select a value between ${cgmMeta.ranges.suspendThreshold.min}-${cgmMeta.ranges.suspendThreshold.max}`,
+    basalRateMaximum: `Basal limit out of range. Please select a value between ${cgmMeta.ranges.basalRateMaximum.min}-${cgmMeta.ranges.basalRateMaximum.max}`,
+    bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${cgmMeta.ranges.bolusAmountMaximum.min}-${cgmMeta.ranges.bolusAmountMaximum.max}`,
+    bloodGlucoseTarget: `Correction target out of range. Please select a value between ${cgmMeta.ranges.bloodGlucoseTarget.min}-${cgmMeta.ranges.bloodGlucoseTarget.max}`,
+  };
 
   return yup.object().shape({
     id: yup.string(),
@@ -74,24 +81,44 @@ export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
         .required(t('A cgm type must be specified')),
       suspendThreshold: yup.object().shape({
         value: yup.number()
-          .min(cgmMeta.ranges.suspendThreshold.min, `Threshold out of range. Please select a value between ${cgmMeta.ranges.suspendThreshold.min}-${cgmMeta.ranges.suspendThreshold.max}`)
-          .max(cgmMeta.ranges.suspendThreshold.max, `Threshold out of range. Please select a value between ${cgmMeta.ranges.suspendThreshold.min}-${cgmMeta.ranges.suspendThreshold.max}`),
+          .min(cgmMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
+          .max(cgmMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
+          .required(t('Suspend threshold is required')),
         units: yup.string().default(bgUnits),
       }),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
-          .min(pumpMeta.ranges.basalRateMaximum.min)
-          .max(pumpMeta.ranges.basalRateMaximum.max),
+          .min(pumpMeta.ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)
+          .max(pumpMeta.ranges.basalRateMaximum.max, rangeErrors.basalRateMaximum)
+          .required(t('Max basal rate is required')),
         units: yup.string()
           .default(defaultUnits.basalRate),
       }),
       bolusAmountMaximum: yup.object().shape({
         value: yup.number()
-          .min(pumpMeta.ranges.bolusAmountMaximum.min)
-          .max(pumpMeta.ranges.bolusAmountMaximum.max),
+          .min(pumpMeta.ranges.bolusAmountMaximum.min, rangeErrors.bolusAmountMaximum)
+          .max(pumpMeta.ranges.bolusAmountMaximum.max, rangeErrors.bolusAmountMaximum)
+          .required(t('Max bolus amount is required')),
         units: yup.string()
           .default(defaultUnits.bolusAmount),
       }),
+      bloodGlucoseTargetSchedule: yup.array().of(
+        yup.object().shape({
+          high: yup.number()
+            .min(pumpMeta.ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTarget)
+            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTarget)
+            .required(t('High target is required')),
+          low: yup.number()
+            .min(pumpMeta.ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTarget)
+            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTarget)
+            .required(t('Low target is required')),
+          start: yup.number()
+            .integer()
+            .min(0)
+            .max(MS_IN_DAY)
+            .required(t('Start time is required')),
+        }),
+      ),
     }),
     training: yup.string()
       .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))

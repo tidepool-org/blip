@@ -54,6 +54,11 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
         units: defaultUnits.bolusAmount,
       },
+      bloodGlucoseTargetSchedule: get(props, 'prescription.initialSettings.bloodGlucoseTargetSchedule', [{
+        high: defaultValues(bgUnits).bloodGlucoseTarget.high,
+        low: defaultValues(bgUnits).bloodGlucoseTarget.low,
+        start: 0,
+      }]),
     },
     training: get(props, 'prescription.training', ''),
   }),

@@ -33,6 +33,18 @@ export const inputStyles = {
   },
 };
 
+export const inlineInputStyles = {
+  width: '100%',
+  themeProps: {
+    ml: 3,
+    sx: {
+      '&:first-child': {
+        ml: 0,
+      },
+    },
+  },
+};
+
 export const checkboxStyles = {
   width: '100%',
   themeProps: {
