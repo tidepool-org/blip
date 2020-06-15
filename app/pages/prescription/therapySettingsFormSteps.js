@@ -6,6 +6,7 @@ import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import map from 'lodash/map';
 import min from 'lodash/min';
+import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 
@@ -127,19 +128,18 @@ export const GlucoseSettings = props => {
   const [refs, setRefs] = React.useState([]);
   const [focusedId, setFocusedId] = React.useState();
 
-  const [bloodGlucoseTargetSchedule, , { insert, move, remove, replace, push }] = useFieldArray({ name: 'initialSettings.bloodGlucoseTargetSchedule' });
+  const [bloodGlucoseTargetSchedule, , { move, remove, replace, push }] = useFieldArray({ name: 'initialSettings.bloodGlucoseTargetSchedule' });
   const schedulesLength = bloodGlucoseTargetSchedule.value.length;
 
   React.useEffect(() => {
-    // add or remove refs
+    // add or remove refs as the schedule length changes
     setRefs(refs => (
       Array(schedulesLength).fill().map((_, i) => refs[i] || React.createRef())
     ));
   }, [schedulesLength]);
 
   React.useEffect(() => {
-    console.log('focusedId', focusedId);
-    focusedId && refs[focusedId].current.focus();
+    isInteger(focusedId) && refs[focusedId].current.focus();
   }, [focusedId]);
 
   return (
@@ -173,9 +173,11 @@ export const GlucoseSettings = props => {
                   onChange={e => {
                     const start = convertTimeStringToMsPer24(e.target.value);
                     const newValue = {...bloodGlucoseTargetSchedule.value[index], start};
-                    remove(index);
-                    const newPos = min([schedulesLength - 1, sortedLastIndexBy(bloodGlucoseTargetSchedule.value, newValue, function(o) { return o.start; })]);
-                    insert(newPos, newValue);
+                    const valuesCopy = [...bloodGlucoseTargetSchedule.value];
+                    valuesCopy.splice(index, 1);
+                    const newPos = sortedLastIndexBy(valuesCopy, newValue, function(o) { return o.start; });
+                    replace(index, newValue);
+                    move(index, newPos);
                     setFocusedId(newPos);
                   }}
                   onFocus={() => setFocusedId(index)}
