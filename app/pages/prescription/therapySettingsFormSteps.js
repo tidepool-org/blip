@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField } from 'formik';
+import { FastField, Field } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import map from 'lodash/map';
@@ -162,7 +162,7 @@ export const GlucoseSettings = props => {
           <Box>
             {map(bloodGlucoseTargetSchedule.value, (schedule, index) => (
               <Flex key={index} alignItems="flex-start" mb={3}>
-                <FastField
+                <Field
                   as={TextInput}
                   label={index === 0 && t('Start Time')}
                   type="time"
