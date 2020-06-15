@@ -4,6 +4,7 @@ import reduce from 'lodash/reduce';
 import keys from 'lodash/keys';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 
 /**
  * Helper function to provide field meta data for all formik fields defined within a yup schema
@@ -49,7 +50,13 @@ export const fieldsAreValid = (fieldNames, fieldsMeta) => !includes(map(fieldNam
  * @param {Object} fieldMeta metadata for a field provided by formik's getFieldMeta
  * @returns error string or null
  */
-export const getFieldError = fieldMeta => fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
+export const getFieldError = (fieldMeta, index, key) => {
+  if (isArray(fieldMeta.error)) {
+    return get(fieldMeta.error, `${index}.${key}`, null);
+  }
+
+  return fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
+};
 
 /**
  * Convert longhand version of units to a condensed version, such as Units/hour => U/h
