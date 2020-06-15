@@ -55,6 +55,7 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
       high: 125,
       low: 112,
     },
+    basalRate: 0.05,
   }
 
   if (bgUnits === MMOLL_UNITS) {

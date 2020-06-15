@@ -59,6 +59,10 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         low: defaultValues(bgUnits).bloodGlucoseTarget.low,
         start: 0,
       }]),
+      basalRateSchedule: get(props, 'prescription.initialSettings.basalRateSchedule', [{
+        rate: defaultValues(bgUnits).basalRate,
+        start: 0,
+      }]),
     },
     training: get(props, 'prescription.training', ''),
   }),

@@ -270,6 +270,36 @@ export const InsulinSettings = props => {
           {...pumpMeta.ranges.bolusAmountMaximum}
           {...inputStyles}
         />
+
+        <PopoverLabel
+          id='basal-rates'
+          label={t('Basal rates')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.')}
+              </Body2>
+            </Box>
+          )}
+        />
+
+        <Box p={3} mb={3} bg="lightestGrey">
+          <ScheduleForm
+            addButtonText={t('Add an additional basal rate')}
+            fieldArrayName='initialSettings.basalRateSchedule'
+            fieldArrayMeta={meta.initialSettings.basalRateSchedule}
+            fields={[
+              {
+                label: t('Basal rates values (in U/hr)'),
+                name: 'rate',
+                suffix: t('U/hr'),
+                type: 'number',
+                ...pumpMeta.ranges.basalRate,
+              },
+            ]}
+          />
+        </Box>
       </Box>
     </Box>
   );

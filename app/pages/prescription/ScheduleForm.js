@@ -92,6 +92,9 @@ const ScheduleForm = props => {
               <FastField
                 as={TextInput}
                 label={index === 0 && field.label}
+                min={field.min}
+                max={field.max}
+                step={field.step}
                 type={field.type}
                 id={`${fieldArrayName}.${index}.${field.name}`}
                 name={`${fieldArrayName}.${index}.${field.name}`}
@@ -146,6 +149,9 @@ ScheduleForm.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     name: PropTypes.string,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
     suffix: PropTypes.string,
     type: PropTypes.string,
   })),
