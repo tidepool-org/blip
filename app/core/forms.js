@@ -56,5 +56,16 @@ export const getFieldError = (fieldMeta, index, key) => {
     return get(fieldMeta.error, `${index}.${key}`, null);
   }
 
-  return fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
+  return (fieldMeta.touched || fieldMeta.initialValue) && fieldMeta.error ? fieldMeta.error : null;
+};
+
+/**
+ * Returns the error state of a field in a way that's sensible for our components
+ * @param {Object} fieldMeta metadata for a field provided by formik's getFieldMeta
+ * @returns error string or null
+ */
+export const getThresholdWarning = (value, threshold) => {
+  if (value <= get(threshold, 'low.value')) return get(threshold, 'low.message');
+  if (value >= get(threshold, 'high.value')) return get(threshold, 'high.message');
+  return null;
 };

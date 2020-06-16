@@ -8,7 +8,7 @@ import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 
-import { getFieldError } from '../../core/forms';
+import { getFieldError, getThresholdWarning } from '../../core/forms';
 import { useFieldArray } from '../../core/hooks';
 import i18next from '../../core/language';
 import TextInput from '../../components/elements/TextInput';
@@ -100,6 +100,7 @@ const ScheduleForm = props => {
                 name={`${fieldArrayName}.${index}.${field.name}`}
                 suffix={field.suffix}
                 error={getFieldError(fieldArrayMeta, index, field.name)}
+                warning={getThresholdWarning(schedule[field.name], field.threshold)}
                 {...inlineInputStyles}
               />
               {(fieldIndex < fields.length - 1 ) && separator && (

@@ -46,6 +46,49 @@ export const defaultUnits = {
   bloodGlucose: MGDL_UNITS,
 };
 
+export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
+  const lowWarning = t('The value you have chosen is lower than Tidepool generally recommends.');
+  const highWarning = t('The value you have chosen is higher than Tidepool generally recommends.');
+
+  const thresholds = {
+    basalRate: {
+      low: { value: 0, message: lowWarning },
+    },
+    bloodGlucoseTarget: {
+      low: { value: 70, message: lowWarning },
+      high: { value: 120, message: highWarning },
+    },
+    bolusAmountMaximum: {
+      high: { value: 20, message: highWarning },
+    },
+    carbRatio: {
+      low: { value: 3, message: lowWarning },
+      high: { value: 28, message: highWarning },
+    },
+    insulinSensitivityFactor: {
+      low: { value: 15, message: lowWarning },
+      high: { value: 400, message: highWarning },
+    },
+    suspendThreshold: {
+      low: { value: 70, message: lowWarning },
+      high: { value: 120, message: highWarning },
+    },
+  };
+
+  if (bgUnits === MMOLL_UNITS) {
+    thresholds.bloodGlucoseTarget.low.value = roundBgTarget(translateBg(thresholds.bloodGlucoseTarget.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.bloodGlucoseTarget.high.value = roundBgTarget(translateBg(thresholds.bloodGlucoseTarget.high.value, MMOLL_UNITS), MMOLL_UNITS);
+
+    thresholds.insulinSensitivityFactor.low.value = roundBgTarget(translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.insulinSensitivityFactor.high.value = roundBgTarget(translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
+
+    thresholds.suspendThreshold.low.value = roundBgTarget(translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.high.value = roundBgTarget(translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+  }
+
+  return thresholds;
+};
+
 export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   const values = {
     basalRate: 0.05,
@@ -71,20 +114,6 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   }
 
   return values;
-};
-
-export const defaultThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
-  const thresholds = {
-    basalRateMaximum: { warning: 30 },
-    bolusAmountMaximum: { warning: 30 },
-    suspendThreshold: { warning: 30 },
-  };
-
-  if (bgUnits === MMOLL_UNITS) {
-    thresholds.suspendThreshold.warning = roundBgTarget(translateBg(thresholds.suspendThreshold.warning, MMOLL_UNITS), MMOLL_UNITS);
-  }
-
-  return thresholds;
 };
 
 export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {

@@ -5,7 +5,7 @@ import { FastField } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 
-import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import i18next from '../../core/language';
 import { Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -17,6 +17,7 @@ import {
   deviceMeta,
   insulinTypeOptions,
   trainingOptions,
+  warningThresholds,
 } from './prescriptionFormConstants';
 
 import {
@@ -105,6 +106,7 @@ export const GlucoseSettings = props => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpType = meta.initialSettings.pumpId.value;
   const pumpMeta = deviceMeta(pumpType, bgUnits);
+  const thresholds = warningThresholds(bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -133,12 +135,14 @@ export const GlucoseSettings = props => {
                 label: t('Lower Target'),
                 name: 'low',
                 suffix: bgUnits,
+                threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
               },
               {
                 label: t('Upper Target'),
                 name: 'high',
                 suffix: bgUnits,
+                threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
               },
             ]}
@@ -165,6 +169,7 @@ export const GlucoseSettings = props => {
             name="initialSettings.suspendThreshold.value"
             suffix={bgUnits}
             error={getFieldError(meta.initialSettings.suspendThreshold.value)}
+            warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
             {...pumpMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
           />
@@ -180,6 +185,7 @@ export const InsulinSettings = props => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
   const pumpMeta = deviceMeta(pumpId, bgUnits);
+  const thresholds = warningThresholds(bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -267,6 +273,7 @@ export const InsulinSettings = props => {
           name="initialSettings.bolusAmountMaximum.value"
           suffix={t('U')}
           error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
+          warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
           {...pumpMeta.ranges.bolusAmountMaximum}
           {...inputStyles}
         />
@@ -294,6 +301,7 @@ export const InsulinSettings = props => {
                 label: t('Basal rates values (in U/hr)'),
                 name: 'rate',
                 suffix: t('U/hr'),
+                threshold: thresholds.basalRate,
                 type: 'number',
                 ...pumpMeta.ranges.basalRate,
               },
@@ -324,6 +332,7 @@ export const InsulinSettings = props => {
                 label: t('1 U of insulin covers (g/U)'),
                 name: 'amount',
                 suffix: t('g/U'),
+                threshold: thresholds.carbRatio,
                 type: 'number',
                 ...pumpMeta.ranges.carbRatio,
               },
@@ -338,7 +347,7 @@ export const InsulinSettings = props => {
           popoverContent={(
             <Box p={3}>
               <Body2>
-                {t('Your insulin sensitivity factor (ISF) is the mg/dL drop in glucose expected from one unit of insulin.')}
+                {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
               </Body2>
             </Box>
           )}
@@ -354,6 +363,7 @@ export const InsulinSettings = props => {
                 label: t('1 U of insulin decreases BG by'),
                 name: 'amount',
                 suffix: bgUnits,
+                threshold: thresholds.insulinSensitivityFactor,
                 type: 'number',
                 ...pumpMeta.ranges.insulinSensitivityFactor,
               },
