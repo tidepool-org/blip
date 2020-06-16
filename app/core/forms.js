@@ -57,10 +57,3 @@ export const getFieldError = (fieldMeta, index, key) => {
 
   return fieldMeta.touched && fieldMeta.error ? fieldMeta.error : null;
 };
-
-/**
- * Convert longhand version of units to a condensed version, such as Units/hour => U/h
- * @param {String} units
- * @returns {String} condensed version of units
- */
-export const getCondensedUnits = units => map(units.split('/'), part => part[0]).join('/');

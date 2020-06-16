@@ -5,7 +5,7 @@ import { FastField } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 
-import { fieldsAreValid, getFieldError, getCondensedUnits } from '../../core/forms';
+import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
 import { Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -132,13 +132,13 @@ export const GlucoseSettings = props => {
               {
                 label: t('Lower Target'),
                 name: 'low',
-                suffix: meta.initialSettings.bloodGlucoseUnits.value,
+                suffix: bgUnits,
                 type: 'number',
               },
               {
                 label: t('Upper Target'),
                 name: 'high',
-                suffix: meta.initialSettings.bloodGlucoseUnits.value,
+                suffix: bgUnits,
                 type: 'number',
               },
             ]}
@@ -163,7 +163,7 @@ export const GlucoseSettings = props => {
             type="number"
             id="initialSettings.suspendThreshold.value"
             name="initialSettings.suspendThreshold.value"
-            suffix={meta.initialSettings.bloodGlucoseUnits.value}
+            suffix={bgUnits}
             error={getFieldError(meta.initialSettings.suspendThreshold)}
             {...cgmMeta.ranges.suspendThreshold}
             {...inputStyles}
@@ -242,7 +242,7 @@ export const InsulinSettings = props => {
           type="number"
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
-          suffix={getCondensedUnits(defaultUnits.basalRate)}
+          suffix={t('U/hr')}
           error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
           {...pumpMeta.ranges.basalRateMaximum}
           {...inputStyles}
@@ -265,7 +265,7 @@ export const InsulinSettings = props => {
           type="number"
           id="initialSettings.bolusAmountMaximum.value"
           name="initialSettings.bolusAmountMaximum.value"
-          suffix={getCondensedUnits(defaultUnits.bolusAmount)}
+          suffix={t('U')}
           error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
           {...pumpMeta.ranges.bolusAmountMaximum}
           {...inputStyles}
@@ -296,6 +296,66 @@ export const InsulinSettings = props => {
                 suffix: t('U/hr'),
                 type: 'number',
                 ...pumpMeta.ranges.basalRate,
+              },
+            ]}
+          />
+        </Box>
+
+        <PopoverLabel
+          id='insulin-to-carb-ratios'
+          label={t('Insulin to carb ratios')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('Your carb ratio is the number of grams of carbohydrate covered by one unit of insulin.')}
+              </Body2>
+            </Box>
+          )}
+        />
+
+        <Box p={3} mb={3} bg="lightestGrey">
+          <ScheduleForm
+            addButtonText={t('Add an additional carb ratio')}
+            fieldArrayName='initialSettings.carbohydrateRatioSchedule'
+            fieldArrayMeta={meta.initialSettings.carbohydrateRatioSchedule}
+            fields={[
+              {
+                label: t('1 U of insulin covers (g/U)'),
+                name: 'amount',
+                suffix: t('g/U'),
+                type: 'number',
+                ...pumpMeta.ranges.carbRatio,
+              },
+            ]}
+          />
+        </Box>
+
+        <PopoverLabel
+          id='insulin-sensitivity-factors'
+          label={t('Insulin sensitivity factors')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Body2>
+                {t('Your insulin sensitivity factor (ISF) is the mg/dL drop in glucose expected from one unit of insulin.')}
+              </Body2>
+            </Box>
+          )}
+        />
+
+        <Box p={3} mb={3} bg="lightestGrey">
+          <ScheduleForm
+            addButtonText={t('Add an additional insulin sensitivity factor')}
+            fieldArrayName='initialSettings.insulinSensitivitySchedule'
+            fieldArrayMeta={meta.initialSettings.insulinSensitivitySchedule}
+            fields={[
+              {
+                label: t('1 U of insulin decreases BG by'),
+                name: 'amount',
+                suffix: bgUnits,
+                type: 'number',
+                ...pumpMeta.ranges.insulinSensitivityFactor,
               },
             ]}
           />

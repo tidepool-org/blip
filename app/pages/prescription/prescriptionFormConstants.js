@@ -48,23 +48,26 @@ export const defaultUnits = {
 
 export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   const values = {
+    basalRate: 0.05,
     basalRateMaximum: 0,
-    bolusAmountMaximum: 10,
-    suspendThreshold: 80,
     bloodGlucoseTarget: {
       high: 125,
       low: 112,
     },
-    basalRate: 0.05,
+    bolusAmountMaximum: 10,
+    carbRatio: 10,
+    insulinSensitivityFactor: 100,
+    suspendThreshold: 80,
   }
 
   if (bgUnits === MMOLL_UNITS) {
-    values.suspendThreshold = roundBgTarget(translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
-
     values.bloodGlucoseTarget = {
       high: roundBgTarget(translateBg(values.bloodGlucoseTarget.high, MMOLL_UNITS), MMOLL_UNITS),
       low: roundBgTarget(translateBg(values.bloodGlucoseTarget.low, MMOLL_UNITS), MMOLL_UNITS),
     }
+
+    values.insulinSensitivityFactor = roundBgTarget(translateBg(values.insulinSensitivityFactor, MMOLL_UNITS), MMOLL_UNITS);
+    values.suspendThreshold = roundBgTarget(translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return values;
@@ -88,19 +91,25 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
   const ranges = {
     basalRate: { min: 0, max: 35, step: 0.05 }, // will need to enforce step in case user types in invalid value
     basalRateMaximum: { min: 0, max: 35, step: 0.25 },
-    bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-    suspendThreshold: { min: 54, max: 150, step: 1 },
     bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
+    bolusAmountMaximum: { min: 0, max: 30, step: 1 },
+    carbRatio: { min: 0, max: 250, step: 1 },
+    insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
+    suspendThreshold: { min: 54, max: 150, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    ranges.suspendThreshold.min = roundBgTarget(translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.suspendThreshold.max = roundBgTarget(translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.suspendThreshold.step = 0.1;
-
     ranges.bloodGlucoseTarget.min = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.min, MMOLL_UNITS), MMOLL_UNITS);
     ranges.bloodGlucoseTarget.max = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.bloodGlucoseTarget.step = 0.1;
+
+    ranges.insulinSensitivityFactor.min = roundBgTarget(translateBg(ranges.insulinSensitivityFactor.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.insulinSensitivityFactor.max = roundBgTarget(translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.insulinSensitivityFactor.step = 0.1;
+
+    ranges.suspendThreshold.min = roundBgTarget(translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.max = roundBgTarget(translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.step = 0.1;
   }
 
   return ranges;
@@ -118,6 +127,7 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
       ranges: defaultsDeep({
         basalRate: { max: 30 },
         basalRateMaximum: { max: 30 },
+        carbRatio: { max: 150 },
       }, defaultRanges(bgUnits))
     },
   };

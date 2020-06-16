@@ -25,11 +25,13 @@ export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
   const pumpMeta = deviceMeta(pumpId, bgUnits);
 
   const rangeErrors = {
-    suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
-    basalRateMaximum: `Basal limit out of range. Please select a value between ${pumpMeta.ranges.basalRateMaximum.min}-${pumpMeta.ranges.basalRateMaximum.max}`,
     basalRate: `Basal rate out of range. Please select a value between ${pumpMeta.ranges.basalRate.min}-${pumpMeta.ranges.basalRate.max}`,
-    bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
+    basalRateMaximum: `Basal limit out of range. Please select a value between ${pumpMeta.ranges.basalRateMaximum.min}-${pumpMeta.ranges.basalRateMaximum.max}`,
     bloodGlucoseTarget: `Correction target out of range. Please select a value between ${pumpMeta.ranges.bloodGlucoseTarget.min}-${pumpMeta.ranges.bloodGlucoseTarget.max}`,
+    bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
+    carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${pumpMeta.ranges.carbRatio.min}-${pumpMeta.ranges.carbRatio.max}`,
+    insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${pumpMeta.ranges.insulinSensitivityFactor.min}-${pumpMeta.ranges.insulinSensitivityFactor.max}`,
+    suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
   };
 
   return yup.object().shape({
@@ -124,7 +126,33 @@ export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
           rate: yup.number()
             .min(pumpMeta.ranges.basalRate.min, rangeErrors.basalRate)
             .max(pumpMeta.ranges.basalRate.max, rangeErrors.basalRate)
-            .required(t('High target is required')),
+            .required(t('Basal rate is required')),
+          start: yup.number()
+            .integer()
+            .min(0)
+            .max(MS_IN_DAY)
+            .required(t('Start time is required')),
+        }),
+      ),
+      carbohydrateRatioSchedule: yup.array().of(
+        yup.object().shape({
+          amount: yup.number()
+            .min(pumpMeta.ranges.carbRatio.min, rangeErrors.carbRatio)
+            .max(pumpMeta.ranges.carbRatio.max, rangeErrors.carbRatio)
+            .required(t('Insulin-to-carb ratio is required')),
+          start: yup.number()
+            .integer()
+            .min(0)
+            .max(MS_IN_DAY)
+            .required(t('Start time is required')),
+        }),
+      ),
+      insulinSensitivitySchedule: yup.array().of(
+        yup.object().shape({
+          amount: yup.number()
+            .min(pumpMeta.ranges.insulinSensitivityFactor.min, rangeErrors.insulinSensitivityFactor)
+            .max(pumpMeta.ranges.insulinSensitivityFactor.max, rangeErrors.insulinSensitivityFactor)
+            .required(t('Sensitivity factor is required')),
           start: yup.number()
             .integer()
             .min(0)
