@@ -103,8 +103,8 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const cgmType = meta.initialSettings.cgmType.value;
-  const cgmMeta = deviceMeta(cgmType, bgUnits);
+  const pumpType = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpType, bgUnits);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -165,7 +165,7 @@ export const GlucoseSettings = props => {
             name="initialSettings.suspendThreshold.value"
             suffix={bgUnits}
             error={getFieldError(meta.initialSettings.suspendThreshold.value)}
-            {...cgmMeta.ranges.suspendThreshold}
+            {...pumpMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
           />
       </Box>

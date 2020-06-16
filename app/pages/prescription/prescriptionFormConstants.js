@@ -95,7 +95,7 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
     carbRatio: { min: 0, max: 250, step: 1 },
     insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
-    suspendThreshold: { min: 54, max: 150, step: 1 },
+    suspendThreshold: { min: 54, max: 180, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -120,7 +120,6 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
   const metaByDeviceId = {
     dexcomId: {
       manufacturerName: 'Dexcom',
-      ranges: defaultRanges(bgUnits),
     },
     omnipodId: {
       manufacturerName: 'Omnipod',

@@ -21,7 +21,7 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default (pumpId, cgmType, bgUnits = defaultUnits.bloodGlucose) => {
+export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
   const pumpMeta = deviceMeta(pumpId, bgUnits);
 
   const rangeErrors = {

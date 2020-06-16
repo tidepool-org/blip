@@ -76,7 +76,6 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   }),
   validationSchema: props => prescriptionSchema(
     get(props, 'prescription.initialSettings.pumpId'),
-    get(props, 'prescription.initialSettings.cgmType'),
     bgUnits
   ),
   displayName: 'PrescriptionForm',
@@ -104,8 +103,7 @@ const PrescriptionForm = props => {
 
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId');
-  const cgmType = get(values, 'initialSettings.cgmType');
-  const meta = getFieldsMeta(prescriptionSchema(pumpId, cgmType, bgUnits), getFieldMeta);
+  const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));
