@@ -11,7 +11,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
 import { typeOptions } from './prescriptionFormConstants';
-import { fieldsetStyles, inputStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -55,7 +55,7 @@ export const PatientInfo = translate()(props => {
         id="firstName"
         name="firstName"
         error={getFieldError(meta.firstName)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={TextInput}
@@ -63,7 +63,7 @@ export const PatientInfo = translate()(props => {
         id="lastName"
         name="lastName"
         error={getFieldError(meta.lastName)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={() => (
@@ -82,7 +82,7 @@ export const PatientInfo = translate()(props => {
               id="birthday"
               label={t('Patient\'s Birthday')}
               error={getFieldError(meta.birthday)}
-              {...inputStyles}
+              {...condensedInputStyles}
             />
           </InputMask>
         )}
@@ -103,7 +103,7 @@ export const PatientEmail = translate()(props => {
         id="email"
         name="email"
         error={getFieldError(meta.email)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={TextInput}
@@ -111,7 +111,7 @@ export const PatientEmail = translate()(props => {
         id="emailConfirm"
         name="emailConfirm"
         error={getFieldError(meta.emailConfirm)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <Caption mt={5} mb={3}>
         {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}

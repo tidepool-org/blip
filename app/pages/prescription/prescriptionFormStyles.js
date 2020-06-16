@@ -29,6 +29,13 @@ export const borderedFieldsetStyles = {
 export const inputStyles = {
   width: '100%',
   themeProps: {
+    mb: 5,
+  },
+};
+
+export const condensedInputStyles = {
+  width: '100%',
+  themeProps: {
     mb: 3,
   },
 };
@@ -56,4 +63,10 @@ export const checkboxGroupStyles = {
   variant: 'inputs.checkboxGroup.verticalBordered',
   theme: baseTheme,
   mb: 3,
+};
+
+export const scheduleGroupStyles = {
+  p: 3,
+  mb: 5,
+  bg: 'lightestGrey',
 };

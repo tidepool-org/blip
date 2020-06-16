@@ -14,7 +14,7 @@ import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
 import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
-import { fieldsetStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, condensedInputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -46,12 +46,12 @@ export const PatientPhone = translate()(props => {
               id="phoneNumber.number"
               label={t('Patient Phone Number')}
               error={getFieldError(meta.phoneNumber.number)}
-              {...inputStyles}
+              {...condensedInputStyles}
             />
           </InputMask>
         )}
       />
-      <Caption>
+      <Caption mt={5} mb={3}>
         {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
       </Caption>
     </Box>
@@ -70,7 +70,7 @@ export const PatientMRN = translate()(props => {
         id="mrn"
         name="mrn"
         error={getFieldError(meta.mrn)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
     </Box>
   );

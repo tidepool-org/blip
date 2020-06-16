@@ -285,6 +285,8 @@ export const Stepper = props => {
       <Flex justifyContent="flex-end" className="step-actions" mt={3} {...themeProps.actions}>
         {!step.hideBack && (
           <Button
+            mr={4}
+            py={2}
             disabled={processing || (activeStep === 0 && activeSubStep === 0)}
             variant="secondary"
             className="step-back"
@@ -296,7 +298,8 @@ export const Stepper = props => {
         {isStepOptional(activeStep) && (
           <Button
             variant="primary"
-            ml={2}
+            mr={4}
+            py={2}
             className="step-skip"
             onClick={handleSkip}
           >
@@ -306,7 +309,7 @@ export const Stepper = props => {
         {!step.hideComplete && (
           <Button
             variant="primary"
-            ml={2}
+            py={2}
             className="step-next"
             disabled={step.disableComplete}
             onClick={handleNext}

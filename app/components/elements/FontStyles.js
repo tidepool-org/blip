@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
-import { Heading, Text, Link } from 'rebass';
+import { Heading, Text, Link } from 'rebass/styled-components';
 
 import {
   borders,

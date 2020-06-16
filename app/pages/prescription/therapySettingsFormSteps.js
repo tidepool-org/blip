@@ -15,7 +15,6 @@ import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
-  defaultUnits,
   insulinTypeOptions,
   trainingOptions,
 } from './prescriptionFormConstants';
@@ -25,6 +24,7 @@ import {
   fieldsetStyles,
   wideFieldsetStyles,
   borderedFieldsetStyles,
+  scheduleGroupStyles,
 } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
@@ -123,7 +123,7 @@ export const GlucoseSettings = props => {
           )}
         />
 
-        <Box p={3} mb={3} bg="lightestGrey">
+        <Box {...scheduleGroupStyles}>
           <ScheduleForm
             addButtonText={t('Add an additional correction range')}
             fieldArrayName='initialSettings.bloodGlucoseTargetSchedule'
@@ -166,7 +166,7 @@ export const GlucoseSettings = props => {
             suffix={bgUnits}
             error={getFieldError(meta.initialSettings.suspendThreshold)}
             {...cgmMeta.ranges.suspendThreshold}
-            {...inputStyles}
+            {...{ ...inputStyles, themeProps: { mb: 3 }}}
           />
       </Box>
     </Box>
@@ -219,7 +219,7 @@ export const InsulinSettings = props => {
           name="initialSettings.insulinType"
           options={insulinTypeOptions}
           error={getFieldError(meta.initialSettings.insulinType)}
-          mb={3}
+          mb={4}
         />
 
         <PopoverLabel
@@ -284,7 +284,7 @@ export const InsulinSettings = props => {
           )}
         />
 
-        <Box p={3} mb={3} bg="lightestGrey">
+        <Box {...scheduleGroupStyles}>
           <ScheduleForm
             addButtonText={t('Add an additional basal rate')}
             fieldArrayName='initialSettings.basalRateSchedule'
@@ -314,7 +314,7 @@ export const InsulinSettings = props => {
           )}
         />
 
-        <Box p={3} mb={3} bg="lightestGrey">
+        <Box {...scheduleGroupStyles}>
           <ScheduleForm
             addButtonText={t('Add an additional carb ratio')}
             fieldArrayName='initialSettings.carbohydrateRatioSchedule'
@@ -344,7 +344,7 @@ export const InsulinSettings = props => {
           )}
         />
 
-        <Box p={3} mb={3} bg="lightestGrey">
+        <Box {...scheduleGroupStyles} mb={3}>
           <ScheduleForm
             addButtonText={t('Add an additional insulin sensitivity factor')}
             fieldArrayName='initialSettings.insulinSensitivitySchedule'
@@ -379,7 +379,17 @@ export const TherapySettings = translate()(props => (
 
 const therapySettingsFormSteps = (meta) => ({
   label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid(['training'], meta),
+  disableComplete: !fieldsAreValid([
+    'training',
+    'suspendThreshold',
+    'insulinType',
+    'basalRateMaximum',
+    'bolusAmountMaximum',
+    'bloodGlucoseTargetSchedule',
+    'basalRateSchedule',
+    'carbohydrateRatioSchedule',
+    'insulinSensitivitySchedule',
+  ], meta),
   panelContent: <TherapySettings meta={meta} />
 });
 
