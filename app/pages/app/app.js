@@ -156,8 +156,7 @@ export class AppComponent extends React.Component {
       location,
       userHasData,
       userHasConnectedDataSources,
-      userHasSharedData,
-      userCareTeam,
+      userHasSharedDataWithClinician,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
     } = nextProps;
@@ -168,13 +167,9 @@ export class AppComponent extends React.Component {
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
-    // const showShareDataBanner = false;
     // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData;
-    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData;
-    // userHasDismissedForeverDataBanner does not exist yet
-    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedData && !userHasDismissedForeverDataBanner;
-    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
-    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician;
+
     let displayShareDataBanner = false;
 
     // Determine whether or not to show the share data banner.
@@ -201,7 +196,6 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
-        console.log(userCareTeam);
 
         if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
           this.props.context.trackMetric('Big Data banner displayed');
@@ -225,43 +219,6 @@ if (showingDonateBanner !== false && !displayShareDataBanner) {
           this.props.hideBanner('dexcom');
         }
       }
-
-
-// Previous Code to test passing tests
-    // const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-    // let displayDonateBanner = false;
-
-    //   // Determine whether or not to show the donate banner.
-    //   // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    //   if (showingDonateBanner !== false) {
-    //     if (showDonateBanner) {
-    //       this.props.showBanner('donate');
-    //       displayDonateBanner = true;
-
-    //       if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
-    //         this.props.context.trackMetric('Big Data banner displayed');
-    //         this.setState({ donateShowBannerMetricTracked: true });
-    //       }
-    //     } else if (showingDonateBanner) {
-    //       this.props.hideBanner('donate');
-    //     }
-    //   }
-
-    //   // Determine whether or not to show the dexcom banner.
-    //   // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    //   if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
-    //     const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
-    //     if (showDexcomBanner) {
-    //       this.props.showBanner('dexcom');
-
-    //       if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
-    //         this.props.context.trackMetric('Dexcom OAuth banner displayed');
-    //         this.setState({ dexcomShowBannerMetricTracked: true });
-    //       }
-    //     } else if (showingDexcomConnectBanner) {
-    //       this.props.hideBanner('dexcom');
-    //     }
-    //   }
   }
 
 
@@ -559,17 +516,44 @@ export function mapStateToProps(state) {
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
-  let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
-  let userCareTeam = null;
+  let userHasSharedDataWithClinician = null;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
 
   if (state.blip.membersOfTargetCareTeam) {
-    userCareTeam = _.get(state, 'blip.membersOfTargetCareTeam');
-    //c09f30c366
-    let teamMember = _.find(userCareTeam, {});
-    console.log(teamMember);
+
+    let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
+
+    let userCareTeam = _.get(state, 'blip.membersOfTargetCareTeam');
+
+    if (userHasSharedData) {
+
+      // get array of all user ids of the patient's careteam ex. [5c11d22320, c09f30c366]
+        // userCareTeam
+
+      // get user role for each of the user's care team members
+      // if any of the users have the clinic role set userHasSharedDataWithClinician to true
+
+      for (var i = 0; i < userCareTeam.length; i++) {
+        // let roles = _.get(_.get(state.blip.allUsersMap, userCareTeam[i]), 'roles');
+        // console.log(roles);
+
+        let role = _.first(_.get(_.get(state.blip.allUsersMap, userCareTeam[i]), 'roles'));
+        // Using _.first because _.get is returning ["clinic"] but role[0] does not return "clinic"
+        // This will be an issue if there are multiple roles and "clinic" is not the first value
+        // console.log(role);
+
+        if (role === 'clinic') {
+          // console.log('this is a clinician');
+          userHasSharedDataWithClinician = true;
+        }
+        // else {
+        //   console.log('this is not a clinician');
+        // }
+      }
+      //Will not show as true until clinician has accepted the invitation (and therefore has a role within their user id)
+    }
   }
 
   if (state.blip.allUsersMap) {
@@ -675,8 +659,7 @@ export function mapStateToProps(state) {
     userHasData,
     userIsDonor,
     userHasConnectedDataSources,
-    userHasSharedData,
-    userCareTeam,
+    userHasSharedDataWithClinician,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
