@@ -4,6 +4,7 @@ import reduce from 'lodash/reduce';
 import keys from 'lodash/keys';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isNumber from 'lodash/isNumber';
 import isArray from 'lodash/isArray';
 
 /**
@@ -27,7 +28,7 @@ export const getFieldsMeta = (schema, getFieldMeta) => {
       const fieldMeta = getFieldMeta(fieldKey);
       result[field] = {
         ...fieldMeta,
-        valid: (!isEmpty(fieldMeta.value) || fieldMeta.touched) && !fieldMeta.error,
+        valid: (isNumber(fieldMeta.value) || !isEmpty(fieldMeta.value) || fieldMeta.touched) && !fieldMeta.error,
       };
     }
 

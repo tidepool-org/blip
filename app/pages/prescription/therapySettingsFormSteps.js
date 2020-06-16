@@ -164,7 +164,7 @@ export const GlucoseSettings = props => {
             id="initialSettings.suspendThreshold.value"
             name="initialSettings.suspendThreshold.value"
             suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.suspendThreshold)}
+            error={getFieldError(meta.initialSettings.suspendThreshold.value)}
             {...cgmMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
           />
@@ -381,14 +381,14 @@ const therapySettingsFormSteps = (meta) => ({
   label: t('Enter Therapy Settings'),
   disableComplete: !fieldsAreValid([
     'training',
-    'suspendThreshold',
-    'insulinType',
-    'basalRateMaximum',
-    'bolusAmountMaximum',
-    'bloodGlucoseTargetSchedule',
-    'basalRateSchedule',
-    'carbohydrateRatioSchedule',
-    'insulinSensitivitySchedule',
+    'initialSettings.suspendThreshold.value',
+    'initialSettings.insulinType',
+    'initialSettings.basalRateMaximum.value',
+    'initialSettings.bolusAmountMaximum.value',
+    'initialSettings.bloodGlucoseTargetSchedule',
+    'initialSettings.basalRateSchedule',
+    'initialSettings.carbohydrateRatioSchedule',
+    'initialSettings.insulinSensitivitySchedule',
   ], meta),
   panelContent: <TherapySettings meta={meta} />
 });
