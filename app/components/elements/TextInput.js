@@ -34,12 +34,14 @@ export const TextInput = (props) => {
     required,
     placeholder,
     error,
+    warning,
     ...inputProps
   } = props;
 
   const inputClasses = cx({
     error,
     required,
+    warning: !error && warning,
   });
   return (
     <Box width={width} {...themeProps}>
@@ -65,6 +67,11 @@ export const TextInput = (props) => {
           {error}
         </Caption>
       )}
+      {!error && warning && (
+        <Caption ml={2} mt={2} className={inputClasses}>
+          {warning}
+        </Caption>
+      )}
     </Box>
   );
 };
@@ -83,6 +90,7 @@ TextInput.propTypes = {
   variant: PropTypes.oneOf(['default', 'condensed']),
   required: PropTypes.bool,
   error: PropTypes.string,
+  warning: PropTypes.string,
 };
 
 TextInput.defaultProps = {

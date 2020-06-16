@@ -110,7 +110,10 @@ export const Caption = Styled(Text)`
   font-family: ${fonts.default};
   color: ${props => (props.color ? props.color : colors.text.primary)};
   &.error {
-    color: ${colors.orange}
+    color: ${colors.feedback.danger}
+  }
+  &.warning {
+    color: ${colors.feedback.warning}
   }
   &.required::after {
     content: ' *';

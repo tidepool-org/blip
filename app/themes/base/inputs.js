@@ -45,11 +45,15 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         backgroundColor: colors.lightestGrey,
       },
       '&.error': {
-        color: colors.orange,
-        borderColor: colors.orange,
+        color: colors.feedback.danger,
+        borderColor: colors.feedback.danger,
         '&::placeholder': {
-          color: colors.orange,
+          color: colors.feedback.danger,
         },
+      },
+      '&.warning': {
+        color: colors.feedback.warning,
+        borderColor: colors.feedback.warning,
       },
     },
   };
@@ -87,8 +91,8 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       backgroundColor: colors.lightestGrey,
     },
     '&.error': {
-      color: colors.orange,
-      borderColor: colors.orange,
+      color: colors.feedback.danger,
+      borderColor: colors.feedback.danger,
     },
   };
 
