@@ -218,6 +218,9 @@ const PrescriptionForm = props => {
       panel: {
         padding: 3,
       },
+      actions: {
+        justifyContent: 'center',
+      }
     },
   };
 
