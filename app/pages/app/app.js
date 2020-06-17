@@ -22,6 +22,7 @@ import i18next from '../../core/language';
 import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
+import personUtils from '../../core/personutils';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -156,6 +157,7 @@ export class AppComponent extends React.Component {
       location,
       userHasData,
       userHasConnectedDataSources,
+      userHasSharedData,
       userHasSharedDataWithClinician,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
@@ -516,44 +518,17 @@ export function mapStateToProps(state) {
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
-  let userHasSharedDataWithClinician = null;
+  let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
+  let userHasSharedDataWithClinician = false;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
 
-  if (state.blip.membersOfTargetCareTeam) {
-
-    let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
-
-    let userCareTeam = _.get(state, 'blip.membersOfTargetCareTeam');
-
-    if (userHasSharedData) {
-
-      // get array of all user ids of the patient's careteam ex. [5c11d22320, c09f30c366]
-        // userCareTeam
-
-      // get user role for each of the user's care team members
-      // if any of the users have the clinic role set userHasSharedDataWithClinician to true
-
-      for (var i = 0; i < userCareTeam.length; i++) {
-        // let roles = _.get(_.get(state.blip.allUsersMap, userCareTeam[i]), 'roles');
-        // console.log(roles);
-
-        let role = _.first(_.get(_.get(state.blip.allUsersMap, userCareTeam[i]), 'roles'));
-        // Using _.first because _.get is returning ["clinic"] but role[0] does not return "clinic"
-        // This will be an issue if there are multiple roles and "clinic" is not the first value
-        // console.log(role);
-
-        if (role === 'clinic') {
-          // console.log('this is a clinician');
-          userHasSharedDataWithClinician = true;
-        }
-        // else {
-        //   console.log('this is not a clinician');
-        // }
-      }
-      //Will not show as true until clinician has accepted the invitation (and therefore has a role within their user id)
-    }
+  if (userHasSharedData) {
+    let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
+    userHasSharedDataWithClinician = userCareTeam.some(user => {
+      return personUtils.isClinic(user);
+    });
   }
 
   if (state.blip.allUsersMap) {
@@ -659,6 +634,7 @@ export function mapStateToProps(state) {
     userHasData,
     userIsDonor,
     userHasConnectedDataSources,
+    userHasSharedData,
     userHasSharedDataWithClinician,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
