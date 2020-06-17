@@ -54,6 +54,9 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       '&.warning': {
         color: colors.feedback.warning,
         borderColor: colors.feedback.warning,
+        '&::placeholder': {
+          color: colors.feedback.warning,
+        },
       },
     },
   };
