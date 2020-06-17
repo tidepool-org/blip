@@ -162,7 +162,7 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
 
   return metaByDeviceId[deviceId] || {
     manufacturerName: 'Unknown',
-    ranges: defaultRanges,
+    ranges: defaultRanges(bgUnits),
   };
 };
 
