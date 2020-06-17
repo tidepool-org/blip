@@ -30,11 +30,19 @@ describe('forms', function() {
     error: null,
   };
 
+  const errorArray = {
+    error: [
+      { foo: null },
+      { bar: 'error!' },
+    ],
+  };
+
   const fieldsMeta = {
     firstName: { ...touchedAndError, value: 'foo' },
     phoneNumber: {
       countryCode: { ...notTouchedAndError, value: 'bar' },
       number: { ...touchedAndNoError, value: 'baz' },
+      ext: { ...touchedAndNoError, value: 123 },
     },
     other: {
       deeply: {
@@ -52,6 +60,7 @@ describe('forms', function() {
         fields: {
           countryCode: {},
           number: {},
+          ext: {},
         },
       },
       other: {
@@ -92,6 +101,12 @@ describe('forms', function() {
         valid: true,
       });
 
+      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.ext).to.eql({
+        ...touchedAndNoError,
+        value: 123,
+        valid: true,
+      });
+
       expect(formUtils.getFieldsMeta(schema, getFieldMeta).other.deeply.nestedField).to.eql({
         ...notTouchedAndNoError,
         value: 'blip',
@@ -127,6 +142,36 @@ describe('forms', function() {
 
     it('should return an error string when field has been touched and is in an error state', () => {
       expect(formUtils.getFieldError(touchedAndError)).to.equal('error!');
+    });
+
+    it('should return `null` when error is an array and specified key and index do not contain an error string', () => {
+      expect(formUtils.getFieldError(errorArray, 0, 'foo')).to.be.null;
+    });
+
+    it('should return an error string when error is an array and specified key and index contains an error', () => {
+      expect(formUtils.getFieldError(errorArray, 1, 'bar')).to.equal('error!');
+    });
+  });
+
+  describe('getThresholdWarning', () => {
+    const threshold = {
+      low: { value: 10, message: 'Too low!' },
+      high: { value: 50, message: 'Too high!' },
+    };
+
+    it('should return the low threshold message if provided value is <= the low threshold', () => {
+      expect(formUtils.getThresholdWarning(9, threshold)).to.equal('Too low!');
+      expect(formUtils.getThresholdWarning(10, threshold)).to.equal('Too low!');
+    });
+
+    it('should return the high threshold message if provided value is >= the high threshold', () => {
+      expect(formUtils.getThresholdWarning(50, threshold)).to.equal('Too high!');
+      expect(formUtils.getThresholdWarning(51, threshold)).to.equal('Too high!');
+    });
+
+    it('should return `null` if provided value is not outside the thresholds', () => {
+      expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
     });
   });
 });
