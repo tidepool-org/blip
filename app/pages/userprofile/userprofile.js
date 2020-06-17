@@ -1,6 +1,7 @@
 
 /**
  * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2020, Diabeloop
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -15,13 +16,14 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import _ from 'lodash';
 
+import i18next from '../../core/language';
 import * as actions from '../../redux/actions';
 
-import {translate} from 'react-i18next';
-import _ from 'lodash';
 import { validateForm } from '../../core/validation';
 
 import config from '../../config';
@@ -29,20 +31,65 @@ import config from '../../config';
 import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
 
-// A different namespace than the default can be specified in translate()
-export var UserProfile = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    history: React.PropTypes.object.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object
-  },
+const MESSAGE_TIMEOUT = 5000;
+const t = i18next.t.bind(i18next);
 
-  formInputs: function() {
-    const {t} = this.props;
+class UserProfile extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      formValues: this.formValuesFromUser(props.user),
+      validationErrors: {},
+      notification: null
+    };
+
+    this.messageTimeoutId = null;
+    // Used to avoid a recusive stack full error:
+    this.submitInProgress = false;
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Account Edit');
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { updatingUser, user } = this.props;
+    if (!_.isEqual(this.props, prevProps)) {
+      // Keep form values in sync with upstream changes
+      this.setState({ formValues: this.formValuesFromUser(user) });
+    }
+
+    if (this.submitInProgress && !_.isEmpty(updatingUser) && !updatingUser.inProgress) {
+      this.submitInProgress = false;
+      this.clearTimeoutMessage();
+
+      const notification = { type: 'success', message: t('All changes saved.') };
+      if (!_.isEmpty(updatingUser.notification)) {
+        _.assign(notification, updatingUser.notification);
+      }
+
+      this.setState({ notification }, () => {
+        this.messageTimeoutId = setTimeout(() => {
+          this.setState({ notification: null });
+        }, MESSAGE_TIMEOUT);
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.clearTimeoutMessage();
+  }
+
+  formInputs() {
+    // @ts-ignore
+    const CROWDIN_ACTIVE = typeof _jipt === 'object';
     const inputs = [
-      {name: 'fullName', label: t('Full name'), type: 'text'}
+      { name: 'fullName', label: t('Full name'), type: 'text' }
     ];
 
     if (this.isUserAllowedToChangeEmail()) {
@@ -69,12 +116,13 @@ export var UserProfile = translate()(React.createClass({
     }
 
     if (config.I18N_ENABLED) {
-      let locales = [
-        {value: 'en', label: 'English'},
-        {value: 'fr', label: 'Français'}      ];
-      // Special "pseudo" language for crowdin live preview
-      if (typeof _jipt === 'object') {
-        locales.push({value: 'it', label: 'Crowdin'});
+      const locales = [
+        { value: 'en', label: 'English' },
+        { value: 'fr', label: 'Français' }
+      ];
+      if (CROWDIN_ACTIVE) {
+        // Special "pseudo" language for crowdin live preview
+        locales.push({ value: 'it', label: 'Crowdin' });
       }
       inputs.push({
         name: 'lang',
@@ -84,24 +132,13 @@ export var UserProfile = translate()(React.createClass({
         placeholder: t('Select language...')
       });
     }
-    
 
     return inputs;
-  },
+  }
 
-  MESSAGE_TIMEOUT: 2000,
-
-  getInitialState: function() {
-    return {
-      formValues: this.formValuesFromUser(this.props.user),
-      validationErrors: {},
-      notification: null
-    };
-  },
-
-  formValuesFromUser: function(user) {
-    if (!user) {
-      return {};
+  formValuesFromUser(user) {
+    if (user === null || typeof user !== 'object') {
+      return null;
     }
 
     return {
@@ -109,35 +146,24 @@ export var UserProfile = translate()(React.createClass({
       username: user.username,
       lang: _.get(user, 'preferences.displayLanguageCode', undefined)
     };
-  },
+  }
 
-  componentDidMount: function() {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Account Edit');
+  render() {
+    const { user } = this.props;
+
+    if (user === null) {
+      return null;
     }
-  },
 
-  componentWillReceiveProps: function(nextProps) {
-    // Keep form values in sync with upstream changes
-    this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-  },
-
-  componentWillUnmount: function() {
-    clearTimeout(this.messageTimeoutId);
-  },
-
-  render: function() {
-    const {t,user} = this.props;
-    var form = this.renderForm();
-    var self = this;
-    var handleClickBack = function(e) {
+    const form = this.renderForm();
+    const handleClickBack = (e) => {
       e.preventDefault();
-      self.props.trackMetric('Clicked Back in Account');
-      self.props.history.goBack();
+      this.props.trackMetric('Clicked Back in Account');
+      this.props.history.goBack();
       return false;
     };
 
-    var organization = '';
+    let organization = '';
     if (user && user.profile && user.profile.organization && user.profile.organization.name) {
       organization = user.profile.organization.name + ' / ';
     }
@@ -166,12 +192,10 @@ export var UserProfile = translate()(React.createClass({
         </div>
       </div>
     );
+  }
 
-  },
-
-  renderForm: function() {
-    const {t} = this.props;
-    var disabled = this.isResettingUserData();
+  renderForm() {
+    const disabled = this.isResettingUserData();
 
     return (
       <SimpleForm
@@ -181,35 +205,39 @@ export var UserProfile = translate()(React.createClass({
         submitButtonText={t('Save')}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
-        disabled={disabled}/>
+        disabled={disabled} />
     );
+  }
 
-  },
+  clearTimeoutMessage() {
+    if (this.messageTimeoutId !== null) {
+      clearTimeout(this.messageTimeoutId);
+      this.messageTimeoutId = null;
+    }
+  }
 
-  handleSubmit: function(formValues) {
+  handleSubmit(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
 
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
 
-    formValues = this.prepareFormValuesForSubmit(formValues);
-    this.submitFormValues(formValues);
-  },
+    const values = this.prepareFormValuesForSubmit(formValues);
+    this.submitFormValues(values);
+  }
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit(formValues) {
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-    clearTimeout(this.messageTimeoutId);
-  },
+  }
 
-
-  validateFormValues: function(formValues) {
-    var form = [
+  validateFormValues(formValues) {
+    let form = [
       { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName }
     ];
 
@@ -220,24 +248,26 @@ export var UserProfile = translate()(React.createClass({
     if (this.isUserAllowedToChangePassword() && (formValues.password || formValues.passwordConfirm)) {
       form = _.merge(form, [
         { type: 'password', name: 'password', label: 'password', value: formValues.password },
-        { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
+        {
+          type: 'confirmPassword',
+          name: 'passwordConfirm',
+          label: 'confirm password',
+          value: formValues.passwordConfirm,
+          prerequisites: { password: formValues.password }
+        }
       ]);
     }
 
-
-    var validationErrors = validateForm(form);
-
+    const validationErrors = validateForm(form);
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors
-      });
+      this.setState({ validationErrors });
     }
 
     return validationErrors;
-  },
+  }
 
-  prepareFormValuesForSubmit: function(formValues) {
-    var result = {
+  prepareFormValuesForSubmit(formValues) {
+    const result = {
       profile: {
         fullName: formValues.fullName
       },
@@ -257,67 +287,69 @@ export var UserProfile = translate()(React.createClass({
     }
 
     return result;
-  },
-
-  submitFormValues: function(formValues) {
-    const {t} = this.props;
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    // Save optimistically
-    submit(formValues);
-    this.setState({
-      notification: {type: 'success', message: t('All changes saved.')}
-    });
-
-    this.messageTimeoutId = setTimeout(function() {
-      self.setState({notification: null});
-    }, this.MESSAGE_TIMEOUT);
-  },
-
-  isResettingUserData: function() {
-    return (this.props.fetchingUser && !this.props.user);
-  },
-
-  isUserAllowedToChangeEmail: function() {
-    return !personUtils.isPatient(this.props.user) || config.ALLOW_PATIENT_CHANGE_EMAIL;
-  },
-
-  isUserAllowedToChangePassword: function() {
-    return !personUtils.isPatient(this.props.user) || config.ALLOW_PATIENT_CHANGE_PASSWORD;
   }
 
-}));
+  submitFormValues(formValues) {
+    const { onSubmit } = this.props;
+    // Save
+    this.submitInProgress = true;
+    onSubmit(formValues);
+  }
 
+  isResettingUserData() {
+    return (this.props.fetchingUser && !this.props.user);
+  }
+
+  isUserAllowedToChangeEmail() {
+    return !personUtils.isPatient(this.props.user) || config.ALLOW_PATIENT_CHANGE_EMAIL;
+  }
+
+  isUserAllowedToChangePassword() {
+    return !personUtils.isPatient(this.props.user) || config.ALLOW_PATIENT_CHANGE_PASSWORD;
+  }
+}
+
+UserProfile.propTypes = {
+  fetchingUser: PropTypes.bool.isRequired,
+  history: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    userid: PropTypes.string.isRequired,
+    profile: PropTypes.object.isRequired,
+  }),
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-export function mapStateToProps(state) {
+function mapStateToProps(state) {
   let user = null;
-  let { allUsersMap, loggedInUserId } = state.blip;
+  const { allUsersMap, loggedInUserId, working } = state.blip;
 
-  if (allUsersMap) {
-    if (loggedInUserId) {
-      user = allUsersMap[loggedInUserId];
-    }
+  if (allUsersMap && loggedInUserId) {
+    user = allUsersMap[loggedInUserId];
   }
 
   return {
-    user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress
+    user,
+    fetchingUser: working.fetchingUser.inProgress,
+    updatingUser: working.updatingUser,
   };
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
+const mapDispatchToProps = dispatch => bindActionCreators({
   updateUser: actions.async.updateUser
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.routes[0].api;
   return Object.assign({}, _.pick(ownProps, 'history'), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
+
+export { UserProfile, mapStateToProps };
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);

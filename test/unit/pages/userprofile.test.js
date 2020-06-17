@@ -1,53 +1,70 @@
-/* global chai */
 /* global describe */
-/* global sinon */
+/* global before */
+/* global after */
+/* global afterEach */
 /* global it */
 
 import React from 'react';
+import _ from 'lodash';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import sinon from 'sinon';
+import chai from 'chai';
+import { shallow } from 'enzyme';
 
-var expect = chai.expect;
+import { UserProfile, mapStateToProps } from '../../../app/pages/userprofile';
 
-var UserProfile = require('../../../app/pages/userprofile').UserProfile;
-import { mapStateToProps } from '../../../app/pages/userprofile';
-
-var assert = chai.assert;
-var expect = chai.expect;
+const { assert, expect } = chai;
 
 describe('UserProfile', function () {
-  it('should be exposed as a module and be of type function', function() {
+  const props = {
+    fetchingUser: false,
+    history: {
+      goBack: sinon.stub()
+    },
+    onSubmit: sinon.stub(),
+    trackMetric: sinon.stub(),
+    user: {
+      username: 'foo@bar.com',
+      userid: 'abcd',
+      profile: {
+        fullName: 'Gordon Dent'
+      },
+    },
+  };
+
+  before(() => {
+    // FIXME: sinon.spy(console, 'error');
+    console.error = sinon.stub();
+  });
+  after(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {
+    props.history.goBack.reset();
+    props.onSubmit.reset();
+    props.trackMetric.reset();
+  });
+
+  it('should be exposed as a module and be of type function', () => {
     expect(UserProfile).to.be.a('function');
   });
 
   describe('render', function() {
-    it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
-      var props = {
-        fetchingUser: false,
-        history: {},
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(UserProfile, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(0);
+    it('should render without problems when required props are set', () => {
+      const elem = <UserProfile {...props} />;
+      TestUtils.renderIntoDocument(elem);
+      // @ts-ignore
+      const message = _.get(console.error.getCall(0), 'args', undefined);
+      expect(console.error.callCount, 'console.error').to.equal(0, message);
     });
   });
 
   describe('getInitialState', function() {
-    it('should return expected initial state', function() {
-      var props = {
-        user: {
-          profile: {
-            fullName: 'Gordon Dent'
-          },
-          username: 'foo@bar.com'
-        }
-      };
-      var elem = React.createElement(UserProfile, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().getInitialState();
+    it('should return expected initial state', () => {
+      const elem = shallow(<UserProfile {...props} />);
+      const state = elem.state();
 
       expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');
@@ -55,15 +72,8 @@ describe('UserProfile', function () {
       expect(state.notification).to.equal(null);
     });
 
-
-    it('should take a step back through history on clicking back button', function() {
-      var props = {
-        history: {
-          goBack: sinon.stub()
-        },
-        trackMetric: sinon.stub()
-      };
-      var elem = React.createElement(UserProfile, props);
+    it('should take a step back through history on clicking back button', () => {
+      var elem = <UserProfile {...props} />;
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 

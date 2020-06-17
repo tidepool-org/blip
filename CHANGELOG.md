@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## Unreleased
+### Fixed
+- PT-1168 Fix display bug when updating user profile
+
 ## 1.0.1 - 2020-06-12
 ### Fixed
 - PT-1172 Display of parameter history in Device Settings page does not manage correctly the timezone information
@@ -239,4 +243,3 @@ It is based on Tidepool Blip 1.27.
    - user automatically disconnected [PT-69]
    - Fix race condition [PT-17]
    - Fix Unknown DOM property class [PT-163]
-
