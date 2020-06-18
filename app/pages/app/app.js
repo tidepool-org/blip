@@ -157,7 +157,6 @@ export class AppComponent extends React.Component {
       location,
       userHasData,
       userHasConnectedDataSources,
-      userHasSharedData,
       userHasSharedDataWithClinician,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
@@ -169,7 +168,6 @@ export class AppComponent extends React.Component {
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
-    // const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData;
     const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician;
 
     let displayShareDataBanner = false;
@@ -634,7 +632,6 @@ export function mapStateToProps(state) {
     userHasData,
     userIsDonor,
     userHasConnectedDataSources,
-    userHasSharedData,
     userHasSharedDataWithClinician,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
