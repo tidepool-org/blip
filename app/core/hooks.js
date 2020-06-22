@@ -5,10 +5,11 @@ import { useField, useFormikContext } from 'formik';
 
 // c.f. https://gist.github.com/joshsalverda/d808d92f46a7085be062b2cbde978ae6
 // Avoids some performance issues in Formik's native <FieldArray />
-export const useFieldArray = props => {
+// Solution stems from this issue on Formik's GH: https://github.com/jaredpalmer/formik/issues/1476
+export const useFieldArray = (props, formikContext = useFormikContext()) => {
   const [field, meta] = useField(props);
   const fieldArray = useRef(field.value);
-  const {setFieldValue} = useFormikContext();
+  const { setFieldValue } = formikContext;
 
   useEffect(() => {
     fieldArray.current = field.value;
@@ -57,7 +58,6 @@ export const useFieldArray = props => {
     })
 
     setFieldValue(field.name, fieldArray.current);
-    return fieldArray.current.length;
   }, [field.name, setFieldValue]);
 
   const remove = useCallback(index => {
