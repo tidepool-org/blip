@@ -32,7 +32,6 @@ export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 export const DATA_DONATION_NONPROFITS = () => [
   { value: 'ADCES', label: t('ADCES Foundation') },
   { value: 'BT1', label: t('Beyond Type 1') },
-  { value: 'CARBDM', label: t('CarbDM') },
   { value: 'CWD', label: t('Children with Diabetes') },
   { value: 'CDN', label: t('College Diabetes Network') },
   { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
