@@ -5,7 +5,7 @@ import defaultsDeep from 'lodash/defaultsDeep';
 
 import i18next from '../../core/language';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { translateBg, roundBgTarget } from '../../core/utils';
+import utils from '../../core/utils';
 
 const t = i18next.t.bind(i18next);
 
@@ -76,14 +76,14 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    thresholds.bloodGlucoseTarget.low.value = roundBgTarget(translateBg(thresholds.bloodGlucoseTarget.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.bloodGlucoseTarget.high.value = roundBgTarget(translateBg(thresholds.bloodGlucoseTarget.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.bloodGlucoseTarget.low.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.bloodGlucoseTarget.high.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    thresholds.insulinSensitivityFactor.low.value = roundBgTarget(translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.insulinSensitivityFactor.high.value = roundBgTarget(translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    thresholds.suspendThreshold.low.value = roundBgTarget(translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.suspendThreshold.high.value = roundBgTarget(translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
@@ -101,16 +101,16 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
     carbRatio: 10,
     insulinSensitivityFactor: 100,
     suspendThreshold: 80,
-  }
+  };
 
   if (bgUnits === MMOLL_UNITS) {
     values.bloodGlucoseTarget = {
-      high: roundBgTarget(translateBg(values.bloodGlucoseTarget.high, MMOLL_UNITS), MMOLL_UNITS),
-      low: roundBgTarget(translateBg(values.bloodGlucoseTarget.low, MMOLL_UNITS), MMOLL_UNITS),
+      high: utils.roundBgTarget(utils.translateBg(values.bloodGlucoseTarget.high, MMOLL_UNITS), MMOLL_UNITS),
+      low: utils.roundBgTarget(utils.translateBg(values.bloodGlucoseTarget.low, MMOLL_UNITS), MMOLL_UNITS),
     }
 
-    values.insulinSensitivityFactor = roundBgTarget(translateBg(values.insulinSensitivityFactor, MMOLL_UNITS), MMOLL_UNITS);
-    values.suspendThreshold = roundBgTarget(translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
+    values.insulinSensitivityFactor = utils.roundBgTarget(utils.translateBg(values.insulinSensitivityFactor, MMOLL_UNITS), MMOLL_UNITS);
+    values.suspendThreshold = utils.roundBgTarget(utils.translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return values;
@@ -128,16 +128,16 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    ranges.bloodGlucoseTarget.min = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTarget.max = roundBgTarget(translateBg(ranges.bloodGlucoseTarget.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.bloodGlucoseTarget.min = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTarget.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.bloodGlucoseTarget.max = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTarget.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.bloodGlucoseTarget.step = 0.1;
 
-    ranges.insulinSensitivityFactor.min = roundBgTarget(translateBg(ranges.insulinSensitivityFactor.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.insulinSensitivityFactor.max = roundBgTarget(translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.insulinSensitivityFactor.min = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.step = 0.1;
 
-    ranges.suspendThreshold.min = roundBgTarget(translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.suspendThreshold.max = roundBgTarget(translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.suspendThreshold.step = 0.1;
   }
 
