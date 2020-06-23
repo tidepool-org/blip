@@ -135,9 +135,10 @@ var Messages = translate()(class extends React.Component {
       </div>
     );
   };
-
+  
   renderClose = () => {
-    return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
+    const { t } = this.props;
+    return (<a className='messages-close' onClick={this.handleClose}>{t('Close')}</a>);
 
   };
 
