@@ -104,8 +104,12 @@ export function confirmSignup(api, signupKey, signupEmail) {
 
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
+        let errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP;
+        if (_.get(err, 'status') === 404) {
+          errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP_NOMATCH;
+        }
         dispatch(sync.confirmSignupFailure(
-          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
+          createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
           dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
