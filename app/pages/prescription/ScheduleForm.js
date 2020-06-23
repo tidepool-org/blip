@@ -61,7 +61,7 @@ const ScheduleForm = props => {
   return (
     <Box {...boxProps}>
       {map(schedules.value, (schedule, index) => (
-        <Flex key={index} alignItems="flex-start" mb={3}>
+        <Flex className='schedule-row' key={index} alignItems="flex-start" mb={3}>
           <Field
             as={TextInput}
             label={index === 0 && t('Start Time')}
@@ -124,6 +124,7 @@ const ScheduleForm = props => {
       ))}
       <Button
         variant="secondary"
+        className="add-schedule"
         disabled={(() => {
           const lastSchedule = schedules.value[schedules.value.length - 1];
           return lastSchedule.start >= (MS_IN_DAY - (MS_IN_MIN * 30));
