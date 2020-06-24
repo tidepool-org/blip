@@ -9,11 +9,10 @@
 /* global after */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
@@ -96,6 +95,7 @@ describe('PatientData', function () {
         processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
       },
     });
+    PD.__Rewire__('launchCustomProtocol', _.noop);
   });
 
   after(() => {
@@ -103,6 +103,7 @@ describe('PatientData', function () {
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
     PD.__ResetDependency__('vizUtils');
+    PD.__ResetDependency__('launchCustomProtocol');
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -409,6 +410,8 @@ describe('PatientData', function () {
             }
           }));
 
+          wrapper.update();
+
           expect(noData().length).to.equal(1);
 
           var links = wrapper.find('.patient-data-uploader-message a');
@@ -444,6 +447,8 @@ describe('PatientData', function () {
               metaData: { size: 0 },
             }
           }));
+
+          wrapper.update();
 
           var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;

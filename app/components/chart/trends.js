@@ -2,7 +2,7 @@ const d3 = window.d3;
 
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import sundial from 'sundial';
