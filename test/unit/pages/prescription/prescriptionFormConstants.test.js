@@ -186,7 +186,7 @@ describe('prescriptionFormConstants', function() {
     });
 
     describe('Dexcom device ID provided', () => {
-      it('should export the device metadata with mg/dL as default bg unit', () => {
+      it('should export the device metadata', () => {
         expect(prescriptionFormConstants.deviceMeta('dexcomId')).to.eql({
           manufacturerName: 'Dexcom',
         });

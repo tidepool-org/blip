@@ -44,7 +44,6 @@ const PopoverLabel = props => {
 
       <Popover width={popoverWidth} {...bindPopover(popupState)}>
         {React.cloneElement(PopoverContent, {})}
-        {/* {PopoverContent()} */}
       </Popover>
     </React.Fragment>
   );
