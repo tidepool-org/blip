@@ -76,7 +76,7 @@ describe('hooks', function() {
       expect(result.current[0]).to.be.an('object').and.to.include({ name: 'foo' });
 
       // Meta
-      expect(result.current[1]).to.be.an('object').and.to.to.include.all.keys([
+      expect(result.current[1]).to.be.an('object').and.to.include.all.keys([
         'value',
         'error',
         'touched',
