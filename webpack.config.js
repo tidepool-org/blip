@@ -207,10 +207,6 @@ const output = {
 };
 
 const resolve = {
-  // modules: [
-  //   path.join(__dirname, 'node_modules'),
-  //   'node_modules',
-  // ],
   alias: {
     'babel-core': path.resolve('node_modules/babel-core'),
     classnames: path.resolve('node_modules/classnames'),
