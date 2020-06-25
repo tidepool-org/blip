@@ -86,7 +86,7 @@ describe('hooks', function() {
       ]);
 
       // Helpers
-      expect(result.current[2]).to.be.an('object').and.to.to.include.all.keys([
+      expect(result.current[2]).to.be.an('object').and.to.include.all.keys([
         'push',
         'swap',
         'move',
