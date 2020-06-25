@@ -386,7 +386,7 @@ export const TherapySettings = translate()(props => (
   </Box>
 ));
 
-const therapySettingsFormSteps = (meta) => ({
+const therapySettingsFormStep = (meta) => ({
   label: t('Enter Therapy Settings'),
   disableComplete: !fieldsAreValid([
     'training',
@@ -402,4 +402,4 @@ const therapySettingsFormSteps = (meta) => ({
   panelContent: <TherapySettings meta={meta} />
 });
 
-export default therapySettingsFormSteps;
+export default therapySettingsFormStep;

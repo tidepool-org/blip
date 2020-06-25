@@ -11,7 +11,7 @@ import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
-import therapySettingsFormSteps from './therapySettingsFormSteps';
+import therapySettingsFormStep from './therapySettingsFormStep';
 import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
 
 import Checkbox from '../../components/elements/Checkbox';
@@ -182,7 +182,7 @@ const PrescriptionForm = props => {
         asyncState: stepAsyncState,
       },
       {
-        ...therapySettingsFormSteps(meta),
+        ...therapySettingsFormStep(meta),
         onComplete: handleStepSubmit,
         asyncState: stepAsyncState,
       },
