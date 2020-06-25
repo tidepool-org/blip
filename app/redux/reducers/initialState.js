@@ -31,6 +31,7 @@ const initialState = {
   showingDonateBanner: null,
   showingDexcomConnectBanner: null,
   showingShareDataBanner: null,
+  // seenShareDataBannerMax: false,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

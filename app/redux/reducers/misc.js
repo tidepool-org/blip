@@ -151,6 +151,31 @@ export const showingShareDataBanner = (state = initialState.showingShareDataBann
   }
 };
 
+// export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
+//   switch (action.type) {
+//     case types.FETCH_USER_SUCCESS:
+//       const seenShareDataBannerCount = _.get(action.payload, 'user.preferences.shareDataBannerCount');
+//       // const seenShareDataBannerDate = _.get(action.payload, 'user.preferences.shareDataBannerDate');
+
+//       // const date = newDate();
+//       // const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+
+//       // if (seenShareDataBannerDate === null) {
+//       //   seenShareDataBannerDate = today;
+//       //   seenShareDataBannerCount += 1;
+//       // }
+//       // else if (today > seenShareDataBannerDate) {
+//       //   seenShareDataBannerCount += 1;
+//       //   seenShareDataBannerDate = today;
+//       // }
+//       return (seenShareDataBannerCount > 2) ? true : state;
+//     case types.LOGOUT_REQUEST:
+//       return null;
+//     default:
+//       return state;
+//   }
+// };
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:

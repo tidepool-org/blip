@@ -84,6 +84,7 @@ export class AppComponent extends React.Component {
     showingDonateBanner: React.PropTypes.bool,
     showingDexcomConnectBanner: React.PropTypes.bool,
     showingShareDataBanner: React.PropTypes.bool,
+    seenShareDataBannerMax: React.PropTypes.bool,
     showBanner: React.PropTypes.func.isRequired,
     hideBanner: React.PropTypes.func.isRequired,
     termsAccepted: React.PropTypes.string,
@@ -154,6 +155,7 @@ export class AppComponent extends React.Component {
       showingDonateBanner,
       showingDexcomConnectBanner,
       showingShareDataBanner,
+      updateShareDataBannerSeen,
       location,
       userHasData,
       userHasConnectedDataSources,
@@ -179,6 +181,8 @@ export class AppComponent extends React.Component {
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
         displayShareDataBanner = true;
+
+        updateShareDataBannerSeen();
 
         if (this.props.context.trackMetric && !this.state.shareDataBannerMetricTracked) {
           this.props.context.trackMetric('Share Data banner displayed');
@@ -514,6 +518,7 @@ export function mapStateToProps(state) {
   let patient = null;
   let permissions = null;
   let permsOfLoggedInUser = null;
+  let preferences = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
@@ -628,6 +633,7 @@ export function mapStateToProps(state) {
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
+    // seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
     userIsCurrentPatient,
     userHasData,
     userIsDonor,
@@ -650,6 +656,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onDismissShareDataBanner: actions.async.dismissShareDataBanner,
   onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
   onClickShareDataBanner: actions.async.clickShareDataBanner,
+  updateShareDataBannerSeen: actions.async.updateShareDataBannerSeen,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
@@ -670,6 +677,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onDismissShareDataBanner: dispatchProps.onDismissShareDataBanner.bind(null, api),
     onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
     onClickShareDataBanner: dispatchProps.onClickShareDataBanner.bind(null, api),
+    updateShareDataBannerSeen: dispatchProps.updateShareDataBannerSeen.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,

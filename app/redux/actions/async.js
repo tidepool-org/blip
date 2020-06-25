@@ -32,6 +32,7 @@ import { routeActions } from 'react-router-redux';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+import { loggedInUserId } from '../reducers/misc';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -543,6 +544,7 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
+        console.log(updatedPreferences)
         dispatch(sync.updatePreferencesSuccess(updatedPreferences));
       }
     });
@@ -1294,6 +1296,42 @@ export function clickShareDataBanner(api, patientId, clickedDate) {
     const preferences = {
       clickedShareDataBannerTime: clickedDate,
     };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Count Share Data Banner Seen Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function updateShareDataBannerSeen(api, patientId) {
+//QUESTION: if patientId is passed in then why does it log as undefined?
+
+  const viewDate = sundial.utcDateString();
+
+  return (dispatch, getState) => {
+    const allUsersMap = Object.values(_.get(getState(), 'blip.allUsersMap'));
+
+//QUESTION: How do I get preferences similar to how I can reach it in app.js like this:
+    // state.blip.allUsersMap[state.blip.loggedInUserId].preferences;
+    // but from here inside of the action?
+
+
+    // const dexDismiss = allUsersMap[0].preferences.dismissedDexcomConnectBannerTime;
+    // console.log(dexDismiss);
+
+    // I know the below is a placeholder and will only work if the loggedInUser is
+    // also the first user in the allUsersMap
+    const seenShareDataBannerCount = allUsersMap[0].preferences.seenShareDataBannerCount;
+
+    const preferences = {
+      seenShareDataBannerDate: viewDate,
+      seenShareDataBannerCount: seenShareDataBannerCount + 1,
+    };
+
+//QUESTION: why aren't these preferences being saved?
 
     dispatch(updatePreferences(api, patientId, preferences));
   };
