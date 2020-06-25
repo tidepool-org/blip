@@ -140,7 +140,7 @@ describe('ScheduleForm', () => {
     expect(rateInput().prop('min')).to.equal(0);
     expect(rateInput().prop('max')).to.equal(30);
     expect(rateInput().prop('step')).to.equal(1);
-    expect(rateInput().prop('value')).to.equal(9); // only 2 this time b/c there's no label rendered
+    expect(rateInput().prop('value')).to.equal(9);
 
     // Update rate to trigger high threshold
     rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.1.rate', value: 25 } })
