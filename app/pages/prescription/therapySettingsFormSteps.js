@@ -37,7 +37,6 @@ const fieldsetPropTypes = {
   t: PropTypes.func.isRequired,
 };
 
-
 export const PatientInfo = props => {
   const { t, meta, ...themeProps } = props;
 
