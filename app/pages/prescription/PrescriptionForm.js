@@ -12,6 +12,7 @@ import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
+import reviewFormStep from './reviewFormStep';
 import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
 
 import Checkbox from '../../components/elements/Checkbox';
@@ -73,6 +74,7 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       }]),
     },
     training: get(props, 'prescription.training', ''),
+    therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
   }),
   validationSchema: props => prescriptionSchema(
     get(props, 'prescription.initialSettings.pumpId'),
@@ -187,22 +189,9 @@ const PrescriptionForm = props => {
         asyncState: stepAsyncState,
       },
       {
-        label: 'Review and Send Prescription',
-        onComplete: async () => {
-          setFinalAsyncState({ pending: true, complete: false });
-          await sleep(2000);
-          setFinalAsyncState({ pending: false, complete: true });
-        },
-        disableComplete: !prescriptionReviewed || finalAsyncState.complete,
-        asyncState: finalAsyncState,
-        completed: finalAsyncState.complete,
-        completeText: finalAsyncState.complete ? t('Prescription Sent') : t('Send Prescription'),
-        panelContent: renderStepConfirmation(
-          'review-checkbox',
-          'The prescription details are correct',
-          prescriptionReviewed,
-          (e) => setPrescriptionReviewed(e.target.checked),
-        ),
+        ...reviewFormStep(meta),
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
       },
     ],
     themeProps: {
