@@ -15,26 +15,48 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     caretColor: colors.text.primary,
     width: '100%',
 
-    '&::placeholder': {
-      color: colors.text.primaryTextSubdued,
+    ':focus-within': {
+      outlineWidth: '2px',
+      outlineStyle: 'solid',
+      outlineColor: 'Highlight',
     },
-    '&.active': {
-      color: colors.text.primaryTextSubdued,
-      boxShadow: 'none',
+
+    '@media (-webkit-min-device-pixel-ratio:0)': {
+      ':focus-within': {
+        outlineColor: '-webkit-focus-ring-color',
+        outlineStyle: 'auto',
+      },
     },
-    '&:focus': {
-      boxShadow: 'none',
-    },
-    '&:disabled': {
-      color: colors.text.primaryDisabled,
-      borderColor: colors.lightestGrey,
-      backgroundColor: colors.lightestGrey,
-    },
-    '&.error': {
-      color: colors.orange,
-      borderColor: colors.orange,
+
+    input: {
       '&::placeholder': {
-        color: colors.orange,
+        color: colors.text.primaryTextSubdued,
+      },
+      '&.active': {
+        color: colors.text.primaryTextSubdued,
+        boxShadow: 'none',
+      },
+      '&:focus': {
+        boxShadow: 'none',
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+        borderColor: colors.lightestGrey,
+        backgroundColor: colors.lightestGrey,
+      },
+      '&.error': {
+        color: colors.feedback.danger,
+        borderColor: colors.feedback.danger,
+        '&::placeholder': {
+          color: colors.feedback.danger,
+        },
+      },
+      '&.warning': {
+        color: colors.feedback.warning,
+        borderColor: colors.feedback.warning,
+        '&::placeholder': {
+          color: colors.feedback.warning,
+        },
       },
     },
   };
@@ -44,7 +66,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     border: 0,
     borderRadius: 0,
     color: colors.text.primary,
-    fontSize: fontSizes[0],
+    fontSize: fontSizes[1],
   };
 
   const checkboxes = {
@@ -72,23 +94,55 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
       backgroundColor: colors.lightestGrey,
     },
     '&.error': {
-      color: colors.orange,
-      borderColor: colors.orange,
+      color: colors.feedback.danger,
+      borderColor: colors.feedback.danger,
     },
   };
 
   return {
     text: {
       default: {
+        ...textInputs,
         input: {
-          ...textInputs,
+          ...textInputs.input,
           padding: `${space[2] * 1.5}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[2] * 1.5}px - 1px)`,
+            paddingBottom: `calc(${space[2] * 1.5}px - 1px)`,
+          },
+        },
+        '.prefix': {
+          paddingLeft: `${space[2] * 1.5}px`,
+        },
+        '.suffix, .icon': {
+          paddingRight: `${space[2] * 1.5}px`,
         },
       },
       condensed: {
+        ...textInputs,
         input: {
-          ...textInputs,
+          ...textInputs.input,
           padding: `${space[2]}px`,
+          border: 'none',
+          '&:focus': {
+            outline: 'none',
+            border: 'none',
+          },
+          '&[type="time"]': {
+            paddingTop: `calc(${space[2]}px - 1px)`,
+            paddingBottom: `calc(${space[2]}px - 1px)`,
+          },
+        },
+        '.prefix': {
+          paddingLeft: `${space[2]}px`,
+        },
+        '.suffix, .icon': {
+          paddingRight: `${space[2]}px`,
         },
       },
     },
@@ -149,7 +203,6 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
           padding: `${space[3]}px`,
           border: borders.input,
           marginBottom: `${space[3]}px`,
-          fontSize: fontSizes[1],
 
           '&:last-child': {
             marginBottom: 0,

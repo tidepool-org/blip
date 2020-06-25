@@ -9,7 +9,6 @@
 /* global after */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
@@ -409,6 +408,8 @@ describe('PatientData', function () {
             }
           }));
 
+          wrapper.update();
+
           expect(noData().length).to.equal(1);
 
           var links = wrapper.find('.patient-data-uploader-message a');
@@ -444,6 +445,8 @@ describe('PatientData', function () {
               metaData: { size: 0 },
             }
           }));
+
+          wrapper.update();
 
           var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;

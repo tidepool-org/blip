@@ -10,18 +10,20 @@ const expect = chai.expect;
 
 const meta = {
   phoneNumber: {
-    number: { valid: false },
+    number: { valid: true },
   },
   mrn: { valid: true },
-  sex: { valid: false },
+  sex: { valid: true },
   initialSettings: {
     pumpType: { valid: true },
-    cgmType: { valid: false },
+    cgmType: { valid: true },
   },
 };
 
+const invalidateMeta = fieldPath => _.set({ ...meta }, fieldPath, { valid: false });
+
 describe('profileFormSteps', function() {
-  it('should export an profileFormSteps function', function() {
+  it('should export a profileFormSteps function', function() {
     expect(profileFormSteps).to.be.a('function');
   });
 
@@ -42,10 +44,16 @@ describe('profileFormSteps', function() {
 
   it('should disable the complete button for any invalid fields within a subStep', () => {
     const subSteps = profileFormSteps(meta).subSteps;
-    expect(subSteps[0].disableComplete).to.be.true; // phoneNumber.number is invalid
-    expect(subSteps[1].disableComplete).to.be.false; // mrn is valid
-    expect(subSteps[2].disableComplete).to.be.true; // sex is invalid
-    expect(subSteps[3].disableComplete).to.be.true; // pumpType is valid cgmType is invalid
+    expect(subSteps[0].disableComplete).to.be.false;
+    expect(subSteps[1].disableComplete).to.be.false;
+    expect(subSteps[2].disableComplete).to.be.false;
+    expect(subSteps[3].disableComplete).to.be.false;
+
+    expect(profileFormSteps(invalidateMeta('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateMeta('mrn')).subSteps[1].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateMeta('sex')).subSteps[2].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateMeta('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateMeta('initialSettings.cgmType')).subSteps[3].disableComplete).to.be.true;
   });
 
   it('should not hide the back button for the any subSteps', () => {

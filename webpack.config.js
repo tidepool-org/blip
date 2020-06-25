@@ -211,6 +211,7 @@ const resolve = {
     'babel-core': path.resolve('node_modules/babel-core'),
     classnames: path.resolve('node_modules/classnames'),
     lodash: path.resolve('node_modules/lodash'),
+    moment: path.resolve('node_modules/moment'),
     'moment-timezone': path.resolve('node_modules/moment-timezone'),
     react: path.resolve('node_modules/react'),
     'react-dom': '@hot-loader/react-dom',

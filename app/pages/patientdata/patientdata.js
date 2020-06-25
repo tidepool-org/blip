@@ -25,7 +25,7 @@ import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import launchCustomProtocol from 'custom-protocol-detection';
 
 import * as actions from '../../redux/actions';

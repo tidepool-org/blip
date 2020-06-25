@@ -9,9 +9,11 @@ const expect = chai.expect;
 
 describe('prescriptionSchema', function() {
   it('should export a schema object with appropriate nodes', function() {
-    expect(prescriptionSchema).to.be.an('object');
+    const schema = prescriptionSchema();
 
-    expect(prescriptionSchema._nodes).to.be.an('array').and.includes.members([
+    expect(schema).to.be.an('object');
+
+    expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
       'type',
@@ -24,16 +26,67 @@ describe('prescriptionSchema', function() {
       'mrn',
       'sex',
       'initialSettings',
+      'training',
     ]);
 
-    expect(prescriptionSchema.fields.phoneNumber._nodes).to.be.an('array').and.includes.members([
+    expect(schema.fields.phoneNumber._nodes).to.be.an('array').and.have.members([
       'countryCode',
       'number',
     ]);
 
-    expect(prescriptionSchema.fields.initialSettings._nodes).to.be.an('array').and.includes.members([
-      'pumpType',
+    expect(schema.fields.initialSettings._nodes).to.be.an('array').and.have.members([
+      'bloodGlucoseUnits',
+      'pumpId',
       'cgmType',
+      'insulinType',
+      'suspendThreshold',
+      'basalRateMaximum',
+      'bolusAmountMaximum',
+      'bloodGlucoseTargetSchedule',
+      'basalRateSchedule',
+      'carbohydrateRatioSchedule',
+      'insulinSensitivitySchedule',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
+      'value',
+      'units',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([
+      'value',
+      'units',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.bolusAmountMaximum._nodes).to.be.an('array').and.have.members([
+      'value',
+      'units',
+    ]);
+
+
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'high',
+      'low',
+      'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');
+    expect(schema.fields.initialSettings.fields.basalRateSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'rate',
+      'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.carbohydrateRatioSchedule.type).to.equal('array');
+    expect(schema.fields.initialSettings.fields.carbohydrateRatioSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'amount',
+      'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule.type).to.equal('array');
+    expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule._subType._nodes).to.be.an('array').and.have.members([
+      'amount',
+      'start',
     ]);
   });
 });

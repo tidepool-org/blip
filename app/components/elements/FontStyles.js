@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
-import { Heading, Text, Link } from 'rebass';
+import { Heading, Text, Link } from 'rebass/styled-components';
 
 import {
   borders,
@@ -63,11 +63,15 @@ export const Headline = Styled(H2)`
 `;
 
 export const Title = Styled(H3)`
-  font-size: 18px;
+  font-size: ${fontSizes[3]}px;
   line-height: ${lineHeights[3]};
-  font-weight: ${fontWeights.medium};
+  font-weight: ${fontWeights.regular};
   font-family: ${fonts.default};
   color: ${colors.text.primary};
+`;
+
+export const MediumTitle = Styled(Title)`
+  font-weight: ${fontWeights.medium};
 `;
 
 export const Subheading = Styled(H4)`
@@ -82,11 +86,10 @@ export const Body2 = Styled(Text)`
   font-size: ${fontSizes[2]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
-  color: ${colors.text.primary};
-  margin-block-start: 0em;
-  margin-block-end: 1em;
-  &.m0 {
-    margin: 0;
+  color: ${props => (props.color ? props.color : colors.text.primary)};
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -94,10 +97,11 @@ export const Body1 = Styled(Text)`
   font-size: ${fontSizes[1]}px;
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
-  margin-block-start: 1em;
-  margin-block-end: 1em;
-  margin-bottom: 1em;
   color: ${props => (props.color ? props.color : colors.text.primary)};
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 export const Caption = Styled(Text)`
@@ -106,7 +110,10 @@ export const Caption = Styled(Text)`
   font-family: ${fonts.default};
   color: ${props => (props.color ? props.color : colors.text.primary)};
   &.error {
-    color: ${colors.orange}
+    color: ${colors.feedback.danger}
+  }
+  &.warning {
+    color: ${colors.feedback.warning}
   }
   &.required::after {
     content: ' *';
@@ -125,6 +132,16 @@ export const NavigationLink = Styled(Link)`
     color: ${colors.text.link};
     box-shadow: none;
     text-decoration: none;
+  }
+`;
+
+export const OrderedList = Styled('ol')`
+  margin: 0;
+  li {
+    margin-bottom: 0.5em;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 `;
 

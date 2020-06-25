@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Text } from 'rebass/styled-components';
+import { Box } from 'rebass/styled-components';
 import bows from 'bows';
 import InputMask from 'react-input-mask';
 
@@ -9,9 +9,9 @@ import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
-import { Headline } from '../../components/elements/FontStyles';
+import { Caption, Headline } from '../../components/elements/FontStyles';
 import { typeOptions } from './prescriptionFormConstants';
-import { formWrapperStyles, inputStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -20,7 +20,7 @@ export const AccountType = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
       <FastField
         as={RadioGroup}
@@ -47,7 +47,7 @@ export const PatientInfo = translate()(props => {
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Please enter patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
@@ -55,7 +55,7 @@ export const PatientInfo = translate()(props => {
         id="firstName"
         name="firstName"
         error={getFieldError(meta.firstName)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={TextInput}
@@ -63,7 +63,7 @@ export const PatientInfo = translate()(props => {
         id="lastName"
         name="lastName"
         error={getFieldError(meta.lastName)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={() => (
@@ -82,7 +82,7 @@ export const PatientInfo = translate()(props => {
               id="birthday"
               label={t('Patient\'s Birthday')}
               error={getFieldError(meta.birthday)}
-              {...inputStyles}
+              {...condensedInputStyles}
             />
           </InputMask>
         )}
@@ -95,7 +95,7 @@ export const PatientEmail = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s email address?')}</Headline>
       <FastField
         as={TextInput}
@@ -103,7 +103,7 @@ export const PatientEmail = translate()(props => {
         id="email"
         name="email"
         error={getFieldError(meta.email)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
       <FastField
         as={TextInput}
@@ -111,11 +111,11 @@ export const PatientEmail = translate()(props => {
         id="emailConfirm"
         name="emailConfirm"
         error={getFieldError(meta.emailConfirm)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
-      <Text fontSize={0} mt={5} mb={3}>
+      <Caption mt={5} mb={3}>
         {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}
-      </Text>
+      </Caption>
     </Box>
   );
 });

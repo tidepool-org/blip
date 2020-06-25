@@ -33,7 +33,7 @@ const StyledRadio = styled(Base)`
   }
 
   &.error {
-    color: ${colors.orange};
+    color: ${colors.feedback.danger};
   }
 `;
 
@@ -45,7 +45,7 @@ const StyledRadioLabel = styled(Text)`
   }
 
   &.error {
-    color: ${colors.orange};
+    color: ${colors.feedback.danger};
   }
 `;
 

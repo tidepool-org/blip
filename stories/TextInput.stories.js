@@ -31,9 +31,12 @@ const label = () => text('Label', 'Name');
 const width = () => number('Width');
 const disabled = () => boolean('Disabled', false);
 const placeholder = () => text('Placeholder', 'Your name');
-const error = () => boolean('Errored', false);
+const error = () => boolean('Errored State', false);
+const warning = () => boolean('Warning State', false);
 const required = () => boolean('Required', false);
 const icon = () => boolean('Icon', false);
+const suffix = () => text('Suffix', '');
+const prefix = () => text('Prefix', '');
 
 const variants = {
   Default: 'default',
@@ -51,8 +54,11 @@ export const BasicInput = () => (
     label={label()}
     required={required()}
     error={error() ? 'Please enter your name' : null}
+    warning={warning() ? 'You can do better' : null}
     {...(width() ? { width: width() } : [])}
     {...(icon() ? { icon: SearchIcon } : [])}
+    prefix={prefix()}
+    suffix={suffix()}
     name="name"
   />
 );

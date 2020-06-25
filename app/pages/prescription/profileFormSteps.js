@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex } from 'rebass/styled-components';
 import bows from 'bows';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
@@ -12,9 +12,9 @@ import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
-import { Headline } from '../../components/elements/FontStyles';
+import { Caption, Headline } from '../../components/elements/FontStyles';
 import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
-import { formWrapperStyles, inputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
+import { fieldsetStyles, condensedInputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -28,7 +28,7 @@ export const PatientPhone = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
       <FastField
         as={() => (
@@ -46,14 +46,14 @@ export const PatientPhone = translate()(props => {
               id="phoneNumber.number"
               label={t('Patient Phone Number')}
               error={getFieldError(meta.phoneNumber.number)}
-              {...inputStyles}
+              {...condensedInputStyles}
             />
           </InputMask>
         )}
       />
-      <Text fontSize={0}>
+      <Caption mt={5} mb={3}>
         {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
-      </Text>
+      </Caption>
     </Box>
   );
 });
@@ -62,7 +62,7 @@ export const PatientMRN = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
       <FastField
         as={TextInput}
@@ -70,7 +70,7 @@ export const PatientMRN = translate()(props => {
         id="mrn"
         name="mrn"
         error={getFieldError(meta.mrn)}
-        {...inputStyles}
+        {...condensedInputStyles}
       />
     </Box>
   );
@@ -80,7 +80,7 @@ export const PatientGender = translate()(props => {
   const { t, meta } = props;
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the patient\'s gender?')}</Headline>
       <FastField
         as={RadioGroup}
@@ -102,25 +102,25 @@ export const PatientDevices = translate()(props => {
   } = useFormikContext();
 
   return (
-    <Box {...formWrapperStyles}>
+    <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions, device => (
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
-              id="initialSettings.pumpType"
-              name="initialSettings.pumpType"
+              id="initialSettings.pumpId"
+              name="initialSettings.pumpId"
               key={device.value}
-              checked={!isEmpty(meta.initialSettings.pumpType.value)}
+              checked={!isEmpty(meta.initialSettings.pumpId.value)}
               label={device.label}
               onChange={e => {
-                setFieldValue('initialSettings.pumpType', e.target.checked ? device.value : '')
+                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.pumpType)}
+              error={getFieldError(meta.initialSettings.pumpId)}
               {...checkboxStyles}
             />
-            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+            <Caption mt={1}>{device.extraInfo}</Caption>
           </React.Fragment>
         ))}
       </Flex>
@@ -139,7 +139,7 @@ export const PatientDevices = translate()(props => {
               error={getFieldError(meta.initialSettings.cgmType)}
               {...checkboxStyles}
             />
-            <Text fontSize={0} mt={1}>{device.extraInfo}</Text>
+            <Caption mt={1}>{device.extraInfo}</Caption>
           </React.Fragment>
         ))}
       </Flex>
@@ -166,7 +166,7 @@ const accountFormSteps = (meta) => ({
       panelContent: <PatientGender meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(['initialSettings.pumpType', 'initialSettings.cgmType'], meta),
+      disableComplete: !fieldsAreValid(['initialSettings.pumpId', 'initialSettings.cgmType'], meta),
       onComplete: () => log('Patient Devices Complete'),
       panelContent: <PatientDevices meta={meta} />,
     },

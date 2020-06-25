@@ -30,7 +30,7 @@ const StyledCheckbox = styled(Base)`
   }
 
   &.error {
-    color: ${colors.orange};
+    color: ${colors.feedback.danger};
   }
 `;
 
@@ -40,7 +40,7 @@ const StyledCheckboxLabel = styled(Text)`
   }
 
   &.error {
-    color: ${colors.orange};
+    color: ${colors.feedback.danger};
   }
 
   &.required::after {

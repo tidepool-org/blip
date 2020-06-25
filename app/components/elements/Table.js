@@ -108,7 +108,9 @@ export const Table = props => {
     Boolean,
   );
 
-  const filteredData = filterData(sortedData, searchFields, searchText, onFilter);
+  const filteredData = searchText
+    ? filterData(sortedData, searchFields, searchText, onFilter)
+    : sortedData;
 
   const pageIndex = page - 1;
   const pagedData = rowsPerPage && rowsPerPage < filteredData.length

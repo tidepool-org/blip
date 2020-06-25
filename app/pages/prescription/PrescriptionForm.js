@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import bows from 'bows';
-import { Box } from 'rebass/styled-components';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
@@ -12,6 +11,8 @@ import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
+import therapySettingsFormSteps from './therapySettingsFormSteps';
+import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
 
 import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
@@ -20,7 +21,7 @@ import Stepper from '../../components/elements/Stepper';
 
 const log = bows('PrescriptionForm');
 
-const prescriptionForm = {
+const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
     id: get(props, 'routeParams.id', ''),
     state: get(props, 'prescription.state', 'draft'),
@@ -31,19 +32,54 @@ const prescriptionForm = {
     email: get(props, 'prescription.email', ''),
     emailConfirm: get(props, 'prescription.email', ''),
     phoneNumber: {
-      countryCode: get(props, 'prescription.phoneNumber.countryCode', 1),
+      countryCode: get(props, 'prescription.phoneNumber.countryCode', validCountryCodes[0]),
       number: get(props, 'prescription.phoneNumber.number', ''),
     },
     mrn: get(props, 'prescription.mrn', ''),
     sex: get(props, 'prescription.sex', ''),
     initialSettings: {
-      pumpType: get(props, 'prescription.initialSettings.pumpType', ''),
+      bloodGlucoseUnits: get(props, 'prescription.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
+      pumpId: get(props, 'prescription.initialSettings.pumpId', ''),
       cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
+      insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
+      suspendThreshold: {
+        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
+        units: defaultUnits.suspendThreshold,
+      },
+      basalRateMaximum: {
+        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
+        units: defaultUnits.basalRate,
+      },
+      bolusAmountMaximum: {
+        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
+        units: defaultUnits.bolusAmount,
+      },
+      bloodGlucoseTargetSchedule: get(props, 'prescription.initialSettings.bloodGlucoseTargetSchedule', [{
+        high: defaultValues(bgUnits).bloodGlucoseTarget.high,
+        low: defaultValues(bgUnits).bloodGlucoseTarget.low,
+        start: 0,
+      }]),
+      basalRateSchedule: get(props, 'prescription.initialSettings.basalRateSchedule', [{
+        rate: defaultValues(bgUnits).basalRate,
+        start: 0,
+      }]),
+      carbohydrateRatioSchedule: get(props, 'prescription.initialSettings.carbohydrateRatioSchedule', [{
+        amount: defaultValues(bgUnits).carbRatio,
+        start: 0,
+      }]),
+      insulinSensitivitySchedule: get(props, 'prescription.initialSettings.insulinSensitivitySchedule', [{
+        amount: defaultValues(bgUnits).insulinSensitivityFactor,
+        start: 0,
+      }]),
     },
+    training: get(props, 'prescription.training', ''),
   }),
-  validationSchema: prescriptionSchema,
+  validationSchema: props => prescriptionSchema(
+    get(props, 'prescription.initialSettings.pumpId'),
+    bgUnits
+  ),
   displayName: 'PrescriptionForm',
-}
+});
 
 const withPrescription = Component => props => {
   // Until backend service is ready, get prescriptions from localStorage
@@ -65,7 +101,9 @@ const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
-  const meta = getFieldsMeta(prescriptionSchema, getFieldMeta);
+  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
+  const pumpId = get(values, 'initialSettings.pumpId');
+  const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
 
   /* WIP Scaffolding Start */
   const sleep = m => new Promise(r => setTimeout(r, m));
@@ -77,8 +115,6 @@ const PrescriptionForm = props => {
   const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
   const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
   const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
-
-  const renderStepContent = text => <Box>{text}</Box>;
 
   const renderStepConfirmation = (name, label, checked, onChange) => (
     <Checkbox
@@ -141,13 +177,14 @@ const PrescriptionForm = props => {
         asyncState: stepAsyncState,
       },
       {
-        ...profileFormSteps(meta, setFieldValue),
+        ...profileFormSteps(meta),
         onComplete: handleStepSubmit,
         asyncState: stepAsyncState,
       },
       {
-        label: 'Enter Therapy Settings',
-        panelContent: renderStepContent('Therapy Settings Form'),
+        ...therapySettingsFormSteps(meta),
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
       },
       {
         label: 'Review and Send Prescription',
@@ -179,6 +216,9 @@ const PrescriptionForm = props => {
       panel: {
         padding: 3,
       },
+      actions: {
+        justifyContent: 'center',
+      }
     },
   };
 
@@ -213,4 +253,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withPrescription(withFormik(prescriptionForm)(PrescriptionForm)));
+export default translate()(withPrescription(withFormik(prescriptionForm())(PrescriptionForm)));

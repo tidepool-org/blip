@@ -9,13 +9,15 @@ import accountFormSteps from '../../../../app/pages/prescription/accountFormStep
 const expect = chai.expect;
 
 const meta = {
-  type: { valid: false },
+  type: { valid: true },
   firstName: { valid: true },
-  lastName: { valid: false },
+  lastName: { valid: true },
   birthday: { valid: true },
   email: { valid: true },
   emailConfirm: { valid: true },
 };
+
+const invalidateMeta = fieldPath => _.set({ ...meta }, fieldPath, { valid: false });
 
 describe('accountFormSteps', function() {
   it('should export an accountFormSteps function', function() {
@@ -39,9 +41,16 @@ describe('accountFormSteps', function() {
 
   it('should disable the complete button for any invalid fields within a subStep', () => {
     const subSteps = accountFormSteps(meta).subSteps;
-    expect(subSteps[0].disableComplete).to.be.true; // type is invalid
-    expect(subSteps[1].disableComplete).to.be.true; // lastName is invalid
-    expect(subSteps[2].disableComplete).to.be.false; // both fields are valid
+    expect(subSteps[0].disableComplete).to.be.false;
+    expect(subSteps[1].disableComplete).to.be.false;
+    expect(subSteps[2].disableComplete).to.be.false;
+
+    expect(accountFormSteps(invalidateMeta('type')).subSteps[0].disableComplete).to.be.true;
+    expect(accountFormSteps(invalidateMeta('firstName')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(invalidateMeta('lastName')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(invalidateMeta('birthday')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(invalidateMeta('email')).subSteps[2].disableComplete).to.be.true;
+    expect(accountFormSteps(invalidateMeta('emailConfirm')).subSteps[2].disableComplete).to.be.true;
   });
 
   it('should hide the back button for the first subStep', () => {
