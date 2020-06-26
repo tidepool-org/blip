@@ -2,21 +2,20 @@
 .gitignore
 node_modules
 npm-debug.log
-_book
 artifact_node.sh
+artifact_images.sh
 config/*
 !config/local.sh
 !config/env.docker.sh
 deploy
-dist
 test/bin
 coverage
+docs
 tmp
 web
 *.log
-
 yarn.lock
-package-lock.json
-
+Dockerfile
+*.md
 # Ignore old translation files
 locales/*/*_old.json

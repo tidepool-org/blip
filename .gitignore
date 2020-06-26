@@ -29,11 +29,6 @@ web/
 artifact_node.sh
 artifact_images.sh
 coverage/
-packageMounts/*
-!packageMounts/stub
-
-# GitBook
-_book/
 
 yarn.lock
 

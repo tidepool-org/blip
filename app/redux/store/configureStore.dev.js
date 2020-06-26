@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV_TOOLS__ */
-
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
@@ -51,36 +49,22 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-let enhancer;
-if (!__DEV_TOOLS__) {
-  enhancer = (api) => {
-    return compose(
-      applyMiddleware(
-        thunkMiddleware,
-        reduxRouterMiddleware,
-        createErrorLogger(api),
-        trackingMiddleware(api),
-      ),
-      persistState(getDebugSessionKey()),
-    );
-  }
-} else {
-  enhancer = (api) => {
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-    return composeEnhancers(
-      applyMiddleware(
-        thunkMiddleware,
-        loggerMiddleware,
-        reduxRouterMiddleware,
-        createErrorLogger(api),
-        trackingMiddleware(api),
-        mutationTracker(),
-      ),
-      // We can persist debug sessions this way
-      persistState(getDebugSessionKey()),
-    );
-  }
-}
+let enhancer = (api) => {
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  return composeEnhancers(
+    applyMiddleware(
+      thunkMiddleware,
+      loggerMiddleware,
+      reduxRouterMiddleware,
+      createErrorLogger(api),
+      trackingMiddleware(api),
+      mutationTracker(),
+    ),
+    // We can persist debug sessions this way
+    persistState(getDebugSessionKey()),
+  );
+};
+
 
 let initialState = { blip: blipState };
 

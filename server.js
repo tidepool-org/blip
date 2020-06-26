@@ -185,23 +185,4 @@ if (config.httpsPort && config.httpsConfig) {
   });
 }
 
-if (config.skipHakken === false) {
-  const hakken = require('hakken')(config.discovery).client();
-  hakken.start();
-
-  const serviceDescriptor = {service: config.serviceName};
-
-  if (config.httpsPort) {
-    serviceDescriptor.host = config.publishHost + ':' + config.httpsPort;
-    serviceDescriptor.protocol = 'https';
-  }
-  else if (config.httpPort) {
-    serviceDescriptor.host = config.publishHost + ':' + config.httpPort;
-    serviceDescriptor.protocol = 'http';
-  }
-
-  console.log('Publishing to service discovery: ', serviceDescriptor);
-  hakken.publish(serviceDescriptor);
-}
-
 module.exports = app;

@@ -28,13 +28,11 @@ import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
 
-/* global __DEV_TOOLS__ */
-
 // For React developer tools
 window.React = React;
 
 export let appContext = {
-  log: __DEV_TOOLS__ ? bows('App') : _.noop,
+  log: bows('App'),
   api: api,
   personUtils: personUtils,
   DEBUG: !!(window.localStorage && window.localStorage.debug),

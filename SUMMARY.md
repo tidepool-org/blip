@@ -11,6 +11,5 @@
     + [Redux](docs/Redux.md)
         + [Glossary of state tree terms](docs/StateTreeGlossary.md)
     + [webpack](docs/Webpack.md)
-+ [misc](docs/Misc.md)
-    + [integration testing](docs/IntegrationTesting.md)
++ misc
     + ["fake child accounts"](docs/FakeChildAccounts.md)

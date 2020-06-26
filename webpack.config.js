@@ -171,7 +171,6 @@ const plugins = [
     __TERMS_PRIVACY_DATE__: JSON.stringify(process.env.TERMS_PRIVACY_DATE || ''),
     __DEV__: isDev,
     __TEST__: isTest,
-    __DEV_TOOLS__: (process.env.DEV_TOOLS != null) ? process.env.DEV_TOOLS : (isDev ? true : false) //eslint-disable-line eqeqeq
   }),
   new MiniCssExtractPlugin({
     filename: isDev ? 'style.css' : 'style.[contenthash].css',

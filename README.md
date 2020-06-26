@@ -73,11 +73,9 @@ Open your web browser and navigate to `http://localhost:3000/`.
 
 The `npm start` command runs the Webpack dev server which includes hot module reloading (HMR) capabilities. Essentially changes within React components should be updated "hot" in your browser *without* a page refresh. Sometimes this doesn't work, but in such cases the dev console will include a message from the Webpack dev server indicating that you need to do a full refresh to see your changes.
 
-### Redux dev tools
+### Dev tools
 
-Blip includes several Redux developer tools: the original time-travel dev tools UI, a console action logger, and a mutation tracker for catching mutations to the state tree (which should be immutable). The last of these in particular is a performance killer (though *none* of them could even be said to have a *negligible* effect on performance). By default when running for local development with `npm start` (which means `NODE_ENV` is `development`), the `DEV_TOOLS` flag will be `true`, and all of these dev tools will be active. Because they affect performance profoundly, this may not always be desirable. To turn *off* the dev tools in development, kill the Webpack dev server (i.e, the `npm start` process), run `export DEV_TOOLS=false`, then start up blip again with `npm start`.
-
-**NB:** Due to differences in the `development` versus `production` builds of React itself (most notably PropTypes validation), performance of the app whenever `NODE_ENV` is `development` will *never* be as good as it is in the production build under a `NODE_ENV` of `production`. If you're concerned about the performance of a particular feature, the only way to test with good fidelity is with the production build, which you can do locally according to [these instructions below](#testing-the-production-build-locally).
+Due to differences in the `development` versus `production` builds of React itself (most notably PropTypes validation), performance of the app whenever `NODE_ENV` is `development` will *never* be as good as it is in the production build under a `NODE_ENV` of `production`. If you're concerned about the performance of a particular feature, the only way to test with good fidelity is with the production build, which you can do locally according to [these instructions below](#testing-the-production-build-locally).
 
 ### Getting past e-mail verification for a user created locally
 
