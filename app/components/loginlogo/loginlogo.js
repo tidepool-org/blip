@@ -18,8 +18,8 @@ var React = require('react');
 
 var logoSrc = require('./images/tidepool-logo-880x96.png');
 
-var LoginLogo = React.createClass({
-  render: function() {
+class LoginLogo extends React.Component {
+  render() {
 
     return (
       <div className="login-logo">
@@ -28,6 +28,6 @@ var LoginLogo = React.createClass({
     );
 
   }
-});
+}
 
 module.exports = LoginLogo;

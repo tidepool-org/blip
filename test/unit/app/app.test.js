@@ -7,9 +7,8 @@
 /* global afterEach */
 
 var React = require('react');
-var createFragment = require('react-addons-create-fragment');
 var _ = require('lodash');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 
 import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
@@ -46,7 +45,7 @@ describe('App', () => {
   describe('constructor', () => {
     var props = _.assign({}, baseProps, {
       authenticated: false,
-      children: createFragment({}),
+      children: (<React.Fragment></React.Fragment>),
       fetchers: [],
       fetchingPatient: false,
       fetchingUser: {
@@ -79,7 +78,7 @@ describe('App', () => {
     it('should render without problems or warnings when required props provided', () => {
       var props = _.assign({}, baseProps, {
         authenticated: false,
-        children: createFragment({}),
+        children: (<React.Fragment></React.Fragment>),
         fetchers: [],
         fetchingPatient: false,
         fetchingUser: {

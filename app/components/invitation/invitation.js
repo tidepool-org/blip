@@ -13,6 +13,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import { translate } from 'react-i18next';
@@ -20,22 +21,25 @@ import { translate } from 'react-i18next';
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
 
-var Invitation = translate()(React.createClass({
-  propTypes: {
-    invitation: React.PropTypes.object.isRequired,
-    onAcceptInvitation: React.PropTypes.func.isRequired,
-    onDismissInvitation: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-  },
-  handleAccept: function() {
+var Invitation = translate()(class extends React.Component {
+  static propTypes = {
+    invitation: PropTypes.object.isRequired,
+    onAcceptInvitation: PropTypes.func.isRequired,
+    onDismissInvitation: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+  };
+
+  handleAccept = () => {
     this.props.trackMetric('Clicked Join the Team');
     this.props.onAcceptInvitation(this.props.invitation);
-  },
-  handleDismiss: function() {
+  };
+
+  handleDismiss = () => {
     this.props.trackMetric('Clicked Ignore');
     this.props.onDismissInvitation(this.props.invitation);
-  },
-  render: function() {
+  };
+
+  render() {
     const { t } = this.props;
     var name = t('Not set');
     if (utils.getIn(this.props, ['invitation', 'creator'])) {
@@ -75,6 +79,6 @@ var Invitation = translate()(React.createClass({
     );
 
   }
-}));
+});
 
 module.exports = Invitation;

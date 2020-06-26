@@ -6,7 +6,7 @@ const webpackConf = require('./webpack.config.js');
 const mochaConf = optional('./config/mocha.opts.json') || {};
 
 const testWebpackConf = _.assign({}, webpackConf, {
-  devtool: 'inline-source-map',
+  devtool: process.env.npm_lifecycle_script.indexOf('--no-single-run') === -1 ? 'inline-source-map' : false ,
   plugins: [
     new webpack.DefinePlugin({
       __DEV__: false,

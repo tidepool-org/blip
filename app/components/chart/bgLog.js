@@ -15,6 +15,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
@@ -39,18 +40,18 @@ import Footer from './footer';
 
 class BgLogChart extends Component {
   static propTypes = {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    data: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patient: React.PropTypes.object,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    data: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patient: PropTypes.object,
     // handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onClickValues: React.PropTypes.func.isRequired,
-    onSelectSMBG: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired,
-    isClinicAccount: React.PropTypes.bool.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
+    onMostRecent: PropTypes.func.isRequired,
+    onClickValues: PropTypes.func.isRequired,
+    onSelectSMBG: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired,
+    isClinicAccount: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -172,25 +173,25 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
-    chartPrefs: React.PropTypes.object.isRequired,
-    data: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    isClinicAccount: React.PropTypes.bool.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    mostRecentDatetimeLocation: React.PropTypes.string,
-    onClickNoDataRefresh: React.PropTypes.func.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    pdf: React.PropTypes.object.isRequired,
-    queryDataCount: React.PropTypes.number.isRequired,
-    stats: React.PropTypes.array.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    isClinicAccount: PropTypes.bool.isRequired,
+    loading: PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: PropTypes.string,
+    onClickNoDataRefresh: PropTypes.func.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    pdf: PropTypes.object.isRequired,
+    queryDataCount: PropTypes.number.isRequired,
+    stats: PropTypes.array.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -210,7 +211,7 @@ class BgLog extends Component {
     };
   };
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     if (this.refs.chart && (loadingJustCompleted || newDataRecieved)) {

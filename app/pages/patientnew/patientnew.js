@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -41,17 +42,17 @@ import {
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let PatientNew = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object,
-    working: React.PropTypes.bool.isRequired
-  },
+export let PatientNew = translate()(class extends React.Component {
+  static propTypes = {
+    fetchingUser: PropTypes.bool.isRequired,
+    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    user: PropTypes.object,
+    working: PropTypes.bool.isRequired
+  };
 
-  getFormInputs: function() {
+  getFormInputs = () => {
     const { t } = this.props;
     const isOtherPerson = this.state.formValues.isOtherPerson;
 
@@ -128,40 +129,28 @@ export let PatientNew = translate()(React.createClass({
         ),
       }
     ];
-  },
+  };
 
-  getInitialState: function() {
-    return {
-      working: false,
-      formValues: {
-        isOtherPerson: false,
-        fullName: this.getUserFullName(),
-        dataDonateDestination: ''
-      },
-      validationErrors: {},
-    };
-  },
-
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Profile Create');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       formValues: _.assign(this.state.formValues, {
         fullName: this.getUserFullName(nextProps)
       })
     });
-  },
+  }
 
-  getUserFullName: function(props) {
+  getUserFullName = (props) => {
     props = props || this.props;
     return personUtils.fullName(props.user) || '';
-  },
+  };
 
-  render: function() {
+  render() {
     var subnav = this.renderSubnav();
     var form = this.renderForm();
 
@@ -177,9 +166,9 @@ export let PatientNew = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderSubnav: function() {
+  renderSubnav = () => {
     const { t } = this.props;
     return (
       <div className="container-box-outer">
@@ -194,9 +183,9 @@ export let PatientNew = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderForm: function() {
+  renderForm = () => {
     return (
       <SimpleForm
         inputs={this.getFormInputs()}
@@ -208,21 +197,21 @@ export let PatientNew = translate()(React.createClass({
         onChange={this.handleInputChange}
       />
     );
-  },
+  };
 
-  getSubmitButtonText: function() {
+  getSubmitButtonText = () => {
     const { t } = this.props;
     if (this.props.working) {
       return t('Saving...');
     }
     return t('Save');
-  },
+  };
 
-  isFormDisabled: function() {
+  isFormDisabled = () => {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  };
 
-  handleInputChange: function(attributes) {
+  handleInputChange = (attributes) => {
     var key = attributes.name;
     var value = attributes.value;
     if (!key) {
@@ -254,9 +243,9 @@ export let PatientNew = translate()(React.createClass({
     }
 
     this.setState({formValues: formValues});
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     this.resetFormStateBeforeSubmit(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
@@ -288,9 +277,9 @@ export let PatientNew = translate()(React.createClass({
         });
       }
     }
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var form = [
       { type: 'name', name: 'fullName', label: t('full name'), value: formValues.fullName },
@@ -307,35 +296,35 @@ export let PatientNew = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.setState({
       working: true,
       formValues: formValues,
       validationErrors: {},
     });
-  },
+  };
 
   // because JavaScript Date will coerce impossible dates into possible ones with
   // no opportunity for exposing the error to the user
   // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
-  makeRawDateString: function(dateObj){
+  makeRawDateString = (dateObj) => {
     var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
     var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
 
     return dateObj.year+'-'+mm+'-'+dd;
-  },
+  };
 
-  isDateObjectComplete: function(dateObj) {
+  isDateObjectComplete = (dateObj) => {
     if (!dateObj) {
       return false;
     }
     return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
-  },
+  };
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     var profile = {};
     var patient = {
       birthday: this.makeRawDateString(formValues.birthday),
@@ -364,8 +353,18 @@ export let PatientNew = translate()(React.createClass({
     return {
       profile: profile,
     };
-  }
-}));
+  };
+
+  state = {
+    working: false,
+    formValues: {
+      isOtherPerson: false,
+      fullName: this.getUserFullName(),
+      dataDonateDestination: ''
+    },
+    validationErrors: {},
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

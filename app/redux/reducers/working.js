@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
