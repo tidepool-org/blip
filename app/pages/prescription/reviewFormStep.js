@@ -1,15 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, useFormikContext } from 'formik';
-import { Box, Text, Flex, BoxProps } from 'rebass/styled-components';
+import { FastField } from 'formik';
+import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import map from 'lodash/map';
+import get from 'lodash/get';
+import capitalize from 'lodash/capitalize';
+import isArray from 'lodash/isArray';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
-import { Headline } from '../../components/elements/FontStyles';
+import { convertMsPer24ToTimeString } from '../../core/datetime';
+import { Body1, Headline } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
+import Icon from '../../components/elements/Icon';
 
 import {
   fieldsetStyles,
@@ -33,25 +39,70 @@ export const PatientInfo = props => {
   const {
     firstName,
     lastName,
-    birthday,
-    email,
   } = meta;
 
-  const Row = ({label, value, index}) => (
-    <Flex justifyContent="space-between" key={index}>
-      <Text>{label}</Text>
-      <Text>{value}</Text>
+  const rows = [
+    {
+      label: t('Email'),
+      value: meta.email.value,
+      step: [0, 2],
+    },
+    {
+      label: t('Mobile Number'),
+      value: meta.phoneNumber.number.value,
+      step: [1, 0],
+    },
+    {
+      label: t('Type of Account'),
+      value: capitalize(meta.type.value),
+      step: [0, 0],
+    },
+    {
+      label: t('Birthdate'),
+      value: meta.birthday.value,
+      step: [0, 1],
+    },
+    {
+      label: t('Gender'),
+      value: capitalize(meta.sex.value),
+      step: [1, 2],
+    },
+    {
+      label: t('MRN'),
+      value: meta.mrn.value,
+      step: [1, 1]
+    },
+  ];
+
+  const Row = ({ label, value, step, index }) => (
+    <Flex mb={4} justifyContent="space-between" alignItems="center" key={index}>
+      <Body1>{label}</Body1>
+      <Box>
+        <Flex alignItems="center">
+          <Body1 mr={1}>{value}</Body1>
+          <Icon
+            variant="button"
+            icon={EditRoundedIcon}
+            label={t('Edit {{label}}', { label })}
+            onClick={() => console.log(`go to ${step.join(',')}`)}
+          />
+        </Flex>
+      </Box>
     </Flex>
   );
 
-  const rows = [
-    { label: t('Email'), value: meta.email.value },
-  ];
-
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Headline mb={2}>{firstName.value} {lastName.value}</Headline>
-      {map(rows, row => <Row {...row} />)}
+      <Flex mb={4} alignItems="center" justifyContent="space-between">
+        <Headline mr={1}>{firstName.value} {lastName.value}</Headline>
+        <Icon
+            variant="button"
+            icon={EditRoundedIcon}
+            label={t('Edit Patient Name')}
+            onClick={() => console.log(`go to ${[0, 1].join(',')}`)}
+          />
+      </Flex>
+      {map(rows, (row, index) => <Row {...row} index={index} />)}
     </Box>
   );
 };
@@ -60,11 +111,71 @@ PatientInfo.propTypes = fieldsetPropTypes;
 
 export const TherapySettings = props => {
   const { t, meta, ...themeProps } = props;
+  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
+  const therapySettingsStep = [2,0];
+
+  const rows = [
+    {
+      label: t('CPT Training Required'),
+      value: meta.training.value === 'inModule' ? t('Not required') : t('Required'),
+    },
+    {
+      label: t('Correction Range'),
+      value: map(
+        meta.initialSettings.bloodGlucoseTargetSchedule.value,
+        ({ high, low, start }) => `${convertMsPer24ToTimeString(start)}: ${low} - ${high} ${bgUnits}`
+      ),
+    },
+    {
+      label: t('Suspend Threshold'),
+      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+    },
+    {
+      label: t('Insulin Model'),
+      value: meta.initialSettings.insulinType.value,
+      value: meta.initialSettings.insulinType.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
+    },
+  ];
+
+  const Row = ({ label, value, index }) => {
+    const values = isArray(value) ? value : [value];
+
+    return (
+      <Flex
+        py={3}
+        sx={{
+          borderTop: index === 0 ? 'default' : 'none',
+          borderBottom: 'default',
+        }}
+        alignItems="flex-start"
+        key={index}
+      >
+        <Body1 flex="1">{label}</Body1>
+        <Box>
+          {map(values, (val, i) => <Body1 key={i} flex="1">{val}</Body1>)}
+        </Box>
+      </Flex>
+    );
+  };
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Headline mb={2}>{t('Confirm Therapy Settings')}</Headline>
-      <Text>Therapy Settings here :)</Text>
+      <Flex mb={3} alignItems="center" justifyContent="space-between">
+        <Headline>{t('Confirm Therapy Settings')}</Headline>
+        <Icon
+          variant="button"
+          icon={EditRoundedIcon}
+          label={t('Edit therapy settings')}
+          onClick={() => console.log(`go to ${therapySettingsStep.join(',')}`)}
+        />
+      </Flex>
+
+      <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
+
+      <Box mb={4}>
+        {map(rows, (row, index) => <Row {...row} index={index} />)}
+      </Box>
+
       <FastField
         as={Checkbox}
         id="therapySettingsReviewed"

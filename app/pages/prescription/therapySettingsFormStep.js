@@ -7,7 +7,7 @@ import bows from 'bows';
 
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import i18next from '../../core/language';
-import { Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
+import { Paragraph2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
@@ -67,11 +67,11 @@ export const PatientTraining = props => {
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Body2>
+      <Paragraph2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpId}}.', {
           pumpId: pumpMeta.manufacturerName,
         })}
-      </Body2>
+      </Paragraph2>
       <FastField
         as={RadioGroup}
         variant="vertical"
@@ -91,9 +91,9 @@ export const InModuleTrainingNotification = props => {
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Body2>
+      <Paragraph2>
         {t('You have selected Tidepool Loop in-app tutorial self start. A request will not be sent for this patient to receive CPT training.')}
-      </Body2>
+      </Paragraph2>
     </Box>
   );
 };
@@ -117,9 +117,9 @@ export const GlucoseSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('The correction range is the glucose range that you would like the app to correct your glucose to by adjusting insulin dosing.')}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -155,9 +155,9 @@ export const GlucoseSettings = props => {
             mb={2}
             popoverContent={(
               <Box p={3}>
-                <Body2>
+                <Paragraph2>
                   {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
-                </Body2>
+                </Paragraph2>
               </Box>
             )}
           />
@@ -196,13 +196,13 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
-              </Body2>
-              <Body2>
+              </Paragraph2>
+              <Paragraph2>
                 {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
-              </Body2>
-              <Body2>
+              </Paragraph2>
+              <Paragraph2>
                 <OrderedList>
                   <li>
                     {t('Rapid-Acting - Adult Model')}<br />
@@ -213,7 +213,7 @@ export const InsulinSettings = props => {
                     {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 65 })}
                   </li>
                 </OrderedList>
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -233,12 +233,12 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Maximum basal rate is the automatically adjusted basal rate that Tidepool Loop is allowed to enact to help reach your correction range.')}
-              </Body2>
-              <Body2>
+              </Paragraph2>
+              <Paragraph2>
                 {t('For first time users of an automated system, Tidepool suggests you start with 3x your highest basal rate.')}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -259,9 +259,9 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Maximum bolus is the highest bolus amount that you will allow Tidepool Loop to recommend at one time to cover carbs or bring down high glucose.')}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -283,9 +283,9 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.')}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -314,9 +314,9 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Your carb ratio is the number of grams of carbohydrate covered by one unit of insulin.')}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
@@ -345,9 +345,9 @@ export const InsulinSettings = props => {
           mb={2}
           popoverContent={(
             <Box p={3}>
-              <Body2>
+              <Paragraph2>
                 {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
-              </Body2>
+              </Paragraph2>
             </Box>
           )}
         />
