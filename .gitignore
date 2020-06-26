@@ -27,6 +27,7 @@ config/*
 test/bin
 web/
 artifact_node.sh
+artifact_packaging.sh
 artifact_images.sh
 coverage/
 
@@ -39,3 +40,10 @@ locales/*/parameter.*.json*
 # Aqua microscanner
 scanDockerImage.sh
 microscanner
+
+# Build system
+server/matomo.js
+server/.npmrc
+
+# Branding
+**/diabeloop/*.png

@@ -5,4 +5,4 @@ set -eu
 . ./config/env.docker.sh
 
 export NODE_OPTIONS='--max-old-space-size=4096'
-npm run build
+npm run build-dev

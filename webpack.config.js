@@ -1,15 +1,17 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const fs = require('fs');
 const DblpHtmlWebpackPlugin = require('./dblp-webpack-html-plugin');
+const buildConfig = require('./server/config.app');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const isProduction = (process.env.NODE_ENV === 'production');
+const useWebpackDevServer = isDev && (process.env.USE_WEBPACK_DEV_SERVER === 'true');
 
 // Enzyme as of v2.4.1 has trouble with classes
 // that do not start and *end* with an alpha character
@@ -20,49 +22,60 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const lessLoaderConfiguration = {
-    test: /\.less$/,
-    use: [
-      (isProduction) ? MiniCssExtractPlugin.loader : 'style-loader',
-      {
-        loader: 'css-loader',
-        query: {
-          importLoaders: 2,
-          localIdentName,
-          sourceMap: true,
-        },
-      },
-      {
-        loader: 'postcss-loader',
-        options: {
-          sourceMap: true,
-        },
-      },
-      {
-        loader: 'less-loader',
-        options: {
-          sourceMap: true,
-          javascriptEnabled: true,
-        },
-      },
-    ],
-  };
-const cssLoaderConfiguration = {
-  test: /\.css$/,
+  test: /\.less$/,
   use: [
     (isProduction) ? MiniCssExtractPlugin.loader : 'style-loader',
     {
       loader: 'css-loader',
-      query: {
+      options: {
         importLoaders: 2,
-        localIdentName,
-        modules: true,
         sourceMap: true,
+        onlyLocals: false,
+        modules: {
+          auto: true,
+          exportGlobals: true,
+          localIdentName,
+        }
       },
     },
     {
       loader: 'postcss-loader',
       options: {
         sourceMap: true,
+      },
+    },
+    {
+      loader: 'less-loader',
+      options: {
+        sourceMap: true,
+        lessOptions: {
+          strictUnits: true,
+          strictMath: true,
+          javascriptEnabled: true, // Deprecated
+        },
+      },
+    },
+  ],
+};
+const cssLoaderConfiguration = {
+  test: /\.css$/,
+  use: [
+    (isProduction) ? MiniCssExtractPlugin.loader : 'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        importLoaders: 1,
+        sourceMap: true,
+        modules: {
+          localIdentName,
+        }
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+        ident: 'postcss',
       },
     }
   ],
@@ -99,6 +112,7 @@ const imageLoaderConfiguration = {
     loader: 'url-loader',
     options: {
       name: '[name].[ext]',
+      esModule: false,
     },
   },
 };
@@ -140,35 +154,9 @@ const plugins = [
   // these values are required in the config.app.js file -- we can't use
   // process.env with webpack, we have to create these magic constants
   // individually.
+  // When running the test, we always use the default config.
   new webpack.DefinePlugin({
-    'process.env': {
-      'NODE_ENV': isDev || isTest ? JSON.stringify('development') : JSON.stringify('production'),
-    },
-    __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
-    __API_HOST__: JSON.stringify(process.env.API_HOST || null),
-    __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
-    __LATEST_TERMS__: JSON.stringify(process.env.LATEST_TERMS || null),
-    __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
-    __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
-    __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
-    __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
-    __ALLOW_SIGNUP_PATIENT__: JSON.stringify(process.env.ALLOW_SIGNUP_PATIENT || true),
-    __ALLOW_PATIENT_CHANGE_EMAIL__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_EMAIL || true),
-    __ALLOW_PATIENT_CHANGE_PASSWORD__: JSON.stringify(process.env.ALLOW_PATIENT_CHANGE_PASSWORD || true),
-    __CAN_SEE_PWD_LOGIN__: JSON.stringify(process.env.CAN_SEE_PWD_LOGIN || true),
-    __SUPPORT_EMAIL_ADDRESS__: JSON.stringify(process.env.SUPPORT_EMAIL_ADDRESS || 'support@tidepool.org'),
-    __SUPPORT_WEB_ADDRESS__: JSON.stringify(process.env.SUPPORT_WEB_ADDRESS || 'http://support.tidepool.org'),
-    __REGULATORY_WEB_ADDRESS__: JSON.stringify(process.env.REGULATORY_WEB_ADDRESS || ''),
-    __HELP_LINK__: JSON.stringify(process.env.HELP_LINK || null),
-    __ASSETS_URL__: JSON.stringify(process.env.ASSETS_URL || null),
-    __HIDE_DONATE__: JSON.stringify(process.env.HIDE_DONATE || false),
-    __HIDE_DEXCOM_BANNER__: JSON.stringify(process.env.HIDE_DEXCOM_BANNER || false),
-    __HIDE_UPLOAD_LINK__: JSON.stringify(process.env.HIDE_UPLOAD_LINK || false),
-    __BRANDING__: JSON.stringify(process.env.BRANDING || 'tidepool'),
-    __METRICS_SERVICE__: JSON.stringify(process.env.METRICS_SERVICE || 'disabled'),
-    __MAX_FAILED_LOGIN_ATTEMPTS__: JSON.stringify(process.env.MAX_FAILED_LOGIN_ATTEMPTS || 5),
-    __DELAY_BEFORE_NEXT_LOGIN_ATTEMPT__: JSON.stringify(process.env.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT || 10),
-    __TERMS_PRIVACY_DATE__: JSON.stringify(process.env.TERMS_PRIVACY_DATE || ''),
+    BUILD_CONFIG: `'${JSON.stringify(isTest ? {DEV: isDev, TEST: isTest} : buildConfig)}'`,
     __DEV__: isDev,
     __TEST__: isTest,
   }),
@@ -212,28 +200,12 @@ const minimizer = [
   new OptimizeCSSAssetsPlugin({}),
 ];
 
-const devPublicPath = process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3000/';
-
-const entry = isDev
-  ? [
-    '@babel/polyfill',
-    'webpack-dev-server/client?' + devPublicPath,
-    'webpack/hot/only-dev-server',
-    './app/main.js',
-  ] : [
-    '@babel/polyfill',
-    './app/main.prod.js',
-  ];
-
 /** @type {webpack.Output} */
 const output = {
   filename: isDev || isTest ? 'bundle.js' : 'bundle.[hash].js',
-  path: path.join(__dirname, '/dist'),
+  path: path.join(__dirname, 'dist'),
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
-if (isDev) {
-  output.publicPath = devPublicPath;
-}
 
 if (typeof process.env.PUBLIC_PATH === 'string' && process.env.PUBLIC_PATH.startsWith('https')) {
   output.publicPath = process.env.PUBLIC_PATH;
@@ -246,20 +218,47 @@ const resolve = {
   ],
   alias: {
     pdfkit: 'pdfkit/js/pdfkit.standalone.js',
+    './images/tidepool/logo.png': `./images/${buildConfig.BRANDING}/logo.png`,
   }
 };
 
-let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';
-if (process.env.WEBPACK_DEVTOOL === 'false') devtool = undefined;
-
-module.exports = {
-  devServer: {
+let entry = [];
+let devServer;
+if (useWebpackDevServer) {
+  console.info('Webpack dev-server is enable');
+  const devPublicPath = process.env.WEBPACK_PUBLIC_PATH || 'http://localhost:3001/';
+  output.publicPath = devPublicPath;
+  entry = [
+    'webpack-dev-server/client?' + devPublicPath,
+    'webpack/hot/only-dev-server',
+    './app/main.dev.js',
+  ];
+  devServer = {
     publicPath: devPublicPath,
     historyApiFallback: true,
     hot: isDev,
     clientLogLevel: 'info',
     disableHostCheck: true,
-  },
+  };
+  resolve.alias['./Root.prod'] = './Root.dev';
+  resolve.alias['./configureStore.prod'] = './configureStore.dev';
+} else {
+  entry = [ './app/main.prod.js' ];
+}
+
+let devtool = 'source-map';
+if (process.env.WEBPACK_DEVTOOL === 'false') {
+  devtool = undefined;
+} else if (isTest) {
+  devtool = 'inline-source-map';
+} else if (isProduction) {
+  devtool = 'source-map';
+} else if (typeof process.env.WEBPACK_DEVTOOL === 'string') {
+  devtool = process.env.WEBPACK_DEVTOOL;
+}
+
+module.exports = {
+  devServer,
   devtool,
   entry,
   mode: isDev || isTest ? 'development' : 'production',

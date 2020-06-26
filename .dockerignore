@@ -4,6 +4,7 @@ node_modules
 server/node_modules
 npm-debug.log
 artifact_node.sh
+artifact_packaging.sh
 artifact_images.sh
 config/*
 !config/local.sh
