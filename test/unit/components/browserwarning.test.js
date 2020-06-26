@@ -11,13 +11,6 @@ import BrowserWarning from '../../../app/components/browserwarning';
 var expect = chai.expect;
 
 describe('BrowserWarning', function () {
-  before(() => {
-    if (typeof window.config !== 'object') {
-      window.config = {};
-    }
-    window.config.BRANDING = 'tidepool';
-  });
-
   it('should be a function', function() {
     expect(BrowserWarning).to.be.a('function');
   });

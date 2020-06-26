@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
 
@@ -11,7 +10,6 @@ const BasicsChart = tidelineBlip.basics;
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const Loader = vizComponents.Loader;
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 import Stats from './stats';

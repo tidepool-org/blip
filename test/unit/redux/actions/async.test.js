@@ -13,7 +13,7 @@ import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 import moment from 'moment';
 import _ from 'lodash';
 
-import isTSA from 'tidepool-standard-action';
+import isTSA from '../../../helpers/tidepoolStandardAction';
 
 import initialState from '../../../../app/redux/reducers/initialState';
 

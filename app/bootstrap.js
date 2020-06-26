@@ -16,7 +16,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
-import _ from 'lodash';
 
 import './core/language'; // Set the language before loading components
 import blipCreateStore from './redux/store';
@@ -27,9 +26,6 @@ import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
-
-// For React developer tools
-window.React = React;
 
 export let appContext = {
   log: bows('App'),

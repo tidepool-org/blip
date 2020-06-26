@@ -11,6 +11,7 @@ import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import sundial from 'sundial';
 
+import config from '../../../app/config';
 import { Signup } from '../../../app/pages/signup';
 import { mapStateToProps } from '../../../app/pages/signup';
 
@@ -18,6 +19,12 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 describe('Signup', function () {
+
+  before(() => {
+    // This config value is changed by other tests
+    config.ALLOW_SIGNUP_PATIENT = true;
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(Signup).to.be.a('function');
   });
@@ -28,7 +35,6 @@ describe('Signup', function () {
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
-        configuredInviteKey: '',
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false,
@@ -41,7 +47,6 @@ describe('Signup', function () {
 
     it('should render signup-selection when no key is set and no key is configured', function () {
       var props = {
-        configuredInviteKey: '',
         inviteKey: '',
         location: { pathname: 'signup' },
       };
@@ -53,7 +58,6 @@ describe('Signup', function () {
 
     it('should render signup-selection when key is set and validates', function () {
       var props = {
-        configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
         location: { pathname: 'signup' },
       };
@@ -65,7 +69,6 @@ describe('Signup', function () {
 
     it('should render signup-selection when both key and email are set, even if key doesn\'t match configured key', function () {
       var props = {
-        configuredInviteKey: 'foobar',
         inviteKey: 'wrong-key',
         inviteEmail: 'gordonmdent@gmail.com',
         location: { pathname: 'signup' },
@@ -78,7 +81,6 @@ describe('Signup', function () {
 
     it('should render signup-selection when key is valid and email is empty', function () {
       var props = {
-        configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
         inviteEmail: '',
         location: { pathname: 'signup' },
@@ -91,7 +93,6 @@ describe('Signup', function () {
 
     it('should render signup-form when selection has been made', function () {
       var props = {
-        configuredInviteKey: '',
         inviteKey: '',
         location: { pathname: 'signup' },
       };
@@ -103,7 +104,6 @@ describe('Signup', function () {
 
     it('should render the personal signup-form when personal was selected', function () {
       var props = {
-        configuredInviteKey: '',
         inviteKey: '',
         location: { pathname: 'signup' }
       };

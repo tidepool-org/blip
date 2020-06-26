@@ -22,20 +22,19 @@ import _ from 'lodash';
 import i18next from '../../core/language';
 import config from '../../config';
 import LoginNav from '../../components/loginnav';
-import utils  from '../../core/utils';
 import { CONFIG } from '../../core/constants';
 
 import * as actions from '../../redux/actions';
 
 const t = i18next.t.bind(i18next);
 
-var brand = CONFIG[__BRANDING__].name;
+var brand = CONFIG[config.BRANDING].name;
 
-var urlTermsOfUse = CONFIG[__BRANDING__].terms;
-var textTermsOfUse = CONFIG[__BRANDING__].termsText;
+var urlTermsOfUse = CONFIG[config.BRANDING].terms;
+var textTermsOfUse = CONFIG[config.BRANDING].termsText;
 
-var urlPrivacyPolicy = CONFIG[__BRANDING__].privacy;
-var textPrivacyPolicy = CONFIG[__BRANDING__].privacyText;
+var urlPrivacyPolicy = CONFIG[config.BRANDING].privacy;
+var textPrivacyPolicy = CONFIG[config.BRANDING].privacyText;
 
 const ACCEPT_OF_AGE = <Trans parent="span" i18nKey="html.terms-accept-of-age">
   I am 18 or older and I accept the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
@@ -266,8 +265,7 @@ export const Terms = translate()(class Terms extends React.Component {
  */
 
 export function mapStateToProps(state) {
-  var termsAccepted = null;
-  var latestTerms = new Date(config.LATEST_TERMS);
+  var termsAccepted = 0;
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -278,7 +276,7 @@ export function mapStateToProps(state) {
   return {
     authenticated: state.blip.isLoggedIn,
     termsAccepted: !_.isEmpty(termsAccepted),
-    acceptedLatestTerms: new Date(latestTerms) < new Date(termsAccepted),
+    acceptedLatestTerms: new Date(config.LATEST_TERMS) < new Date(termsAccepted),
   };
 };
 

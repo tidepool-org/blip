@@ -23,6 +23,7 @@ import i18next from '../../core/language';
 
 import { Element } from 'react-scroll';
 
+import config from '../../config';
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
@@ -414,7 +415,7 @@ var PatientInfo = translate()(React.createClass({
 
   renderDonateForm: function() {
     const { t } = this.props;
-    if (this.isSamePersonUserAndPatient() && !__HIDE_DONATE__) {
+    if (this.isSamePersonUserAndPatient() && !config.HIDE_DONATE) {
       return (
         <div className="PatientPage-donateForm">
           <div className="PatientPage-sectionTitle">{t('Donate my data?')}</div>
@@ -436,7 +437,7 @@ var PatientInfo = translate()(React.createClass({
 
   renderDataSources: function() {
     const { t } = this.props;
-    if (this.isSamePersonUserAndPatient() && !__HIDE_DEXCOM_BANNER__) {
+    if (this.isSamePersonUserAndPatient() && !config.HIDE_DEXCOM_BANNER) {
       return (
         <Element name="dexcomConnect" className="PatientPage-dataSources">
           <div className="PatientPage-sectionTitle">{t('My Data Sources')}</div>

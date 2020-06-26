@@ -18,8 +18,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
-
 import _ from 'lodash';
+
+import config from '../../config';
 import { validateForm } from '../../core/validation';
 
 import * as actions from '../../redux/actions';
@@ -88,7 +89,7 @@ export let PatientNew = translate()(React.createClass({
         items: DIABETES_TYPES(),    // eslint-disable-line new-cap
       }
     ];
-    if (__HIDE_DONATE__) {
+    if (config.HIDE_DONATE) {
       return baseInputs;
     } else {
       return baseInputs.concat(

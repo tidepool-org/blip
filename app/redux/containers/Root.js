@@ -15,10 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV__ */
+import root from './Root.prod';
 
-if (__DEV__) {
-  module.exports = require('./Root.dev');
-} else {
-  module.exports = require('./Root.prod');
-}
+export default root;

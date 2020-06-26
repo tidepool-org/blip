@@ -15,10 +15,5 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV__ */
-
-if (__DEV__ === true) {
-  module.exports = require('./configureStore.dev');
-} else {
-  module.exports = require('./configureStore.prod');
-}
+import store from './configureStore.prod';
+export default store;
