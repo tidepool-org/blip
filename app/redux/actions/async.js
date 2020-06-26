@@ -1307,31 +1307,17 @@ export function clickShareDataBanner(api, patientId, clickedDate) {
  * @param  {Object} api an instance of the API wrapper
  */
 export function updateShareDataBannerSeen(api, patientId) {
-//QUESTION: if patientId is passed in then why does it log as undefined?
-
   const viewDate = sundial.utcDateString();
 
   return (dispatch, getState) => {
-    const allUsersMap = Object.values(_.get(getState(), 'blip.allUsersMap'));
-
-//QUESTION: How do I get preferences similar to how I can reach it in app.js like this:
-    // state.blip.allUsersMap[state.blip.loggedInUserId].preferences;
-    // but from here inside of the action?
-
-
-    // const dexDismiss = allUsersMap[0].preferences.dismissedDexcomConnectBannerTime;
-    // console.log(dexDismiss);
-
-    // I know the below is a placeholder and will only work if the loggedInUser is
-    // also the first user in the allUsersMap
-    const seenShareDataBannerCount = allUsersMap[0].preferences.seenShareDataBannerCount;
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const loggedInUser = allUsersMap[loggedInUserId];
+    const seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
 
     const preferences = {
       seenShareDataBannerDate: viewDate,
       seenShareDataBannerCount: seenShareDataBannerCount + 1,
     };
-
-//QUESTION: why aren't these preferences being saved?
 
     dispatch(updatePreferences(api, patientId, preferences));
   };

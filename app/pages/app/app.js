@@ -162,6 +162,7 @@ export class AppComponent extends React.Component {
       userHasSharedDataWithClinician,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
+      patient,
     } = nextProps;
 
     if (!utils.isOnSamePage(this.props, nextProps)) {
@@ -181,8 +182,7 @@ export class AppComponent extends React.Component {
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
         displayShareDataBanner = true;
-
-        updateShareDataBannerSeen();
+        updateShareDataBannerSeen(patient.userid);
 
         if (this.props.context.trackMetric && !this.state.shareDataBannerMetricTracked) {
           this.props.context.trackMetric('Share Data banner displayed');
