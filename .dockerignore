@@ -1,6 +1,7 @@
 .git
 .gitignore
 node_modules
+server/node_modules
 npm-debug.log
 artifact_node.sh
 artifact_images.sh

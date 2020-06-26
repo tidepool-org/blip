@@ -225,6 +225,7 @@ const entry = isDev
     './app/main.prod.js',
   ];
 
+/** @type {webpack.Output} */
 const output = {
   filename: isDev || isTest ? 'bundle.js' : 'bundle.[hash].js',
   path: path.join(__dirname, '/dist'),
@@ -232,6 +233,10 @@ const output = {
 };
 if (isDev) {
   output.publicPath = devPublicPath;
+}
+
+if (typeof process.env.PUBLIC_PATH === 'string' && process.env.PUBLIC_PATH.startsWith('https')) {
+  output.publicPath = process.env.PUBLIC_PATH;
 }
 
 const resolve = {
