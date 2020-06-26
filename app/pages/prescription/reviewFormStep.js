@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Text, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import map from 'lodash/map';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
@@ -36,11 +37,21 @@ export const PatientInfo = props => {
     email,
   } = meta;
 
+  const Row = ({label, value, index}) => (
+    <Flex justifyContent="space-between" key={index}>
+      <Text>{label}</Text>
+      <Text>{value}</Text>
+    </Flex>
+  );
+
+  const rows = [
+    { label: t('Email'), value: meta.email.value },
+  ];
+
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Headline mb={2}>{firstName.value} {lastName.value}</Headline>
-      <Text>{t('Date of Birth:')} {birthday.value}</Text>
-      <Text>{t('Email:')} {email.value}</Text>
+      {map(rows, row => <Row {...row} />)}
     </Box>
   );
 };
