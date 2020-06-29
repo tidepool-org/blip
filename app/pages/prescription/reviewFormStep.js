@@ -10,7 +10,7 @@ import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 
-import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
+import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
 import { warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
@@ -269,8 +269,8 @@ export const TherapySettings = props => {
         id="therapySettingsReviewed"
         name="therapySettingsReviewed"
         checked={!!meta.therapySettingsReviewed.value}
+        required
         label={t('I have confirmed the therapy settings order for this patient')}
-        error={getFieldError(meta.therapySettingsReviewed)}
         {...checkboxStyles}
       />
     </Box>
@@ -288,6 +288,7 @@ export const PrescriptionReview = translate()(props => (
 
 const therapySettingsFormSteps = (meta) => ({
   label: t('Enter Therapy Settings'),
+  completeText: t('Send Prescription'),
   disableComplete: !fieldsAreValid([
     'therapySettingsReviewed',
   ], meta),
