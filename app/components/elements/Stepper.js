@@ -124,7 +124,7 @@ export const Stepper = props => {
 
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
-  const [pendingStep, setPendingStep] = React.useState(pendingStepProp);
+  const [pendingStep, setPendingStep] = React.useState([]);
 
   const isHorizontal = variant === 'horizontal';
   const isStepOptional = stepIndex => steps[stepIndex].optional;
