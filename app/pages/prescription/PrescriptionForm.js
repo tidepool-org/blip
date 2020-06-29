@@ -118,19 +118,7 @@ const PrescriptionForm = props => {
   const [prescriptions, setPrescriptions] = useLocalStorage('prescriptions', {});
 
   const initialAsyncState = () => ({ pending: false, complete: false });
-  const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
   const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
-  const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
-
-  const renderStepConfirmation = (name, label, checked, onChange) => (
-    <Checkbox
-      checked={checked}
-      name={name}
-      label={label}
-      onChange={onChange}
-      required
-    />
-  );
 
   const handleStepSubmit = async () => {
     function uuidv4() {
@@ -213,8 +201,6 @@ const PrescriptionForm = props => {
     completeText: t('Save and Continue'),
     id: 'prescription-form-steps',
     onStepChange: (newStep) => {
-      setPrescriptionReviewed(false);
-      setFinalAsyncState(initialAsyncState());
       setStepAsyncState(initialAsyncState());
       log('Step to', newStep.join(','));
     },
