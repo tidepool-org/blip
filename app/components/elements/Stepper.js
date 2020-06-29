@@ -309,7 +309,7 @@ export const Stepper = props => {
           <Button
             mr={4}
             py={2}
-            disabled={processing || (activeStep === 0 && activeSubStep === 0)}
+            disabled={step.disableBack || processing}
             variant="secondary"
             className="step-back"
             onClick={handleBack}
@@ -425,6 +425,7 @@ const StepPropTypes = {
   backText: PropTypes.string,
   completed: PropTypes.bool,
   completeText: PropTypes.string,
+  disableBack: PropTypes.bool,
   disableComplete: PropTypes.bool,
   hideBack: PropTypes.bool,
   hideComplete: PropTypes.bool,
