@@ -7,6 +7,7 @@ import { Persist } from 'formik-persist';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
@@ -102,6 +103,7 @@ const PrescriptionForm = props => {
     getFieldMeta,
     setFieldValue,
     handleSubmit,
+    resetForm,
     values,
   } = useFormikContext();
 
@@ -174,7 +176,16 @@ const PrescriptionForm = props => {
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
     },
-    singleStepEditComplete: () => handlers.activeStepUpdate(pendingStep),
+
+    singleStepEditComplete: (cancelFieldUpdates) => {
+      if (cancelFieldUpdates) {
+        resetForm();
+      } else {
+        resetForm({ values: cloneDeep(values) });
+      }
+
+      handlers.activeStepUpdate(pendingStep);
+    },
   };
 
   const accountFormStepsProps = accountFormSteps(meta);
@@ -184,10 +195,12 @@ const PrescriptionForm = props => {
 
   const stepProps = step => ({
     ...step,
-    completeText: isSingleStepEdit ? t('Update and Continue') : step.completeText,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
     backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
     onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
-    onBack: isSingleStepEdit ? handlers.singleStepEditComplete : step.onBack,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
   });
 
   const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
