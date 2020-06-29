@@ -5,6 +5,8 @@ import bows from 'bows';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
+import map from 'lodash/map';
+import noop from 'lodash/noop';
 
 import { getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
@@ -161,7 +163,38 @@ const PrescriptionForm = props => {
   };
   /* WIP Scaffolding End */
 
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeSubStep, setActiveSubStep] = React.useState(0);
+  const [pendingStep, setPendingStep] = React.useState([]);
+  const isSingleStepEdit = !!pendingStep.length;
+
+  const handlers = {
+    activeStepUpdate: ([step, subStep], fromStep = []) => {
+      setActiveStep(step);
+      setActiveSubStep(subStep);
+      setPendingStep(fromStep);
+    },
+    singleStepEditComplete: () => handlers.activeStepUpdate(pendingStep),
+  };
+
+  const accountFormStepsProps = accountFormSteps(meta);
+  const profileFormStepsProps = profileFormSteps(meta);
+  const therapySettingsFormStepProps = therapySettingsFormStep(meta);
+  const reviewFormStepProps = reviewFormStep(meta, handlers);
+
+  const stepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Continue') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete : step.onBack,
+  });
+
+  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
+
   const stepperProps = {
+    activeStep,
+    activeSubStep,
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
@@ -174,22 +207,24 @@ const PrescriptionForm = props => {
     },
     steps: [
       {
-        ...accountFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...accountFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(accountFormStepsProps.subSteps),
       },
       {
-        ...profileFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...profileFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(profileFormStepsProps.subSteps),
       },
       {
-        ...therapySettingsFormStep(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...stepProps(therapySettingsFormStepProps),
+        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
       },
       {
-        ...reviewFormStep(meta),
+        ...reviewFormStepProps,
         onComplete: handleStepSubmit,
         asyncState: stepAsyncState,
       },

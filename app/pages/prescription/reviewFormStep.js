@@ -36,7 +36,10 @@ const fieldsetPropTypes = {
 };
 
 export const PatientInfo = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
+
+  const nameStep = [0, 1];
+  const currentStep = [3, 0];
 
   const {
     firstName,
@@ -81,12 +84,12 @@ export const PatientInfo = props => {
       <Body1>{label}</Body1>
       <Box>
         <Flex alignItems="center">
-          <Body1 mr={1}>{value}</Body1>
+          <Body1 mr={2}>{value}</Body1>
           <Icon
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit {{label}}', { label })}
-            onClick={() => console.log(`go to ${step.join(',')}`)}
+            onClick={() => activeStepUpdate(step, currentStep)}
           />
         </Flex>
       </Box>
@@ -96,12 +99,12 @@ export const PatientInfo = props => {
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Headline mr={1}>{firstName.value} {lastName.value}</Headline>
+        <Headline mr={2}>{firstName.value} {lastName.value}</Headline>
         <Icon
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit Patient Name')}
-            onClick={() => console.log(`go to ${[0, 1].join(',')}`)}
+            onClick={() => activeStepUpdate(nameStep, currentStep)}
           />
       </Flex>
       {map(rows, (row, index) => <Row {...row} index={index} />)}
@@ -112,9 +115,10 @@ export const PatientInfo = props => {
 PatientInfo.propTypes = fieldsetPropTypes;
 
 export const TherapySettings = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const therapySettingsStep = [2,0];
+  const therapySettingsStep = [2, 0];
+  const currentStep = [3, 0];
   const thresholds = warningThresholds(bgUnits);
 
   const rows = [
@@ -249,12 +253,12 @@ export const TherapySettings = props => {
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Flex mb={3} alignItems="center" justifyContent="space-between">
-        <Headline>{t('Confirm Therapy Settings')}</Headline>
+        <Headline mr={2}>{t('Confirm Therapy Settings')}</Headline>
         <Icon
           variant="button"
           icon={EditRoundedIcon}
           label={t('Edit therapy settings')}
-          onClick={() => console.log(`go to ${therapySettingsStep.join(',')}`)}
+          onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
         />
       </Flex>
 
@@ -286,13 +290,13 @@ export const PrescriptionReview = translate()(props => (
   </Flex>
 ));
 
-const therapySettingsFormSteps = (meta) => ({
-  label: t('Enter Therapy Settings'),
+const reviewFormStep = (meta, handlers) => ({
+  label: t('Review and Send Prescription'),
   completeText: t('Send Prescription'),
   disableComplete: !fieldsAreValid([
     'therapySettingsReviewed',
   ], meta),
-  panelContent: <PrescriptionReview meta={meta} />
+  panelContent: <PrescriptionReview meta={meta} handlers={handlers} />
 });
 
-export default therapySettingsFormSteps;
+export default reviewFormStep;
