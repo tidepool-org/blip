@@ -110,9 +110,21 @@ export const Stepper = props => {
     return () => window.top.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Only on subsequent renders, force active step update when new step props passed in
+  const isFirstRender = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    setActiveStep(activeStepProp);
+    setActiveSubStep(activeSubStepProp);
+  }, [activeStepProp, activeSubStepProp]);
+
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
-  const [pendingStep, setPendingStep] = React.useState([]);
+  const [pendingStep, setPendingStep] = React.useState(pendingStepProp);
 
   const isHorizontal = variant === 'horizontal';
   const isStepOptional = stepIndex => steps[stepIndex].optional;
@@ -256,14 +268,24 @@ export const Stepper = props => {
   };
 
   const handleBack = () => {
-    if (stepHasSubSteps(activeStep) && (activeSubStep > 0)) {
-      setActiveSubStep(activeSubStep - 1);
-    } else if (activeStep > 0) {
-      const newActiveStep = activeStep - 1;
-      setActiveStep(newActiveStep);
-      setActiveSubStep(stepHasSubSteps(newActiveStep)
-        ? steps[newActiveStep].subSteps.length - 1
-        : 0);
+    if (stepHasSubSteps(activeStep)) {
+      if (activeSubStep > 0) setActiveSubStep(activeSubStep - 1);
+
+      if (isFunction(steps[activeStep].subSteps[activeSubStep].onBack)) {
+        steps[activeStep].subSteps[activeSubStep].onBack();
+      }
+    } else {
+      if (activeStep > 0) {
+        const newActiveStep = activeStep - 1;
+        setActiveStep(newActiveStep);
+        setActiveSubStep(stepHasSubSteps(newActiveStep)
+          ? steps[newActiveStep].subSteps.length - 1
+          : 0);
+      }
+
+      if (isFunction(steps[activeStep].onBack)) {
+        steps[activeStep].onBack();
+      }
     }
   };
 
@@ -407,6 +429,7 @@ const StepPropTypes = {
   hideBack: PropTypes.bool,
   hideComplete: PropTypes.bool,
   label: PropTypes.string,
+  onBack: PropTypes.func,
   onComplete: PropTypes.func,
   optional: PropTypes.bool,
   panelContent: PropTypes.node,
