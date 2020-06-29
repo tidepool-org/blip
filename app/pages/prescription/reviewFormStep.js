@@ -10,10 +10,11 @@ import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 
-import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
+import { warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
-import { Body1, Headline } from '../../components/elements/FontStyles';
+import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
 
@@ -23,6 +24,7 @@ import {
   borderedFieldsetStyles,
   checkboxStyles,
 } from './prescriptionFormStyles';
+import PopoverLabel from '../../components/elements/PopoverLabel';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionReview');
@@ -113,32 +115,100 @@ export const TherapySettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const therapySettingsStep = [2,0];
+  const thresholds = warningThresholds(bgUnits);
 
   const rows = [
     {
+      id: 'cpt-training',
       label: t('CPT Training Required'),
       value: meta.training.value === 'inModule' ? t('Not required') : t('Required'),
     },
     {
+      id: 'correction-range',
       label: t('Correction Range'),
       value: map(
         meta.initialSettings.bloodGlucoseTargetSchedule.value,
         ({ high, low, start }) => `${convertMsPer24ToTimeString(start)}: ${low} - ${high} ${bgUnits}`
       ),
+      warning: map(
+        meta.initialSettings.bloodGlucoseTargetSchedule.value,
+        (val) => {
+          const warnings = [];
+          const lowWarning = getThresholdWarning(val.low, thresholds.bloodGlucoseTarget);
+          const highWarning = getThresholdWarning(val.high, thresholds.bloodGlucoseTarget);
+
+          if (lowWarning) warnings.push(t('Lower Target: {{lowWarning}}', { lowWarning }));
+          if (highWarning) warnings.push(t('Upper Target: {{highWarning}}', { highWarning }));
+
+          return warnings.length ? warnings : null;
+        }
+      ),
     },
     {
+      id: 'suspend-threshold',
       label: t('Suspend Threshold'),
       value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
     },
     {
+      id: 'insulin-model',
       label: t('Insulin Model'),
-      value: meta.initialSettings.insulinType.value,
       value: meta.initialSettings.insulinType.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
+    },
+    {
+      id: 'delivery-limits',
+      label: t('Delivery Limits'),
+      value: [
+        t('Max Basal: {{value}}', { value: `${meta.initialSettings.basalRateMaximum.value.value} U/hr` }),
+        t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
+      ],
+      warning: [
+        null,
+        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)
+      ]
+    },
+    {
+      id: 'basal-schedule',
+      label: t('Basal Rates'),
+      value: map(
+        meta.initialSettings.basalRateSchedule.value,
+        ({ rate, start }) => `${convertMsPer24ToTimeString(start)}: ${rate} U/hr`
+      ),
+      warning: map(
+        meta.initialSettings.basalRateSchedule.value,
+        (val) => getThresholdWarning(val.rate, thresholds.basalRate)
+      ),
+    },
+    {
+      id: 'isf-schedule',
+      label: t('Insulin Sensitivity Factor'),
+      value: map(
+        meta.initialSettings.insulinSensitivitySchedule.value,
+        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} ${bgUnits}`
+      ),
+      warning: map(
+        meta.initialSettings.insulinSensitivitySchedule.value,
+        (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
+      ),
+    },
+    {
+      id: 'carb-ratio-schedule',
+      label: t('Insulin to Carbohydrate Ratios'),
+      value: map(
+        meta.initialSettings.carbohydrateRatioSchedule.value,
+        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
+      ),
+      warning: map(
+        meta.initialSettings.carbohydrateRatioSchedule.value,
+        (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
+      ),
     },
   ];
 
-  const Row = ({ label, value, index }) => {
+  const Row = ({ label, value, warning, id, index }) => {
     const values = isArray(value) ? value : [value];
+    const warnings = isArray(warning) ? warning: [warning];
+    const colors = map(warnings, message => message ? 'feedback.warning' : 'text.primary');
 
     return (
       <Flex
@@ -151,8 +221,26 @@ export const TherapySettings = props => {
         key={index}
       >
         <Body1 flex="1">{label}</Body1>
-        <Box>
-          {map(values, (val, i) => <Body1 key={i} flex="1">{val}</Body1>)}
+        <Box flex="1">
+          {map(values, (val, i) => (
+            <Flex>
+              <Body1 color={colors[i]} key={i} flexGrow={1}>{val}</Body1>
+              {warnings[i] && (
+                <PopoverLabel
+                  id={`${id}-${i}`}
+                  width="auto"
+                  popoverContent={(
+                    <Box p={3}>
+                      {isArray(warnings[i])
+                        ? map(warnings[i], message => <Paragraph1>{message}</Paragraph1>)
+                        : <Paragraph1>{warnings[i]}</Paragraph1>
+                      }
+                    </Box>
+                  )}
+                />
+              )}
+            </Flex>
+          ))}
         </Box>
       </Flex>
     );
