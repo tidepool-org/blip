@@ -153,8 +153,8 @@ const PrescriptionForm = props => {
   };
   /* WIP Scaffolding End */
 
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [activeSubStep, setActiveSubStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState();
+  const [activeSubStep, setActiveSubStep] = React.useState();
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
 

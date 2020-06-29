@@ -55,8 +55,8 @@ StyledStepper.propTypes = {
 
 export const Stepper = props => {
   const {
-    activeStep: activeStepProp = 0,
-    activeSubStep: activeSubStepProp = 0,
+    activeStep: activeStepProp,
+    activeSubStep: activeSubStepProp,
     backText,
     children,
     completeText,
@@ -71,8 +71,8 @@ export const Stepper = props => {
     ...stepperProps
   } = props;
 
-  let initialActiveStep = activeStepProp;
-  let initialActiveSubStep = activeSubStepProp;
+  let initialActiveStep = activeStepProp || 0;
+  let initialActiveSubStep = activeSubStepProp || 0;
 
   const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${id}-step`;
