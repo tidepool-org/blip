@@ -97,7 +97,7 @@ export const PatientInfo = props => {
   );
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...themeProps}>
       <Flex mb={4} alignItems="center" justifyContent="space-between">
         <Headline mr={2}>{firstName.value} {lastName.value}</Headline>
         <Icon
@@ -251,7 +251,7 @@ export const TherapySettings = props => {
   };
 
   return (
-    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+    <Box {...themeProps}>
       <Flex mb={3} alignItems="center" justifyContent="space-between">
         <Headline mr={2}>{t('Confirm Therapy Settings')}</Headline>
         <Icon
@@ -284,9 +284,34 @@ export const TherapySettings = props => {
 TherapySettings.propTypes = fieldsetPropTypes;
 
 export const PrescriptionReview = translate()(props => (
-  <Flex>
-    <PatientInfo mb={4} {...props} />
-    <TherapySettings mb={4} {...props} />
+  <Flex
+    flexWrap="wrap"
+    margin="auto"
+    maxWidth="1280px"
+  >
+    <PatientInfo
+      {...fieldsetStyles}
+      flex="0 0 auto"
+      alignSelf="flex-start"
+      mb={4}
+      px={4}
+      py={3}
+      width={[1, 1, 0.45, 0.35]}
+      sx={{
+        border: 'default',
+      }}
+      {...props}
+    />
+    <TherapySettings
+      {...fieldsetStyles}
+      flex="0 0 auto"
+      mb={4}
+      pr={[4, 4, 0, 0]}
+      pl={[4, 4, 5, 7]}
+      py={3}
+      width={[1, 1, 0.55, 0.65]}
+      {...props}
+    />
   </Flex>
 ));
 
