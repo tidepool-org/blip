@@ -188,3 +188,33 @@ export const insulinTypeOptions = [
 ];
 
 export const validCountryCodes = [1];
+
+export const stepValidationFields = [
+  [
+    ['type'],
+    ['firstName', 'lastName', 'birthday'],
+    ['email', 'emailConfirm'],
+  ],
+  [
+    ['phoneNumber.number'],
+    ['mrn'],
+    ['sex'],
+    ['initialSettings.pumpId', 'initialSettings.cgmType'],
+  ],
+  [
+    [
+      'training',
+      'initialSettings.suspendThreshold.value',
+      'initialSettings.insulinType',
+      'initialSettings.basalRateMaximum.value',
+      'initialSettings.bolusAmountMaximum.value',
+      'initialSettings.bloodGlucoseTargetSchedule',
+      'initialSettings.basalRateSchedule',
+      'initialSettings.carbohydrateRatioSchedule',
+      'initialSettings.insulinSensitivitySchedule',
+    ],
+  ],
+  [
+    ['therapySettingsReviewed'],
+  ],
+];

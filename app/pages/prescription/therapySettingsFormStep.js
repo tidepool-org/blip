@@ -16,6 +16,7 @@ import ScheduleForm from './ScheduleForm';
 import {
   deviceMeta,
   insulinTypeOptions,
+  stepValidationFields,
   trainingOptions,
   warningThresholds,
 } from './prescriptionFormConstants';
@@ -388,17 +389,7 @@ export const TherapySettings = translate()(props => (
 
 const therapySettingsFormStep = (meta) => ({
   label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid([
-    'training',
-    'initialSettings.suspendThreshold.value',
-    'initialSettings.insulinType',
-    'initialSettings.basalRateMaximum.value',
-    'initialSettings.bolusAmountMaximum.value',
-    'initialSettings.bloodGlucoseTargetSchedule',
-    'initialSettings.basalRateSchedule',
-    'initialSettings.carbohydrateRatioSchedule',
-    'initialSettings.insulinSensitivitySchedule',
-  ], meta),
+  disableComplete: !fieldsAreValid(stepValidationFields[2][0], meta),
   panelContent: <TherapySettings meta={meta} />
 });
 

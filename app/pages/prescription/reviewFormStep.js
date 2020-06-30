@@ -10,7 +10,7 @@ import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
-import { warningThresholds } from './prescriptionFormConstants';
+import { stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -315,9 +315,7 @@ export const PrescriptionReview = translate()(props => (
 const reviewFormStep = (meta, handlers) => ({
   label: t('Review and Send Prescription'),
   completeText: t('Send Prescription'),
-  disableComplete: !fieldsAreValid([
-    'therapySettingsReviewed',
-  ], meta),
+  disableComplete: !fieldsAreValid(stepValidationFields[3][0], meta),
   panelContent: <PrescriptionReview meta={meta} handlers={handlers} />
 });
 

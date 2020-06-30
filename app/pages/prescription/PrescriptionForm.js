@@ -8,15 +8,23 @@ import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import cloneDeep from 'lodash/cloneDeep';
+import isUndefined from 'lodash/isUndefined';
+import isInteger from 'lodash/isInteger';
 
-import { getFieldsMeta } from '../../core/forms';
+import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
-import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
+
+import {
+  defaultUnits,
+  defaultValues,
+  stepValidationFields,
+  validCountryCodes,
+} from './prescriptionFormConstants';
 
 import Stepper from '../../components/elements/Stepper';
 
@@ -152,10 +160,37 @@ const PrescriptionForm = props => {
   };
   /* WIP Scaffolding End */
 
+
   const [activeStep, setActiveStep] = React.useState();
   const [activeSubStep, setActiveSubStep] = React.useState();
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
+
+
+  // Determine the latest incomplete step, and default to starting there
+  React.useEffect(() => {
+    let firstInvalidStep;
+    let firstInvalidSubStep;
+    let currentStep = 0;
+    let currentSubStep = 0;
+
+    while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
+      while (currentSubStep < stepValidationFields[currentStep].length) {
+        if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
+          firstInvalidStep = currentStep;
+          firstInvalidSubStep = currentSubStep;
+          break;
+        }
+        currentSubStep++
+      }
+
+      currentStep++;
+      currentSubStep = 0;
+    }
+
+    setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+    setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+  }, []);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
@@ -258,7 +293,7 @@ const PrescriptionForm = props => {
   return (
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
-      <Stepper {...stepperProps} />
+      {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       <Persist name={storageKey} />
     </form>
   );
