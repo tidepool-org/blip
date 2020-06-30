@@ -5,7 +5,6 @@ import { FastField } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import map from 'lodash/map';
-import get from 'lodash/get';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
@@ -20,8 +19,6 @@ import Icon from '../../components/elements/Icon';
 
 import {
   fieldsetStyles,
-  wideFieldsetStyles,
-  borderedFieldsetStyles,
   checkboxStyles,
 } from './prescriptionFormStyles';
 import PopoverLabel from '../../components/elements/PopoverLabel';

@@ -18,7 +18,6 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
 
-import Checkbox from '../../components/elements/Checkbox';
 import Stepper from '../../components/elements/Stepper';
 
 /* global crypto, Uint8Array, Promise */
