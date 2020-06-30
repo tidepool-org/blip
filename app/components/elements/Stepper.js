@@ -269,23 +269,26 @@ export const Stepper = props => {
 
   const handleBack = () => {
     if (stepHasSubSteps(activeStep)) {
-      if (activeSubStep > 0) setActiveSubStep(activeSubStep - 1);
-
       if (isFunction(steps[activeStep].subSteps[activeSubStep].onBack)) {
         steps[activeStep].subSteps[activeSubStep].onBack();
       }
-    } else {
-      if (activeStep > 0) {
-        const newActiveStep = activeStep - 1;
-        setActiveStep(newActiveStep);
-        setActiveSubStep(stepHasSubSteps(newActiveStep)
-          ? steps[newActiveStep].subSteps.length - 1
-          : 0);
-      }
 
-      if (isFunction(steps[activeStep].onBack)) {
-        steps[activeStep].onBack();
+      if (activeSubStep > 0) {
+        setActiveSubStep(activeSubStep - 1);
+        return;
       }
+    }
+
+    if (activeStep > 0) {
+      const newActiveStep = activeStep - 1;
+      setActiveStep(newActiveStep);
+      setActiveSubStep(stepHasSubSteps(newActiveStep)
+        ? steps[newActiveStep].subSteps.length - 1
+        : 0);
+    }
+
+    if (isFunction(steps[activeStep].onBack)) {
+      steps[activeStep].onBack();
     }
   };
 
