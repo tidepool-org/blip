@@ -156,6 +156,7 @@ export class AppComponent extends React.Component {
       showingDexcomConnectBanner,
       showingShareDataBanner,
       updateShareDataBannerSeen,
+      seenShareDataBannerMax,
       location,
       userHasData,
       userHasConnectedDataSources,
@@ -171,7 +172,7 @@ export class AppComponent extends React.Component {
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
-    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician;
+    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
 
     let displayShareDataBanner = false;
 
@@ -518,7 +519,6 @@ export function mapStateToProps(state) {
   let patient = null;
   let permissions = null;
   let permsOfLoggedInUser = null;
-  let preferences = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
   let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
@@ -633,7 +633,7 @@ export function mapStateToProps(state) {
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
-    // seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
+    seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
     userIsCurrentPatient,
     userHasData,
     userIsDonor,

@@ -1308,17 +1308,29 @@ export function clickShareDataBanner(api, patientId, clickedDate) {
  */
 export function updateShareDataBannerSeen(api, patientId) {
   const viewDate = sundial.utcDateString();
+  const viewMoment = moment(viewDate);
 
   return (dispatch, getState) => {
     const { blip: { loggedInUserId, allUsersMap } } = getState();
     const loggedInUser = allUsersMap[loggedInUserId];
-    const seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
+    var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
+    var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
+
+    const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
+
+    const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
+
+    if(diffMoment > 0) {
+      seenShareDataBannerCount += 1;
+      seenShareDataBannerDate = viewDate;
+    }
 
     const preferences = {
-      seenShareDataBannerDate: viewDate,
-      seenShareDataBannerCount: seenShareDataBannerCount + 1,
+      seenShareDataBannerDate: seenShareDataBannerDate,
+      seenShareDataBannerCount: seenShareDataBannerCount,
     };
 
+    dispatch(sync.bannerCount(seenShareDataBannerCount));
     dispatch(updatePreferences(api, patientId, preferences));
   };
 }
