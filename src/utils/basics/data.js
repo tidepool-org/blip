@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import sundial from 'sundial';
 import crossfilter from 'crossfilter2';
 import i18next from 'i18next';

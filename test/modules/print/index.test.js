@@ -62,7 +62,7 @@ describe('print module', () => {
     render() {}
   }
 
-  const sandbox = sinon.sandbox.create();
+  const sandbox = sinon.createSandbox();
 
   let doc;
   let stream;

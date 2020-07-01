@@ -18,7 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import i18next from 'i18next';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import Tooltip from '../../common/tooltips/Tooltip';
 

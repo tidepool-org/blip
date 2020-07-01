@@ -18,18 +18,20 @@ const styleLoaderConfiguration = {
   use: [
     'style-loader',
     {
-      loader: 'css-loader?sourceMap',
-      query: {
+      loader: 'css-loader',
+      options: {
         importLoaders: 1,
-        localIdentName,
-        modules: true,
         sourceMap: true,
+        modules: {
+          localIdentName,
+        },
       },
     },
     {
       loader: 'postcss-loader',
       options: {
         sourceMap: true,
+        ident: 'postcss',
       },
     },
   ],

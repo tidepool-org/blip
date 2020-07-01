@@ -47,7 +47,7 @@ module.exports = function karmaConfig(config) {
     files: [
       'loadtests.js',
     ],
-    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
+    frameworks: ['mocha', 'chai', 'sinon'],
     logLevel: config.LOG_INFO,
     preprocessors: {
       'loadtests.js': ['webpack', 'sourcemap'],

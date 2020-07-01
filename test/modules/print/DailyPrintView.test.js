@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
 import PrintView from '../../../src/modules/print/PrintView';

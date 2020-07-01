@@ -21,7 +21,7 @@ import _ from 'lodash';
 import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 import i18next from 'i18next';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import {
   getTimezoneFromTimePrefs,

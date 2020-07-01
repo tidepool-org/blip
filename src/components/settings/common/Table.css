@@ -26,10 +26,9 @@
 }
 
 @media print {
-
   .secondaryLabelWithMain {
     composes: lightText largeSize from '../../../styles/typography.css';
     color: var(--text-black);
-  	composes: secondaryLeftPadding from '../settings.css';
+    composes: secondaryLeftPadding from '../settings.css';
   }
 }

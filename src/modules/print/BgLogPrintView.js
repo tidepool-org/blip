@@ -21,7 +21,7 @@ import _ from 'lodash';
 import i18next from 'i18next';
 import { range } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import PrintView from './PrintView';
 import { formatBgValue } from '../../utils/format';

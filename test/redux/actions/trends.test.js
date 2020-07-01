@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import isTSA from 'tidepool-standard-action';
+import isTSA from '../../helpers/tidepoolStandardAction';
 
 import * as actionTypes from '../../../src/redux/constants/actionTypes';
 import * as actions from '../../../src/redux/actions/';

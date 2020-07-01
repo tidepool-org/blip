@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import PrintView from './PrintView';
 
