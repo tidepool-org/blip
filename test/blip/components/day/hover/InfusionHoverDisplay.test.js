@@ -19,8 +19,7 @@
 /* global sinon */
 
 var React = require('react');
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var InfusionHoverDisplay = require('../../../../../plugins/blip/basics/components/day/hover/InfusionHoverDisplay');
@@ -81,7 +80,7 @@ describe('InfusionHoverDisplay', function () {
 
       var compElem = TestUtils.findRenderedDOMComponentWithClass(renderedElem, 'Calendar-day-reservoirChange-times');
       expect(compElem).to.be.ok;
-      
+
       expect(this.props.trackMetric.callCount).to.equal(1);
       expect(this.props.trackMetric.calledWith('Hovered over Infusion Site')).to.be.true;
     });

@@ -20,7 +20,7 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var constants = require('../../../../plugins/blip/basics/logic/constants');
 var Selector = require('../../../../plugins/blip/basics/components/sitechange/Selector');
 
