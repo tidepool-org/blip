@@ -40,6 +40,7 @@
     "url": "git+https://github.com/mdblp/sundial.git"
   },
   "scripts": {
+    "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
     "test": "grunt test",
     "browser-tests": "testem"
   },
