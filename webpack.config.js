@@ -31,7 +31,7 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.less$/,
+  test: /\.(less|css)$/,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
@@ -207,10 +207,18 @@ const output = {
 };
 
 const resolve = {
-  modules: [
-    path.join(__dirname, 'node_modules'),
-    'node_modules',
-  ],
+  alias: {
+    'babel-core': path.resolve('node_modules/babel-core'),
+    classnames: path.resolve('node_modules/classnames'),
+    lodash: path.resolve('node_modules/lodash'),
+    moment: path.resolve('node_modules/moment'),
+    'moment-timezone': path.resolve('node_modules/moment-timezone'),
+    react: path.resolve('node_modules/react'),
+    'react-dom': '@hot-loader/react-dom',
+    'react-addons-update': path.resolve('node_modules/react-addons-update'),
+    'react-redux': path.resolve('node_modules/react-redux'),
+    redux: path.resolve('node_modules/redux'),
+  },
 };
 
 let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';

@@ -25,7 +25,7 @@ import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
 
 import { routeActions } from 'react-router-redux';
@@ -105,8 +105,12 @@ export function confirmSignup(api, signupKey, signupEmail) {
 
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
+        let errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP;
+        if (_.get(err, 'status') === 404) {
+          errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP_NOMATCH;
+        }
         dispatch(sync.confirmSignupFailure(
-          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
+          createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
           dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
@@ -1067,7 +1071,7 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...resultsVal.latestPumpSettingsUpload || [],
+            ...(resultsVal.latestPumpSettingsUpload || []),
             ...resultsVal.teamNotes,
           ];
 
@@ -1081,7 +1085,7 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
-  }
+  };
 }
 
 /**

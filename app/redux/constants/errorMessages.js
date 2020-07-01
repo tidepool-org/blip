@@ -30,6 +30,7 @@ export const ERR_CANCELLING_INVITE = t('Something went wrong while cancelling an
 export const ERR_CHANGING_PERMS = t('Something went wrong while changing care team member permissions.');
 export const ERR_CONFIRMING_PASSWORD_RESET = t('We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.');
 export const ERR_CONFIRMING_SIGNUP = t('Something went wrong while confirming your sign-up.');
+export const ERR_CONFIRMING_SIGNUP_NOMATCH = t('Tidepool is unable to complete your sign-up as this verification link has expired. Please check your email for an updated link and try again.');
 export const ERR_DSA_SETUP = t('Something went wrong while setting up data storage.');
 export const ERR_FETCHING_MESSAGE_THREAD = t('Something went wrong while fetching a message thread.');
 export const ERR_CREATING_MESSAGE_THREAD = t('Something went wrong while creating a message thread.');

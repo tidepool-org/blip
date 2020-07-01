@@ -68,3 +68,7 @@ export const DIABETES_DATA_TYPES = [
 export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
+
+export const MS_IN_DAY = 864e5;
+export const MS_IN_HOUR = 864e5 / 24;
+export const MS_IN_MIN = MS_IN_HOUR / 60;

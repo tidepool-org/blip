@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var Messages = require('../../../../app/components/messages/messages');
@@ -27,14 +27,14 @@ describe('Messages', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should equal expected initial state', function() {
       var props = {
         messages : []
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().getInitialState();
+      var state = render.getWrappedInstance().state;
 
       expect(state.messages).to.deep.equal(props.messages);
     });

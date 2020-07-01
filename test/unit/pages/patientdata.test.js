@@ -9,14 +9,15 @@
 /* global after */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import _ from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
+import createReactClass from 'create-react-class';
+
 
 const { Loader } = vizComponents;
 
@@ -66,17 +67,17 @@ describe('PatientData', function () {
   };
 
   before(() => {
-    PD.__Rewire__('Basics', React.createClass({
+    PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
       }
     }));
-    PD.__Rewire__('Trends', React.createClass({
+    PD.__Rewire__('Trends', createReactClass({
       render: function() {
         return (<div className='fake-trends-view'></div>);
       }
     }));
-    PD.__Rewire__('BgLog', React.createClass({
+    PD.__Rewire__('BgLog', createReactClass({
       render: function() {
         return (<div className='fake-bgLog-view'></div>);
       }
@@ -407,6 +408,8 @@ describe('PatientData', function () {
             }
           }));
 
+          wrapper.update();
+
           expect(noData().length).to.equal(1);
 
           var links = wrapper.find('.patient-data-uploader-message a');
@@ -442,6 +445,8 @@ describe('PatientData', function () {
               metaData: { size: 0 },
             }
           }));
+
+          wrapper.update();
 
           var links = wrapper.find('.patient-data-uploader-message a');
           var callCount = props.trackMetric.callCount;
@@ -2157,9 +2162,8 @@ describe('PatientData', function () {
           });
 
           it('should call `setInitialChartView` if `chartType` not already set to state', () => {
-            const setInitialChartViewSpy = sinon.spy(instance, 'setInitialChartView');
-
             wrapper.setState({ chartType: 'basics' });
+            const setInitialChartViewSpy = sinon.spy(instance, 'setInitialChartView');
             wrapper.setProps(completedDataQueryProps);
 
             // With chartType set, it should not set it again
@@ -3713,6 +3717,22 @@ describe('PatientData', function () {
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
     });
+
+    it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'daily', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+        updateChartEndpoints: true,
+      });
+    });
   });
 
   describe('handleSwitchToTrends', function() {
@@ -3789,6 +3809,22 @@ describe('PatientData', function () {
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T00:00:00.000Z');
     });
+
+    it('should set the `datetimeLocation` state to the end of day for the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-05T00:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T08:00:00.000Z',
+        updateChartEndpoints: true,
+      });
+    });
   });
 
   describe('handleSwitchToBgLog', function() {
@@ -3856,6 +3892,22 @@ describe('PatientData', function () {
 
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      instance.updateChart = sinon.stub();
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
+
+      // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
+      instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
+      sinon.assert.calledWith(instance.updateChart, 'bgLog', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+        updateChartEndpoints: true,
+      });
     });
   });
 

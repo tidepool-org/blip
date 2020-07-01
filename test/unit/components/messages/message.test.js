@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var Message = require('../../../../app/components/messages/message');
@@ -24,7 +24,7 @@ describe('Message', function () {
           fullName:'Test User'
         }
       };
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
+      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />).getWrappedInstance();
       expect(elem).to.be.ok;
 
       var initialState = elem.getInitialState();
@@ -43,7 +43,7 @@ describe('Message', function () {
         }
       };
 
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
+      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />).getWrappedInstance();
       expect(elem).to.be.ok;
 
       // actual rendered text is modified version of input 'note'

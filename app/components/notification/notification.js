@@ -1,32 +1,18 @@
-
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router';
 import { translate } from 'react-i18next';
 
-var TidepoolNotification = translate()(React.createClass({
-  propTypes: {
-    type: React.PropTypes.string,
-    contents: React.PropTypes.object.isRequired,
-    link: React.PropTypes.object,
-    onClose: React.PropTypes.func.isRequired
-  },
+var TidepoolNotification = translate()(class extends React.Component {
+  static propTypes = {
+    type: PropTypes.string,
+    contents: PropTypes.object.isRequired,
+    link: PropTypes.object,
+    onClose: PropTypes.func.isRequired
+  };
 
-  render: function() {
+  render() {
     const { t } = this.props;
     var type = this.props.type || 'alert';
     var className = 'notification notification-' + type;
@@ -51,9 +37,9 @@ var TidepoolNotification = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderActionLink: function() {
+  renderActionLink = () => {
     var link = _.get(this.props, 'link', null);
     if (!link) {
       return null;
@@ -64,9 +50,9 @@ var TidepoolNotification = translate()(React.createClass({
         {link.text}
       </Link>
     );
-  },
+  };
 
-  renderCloseLink: function() {
+  renderCloseLink = () => {
     if (!this.props.onClose) {
       return null;
     }
@@ -79,9 +65,9 @@ var TidepoolNotification = translate()(React.createClass({
         onClick={this.handleClose}
         ref='close'>{t('Close')}</a>
     );
-  },
+  };
 
-  handleClose: function(e) {
+  handleClose = (e) => {
     if (e) {
       e.preventDefault();
     }
@@ -90,7 +76,7 @@ var TidepoolNotification = translate()(React.createClass({
     if (close) {
       close();
     }
-  }
-}));
+  };
+});
 
 module.exports = TidepoolNotification;

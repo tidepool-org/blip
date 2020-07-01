@@ -15,7 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 
@@ -25,7 +26,7 @@ const AddEmailBanner = (props) => {
   const {
     patient,
     trackMetric,
-    t
+    t,
   } = props;
 
   const handleSubmit = () => {
@@ -57,8 +58,8 @@ const AddEmailBanner = (props) => {
 };
 
 AddEmailBanner.propTypes = {
-  trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
 };
 
 export default translate()(AddEmailBanner);
