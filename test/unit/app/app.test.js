@@ -280,23 +280,6 @@ describe('App', () => {
       props.context.trackMetric.reset();
     });
 
-    // NEW TEST: it('should not show the share data banner if user has shared data with a clinician', () => {
-
-    // context('user has uploaded data and has shared data with a clinician', () => {
-    //   it('should not show the share data banner', () => {
-    //     wrapper.setProps({
-    //       userIsCurrentPatient: true,
-    //       userHasData: true,
-    //       userHasSharedDataWithClinician: true,
-    //       patient: {
-    //         userid: '1234'
-    //       },
-    //     });
-
-
-    //   });
-    // });
-
     context('user has uploaded data and has not shared data with a clinician', () => {
       it('should show the share data banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
@@ -305,15 +288,14 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          updateShareDataBannerSeen: sinon.stub(),
         });
-
         sinon.assert.callCount(props.showBanner, 0);
 
         wrapper.setProps({ location: '/patients/1234/data' })
         sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWith(props.showBanner, 'sharedata');
       });
-
 
       it('should not show the share data banner if user has dismissed it', () => {
         wrapper.setProps({
@@ -323,6 +305,7 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          updateShareDataBannerSeen: sinon.stub(),
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -348,6 +331,23 @@ describe('App', () => {
         });
 
         sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+      });
+    });
+
+    context('user has uploaded data and has shared data with a clinician', () => {
+      it('should not show the share data banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          userHasSharedDataWithClinician: true,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+
       });
     });
 
@@ -582,6 +582,7 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          updateShareDataBannerSeen: sinon.stub(),
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -606,6 +607,7 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          updateShareDataBannerSeen: sinon.stub(),
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -623,6 +625,7 @@ describe('App', () => {
           patient: {
             userid: '1234'
           },
+          updateShareDataBannerSeen: sinon.stub(),
         });
 
         sinon.assert.callCount(props.showBanner, 1);
