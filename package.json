@@ -15,12 +15,13 @@
     "clean": "rm -rf ./dist/*",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production webpack --optimize-minimize",
+    "pretest": "npm run lint",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "browser-tests": "karma start --browsers Chrome",
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
-    "lint": "NODE_ENV=test eslint js plugins example test"
+    "lint": "eslint js plugins example test"
   },
   "dependencies": {
     "bows": "1.7.2",
