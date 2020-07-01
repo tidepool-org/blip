@@ -280,13 +280,31 @@ describe('App', () => {
       props.context.trackMetric.reset();
     });
 
-    // UPDATE TEST (below): 'user has uploaded data and HAS NOT SHARED DATA WITH A CLINICIAN'
-    // need to read for if has shared with a clinician
+    // NEW TEST: it('should not show the share data banner if user has shared data with a clinician', () => {
+
+    // context('user has uploaded data and has shared data with a clinician', () => {
+    //   it('should not show the share data banner', () => {
+    //     wrapper.setProps({
+    //       userIsCurrentPatient: true,
+    //       userHasData: true,
+    //       userHasSharedDataWithClinician: true,
+    //       patient: {
+    //         userid: '1234'
+    //       },
+    //     });
+
+
+    //   });
+    // });
+
     context('user has uploaded data and has not shared data with a clinician', () => {
       it('should show the share data banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
+          patient: {
+            userid: '1234'
+          },
         });
 
         sinon.assert.callCount(props.showBanner, 0);
@@ -296,13 +314,15 @@ describe('App', () => {
         sinon.assert.calledWith(props.showBanner, 'sharedata');
       });
 
-// NEW TEST: it('should not show the share data banner if user has shared data with a clinician', () => {
 
       it('should not show the share data banner if user has dismissed it', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          patient: {
+            userid: '1234'
+          },
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -311,6 +331,20 @@ describe('App', () => {
 
         wrapper.setProps({
           showingShareDataBanner: false,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+      });
+
+      it('should not show the share data banner if user has seen it three times', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          patient: {
+            userid: '1234'
+          },
+          seenShareDataBannerMax: true,
         });
 
         sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
@@ -332,7 +366,6 @@ describe('App', () => {
         sinon.assert.calledWith(props.showBanner, 'donate');
       });
 
-      // NEW TEST: it('should not show the donate banner if user has seen it three times', () => {
       it('should not show the donate banner if user has dismissed it', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
@@ -354,12 +387,10 @@ describe('App', () => {
     });
 
     context('user has not uploaded data and has not donated data', () => {
-      // AND has dismissed share data banner
       it('should not show the banner', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: false,
-          // showingShareDataBanner: false, // Passes without this
           showingDonateBanner: true,
           location: '/patients/1234/data',
         });
@@ -371,12 +402,10 @@ describe('App', () => {
     });
 
     context('user has uploaded data but is not the current patient in view', () => {
-      // AND has dismissed share data banner
       it('should not show the banner', () => {
         wrapper.setProps({
           userIsCurrentPatient: false,
           userHasData: true,
-          // showingShareDataBanner: false, // Passes without this
           showingDonateBanner: true,
           location: '/patients/1234/data',
         });
@@ -387,8 +416,7 @@ describe('App', () => {
       });
     });
 
-    context('user has uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
-      // AND has dismissed share data banner
+    context('user has dismissed the share data banner, uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
       it('should show the banner', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
@@ -404,9 +432,8 @@ describe('App', () => {
       });
     });
 
-    context('user has uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
-      // AND has dismissed share data banner
-      it('should hide the banner', () => {
+    context('user has has dismissed the share data banner, uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
+      it('should hide the donate banner', () => {
         wrapper.setProps({
           userHasUploadedData: true,
           showingShareDataBanner: false,
@@ -552,6 +579,9 @@ describe('App', () => {
           userHasData: true,
           location: '/patients/1234/data',
           showingDonateBanner: false,
+          patient: {
+            userid: '1234'
+          },
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -573,6 +603,9 @@ describe('App', () => {
           location: '/patients/1234/data',
           showingDonateBanner: false,
           showingDexcomConnectBanner: false,
+          patient: {
+            userid: '1234'
+          },
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -587,6 +620,9 @@ describe('App', () => {
           location: '/patients/1234/data',
           showingDonateBanner: false,
           showingDexcomConnectBanner: false,
+          patient: {
+            userid: '1234'
+          },
         });
 
         sinon.assert.callCount(props.showBanner, 1);

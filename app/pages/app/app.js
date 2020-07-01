@@ -176,9 +176,6 @@ export class AppComponent extends React.Component {
 
     let displayShareDataBanner = false;
 
-    // Determine whether or not to show the share data banner.
-    // If showingShareDataBanner is false, it means it was dismissed,
-    // or was shown to the user 3 times already and we do not show it again.
     if (showingShareDataBanner !== false) {
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
@@ -196,34 +193,34 @@ export class AppComponent extends React.Component {
 
     let displayDonateBanner = false;
 
-if (showingDonateBanner !== false && !displayShareDataBanner) {
-  const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-      if (showDonateBanner) {
-        this.props.showBanner('donate');
-        displayDonateBanner = true;
+    if (showingDonateBanner !== false && !displayShareDataBanner) {
+      const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+          if (showDonateBanner) {
+            this.props.showBanner('donate');
+            displayDonateBanner = true;
 
-        if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
-          this.props.context.trackMetric('Big Data banner displayed');
-          this.setState({ donateShowBannerMetricTracked: true });
+            if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+              this.props.context.trackMetric('Big Data banner displayed');
+              this.setState({ donateShowBannerMetricTracked: true });
+            }
+          } else if (showingDonateBanner) {
+            this.props.hideBanner('donate');
+          }
         }
-      } else if (showingDonateBanner) {
-        this.props.hideBanner('donate');
+
+    if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
+      const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+      if (showDexcomBanner) {
+        this.props.showBanner('dexcom');
+
+        if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
+          this.props.context.trackMetric('Dexcom OAuth banner displayed');
+          this.setState({ dexcomShowBannerMetricTracked: true });
+        }
+      } else if (showingDexcomConnectBanner) {
+        this.props.hideBanner('dexcom');
       }
     }
-
-      if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
-        const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
-        if (showDexcomBanner) {
-          this.props.showBanner('dexcom');
-
-          if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
-            this.props.context.trackMetric('Dexcom OAuth banner displayed');
-            this.setState({ dexcomShowBannerMetricTracked: true });
-          }
-        } else if (showingDexcomConnectBanner) {
-          this.props.hideBanner('dexcom');
-        }
-      }
   }
 
 
