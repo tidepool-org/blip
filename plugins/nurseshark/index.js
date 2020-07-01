@@ -15,17 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV__,__TEST__ */
-/* jshint esversion:6 */
-
 var _ = require('lodash');
 var crossfilter = require('crossfilter2');
 var util = require('util');
+var bows = require('bows');
 
 var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
-var log = __DEV__ && !__TEST__ ? require('bows')('Nurseshark') : _.noop;
+var log = bows('Nurseshark');
 
 function translateBg(value) {
   return MGDL_PER_MMOLL * value;
@@ -80,16 +78,11 @@ function cloneDeep(d) {
   return newObj;
 }
 
-function timeIt(fn, name) {
-  if (__DEV__ && !__TEST__) {
-    console.time(name);
-    fn();
-    console.timeEnd(name);
-  }
-  else {
-    fn();
-  }
-}
+const timeIt = _.get(window, 'config.DEV', false) ? (fn, name) => {
+  console.time(name);
+  fn();
+  console.timeEnd(name);
+} : (fn) => fn();
 
 var nurseshark = {
   annotateBasals: function(basals, incompleteSuspends) {

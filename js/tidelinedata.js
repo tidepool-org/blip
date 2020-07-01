@@ -15,13 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV__ */
-/* jshint esversion:6 */
-
 var _ = require('lodash');
 var crossfilter = require('crossfilter2');
 var d3 = require('d3');
 var moment = require('moment-timezone');
+var bows = require('bows');
 
 var validate = require('./validation/validate');
 
@@ -31,9 +29,9 @@ var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
 var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS,DEVICE_PARAMS_OFFSET } = require('./data/util/constants');
 
-var log = __DEV__ ? require('bows')('TidelineData') : _.noop;
-var startTimer = __DEV__ ? function(name) { console.time(name); } : _.noop;
-var endTimer = __DEV__ ? function(name) { console.timeEnd(name); } : _.noop;
+var log = bows('TidelineData');
+var startTimer = _.get(window, 'config.DEV', false) ? function(name) { console.time(name); } : _.noop;
+var endTimer = _.get(window, 'config.DEV', false) ? function(name) { console.timeEnd(name); } : _.noop;
 
 function TidelineData(data, opts) {
   var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings', 'physicalActivity', 'deviceEvent'];

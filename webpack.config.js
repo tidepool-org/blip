@@ -6,13 +6,6 @@ const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 
 const plugins = [
-  // `process.env.NODE_ENV === 'production'` must be `true` for production
-  // builds to eliminate development checks and reduce build size. You may
-  // wish to include additional optimizations.
-  new webpack.DefinePlugin({
-    __DEV__: isDev || isTest,
-    __TEST__: isTest
-  }),
   new webpack.LoaderOptionsPlugin({
     debug: isDev || isTest,
   }),
@@ -50,39 +43,42 @@ const localIdentName = isTest
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
-const styleLoaderConfiguration = {
-  test: /\.less$/i,
-  use: [
-    {
-      loader: 'style-loader',
-    },
-    {
-      loader: 'css-loader',
-      options: {
-        url: true,
-        importLoaders: 2,
-        modules: {
-          localIdentName,
+  const lessLoaderConfiguration = {
+    test: /\.less$/,
+    use: [
+      'style-loader',
+      {
+        loader: 'css-loader',
+        options: {
+          importLoaders: 2,
+          sourceMap: true,
+          onlyLocals: false,
+          modules: {
+            auto: true,
+            exportGlobals: true,
+            localIdentName,
+          }
         },
-        sourceMap: true,
       },
-    },
-    {
-      loader: 'postcss-loader',
-      options: {
-        sourceMap: true,
+      {
+        loader: 'postcss-loader',
+        options: {
+          sourceMap: true,
+        },
       },
-    },
-    {
-      loader: 'less-loader',
-      options: {
-        sourceMap: true,
-        noIeCompat: true,
-        javascriptEnabled: true
+      {
+        loader: 'less-loader',
+        options: {
+          sourceMap: true,
+          lessOptions: {
+            strictUnits: true,
+            strictMath: true,
+            javascriptEnabled: true, // Deprecated
+          },
+        },
       },
-    },
-  ],
-};
+    ],
+  };
 
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
@@ -137,7 +133,7 @@ module.exports = {
     rules: [
       babelLoaderConfiguration,
       imageLoaderConfiguration,
-      styleLoaderConfiguration,
+      lessLoaderConfiguration,
       ...fontLoaderConfiguration,
     ]
   },

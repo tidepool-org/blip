@@ -17,18 +17,11 @@
 
 var _ = require('lodash');
 var util = require('util');
-
-/* global __TEST__ */
+var bows = require('bows');
 
 var schema = require('./validator/schematron');
 
-var log;
-if (typeof window !== 'undefined' && __TEST__ !== true) {
-  log = console.log.bind(console);
-}
-else {
-  log = function() {};
-}
+var log = bows('validate');
 
 var schemas = {
   basal: require('./basal'),
