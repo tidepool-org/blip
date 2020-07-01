@@ -13,11 +13,11 @@
     "prebuild-dev": "rm -rf dist coverage",
     "build-dev": "NODE_ENV=development webpack --progress --config package.config.js",
     "clean": "rm -rf ./dist coverage",
-    "lint": "NODE_ENV=test eslint src/ test/ *.js",
+    "lint": "eslint src/ test/ *.js",
     "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
-    "pretest": "NODE_ENV=test npm run lint",
     "start": "NODE_ENV=development webpack --config package.config.js --watch",
-    "test": "TZ=UTC NODE_ENV=test ./node_modules/karma/bin/karma start",
+    "pretest": "npm run lint",
+    "test": "TZ=UTC NODE_ENV=test karma start",
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha"
   },
   "repository": {
