@@ -15,6 +15,7 @@
     "clean": "rm -rf ./dist/*",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production webpack --optimize-minimize",
+    "build-dev": "NODE_ENV=development webpack --progress",
     "pretest": "npm run lint",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "browser-tests": "karma start --browsers Chrome",

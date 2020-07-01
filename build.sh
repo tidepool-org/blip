@@ -1,9 +1,6 @@
 #!/bin/bash -eu
 set -ev
 
-npm run lint
-npm test
-
 npm run build
 
 # the node version is hardcoded here.

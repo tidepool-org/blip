@@ -1,27 +1,24 @@
-sudo: false
-
 language: node_js
 
+os: linux
 dist: bionic
 
 node_js:
-  - "10.15.3"
-  - "stable"
+  - 10.15.3
+  - lts/*
 
-cache:
-  npm: true
-  directories:
-    - node_modules
+cache: npm
+addons:
+  chrome: stable
+  firefox: latest-esr
 
 before_install:
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - npm install -g npm@latest
 
 install:
   - npm install
 
 script:
-  - ./build.sh
-
-matrix:
-  allow_failures:
-    - node_js: "stable"
+  - npm run test
+  - npm run security-checks
+  - bash ./build.sh
