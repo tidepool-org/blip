@@ -1,6 +1,6 @@
 {
   "name": "sundial",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tidepool's datetime wrapper",
   "keywords": [
     "datetime",
@@ -41,10 +41,10 @@
   },
   "scripts": {
     "test": "grunt test",
-    "browser-tests": "node_modules/.bin/testem"
+    "browser-tests": "testem"
   },
   "dependencies": {
-    "moment-timezone": "0.5.26"
+    "moment-timezone": "0.5.31"
   },
   "devDependencies": {
     "chai": "3.4.1",
