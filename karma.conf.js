@@ -15,11 +15,17 @@ webpackConf.output = {
   filename: '[name]',
 };
 
+const isWSL = typeof process.env.WSL_DISTRO_NAME === 'string';
+const browsers = ['CustomChromeHeadless'];
+if (!isWSL) {
+  browsers.push('FirefoxHeadless');
+}
+
 module.exports = function karmaConfig(config) {
   config.set({
     autoWatch: true,
     browserNoActivityTimeout: 60000,
-    browsers: ['CustomChromeHeadless'],
+    browsers,
     captureTimeout: 60000,
     client: {
       mocha: mochaConf,

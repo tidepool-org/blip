@@ -101,9 +101,6 @@ const plugins = [
   // `process.env.NODE_ENV === 'production'` must be `true` for production
   // builds to eliminate development checks and reduce build size. You may
   // wish to include additional optimizations.
-  new webpack.DefinePlugin({
-    __DEV__: isDev || isTest,
-  }),
   new webpack.LoaderOptionsPlugin({
     debug: true,
   }),

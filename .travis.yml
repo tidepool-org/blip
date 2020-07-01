@@ -1,32 +1,24 @@
-dist: trusty
-
-sudo: false
-
 language: node_js
 
-dist: trusty
+os: linux
+dist: bionic
 
 node_js:
-  - "10.15.3"
-  - "stable"
+  - 10.15.3
+  - lts/*
 
-cache:
-  npm: true
-  directories:
-    - node_modules
-
-before_install:
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-
+cache: npm
 addons:
   chrome: stable
+  firefox: latest-esr
 
-services:
-  - docker
+before_install:
+  - npm install -g npm@latest
+
+install:
+  - npm install
 
 script:
-  - ./build.sh
-
-matrix:
-  allow_failures:
-    - node_js: "stable"
+  - npm run test
+  - npm run security-checks
+  - bash ./build.sh

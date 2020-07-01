@@ -3,10 +3,6 @@ const _ = require('lodash');
 
 const baseConfig = require('./webpack.config');
 const packageConfig = _.cloneDeep(baseConfig);
-
-// eslint-disable-next-line no-underscore-dangle
-const __DEV__ = process.env.NODE_ENV === 'development';
-
 packageConfig.output.libraryTarget = 'commonjs';
 
 packageConfig.externals = {
@@ -30,9 +26,6 @@ packageConfig.externals = {
 };
 
 packageConfig.plugins = [
-  new webpack.DefinePlugin({
-    __DEV__,
-  }),
   new webpack.LoaderOptionsPlugin({
     debug: false,
   }),
