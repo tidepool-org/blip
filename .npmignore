@@ -3,8 +3,6 @@ coverage/
 data/
 local/
 src/
-stories/
-storybook/
 test/
 .babelrc
 .editorconfig
@@ -15,5 +13,4 @@ karma.conf.js
 loadtests.js
 package.config.js
 webpack.config.js
-yarn.lock
 .npmrc

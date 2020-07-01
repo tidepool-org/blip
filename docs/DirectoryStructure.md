@@ -11,7 +11,6 @@
 - [Misc](#misc)
     - [styles](#styles)
     - [utils](#utils)
-- [React Storybook code](#react-storybook-code)
 - [The test directory](#the-test-directory)
 
 * * * * *
@@ -52,16 +51,6 @@ As of May, 2017, the directory structure is as follows (although this may change
 │       ├── apidocs
 │       ├── settings
 │       └── trends
-├── stories
-│   ├── components
-│   │   ├── common
-│   │   │   ├── controls
-│   │   │   └── tooltips
-│   │   ├── settings
-│   │   └── trends
-│   │       └── common
-│   └── helpers
-├── storybook
 └── test
     ├── components
     │   ├── common
@@ -147,12 +136,6 @@ CSS particular to a component should be written using [CSS modules](https://gith
 Complex logic should be factored out into utilities for ease of testing as much as possible. Our file naming convention for these is `lowercase.js` or camelCase `lowercaseUtil.js` if necessary.
 
 In general, utilities should export individual constants, functions, &c, **not** use the ES6 `export default`.
-
-### React Storybook code
-
-`stories/` contains the [React Storybook](https://github.com/kadirahq/react-storybook) "stories" for ease of design-in-browser work where possible/relevant with some of our React components. The internal structure of the `stories/` directory mirrors the internal structure of the `src/` directory, in particular the React component directories.
-
-`storybook/` contains configuration files for React Storybook. This directory **cannot** be moved or renamed without changing React Storybook configuration options!
 
 ### The test directory
 

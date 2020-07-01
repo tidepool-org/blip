@@ -68,7 +68,6 @@ export function createPrintView(type, data, opts, doc) {
   let renderOpts = {
     bgPrefs,
     // TODO: set this up as a Webpack Define plugin to pull from env variable
-    // maybe that'll be tricky through React Storybook?
     debug: false,
     defaultFontSize: constants.DEFAULT_FONT_SIZE,
     dpi: constants.DPI,

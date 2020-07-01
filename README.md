@@ -4,7 +4,7 @@
 
 Tidepool data visualization for diabetes device data.
 
-This README is focused on just the nuts & bolts of getting the code in this repository ready to develop locally in [blip](https://github.com/tidepool-org/blip 'GitHub: blip') or with [React Storybook](https://getstorybook.io/ 'React Storybook'). For more detailed information about the code in this repository, please see the [developer guide](./docs/StartHere.md).
+This README is focused on just the nuts & bolts of getting the code in this repository ready to develop locally in [blip](https://github.com/tidepool-org/blip 'GitHub: blip'). For more detailed information about the code in this repository, please see the [developer guide](./docs/StartHere.md).
 
 #### Table of contents
 
@@ -13,11 +13,9 @@ This README is focused on just the nuts & bolts of getting the code in this repo
   - [Getting started](#getting-started)
   - [Development](#development)
     - [Running locally with blip](#running-locally-with-blip)
-    - [Running locally in React Storybook](#running-locally-in-react-storybook)
     - [Running the tests](#running-the-tests)
     - [Running the linter](#running-the-linter)
  - [Production](#production)
-    - [Publishing examples](#publishing-examples-to-github-pages-with-react-storybook)
     - [Publishing to npm](#building-and-publishing-to-npm)
  - [Diabeloop Specifics](#diabeloop-specifics)
 
@@ -59,24 +57,6 @@ $ npm start
 
 Finally, back in your local blip repository, follow [the instructions for starting blip locally](http://developer.tidepool.io/blip/#running-locally 'Blip README: running locally').
 
-### Running locally in React Storybook
-
-If you're working at the component or view level outside of blip, you can work on component and view rendering code with [React Storybook](https://github.com/kadirahq/react-storybook 'GitHub: react-storybook').
-
-If you're working on the diabetes data model rendering components, run:
-
-```bash
-$ npm run typestories
-```
-
-If you're working on any other components or views, run:
-
-```bash
-$ npm run stories
-```
-
-For more about the use of React Storybook in this repo, see [use of React Storybook](http://developer.tidepool.io/viz/Storybook.html '@tidepool/viz docs: React Storybook').
-
 ### Running the tests
 
 To run the unit tests in [PhantomJS](http://phantomjs.org/ 'PhantomJS') (as they run on [Travis CI](https://travis-ci.org/ 'Travis CI')):
@@ -109,10 +89,6 @@ Generally speaking, Tidepool developers configure linting to run continuously in
 
 ## Production
 
-### Publishing examples to GitHub Pages with React Storybook
-
-See [the publishing section](docs/misc/Docs.md#publishing) of the docs on docs.
-
 ### Building and publishing to `npm`
 
 When a new feature(s) is/are complete (i.e., branch is synchronized with master, reviewed with a sign-off from another developer), it's time to publish the package to npm! Since this is one of our most recently created repositories, any member of the "developers" team in the `@tidepool` npm organization will be able to publish the package using his or her npm login. Steps to publishing are as follows:
@@ -126,8 +102,3 @@ When a new feature(s) is/are complete (i.e., branch is synchronized with master,
 7. publish the new version with `$ npm publish`; before the *actual* publish happens, the `yarn` install, linter, tests, and packaging webpack build will run since we have set those up through the `prepare` and `prepublishOnly` npm hooks in the package.json
 8. merge the approved pull request to master
 9. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `@tidepool/viz` as a dependency!
-
-## Diabeloop Specifics
-
-In order to get the images in the local folder so the build can properly finish, you need to:
-1. Run the `artifact.sh`. This will copy the YourLoops logo in `src/modules/print/images/diabeloop`

@@ -9,7 +9,6 @@
 + [per-view documentation](docs/views/README.md)
     + [Device Settings view](src/components/settings/README.md)
     + [Trends view](docs/views/Trends.md)
-+ [use of React Storybook](docs/Storybook.md)
 + [usage of dependencies](docs/deps/README.md)
     + [D3](docs/deps/D3.md)
     + [GSAP](docs/deps/GSAP.md)

@@ -1,5 +1,4 @@
 .DS_Store
-_book/
 coverage/
 dist/
 local/
@@ -7,4 +6,3 @@ node_modules/
 web/
 *.log
 yarn.lock
-package-lock.json

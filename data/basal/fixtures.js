@@ -20,7 +20,7 @@
   * rather, they are minimal viable post-processed fixtures
   * including all & only the properties/values necessary for rendering
   *
-  * for tests and stories, we use a scale (e.g., detailBasalScale exported fromtest/helpers/scales)
+  * for tests we use a scale (e.g., detailBasalScale exported fromtest/helpers/scales)
   * with a range of 0 to 5, so new fixtures should be limited to a max rate of no more than 5
   */
 
