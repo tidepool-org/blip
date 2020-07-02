@@ -14,8 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 
@@ -99,10 +99,10 @@ const ShareDataBanner = (props) => {
 };
 
 ShareDataBanner.propTypes = {
-  onClick: React.PropTypes.func.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
 };
 
 export default translate()(ShareDataBanner);
