@@ -2,10 +2,22 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.0.2 - 2020-07-10
 ### Fixed
 - PT-1168 Fix display bug when updating user profile
 - PT-1125 Add missing calendar translation
+### Engineering Use
+- PT-1345 Fix vulnerabilities and update build system
+  - Remove hakken and other deprecated stuffs
+  - Update documentation
+  - Upgrade most of the SOUP packages
+  - Update eslint
+  - Support CloudFront deployment
+  - Fix route when using index.html as an entry
+  - Allow to deploy in production a smaller server package (without webpack)
+  - Fix problems when running the dblp target server for dev (config not set)
+  - Allow to run test in docker
+  - Speed up build
 
 ## 1.0.1 - 2020-06-12
 ### Fixed
