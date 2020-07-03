@@ -53,6 +53,13 @@ export function dismissBanner(type) {
   };
 }
 
+export function bannerCount(count) {
+  return {
+    type: ActionTypes.SHOW_BANNER,
+    payload: { count },
+  };
+}
+
 export function acknowledgeNotification(acknowledgedNotification) {
   return {
     type: ActionTypes.ACKNOWLEDGE_NOTIFICATION,
