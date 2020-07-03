@@ -32,6 +32,7 @@ import { routeActions } from 'react-router-redux';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+import { loggedInUserId } from '../reducers/misc';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -547,6 +548,7 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
+        console.log(updatedPreferences)
         dispatch(sync.updatePreferencesSuccess(updatedPreferences));
       }
     });
@@ -1246,7 +1248,7 @@ export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
 }
 
 /**
- * Click Donate Banner Action Creator
+ * Click Dexcom Banner Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
@@ -1260,6 +1262,79 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
       clickedDexcomConnectBannerTime: clickedDate,
     };
 
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+
+/**
+ * Dismiss Share Data Connect Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissShareDataBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      dismissedShareDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Share Data Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickShareDataBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      clickedShareDataBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Count Share Data Banner Seen Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function updateShareDataBannerSeen(api, patientId) {
+  const viewDate = sundial.utcDateString();
+  const viewMoment = moment(viewDate);
+
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const loggedInUser = allUsersMap[loggedInUserId];
+    var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
+    var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
+
+    const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
+
+    const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
+
+    if(diffMoment > 0) {
+      seenShareDataBannerCount += 1;
+      seenShareDataBannerDate = viewDate;
+    }
+
+    const preferences = {
+      seenShareDataBannerDate: seenShareDataBannerDate,
+      seenShareDataBannerCount: seenShareDataBannerCount,
+    };
+
+    dispatch(sync.bannerCount(seenShareDataBannerCount));
     dispatch(updatePreferences(api, patientId, preferences));
   };
 }
