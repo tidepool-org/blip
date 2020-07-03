@@ -1156,8 +1156,6 @@ describe('App', () => {
           });
         });
       });
-// NEW TEST describe('Share Data banner props', () => {
-
     });
   });
 });
