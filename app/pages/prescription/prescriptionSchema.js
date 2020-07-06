@@ -164,5 +164,7 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     training: yup.string()
       .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
       .required(t('Training type is required')),
+    therapySettingsReviewed: yup.boolean()
+      .test('isTrue', t('Please confirm the therapy settings for this patient'), value => (value === true)),
   });
 };

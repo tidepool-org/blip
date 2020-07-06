@@ -28,7 +28,7 @@ export const getFieldsMeta = (schema, getFieldMeta) => {
       const fieldMeta = getFieldMeta(fieldKey);
       result[field] = {
         ...fieldMeta,
-        valid: (isNumber(fieldMeta.value) || !isEmpty(fieldMeta.value) || fieldMeta.touched) && !fieldMeta.error,
+        valid: (isNumber(fieldMeta.value) || !isEmpty(fieldMeta.value) || fieldMeta.value === true || fieldMeta.touched) && !fieldMeta.error,
       };
     }
 

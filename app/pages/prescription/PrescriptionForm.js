@@ -5,16 +5,27 @@ import bows from 'bows';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import get from 'lodash/get';
+import map from 'lodash/map';
+import noop from 'lodash/noop';
+import cloneDeep from 'lodash/cloneDeep';
+import isUndefined from 'lodash/isUndefined';
+import isInteger from 'lodash/isInteger';
 
-import { getFieldsMeta } from '../../core/forms';
+import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
-import therapySettingsFormSteps from './therapySettingsFormSteps';
-import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
+import therapySettingsFormStep from './therapySettingsFormStep';
+import reviewFormStep from './reviewFormStep';
 
-import Checkbox from '../../components/elements/Checkbox';
+import {
+  defaultUnits,
+  defaultValues,
+  stepValidationFields,
+  validCountryCodes,
+} from './prescriptionFormConstants';
+
 import Stepper from '../../components/elements/Stepper';
 
 /* global crypto, Uint8Array, Promise */
@@ -73,6 +84,7 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       }]),
     },
     training: get(props, 'prescription.training', ''),
+    therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
   }),
   validationSchema: props => prescriptionSchema(
     get(props, 'prescription.initialSettings.pumpId'),
@@ -98,6 +110,7 @@ const PrescriptionForm = props => {
     getFieldMeta,
     setFieldValue,
     handleSubmit,
+    resetForm,
     values,
   } = useFormikContext();
 
@@ -112,19 +125,7 @@ const PrescriptionForm = props => {
   const [prescriptions, setPrescriptions] = useLocalStorage('prescriptions', {});
 
   const initialAsyncState = () => ({ pending: false, complete: false });
-  const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
   const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
-  const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
-
-  const renderStepConfirmation = (name, label, checked, onChange) => (
-    <Checkbox
-      checked={checked}
-      name={name}
-      label={label}
-      onChange={onChange}
-      required
-    />
-  );
 
   const handleStepSubmit = async () => {
     function uuidv4() {
@@ -159,50 +160,106 @@ const PrescriptionForm = props => {
   };
   /* WIP Scaffolding End */
 
+
+  const [activeStep, setActiveStep] = React.useState();
+  const [activeSubStep, setActiveSubStep] = React.useState();
+  const [pendingStep, setPendingStep] = React.useState([]);
+  const isSingleStepEdit = !!pendingStep.length;
+
+
+  // Determine the latest incomplete step, and default to starting there
+  React.useEffect(() => {
+    let firstInvalidStep;
+    let firstInvalidSubStep;
+    let currentStep = 0;
+    let currentSubStep = 0;
+
+    while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
+      while (currentSubStep < stepValidationFields[currentStep].length) {
+        if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
+          firstInvalidStep = currentStep;
+          firstInvalidSubStep = currentSubStep;
+          break;
+        }
+        currentSubStep++
+      }
+
+      currentStep++;
+      currentSubStep = 0;
+    }
+
+    setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+    setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+  }, []);
+
+  const handlers = {
+    activeStepUpdate: ([step, subStep], fromStep = []) => {
+      setActiveStep(step);
+      setActiveSubStep(subStep);
+      setPendingStep(fromStep);
+    },
+
+    singleStepEditComplete: (cancelFieldUpdates) => {
+      if (cancelFieldUpdates) {
+        resetForm();
+      } else {
+        resetForm({ values: cloneDeep(values) });
+      }
+
+      handlers.activeStepUpdate(pendingStep);
+    },
+  };
+
+  const accountFormStepsProps = accountFormSteps(meta);
+  const profileFormStepsProps = profileFormSteps(meta);
+  const therapySettingsFormStepProps = therapySettingsFormStep(meta);
+  const reviewFormStepProps = reviewFormStep(meta, handlers);
+
+  const stepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
+  });
+
+  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
+
   const stepperProps = {
+    activeStep,
+    activeSubStep,
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
     id: 'prescription-form-steps',
     onStepChange: (newStep) => {
-      setPrescriptionReviewed(false);
-      setFinalAsyncState(initialAsyncState());
       setStepAsyncState(initialAsyncState());
       log('Step to', newStep.join(','));
     },
     steps: [
       {
-        ...accountFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...accountFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(accountFormStepsProps.subSteps),
       },
       {
-        ...profileFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...profileFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(profileFormStepsProps.subSteps),
       },
       {
-        ...therapySettingsFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...stepProps(therapySettingsFormStepProps),
+        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handleStepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
       },
       {
-        label: 'Review and Send Prescription',
-        onComplete: async () => {
-          setFinalAsyncState({ pending: true, complete: false });
-          await sleep(2000);
-          setFinalAsyncState({ pending: false, complete: true });
-        },
-        disableComplete: !prescriptionReviewed || finalAsyncState.complete,
-        asyncState: finalAsyncState,
-        completed: finalAsyncState.complete,
-        completeText: finalAsyncState.complete ? t('Prescription Sent') : t('Send Prescription'),
-        panelContent: renderStepConfirmation(
-          'review-checkbox',
-          'The prescription details are correct',
-          prescriptionReviewed,
-          (e) => setPrescriptionReviewed(e.target.checked),
-        ),
+        ...reviewFormStepProps,
+        onComplete: handleStepSubmit,
+        asyncState: stepAsyncState,
       },
     ],
     themeProps: {
@@ -236,7 +293,7 @@ const PrescriptionForm = props => {
   return (
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
-      <Stepper {...stepperProps} />
+      {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       <Persist name={storageKey} />
     </form>
   );
