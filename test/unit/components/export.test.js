@@ -56,7 +56,7 @@ describe('Export', () => {
       .subtract(30, 'd')
       .format(JS_DATE_FORMAT),
     anonymizeData: false,
-    format: 'json',
+    format: 'excel',
     extraExpanded: false,
     error: false,
     bgUnits: MGDL_UNITS,
@@ -68,7 +68,7 @@ describe('Export', () => {
       .subtract(30, 'd')
       .format(JS_DATE_FORMAT),
     anonymizeData: false,
-    format: 'json',
+    format: 'excel',
     extraExpanded: false,
     error: false,
     bgUnits: MMOLL_UNITS,

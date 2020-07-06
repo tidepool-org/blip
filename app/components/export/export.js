@@ -41,7 +41,7 @@ export default translate()(class Export extends Component {
         .subtract(30, 'd')
         .format(JS_DATE_FORMAT),
       anonymizeData: false,
-      format: 'json',
+      format: 'excel',
       extraExpanded: false,
       error: false,
       bgUnits: _.get(props, 'patient.settings.units.bg', MGDL_UNITS),
@@ -184,9 +184,9 @@ export default translate()(class Export extends Component {
 
           <div>
             <a onClick={() => this.setState({ allTime: true })}>All Data</a> |
-            <a onClick={() => this.setDateRange(90)}>Last 90 Days</a> |
-            <a onClick={() => this.setDateRange(30)}>Last 30 Days</a> |
-            <a onClick={() => this.setDateRange(14)}>Last 14 Days</a>
+            <a onClick={() => this.setDateRange(90)}> Last 90 Days</a> |
+            <a onClick={() => this.setDateRange(30)}> Last 30 Days</a> |
+            <a onClick={() => this.setDateRange(14)}> Last 14 Days</a>
           </div>
 
           <div className="Export-units">
