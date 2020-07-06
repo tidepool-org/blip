@@ -533,3 +533,18 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
       return state;
   }
 };
+
+export const prescriptions = (state = initialState.prescriptions, action) => {
+  switch (action.type) {
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+      const prescriptions = _.get(action.payload, 'prescriptions', {});
+      return update(state, { $set: prescriptions });
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+      const prescription = _.get(action.payload, 'prescription', {});
+      return update(state, { $push: [prescription] });
+    case types.LOGOUT_REQUEST:
+      return [];
+    default:
+      return state;
+  }
+};

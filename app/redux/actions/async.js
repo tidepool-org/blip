@@ -1087,6 +1087,49 @@ export function fetchPatientData(api, options, id) {
 }
 
 /**
+ * Fetch Prescriptions Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPrescriptions(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPrescriptionsRequest());
+
+    api.prescription.getAll((err, prescriptions) => {
+      if (err) {
+        dispatch(sync.fetchPrescriptionsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPrescriptionsSuccess(prescriptions));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} prescription to be created
+ */
+export function createPrescription(api, prescription) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRequest());
+
+    api.prescription.getAll(prescription, (err, result) => {
+      if (err) {
+        dispatch(sync.createPrescriptionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionSuccess(result));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper

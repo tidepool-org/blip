@@ -818,6 +818,56 @@ export function fetchPatientDataFailure(error, apiError) {
   };
 }
 
+export function fetchPrescriptionsRequest() {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_REQUEST,
+  };
+}
+
+export function fetchPrescriptionsSuccess(prescriptions) {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_SUCCESS,
+    payload: {
+      prescriptions: prescriptions,
+    },
+  };
+}
+
+export function fetchPrescriptionsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createPrescriptionRequest() {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REQUEST,
+  };
+}
+
+export function createPrescriptionSuccess(prescription) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_SUCCESS,
+    payload: {
+      prescription: prescription,
+    },
+  };
+}
+
+export function createPrescriptionFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,
