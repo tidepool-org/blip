@@ -3,23 +3,18 @@ import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import values from 'lodash/values';
+import cloneDeep from 'lodash/cloneDeep';
 
 import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
-import { useLocalStorage } from '../../core/hooks';
+import withPrescriptions from './withPrescriptions';
 
 const Prescriptions = props => {
-  const { t } = props;
-
+  const { t, prescriptions = [] } = props;
   const [searchText, setSearchText] = React.useState();
-
-  // TODO: Get prescriptions from backend service when ready
-  const [prescriptions] = useLocalStorage('prescriptions', {});
-
-  const data = values(prescriptions);
+  const data = cloneDeep(prescriptions);
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
@@ -34,7 +29,6 @@ const Prescriptions = props => {
       foo: 'bar',
     },
   });
-
 
   const renderEdit = ({ id }) => (
     <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>
@@ -59,7 +53,7 @@ const Prescriptions = props => {
     const stateColors = colors[state] || {
       color: 'text.primary',
       bg: 'transparent',
-    }
+    };
 
     return <Text as="span" px={2} py={1} fontWeight="medium" sx={{ borderRadius: 4 }} color={stateColors.color} bg={stateColors.bg}>{state}</Text>;
   };
@@ -107,4 +101,4 @@ const Prescriptions = props => {
   );
 };
 
-export default translate()(Prescriptions);
+export default withPrescriptions(translate()(Prescriptions));
