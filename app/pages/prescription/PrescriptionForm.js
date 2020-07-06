@@ -7,6 +7,7 @@ import { Persist } from 'formik-persist';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
+import keyBy from 'lodash/keyBy';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
@@ -18,6 +19,8 @@ import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
+import withPrescriptions from './withPrescriptions';
+import Stepper from '../../components/elements/Stepper';
 
 import {
   defaultUnits,
@@ -26,7 +29,6 @@ import {
   validCountryCodes,
 } from './prescriptionFormConstants';
 
-import Stepper from '../../components/elements/Stepper';
 
 /* global crypto, Uint8Array, Promise */
 
@@ -93,15 +95,11 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
-const withPrescription = Component => props => {
-  // Until backend service is ready, get prescriptions from localStorage
-  const [prescriptions] = useLocalStorage('prescriptions', {});
-
-  const id = get(props, 'routeParams.id', '');
-  const prescription = get(prescriptions, id);
-
+const withPrescription = Component => withPrescriptions(props => {
+  const { prescriptions = [], routeParams: { id = '' } = {} } = props;
+  const prescription = get(keyBy(prescriptions, 'id'), id);
   return <Component prescription={prescription} {...props} />
-};
+});
 
 const PrescriptionForm = props => {
   const { t } = props;
@@ -310,4 +308,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withPrescription(withFormik(prescriptionForm())(PrescriptionForm)));
+export default withPrescription(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
