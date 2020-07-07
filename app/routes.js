@@ -197,37 +197,37 @@ export const getRoutes = (appContext, store) => {
   let props = appContext.props;
   let api = props.api;
 
-  requireNoAuth = requireNoAuth.bind(null, api);
-  requireAuth = requireAuth.bind(null, api);
-  requireNotVerified = requireNotVerified.bind(null, api);
-  requireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  requireChrome = requireChrome.bind(null, requireAuth);
-  ensureNoAuth = ensureNoAuth.bind(null, api);
-  onUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
+  let boundRequireNoAuth = requireNoAuth.bind(null, api);
+  let boundRequireAuth = requireAuth.bind(null, api);
+  let boundRequireNotVerified = requireNotVerified.bind(null, api);
+  let boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
+  let boundRequireChrome = requireChrome.bind(null, requireAuth);
+  let boundEnsureNoAuth = ensureNoAuth.bind(null, api);
+  let boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
 
   return (
     <Route path='/' {...props} render={routeProps => (
       <AppComponent {...routeProps} {...props}>
         <Switch>
-          <Route exact path='/' render={routeProps => (<Gate onEnter={requireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
-          <Route path='/login' render={routeProps => (<Gate onEnter={requireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
+          <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
-          <Route path='/signup' render={routeProps => (<Gate onEnter={requireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
-          <Route path='/clinician-details' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><ClinicianDetails {...routeProps} {...props} /></Gate>)} />
-          <Route path='/email-verification' render={routeProps => (<Gate onEnter={requireNotVerified} key={routeProps.match.path}><EmailVerification {...routeProps} {...props} /></Gate>)} />
-          <Route path='/profile' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={requireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/prescriptions' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><Prescriptions {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/prescriptions/:id/edit' render={routeProps => (<Gate onEnter={requireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={requireChrome} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={requireChrome} key={routeProps.match.path}><Share {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={requireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-          <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={requireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
-          <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={ensureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
-          <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={onUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
-          <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={requireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
+          <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
+          <Route path='/clinician-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianDetails {...routeProps} {...props} /></Gate>)} />
+          <Route path='/email-verification' render={routeProps => (<Gate onEnter={boundRequireNotVerified} key={routeProps.match.path}><EmailVerification {...routeProps} {...props} /></Gate>)} />
+          <Route path='/profile' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/prescriptions' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Prescriptions {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/prescriptions/:id/edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><Share {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
+          <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route>
             { api.user.isAuthenticated() ? <Redirect to='/patients' /> : <Redirect to='/login' /> }
