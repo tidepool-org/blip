@@ -10,130 +10,106 @@ This README is focused on just the details of getting blip running locally. For 
 
 ### Table of contents
 
-- [Before you start](#beforeyoustart)
+- [Before you start](#before-you-start)
 - [Install](#install)
-- [Running locally](#running-locally)
-   - ["Verifying" the e-mail of a new account locally](#getting-past-e-mail-verification-for-a-user-created-locally)
-   - [Creating a special account to bypass e-mail verification](#creating-a-user-without-email-verification)
-- [Running against `dev`](#running-against-dev)
-- [Config](#config)
+- [Build and deployment](#build-and-deployment)
+- [Configuration](#configuration)
+- [Run a production server locally](#run-a-production-server-locally)
 - [Debugging](#debugging)
 - [Running the tests](#running-the-tests)
-- [Build and deployment](#build-and-deployment)
-
-* * * * *
+- [Independent server for production or docker](#independent-server-for-production-or-docker)
+- [Documentation for developers](#documentation-for-developers)
 
 ## Before you start
 
-If this is the first time you're looking at Tidepool locally start with the [tidepool-org/development](https://github.com/tidepool-org/development) repository to setup before continuing here.
+If this is the first time you're looking at Tidepool locally start with the [mdblp/dblp](https://github.com/mdblp/development) repository to setup before continuing here.
 
 ## Install
 
 Requirements:
 
-- [Node.js](http://nodejs.org/ 'Node.js') version 6.x
-- [npm](https://www.npmjs.com/ 'npm') version 4.x or higher
+- [Node.js](http://nodejs.org/ 'Node.js') version 10.x or higher
+- [npm](https://www.npmjs.com/ 'npm') version 6.x or higher
 
-Clone this repo [from GitHub](https://github.com/tidepool-org/blip 'GitHub: blip'), then install the dependencies:
+Clone this repo [from GitHub](https://github.com/mdblp/blip 'GitHub: blip'), then install the dependencies:
 
-After cloning this repository to your local machine, first make sure that you have node `6.x` and npm `4.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations. If you have npm `3.x` installed (as it is by default with node `6.x`), then you can update to the latest npm `4.x` with `npm install -g npm@4`.
+After cloning this repository to your local machine, first make sure that you have node `10.x` and npm `6.x` installed. If you have a different major version of node installed, consider using [nvm](https://github.com/creationix/nvm 'GitHub: Node Version Manager') to manage and switch between multiple node (& npm) installations.  
+You can install the latest npm version with: `npm install -g npm@latest`.
 
-It's not an absolute requirement, but it is preferable to have [Yarn](https://yarnpkg.com 'Yarn') installed, as it provides dependency management features above and beyond what npm provides. Just follow [Yarn's installation instructions](https://yarnpkg.com/en/docs/install 'Yarn installation instructions') (hint: for Mac users with Homebrew installed, it's just `brew install yarn`).
-
-Once your environment is setup with node `6.x` and npm `4.x` install the dependencies with Yarn:
-
-```bash
-$ yarn install
-```
-
-Or with npm if you're choosing not to use Yarn:
+Once your environment is setup with node and npm, install the dependencies:
 
 ```bash
 $ npm install
 ```
 
-## Running locally
+## Build and deployment
 
-If you're running the entire Tidepool platform locally with docker as per [tidepool-org/development](https://github.com/tidepool-org/development/#starting), you can start blip using your local platform with:
+### Artifact: Fetch branding images & translations
 
-```bash
-$ docker-compose up -d
-```
-
-If you're running the entire Tidepool platform locally without docker, you can start blip using your local platform with:
+Simplest method, will do everything needed in one command.
 
 ```bash
-$ source config/local.sh
-$ npm start
+$ bash artifact.sh
 ```
 
-Open your web browser and navigate to `http://localhost:3000/`.
+Options (using env var):
+- `TRAVIS_NODE_VERSION` set to the same value as `ARTIFACT_NODE_VERSION` (see `version.sh`):
+  - Create the docker image (prod version)
+  - Create the archive use for production deployment.
+  - Build the SOUP list
+  - Publish the docker image (if possible)
+  - App will be available in the `server/dist` directory.
 
-(See also: [recipe for running blip locally with hot module replacement](http://developer.tidepool.io/docs/front-end/recipes.html#a-running-the-platform-locally-with-runservers-but-blip-with-hot-module-replacement-hmr-via-webpack 'Tidepool developer portal: front end recipes').)
+This script is used by the continuous build system, but it can be use standalone.
 
-The `npm start` command runs the Webpack dev server which includes hot module reloading (HMR) capabilities. Essentially changes within React components should be updated "hot" in your browser *without* a page refresh. Sometimes this doesn't work, but in such cases the dev console will include a message from the Webpack dev server indicating that you need to do a full refresh to see your changes.
-
-### Dev tools
-
-Due to differences in the `development` versus `production` builds of React itself (most notably PropTypes validation), performance of the app whenever `NODE_ENV` is `development` will *never* be as good as it is in the production build under a `NODE_ENV` of `production`. If you're concerned about the performance of a particular feature, the only way to test with good fidelity is with the production build, which you can do locally according to [these instructions below](#testing-the-production-build-locally).
-
-### Getting past e-mail verification for a user created locally
-
-When running locally with `runservers` or with the [docker-based setup](https://github.com/tidepool-org/development), no e-mail will be sent to a sign-up e-mail address, and so a workaround is needed to get past the e-mail verification step for a newly created local account being used for development. What you need to do is construct the login URL that is provided in a link in the verification e-mail *manually* by finding the correct key for the e-mail confirmation.
-
-If you're developing locally, you can find the key by looking in the local `server.log` (located at the root level of where you've cloned all the Tidepool repositories).
-
-If you're developing with the docker setup, you can find the key in the logs of the `hydrophone` container. It will look something like
-```
-2018/06/07 16:17:17 Sending email confirmation to foo@bar.com with key aSuzGcwq4kPRyb6pwQnTcSKVTt_V6CtL
-```
-[Kitematic](https://kitematic.com/) is an easy-to-use tool for inspecting the logs of your docker containers. You can find the link to it's installer in Docker's menu.
-
-You can also find the key in your Mongo database. The steps for the latter are:
-
-- start a Mongo shell in a fresh Terminal window with `mongo`
-- switch to the `confirm` database with `use confirm`
-- find the pending account with `db.confirmations.find({status: 'pending'});`
-- copy the `_id` from the pending confirmation record with an `email` matching the account you've just created
-
-After you've found the key, you can provide it as a `signupKey` parameter in the login URL: `http://localhost:3000/login?signupKey=<key>`
-
-### Creating a user without e-mail verification
-
-When running locally, there is also workaround so you don't have to verify the e-mail address of a new user: if you create a new user and add the localhost secret +skip to the e-mail address - e.g. `me+skip@something.org` - this will then allow you to login straightaway, skipping the e-mail verification step.
-
-**NB: The UI is *not* guaranteed to display correctly for +skip-created users on all pages, and so 💣 *THIS WORKFLOW IS NOT CURRENTLY RECOMMENDED* 💣. For now, you must create a normal account (without +skip) if you want to work on the sign-up flow, although we have plans to fix the way the +skip workaround operates on the platform to address this.**
-
-### Updating the local tree for custom branding and translation
-
-This is done using the `artifact.sh` script:
-```
-$ bash -eu artifact.sh
+### Configuration
+To configure blip to the desired environment source one config in the `config` directory.  
+Example for a dev build:
+```bash
+$ source config/env.docker.sh
 ```
 
-To download Diabeloop parameters translation, you will need a *Personal access tokens* from github.
-Please follow the [github instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) to create one. You only need to check the scope `repo` (Full control of private repositories).
+### Simple dev build
 
-Then to fetch the translations:
+The app is built as a static site in the `dist/` directory.
+
+- Will load the env var for a dev environment (docker)
+- Do a development build of the application
+```bash
+$ bash build-dev.sh
 ```
-$ GIT_TOKEN='replace_me_with_the_token' bash -eu artifact.sh
-```
 
-## Running against `dev`
-
-By default—that is, if you don't `source` a different configuration, such as the `local.sh` configuration for local development with runservers referenced above—if you simply run `npm start` in this repository after installing the dependencies, blip will start up running against Tidepool's "dev" server environment.
-
-## Config
-
-Configuration values are set with environment variables (see `config/local.sh`).
-
-You can set environment variables manually using `export VAR=value`, or use a bash script. For example:
+### Watch dev build
+This will build the application and launch a dev server, with "watch" option.  
+Everytime a file is changed in the source, the application will be re-build automatically,
+and the changes will be available in the browser
 
 ```bash
-$ source config/local.sh
+$ npm run start-dev
 ```
 
-Ask the project owners to provide you with config scripts for different environments, or you can create one of your own if you have a custom environment. It is recommended to put all config scripts in the `config/` directory, where they will be ignored by Git.
+The application will be available at: http://localhost:3001/  
+Hit `CTRL+C` to stop the server.
+
+### Production build
+
+```bash
+$ bash build.sh
+```
+
+## Run a production server locally
+
+After that, the app is ready to be served using the static web server included in this repo:
+
+```bash
+$ npm run server
+```
+
+You can specify the HTTP port using the `PORT` env var:
+```bash
+$ PORT=3001 npm run server
+```
+
 
 ## Debugging
 
@@ -150,18 +126,12 @@ app.foo = {
 
 ## Running the tests
 
-We use [Mocha](https://mochajs.org/) with [Chai](http://chaijs.com/) for our test framework inside [Karma](https://karma-runner.github.io/) as our test runner, as well as [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spies and stubs. Our tests currently run on [PhantomJS](http://phantomjs.org/), a headless WebKit browser, or Chrome (locally only).
+We use [Mocha](https://mochajs.org/) with [Chai](http://chaijs.com/) for our test framework inside [Karma](https://karma-runner.github.io/) as our test runner, as well as [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spies and stubs. Our tests currently run on Google Chrome or Firefox (if not using WSL).
 
 To run the unit tests, use:
 
 ```bash
 $ npm test
-```
-
-To run the unit tests in Chrome, use:
-
-```bash
-$ npm run browser-tests
 ```
 
 To run the unit tests in watch mode, use:
@@ -170,37 +140,44 @@ To run the unit tests in watch mode, use:
 $ npm run test-watch
 ```
 
-## Build and deployment
+## Independent server for production or docker
 
-The app is built as a static site in the `dist/` directory.
+For a production ready archive, or an independent docker image, the `server` directory is used.
+To do it automatically, see the `artifact.sh` & `.travis.yml` usage.
 
-We use [Shio](https://github.com/tidepool-org/shio) to deploy, so we separate the build in two.
-
-Shio's `build.sh` script will take care of building the app itself with:
-
-```bash
-$ npm run build-app
-```
-
-Shio's `start.sh` script then builds the config from environment variables as a separate file with:
+To do it manually, fist be sure to set the environment variables needed (see the [Configuration](#configuration) part).
 
 ```bash
-$ source config/env.sh
-$ npm run build-config
+# Build the application
+:blip$ npm run build
+# Move the created app (static web files) to the server directory:
+:blip$ mv -v dist server/dist
+# Update blip the version in the package.json on the server side:
+:blip$ bash server/update-version.sh
+# Go to the server directory
+:blip$ cd server
+# Install the node dependencies
+:blip/server$ npm install
+# Run the server
+:blip/server$ bash start.sh
+# Or build the docker image:
+:blip/server$ docker build -t blip:latest .
+# Start the docker server:
+:blip/server$ docker run -p 3000:3000 blip:dev
 ```
 
-After that, the app is ready to be served using the static web server included in this repo:
+## Documentation for developers
 
-```bash
-$ npm run server
-```
-
-### Testing the production build locally
-
-You can also build everything at once locally to test the production build by simply running:
-
-```bash
-$ source config/local.sh
-$ npm run build
-$ npm run server
-```
++ [Blip developer guide](docs/StartHere.md)
+    + [overview of features](docs/FeatureOverview.md)
+    + [app & directory structure](docs/DirectoryStructure.md)
+    + [architecture](docs/Architecture.md)
+    + [code style](docs/CodeStyle.md)
++ [usage of dependencies](docs/Dependencies.md)
+    + [React](docs/React.md)
+    + [React Router](docs/ReactRouter.md)
+    + [Redux](docs/Redux.md)
+        + [Glossary of state tree terms](docs/StateTreeGlossary.md)
+    + [webpack](docs/Webpack.md)
++ misc
+    + ["fake child accounts"](docs/FakeChildAccounts.md)
