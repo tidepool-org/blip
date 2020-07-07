@@ -189,7 +189,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const api = ownProps.api;
   return Object.assign({}, stateProps, dispatchProps, {
-    trackMetric: ownProps.trackMetric
+    trackMetric: ownProps.trackMetric,
+    api: ownProps.api
   });
 };
 
