@@ -17,18 +17,15 @@
 
 import PropTypes from 'prop-types';
 
-
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import _ from 'lodash';
-
-import config from '../../config';
 
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
@@ -190,9 +187,9 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.api;
   return Object.assign({}, stateProps, dispatchProps, {
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api
+    trackMetric: ownProps.trackMetric
   });
 };
 

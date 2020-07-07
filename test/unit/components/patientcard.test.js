@@ -8,7 +8,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
-import {shallow} from 'enzyme';
+import { mount } from 'enzyme';
+import { BrowserRouter } from 'react-router-dom';
 import i18next from '../../../app/core/language';
 
 const t = i18next.t.bind(i18next);
@@ -38,7 +39,8 @@ describe('PatientCard', function () {
         patient: {}
       };
       var patientCardElem = React.createElement(PatientCard, props);
-      var elem = TestUtils.renderIntoDocument(patientCardElem);
+      var wrapper = React.createElement(BrowserRouter, props, patientCardElem);
+      var elem = TestUtils.renderIntoDocument(wrapper);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -49,7 +51,7 @@ describe('PatientCard', function () {
         patient: patientUpload,
         t,
       };
-      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
+      let wrapper = mount(<BrowserRouter><PatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -58,7 +60,7 @@ describe('PatientCard', function () {
         patient: patientNoUpload,
         t,
       };
-      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
+      let wrapper = mount(<BrowserRouter><PatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });
@@ -80,7 +82,8 @@ describe('PatientCard', function () {
         }
       };
       var patientCardElem = React.createElement(PatientCard, props);
-      var elem = TestUtils.renderIntoDocument(patientCardElem);
+      var wrapper = React.createElement(BrowserRouter, props, patientCardElem);
+      var elem = TestUtils.renderIntoDocument(wrapper);
       renderedDOMElem = ReactDOM.findDOMNode(elem);
     });
 

@@ -17,20 +17,22 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import personUtils from '../../core/personutils';
 
-const AddEmailBanner = (props) => {
+export const AddEmailBanner = translate()((props) => {
   const {
     patient,
     trackMetric,
     t,
+    push,
   } = props;
 
   const handleSubmit = () => {
-    browserHistory.push(`/patients/${patient.userid}/profile#edit`);
+    push(`/patients/${patient.userid}/profile#edit`);
 
     if (trackMetric) {
       const source = 'none';
@@ -55,11 +57,11 @@ const AddEmailBanner = (props) => {
       </div>
     </div>
   );
-};
+});
 
 AddEmailBanner.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
 };
 
-export default translate()(AddEmailBanner);
+export default connect(null, { push} )(AddEmailBanner);

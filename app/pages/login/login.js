@@ -22,7 +22,7 @@ import { translate } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
 import utils from '../../core/utils';
@@ -245,12 +245,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
   let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
-  let api = ownProps.routes[0].api;
+  let api = ownProps.api;
   return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,
-    trackMetric: ownProps.routes[0].trackMetric,
+    trackMetric: ownProps.trackMetric,
     onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
 };

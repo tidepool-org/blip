@@ -15,7 +15,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { browserHistory, Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { translate, Trans } from 'react-i18next';
@@ -100,7 +100,7 @@ export let Patients = translate()(class extends React.Component {
     var handleClickYes = function(e) {
       e.preventDefault();
       self.props.onHideWelcomeSetup();
-      browserHistory.push('/patients/new');
+      self.props.history.push('/patients/new');
     };
     var handleClickNo = function(e) {
       e.preventDefault();
@@ -325,7 +325,7 @@ export let Patients = translate()(class extends React.Component {
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (!personUtils.isClinic(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
-        browserHistory.push(`/patients/${patient.userid}/data`);
+        this.props.history.push(`/patients/${patient.userid}/data`);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
         this.props.showWelcomeMessage();
       }
@@ -424,7 +424,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return _.assign(
     {},
     _.pick(dispatchProps, [
@@ -441,7 +441,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
       onRemovePatient: dispatchProps.removePatient.bind(null, api),
-      trackMetric: ownProps.routes[0].trackMetric
+      trackMetric: ownProps.trackMetric,
+      history: ownProps.history,
     }
   );
 };

@@ -23,10 +23,9 @@
 /* global afterEach */
 
 import React from 'react';
-import { browserHistory } from 'react-router'
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
-import DonateBanner from '../../../app/components/donatebanner';
+import { DonateBanner } from '../../../app/components/donatebanner';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../../app/core/constants';
 
 const expect = chai.expect;
@@ -39,6 +38,7 @@ describe('DonateBanner', () => {
     processingDonation: false,
     trackMetric: sinon.stub(),
     userIsDonor: false,
+    push: sinon.stub(),
   };
 
   let wrapper;
@@ -167,13 +167,13 @@ describe('DonateBanner', () => {
       });
 
       it('should redirect to the settings page when the share proceeds button is clicked', () => {
-        sinon.spy(browserHistory, 'push');
+        sinon.spy(props.push);
 
         const button = wrapper.find('button');
         button.simulate('click');
 
-        sinon.assert.calledOnce(browserHistory.push);
-        sinon.assert.calledWith(browserHistory.push, `/patients/${props.patient.userid}/profile`);
+        sinon.assert.calledOnce(props.push);
+        sinon.assert.calledWith(props.push, `/patients/${props.patient.userid}/profile`);
       });
 
       it('should not call the submit handler when the donate button is clicked', () => {

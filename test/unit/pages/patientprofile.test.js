@@ -27,7 +27,9 @@ describe('PatientProfile', () => {
     };
 
     const ownProps = {
-      routeParams: { id: '12345' }
+      match: {
+        params: { id: '12345' }
+      }
     };
 
     const dispatchProps = {
@@ -88,7 +90,9 @@ describe('PatientProfile', () => {
       expect(standardResult.length).to.equal(3);
 
       const loggedInUserResult = getFetchers(dispatchProps, {
-        routeParams: { id: '12345' }
+        match: {
+          params: { id: '12345' }
+        }
       }, {
         user: { userid: '12345' },
         fetchingPendingSentInvites: {
@@ -104,7 +108,9 @@ describe('PatientProfile', () => {
       expect(loggedInUserResult.length).to.equal(3);
 
       const otherUserResult = getFetchers(dispatchProps, {
-        routeParams: { id: '56789' }
+        match: {
+          params: { id: '56789' }
+        }
       }, {
         user: { userid: '12345' },
         fetchingPendingSentInvites: {

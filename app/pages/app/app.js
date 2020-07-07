@@ -577,9 +577,16 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
-    context: ownProps.route,
+    context: {
+      DEBUG: ownProps.DEBUG,
+      api: ownProps.api,
+      config: ownProps.config,
+      log: ownProps.log,
+      personUtils: ownProps.personUtils,
+      trackMetric: ownProps.trackMetric,
+    },
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,

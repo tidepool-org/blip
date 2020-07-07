@@ -23,7 +23,7 @@ const log = bows('PrescriptionForm');
 
 const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
-    id: get(props, 'routeParams.id', ''),
+    id: get(props, 'match.params.id', ''),
     state: get(props, 'prescription.state', 'draft'),
     type: get(props, 'prescription.type', ''),
     firstName: get(props, 'prescription.firstName', ''),
@@ -85,7 +85,7 @@ const withPrescription = Component => props => {
   // Until backend service is ready, get prescriptions from localStorage
   const [prescriptions] = useLocalStorage('prescriptions', {});
 
-  const id = get(props, 'routeParams.id', '');
+  const id = get(props, 'match.params.id', '');
   const prescription = get(prescriptions, id);
 
   return <Component prescription={prescription} {...props} />

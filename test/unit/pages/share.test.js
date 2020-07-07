@@ -27,7 +27,9 @@ describe('PatientCareTeam', () => {
     };
 
     const ownProps = {
-      routeParams: { id: '12345' }
+      match: {
+        params: { id: '12345' }
+      }
     };
 
     const dispatchProps = {

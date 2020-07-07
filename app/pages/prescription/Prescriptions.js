@@ -1,5 +1,4 @@
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -25,16 +24,15 @@ const Prescriptions = props => {
     setSearchText(event.target.value);
   }
 
-  const handleAddNew = () => browserHistory.push('prescriptions/new');
+  const handleAddNew = () => this.props.history.push('prescriptions/new');
 
-  const handleEdit = id => () => browserHistory.push({
+  const handleEdit = id => () => this.props.history.push({
     pathname: `prescriptions/${id}/edit`,
     state: {
       prescription: prescriptions[id],
       foo: 'bar',
     },
   });
-
 
   const renderEdit = ({ id }) => (
     <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>

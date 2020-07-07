@@ -14,7 +14,7 @@ import Patient from '../patient';
 
 export function getFetchers (dispatchProps, ownProps, stateProps, api) {
   const fetchers = [
-    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
+    dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
 
   if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
@@ -96,7 +96,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, _.pick(dispatchProps, 'acknowledgeNotification'), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
@@ -104,7 +104,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onRemoveMember: dispatchProps.removeMember.bind(null, api),
     onInviteMember: dispatchProps.inviteMember.bind(null, api),
     onCancelInvite: dispatchProps.cancelInvite.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric,
+    trackMetric: ownProps.trackMetric,
     shareOnly: true
   });
 };

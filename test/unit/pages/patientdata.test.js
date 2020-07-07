@@ -3963,7 +3963,9 @@ describe('PatientData', function () {
     };
 
     const ownProps = {
-      routeParams: { id: '12345' },
+      match: {
+        params: { id: '12345' }
+      },
       location: { query: {} },
     };
 

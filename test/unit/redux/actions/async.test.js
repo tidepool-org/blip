@@ -54,7 +54,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'SIGNUP_REQUEST' },
           { type: 'SIGNUP_SUCCESS', payload: { user: { id: 27 } } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/email-verification' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/email-verification' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -224,7 +224,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'CONFIRM_SIGNUP_REQUEST' },
           { type: 'CONFIRM_SIGNUP_FAILURE', error: err, payload: { signupKey: 'fakeSignupKey' }, meta: { apiError: {status: 409, message: 'User does not have a password'} } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/verification-with-password?signupKey=fakeSignupKey&signupEmail=g@a.com' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/verification-with-password?signupKey=fakeSignupKey&signupEmail=g@a.com' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -292,7 +292,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
           { type: 'VERIFY_CUSTODIAL_SUCCESS' },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -421,7 +421,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
           { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -454,7 +454,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
           { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/clinician-details' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/clinician-details' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -504,7 +504,7 @@ describe('Actions', () => {
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
 
-        expect(_.find(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
+        expect(_.find(actions, { type: '@@router/CALL_HISTORY_METHOD' })).to.be.undefined;
       });
 
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {
@@ -558,7 +558,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user: user } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -598,7 +598,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -635,7 +635,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/TRANSITION', payload: { method: 'push', args: [ '/clinician-details' ] } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinician-details' ] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -674,7 +674,7 @@ describe('Actions', () => {
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
           { type: 'LOGIN_SUCCESS', payload: { user } },
-          { type: '@@router/TRANSITION', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -772,7 +772,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
           { type: 'LOGIN_FAILURE', error: err, payload: payload, meta: { apiError: {status: 403, body: 'E-mail not verified!'}} },
-          { type: '@@router/TRANSITION', payload: { args: [ '/email-verification' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/email-verification' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -878,7 +878,7 @@ describe('Actions', () => {
           { type: 'LOGOUT_REQUEST' },
           { type: 'DATA_WORKER_REMOVE_DATA_REQUEST', meta: { WebWorker: true, worker: 'data', origin: 'originStub', patientId: 'abc123' }, payload: { predicate: undefined } },
           { type: 'LOGOUT_SUCCESS' },
-          { type: '@@router/TRANSITION', payload: { args: [ '/' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -908,7 +908,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'SETUP_DATA_STORAGE_REQUEST' },
           { type: 'SETUP_DATA_STORAGE_SUCCESS', payload: { userId: loggedInUserId, patient: patient } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients/27/data' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients/27/data' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -2172,7 +2172,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
           { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } },
-          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -2909,7 +2909,7 @@ describe('Actions', () => {
             data: {
               cacheUntil: 9999999999999,
             },
-          }, routing: { location: { pathname: `data/${patientId}` } } });
+          }, router: { location: { pathname: `data/${patientId}` } } });
           store.dispatch(async.fetchPatientData(api, { ...options, useCache: false }, patientId));
 
           const actions = store.getActions();
@@ -2946,7 +2946,7 @@ describe('Actions', () => {
         it('should use server time (plus 1 day, minus 30) for date range of data fetching if all latest diabetes datums returns empty results', () => {
           let store = mockStore({ blip: {
             ...initialState,
-          }, routing: { location: { pathname: `data/${patientId}` } } });
+          }, router: { location: { pathname: `data/${patientId}` } } });
 
           // Set all times in response to 1 year past server time
           api.patientData.get = sinon.stub().callsArgWith(2, null, []);
@@ -2965,7 +2965,7 @@ describe('Actions', () => {
         it('should fetch the latest data for all diabetes types and pumpSettings', () => {
           let store = mockStore({ blip: {
             ...initialState,
-          }, routing: { location: { pathname: `data/${patientId}` } } });
+          }, router: { location: { pathname: `data/${patientId}` } } });
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
@@ -2988,7 +2988,7 @@ describe('Actions', () => {
         it('should fetch the patient data 30 days prior to the latest diabetes datum time returned', () => {
           let store = mockStore({ blip: {
             ...initialState,
-          }, routing: { location: { pathname: `data/${patientId}` } } });
+          }, router: { location: { pathname: `data/${patientId}` } } });
 
           api.patientData.get = sinon.stub().callsArgWith(2, null, patientData);
 
@@ -3041,7 +3041,7 @@ describe('Actions', () => {
 
             let store = mockStore({ blip: {
               ...initialState,
-            }, routing: { location: { pathname: `data/${patientId}` } } });
+            }, router: { location: { pathname: `data/${patientId}` } } });
             store.dispatch(async.fetchPatientData(api, options, patientId));
 
             const actions = store.getActions();
@@ -3065,7 +3065,7 @@ describe('Actions', () => {
 
             let store = mockStore({ blip: {
               ...initialState,
-            }, routing: { location: { pathname: `data/${otherPatientId}` } } });
+            }, router: { location: { pathname: `data/${otherPatientId}` } } });
             store.dispatch(async.fetchPatientData(api, options, patientId));
 
             const actions = store.getActions();
@@ -3097,7 +3097,7 @@ describe('Actions', () => {
 
           let store = mockStore({
             blip: initialState,
-            routing: { location: { pathname: `data/${patientId}` } }
+            router: { location: { pathname: `data/${patientId}` } }
           });
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
@@ -3134,7 +3134,7 @@ describe('Actions', () => {
 
           let store = mockStore({
             blip: initialState,
-            routing: { location: { pathname: `data/${patientId}` } }
+            router: { location: { pathname: `data/${patientId}` } }
           });
           store.dispatch(async.fetchPatientData(api, options, patientId));
 

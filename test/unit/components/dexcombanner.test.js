@@ -23,10 +23,9 @@
 /* global afterEach */
 
 import React from 'react';
-import { browserHistory } from 'react-router'
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
-import DexcomBanner from '../../../app/components/dexcombanner';
+import { DexcomBanner } from '../../../app/components/dexcombanner';
 import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
 
 const expect = chai.expect;
@@ -37,6 +36,7 @@ describe('DexcomBanner', () => {
     onClose: sinon.stub(),
     patient: { userid: 1234 },
     trackMetric: sinon.stub(),
+    push: sinon.stub(),
   };
 
   let wrapper;
