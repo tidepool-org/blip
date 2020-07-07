@@ -201,7 +201,7 @@ export const getRoutes = (appContext, store) => {
   let boundRequireAuth = requireAuth.bind(null, api);
   let boundRequireNotVerified = requireNotVerified.bind(null, api);
   let boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  let boundRequireChrome = requireChrome.bind(null, requireAuth);
+  let boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
   let boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   let boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
 
