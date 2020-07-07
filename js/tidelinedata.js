@@ -109,6 +109,26 @@ function TidelineData(data, opts) {
     return that;
   }
 
+  function filterValidTimezoneDatum(datum) {
+    if (typeof datum.timezone !== 'string' || moment.tz.zone(datum.timezone) === null) {
+      // No valid timezone found, ignore this entry
+      return false;
+    }
+    // Portal-api data loaded through V1 route force an UTC timezone
+    // Portal-api data are:
+    //      - pumpSettings/upload type
+    //      - deviceEvent type + deviceParameter subType 
+    if(["UTC","Etc/GMT","GMT"].indexOf(datum.timezone) > -1 ) {
+      if (["pumpSettings","upload"].indexOf(datum.type) > -1) {
+        return false;
+      }
+      if (datum.type =="deviceEvent" && datum.subType === "deviceParameter") {
+        return false;
+      }
+    }
+    return true;
+  }
+
   this.updateCrossFilters = function() {
     startTimer('crossfilter');
     this.filterData = crossfilter(this.data);
@@ -239,7 +259,7 @@ function TidelineData(data, opts) {
         }
       }
       // deviceEvent / timeChange datum:
-      if (typeof datum.timezone !== 'string' || moment.tz.zone(datum.timezone) === null) {
+      if (!filterValidTimezoneDatum(datum)) {
         // No valid timezone found, ignore this entry
         continue;
       }

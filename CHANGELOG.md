@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.10.4 - 2020-07-07
+### Fixed
+- PT-1405 portal-api data uploaded through V1 routes have UTC timezone generating timeChange events
+
 ## 1.10.3 - 2020-07-02
 ### Engineering
 - PT-1345 Fix npm package vulnerabilities and align build for blip.
