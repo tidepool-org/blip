@@ -7,13 +7,11 @@ import { Persist } from 'formik-persist';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import keyBy from 'lodash/keyBy';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
-import { useLocalStorage } from '../../core/hooks';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
@@ -36,56 +34,56 @@ const log = bows('PrescriptionForm');
 
 const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
-    id: get(props, 'routeParams.id', ''),
-    state: get(props, 'prescription.state', 'draft'),
-    type: get(props, 'prescription.type', ''),
-    firstName: get(props, 'prescription.firstName', ''),
-    lastName: get(props, 'prescription.lastName', ''),
-    birthday: get(props, 'prescription.birthday', ''),
-    email: get(props, 'prescription.email', ''),
-    emailConfirm: get(props, 'prescription.email', ''),
+    id: get(props, 'prescription.id', ''),
+    state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
+    // type: get(props, 'prescription.latestRevision.attributes.type', ''),
+    firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
+    lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
+    birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
+    email: get(props, 'prescription.latestRevision.attributes.email', ''),
+    emailConfirm: get(props, 'prescription.latestRevision.attributes.email', ''),
     phoneNumber: {
-      countryCode: get(props, 'prescription.phoneNumber.countryCode', validCountryCodes[0]),
-      number: get(props, 'prescription.phoneNumber.number', ''),
+      countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
+      number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number', ''),
     },
-    mrn: get(props, 'prescription.mrn', ''),
-    sex: get(props, 'prescription.sex', ''),
+    mrn: get(props, 'prescription.latestRevision.attributes.mrn', ''),
+    sex: get(props, 'prescription.latestRevision.attributes.sex', ''),
     initialSettings: {
-      bloodGlucoseUnits: get(props, 'prescription.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-      pumpId: get(props, 'prescription.initialSettings.pumpId', ''),
-      cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
-      insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
+      bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
+      pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
+      cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
+      insulinType: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinType', ''),
       suspendThreshold: {
-        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
         units: defaultUnits.suspendThreshold,
       },
       basalRateMaximum: {
-        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
       },
       bolusAmountMaximum: {
-        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
         units: defaultUnits.bolusAmount,
       },
-      bloodGlucoseTargetSchedule: get(props, 'prescription.initialSettings.bloodGlucoseTargetSchedule', [{
+      bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
         high: defaultValues(bgUnits).bloodGlucoseTarget.high,
         low: defaultValues(bgUnits).bloodGlucoseTarget.low,
         start: 0,
       }]),
-      basalRateSchedule: get(props, 'prescription.initialSettings.basalRateSchedule', [{
+      basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
         rate: defaultValues(bgUnits).basalRate,
         start: 0,
       }]),
-      carbohydrateRatioSchedule: get(props, 'prescription.initialSettings.carbohydrateRatioSchedule', [{
+      carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
         amount: defaultValues(bgUnits).carbRatio,
         start: 0,
       }]),
-      insulinSensitivitySchedule: get(props, 'prescription.initialSettings.insulinSensitivitySchedule', [{
+      insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
         amount: defaultValues(bgUnits).insulinSensitivityFactor,
         start: 0,
       }]),
     },
-    training: get(props, 'prescription.training', ''),
+    training: get(props, 'prescription.latestRevision.attributes.training', ''),
     therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
   }),
   validationSchema: props => prescriptionSchema(
@@ -95,18 +93,18 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
-const withPrescription = Component => withPrescriptions(props => {
-  const { prescriptions = [], routeParams: { id = '' } = {} } = props;
-  const prescription = get(keyBy(prescriptions, 'id'), id);
-  return <Component prescription={prescription} {...props} />
-});
-
 const PrescriptionForm = props => {
-  const { t } = props;
+  const {
+    t,
+    createPrescription,
+    createPrescriptionRevision,
+    creatingPrescription,
+    creatingPrescriptionRevision,
+    prescription,
+  } = props;
 
   const {
     getFieldMeta,
-    setFieldValue,
     handleSubmit,
     resetForm,
     values,
@@ -116,54 +114,33 @@ const PrescriptionForm = props => {
   const pumpId = get(values, 'initialSettings.pumpId');
   const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
 
-  /* WIP Scaffolding Start */
-  const sleep = m => new Promise(r => setTimeout(r, m));
+  const asyncStates = {
+    initial: { pending: false, complete: false },
+    pending: { pending: true, complete: false },
+    completed: { pending: false, complete: true },
+  };
 
-  // Until backend service is ready, save prescriptions to localStorage
-  const [prescriptions, setPrescriptions] = useLocalStorage('prescriptions', {});
-
-  const initialAsyncState = () => ({ pending: false, complete: false });
-  const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
+  const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
 
   const handleStepSubmit = async () => {
-    function uuidv4() {
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16) // eslint-disable-line no-bitwise
-      );
+    const prescriptionAttributes = { ...values };
+    delete prescriptionAttributes.emailConfirm;
+    delete prescriptionAttributes.id;
+    delete prescriptionAttributes.therapySettingsReviewed;
+
+    prescriptionAttributes.state = 'draft';
+
+    if (values.id) {
+      createPrescriptionRevision(prescriptionAttributes, values.id);
+    } else {
+      createPrescription(prescriptionAttributes)
     }
-
-    const prescriptionValues = values => {
-      const prescription = { ...values };
-      delete prescription.emailConfirm;
-      prescription.state = 'draft';
-      return prescription;
-    };
-
-    setStepAsyncState({ pending: true, complete: false });
-
-    const id = values.id || uuidv4();
-    if (!values.id) setFieldValue('id', id);
-
-    await sleep(1000);
-
-    setPrescriptions({
-      ...prescriptions,
-      [id]: {
-        ...prescriptionValues(values),
-        id,
-      },
-    });
-
-    setStepAsyncState({ pending: false, complete: true });
   };
-  /* WIP Scaffolding End */
-
 
   const [activeStep, setActiveStep] = React.useState();
   const [activeSubStep, setActiveSubStep] = React.useState();
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
-
 
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
@@ -189,6 +166,23 @@ const PrescriptionForm = props => {
     setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
     setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
   }, []);
+
+  // Handle changes to working state for prescription creation and revision updates
+  React.useEffect(() => {
+    if (get(prescription, 'id')) {
+      if (get(creatingPrescriptionRevision, 'inProgress')) {
+        setStepAsyncState(asyncStates.pending);
+      } else if (get(creatingPrescriptionRevision, 'completed')) {
+        setStepAsyncState(asyncStates.completed);
+      }
+    } else {
+      if (get(creatingPrescription, 'inProgress')) {
+        setStepAsyncState(asyncStates.pending);
+      } else if (get(creatingPrescription, 'completed')) {
+        setStepAsyncState(asyncStates.completed);
+      }
+    }
+  }, [creatingPrescription, creatingPrescriptionRevision])
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
@@ -233,7 +227,7 @@ const PrescriptionForm = props => {
     completeText: t('Save and Continue'),
     id: 'prescription-form-steps',
     onStepChange: (newStep) => {
-      setStepAsyncState(initialAsyncState());
+      setStepAsyncState(asyncStates.initial);
       log('Step to', newStep.join(','));
     },
     steps: [
@@ -286,7 +280,7 @@ const PrescriptionForm = props => {
   // Stepper component in the url, we delete any persisted state from localStorage.
   // As well, when editing an existing prescription, we delete it so that the current prescription
   // values replace whatever values were previously stored
-  if (props.prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
+  if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
 
   return (
     <form id="prescription-form" onSubmit={handleSubmit}>
@@ -308,4 +302,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default withPrescription(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
+export default withPrescriptions(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
