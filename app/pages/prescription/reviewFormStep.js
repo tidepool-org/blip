@@ -34,8 +34,7 @@ const fieldsetPropTypes = {
 
 export const PatientInfo = props => {
   const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
-
-  const nameStep = [0, 1];
+  const nameStep = [0, 0];
   const currentStep = [3, 0];
 
   const {
@@ -47,22 +46,22 @@ export const PatientInfo = props => {
     {
       label: t('Email'),
       value: meta.email.value,
-      step: [0, 2],
+      step: [0, 1],
     },
     {
       label: t('Mobile Number'),
       value: meta.phoneNumber.number.value,
       step: [1, 0],
     },
-    {
-      label: t('Type of Account'),
-      value: capitalize(meta.type.value),
-      step: [0, 0],
-    },
+    // {
+    //   label: t('Type of Account'),
+    //   value: capitalize(meta.type.value),
+    //   step: [0, 0],
+    // },
     {
       label: t('Birthdate'),
       value: meta.birthday.value,
-      step: [0, 1],
+      step: [0, 0],
     },
     {
       label: t('Gender'),

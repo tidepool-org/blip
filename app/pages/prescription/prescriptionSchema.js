@@ -13,7 +13,7 @@ import {
   pumpDeviceOptions,
   cgmDeviceOptions,
   insulinTypeOptions,
-  typeOptions,
+  // typeOptions,
   sexOptions,
   trainingOptions,
   validCountryCodes,
@@ -38,9 +38,9 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     id: yup.string(),
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
-    type: yup.string()
-      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
-      .required(t('Account type is required')),
+    // type: yup.string()
+    //   .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
+    //   .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
     lastName: yup.string().required(t('Last name is required')),
@@ -75,7 +75,7 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       pumpId: yup.string()
         .oneOf(map(pumpDeviceOptions, 'value'))
         .required(t('A pump type must be specified')),
-      cgmType: yup.string()
+      cgmId: yup.string()
         .oneOf(map(cgmDeviceOptions, 'value'))
         .required(t('A cgm type must be specified')),
       insulinType: yup.string()
