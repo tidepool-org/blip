@@ -3,7 +3,8 @@ import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import cloneDeep from 'lodash/cloneDeep';
+import map from 'lodash/map';
+import get from 'lodash/get';
 
 import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
@@ -12,9 +13,19 @@ import { Headline } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
 
 const Prescriptions = props => {
-  const { t, prescriptions = [] } = props;
+  const {
+    t,
+    deletePrescription,
+    deletingPrescription,
+    prescriptions = [],
+  } = props;
+
   const [searchText, setSearchText] = React.useState();
-  const data = cloneDeep(prescriptions);
+
+  const data = map(prescriptions, prescription => ({
+    id: get(prescription, 'id'),
+    ...get(prescription, 'latestRevision.attributes', {}),
+  }));
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
@@ -24,14 +35,16 @@ const Prescriptions = props => {
 
   const handleEdit = id => () => browserHistory.push({
     pathname: `prescriptions/${id}/edit`,
-    state: {
-      prescription: prescriptions[id],
-      foo: 'bar',
-    },
   });
+
+  const handleDelete = id => () => deletePrescription(id);
 
   const renderEdit = ({ id }) => (
     <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>
+  );
+
+  const renderDelete = ({ id }) => (
+    <Button processing={deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
   );
 
   const renderState = ({ state }) => {
@@ -63,7 +76,8 @@ const Prescriptions = props => {
     { title: t('Last Name'), field: 'lastName', align: 'left', sortable: true, searchable: true },
     { title: t('MRN #'), field: 'mrn', align: 'left', searchable: true },
     { title: t('State'), field: 'state', render: renderState, align: 'left', sortable: true},
-    { title: t('Edit'), field: 'edit', render: renderEdit, align: 'left' },
+    { title: t('Edit'), render: renderEdit, align: 'left' },
+    { title: t('Delete'), render: renderDelete, align: 'left' },
   ];
 
   return (
