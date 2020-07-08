@@ -39,11 +39,11 @@ export class AppComponent extends React.Component {
     fetchingPendingSentInvites: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.shape({
       inProgress: PropTypes.bool.isRequired,
-      completed: PropTypes.oneOfType([null, PropTypes.bool]),
+      completed: PropTypes.bool,
     }).isRequired,
     fetchingDataSources: PropTypes.shape({
       inProgress: PropTypes.bool.isRequired,
-      completed: PropTypes.oneOfType([null, PropTypes.bool]),
+      completed: PropTypes.bool,
     }).isRequired,
     location: PropTypes.string.isRequired,
     loggingOut: PropTypes.bool.isRequired,
@@ -75,7 +75,6 @@ export class AppComponent extends React.Component {
     userIsDonor: PropTypes.bool.isRequired,
     userIsSupportingNonprofit: PropTypes.bool.isRequired,
     permsOfLoggedInUser: PropTypes.object,
-    resendEmailVerificationProgress: PropTypes.bool.isRequired,
     resentEmailVerification: PropTypes.bool.isRequired,
   };
 
