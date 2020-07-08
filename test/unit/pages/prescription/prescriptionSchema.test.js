@@ -27,6 +27,7 @@ describe('prescriptionSchema', function() {
       'sex',
       'initialSettings',
       'training',
+      'therapySettingsReviewed',
     ]);
 
     expect(schema.fields.phoneNumber._nodes).to.be.an('array').and.have.members([

@@ -87,10 +87,6 @@ export const Body2 = Styled(Text)`
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
   color: ${props => (props.color ? props.color : colors.text.primary)};
-  margin-bottom: 1em;
-  &:last-child {
-    margin-bottom: 0;
-  }
 `;
 
 export const Body1 = Styled(Text)`
@@ -98,6 +94,16 @@ export const Body1 = Styled(Text)`
   line-height: ${lineHeights[3]};
   font-family: ${fonts.default};
   color: ${props => (props.color ? props.color : colors.text.primary)};
+`;
+
+export const Paragraph2 = Styled(Body2)`
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const Paragraph1 = Styled(Body1)`
   margin-bottom: 1em;
   &:last-child {
     margin-bottom: 0;

@@ -22,6 +22,7 @@
 /* global __PASSWORD_MAX_LENGTH__ */
 /* global __ABOUT_MAX_LENGTH__ */
 /* global __I18N_ENABLED__ */
+/* global __RX_ENABLED__ */
 /* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
@@ -54,6 +55,7 @@ const config = {
   PASSWORD_MAX_LENGTH: integerFromText(__PASSWORD_MAX_LENGTH__, 72),
   ABOUT_MAX_LENGTH: integerFromText(__ABOUT_MAX_LENGTH__, 256),
   I18N_ENABLED: booleanFromText(__I18N_ENABLED__, false),
+  RX_ENABLED: booleanFromText(__RX_ENABLED__, false),
 }
 
 if (__DEV__) {

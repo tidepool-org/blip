@@ -43,6 +43,7 @@ describe('forms', function() {
       countryCode: { ...notTouchedAndError, value: 'bar' },
       number: { ...touchedAndNoError, value: 'baz' },
       ext: { ...touchedAndNoError, value: 123 },
+      isCellNumber: { ...notTouchedAndNoError, value: true },
     },
     other: {
       deeply: {
@@ -61,6 +62,7 @@ describe('forms', function() {
           countryCode: {},
           number: {},
           ext: {},
+          isCellNumber: {},
         },
       },
       other: {
@@ -104,6 +106,12 @@ describe('forms', function() {
       expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.ext).to.eql({
         ...touchedAndNoError,
         value: 123,
+        valid: true,
+      });
+
+      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.isCellNumber).to.eql({
+        ...notTouchedAndNoError,
+        value: true,
         valid: true,
       });
 
