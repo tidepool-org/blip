@@ -15,7 +15,7 @@ const meta = {
   training: { value: true },
   initialSettings: {
     suspendThreshold: { value: { value: true } },
-    insulinType: { value: true },
+    insulinModel: { value: true },
     basalRateMaximum: { value: { value: true } },
     bolusAmountMaximum: { value: { value: true } },
     bloodGlucoseTargetSchedule: { value: true },

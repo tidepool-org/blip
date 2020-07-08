@@ -153,7 +153,7 @@ export const TherapySettings = props => {
     {
       id: 'insulin-model',
       label: t('Insulin Model'),
-      value: meta.initialSettings.insulinType.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
+      value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
     },
     {
       id: 'delivery-limits',

@@ -15,7 +15,7 @@ import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
-  insulinTypeOptions,
+  insulinModelOptions,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -221,10 +221,10 @@ export const InsulinSettings = props => {
         <FastField
           as={RadioGroup}
           variant="horizontal"
-          id="initialSettings.insulinType"
-          name="initialSettings.insulinType"
-          options={insulinTypeOptions}
-          error={getFieldError(meta.initialSettings.insulinType)}
+          id="initialSettings.insulinModel"
+          name="initialSettings.insulinModel"
+          options={insulinModelOptions}
+          error={getFieldError(meta.initialSettings.insulinModel)}
           mb={4}
         />
 

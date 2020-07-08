@@ -250,13 +250,13 @@ describe('prescriptionFormConstants', function() {
   });
 
   it('should export the list the prescription insulin type options', function() {
-    expect(prescriptionFormConstants.insulinTypeOptions).to.be.an('array');
-    expect(_.map(prescriptionFormConstants.insulinTypeOptions, 'value')).to.eql([
+    expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
       'rapidAdult',
       'rapidChild',
     ]);
 
-    _.each(prescriptionFormConstants.insulinTypeOptions, device => {
+    _.each(prescriptionFormConstants.insulinModelOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
     })

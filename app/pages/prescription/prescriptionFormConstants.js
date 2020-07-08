@@ -187,7 +187,7 @@ export const trainingOptions = [
   { value: 'inModule', label: t('No, Patient can self start with Tidepool Loop in-app tutorial') },
 ];
 
-export const insulinTypeOptions = [
+export const insulinModelOptions = [
   { value: 'rapidAdult', label: t('Rapid Acting Adult') },
   { value: 'rapidChild', label: t('Rapid Acting Child') },
 ];
@@ -210,7 +210,7 @@ export const stepValidationFields = [
     [
       'training',
       'initialSettings.suspendThreshold.value',
-      'initialSettings.insulinType',
+      'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',
       'initialSettings.bloodGlucoseTargetSchedule',
