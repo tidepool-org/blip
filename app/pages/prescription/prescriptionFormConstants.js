@@ -15,9 +15,14 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 export const revisionStates = ['draft', 'pending', 'submitted'];
 
 // TODO: placeholder device id's until provided by upcoming devices api
+export const placeholderDeviceIds = {
+  dexcom: '5f04d693383c7ba83133f98b',
+  omnipod: '5f04d7063ed246933cd6ea4e',
+};
+
 export const pumpDeviceOptions = [
   {
-    value: 'omnipodId',
+    value: placeholderDeviceIds.omnipod,
     label: t('Omnipod Horizon'),
     extraInfo: (
       <Trans>
@@ -29,7 +34,7 @@ export const pumpDeviceOptions = [
 
 export const cgmDeviceOptions = [
   {
-    value: 'dexcomId',
+    value: placeholderDeviceIds.dexcom,
     label: t('Dexcom G6'),
     extraInfo: (
       <Trans>
@@ -147,10 +152,10 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
 // TODO: placeholder device-specific values until provided by the upcoming devices api.
 export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
   const metaByDeviceId = {
-    dexcomId: {
+    [placeholderDeviceIds.dexcom]: {
       manufacturerName: 'Dexcom',
     },
-    omnipodId: {
+    [placeholderDeviceIds.omnipod]: {
       manufacturerName: 'Omnipod',
       ranges: defaultsDeep({
         basalRate: { max: 30 },
@@ -166,10 +171,10 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
   };
 };
 
-export const typeOptions = [
-  { value: 'patient', label: t('Patient') },
-  { value: 'caregiver', label: t('Patient and caregiver') },
-];
+// export const typeOptions = [
+//   { value: 'patient', label: t('Patient') },
+//   { value: 'caregiver', label: t('Patient and caregiver') },
+// ];
 
 export const sexOptions = [
   { value: 'female', label: t('Female') },
@@ -191,7 +196,7 @@ export const validCountryCodes = [1];
 
 export const stepValidationFields = [
   [
-    ['type'],
+    // ['type'],
     ['firstName', 'lastName', 'birthday'],
     ['email', 'emailConfirm'],
   ],
@@ -199,7 +204,7 @@ export const stepValidationFields = [
     ['phoneNumber.number'],
     ['mrn'],
     ['sex'],
-    ['initialSettings.pumpId', 'initialSettings.cgmType'],
+    ['initialSettings.pumpId', 'initialSettings.cgmId'],
   ],
   [
     [

@@ -27,7 +27,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list pump device options', function() {
     expect(prescriptionFormConstants.pumpDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.pumpDeviceOptions, 'value')).to.eql([
-      'omnipodId',
+      prescriptionFormConstants.placeholderDeviceIds.omnipod,
     ]);
 
     _.each(prescriptionFormConstants.pumpDeviceOptions, device => {
@@ -40,7 +40,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list cgm device options', function() {
     expect(prescriptionFormConstants.cgmDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.cgmDeviceOptions, 'value')).to.eql([
-      'dexcomId',
+      prescriptionFormConstants.placeholderDeviceIds.dexcom,
     ]);
 
     _.each(prescriptionFormConstants.cgmDeviceOptions, device => {
