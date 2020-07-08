@@ -15,8 +15,8 @@ const meta = {
   mrn: { valid: true },
   sex: { valid: true },
   initialSettings: {
-    pumpType: { valid: true },
-    cgmType: { valid: true },
+    pumpId: { valid: true },
+    cgmId: { valid: true },
   },
 };
 
@@ -53,7 +53,7 @@ describe('profileFormSteps', function() {
     expect(profileFormSteps(invalidateMeta('mrn')).subSteps[1].disableComplete).to.be.true;
     expect(profileFormSteps(invalidateMeta('sex')).subSteps[2].disableComplete).to.be.true;
     expect(profileFormSteps(invalidateMeta('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateMeta('initialSettings.cgmType')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateMeta('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
   });
 
   it('should not hide the back button for the any subSteps', () => {

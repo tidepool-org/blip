@@ -38,7 +38,7 @@ describe('prescriptionSchema', function() {
     expect(schema.fields.initialSettings._nodes).to.be.an('array').and.have.members([
       'bloodGlucoseUnits',
       'pumpId',
-      'cgmType',
+      'cgmId',
       'insulinType',
       'suspendThreshold',
       'basalRateMaximum',

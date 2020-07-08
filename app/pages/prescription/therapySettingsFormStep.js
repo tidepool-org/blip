@@ -104,8 +104,8 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpType = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
+  const pumpId = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
   const thresholds = warningThresholds(bgUnits);
 
   return (
