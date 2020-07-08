@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import assign from 'lodash/assign';
 import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import keyBy from 'lodash/keyBy';
 import { components as vizComponents } from '@tidepool/viz';
 
 import * as actions from '../../redux/actions';
@@ -10,7 +12,12 @@ import * as actions from '../../redux/actions';
 const { Loader } = vizComponents;
 
 const withPrescriptions = Component => props => {
-  const { prescriptions, fetchers, fetchingPrescriptions } = props;
+  const {
+    fetchers,
+    fetchingPrescriptions,
+    prescriptions,
+    prescriptionId,
+  } = props;
 
   React.useEffect(() => {
     if (!fetchers) {
@@ -22,9 +29,11 @@ const withPrescriptions = Component => props => {
     });
   }, [])
 
-  return fetchingPrescriptions.inProgress
-    ? <Loader />
-    : <Component prescriptions={prescriptions} {...props} />;
+  const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
+
+  return fetchingPrescriptions.completed
+    ? <Component prescriptions={prescriptions} prescription={prescription} {...props} />
+    : <Loader />;
 };
 
 /**
@@ -42,12 +51,18 @@ export function getFetchers(dispatchProps, stateProps, api) {
 
 export function mapStateToProps(state) {
   return {
-    prescriptions: state.blip.prescriptions,
+    creatingPrescription: state.blip.working.creatingPrescription,
+    creatingPrescriptionRevision: state.blip.working.creatingPrescriptionRevision,
+    deletingPrescription: state.blip.working.deletingPrescription,
     fetchingPrescriptions: state.blip.working.fetchingPrescriptions,
+    prescriptions: state.blip.prescriptions,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  createPrescription: actions.async.createPrescription,
+  createPrescriptionRevision: actions.async.createPrescriptionRevision,
+  deletePrescription: actions.async.deletePrescription,
   fetchPrescriptions: actions.async.fetchPrescriptions,
 }, dispatch);
 
@@ -57,8 +72,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     {},
     stateProps,
     {
+      createPrescription: dispatchProps.createPrescription.bind(null, api),
+      createPrescriptionRevision: dispatchProps.createPrescriptionRevision.bind(null, api),
+      deletePrescription: dispatchProps.deletePrescription.bind(null, api),
       fetchers: getFetchers(dispatchProps, stateProps, api),
-      trackMetric: ownProps.routes[0].trackMetric
+      prescriptionId: ownProps.params.id,
+      trackMetric: ownProps.routes[0].trackMetric,
     }
   );
 };
