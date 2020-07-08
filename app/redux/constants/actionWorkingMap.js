@@ -42,6 +42,16 @@ export default (type) => {
     case types.CREATE_PRESCRIPTION_FAILURE:
       return 'creatingPrescription';
 
+    case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+    case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
+      return 'creatingPrescriptionRevision';
+
+    case types.DELETE_PRESCRIPTION_REQUEST:
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+    case types.DELETE_PRESCRIPTION_FAILURE:
+      return 'deletingPrescription';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:

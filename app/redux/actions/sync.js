@@ -868,6 +868,57 @@ export function createPrescriptionFailure(error, apiError) {
   };
 }
 
+export function createPrescriptionRevisionRequest() {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_REQUEST,
+  };
+}
+
+export function createPrescriptionRevisionSuccess(createdRevision, prescriptionID) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_SUCCESS,
+    payload: {
+      createdRevision: createdRevision,
+      prescriptionID: prescriptionID,
+    },
+  };
+}
+
+export function createPrescriptionRevisionFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deletePrescriptionRequest() {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_REQUEST,
+  };
+}
+
+export function deletePrescriptionSuccess(prescriptionID) {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_SUCCESS,
+    payload: {
+      prescriptionID: prescriptionID,
+    },
+  };
+}
+
+export function deletePrescriptionFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,

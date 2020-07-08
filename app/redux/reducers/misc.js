@@ -542,6 +542,15 @@ export const prescriptions = (state = initialState.prescriptions, action) => {
     case types.CREATE_PRESCRIPTION_SUCCESS:
       const prescription = _.get(action.payload, 'prescription', {});
       return update(state, { $push: [prescription] });
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+      const updatedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionID });
+      const updatedPrescription = _.assign({}, state[updatedPrescriptionIndex], {
+        latestRevision: action.payload.createdRevision,
+      });
+      return update(state, { $splice: [[updatedPrescriptionIndex, 1, updatedPrescription]] });
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+      const deletedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionID });
+      return update(state, { $splice: [[deletedPrescriptionIndex, 1]] });
     case types.LOGOUT_REQUEST:
       return [];
     default:
