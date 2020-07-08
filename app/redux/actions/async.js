@@ -1089,7 +1089,7 @@ export function fetchPatientData(api, options, id) {
 /**
  * Fetch Prescriptions Action Creator
  *
- * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} api - an instance of the API wrapper
  */
 export function fetchPrescriptions(api) {
   return (dispatch) => {
@@ -1110,20 +1110,65 @@ export function fetchPrescriptions(api) {
 /**
  * Create Prescription Action Creator
  *
- * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} api - an instance of the API wrapper
  * @param  {Object} prescription to be created
  */
 export function createPrescription(api, prescription) {
   return (dispatch) => {
     dispatch(sync.createPrescriptionRequest());
 
-    api.prescription.getAll(prescription, (err, result) => {
+    api.prescription.create(prescription, (err, result) => {
       if (err) {
         dispatch(sync.createPrescriptionFailure(
           createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION, err), err
         ));
       } else {
         dispatch(sync.createPrescriptionSuccess(result));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Revision Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {Object} revision revision to be created
+ * @param  {String} prescriptionID id of prescription to add revision to
+ */
+export function createPrescriptionRevision(api, revision, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRevisionRequest());
+
+    api.prescription.createRevision(revision, prescriptionId, (err, createdRevision) => {
+      if (err) {
+        dispatch(sync.createPrescriptionRevisionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionRevisionSuccess(createdRevision, prescriptionId));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {String} prescription to be created
+ */
+export function deletePrescription(api, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.deletePrescriptionRequest());
+
+    api.prescription.delete(prescriptionId, (err, result) => {
+      if (err) {
+        dispatch(sync.deletePrescriptionFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.deletePrescriptionSuccess(result));
       }
     });
   };
