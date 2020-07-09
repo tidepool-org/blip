@@ -2,7 +2,6 @@ import colorPalette from './colorPalette';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
-import chips from './base/chips';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
@@ -72,6 +71,7 @@ export const radii = {
   large: 8,
   default: 4,
   input: 3,
+  full: 999,
 };
 
 export const shadows = {
@@ -92,7 +92,6 @@ const linkVariants = links({ colors, fonts });
 
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
-  chips: chips({ colors, fonts, fontSizes, fontWeights }),
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),

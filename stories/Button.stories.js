@@ -148,3 +148,43 @@ Filter.story = {
     },
   },
 };
+
+export const Chip = () => {
+  const button1Text = () => text('Chip 1 Text', 'Chip 1');
+  const button2Text = () => text('Chip 2 Text', 'Chip 2');
+  const [activeChip, setActiveChip] = React.useState();
+
+  return (
+    <Flex>
+      <Button
+        mr={2}
+        variant="chip"
+        disabled={disabled()}
+        active={activeChip === 'chip1'}
+        onClick={() => setActiveChip('chip1')}
+        processing={processing()}
+      >
+        {button1Text()}
+      </Button>
+      <Button
+        variant="chip"
+        disabled={disabled()}
+        active={activeChip === 'chip2'}
+        onClick={() => setActiveChip('chip2')}
+        processing={processing()}
+      >
+        {button2Text()}
+      </Button>
+    </Flex>
+  );
+};
+
+Chip.story = {
+  name: 'Chip',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2517%3A161',
+    },
+  },
+};

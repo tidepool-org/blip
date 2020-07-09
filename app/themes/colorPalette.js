@@ -37,8 +37,6 @@ export default {
       '#ABD6FF',
       '#78BDFF',
       '#5EB1FF',
-      '#4c9aff',
-      '#4F6A92',
     ],
     cyans: [
       '#DFFAFB',
