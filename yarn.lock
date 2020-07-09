@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.12.0-rc.1":
-  version "1.12.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.12.0-rc.1.tgz#21ff6336cdac99e2875b4e2cb67bc7678ff1252c"
-  integrity sha512-NV0DHt8bEliNVMkTbouueyOppl7I/oNxgxbsoJ8EZ3Om+vMkrH7eWeQe6Z31gWhKIZkMPIzei12jq5DBX/+r1w==
+"@tidepool/viz@1.12.0-rc.2":
+  version "1.12.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.12.0-rc.2.tgz#15e8722b53d266f39f521f6b42facf455813e131"
+  integrity sha512-rnWVl/m2fPYz2QHRUs6mDPi0W4s2QDJg6ztWCzDPu7HtONePcGaDRyzATEP3JdJAm/2F10T57wpouBnzX33T4g==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -2186,7 +2186,7 @@
     react-dom "16.12.0"
     react-markdown "4.0.3"
     react-motion "0.5.2"
-    react-redux "5.1.2"
+    react-redux "7.2.0"
     react-select "2.0.0"
     react-sizeme "2.6.12"
     react-transition-group-plus "0.5.3"
@@ -14276,7 +14276,7 @@ react-json-tree@^0.11.0:
     prop-types "^15.5.8"
     react-base16-styling "^0.5.1"
 
-react-lifecycles-compat@^3.0.0, react-lifecycles-compat@^3.0.4:
+react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
@@ -14370,19 +14370,6 @@ react-pure-render@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-pure-render/-/react-pure-render-1.0.2.tgz#9d8a928c7f2c37513c2d064e57b3e3c356e9fabb"
   integrity sha1-nYqSjH8sN1E8LQZOV7Pjw1bp+rs=
-
-react-redux@5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-5.1.2.tgz#b19cf9e21d694422727bf798e934a916c4080f57"
-  integrity sha512-Ns1G0XXc8hDyH/OcBHOxNgQx9ayH3SPxBnFCOidGKSle8pKihysQw2rG/PmciUQRoclhVBO8HMhiRmGXnDja9Q==
-  dependencies:
-    "@babel/runtime" "^7.1.2"
-    hoist-non-react-statics "^3.3.0"
-    invariant "^2.2.4"
-    loose-envify "^1.1.0"
-    prop-types "^15.6.1"
-    react-is "^16.6.0"
-    react-lifecycles-compat "^3.0.0"
 
 react-redux@7.2.0, react-redux@^7.0.2:
   version "7.2.0"
@@ -14894,7 +14881,7 @@ reduce-component@1.0.1:
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
   integrity sha1-4Mk1QsV0UhvqE98PlIjtgqt3xdo=
 
-reductio@crossfilter/reductio#0c45b03559:
+"reductio@github:crossfilter/reductio#0c45b03559":
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
