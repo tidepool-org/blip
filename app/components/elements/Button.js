@@ -41,7 +41,7 @@ export const Button = props => {
   const themeContext = useContext(ThemeContext);
 
   return (
-    <Flex as={StyledButton} alignItems="center" variant="primary" {...buttonProps} className={`${classNames} ${className}`}>
+    <Flex as={StyledButton} alignItems="center" {...buttonProps} className={`${classNames} ${className}`}>
       <Box>{children}</Box>
       {icon && (
         <Icon className="icon" ml={1} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
@@ -65,10 +65,20 @@ Button.propTypes = {
   active: PropTypes.bool,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
+  variant: PropTypes.oneOf([
+    'primary',
+    'secondary',
+    'textPrimary',
+    'textSecondary',
+    'pagination',
+    'filter',
+    'chip',
+  ]),
 };
 
 Button.defaultProps = {
   type: 'button',
+  variant: 'primary',
 };
 
 export default Button;

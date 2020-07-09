@@ -72,6 +72,7 @@ export const radii = {
   large: 8,
   default: 4,
   input: 3,
+  full: 999,
 };
 
 export const shadows = {
