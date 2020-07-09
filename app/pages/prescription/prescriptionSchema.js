@@ -78,16 +78,16 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       cgmId: yup.string()
         .oneOf(map(cgmDeviceOptions, 'value'))
         .required(t('A cgm type must be specified')),
-      insulinModel: yup.string()
-        .oneOf(map(insulinModelOptions, 'value'))
-        .required(t('A cgm type must be specified')),
-      suspendThreshold: yup.object().shape({
-        value: yup.number()
-          .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-          .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
-          .required(t('Suspend threshold is required')),
-        units: yup.string().default(bgUnits),
-      }),
+      // insulinModel: yup.string()
+      //   .oneOf(map(insulinModelOptions, 'value'))
+      //   .required(t('An insulin model must be specified')),
+      // suspendThreshold: yup.object().shape({
+      //   value: yup.number()
+      //     .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
+      //     .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
+      //     .required(t('Suspend threshold is required')),
+      //   units: yup.string().default(bgUnits),
+      // }),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(pumpMeta.ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)

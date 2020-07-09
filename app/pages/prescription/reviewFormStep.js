@@ -144,17 +144,17 @@ export const TherapySettings = props => {
         }
       ),
     },
-    {
-      id: 'suspend-threshold',
-      label: t('Suspend Threshold'),
-      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
-    },
-    {
-      id: 'insulin-model',
-      label: t('Insulin Model'),
-      value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
-    },
+    // {
+    //   id: 'suspend-threshold',
+    //   label: t('Suspend Threshold'),
+    //   value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+    //   warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+    // },
+    // {
+    //   id: 'insulin-model',
+    //   label: t('Insulin Model'),
+    //   value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
+    // },
     {
       id: 'delivery-limits',
       label: t('Delivery Limits'),

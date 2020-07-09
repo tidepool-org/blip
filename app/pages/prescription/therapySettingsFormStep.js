@@ -15,7 +15,7 @@ import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
-  insulinModelOptions,
+  // insulinModelOptions,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -150,7 +150,7 @@ export const GlucoseSettings = props => {
           />
         </Box>
 
-        <PopoverLabel
+        {/* <PopoverLabel
             id='suspend-threshold'
             label={t('Suspend Threshold')}
             mb={2}
@@ -172,7 +172,7 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
             {...pumpMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
-          />
+          /> */}
       </Box>
     </Box>
   );
@@ -191,7 +191,7 @@ export const InsulinSettings = props => {
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
-        <PopoverLabel
+        {/* <PopoverLabel
           id='insulin-model'
           label={t('Insulin Model')}
           mb={2}
@@ -226,7 +226,7 @@ export const InsulinSettings = props => {
           options={insulinModelOptions}
           error={getFieldError(meta.initialSettings.insulinModel)}
           mb={4}
-        />
+        /> */}
 
         <PopoverLabel
           id='max-basal'

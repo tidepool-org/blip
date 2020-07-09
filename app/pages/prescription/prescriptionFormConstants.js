@@ -74,10 +74,10 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
       low: { value: 15, message: lowWarning },
       high: { value: 400, message: highWarning },
     },
-    suspendThreshold: {
-      low: { value: 70, message: lowWarning },
-      high: { value: 120, message: highWarning },
-    },
+    // suspendThreshold: {
+    //   low: { value: 70, message: lowWarning },
+    //   high: { value: 120, message: highWarning },
+    // },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -87,8 +87,8 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
     thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
     thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    // thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    // thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
@@ -105,7 +105,7 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: 10,
     carbRatio: 10,
     insulinSensitivityFactor: 100,
-    suspendThreshold: 80,
+    // suspendThreshold: 80,
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -115,7 +115,7 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
     }
 
     values.insulinSensitivityFactor = utils.roundBgTarget(utils.translateBg(values.insulinSensitivityFactor, MMOLL_UNITS), MMOLL_UNITS);
-    values.suspendThreshold = utils.roundBgTarget(utils.translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
+    // values.suspendThreshold = utils.roundBgTarget(utils.translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return values;
@@ -129,7 +129,7 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
     carbRatio: { min: 0, max: 250, step: 1 },
     insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
-    suspendThreshold: { min: 54, max: 180, step: 1 },
+    // suspendThreshold: { min: 54, max: 180, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -141,9 +141,9 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.step = 0.1;
 
-    ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.suspendThreshold.step = 0.1;
+    // ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    // ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    // ranges.suspendThreshold.step = 0.1;
   }
 
   return ranges;
@@ -187,10 +187,10 @@ export const trainingOptions = [
   { value: 'inModule', label: t('No, Patient can self start with Tidepool Loop in-app tutorial') },
 ];
 
-export const insulinModelOptions = [
-  { value: 'rapidAdult', label: t('Rapid Acting Adult') },
-  { value: 'rapidChild', label: t('Rapid Acting Child') },
-];
+// export const insulinModelOptions = [
+//   { value: 'rapidAdult', label: t('Rapid Acting Adult') },
+//   { value: 'rapidChild', label: t('Rapid Acting Child') },
+// ];
 
 export const validCountryCodes = [1];
 
@@ -209,8 +209,8 @@ export const stepValidationFields = [
   [
     [
       'training',
-      'initialSettings.suspendThreshold.value',
-      'initialSettings.insulinModel',
+      // 'initialSettings.suspendThreshold.value',
+      // 'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',
       'initialSettings.bloodGlucoseTargetSchedule',
