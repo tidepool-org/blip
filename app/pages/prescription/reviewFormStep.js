@@ -312,8 +312,8 @@ export const PrescriptionReview = translate()(props => (
 ));
 
 const reviewFormStep = (meta, handlers) => ({
-  label: t('Review and Send Prescription'),
-  completeText: t('Send Prescription'),
+  label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role
+  completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role
   disableComplete: !fieldsAreValid(stepValidationFields[3][0], meta),
   panelContent: <PrescriptionReview meta={meta} handlers={handlers} />
 });

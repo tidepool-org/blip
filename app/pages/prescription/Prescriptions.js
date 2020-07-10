@@ -31,12 +31,8 @@ const Prescriptions = props => {
     setSearchText(event.target.value);
   }
 
-  const handleAddNew = () => browserHistory.push('prescriptions/new');
-
-  const handleEdit = id => () => browserHistory.push({
-    pathname: `prescriptions/${id}/edit`,
-  });
-
+  const handleAddNew = () => browserHistory.push('/prescriptions/new');
+  const handleEdit = id => () => browserHistory.push(`/prescriptions/${id}/edit`);
   const handleDelete = id => () => deletePrescription(id);
 
   const renderEdit = ({ id }) => (

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
+import { browserHistory } from 'react-router';
 import bows from 'bows';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
@@ -113,6 +114,7 @@ const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
+  const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId');
   const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
@@ -123,11 +125,18 @@ const PrescriptionForm = props => {
     completed: { pending: false, complete: true },
   };
 
+  const params = () => new URLSearchParams(location.search);
+  const activeStepParamKey = `${stepperId}-step`;
+  const activeStepsParam = params().get(activeStepParamKey);
+  const storageKey = 'prescriptionForm';
+
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState();
-  const [activeSubStep, setActiveSubStep] = React.useState();
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? activeStepsParam[0] : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? activeStepsParam[1] : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
+  console.log('activeStep', activeStep);
+  let isLastStep = activeStep === stepValidationFields.length - 1;
 
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
@@ -152,13 +161,24 @@ const PrescriptionForm = props => {
 
     setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
     setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+
+    console.log('activeStep', activeStep);
   }, []);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
     const { inProgress, completed, prescriptionId } = get(values, 'id') ? creatingPrescriptionRevision : creatingPrescription;
-    if (!inProgress && completed) setStepAsyncState(asyncStates.completed);
+
     if (prescriptionId) setFieldValue('id', prescriptionId);
+
+    if (!inProgress && completed) {
+      setStepAsyncState(asyncStates.completed);
+      console.log('isLastStep', isLastStep);
+      if (isLastStep) {
+        // TODO: Set a message to display as a toast on the prescriptions page
+        browserHistory.push('/prescriptions');
+      }
+    }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
   const handlers = {
@@ -188,7 +208,7 @@ const PrescriptionForm = props => {
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
       // entered in the later steps.
-      if (activeStep < stepValidationFields.length - 1) {
+      if (!isLastStep) {
         const emptyFieldsInFutureSteps = remove(
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
           fieldPath => isEmpty(get(values, fieldPath))
@@ -237,7 +257,7 @@ const PrescriptionForm = props => {
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
-    id: 'prescription-form-steps',
+    id: stepperId,
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
       log('Step to', newStep.join(','));
@@ -282,11 +302,6 @@ const PrescriptionForm = props => {
       }
     },
   };
-
-  const params = () => new URLSearchParams(location.search);
-  const activeStepParamKey = `${stepperProps.id}-step`;
-  const activeStepsParam = params().get(activeStepParamKey);
-  const storageKey = 'prescriptionForm';
 
   // When a user comes to this component initially, without the active step and subStep set by the
   // Stepper component in the url, we delete any persisted state from localStorage.

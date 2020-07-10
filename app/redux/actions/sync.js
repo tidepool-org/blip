@@ -878,7 +878,8 @@ export function createPrescriptionRevisionSuccess(createdRevision, prescriptionI
   return {
     type: ActionTypes.CREATE_PRESCRIPTION_REVISION_SUCCESS,
     payload: {
-      createdRevision: createdRevision,
+      createdRevision: createdRevision.latestRevision,
+      // createdRevision: createdRevision, // This is what should be expected from the API spec, but waiting for answer from backend
       prescriptionID: prescriptionID,
     },
   };
