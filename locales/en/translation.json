@@ -584,6 +584,7 @@
   "The birthday specified does not match what is in our system. Please contact the clinic that created your account and ask them to update your birthday.": "The birthday specified does not match what is in our system. Please contact the clinic that created your account and ask them to update your birthday.",
   "The date and/or time settings of your device were changed recently, and this datum may overlap in the timeline display with other data from the same device.": "The date and/or time settings of your system were changed recently, and this datum may overlap in the timeline display with other data from the same system.",
   "The diaTribe Foundation": "The diaTribe Foundation",
+  "The period must be less than {{days}} days": "The period must be less than {{days}} days",
   "There is no {{displayType}} data for this time period :(": "There is no {{displayType}} data for this time period :(",
   "There is not enough data to show this statistic.": "There is not enough data to show this statistic.",
   "These people can view {{patientName}}'s data": "These people can view {{patientName}}'s data",

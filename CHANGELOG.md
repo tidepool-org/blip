@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Fixed
 - PT-1168 Fix display bug when updating user profile
+- PT-1125 Add missing calendar translation
 
 ## 1.0.1 - 2020-06-12
 ### Fixed
