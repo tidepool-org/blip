@@ -52,6 +52,24 @@ module.exports = schema(schema().oneOf(
       },
       schema.with('expectedNormal', 'normal'),
       schema.with('expectedExtended', ['extended', 'duration', 'expectedDuration'])
+    ),
+  schema(
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        subType: schema().string().in(['pen'])
+      }
+    ),
+  schema(
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        subType: schema().string().in(['biphasic'])
+      },
+      schema.with('expectedNormal', 'normal')
     )
   )
 );
