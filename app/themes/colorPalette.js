@@ -5,6 +5,8 @@ export default {
     purpleLight: '#DCE0F9',
     purpleMedium: '#617DFF',
     purpleDark: '#271B46',
+    blueGrey: '#4F6A92',
+    blueGreySubdued: '#7E98C3',
   },
   secondary: {
     coral: '#F9706B',
@@ -37,8 +39,6 @@ export default {
       '#ABD6FF',
       '#78BDFF',
       '#5EB1FF',
-      '#4c9aff',
-      '#4F6A92',
     ],
     cyans: [
       '#DFFAFB',

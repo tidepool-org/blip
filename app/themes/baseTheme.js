@@ -2,7 +2,6 @@ import colorPalette from './colorPalette';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
-import chips from './base/chips';
 import icons from './base/icons';
 import inputs from './base/inputs';
 import links from './base/links';
@@ -20,15 +19,16 @@ export const colors = {
   ...colorPalette.neutrals,
   ...colorPalette.extended,
   text: {
-    primary: '#4F6A92',
-    primaryDisabled: '#A6B1BB',
-    primarySubdued: '#7E98C3',
     link: '#6582FF',
+    primary: colorPalette.primary.blueGrey,
+    primaryDisabled: '#A6B1BB',
+    primarySubdued: colorPalette.primary.blueGreySubdued,
   },
   border: {
+    webkitFocus: '#005fcc',
     default: colorPalette.extended.grays[1],
-    modal: colorPalette.extended.grays[0],
     divider: colorPalette.extended.grays[0],
+    modal: colorPalette.extended.grays[0],
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
@@ -93,7 +93,6 @@ const linkVariants = links({ colors, fonts });
 
 const variants = {
   avatars: avatars({ colors, fonts, fontSizes, fontWeights }),
-  chips: chips({ colors, fonts, fontSizes, fontWeights }),
   banners: banners({ colors, fonts, fontSizes, fontWeights }),
   icons: icons({ colors, fontSizes, radii, space }),
   inputs: inputs({ borders, colors, fonts, radii, fontSizes, fontWeights, space }),
