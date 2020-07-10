@@ -99,6 +99,19 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
+        } else if (_.includes([
+          types.CREATE_PRESCRIPTION_REQUEST,
+          types.CREATE_PRESCRIPTION_REVISION_REQUEST,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: null, // For these types we don't persist the completed state
+              }
+            }
+          });
         } else {
           return update(state, {
             [key]: {
@@ -195,6 +208,17 @@ export default (state = initialWorkingState, action) => {
             [generatingPDFWorkingKey]: {
               $set: initialState.working[generatingPDFWorkingKey],
             },
+          });
+        } else if (action.type === types.CREATE_PRESCRIPTION_SUCCESS) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+              }
+            }
           });
         } else {
           return update(state, {
