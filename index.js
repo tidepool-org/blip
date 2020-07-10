@@ -16,7 +16,7 @@
 'use strict';
 
 var _ = require('lodash');
-var uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 var id = require('./lib/id.js');
 

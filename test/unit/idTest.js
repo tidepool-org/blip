@@ -13,17 +13,17 @@
 // not, you can obtain one from Tidepool Project at tidepool.org.
 // == BSD2 LICENSE ==
 
-'use strict';
-var expect = require('salinity').expect;
-
+const chai = require('chai');
 var id = require('./../../lib/id');
+
+const { expect } = chai;
 
 describe('id generator', function () {
   it('fails when item is null', function (done) {
     try{
       id.generateId(['here',null,'this',]);
     }catch(error){
-      expect(error).exists;
+      expect(error).to.exist;
       done();
     }
   });

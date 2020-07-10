@@ -1,9 +1,14 @@
 # tidepool-platform-client
 Client-side library to interact with the [Tidepool](http://tidepool.org/) platform.
 
-## Unreleased
+## 0.3.0 - 2020-07-10
 ###  Changed
-- PT-XXXX Password reset for patient is triggering information message
+- PT-1410 Password reset for patient is triggering information message
+### Engineering
+- PT-1345 Fix security issues
+  - Run security checks
+  - Update packages
+  - Use nexus repository
 
 ## 0.2.0 - 2020-04-24
 ###  Added
