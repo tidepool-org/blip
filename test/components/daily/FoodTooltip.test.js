@@ -54,6 +54,24 @@ const nonCarb = {
   },
 };
 
+const rescuecarbsWithReco = {
+  type: 'food',
+  meal: 'rescuecarbs',
+  nutrition: {
+    carbohydrate: {
+      net: 20,
+      units: 'grams',
+    },
+  },
+  prescribedNutrition: {
+    carbohydrate : {
+      net: 15,
+      units: "grams"
+    }
+  },
+  prescriptor: "auto"
+};
+
 const props = {
   position: { top: 200, left: 200 },
   timePrefs: { timezoneAware: false },
@@ -63,6 +81,16 @@ describe('FoodTooltip', () => {
   it('should render without issue when all properties provided', () => {
     const wrapper = mount(<FoodTooltip {...props} food={normal} />);
     expect(wrapper.find(formatClassesAsSelector(styles.carb))).to.have.length(1);
+  });
+
+  it('should not render prescribed nutrition when not provided', () => {
+    const wrapper = mount(<FoodTooltip {...props} food={normal} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescribed))).to.have.length(0);
+  });
+
+  it('should render prescribed nutrition when provided', () => {
+    const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescribed))).to.have.length(1);
   });
 
   describe('getCarbs', () => {
@@ -84,4 +112,26 @@ describe('FoodTooltip', () => {
       expect(wrapper.find(carbValue).text()).to.equal('0');
     });
   });
+
+  describe('getPrescribedCarbs', () => {
+    // eslint-disable-next-line max-len
+    const prescribedValue = `${formatClassesAsSelector(styles.prescribed)} ${formatClassesAsSelector(styles.value)}`;
+    it('should return 15 for a 15 gram net prescribed food value', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
+      expect(wrapper.instance().getPrescribedCarbs(rescuecarbsWithReco)).to.equal(15);
+      expect(wrapper.find(prescribedValue).text()).to.equal('15');
+    });
+  });
+
+  describe('isPrescribed', () => {
+    it('should return true when prescriptor is provided', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
+      expect(wrapper.instance().isPrescribed(rescuecarbsWithReco)).to.equal(true);
+    });
+    it('should return false when prescriptor is not provided', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={normal} />);
+      expect(wrapper.instance().isPrescribed(normal)).to.equal(false);
+    });
+  });
+
 });

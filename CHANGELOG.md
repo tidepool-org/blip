@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## Unreleased
+### Changed
+- PT-1294 Display rescueCarbs recommendation
+
 ## 0.13.0 - 2020-07-01
 ### Engineering
 - PT-1345 Fix packages vulnerabilities
@@ -11,7 +15,7 @@ This node package is a dependency of Blip and was forked from tidepool/viz.
   - Run the tests with Firefox, alongside Chrome
 
 ## 0.12.2 - 2020-06-11
-### Fixe
+### Fixed
 - PT-1172 Display of parameter history in Device Settings page does not manage correctly the timezone information
 
 ## 0.12.1 - 2020-05-07

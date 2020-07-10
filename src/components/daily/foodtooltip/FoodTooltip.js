@@ -29,17 +29,43 @@ class FoodTooltip extends React.Component {
     return _.get(food, 'nutrition.carbohydrate.net', 0);
   }
 
+  getPrescribedCarbs(food) {
+    return _.get(food, 'prescribedNutrition.carbohydrate.net', 0);
+  }
+
+  isPrescribed(food) {
+    const prescriptor = _.get(food, 'prescriptor');
+    if (prescriptor) {
+      return true;
+    }
+    return false;
+  }
+
   renderFood() {
     const food = this.props.food;
-    const rows = [
-      <div key={'carb'} className={styles.carb}>
-        <div className={styles.label}>{i18next.t('Rescuecarbs')}</div>
+    const actualValue = this.getCarbs(food);
+    const rows = [];
+    if (this.isPrescribed(food)) {
+      const prescribedValue = this.getPrescribedCarbs(food);
+      rows.push(
+        <div key={'prescribed'} className={styles.prescribed}>
+        <div className={styles.label}>{i18next.t('Recommended')}</div>
         <div className={styles.value}>
-          {`${this.getCarbs(food)}`}
+          {prescribedValue}
+        </div>
+        <div className={styles.units}>g</div>
+        </div>
+      )
+    }
+    rows.push(
+      <div key={'carb'} className={styles.carb}>
+        <div className={styles.label}>{i18next.t('Confirmed')}</div>
+        <div className={styles.value}>
+          {actualValue}
         </div>
         <div className={styles.units}>g</div>
       </div>,
-    ];
+    );
 
     return <div className={styles.container}>{rows}</div>;
   }

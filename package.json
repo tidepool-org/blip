@@ -14,7 +14,7 @@
     "build-dev": "NODE_ENV=development webpack --progress --config package.config.js",
     "clean": "rm -rf ./dist coverage",
     "lint": "eslint src/ test/ *.js",
-    "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
+    "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
     "start": "NODE_ENV=development webpack --config package.config.js --watch",
     "pretest": "npm run lint",
     "test": "TZ=UTC NODE_ENV=test karma start",

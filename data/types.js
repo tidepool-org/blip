@@ -346,6 +346,9 @@ export class Food extends Common {
     this.deviceTime = opts.deviceTime;
     this.nutrition = opts.nutrition;
 
+    this.prescriptor = (opts.prescribedNutrition) ? opts.prescriptor : undefined;
+    this.prescribedNutrition = (opts.prescribedNutrition) ? opts.prescribedNutrition : undefined; 
+
     this.time = this.makeTime();
     this.normalTime = this.makeNormalTime();
     this.createdTime = this.makeTime();
