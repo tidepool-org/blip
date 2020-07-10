@@ -12,7 +12,7 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  insulinModelOptions,
+  // insulinModelOptions,
   // typeOptions,
   sexOptions,
   trainingOptions,
@@ -31,7 +31,7 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${pumpMeta.ranges.carbRatio.min}-${pumpMeta.ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${pumpMeta.ranges.insulinSensitivityFactor.min}-${pumpMeta.ranges.insulinSensitivityFactor.max}`,
-    suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
+    // suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
   };
 
   return yup.object().shape({
