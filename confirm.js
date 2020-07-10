@@ -251,14 +251,16 @@ module.exports = function (common, deps) {
      * Request a password reset
      *
      * @param {String} email - email of the user requesting the password reset
+     * @param {Boolean} info - set the info parameter 
      * @param cb
      * @returns {cb}  cb(err)
      */
-    requestPasswordReset: function (email, cb) {
-      common.assertArgumentsSize(arguments, 2);
+    requestPasswordReset: function (email, cb, info = true) {
+      common.assertArgumentsSizes(arguments, 2, 3);
 
+      const path = (info) ? `/confirm/send/forgot/${email}?info=ok` : `/confirm/send/forgot/${email}`
       superagent
-       .post(common.makeAPIUrl('/confirm/send/forgot/' + email))
+       .post(common.makeAPIUrl(path))
        .end(function (err, res) {
         if (err != null) {
           err.message = (err.response && err.response.error) || '';

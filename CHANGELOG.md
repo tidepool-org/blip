@@ -1,6 +1,10 @@
 # tidepool-platform-client
 Client-side library to interact with the [Tidepool](http://tidepool.org/) platform.
 
+## Unreleased
+###  Changed
+- PT-XXXX Password reset for patient is triggering information message
+
 ## 0.2.0 - 2020-04-24
 ###  Added
 - PT-1251 Add TIR metric in search result page

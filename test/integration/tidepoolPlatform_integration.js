@@ -599,9 +599,17 @@ describe('platform client', function () {
     });
     it('so we can request the pw if forgotten', function(done){
       pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
-        if (_.isEmpty(err)){
-          //leak no details
-          expect(details).to.be.empty;
+        if (_.isEmpty(err)) {
+          done();
+        } else {
+          console.log('requestPasswordReset err: ',err);
+          done(err);
+        }
+      }, false );
+    });
+    it('so we can request the pw if forgotten', function(done){
+      pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
+        if (_.isEmpty(err)) {
           done();
         } else {
           console.log('requestPasswordReset err: ',err);
