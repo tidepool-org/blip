@@ -13,6 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+ // Import polyfills for old web browsers:
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
 import onerror from './onerror';
 import app from './bootstrap';
 import AppRoot from './redux/containers/Root';

@@ -219,7 +219,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, dispatchProps, {
-    configuredInviteKey: config.INVITE_KEY,
     signupEmail: utils.getSignupEmail(ownProps.location),
     signupKey: utils.getSignupKey(ownProps.location),
     trackMetric: ownProps.routes[0].trackMetric,

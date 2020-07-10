@@ -14,26 +14,21 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import React from 'react';
+
+import config from '../../config';
 import { CONFIG } from '../../core/constants';
 
-var React = require('react');
+import logoSrc from './images/tidepool/logo.png';
 
-var logoSrc = require('./images/tidepool-logo-880x96.png');
-if(__BRANDING__ !== 'tidepool'){
-  logoSrc = require('./images/'+__BRANDING__+'/logo.png');
+function LoginLogo() {
+  const altText = CONFIG[config.BRANDING].name;
+
+  return (
+    <div className="login-logo">
+      <img src={logoSrc} alt={altText} />
+    </div>
+  );
 }
-var altText = CONFIG[__BRANDING__].name;
 
-var LoginLogo = React.createClass({
-  render: function() {
-
-    return (
-      <div className="login-logo">
-        <img src={logoSrc} alt={altText}/>
-      </div>
-    );
-
-  }
-});
-
-module.exports = LoginLogo;
+export default LoginLogo;

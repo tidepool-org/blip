@@ -14,10 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global chai */
 /* global describe */
 /* global context */
-/* global sinon */
 /* global it */
 /* global beforeEach */
 /* global afterEach */
@@ -25,7 +23,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
-import Select from 'react-select';
+import sinon from 'sinon';
+import chai from 'chai';
 
 import DonateForm from '../../../app/components/donateform';
 import {
@@ -295,7 +294,7 @@ describe('DonateForm', () => {
       wrapper.instance().getWrappedInstance().forceUpdate();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
-      select = wrapper.find('.simple-form').first().find('.input-group').at(2).find('.Select').first().find('input');
+      select = wrapper.find('.simple-form').first().find('.input-group').at(2).find('.Select').first().find('input').first();
     });
 
     it('should update the form values in state when a form value changes', () => {

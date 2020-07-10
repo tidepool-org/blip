@@ -13,7 +13,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import '../config.app'; // Initializes window.config
 import onerror from './onerror';
 
 import app from './bootstrap';

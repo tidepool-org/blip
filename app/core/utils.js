@@ -20,6 +20,7 @@ import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
+import config from '../config';
 
 var utils = {};
 
@@ -90,7 +91,7 @@ utils.isMobile = () => {
 };
 
 utils.haveMobileApp = () => {
-  return window.config.BRANDING === 'tidepool';
+  return config.BRANDING === 'tidepool';
 }
 
 utils.validateEmail = email => {

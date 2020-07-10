@@ -22,15 +22,11 @@ import { translate } from 'react-i18next';
 
 var _ = require('lodash');
 var cx = require('classnames');
-
 var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
-var logoSrc = require('./images/tidepool-logo-408x46.png');
+var logoSrc = require('./images/tidepool/logo.png');
 
-if(__BRANDING__ !== 'tidepool'){
-  logoSrc = require('./images/'+__BRANDING__+'/logo.png');
-}
 
 export default translate()(React.createClass({
   propTypes: {

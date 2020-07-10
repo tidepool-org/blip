@@ -28,12 +28,6 @@ const config = {
   httpsPort: 3443,
   apiHost: 'http://localhost:8009',
   httpsConfig: null,
-  discovery: {
-    skipHakken: true,
-    host: null,
-  },
-  serviceName: null,
-  publishHost: null,
   metricsService: 'disabled',
   matomoUrl: null,
   crowdinPreview: false,
@@ -69,22 +63,6 @@ if (config.httpsConfig === null) {
 
 if (!_.isEmpty(process.env.API_HOST)) {
   config.apiHost = process.env.API_HOST
-}
-
-// The host to contact for discovery
-if (process.env.SKIP_HAKKEN === 'false') {
-  if (_.isEmpty(process.env.DISCOVERY_HOST) || _.isEmpty(process.env.SERVICE_NAME) || _.isEmpty(process.env.PUBLISH_HOST)) {
-    console.error('Missing Hakken config: verify your env variables DISCOVERY_HOST, SERVICE_NAME and PUBLISH_HOST');
-  } else {
-    config.discovery = {
-      skipHakken: false,
-      host: process.env.DISCOVERY_HOST,
-    };
-    config.serviceName = process.env.SERVICE_NAME;
-    config.publishHost = process.env.PUBLISH_HOST;
-  }
-} else {
-  console.info('Hakken discovery host will be disabled');
 }
 
 switch (_.get(process.env, 'METRICS_SERVICE', 'disabled')) {

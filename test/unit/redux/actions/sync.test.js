@@ -5,12 +5,12 @@
 /* global expect */
 /* global afterEach */
 
-import isTSA from 'tidepool-standard-action';
+import isTSA from '../../../helpers/tidepoolStandardAction';
 
 import * as sync from '../../../../app/redux/actions/sync';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
+import { MMOLL_UNITS } from '../../../../app/core/constants';
 
 describe('Actions', () => {
 

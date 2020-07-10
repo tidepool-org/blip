@@ -271,22 +271,24 @@ export const onIndexRouteEnter = (api, store) => (nextState, replace, cb) => {
  *
  * This function redirects logged in users to patients
  * and non-logged in users to the login page
- *
- * @param  {Object} nextState
- * @param  {Function} replace
+ * @param {Object} api see app/core/api.js
+ * @returns {(nextState: Object, replace: Function, cb: Function) => void}
  */
-export const onOtherRouteEnter = (api) => (nextState, replace) => {
+export const onOtherRouteEnter = (api) => (nextState, replace, cb) => {
   if (api.user.isAuthenticated()) {
     replace('/patients');
   } else {
     replace('/login');
   }
+  cb();
 }
 
 const trackPage = (api, next) => (nextState, replace, cb) => {
   api.metrics.track('setCustomUrl', nextState.location.pathname, () => {
     if (typeof next === 'function') {
       next(nextState, replace, cb);
+    } else if (_.isFunction(cb)) {
+      cb();
     }
   });
 }

@@ -7,8 +7,6 @@ import mainEN from '../../locales/en/translation.json';
 import parameterEN from '../../locales/en/parameter.json';
 import mainFR from '../../locales/fr/translation.json';
 import parameterFR from '../../locales/fr/parameter.json';
-import mainDE from '../../locales/de/translation.json';
-import parameterDE from '../../locales/de/parameter.json';
 import mainIT from '../../locales/it/translation.json';
 
 const crowdinActive = typeof _jipt === 'object';

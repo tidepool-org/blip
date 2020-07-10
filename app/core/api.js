@@ -22,7 +22,7 @@ var bows = require('bows');
 var createTidepoolClient = require('tidepool-platform-client');
 var tidepool;
 
-var config = require('../config');
+import config from '../config';
 var constants = require('./constants').CONFIG;
 
 var personUtils = require('./personutils');

@@ -13,4 +13,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./app');
+import AppComponentRedux from './app';
+
+export default AppComponentRedux;

@@ -1,14 +1,8 @@
-#!/bin/sh -eu
-
-rm -rf node_modules
-
-TIME="$(date +%s)"
-npm install
-TIME="$(($(date +%s)-TIME))"
-
-echo "npm install completed in ${TIME} seconds"
+#!/bin/sh
+set -eu
 
 # add configuration
 . ./config/env.docker.sh
 
+export NODE_OPTIONS='--max-old-space-size=4096'
 npm run build

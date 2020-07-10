@@ -37,13 +37,13 @@ import FooterLinks from '../../components/footerlinks';
 
 import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
 
-import Config from '../../config';
+import config from '../../config';
 
 // Styles
 require('tideline/css/tideline.less');
 require('../../style.less');
 
-document.title = CONFIG[__BRANDING__].name;
+document.title = CONFIG[config.BRANDING].name;
 export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: React.PropTypes.bool.isRequired,
@@ -163,7 +163,7 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the donate banner.
     // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    if (!__HIDE_DONATE__ && showingDonateBanner !== false) {
+    if (!config.HIDE_DONATE && showingDonateBanner !== false) {
       if (showDonateBanner) {
         this.props.showBanner('donate');
         displayDonateBanner = true;
@@ -179,7 +179,7 @@ export class AppComponent extends React.Component {
 
     // Determine whether or not to show the dexcom banner.
     // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    if (!config.HIDE_DEXCOM_BANNER && showingDexcomConnectBanner !== false && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
@@ -192,7 +192,7 @@ export class AppComponent extends React.Component {
         this.props.hideBanner('dexcom');
       }
     }
-    if (Config.HELP_LINK !== null && typeof window.zE === 'function') {
+    if (config.HELP_LINK !== null && typeof window.zE === 'function') {
       if (this.props.authenticated) {
         let name = this.props.user.profile.fullName;
         let email = this.props.user.emails[0];
@@ -282,7 +282,7 @@ export class AppComponent extends React.Component {
       userIsDonor,
     } = this.props;
 
-    if (!__HIDE_DONATE__ && showingDonateBanner) {
+    if (!config.HIDE_DONATE && showingDonateBanner) {
       return (
         <div className="App-donatebanner">
           <DonateBanner
@@ -309,7 +309,7 @@ export class AppComponent extends React.Component {
       patient,
     } = this.props;
 
-    if (!__HIDE_DEXCOM_BANNER__ && showingDexcomConnectBanner) {
+    if (!config.HIDE_DEXCOM_BANNER && showingDexcomConnectBanner) {
       return (
         <div className="App-dexcombanner">
           <DexcomBanner

@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const _ = require('lodash');
 const optional = require('optional');
 
@@ -9,57 +8,59 @@ const testWebpackConf = _.assign({}, webpackConf, {
   devtool: 'inline-source-map',
 });
 
-delete testWebpackConf.devServer;
+const isWSL = typeof process.env.WSL_DISTRO_NAME === 'string';
+const browsers = ['CustomChromeHeadless'];
+if (!isWSL) {
+  browsers.push('FirefoxHeadless');
+}
 
-testWebpackConf.output = {
-  filename: '[name]',
-};
-
-testWebpackConf.mode = 'development';
-
-module.exports = function karmaConfig(config) {
-  config.set({
-    autoWatch: true,
-    browserNoActivityTimeout: 60000,
-    browsers: ['CustomChromeHeadless'],
-    captureTimeout: 60000,
-    client: {
-      mocha: mochaConf,
-    },
-    colors: true,
-    concurrency: Infinity,
-    coverageReporter: {
-      dir: 'coverage/',
-      reporters: [
-        { type: 'html' },
-        { type: 'text' },
+const karmaConfig = {
+  autoWatch: true,
+  browserNoActivityTimeout: 60000,
+  browsers,
+  captureTimeout: 60000,
+  client: {
+    mocha: mochaConf,
+  },
+  colors: true,
+  concurrency: Infinity,
+  coverageReporter: {
+    dir: 'coverage/',
+    reporters: [
+      { type: 'html' },
+      { type: 'text' },
+    ],
+  },
+  customLaunchers: {
+    CustomChromeHeadless: {
+      base: 'ChromeHeadless',
+      flags: [
+        '--headless',
+        '--disable-gpu',
+        '--no-sandbox',
+        '--remote-debugging-port=9222',
       ],
     },
-    customLaunchers: {
-      CustomChromeHeadless: {
-        base: 'ChromeHeadless',
-        flags: [
-          '--headless',
-          '--disable-gpu',
-          '--no-sandbox',
-          '--remote-debugging-port=9222',
-        ],
-      },
-    },
-    files: [
-      'loadtests.js',
-    ],
-    frameworks: ['mocha', 'chai', 'sinon', 'intl-shim'],
-    logLevel: config.LOG_INFO,
-    preprocessors: {
-      'loadtests.js': ['webpack', 'sourcemap'],
-    },
-    reporters: ['mocha', 'coverage'],
-    singleRun: true,
-    webpack: testWebpackConf,
-    webpackMiddleware: {
-      noInfo: true,
-      stats: 'errors-only',
-    },
-  });
+  },
+  files: [
+    'test/run-tests.js',
+  ],
+  frameworks: ['mocha', 'chai', 'sinon'],
+  preprocessors: {
+    'test/run-tests.js': ['webpack', 'sourcemap'],
+  },
+  reporters: ['mocha', 'coverage'],
+  singleRun: true,
+  webpack: testWebpackConf,
+  webpackMiddleware: {
+    noInfo: true,
+    stats: 'errors-only',
+  },
 };
+
+function setKarmaConfig(config) {
+  karmaConfig.logLevel = config.LOG_INFO;
+  config.set(karmaConfig);
+}
+
+module.exports = setKarmaConfig;

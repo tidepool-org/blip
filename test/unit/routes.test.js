@@ -4,6 +4,7 @@
 /* global it */
 /* global before */
 
+import _ from 'lodash';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
@@ -955,7 +956,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      onOtherRouteEnter(api)(null, replace);
+      onOtherRouteEnter(api)(null, replace, _.noop);
 
       expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
@@ -972,7 +973,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      onOtherRouteEnter(api)(null, replace);
+      onOtherRouteEnter(api)(null, replace, _.noop);
 
       expect(replace.withArgs('/login').callCount).to.equal(1);
     })

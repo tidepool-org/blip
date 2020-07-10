@@ -17,6 +17,7 @@ import { mount, shallow } from 'enzyme';
 import sinon from 'sinon';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
+import utils from '../../../app/core/utils';
 import DataUtilStub from '../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
@@ -1397,8 +1398,10 @@ describe('PatientData', function () {
       return elem.handleClickPrint().then(() => {
         expect(elem.generatePDF.callCount, 'generatePDF called').to.equal(1);
         expect(openStub.callCount, 'open window').equals(1);
-        expect(focusSpy.callCount, 'window focus').equals(1);
-        expect(printSpy.callCount, 'window focus').equals(1);
+        if (utils.isFirefox() === false) {
+          expect(focusSpy.callCount, 'window focus').equals(1);
+          expect(printSpy.callCount, 'window focus').equals(1);
+        }
         openStub.restore();
       });
     });

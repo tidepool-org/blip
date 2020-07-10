@@ -13,18 +13,49 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-/* global __TEST__ */
+/* global BUILD_CONFIG */
 
-if (__TEST__ && (window === undefined || window.config === undefined)) {
-  // Need to add this line as some files include config which
-  // errors if window.config does not exist during test situations
-  window.config = {};
+import _ from 'lodash';
+
+const defaultConfig  = {
+  VERSION: '0.0.0',
+  UPLOAD_API: 'https://tidepool.org/uploader',
+  API_HOST: `${window.location.protocol}//${window.location.host}`,
+  LATEST_TERMS: '1970-01-01',
+  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_MAX_LENGTH: 72,
+  ABOUT_MAX_LENGTH: 256,
+  I18N_ENABLED: false,
+  ALLOW_SIGNUP_PATIENT: true,
+  ALLOW_PATIENT_CHANGE_EMAIL: true,
+  ALLOW_PATIENT_CHANGE_PASSWORD: true,
+  CAN_SEE_PWD_LOGIN: false,
+  SUPPORT_EMAIL_ADDRESS: 'support@example.com',
+  SUPPORT_WEB_ADDRESS: 'https://example.com',
+  REGULATORY_WEB_ADDRESS: 'https://example.com/',
+  HELP_LINK: null,
+  ASSETS_URL: 'https://example.com/',
+  HIDE_DONATE: false,
+  HIDE_DEXCOM_BANNER: false,
+  HIDE_UPLOAD_LINK: false,
+  BRANDING: 'tidepool',
+  METRICS_SERVICE: 'disabled',
+  MAX_FAILED_LOGIN_ATTEMPTS: 5,
+  DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
+  TERMS_PRIVACY_DATE: '',
+  DEV: true,
+  TEST: false,
+};
+
+const buildConfig = JSON.parse(BUILD_CONFIG);
+
+_.assign(defaultConfig, buildConfig);
+
+if (!_.isObjectLike(window.config)) {
+  console.warn('Config not found, using default');
+  window.config = defaultConfig;
+} else {
+  _.assign(defaultConfig,  window.config);
 }
 
-var config = window.config;
-
-if (!config) {
-  throw new Error('Expected `config` on the global `window` object');
-}
-
-module.exports = config;
+export default defaultConfig;

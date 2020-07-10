@@ -1,25 +1,32 @@
-sudo: false
-
 language: node_js
 
-dist: trusty
+os: linux
+dist: bionic
 
 node_js:
   - 10.15.3
-  - node
+  - lts/*
 
-cache: npm
+matrix:
+  allow_failures:
+    - node_js: lts/*
 
 env:
-  jobs:
-    - BUILD_SOUP=true
+  global:
+    - SECURITY_SCAN=true
+
+cache: npm
+services:
+  - docker
+addons:
+  chrome: stable
+  firefox: latest-esr
 
 before_install:
-  - if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
+  - npm install -g npm@latest
 
 install:
   - npm install
-  - npm install --save-dev ci-toolbox@2.1.1
 
 deploy:
   # Control deployment by setting a value for `on`. Setting the `branch`
@@ -40,7 +47,7 @@ deploy:
     # Path of the source directory containing your built site.
     local_dir: deploy
     # Path to a directory containing your built site.
-    upload-dir: deploy
+    upload_dir: deploy
     # Set the Cache-Control header.
     cache_control: "max-age=21600"
   # Deploy SOUP list
@@ -54,19 +61,11 @@ deploy:
     bucket: com.diabeloop.yourloops.doc
     skip_cleanup: true
     local_dir: doc
-    upload-dir: soup/blip
+    upload_dir: soup/blip
     cache_control: "max-age=21600"
 
-services:
-  - docker
-
-addons:
-  chrome: stable
-
 script:
-  - npm test
-  - ./artifact.sh
-
-matrix:
-  allow_failures:
-    - node_js: node
+  - npm run test
+  - npm run security-checks
+  - bash server/update-version.sh
+  - bash artifact.sh
