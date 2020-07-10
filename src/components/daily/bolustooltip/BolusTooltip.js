@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
 import { formatDuration } from '../../../utils/datetime';
 import { formatInsulin, formatBgValue } from '../../../utils/format';
+import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
 import { getAnnotationMessages } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
@@ -172,10 +173,47 @@ class BolusTooltip extends React.Component {
     return extendedLine;
   }
 
+  getFormatedInputTime(bolus, timePrefs) {
+    return formatLocalizedFromUTC(bolus.inputTime, timePrefs, getHourMinuteFormat());
+  }
+
+  getBolusTypeLine(bolusType) {
+    return bolusType && (
+      <div className={styles.bolus}>
+        <div className={styles.label}>{t('Bolus')}</div>
+        <div className={styles.value}>{t(`bolus_${bolusType}`)}</div>
+      </div>
+    );
+  }
+
+  getIobLine(iob) {
+    return !!iob && (
+      <div className={styles.iob}>
+        <div className={styles.label}>{t('IOB')}</div>
+        <div className={styles.value}>{formatInsulin(iob)}</div>
+        <div className={styles.units}>U</div>
+      </div>
+    );
+  }
+
+  getPrescriptorLine(prescriptor) {
+    return prescriptor && prescriptor !== 'manual' && (      
+      <div className={styles.prescriptor}>
+        <div className={styles.label}>{t('Prescribed by Loop Mode')}</div>
+      </div>
+      );
+  }
+
   renderWizard() {
-    const wizard = this.props.bolus;
+    const { bolus, timePrefs } = this.props;
+    // to be renamed
+    const wizard = bolus;
     const recommended = bolusUtils.getRecommended(wizard);
     const suggested = _.isFinite(recommended) ? recommended : null;
+    const prescriptor = _.get(wizard, 'bolus.prescriptor', null);
+    const inputTime  = _.get(wizard, 'inputTime', null);
+    const bolusType = _.get(wizard, 'bolus.subType', null);
+    const fatMeal = _.get(wizard, 'inputMeal.fat', null);
     const bg = _.get(wizard, 'bgInput', null);
     const iob = _.get(wizard, 'insulinOnBoard', null);
     const carbs = bolusUtils.getCarbs(wizard);
@@ -217,7 +255,7 @@ class BolusTooltip extends React.Component {
     const suggestedLine = (isInterrupted || overrideLine) &&
       suggested !== null && (
       <div className={styles.suggested}>
-        <div className={styles.label}>{t('Suggested')}</div>
+        <div className={styles.label}>{t('Recommended')}</div>
         <div className={styles.value}>{formatInsulin(suggested)}</div>
         <div className={styles.units}>U</div>
       </div>
@@ -236,13 +274,7 @@ class BolusTooltip extends React.Component {
         <div className={styles.units}>g</div>
       </div>
     );
-    const iobLine = !!iob && (
-      <div className={styles.iob}>
-        <div className={styles.label}>{t('IOB')}</div>
-        <div className={styles.value}>{`${formatInsulin(iob)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
+    const iobLine = this.getIobLine(iob);
     const interruptedLine = isInterrupted && (
       <div className={styles.interrupted}>
         <div className={styles.label}>{t('Interrupted')}</div>
@@ -266,15 +298,32 @@ class BolusTooltip extends React.Component {
         <div className={styles.units} />
       </div>
     );
+    const bolusTypeLine = this.getBolusTypeLine(bolusType);
+    const prescriptorLine = this.getPrescriptorLine(prescriptor);
 
-    return (
+    const mealLine = fatMeal && (      
+      <div className={styles.fat}>
+        <div className={styles.label}>{t('High fat meal')}</div>
+      </div>
+    );
+    const inputLine = inputTime && (
+      <div className={styles.input}>
+        <div className={styles.label}>{t('Entered at {{date}}', {date: this.getFormatedInputTime(bolus, timePrefs)})}</div>
+      </div>
+    );
+      return (
       <div className={styles.container}>
         {bgLine}
         {carbsLine}
+        {mealLine}
+        {inputLine}
         {iobLine}
+        {(prescriptorLine || bolusTypeLine || suggestedLine) && <div className={styles.dividerSmall} />}
+        {prescriptorLine}
+        {bolusTypeLine}
         {suggestedLine}
         {this.getExtended()}
-        {(isInterrupted || overrideLine || hasExtended) && <div className={styles.dividerSmall} />}
+        {(overrideLine) && <div className={styles.dividerSmall} />}
         {overrideLine}
         {interruptedLine}
         {deliveredLine}
@@ -291,6 +340,9 @@ class BolusTooltip extends React.Component {
 
   renderNormal() {
     const bolus = this.props.bolus;
+    const prescriptor = _.get(bolus, 'prescriptor', null);
+    const bolusType = _.get(bolus, 'subType', null);
+    const iob = _.get(bolus, 'insulinOnBoard', null);
     const delivered = bolusUtils.getDelivered(bolus);
     const isInterrupted = bolusUtils.isInterruptedBolus(bolus);
     const programmed = bolusUtils.getProgrammed(bolus);
@@ -318,11 +370,17 @@ class BolusTooltip extends React.Component {
         <div className={styles.units}>U</div>
       </div>
     );
+    const bolusTypeLine = this.getBolusTypeLine(bolusType);
+    const iobLine = this.getIobLine(iob);
+    const prescriptorLine = this.getPrescriptorLine(prescriptor);
 
     return (
       <div className={styles.container}>
         {programmedLine}
         {interruptedLine}
+        {bolusTypeLine}
+        {iobLine}
+        {prescriptorLine}
         {deliveredLine}
         {this.getExtended()}
         {isAnimasExtended && <div className={styles.dividerLarge} />}

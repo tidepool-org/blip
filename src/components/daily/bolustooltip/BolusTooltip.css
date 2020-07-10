@@ -41,6 +41,11 @@
   margin-left: 20px;
 }
 
+.em {
+  margin-left: 20px;
+  font-style: italic;
+}
+
 .units {
   min-width: 0.7em;
   margin-left: 10px;
@@ -95,7 +100,23 @@
   composes: row;
 }
 
+.bolus {
+  composes: row;
+}
+
+.fat {
+  composes: row;
+}
+
+.input {
+  composes: row;
+}
+
 .iob {
+  composes: row;
+}
+
+.prescriptor {
   composes: row;
 }
 

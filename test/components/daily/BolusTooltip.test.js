@@ -357,6 +357,52 @@ const withTandemTarget = {
   carbInput: 75,
   insulinCarbRatio: 15,
 };
+const withdblFull = {
+  type: 'wizard',
+  bolus: {
+    normal: 5,
+    subType: 'normal',
+    normalTime: '2017-11-11T05:45:52.000Z',
+    prescriptor: 'hybrid',
+  },
+  recommended: {
+    carb: 5,
+    net: 5,
+  },
+  inputTime: '2017-11-11T05:40:00.000Z',
+  carbInput: 75,
+  inputMeal: {
+    fat: 'yes'
+  },
+};
+
+const penBolus = {
+  subType: 'pen',
+  normal: 5,
+  normalTime: '2017-11-11T05:45:52.000Z',
+};
+
+const normalPrescriptor = {
+  subType: 'normal',
+  normal: 5,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  prescriptor: 'auto',
+};
+
+const normalNoPrescriptor = {
+  subType: 'normal',
+  normal: 5,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  prescriptor: 'manual',
+};
+
+const normalPrescriptorIob = {
+  subType: 'normal',
+  normal: 5,
+  normalTime: '2017-11-11T05:45:52.000Z',
+  prescriptor: 'hybrid',
+  insulinOnBoard: 10.1 
+};
 
 const props = {
   position: { top: 200, left: 200 },
@@ -369,6 +415,34 @@ describe('BolusTooltip', () => {
     expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
   });
 
+  it('should render delivered and subType for pen bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={penBolus} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.bolus))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+  });
+
+  it('should render delivered, subType and prescriptor for normal bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={normalPrescriptor} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.bolus))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescriptor))).to.have.length(1);
+  });
+
+  it('should render delivered, subType and no prescriptor for normal bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={normalNoPrescriptor} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.bolus))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescriptor))).to.have.length(0);
+  });
+
+  it('should render delivered, subType and prescriptor for normal bolus', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={normalPrescriptorIob} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.bolus))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescriptor))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.iob))).to.have.length(1);
+  });
+  
   it('should render programmed, interrupted and delivered for cancelled bolus', () => {
     const wrapper = mount(<BolusTooltip {...props} bolus={cancelled} />);
     expect(wrapper.find(formatClassesAsSelector(styles.programmed))).to.have.length(1);
@@ -522,6 +596,15 @@ describe('BolusTooltip', () => {
     expect(wrapper.find(formatClassesAsSelector(styles.iob))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.isf))).to.have.length(1);
     expect(wrapper.find(formatClassesAsSelector(styles.target))).to.have.length(1);
+  });
+  // eslint-disable-next-line max-len
+  it('should render bolus type, delivered, inputTime, prescriptor and fat meal for normal bolus with wizard', () => {
+    const wrapper = mount(<BolusTooltip {...props} bolus={withdblFull} />);
+    expect(wrapper.find(formatClassesAsSelector(styles.bolus))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.delivered))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.input))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.prescriptor))).to.have.length(1);
+    expect(wrapper.find(formatClassesAsSelector(styles.fat))).to.have.length(1);
   });
 
   describe('getTarget', () => {
