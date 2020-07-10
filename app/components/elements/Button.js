@@ -35,8 +35,8 @@ const StyledCircularProgress = styled(Box)`
 `;
 
 export const Button = props => {
-  const { children, active, processing, icon, iconLabel, className = '', ...buttonProps } = props;
-  const classNames = cx({ processing, active });
+  const { children, selected, processing, icon, iconLabel, className = '', ...buttonProps } = props;
+  const classNames = cx({ processing, selected });
 
   const themeContext = useContext(ThemeContext);
 
@@ -62,7 +62,7 @@ export const Button = props => {
 Button.propTypes = {
   ...ButtonProps,
   processing: PropTypes.bool,
-  active: PropTypes.bool,
+  selected: PropTypes.bool,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
   variant: PropTypes.oneOf([

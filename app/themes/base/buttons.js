@@ -20,9 +20,9 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       borderColor: colors.purpleMedium,
       color: colors.white,
       borderRadius: radii.default,
-      '&:hover,&:active': {
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
+      '&.selected': {
+        backgroundColor: colors.blueGrey,
+        borderColor: colors.blueGrey,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -125,7 +125,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       '&:hover': {
         borderColor: colors.grays[2],
       },
-      '&:active, &.active': {
+      '&:active, &.selected': {
         borderColor: colors.purpleMedium,
       },
       '&:disabled': {
@@ -163,13 +163,13 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
       '&:active': {
         color: colors.white,
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
-      },
-      '&.active': {
-        color: colors.white,
         backgroundColor: colors.purpleMedium,
         borderColor: colors.purpleMedium,
+      },
+      '&.selected': {
+        color: colors.white,
+        backgroundColor: colors.text.primary,
+        borderColor: colors.text.primary,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -182,7 +182,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
       '@media (-webkit-min-device-pixel-ratio:0)': {
         ':focus': {
-          boxShadow: '0px 0px 0px 2px -webkit-focus-ring-color',
+          boxShadow: `0px 0px 0px 1px ${colors.border.webkitFocus}`,
         },
       },
     },

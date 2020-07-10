@@ -26,18 +26,21 @@ export default {
 
 const disabled = () => boolean('Disabled', false);
 const processing = () => boolean('Processing', false);
-const active = () => boolean('Active', false);
 
 export const Primary = () => {
   const buttonText = () => text('Button Text', 'Primary');
+
+  const [selected, setSelected] = React.useState(false);
 
   return (
     <React.Fragment>
       <Button
         variant="primary"
         disabled={disabled()}
-        onClick={action('onClick called')}
+        // onClick={action('onClick called')}
         processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
       >
         {buttonText()}
       </Button>
@@ -121,12 +124,13 @@ Text.story = {
 
 export const Filter = () => {
   const buttonText = () => text('Button Text', 'Filter');
+  const selected = () => boolean('Selected', false);
 
   return (
     <React.Fragment>
       <Button
         variant="filter"
-        active={active()}
+        selected={selected()}
         disabled={disabled()}
         onClick={action('onClick called')}
         processing={processing()}
@@ -152,7 +156,7 @@ Filter.story = {
 export const Chip = () => {
   const button1Text = () => text('Chip 1 Text', 'Chip 1');
   const button2Text = () => text('Chip 2 Text', 'Chip 2');
-  const [activeChip, setActiveChip] = React.useState();
+  const [selectedChip, setSelectedChip] = React.useState();
 
   return (
     <Flex>
@@ -160,8 +164,8 @@ export const Chip = () => {
         mr={2}
         variant="chip"
         disabled={disabled()}
-        active={activeChip === 'chip1'}
-        onClick={() => setActiveChip('chip1')}
+        selected={selectedChip === 'chip1'}
+        onClick={() => setSelectedChip('chip1')}
         processing={processing()}
       >
         {button1Text()}
@@ -169,8 +173,8 @@ export const Chip = () => {
       <Button
         variant="chip"
         disabled={disabled()}
-        active={activeChip === 'chip2'}
-        onClick={() => setActiveChip('chip2')}
+        selected={selectedChip === 'chip2'}
+        onClick={() => setSelectedChip('chip2')}
         processing={processing()}
       >
         {button2Text()}
