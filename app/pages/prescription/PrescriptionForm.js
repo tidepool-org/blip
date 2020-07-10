@@ -7,6 +7,11 @@ import { Persist } from 'formik-persist';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
+import omit from 'lodash/omit';
+import remove from 'lodash/remove';
+import slice from 'lodash/slice';
+import isEmpty from 'lodash/isEmpty';
+import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
@@ -26,9 +31,6 @@ import {
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
-
-
-/* global crypto, Uint8Array, Promise */
 
 const log = bows('PrescriptionForm');
 
@@ -107,6 +109,7 @@ const PrescriptionForm = props => {
     getFieldMeta,
     handleSubmit,
     resetForm,
+    setFieldValue,
     values,
   } = useFormikContext();
 
@@ -121,22 +124,6 @@ const PrescriptionForm = props => {
   };
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-
-  const handleStepSubmit = async () => {
-    const prescriptionAttributes = { ...values };
-    delete prescriptionAttributes.emailConfirm;
-    delete prescriptionAttributes.id;
-    delete prescriptionAttributes.therapySettingsReviewed;
-
-    prescriptionAttributes.state = 'draft';
-
-    if (values.id) {
-      createPrescriptionRevision(prescriptionAttributes, values.id);
-    } else {
-      createPrescription(prescriptionAttributes)
-    }
-  };
-
   const [activeStep, setActiveStep] = React.useState();
   const [activeSubStep, setActiveSubStep] = React.useState();
   const [pendingStep, setPendingStep] = React.useState([]);
@@ -167,22 +154,12 @@ const PrescriptionForm = props => {
     setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
   }, []);
 
-  // Handle changes to working state for prescription creation and revision updates
+  // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
-    if (get(prescription, 'id')) {
-      if (get(creatingPrescriptionRevision, 'inProgress')) {
-        setStepAsyncState(asyncStates.pending);
-      } else if (get(creatingPrescriptionRevision, 'completed')) {
-        setStepAsyncState(asyncStates.completed);
-      }
-    } else {
-      if (get(creatingPrescription, 'inProgress')) {
-        setStepAsyncState(asyncStates.pending);
-      } else if (get(creatingPrescription, 'completed')) {
-        setStepAsyncState(asyncStates.completed);
-      }
-    }
-  }, [creatingPrescription, creatingPrescriptionRevision])
+    const { inProgress, completed, prescriptionId } = get(values, 'id') ? creatingPrescriptionRevision : creatingPrescription;
+    if (!inProgress && completed) setStepAsyncState(asyncStates.completed);
+    if (prescriptionId) setFieldValue('id', prescriptionId);
+  }, [creatingPrescription, creatingPrescriptionRevision]);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
@@ -200,6 +177,40 @@ const PrescriptionForm = props => {
 
       handlers.activeStepUpdate(pendingStep);
       setPendingStep([]);
+    },
+
+    stepSubmit: () => {
+      setStepAsyncState(asyncStates.pending);
+      // Delete fields that we never want to send to the backend
+      const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
+
+      // Also delete any fields from future form steps if empty
+      // We can't simply delete all future steps, as the clinician may have returned to the current
+      // step via 'Back' button navigation and we don't want to lose existing data previously
+      // entered in the later steps.
+      if (activeStep < stepValidationFields.length - 1) {
+        const emptyFieldsInFutureSteps = remove(
+          flattenDeep(slice(stepValidationFields, activeStep + 1)),
+          fieldPath => isEmpty(get(values, fieldPath))
+        );
+
+        // Add empty future fields to the array of fieldpaths to delete.
+        // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
+        // are empty, we exclude the parent object.
+        fieldsToDelete.push(...map(
+          emptyFieldsInFutureSteps,
+          fieldPath => fieldPath.replace(/\.(value|number)$/, '')
+        ));
+      }
+
+      const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
+      prescriptionAttributes.state = 'draft';
+
+      if (values.id) {
+        createPrescriptionRevision(prescriptionAttributes, values.id);
+      } else {
+        createPrescription(prescriptionAttributes);
+      }
     },
   };
 
@@ -234,24 +245,24 @@ const PrescriptionForm = props => {
     steps: [
       {
         ...accountFormStepsProps,
-        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
         asyncState: isSingleStepEdit ? null : stepAsyncState,
         subSteps: subStepProps(accountFormStepsProps.subSteps),
       },
       {
         ...profileFormStepsProps,
-        onComplete: isSingleStepEdit ? noop : handleStepSubmit,
+        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
         asyncState: isSingleStepEdit ? null : stepAsyncState,
         subSteps: subStepProps(profileFormStepsProps.subSteps),
       },
       {
         ...stepProps(therapySettingsFormStepProps),
-        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handleStepSubmit,
+        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
         asyncState: isSingleStepEdit ? null : stepAsyncState,
       },
       {
         ...reviewFormStepProps,
-        onComplete: handleStepSubmit,
+        onComplete: handlers.stepSubmit,
         asyncState: stepAsyncState,
       },
     ],
