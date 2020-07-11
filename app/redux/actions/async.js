@@ -1140,13 +1140,13 @@ export function createPrescriptionRevision(api, revision, prescriptionId) {
   return (dispatch) => {
     dispatch(sync.createPrescriptionRevisionRequest());
 
-    api.prescription.createRevision(revision, prescriptionId, (err, createdRevision) => {
+    api.prescription.createRevision(revision, prescriptionId, (err, prescription) => {
       if (err) {
         dispatch(sync.createPrescriptionRevisionFailure(
           createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION, err), err
         ));
       } else {
-        dispatch(sync.createPrescriptionRevisionSuccess(createdRevision, prescriptionId));
+        dispatch(sync.createPrescriptionRevisionSuccess(prescription));
       }
     });
   };

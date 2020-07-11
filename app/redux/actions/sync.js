@@ -874,13 +874,11 @@ export function createPrescriptionRevisionRequest() {
   };
 }
 
-export function createPrescriptionRevisionSuccess(createdRevision, prescriptionID) {
+export function createPrescriptionRevisionSuccess(prescription) {
   return {
     type: ActionTypes.CREATE_PRESCRIPTION_REVISION_SUCCESS,
     payload: {
-      createdRevision: createdRevision.latestRevision,
-      // createdRevision: createdRevision, // This is what should be expected from the API spec, but waiting for answer from backend
-      prescriptionID: prescriptionID,
+      prescription: prescription,
     },
   };
 }
