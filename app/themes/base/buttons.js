@@ -21,8 +21,8 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       color: colors.white,
       borderRadius: radii.default,
       '&.selected': {
-        backgroundColor: colors.blueGrey,
-        borderColor: colors.blueGrey,
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -38,8 +38,8 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       borderRadius: radii.default,
       '&:hover,&:active': {
         color: colors.white,
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -95,17 +95,17 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
       '&:active': {
         backgroundColor: colors.blues[0],
-        color: colors.text.link,
+        color: colors.purpleBright,
       },
       '&:disabled': {
         color: colors.text.primaryDisabled,
       },
       '&.selected': {
-        backgroundColor: colors.text.primary,
+        backgroundColor: colors.blueGreyDark,
         color: colors.white,
 
         '&:disabled': {
-          backgroundColor: colors.text.primaryDisabled,
+          backgroundColor: colors.blueGreyLight,
         },
       },
     },
@@ -168,8 +168,8 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
       '&.selected': {
         color: colors.white,
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,

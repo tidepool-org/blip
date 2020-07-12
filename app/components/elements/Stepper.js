@@ -34,7 +34,7 @@ const StyledStepper = styled(Base)`
     height: 3px;
     top: -2px;
     position: relative;
-    background-color: ${colors.text.link};
+    background-color: ${colors.purpleBright};
     transition: ${transitions.easeOut};
   }
 

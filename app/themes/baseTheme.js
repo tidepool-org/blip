@@ -19,10 +19,10 @@ export const colors = {
   ...colorPalette.neutrals,
   ...colorPalette.extended,
   text: {
-    link: '#6582FF',
-    primary: colorPalette.primary.blueGrey,
-    primaryDisabled: '#A6B1BB',
-    primarySubdued: colorPalette.primary.blueGreySubdued,
+    link: colorPalette.primary.purpleBright,
+    primary: colorPalette.primary.blueGreyDark,
+    primaryDisabled: colorPalette.primary.blueGreyLight,
+    primarySubdued: colorPalette.primary.blueGreyMedium,
   },
   border: {
     webkitFocus: '#005fcc',
