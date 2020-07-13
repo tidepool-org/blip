@@ -135,34 +135,33 @@ const PrescriptionForm = props => {
   const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? activeStepsParam[1] : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
-  console.log('activeStep', activeStep);
   let isLastStep = activeStep === stepValidationFields.length - 1;
 
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
-    let firstInvalidStep;
-    let firstInvalidSubStep;
-    let currentStep = 0;
-    let currentSubStep = 0;
+    if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
+      let firstInvalidStep;
+      let firstInvalidSubStep;
+      let currentStep = 0;
+      let currentSubStep = 0;
 
-    while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
-      while (currentSubStep < stepValidationFields[currentStep].length) {
-        if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
-          firstInvalidStep = currentStep;
-          firstInvalidSubStep = currentSubStep;
-          break;
+      while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
+        while (currentSubStep < stepValidationFields[currentStep].length) {
+          if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
+            firstInvalidStep = currentStep;
+            firstInvalidSubStep = currentSubStep;
+            break;
+          }
+          currentSubStep++
         }
-        currentSubStep++
+
+        currentStep++;
+        currentSubStep = 0;
       }
 
-      currentStep++;
-      currentSubStep = 0;
+      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+      setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
-
-    setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
-    setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
-
-    console.log('activeStep', activeStep);
   }, []);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
@@ -173,7 +172,6 @@ const PrescriptionForm = props => {
 
     if (!inProgress && completed) {
       setStepAsyncState(asyncStates.completed);
-      console.log('isLastStep', isLastStep);
       if (isLastStep) {
         // TODO: Set a message to display as a toast on the prescriptions page
         browserHistory.push('/prescriptions');
