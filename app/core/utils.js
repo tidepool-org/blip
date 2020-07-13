@@ -396,7 +396,7 @@ utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
   };
 })(console);
 
-utils.getLatestGithubRelease = () => {
+utils.getUploaderDownloadURL = () => {
   const urlBase = 'https://github.com/tidepool-org/uploader/releases/latest/download';
   const latestWinRelease = `${urlBase}/Tidepool-Uploader-Setup.exe`;
   const latestMacRelease = `${urlBase}/Tidepool-Uploader.dmg`;
