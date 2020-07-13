@@ -32,7 +32,7 @@ const handlers = {
 
 const invalidateMeta = fieldPath => _.set({ ...meta }, fieldPath, { valid: false });
 
-describe.only('reviewFormStep', function() {
+describe('reviewFormStep', function() {
   afterEach(() => {
     handlers.activeStepUpdate.resetHistory();
   });
@@ -42,11 +42,11 @@ describe.only('reviewFormStep', function() {
   });
 
   it('should include the step label', () => {
-    expect(reviewFormStep().label).to.equal('Review and Send Prescription');
+    expect(reviewFormStep().label).to.equal('Review and Save Prescription');
   });
 
   it('should include the custom next button text', () => {
-    expect(reviewFormStep().completeText).to.equal('Send Prescription');
+    expect(reviewFormStep().completeText).to.equal('Save Prescription');
   });
 
   it('should include panel content with meta and handlers passed along', () => {

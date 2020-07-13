@@ -35,7 +35,7 @@ import {
 
 const log = bows('PrescriptionForm');
 
-const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
+export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
     id: get(props, 'prescription.id', ''),
     state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
@@ -96,7 +96,7 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
-const PrescriptionForm = props => {
+export const PrescriptionForm = props => {
   const {
     t,
     createPrescription,
