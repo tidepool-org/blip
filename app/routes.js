@@ -23,6 +23,7 @@ import VerificationWithPassword from './pages/verificationwithpassword';
 
 import utils from './core/utils';
 import personUtils from './core/personutils';
+import config from './config';
 
 import * as actions from './redux/actions';
 
@@ -289,9 +290,9 @@ export const getRoutes = (appContext, store) => {
       <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='prescriptions' component={Prescriptions} onEnter={requireAuth(api, store)} />
-      <Route path='prescriptions/new' component={PrescriptionForm} onEnter={requireAuth(api, store)} />
-      <Route path='prescriptions/:id/edit' component={PrescriptionForm} onEnter={requireAuth(api, store)} />
+      {config.RX_ENABLED && <Route path='prescriptions' component={Prescriptions} onEnter={requireAuth(api, store)} />}
+      {config.RX_ENABLED && <Route path='prescriptions/new' component={PrescriptionForm} onEnter={requireAuth(api, store)} />}
+      {config.RX_ENABLED && <Route path='prescriptions/:id/edit' component={PrescriptionForm} onEnter={requireAuth(api, store)} />}
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/share' component={Share} onEnter={requiresChrome(utils, requireAuth(api, store))} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requiresChrome(utils, requireAuth(api, store))} />

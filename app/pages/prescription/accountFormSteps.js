@@ -10,7 +10,7 @@ import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
-import { typeOptions } from './prescriptionFormConstants';
+import { stepValidationFields, typeOptions } from './prescriptionFormConstants';
 import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
@@ -124,18 +124,18 @@ const accountFormSteps = meta => ({
   label: t('Create Patient Account'),
   subSteps: [
     {
-      disableComplete: !fieldsAreValid(['type'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
       hideBack: true,
       onComplete: () => log('Account Type Complete'),
       panelContent: <AccountType meta={meta} />
     },
     {
-      disableComplete: !fieldsAreValid(['firstName', 'lastName', 'birthday'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
       onComplete: () => log('Patient Info Complete'),
       panelContent: <PatientInfo meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(['email', 'emailConfirm'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][2], meta),
       onComplete: () => log('Patient Email Complete'),
       panelContent: <PatientEmail meta={meta} />,
     },

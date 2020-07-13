@@ -18,7 +18,7 @@ import baseTheme from '../app/themes/baseTheme';
 import Popover from '../app/components/elements/Popover';
 import { Icon } from '../app/components/elements/Icon';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
-import { Body1, Subheading } from '../app/components/elements/FontStyles';
+import { Paragraph1, Subheading } from '../app/components/elements/FontStyles';
 
 import { DialogContent, DialogActions } from '../app/components/elements/Dialog';
 import Button from '../app/components/elements/Button';
@@ -61,11 +61,11 @@ export const Simple = () => {
           <Subheading>
               Insulin Sensitivity Factor
           </Subheading>
-          <Body1>
+          <Paragraph1>
             <Text color="text.primarySubdued">
               The insulin sensitivity factor (ISF) governs the expected drop in blood glucose given one unit of insulin.
             </Text>
-          </Body1>
+          </Paragraph1>
         </Box>
       </Popover>
     </React.Fragment>

@@ -55,8 +55,8 @@ StyledStepper.propTypes = {
 
 export const Stepper = props => {
   const {
-    activeStep: activeStepProp = 0,
-    activeSubStep: activeSubStepProp = 0,
+    activeStep: activeStepProp,
+    activeSubStep: activeSubStepProp,
     backText,
     children,
     completeText,
@@ -71,8 +71,8 @@ export const Stepper = props => {
     ...stepperProps
   } = props;
 
-  let initialActiveStep = activeStepProp;
-  let initialActiveSubStep = activeSubStepProp;
+  let initialActiveStep = activeStepProp || 0;
+  let initialActiveSubStep = activeSubStepProp || 0;
 
   const params = () => new URLSearchParams(location.search);
   const activeStepParamKey = `${id}-step`;
@@ -109,6 +109,18 @@ export const Stepper = props => {
     window.top.addEventListener('popstate', handlePopState);
     return () => window.top.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Only on subsequent renders, force active step update when new step props passed in
+  const isFirstRender = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    setActiveStep(activeStepProp);
+    setActiveSubStep(activeSubStepProp);
+  }, [activeStepProp, activeSubStepProp]);
 
   const [skipped, setSkipped] = React.useState(new Set());
   const [processing, setProcessing] = React.useState(false);
@@ -256,14 +268,27 @@ export const Stepper = props => {
   };
 
   const handleBack = () => {
-    if (stepHasSubSteps(activeStep) && (activeSubStep > 0)) {
-      setActiveSubStep(activeSubStep - 1);
-    } else if (activeStep > 0) {
+    if (stepHasSubSteps(activeStep)) {
+      if (isFunction(steps[activeStep].subSteps[activeSubStep].onBack)) {
+        steps[activeStep].subSteps[activeSubStep].onBack();
+      }
+
+      if (activeSubStep > 0) {
+        setActiveSubStep(activeSubStep - 1);
+        return;
+      }
+    }
+
+    if (activeStep > 0) {
       const newActiveStep = activeStep - 1;
       setActiveStep(newActiveStep);
       setActiveSubStep(stepHasSubSteps(newActiveStep)
         ? steps[newActiveStep].subSteps.length - 1
         : 0);
+    }
+
+    if (isFunction(steps[activeStep].onBack)) {
+      steps[activeStep].onBack();
     }
   };
 
@@ -287,7 +312,7 @@ export const Stepper = props => {
           <Button
             mr={4}
             py={2}
-            disabled={processing || (activeStep === 0 && activeSubStep === 0)}
+            disabled={step.disableBack || processing}
             variant="secondary"
             className="step-back"
             onClick={handleBack}
@@ -403,10 +428,12 @@ const StepPropTypes = {
   backText: PropTypes.string,
   completed: PropTypes.bool,
   completeText: PropTypes.string,
+  disableBack: PropTypes.bool,
   disableComplete: PropTypes.bool,
   hideBack: PropTypes.bool,
   hideComplete: PropTypes.bool,
   label: PropTypes.string,
+  onBack: PropTypes.func,
   onComplete: PropTypes.func,
   optional: PropTypes.bool,
   panelContent: PropTypes.node,

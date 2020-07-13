@@ -132,6 +132,36 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
   }
 };
 
+export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'sharedata' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'sharedata') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedShareDataBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'sharedata') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.count > 2) ? true : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
