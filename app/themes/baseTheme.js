@@ -19,15 +19,16 @@ export const colors = {
   ...colorPalette.neutrals,
   ...colorPalette.extended,
   text: {
-    primary: '#4F6A92',
-    primaryDisabled: '#A6B1BB',
-    primarySubdued: '#7E98C3',
-    link: '#6582FF',
+    link: colorPalette.primary.purpleBright,
+    primary: colorPalette.primary.blueGreyDark,
+    primaryDisabled: colorPalette.primary.blueGreyLight,
+    primarySubdued: colorPalette.primary.blueGreyMedium,
   },
   border: {
+    webkitFocus: '#005fcc',
     default: colorPalette.extended.grays[1],
-    modal: colorPalette.extended.grays[0],
     divider: colorPalette.extended.grays[0],
+    modal: colorPalette.extended.grays[0],
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
@@ -71,6 +72,7 @@ export const radii = {
   large: 8,
   default: 4,
   input: 3,
+  full: 999,
 };
 
 export const shadows = {
