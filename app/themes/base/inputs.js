@@ -12,7 +12,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
   const textInputs = {
     ...common,
     color: colors.text.primary,
-    caretColor: colors.text.primary,
+    caretColor: colors.blueGreyDark,
     width: '100%',
 
     ':focus-within': {
