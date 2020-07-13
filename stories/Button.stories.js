@@ -37,7 +37,6 @@ export const Primary = () => {
       <Button
         variant="primary"
         disabled={disabled()}
-        // onClick={action('onClick called')}
         processing={processing()}
         selected={selected}
         onClick={() => setSelected(!selected)}
