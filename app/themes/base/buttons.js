@@ -186,5 +186,19 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         },
       },
     },
+    large: {
+      ...defaultStyles,
+      backgroundColor: colors.purpleMedium,
+      border: borders.input,
+      borderColor: colors.purpleMedium,
+      color: colors.white,
+      borderRadius: radii.large,
+      fontSize: `${fontSizes[4]}px`,
+      padding: `${space[5]}px ${space[6]}px`,
+      '&:hover,&:active': {
+        backgroundColor: colors.purpleDark,
+        borderColor: colors.purpleDark,
+      },
+    },
   };
 };

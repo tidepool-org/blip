@@ -68,7 +68,7 @@ const Prescriptions = props => {
     { title: t('First Name'), field: 'firstName', align: 'left', sortable: true, searchable: true },
     { title: t('Last Name'), field: 'lastName', align: 'left', sortable: true, searchable: true },
     { title: t('MRN #'), field: 'mrn', align: 'left', searchable: true },
-    { title: t('State'), field: 'state', render: renderState, align: 'left', sortable: true},
+    { title: t('State'), field: 'state', render: renderState, align: 'left', sortable: true },
     { title: t('Edit'), field: 'edit', render: renderEdit, align: 'left' },
   ];
 

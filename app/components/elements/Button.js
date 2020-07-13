@@ -73,6 +73,7 @@ Button.propTypes = {
     'pagination',
     'filter',
     'chip',
+    'large',
   ]),
 };
 
