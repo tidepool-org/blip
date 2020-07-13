@@ -22,9 +22,9 @@ import cx from 'classnames';
 import utils from '../../core/utils';
 import { translate } from 'react-i18next';
 
-import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
+// import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 
-import logoSrc from './images/T-logo-dark-512x512.png';
+// import logoSrc from './images/T-logo-dark-512x512.png';
 
 const github = new GitHub();
 
@@ -34,7 +34,7 @@ export default translate()(class UploaderButton extends Component {
     this.state = {
       latestWinRelease: null,
       latestMacRelease: null,
-      error: null,
+      // error: null,
     };
   }
 
@@ -43,72 +43,93 @@ export default translate()(class UploaderButton extends Component {
     buttonText: PropTypes.string.isRequired
   };
 
+  // UNSAFE_componentWillMount = () => {
+  //   const uploaderRepo = github.getRepo('tidepool-org/uploader');
+  //   console.log('uploaderRepo: ', uploaderRepo);
+  //   uploaderRepo.listReleases((err, releases, request) => {
+  //     if(err){
+  //       this.setState({error: true});
+  //     }
+  //     this.setState(utils.getLatestGithubRelease());
+  //   });
+  // }
+
   UNSAFE_componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/uploader');
-    uploaderRepo.listReleases((err, releases, request) => {
-      if(err){
-        this.setState({error: true});
-      }
-      this.setState(utils.getLatestGithubRelease(releases));
-    });
+      this.setState(utils.getLatestGithubRelease());
   }
 
-  renderErrorText = () => {
-    const { t } = this.props;
-    return (
-      <a
-        className="btn btn-uploader"
-        href={URL_UPLOADER_DOWNLOAD_PAGE}
-        target="_blank"
-        onClick={this.props.onClick}>
-          <div className="uploader-logo">
-            <img src={logoSrc} alt={t('Tidepool Uploader')} />
-          </div>
-          {this.props.buttonText}
-        </a>
-    )
-  }
+  // renderErrorText = () => {
+  //   const { t } = this.props;
+  //   return (
+  //     <a
+  //       className="btn btn-uploader"
+  //       href={URL_UPLOADER_DOWNLOAD_PAGE}
+  //       target="_blank"
+  //       onClick={this.props.onClick}>
+  //         <div className="uploader-logo">
+  //           <img src={logoSrc} alt={t('Tidepool Uploader')} />
+  //         </div>
+  //         {this.props.buttonText}
+  //       </a>
+  //   )
+  // }
 
   render = () => {
     const { t } = this.props;
     const winReleaseClasses = cx({
       btn: true,
       'btn-uploader': true,
-      disabled: !this.state.latestWinRelease,
+      // disabled: !this.state.latestWinRelease,
     });
     const macReleaseClasses = cx({
       btn: true,
       'btn-uploader': true,
-      disabled: !this.state.latestMacRelease,
+      // disabled: !this.state.latestMacRelease,
     });
 
-    let content;
-    if(this.state.error) {
-      content = this.renderErrorText();
-    } else {
-      content = [
+    // let content;
+    // if(this.state.error) {
+    //   content = this.renderErrorText();
+    // } else {
+    //   content = [
+    //     <a
+    //       key={'pc'}
+    //       className={winReleaseClasses}
+    //       href={`${this.state.latestWinRelease}`}
+    //       disabled={!this.state.latestWinRelease}
+    //       onClick={this.props.onClick}>
+    //       {t('Download for PC')}
+    //     </a>,
+    //     <a
+    //       key={'mac'}
+    //       className={macReleaseClasses}
+    //       href={`${this.state.latestMacRelease}`}
+    //       disabled={!this.state.latestMacRelease}
+    //       onClick={this.props.onClick}>
+    //       {t('Download for Mac')}
+    //     </a>
+    //   ]
+    // }
+
+    return (
+      <div className='uploaderbutton-wrap'>
+        {/* {content} */}
         <a
           key={'pc'}
           className={winReleaseClasses}
           href={`${this.state.latestWinRelease}`}
-          disabled={!this.state.latestWinRelease}
+          // disabled={!this.state.latestWinRelease}
           onClick={this.props.onClick}>
           {t('Download for PC')}
-        </a>,
+        </a>
         <a
           key={'mac'}
           className={macReleaseClasses}
           href={`${this.state.latestMacRelease}`}
-          disabled={!this.state.latestMacRelease}
+          // disabled={!this.state.latestMacRelease}
           onClick={this.props.onClick}>
           {t('Download for Mac')}
         </a>
-      ]
-    }
-
-    return (
-      <div className='uploaderbutton-wrap'>
-        {content}
       </div>
     );
   }

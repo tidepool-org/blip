@@ -396,13 +396,11 @@ utils.getBGPrefsForDataProcessing = (patientSettings, queryParams = {}) => {
   };
 })(console);
 
-utils.getLatestGithubRelease = (releases) => {
-  const latestRelease = _.filter(releases, {prerelease: false})[0];
-  let latestTag = latestRelease.tag_name;
-  const urlBase = `https://github.com/tidepool-org/uploader/releases/download/${latestTag}`;
-  latestTag = latestTag.substr(1);
-  const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
-  const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.dmg`;
+utils.getLatestGithubRelease = () => {
+  const urlBase = 'https://github.com/tidepool-org/uploader/releases/latest/download';
+  const latestWinRelease = `${urlBase}/Tidepool-Uploader-Setup.exe`;
+  const latestMacRelease = `${urlBase}/Tidepool-Uploader.dmg`;
+
   return {
     latestWinRelease: latestWinRelease,
     latestMacRelease: latestMacRelease,

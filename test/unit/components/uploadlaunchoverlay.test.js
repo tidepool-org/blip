@@ -23,7 +23,7 @@ import { mount } from 'enzyme';
 
 import UploadLaunchOverlay from '../../../app/components/uploadlaunchoverlay';
 import ModalOverlay from '../../../app/components/modaloverlay';
-import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
+// import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
@@ -59,31 +59,31 @@ describe('UploadLaunchOverlay', function () {
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
-    it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
-      });
-      expect(wrapper.find('a.disabled')).to.have.length(2);
-    });
+    // it('should have disabled download buttons if no URLs have been set', () => {
+    //   wrapper.setState({
+    //     latestWinRelease: null,
+    //     latestMacRelease: null,
+    //   });
+    //   expect(wrapper.find('a.disabled')).to.have.length(2);
+    // });
 
-    it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
-        uploadDismiss: 'test',
-      });
-      wrapper.update();
-      expect(wrapper.find('a')).to.have.length(3);
-      expect(wrapper.find('a.disabled')).to.have.length(0);
-    });
+    // it('should have active buttons if URLs have been set', () => {
+    //   wrapper.instance().getWrappedInstance().setState({
+    //     latestMacRelease: 'test',
+    //     latestWinRelease: 'test',
+    //     uploadDismiss: 'test',
+    //   });
+    //   wrapper.update();
+    //   expect(wrapper.find('a')).to.have.length(3);
+    //   expect(wrapper.find('a.disabled')).to.have.length(0);
+    // });
 
-    it('should display download link if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        error: 'some error',
-      });
-      wrapper.update();
-      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
-    });
+    // it('should display download link if error retrieving github releases', () => {
+    //   wrapper.instance().getWrappedInstance().setState({
+    //     error: 'some error',
+    //   });
+    //   wrapper.update();
+    //   expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
+    // });
   });
 });
