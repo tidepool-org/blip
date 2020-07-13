@@ -187,6 +187,8 @@ const PrescriptionForm = props => {
     },
 
     singleStepEditComplete: (cancelFieldUpdates) => {
+      const advanceStep = false;
+
       if (cancelFieldUpdates) {
         resetForm();
       } else {
@@ -194,7 +196,8 @@ const PrescriptionForm = props => {
       }
 
       handlers.activeStepUpdate(pendingStep);
-      setPendingStep([]);
+
+      return advanceStep;
     },
 
     stepSubmit: () => {
@@ -258,6 +261,7 @@ const PrescriptionForm = props => {
     id: stepperId,
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
+      if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);
       log('Step to', newStep.join(','));
     },
     steps: [
