@@ -152,6 +152,7 @@ export class AppComponent extends React.Component {
       userHasData,
       userHasConnectedDataSources,
       userHasSharedDataWithClinician,
+      userHasDiabetesType,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
       patient,
@@ -217,7 +218,7 @@ export class AppComponent extends React.Component {
     }
 
     if (showingUpdateTypeBanner !== false && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
-      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
+      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources && !userHasDiabetesType;
       if (showUpdateTypeBanner) {
         this.props.showBanner('updatetype');
 
@@ -558,6 +559,7 @@ export function mapStateToProps(state) {
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
+  let userHasDiabetesType = false;
 
   if (userHasSharedData) {
     let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
@@ -571,6 +573,10 @@ export function mapStateToProps(state) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
 
       userHasData = _.get(state, 'blip.data.metaData.patientId') === state.blip.loggedInUserId && _.get(state, 'blip.data.metaData.size', 0) > 0;
+
+      if(user.profile.patient.diagnosisType) {
+        userHasDiabetesType = true;
+      }
 
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
@@ -669,6 +675,7 @@ export function mapStateToProps(state) {
     showingUpdateTypeBanner: state.blip.showingUpdateTypeBanner,
     userIsCurrentPatient,
     userHasData,
+    userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,
     userHasSharedDataWithClinician,
