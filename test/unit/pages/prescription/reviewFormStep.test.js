@@ -32,7 +32,7 @@ const handlers = {
 
 const invalidateMeta = fieldPath => _.set({ ...meta }, fieldPath, { valid: false });
 
-describe('reviewFormStep', function() {
+describe.only('reviewFormStep', function() {
   afterEach(() => {
     handlers.activeStepUpdate.resetHistory();
   });
