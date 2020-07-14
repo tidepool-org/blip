@@ -162,7 +162,7 @@
     "terser": "4.4.2",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.15.0-react-upgrade.1",
-    "tidepool-platform-client": "0.43.0",
+    "tidepool-platform-client": "0.44.0-rc.1",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.39.1",
