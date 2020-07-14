@@ -3308,6 +3308,230 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchPrescriptions', () => {
+      it('should trigger FETCH_PRESCRIPTIONS_SUCCESS and it should call prescription.getAll once for a successful request', () => {
+        let prescriptions = [
+          { id: 'one' }
+        ];
+
+        let api = {
+          prescription: {
+            getAll: sinon.stub().callsArgWith(0, null, prescriptions),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_PRESCRIPTIONS_SUCCESS', payload: { prescriptions : prescriptions } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchPrescriptions(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.getAll.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PRESCRIPTIONS_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          prescription: {
+            getAll: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_PRESCRIPTIONS_REQUEST' },
+          { type: 'FETCH_PRESCRIPTIONS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchPrescriptions(api));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PRESCRIPTIONS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.getAll.callCount).to.equal(1);
+      });
+    });
+
+    describe('createPrescription', () => {
+      it('should trigger CREATE_PRESCRIPTION_SUCCESS and it should call prescription.create once for a successful request', () => {
+        let prescription = { id: 'one' };
+
+        let api = {
+          prescription: {
+            create: sinon.stub().callsArgWith(1, null, prescription),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'CREATE_PRESCRIPTION_REQUEST' },
+          { type: 'CREATE_PRESCRIPTION_SUCCESS', payload: { prescription : prescription } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createPrescription(api, prescription));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.create.withArgs(prescription).callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_PRESCRIPTION_FAILURE and it should call error once for a failed request', () => {
+        let prescription = { id: 'one' };
+
+        let api = {
+          prescription: {
+            create: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_PRESCRIPTION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'CREATE_PRESCRIPTION_REQUEST' },
+          { type: 'CREATE_PRESCRIPTION_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createPrescription(api, prescription));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_PRESCRIPTION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.create.withArgs(prescription).callCount).to.equal(1);
+      });
+    });
+
+    describe('createPrescriptionRevision', () => {
+      it('should trigger CREATE_PRESCRIPTION_REVISION_SUCCESS and it should call prescription.createRevision once for a successful request', () => {
+        let prescription = { id: 'one' };
+
+        let api = {
+          prescription: {
+            createRevision: sinon.stub().callsArgWith(2, null, prescription),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'CREATE_PRESCRIPTION_REVISION_REQUEST' },
+          { type: 'CREATE_PRESCRIPTION_REVISION_SUCCESS', payload: { prescription : prescription } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createPrescriptionRevision(api, prescription, prescription.id));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.createRevision.withArgs(prescription, prescription.id).callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_PRESCRIPTION_REVISION_FAILURE and it should call error once for a failed request', () => {
+        let prescription = { id: 'one' };
+
+        let api = {
+          prescription: {
+            createRevision: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'CREATE_PRESCRIPTION_REVISION_REQUEST' },
+          { type: 'CREATE_PRESCRIPTION_REVISION_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.createPrescriptionRevision(api, prescription, prescription.id));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.createRevision.withArgs(prescription, prescription.id).callCount).to.equal(1);
+      });
+    });
+
+    describe('deletePrescription', () => {
+      it('should trigger DELETE_PRESCRIPTION_SUCCESS and it should call prescription.delete once for a successful request', () => {
+        let prescriptionId = 'one';
+
+        let api = {
+          prescription: {
+            delete: sinon.stub().callsArgWith(1, null),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_PRESCRIPTION_REQUEST' },
+          { type: 'DELETE_PRESCRIPTION_SUCCESS', payload: { prescriptionId : prescriptionId } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePrescription(api, prescriptionId));
+
+        const actions = store.getActions();
+        _.each(actions, a => console.log(a))
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
+      });
+
+      it('should trigger DELETE_PRESCRIPTION_FAILURE and it should call error once for a failed request', () => {
+        let prescriptionId = 'one';
+
+        let api = {
+          prescription: {
+            delete: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PRESCRIPTION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_PRESCRIPTION_REQUEST' },
+          { type: 'DELETE_PRESCRIPTION_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePrescription(api, prescriptionId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PRESCRIPTION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
+      });
+    });
 
     describe('fetchMessageThread', () => {
       it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {
