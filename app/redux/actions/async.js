@@ -548,7 +548,6 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
-        console.log(updatedPreferences)
         dispatch(sync.updatePreferencesSuccess(updatedPreferences));
       }
     });

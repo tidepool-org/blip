@@ -3498,7 +3498,6 @@ describe('Actions', () => {
         store.dispatch(async.deletePrescription(api, prescriptionId));
 
         const actions = store.getActions();
-        _.each(actions, a => console.log(a))
         expect(actions).to.eql(expectedActions);
         expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
       });
