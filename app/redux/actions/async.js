@@ -1155,22 +1155,22 @@ export function createPrescriptionRevision(api, revision, prescriptionId) {
 }
 
 /**
- * Create Prescription Action Creator
+ * Delete Prescription Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
- * @param  {String} prescription to be created
+ * @param  {String} prescriptionID id of prescription to be deleted
  */
 export function deletePrescription(api, prescriptionId) {
   return (dispatch) => {
     dispatch(sync.deletePrescriptionRequest());
 
-    api.prescription.delete(prescriptionId, (err, result) => {
+    api.prescription.delete(prescriptionId, (err) => {
       if (err) {
         dispatch(sync.deletePrescriptionFailure(
           createActionError(ErrorMessages.ERR_DELETING_PRESCRIPTION, err), err
         ));
       } else {
-        dispatch(sync.deletePrescriptionSuccess(result));
+        dispatch(sync.deletePrescriptionSuccess(prescriptionId));
       }
     });
   };

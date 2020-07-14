@@ -906,11 +906,11 @@ export function deletePrescriptionRequest() {
   };
 }
 
-export function deletePrescriptionSuccess(prescriptionID) {
+export function deletePrescriptionSuccess(prescriptionId) {
   return {
     type: ActionTypes.DELETE_PRESCRIPTION_SUCCESS,
     payload: {
-      prescriptionID: prescriptionID,
+      prescriptionId: prescriptionId,
     },
   };
 }

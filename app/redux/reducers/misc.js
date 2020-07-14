@@ -576,7 +576,7 @@ export const prescriptions = (state = initialState.prescriptions, action) => {
       const updatedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescription.id });
       return update(state, { $splice: [[updatedPrescriptionIndex, 1, action.payload.prescription]] });
     case types.DELETE_PRESCRIPTION_SUCCESS:
-      const deletedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionID });
+      const deletedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionId });
       return update(state, { $splice: [[deletedPrescriptionIndex, 1]] });
     case types.LOGOUT_REQUEST:
       return [];
