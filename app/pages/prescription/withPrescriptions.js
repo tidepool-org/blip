@@ -11,7 +11,7 @@ import * as actions from '../../redux/actions';
 
 const { Loader } = vizComponents;
 
-const withPrescriptions = Component => props => {
+export const withPrescriptions = Component => props => {
   const {
     fetchers,
     fetchingPrescriptions,
@@ -32,7 +32,7 @@ const withPrescriptions = Component => props => {
   const prescription = get(keyBy(prescriptions, 'id'), prescriptionId);
 
   return fetchingPrescriptions.completed
-    ? <Component prescriptions={prescriptions} prescription={prescription} {...props} />
+    ? <Component prescription={prescription} {...props} />
     : <Loader />;
 };
 
