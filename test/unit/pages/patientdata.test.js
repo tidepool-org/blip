@@ -3964,7 +3964,6 @@ describe('PatientData', function () {
 
     const ownProps = {
       routeParams: { id: '12345' },
-      location: { query: {} },
     };
 
     const dispatchProps = {

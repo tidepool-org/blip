@@ -1515,13 +1515,7 @@ export let PatientData = translate()(createReactClass({
 export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, _.assign({}, options, {
-      // As a temporary workaround for inefficiencies in this query when fetching initial data for
-      // large data sets, we set a startDate to 6 months ago. Note that this will result in datasets
-      // with no new diabetes data within the last 6 months to return empty. Will be circumvented
-      // while running in dev mode, or if `fetchAllData` query param is truthy.
-      initialStartDate: (__DEV__ || ownProps.location.query.fetchAllData) ? undefined: moment.utc().subtract(6, 'months').toISOString(),
-    }), ownProps.routeParams.id),
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
   ];
 
   if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {

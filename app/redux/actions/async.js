@@ -961,10 +961,6 @@ export function fetchPatientData(api, options, id) {
           endDate: moment.utc(serverTime).add(1, 'days').toISOString(),
         };
 
-        // As a temporary workaround to some inefficiencies for this query on large datasets, we are
-        // passing in an initial startDate param in the patientdata.js initial data fetcher.
-        if (options.initialStartDate) latestDatumsFetchParams.startDate = options.initialStartDate;
-
         api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
           if (err) {
             dispatch(sync.fetchPatientDataFailure(
