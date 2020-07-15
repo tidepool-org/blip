@@ -824,6 +824,26 @@ api.metrics.track = function(eventName, properties, cb) {
   return tidepool.trackMetric(eventName, properties, cb);
 };
 
+// ----- Prescription -----
+
+api.prescription = {};
+
+api.prescription.getAll = function(cb) {
+  return tidepool.getPrescriptions(cb);
+};
+
+api.prescription.create = function(prescription, cb) {
+  return tidepool.createPrescription(prescription, cb);
+};
+
+api.prescription.createRevision = function(revision, prescriptionId, cb) {
+  return tidepool.createPrescriptionRevision(revision, prescriptionId, cb);
+};
+
+api.prescription.delete = function(prescriptionId, cb) {
+  return tidepool.deletePrescription(prescriptionId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

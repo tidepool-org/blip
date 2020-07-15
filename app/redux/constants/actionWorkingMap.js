@@ -32,6 +32,26 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
+    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.FETCH_PRESCRIPTIONS_FAILURE:
+      return 'fetchingPrescriptions';
+
+    case types.CREATE_PRESCRIPTION_REQUEST:
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+    case types.CREATE_PRESCRIPTION_FAILURE:
+      return 'creatingPrescription';
+
+    case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+    case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
+      return 'creatingPrescriptionRevision';
+
+    case types.DELETE_PRESCRIPTION_REQUEST:
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+    case types.DELETE_PRESCRIPTION_FAILURE:
+      return 'deletingPrescription';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:

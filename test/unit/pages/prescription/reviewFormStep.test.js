@@ -15,7 +15,7 @@ const meta = {
   training: { value: true },
   initialSettings: {
     suspendThreshold: { value: { value: true } },
-    insulinType: { value: true },
+    insulinModel: { value: true },
     basalRateMaximum: { value: { value: true } },
     bolusAmountMaximum: { value: { value: true } },
     bloodGlucoseTargetSchedule: { value: true },
@@ -42,11 +42,11 @@ describe('reviewFormStep', function() {
   });
 
   it('should include the step label', () => {
-    expect(reviewFormStep().label).to.equal('Review and Send Prescription');
+    expect(reviewFormStep().label).to.equal('Review and Save Prescription');
   });
 
   it('should include the custom next button text', () => {
-    expect(reviewFormStep().completeText).to.equal('Send Prescription');
+    expect(reviewFormStep().completeText).to.equal('Save Prescription');
   });
 
   it('should include panel content with meta and handlers passed along', () => {

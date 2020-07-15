@@ -825,6 +825,106 @@ export function fetchPatientDataFailure(error, apiError) {
   };
 }
 
+export function fetchPrescriptionsRequest() {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_REQUEST,
+  };
+}
+
+export function fetchPrescriptionsSuccess(prescriptions) {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_SUCCESS,
+    payload: {
+      prescriptions: prescriptions,
+    },
+  };
+}
+
+export function fetchPrescriptionsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PRESCRIPTIONS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createPrescriptionRequest() {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REQUEST,
+  };
+}
+
+export function createPrescriptionSuccess(prescription) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_SUCCESS,
+    payload: {
+      prescription: prescription,
+    },
+  };
+}
+
+export function createPrescriptionFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createPrescriptionRevisionRequest() {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_REQUEST,
+  };
+}
+
+export function createPrescriptionRevisionSuccess(prescription) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_SUCCESS,
+    payload: {
+      prescription: prescription,
+    },
+  };
+}
+
+export function createPrescriptionRevisionFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_PRESCRIPTION_REVISION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deletePrescriptionRequest() {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_REQUEST,
+  };
+}
+
+export function deletePrescriptionSuccess(prescriptionId) {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_SUCCESS,
+    payload: {
+      prescriptionId: prescriptionId,
+    },
+  };
+}
+
+export function deletePrescriptionFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PRESCRIPTION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,

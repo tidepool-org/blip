@@ -34,8 +34,7 @@ const fieldsetPropTypes = {
 
 export const PatientInfo = props => {
   const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
-
-  const nameStep = [0, 1];
+  const nameStep = [0, 0];
   const currentStep = [3, 0];
 
   const {
@@ -47,22 +46,22 @@ export const PatientInfo = props => {
     {
       label: t('Email'),
       value: meta.email.value,
-      step: [0, 2],
+      step: [0, 1],
     },
     {
       label: t('Mobile Number'),
       value: meta.phoneNumber.number.value,
       step: [1, 0],
     },
-    {
-      label: t('Type of Account'),
-      value: capitalize(meta.type.value),
-      step: [0, 0],
-    },
+    // {
+    //   label: t('Type of Account'),
+    //   value: capitalize(meta.type.value),
+    //   step: [0, 0],
+    // },
     {
       label: t('Birthdate'),
       value: meta.birthday.value,
-      step: [0, 1],
+      step: [0, 0],
     },
     {
       label: t('Gender'),
@@ -145,17 +144,17 @@ export const TherapySettings = props => {
         }
       ),
     },
-    {
-      id: 'suspend-threshold',
-      label: t('Suspend Threshold'),
-      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
-    },
-    {
-      id: 'insulin-model',
-      label: t('Insulin Model'),
-      value: meta.initialSettings.insulinType.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'),
-    },
+    // {
+    //   id: 'suspend-threshold',
+    //   label: t('Suspend Threshold'),
+    //   value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+    //   warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+    // },
+    // {
+    //   id: 'insulin-model',
+    //   label: t('Insulin Model'),
+    //   value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
+    // },
     {
       id: 'delivery-limits',
       label: t('Delivery Limits'),
@@ -313,8 +312,8 @@ export const PrescriptionReview = translate()(props => (
 ));
 
 const reviewFormStep = (meta, handlers) => ({
-  label: t('Review and Send Prescription'),
-  completeText: t('Send Prescription'),
+  label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
+  completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   disableComplete: !fieldsAreValid(stepValidationFields[3][0], meta),
   panelContent: <PrescriptionReview meta={meta} handlers={handlers} />
 });

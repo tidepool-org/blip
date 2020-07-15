@@ -1316,6 +1316,376 @@ describe('working', () => {
     });
   });
 
+  describe('fetchPrescriptions', () => {
+    describe('request', () => {
+      it('should leave fetchingPrescriptions.completed unchanged', () => {
+        expect(initialState.fetchingPrescriptions.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchPrescriptionsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingPrescriptions.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPrescriptionsSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingPrescriptions.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingPrescriptions.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPrescriptions.inProgress to be true', () => {
+        let action = actions.sync.fetchPrescriptionsRequest();
+
+        expect(initialState.fetchingPrescriptions.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.fetchingPrescriptions.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingPrescriptions.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingPrescriptions.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchPrescriptionsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingPrescriptions.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPrescriptions.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { fetchingPrescriptions: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchPrescriptionsFailure(error);
+
+        expect(initialStateForTest.fetchingPrescriptions.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingPrescriptions.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPrescriptions.inProgress).to.be.false;
+        expect(state.fetchingPrescriptions.notification.type).to.equal('error');
+        expect(state.fetchingPrescriptions.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingPrescriptions.completed to be true', () => {
+        expect(initialState.fetchingPrescriptions.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPrescriptionsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingPrescriptions.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPrescriptions.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { fetchingPrescriptions: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let prescriptions = 'some prescriptions';
+        let action = actions.sync.fetchPrescriptionsSuccess(prescriptions);
+
+        expect(initialStateForTest.fetchingPrescriptions.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPrescriptions.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createPrescription', () => {
+    describe('request', () => {
+      it('should set creatingPrescription.completed to null', () => {
+        expect(initialState.creatingPrescription.completed).to.be.null;
+
+        let requestAction = actions.sync.createPrescriptionRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingPrescription.completed).to.be.null;
+
+        let successAction = actions.sync.createPrescriptionSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingPrescription.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingPrescription.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescription.inProgress to be true', () => {
+        let action = actions.sync.createPrescriptionRequest();
+
+        expect(initialState.creatingPrescription.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.creatingPrescription.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingPrescription.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingPrescription.completed).to.be.null;
+
+        let failureAction = actions.sync.createPrescriptionFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingPrescription.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescription.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingPrescription: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createPrescriptionFailure(error);
+
+        expect(initialStateForTest.creatingPrescription.inProgress).to.be.true;
+        expect(initialStateForTest.creatingPrescription.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingPrescription.inProgress).to.be.false;
+        expect(state.creatingPrescription.notification.type).to.equal('error');
+        expect(state.creatingPrescription.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingPrescription.completed to be true', () => {
+        expect(initialState.creatingPrescription.completed).to.be.null;
+
+        let successAction = actions.sync.createPrescriptionSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingPrescription.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescription.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingPrescription: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let prescription = 'some prescription';
+        let action = actions.sync.createPrescriptionSuccess(prescription);
+
+        expect(initialStateForTest.creatingPrescription.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingPrescription.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescription.prescriptionId to the payload value', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingPrescription: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let prescription = { id: 'some prescription id' };
+        let action = actions.sync.createPrescriptionSuccess(prescription);
+
+        expect(initialStateForTest.creatingPrescription.prescriptionId).to.be.undefined;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingPrescription.prescriptionId).to.equal('some prescription id');
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createPrescriptionRevision', () => {
+    describe('request', () => {
+      it('should set creatingPrescriptionRevision.completed to null', () => {
+        expect(initialState.creatingPrescriptionRevision.completed).to.be.null;
+
+        let requestAction = actions.sync.createPrescriptionRevisionRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingPrescriptionRevision.completed).to.be.null;
+
+        let successAction = actions.sync.createPrescriptionRevisionSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingPrescriptionRevision.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingPrescriptionRevision.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescriptionRevision.inProgress to be true', () => {
+        let action = actions.sync.createPrescriptionRevisionRequest();
+
+        expect(initialState.creatingPrescriptionRevision.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.creatingPrescriptionRevision.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingPrescriptionRevision.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingPrescriptionRevision.completed).to.be.null;
+
+        let failureAction = actions.sync.createPrescriptionRevisionFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingPrescriptionRevision.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescriptionRevision.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingPrescriptionRevision: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createPrescriptionRevisionFailure(error);
+
+        expect(initialStateForTest.creatingPrescriptionRevision.inProgress).to.be.true;
+        expect(initialStateForTest.creatingPrescriptionRevision.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingPrescriptionRevision.inProgress).to.be.false;
+        expect(state.creatingPrescriptionRevision.notification.type).to.equal('error');
+        expect(state.creatingPrescriptionRevision.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingPrescriptionRevision.completed to be true', () => {
+        expect(initialState.creatingPrescriptionRevision.completed).to.be.null;
+
+        let successAction = actions.sync.createPrescriptionRevisionSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingPrescriptionRevision.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingPrescriptionRevision.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { creatingPrescriptionRevision: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let prescription = 'some prescription';
+        let action = actions.sync.createPrescriptionRevisionSuccess(prescription);
+
+        expect(initialStateForTest.creatingPrescriptionRevision.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingPrescriptionRevision.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('deletePrescription', () => {
+    describe('request', () => {
+      it('should leave deletingPrescription.completed unchanged', () => {
+        expect(initialState.deletingPrescription.completed).to.be.null;
+
+        let requestAction = actions.sync.deletePrescriptionRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.deletingPrescription.completed).to.be.null;
+
+        let successAction = actions.sync.deletePrescriptionSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.deletingPrescription.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.deletingPrescription.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingPrescription.inProgress to be true', () => {
+        let action = actions.sync.deletePrescriptionRequest();
+
+        expect(initialState.deletingPrescription.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.deletingPrescription.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set deletingPrescription.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.deletingPrescription.completed).to.be.null;
+
+        let failureAction = actions.sync.deletePrescriptionFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.deletingPrescription.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingPrescription.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { deletingPrescription: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.deletePrescriptionFailure(error);
+
+        expect(initialStateForTest.deletingPrescription.inProgress).to.be.true;
+        expect(initialStateForTest.deletingPrescription.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingPrescription.inProgress).to.be.false;
+        expect(state.deletingPrescription.notification.type).to.equal('error');
+        expect(state.deletingPrescription.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set deletingPrescription.completed to be true', () => {
+        expect(initialState.deletingPrescription.completed).to.be.null;
+
+        let successAction = actions.sync.deletePrescriptionSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.deletingPrescription.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingPrescription.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { deletingPrescription: { inProgress : true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let prescription = 'some prescription';
+        let action = actions.sync.deletePrescriptionSuccess(prescription);
+
+        expect(initialStateForTest.deletingPrescription.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingPrescription.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('fetchMessageThread', () => {
     describe('request', () => {
       it('should leave fetchingMessageThread.completed unchanged', () => {

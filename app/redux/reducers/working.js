@@ -49,6 +49,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
+    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.CREATE_PRESCRIPTION_REQUEST:
+    case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
+    case types.DELETE_PRESCRIPTION_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
     case types.EDIT_MESSAGE_THREAD_REQUEST:
@@ -95,6 +99,19 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
+        } else if (_.includes([
+          types.CREATE_PRESCRIPTION_REQUEST,
+          types.CREATE_PRESCRIPTION_REVISION_REQUEST,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: null, // For these types we don't persist the completed state
+              }
+            }
+          });
         } else {
           return update(state, {
             [key]: {
@@ -121,6 +138,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+    case types.DELETE_PRESCRIPTION_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
     case types.EDIT_MESSAGE_THREAD_SUCCESS:
@@ -188,6 +209,17 @@ export default (state = initialWorkingState, action) => {
               $set: initialState.working[generatingPDFWorkingKey],
             },
           });
+        } else if (action.type === types.CREATE_PRESCRIPTION_SUCCESS) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+              }
+            }
+          });
         } else {
           return update(state, {
             [key]: {
@@ -215,6 +247,10 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_PRESCRIPTIONS_FAILURE:
+    case types.CREATE_PRESCRIPTION_FAILURE:
+    case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
+    case types.DELETE_PRESCRIPTION_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:
     case types.EDIT_MESSAGE_THREAD_FAILURE:

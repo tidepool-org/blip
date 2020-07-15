@@ -7,7 +7,7 @@ import InputMask from 'react-input-mask';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import i18next from '../../core/language';
-import RadioGroup from '../../components/elements/RadioGroup';
+// import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
 import { stepValidationFields, typeOptions } from './prescriptionFormConstants';
@@ -16,23 +16,23 @@ import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
 
-export const AccountType = translate()(props => {
-  const { t, meta } = props;
+// export const AccountType = translate()(props => {
+//   const { t, meta } = props;
 
-  return (
-    <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
-      <FastField
-        as={RadioGroup}
-        variant="verticalBordered"
-        id="type"
-        name="type"
-        options={typeOptions}
-        error={getFieldError(meta.type)}
-      />
-    </Box>
-  );
-});
+//   return (
+//     <Box {...fieldsetStyles}>
+//       <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
+//       <FastField
+//         as={RadioGroup}
+//         variant="verticalBordered"
+//         id="type"
+//         name="type"
+//         options={typeOptions}
+//         error={getFieldError(meta.type)}
+//       />
+//     </Box>
+//   );
+// });
 
 export const PatientInfo = translate()(props => {
   const { t, meta } = props;
@@ -123,19 +123,20 @@ export const PatientEmail = translate()(props => {
 const accountFormSteps = meta => ({
   label: t('Create Patient Account'),
   subSteps: [
+    // {
+    //   disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
+    //   hideBack: true,
+    //   onComplete: () => log('Account Type Complete'),
+    //   panelContent: <AccountType meta={meta} />
+    // },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
       hideBack: true,
-      onComplete: () => log('Account Type Complete'),
-      panelContent: <AccountType meta={meta} />
-    },
-    {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
       onComplete: () => log('Patient Info Complete'),
       panelContent: <PatientInfo meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][2], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
       onComplete: () => log('Patient Email Complete'),
       panelContent: <PatientEmail meta={meta} />,
     },
