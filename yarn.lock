@@ -14348,7 +14348,7 @@ react-redux@5.1.2:
     react-is "^16.6.0"
     react-lifecycles-compat "^3.0.0"
 
-react-redux@^7.0.2:
+react-redux@7.2.0, react-redux@^7.0.2:
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.2.0.tgz#f970f62192b3981642fec46fd0db18a074fe879d"
   integrity sha512-EvCAZYGfOLqwV7gh849xy9/pt55rJXPwmYvI4lilPM5rUT/1NxuuN59ipdBksRVSvz0KInbPnp4IfoXJXCqiDA==
@@ -17290,10 +17290,10 @@ tideline@1.15.0-react-upgrade.1:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.43.0:
-  version "0.43.0"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.43.0.tgz#40b032a39012533d976d9bb85aa126b8f5a74cf9"
-  integrity sha512-Xlsuy9tKsxF0mqdVOv/bt7PjFyTFIV6zl28VUiMBVg8pSUoZa4yHU9XceLYWjX/JBABz0jjgpij+4Y9R3v+iuw==
+tidepool-platform-client@0.44.0-rc.1:
+  version "0.44.0-rc.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.44.0-rc.1.tgz#09a20a9227c862d1aae6f821ea5870dbb60cd1ee"
+  integrity sha512-LXFNQA4yB+zMh5XlP4SqfAyO5QPKt3oTQJETZN60KQOiKxc1CodCUFOHweFVw8eDshIgUWVlJ1YHjCYCdzi33A==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

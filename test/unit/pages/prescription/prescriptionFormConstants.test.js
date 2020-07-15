@@ -27,7 +27,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list pump device options', function() {
     expect(prescriptionFormConstants.pumpDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.pumpDeviceOptions, 'value')).to.eql([
-      'omnipodId',
+      prescriptionFormConstants.placeholderDeviceIds.omnipod,
     ]);
 
     _.each(prescriptionFormConstants.pumpDeviceOptions, device => {
@@ -40,7 +40,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list cgm device options', function() {
     expect(prescriptionFormConstants.cgmDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.cgmDeviceOptions, 'value')).to.eql([
-      'dexcomId',
+      prescriptionFormConstants.placeholderDeviceIds.dexcom,
     ]);
 
     _.each(prescriptionFormConstants.cgmDeviceOptions, device => {
@@ -83,10 +83,10 @@ describe('prescriptionFormConstants', function() {
           low: { value: 15, message: lowWarning },
           high: { value: 400, message: highWarning },
         },
-        suspendThreshold: {
-          low: { value: 70, message: lowWarning },
-          high: { value: 120, message: highWarning },
-        },
+        // suspendThreshold: {
+        //   low: { value: 70, message: lowWarning },
+        //   high: { value: 120, message: highWarning },
+        // },
       });
     });
 
@@ -99,8 +99,8 @@ describe('prescriptionFormConstants', function() {
       expect(thresholds.insulinSensitivityFactor.low.value).to.equal(0.8);
       expect(thresholds.insulinSensitivityFactor.high.value).to.equal(22.2);
 
-      expect(thresholds.suspendThreshold.low.value).to.equal(3.9);
-      expect(thresholds.suspendThreshold.high.value).to.equal(6.7);
+      // expect(thresholds.suspendThreshold.low.value).to.equal(3.9);
+      // expect(thresholds.suspendThreshold.high.value).to.equal(6.7);
     });
   });
 
@@ -116,7 +116,7 @@ describe('prescriptionFormConstants', function() {
         bolusAmountMaximum: 10,
         carbRatio: 10,
         insulinSensitivityFactor: 100,
-        suspendThreshold: 80,
+        // suspendThreshold: 80,
       });
     });
 
@@ -127,7 +127,7 @@ describe('prescriptionFormConstants', function() {
       expect(values.bloodGlucoseTarget.low).to.equal(6.2);
 
       expect(values.insulinSensitivityFactor).to.equal(5.6);
-      expect(values.suspendThreshold).to.equal(4.4);
+      // expect(values.suspendThreshold).to.equal(4.4);
     });
   });
 
@@ -140,7 +140,7 @@ describe('prescriptionFormConstants', function() {
         bolusAmountMaximum: { min: 0, max: 30, step: 1 },
         carbRatio: { min: 0, max: 250, step: 1 },
         insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
-        suspendThreshold: { min: 54, max: 180, step: 1 },
+        // suspendThreshold: { min: 54, max: 180, step: 1 },
       });
     });
 
@@ -155,16 +155,16 @@ describe('prescriptionFormConstants', function() {
       expect(ranges.insulinSensitivityFactor.max).to.equal(55.5);
       expect(ranges.insulinSensitivityFactor.step).to.equal(0.1);
 
-      expect(ranges.suspendThreshold.min).to.equal(3);
-      expect(ranges.suspendThreshold.max).to.equal(10);
-      expect(ranges.suspendThreshold.step).to.equal(0.1);
+      // expect(ranges.suspendThreshold.min).to.equal(3);
+      // expect(ranges.suspendThreshold.max).to.equal(10);
+      // expect(ranges.suspendThreshold.step).to.equal(0.1);
     });
   });
 
   describe('deviceMeta', () => {
     describe('Omnipod device ID provided', () => {
       it('should export the device metadata with mg/dL as default bg unit', () => {
-        expect(prescriptionFormConstants.deviceMeta('omnipodId')).to.eql({
+        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.omnipod)).to.eql({
           manufacturerName: 'Omnipod',
           ranges: {
             basalRate: { min: 0, max: 30, step: 0.05 },
@@ -173,13 +173,13 @@ describe('prescriptionFormConstants', function() {
             bolusAmountMaximum: { min: 0, max: 30, step: 1 },
             carbRatio: { min: 0, max: 150, step: 1 },
             insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
-            suspendThreshold: { min: 54, max: 180, step: 1 },
+            // suspendThreshold: { min: 54, max: 180, step: 1 },
           },
         });
       });
 
       it('should export the device metadata with mmoll/L as provided', () => {
-        const meta = prescriptionFormConstants.deviceMeta('omnipodId', 'mmol/L');
+        const meta = prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.omnipod, 'mmol/L');
 
         expect(meta.ranges.bloodGlucoseTarget.min).to.equal(3.3);
       });
@@ -187,7 +187,7 @@ describe('prescriptionFormConstants', function() {
 
     describe('Dexcom device ID provided', () => {
       it('should export the device metadata', () => {
-        expect(prescriptionFormConstants.deviceMeta('dexcomId')).to.eql({
+        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.dexcom)).to.eql({
           manufacturerName: 'Dexcom',
         });
       });
@@ -209,18 +209,18 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  it('should export the list the prescription account type options', function() {
-    expect(prescriptionFormConstants.typeOptions).to.be.an('array');
-    expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
-      'patient',
-      'caregiver',
-    ]);
+  // it('should export the list the prescription account type options', function() {
+  //   expect(prescriptionFormConstants.typeOptions).to.be.an('array');
+  //   expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
+  //     'patient',
+  //     'caregiver',
+  //   ]);
 
-    _.each(prescriptionFormConstants.typeOptions, device => {
-      expect(device.value).to.be.a('string');
-      expect(device.label).to.be.a('string');
-    })
-  });
+  //   _.each(prescriptionFormConstants.typeOptions, device => {
+  //     expect(device.value).to.be.a('string');
+  //     expect(device.label).to.be.a('string');
+  //   })
+  // });
 
   it('should export the list the prescription patient sex options', function() {
     expect(prescriptionFormConstants.sexOptions).to.be.an('array');
@@ -249,20 +249,20 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the prescription insulin type options', function() {
-    expect(prescriptionFormConstants.insulinTypeOptions).to.be.an('array');
-    expect(_.map(prescriptionFormConstants.insulinTypeOptions, 'value')).to.eql([
-      'rapidAdult',
-      'rapidChild',
-    ]);
+  // it('should export the list the prescription insulin type options', function() {
+  //   expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
+  //   expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
+  //     'rapidAdult',
+  //     'rapidChild',
+  //   ]);
 
-    _.each(prescriptionFormConstants.insulinTypeOptions, device => {
-      expect(device.value).to.be.a('string');
-      expect(device.label).to.be.a('string');
-    })
-  });
+  //   _.each(prescriptionFormConstants.insulinModelOptions, device => {
+  //     expect(device.value).to.be.a('string');
+  //     expect(device.label).to.be.a('string');
+  //   })
+  // });
 
-  it('should export the list of valid country codes', function() {
-    expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);
-  });
+  // it('should export the list of valid country codes', function() {
+  //   expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);
+  // });
 });

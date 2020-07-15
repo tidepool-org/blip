@@ -12,8 +12,8 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  insulinTypeOptions,
-  typeOptions,
+  // insulinModelOptions,
+  // typeOptions,
   sexOptions,
   trainingOptions,
   validCountryCodes,
@@ -31,16 +31,16 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${pumpMeta.ranges.carbRatio.min}-${pumpMeta.ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${pumpMeta.ranges.insulinSensitivityFactor.min}-${pumpMeta.ranges.insulinSensitivityFactor.max}`,
-    suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
+    // suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
   };
 
   return yup.object().shape({
     id: yup.string(),
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
-    type: yup.string()
-      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
-      .required(t('Account type is required')),
+    // type: yup.string()
+    //   .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
+    //   .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
     lastName: yup.string().required(t('Last name is required')),
@@ -75,19 +75,19 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       pumpId: yup.string()
         .oneOf(map(pumpDeviceOptions, 'value'))
         .required(t('A pump type must be specified')),
-      cgmType: yup.string()
+      cgmId: yup.string()
         .oneOf(map(cgmDeviceOptions, 'value'))
         .required(t('A cgm type must be specified')),
-      insulinType: yup.string()
-        .oneOf(map(insulinTypeOptions, 'value'))
-        .required(t('A cgm type must be specified')),
-      suspendThreshold: yup.object().shape({
-        value: yup.number()
-          .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-          .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
-          .required(t('Suspend threshold is required')),
-        units: yup.string().default(bgUnits),
-      }),
+      // insulinModel: yup.string()
+      //   .oneOf(map(insulinModelOptions, 'value'))
+      //   .required(t('An insulin model must be specified')),
+      // suspendThreshold: yup.object().shape({
+      //   value: yup.number()
+      //     .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
+      //     .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
+      //     .required(t('Suspend threshold is required')),
+      //   units: yup.string().default(bgUnits),
+      // }),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(pumpMeta.ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)

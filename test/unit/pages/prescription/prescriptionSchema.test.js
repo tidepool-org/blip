@@ -16,7 +16,7 @@ describe('prescriptionSchema', function() {
     expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
-      'type',
+      // 'type',
       'firstName',
       'lastName',
       'birthday',
@@ -38,9 +38,9 @@ describe('prescriptionSchema', function() {
     expect(schema.fields.initialSettings._nodes).to.be.an('array').and.have.members([
       'bloodGlucoseUnits',
       'pumpId',
-      'cgmType',
-      'insulinType',
-      'suspendThreshold',
+      'cgmId',
+      // 'insulinModel',
+      // 'suspendThreshold',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',
@@ -49,10 +49,10 @@ describe('prescriptionSchema', function() {
       'insulinSensitivitySchedule',
     ]);
 
-    expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
-      'value',
-      'units',
-    ]);
+    // expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
+    //   'value',
+    //   'units',
+    // ]);
 
     expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([
       'value',

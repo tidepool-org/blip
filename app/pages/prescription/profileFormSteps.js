@@ -141,14 +141,14 @@ export const PatientDevices = translate()(props => {
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
-              id="initialSettings.cgmType"
-              name="initialSettings.cgmType"
-              checked={!isEmpty(meta.initialSettings.cgmType.value)}
+              id="initialSettings.cgmId"
+              name="initialSettings.cgmId"
+              checked={!isEmpty(meta.initialSettings.cgmId.value)}
               label={device.label}
               onChange={e => {
-                setFieldValue('initialSettings.cgmType', e.target.checked ? device.value : '')
+                setFieldValue('initialSettings.cgmId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.cgmType)}
+              error={getFieldError(meta.initialSettings.cgmId)}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>

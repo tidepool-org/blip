@@ -1,6 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import PrescriptionForm from '../../../../app/pages/prescription/PrescriptionForm';
+import { prescriptionForm, PrescriptionForm } from '../../../../app/pages/prescription/PrescriptionForm';
+import i18next from '../../../../app/core/language';
+import { withFormik } from 'formik';
+
+const t = i18next.t.bind(i18next);
 
 /* global chai */
 /* global sinon */
@@ -13,8 +17,15 @@ const expect = chai.expect;
 describe('PrescriptionForm', () => {
   let wrapper;
 
+  let defaultProps = {
+    t,
+    creatingPrescription: { inProgress: false, completed: false },
+    creatingPrescriptionRevision: { inProgress: false, completed: false },
+  }
+
   beforeEach(() => {
-    wrapper = mount(<PrescriptionForm />);
+    const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultProps} {...formikProps} />);
+    wrapper = mount(<Element {...defaultProps} />);
   });
 
   it('should render the prescription form with a submit handler', () => {
@@ -40,7 +51,7 @@ describe('PrescriptionForm', () => {
 
     expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
     expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Send Prescription');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {

@@ -15,7 +15,7 @@ import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
-  insulinTypeOptions,
+  // insulinModelOptions,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -104,8 +104,8 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpType = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
+  const pumpId = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
   const thresholds = warningThresholds(bgUnits);
 
   return (
@@ -150,7 +150,7 @@ export const GlucoseSettings = props => {
           />
         </Box>
 
-        <PopoverLabel
+        {/* <PopoverLabel
             id='suspend-threshold'
             label={t('Suspend Threshold')}
             mb={2}
@@ -172,7 +172,7 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
             {...pumpMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
-          />
+          /> */}
       </Box>
     </Box>
   );
@@ -191,7 +191,7 @@ export const InsulinSettings = props => {
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
-        <PopoverLabel
+        {/* <PopoverLabel
           id='insulin-model'
           label={t('Insulin Model')}
           mb={2}
@@ -221,12 +221,12 @@ export const InsulinSettings = props => {
         <FastField
           as={RadioGroup}
           variant="horizontal"
-          id="initialSettings.insulinType"
-          name="initialSettings.insulinType"
-          options={insulinTypeOptions}
-          error={getFieldError(meta.initialSettings.insulinType)}
+          id="initialSettings.insulinModel"
+          name="initialSettings.insulinModel"
+          options={insulinModelOptions}
+          error={getFieldError(meta.initialSettings.insulinModel)}
           mb={4}
-        />
+        /> */}
 
         <PopoverLabel
           id='max-basal'
