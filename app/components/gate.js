@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Loading from 'react-loading';
+import { components as vizComponents } from '@tidepool/viz';
 import { useDispatch } from 'react-redux';
+
+const { Loader } = vizComponents;
 
 export const Gate = (props) => {
   const { onEnter, children } = props;
@@ -12,7 +14,7 @@ export const Gate = (props) => {
     dispatch(onEnter((run = true) => setRun(run)));
   }, []);
 
-  return hasRun ? <>{children}</> : <Loading type="bubbles" />;
+  return hasRun ? <>{children}</> : <Loader />;
 };
 
 Gate.propTypes = {

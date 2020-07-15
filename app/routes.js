@@ -189,21 +189,20 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
  * Creates the route map with authentication associated with each route built in.
  *
  * @param  {Object} appContext
- * @param {Object} store
  *
  * @return {Route} the react-router routes
  */
-export const getRoutes = (appContext, store) => {
+export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
-  let boundRequireNoAuth = requireNoAuth.bind(null, api);
-  let boundRequireAuth = requireAuth.bind(null, api);
-  let boundRequireNotVerified = requireNotVerified.bind(null, api);
-  let boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  let boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
-  let boundEnsureNoAuth = ensureNoAuth.bind(null, api);
-  let boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
+  const boundRequireNoAuth = requireNoAuth.bind(null, api);
+  const boundRequireAuth = requireAuth.bind(null, api);
+  const boundRequireNotVerified = requireNotVerified.bind(null, api);
+  const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
+  const boundRequireChrome = requireChrome.bind(null, boundRequireAuth);
+  const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
+  const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
 
   return (
     <Route path='/' {...props} render={routeProps => (

@@ -12,7 +12,8 @@ import _ from 'lodash';
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import Loading from 'react-loading';
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 import Gate from '../../../app/components/gate';
 
@@ -49,13 +50,13 @@ describe('Gate', () => {
       expect(wrapper.find('.child')).to.have.length(1);
       expect(props.onEnter.callCount).to.equal(1);
     });
-    it('should render loading if callback returns false', () => {
+    it('should render loader if callback returns false', () => {
       const props = {
         onEnter: sinon.stub().callsFake((cb) => (dispatch) => {cb(false)}),
         children: <div className='child'></div>
       };
       wrapper = mount(<Provider store={configureStore([thunk])({blip: {}})}><Gate {...props} /></Provider>);
-      expect(wrapper.find(Loading)).to.have.length(1);
+      expect(wrapper.find(Loader)).to.have.length(1);
       expect(props.onEnter.callCount).to.equal(1);
     });
   });
