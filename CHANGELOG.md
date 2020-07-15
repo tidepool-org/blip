@@ -1,7 +1,7 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
-## Unreleased 
+## 0.14.0 - 2020-07-15 
 ### Changed
 - PT-1294 Display rescueCarbs recommendation
 - PT-1297 Display Bolus objects additional fields
