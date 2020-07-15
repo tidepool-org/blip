@@ -64,4 +64,4 @@ AddEmailBanner.propTypes = {
   patient: PropTypes.object.isRequired,
 };
 
-export default connect(null, { push} )(AddEmailBanner);
+export default connect(null, { push } )(AddEmailBanner);
