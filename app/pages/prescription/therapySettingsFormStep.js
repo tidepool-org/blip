@@ -349,6 +349,9 @@ export const InsulinSettings = props => {
               <Paragraph2>
                 {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
               </Paragraph2>
+              <Paragraph2>
+                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
+              </Paragraph2>
             </Box>
           )}
         />

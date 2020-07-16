@@ -64,6 +64,7 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
       high: { value: 120, message: highWarning },
     },
     bolusAmountMaximum: {
+      low: { value: 0, message: lowWarning },
       high: { value: 20, message: highWarning },
     },
     carbRatio: {
@@ -98,25 +99,8 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   const values = {
     basalRate: 0.05,
     basalRateMaximum: 0,
-    bloodGlucoseTarget: {
-      high: 125,
-      low: 112,
-    },
-    bolusAmountMaximum: 10,
-    carbRatio: 10,
-    insulinSensitivityFactor: 100,
-    // suspendThreshold: 80,
+    bolusAmountMaximum: 0,
   };
-
-  if (bgUnits === MMOLL_UNITS) {
-    values.bloodGlucoseTarget = {
-      high: utils.roundBgTarget(utils.translateBg(values.bloodGlucoseTarget.high, MMOLL_UNITS), MMOLL_UNITS),
-      low: utils.roundBgTarget(utils.translateBg(values.bloodGlucoseTarget.low, MMOLL_UNITS), MMOLL_UNITS),
-    }
-
-    values.insulinSensitivityFactor = utils.roundBgTarget(utils.translateBg(values.insulinSensitivityFactor, MMOLL_UNITS), MMOLL_UNITS);
-    // values.suspendThreshold = utils.roundBgTarget(utils.translateBg(values.suspendThreshold, MMOLL_UNITS), MMOLL_UNITS);
-  }
 
   return values;
 };
@@ -127,8 +111,8 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     basalRateMaximum: { min: 0, max: 35, step: 0.25 },
     bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-    carbRatio: { min: 0, max: 250, step: 1 },
-    insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
+    carbRatio: { min: 1, max: 150, step: 1 },
+    insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
     // suspendThreshold: { min: 54, max: 180, step: 1 },
   };
 
@@ -158,9 +142,8 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
     [placeholderDeviceIds.omnipod]: {
       manufacturerName: 'Omnipod',
       ranges: defaultsDeep({
-        basalRate: { max: 30 },
+        basalRate: { min: 0.05, max: 30 },
         basalRateMaximum: { max: 30 },
-        carbRatio: { max: 150 },
       }, defaultRanges(bgUnits))
     },
   };
