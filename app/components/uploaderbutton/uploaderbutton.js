@@ -28,9 +28,9 @@ export default translate()(class UploaderButton extends Component {
     buttonText: PropTypes.string.isRequired
   };
 
-  handleLinkToUploaderDownload = () => {window.location = (URL_UPLOADER_DOWNLOAD_PAGE)};
-  handleMacDownload = () => {window.location= (this.state.latestMacRelease)};
-  handleWinDownload = () => {window.location= (this.state.latestWinRelease)};
+  handleLinkToUploaderDownload = () => { window.location = (URL_UPLOADER_DOWNLOAD_PAGE) };
+  handleMacDownload = () => { window.location = (this.state.latestMacRelease) };
+  handleWinDownload = () => { window.location = (this.state.latestWinRelease) };
 
   UNSAFE_componentWillMount = () => {
     const uploaderRepo = github.getRepo('tidepool-org/uploader');
@@ -60,24 +60,24 @@ export default translate()(class UploaderButton extends Component {
     if (this.state.error) {
       content = this.renderErrorText();
     } else {
-          content = [
-            <Flex justifyContent="center">
-              <Box mx={2}>
-                <Button
-                  variant="large"
-                  key={'pc'}
-                  onClick={this.handleWinDownload}
-                  >Download for PC</Button>
-              </Box>
-              <Box mx={2}>
-                <Button
-                  variant="large"
-                  key={'mac'}
-                  onClick={this.handleMacDownload}
-                  >Download for Mac</Button>
-              </Box>
-            </Flex>
-          ]
+      content = [
+        <Flex justifyContent="center">
+          <Box mx={2}>
+            <Button
+              variant="large"
+              key={'pc'}
+              onClick={this.handleWinDownload}
+            >Download for PC</Button>
+          </Box>
+          <Box mx={2}>
+            <Button
+              variant="large"
+              key={'mac'}
+              onClick={this.handleMacDownload}
+            >Download for Mac</Button>
+          </Box>
+        </Flex>
+      ]
     }
 
     return (
