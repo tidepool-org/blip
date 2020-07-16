@@ -529,9 +529,9 @@ describe('utils', () => {
 
   describe('getUploaderDownloadURL', function() {
     it('should return the uploader download URL links', function() {
-      expect(utils.getUploaderDownloadURL()).to.deep.equal({
-        latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/Tidepool-Uploader-Setup.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/Tidepool-Uploader.dmg',
+      expect(utils.getUploaderDownloadURL(releases)).to.deep.equal({
+        latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/Tidepool-Uploader-Setup-2.0.2.exe',
+        latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/latest/download/Tidepool-Uploader-2.0.2.dmg',
       });
     });
   });
