@@ -73,6 +73,7 @@ describe('prescriptionFormConstants', function() {
           high: { value: 120, message: highWarning },
         },
         bolusAmountMaximum: {
+          low: { value: 0, message: lowWarning },
           high: { value: 20, message: highWarning },
         },
         carbRatio: {
@@ -105,29 +106,12 @@ describe('prescriptionFormConstants', function() {
   });
 
   describe('defaultValues', () => {
-    it('should export the default values with mg/dL as default bg unit', () => {
+    it('should export the default values', () => {
       expect(prescriptionFormConstants.defaultValues()).to.eql({
         basalRate: 0.05,
         basalRateMaximum: 0,
-        bloodGlucoseTarget: {
-          high: 125,
-          low: 112,
-        },
-        bolusAmountMaximum: 10,
-        carbRatio: 10,
-        insulinSensitivityFactor: 100,
-        // suspendThreshold: 80,
+        bolusAmountMaximum: 0,
       });
-    });
-
-    it('should export the default values with mmoll/L as provided', () => {
-      const values = prescriptionFormConstants.defaultValues('mmol/L');
-
-      expect(values.bloodGlucoseTarget.high).to.equal(6.9);
-      expect(values.bloodGlucoseTarget.low).to.equal(6.2);
-
-      expect(values.insulinSensitivityFactor).to.equal(5.6);
-      // expect(values.suspendThreshold).to.equal(4.4);
     });
   });
 
@@ -138,8 +122,8 @@ describe('prescriptionFormConstants', function() {
         basalRateMaximum: { min: 0, max: 35, step: 0.25 },
         bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
         bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-        carbRatio: { min: 0, max: 250, step: 1 },
-        insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
+        carbRatio: { min: 1, max: 150, step: 1 },
+        insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
         // suspendThreshold: { min: 54, max: 180, step: 1 },
       });
     });
@@ -151,8 +135,8 @@ describe('prescriptionFormConstants', function() {
       expect(ranges.bloodGlucoseTarget.max).to.equal(10);
       expect(ranges.bloodGlucoseTarget.step).to.equal(0.1);
 
-      expect(ranges.insulinSensitivityFactor.min).to.equal(0);
-      expect(ranges.insulinSensitivityFactor.max).to.equal(55.5);
+      expect(ranges.insulinSensitivityFactor.min).to.equal(0.6);
+      expect(ranges.insulinSensitivityFactor.max).to.equal(27.8);
       expect(ranges.insulinSensitivityFactor.step).to.equal(0.1);
 
       // expect(ranges.suspendThreshold.min).to.equal(3);
@@ -167,12 +151,12 @@ describe('prescriptionFormConstants', function() {
         expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.omnipod)).to.eql({
           manufacturerName: 'Omnipod',
           ranges: {
-            basalRate: { min: 0, max: 30, step: 0.05 },
+            basalRate: { min: 0.05, max: 30, step: 0.05 },
             basalRateMaximum: { min: 0, max: 30, step: 0.25 },
             bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
             bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-            carbRatio: { min: 0, max: 150, step: 1 },
-            insulinSensitivityFactor: { min: 0, max: 1000, step: 1 },
+            carbRatio: { min: 1, max: 150, step: 1 },
+            insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
             // suspendThreshold: { min: 54, max: 180, step: 1 },
           },
         });
