@@ -195,16 +195,13 @@ Chip.story = {
 export const Large = () => {
   const buttonText = () => text('Button Text', 'Large');
 
-  const [selected, setSelected] = React.useState(false);
-
   return (
     <React.Fragment>
       <Button
         variant="large"
         disabled={disabled()}
+        onClick={action('onClick called')}
         processing={processing()}
-        selected={selected}
-        onClick={() => setSelected(!selected)}
       >
         {buttonText()}
       </Button>

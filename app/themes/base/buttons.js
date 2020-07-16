@@ -199,6 +199,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         backgroundColor: colors.purpleDark,
         borderColor: colors.purpleDark,
       },
+      '&:disabled': {
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
+        color: colors.text.primaryDisabled,
+      },
     },
   };
 };
