@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.10.0-react-upgrade.1":
-  version "1.10.0-react-upgrade.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.10.0-react-upgrade.1.tgz#d99dfff055824042e46afafdcd1aeb8430c93f63"
-  integrity sha512-IJzBcsWiHNrlkTasf0G2MMcA4gBWvyZDOlU5UCymLGx7gNdaAprDan561F1ye6QzqHu6ISeLdib5BkZE0nYRxA==
+"@tidepool/viz@1.13.0-web-895-review-copy-clipboard.1":
+  version "1.13.0-web-895-review-copy-clipboard.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-web-895-review-copy-clipboard.1.tgz#614b8eb58f277e2c2905f8f3e0dfbf08640beac2"
+  integrity sha512-GjmN389oIos3J2Hgves2HtFeLc/fAx0UEy3nbOu+Ms9GGTioy3f9yWIomAYWWffcQ8500M0vnmM1mHtiwasarg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -14848,7 +14848,7 @@ reduce-component@1.0.1:
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
   integrity sha1-4Mk1QsV0UhvqE98PlIjtgqt3xdo=
 
-reductio@crossfilter/reductio#0c45b03559:
+"reductio@github:crossfilter/reductio#0c45b03559":
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
