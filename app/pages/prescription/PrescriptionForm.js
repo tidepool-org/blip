@@ -57,7 +57,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
       // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
       // suspendThreshold: {
-      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
+      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
       //   units: defaultUnits.suspendThreshold,
       // },
       basalRateMaximum: {
@@ -69,8 +69,8 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         units: defaultUnits.bolusAmount,
       },
       bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
-        high: defaultValues(bgUnits).bloodGlucoseTarget.high,
-        low: defaultValues(bgUnits).bloodGlucoseTarget.low,
+        high: '',
+        low: '',
         start: 0,
       }]),
       basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
@@ -78,11 +78,11 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         start: 0,
       }]),
       carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-        amount: defaultValues(bgUnits).carbRatio,
+        amount: '',
         start: 0,
       }]),
       insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-        amount: defaultValues(bgUnits).insulinSensitivityFactor,
+        amount: '',
         start: 0,
       }]),
     },
