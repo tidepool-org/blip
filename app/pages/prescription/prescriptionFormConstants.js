@@ -52,8 +52,8 @@ export const defaultUnits = {
 };
 
 export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
-  const lowWarning = t('The value you have chosen is lower than Tidepool generally recommends.');
-  const highWarning = t('The value you have chosen is higher than Tidepool generally recommends.');
+  const lowWarning = t('The value you have entered is lower than Tidepool typically recommends for most people.');
+  const highWarning = t('The value you have entered is higher than Tidepool typically recommends for most people.');
 
   const thresholds = {
     basalRate: {
