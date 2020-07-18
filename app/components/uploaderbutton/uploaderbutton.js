@@ -2,15 +2,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import GitHub from 'github-api';
 import _ from 'lodash';
-import cx from 'classnames';
 import utils from '../../core/utils';
 import { translate } from 'react-i18next';
 import { Flex, Box } from 'rebass/styled-components';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import Button from '../elements/Button';
-
-import logoSrc from './images/T-logo-dark-512x512.png';
 
 const github = new GitHub();
 
@@ -44,34 +41,22 @@ export default translate()(class UploaderButton extends Component {
   }
 
   renderErrorText = () => {
-    const { t } = this.props;
     return (
-      <a
-        className="btn btn-uploader"
-        href={URL_UPLOADER_DOWNLOAD_PAGE}
-        target="_blank"
-        onClick={this.props.onClick}>
-        <div className="uploader-logo">
-          <img src={logoSrc} alt={t('Tidepool Uploader')} />
-        </div>
-        {this.props.buttonText}
-      </a>
+      <Flex justifyContent="center">
+        <Box mx={2}>
+          <Button
+            className="download-error"
+            variant="large"
+            key={'error'}
+            onClick={this.handleLinkToUploaderDownload}
+          >{this.props.buttonText}
+          </Button>
+        </Box>
+      </Flex>
     )
   }
 
   render = () => {
-    const { t } = this.props;
-    const winReleaseClasses = cx({
-      btn: true,
-      'btn-uploader': true,
-      disabled: !this.state.latestWinRelease,
-    });
-    const macReleaseClasses = cx({
-      btn: true,
-      'btn-uploader': true,
-      disabled: !this.state.latestMacRelease,
-    });
-
     let content;
     if (this.state.error) {
       content = this.renderErrorText();
@@ -80,16 +65,20 @@ export default translate()(class UploaderButton extends Component {
         <Flex justifyContent="center">
           <Box mx={2}>
             <Button
+              className="download-win"
               variant="large"
               key={'pc'}
               onClick={this.handleWinDownload}
-            >Download for PC</Button>
+              disabled={!this.state.latestWinRelease}
+              >Download for PC</Button>
           </Box>
           <Box mx={2}>
             <Button
+              className="download-mac"
               variant="large"
               key={'mac'}
               onClick={this.handleMacDownload}
+              disabled={!this.state.latestMacRelease}
             >Download for Mac</Button>
           </Box>
         </Flex>
