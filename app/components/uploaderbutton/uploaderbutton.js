@@ -49,7 +49,7 @@ export default translate()(class UploaderButton extends Component {
       if(err){
         this.setState({error: true});
       }
-      this.setState(utils.getLatestGithubRelease(releases));
+      this.setState(utils.getUploaderDownloadURL(releases));
     });
   }
 
