@@ -402,9 +402,7 @@ utils.getUploaderDownloadURL = (releases) => {
   const urlBase = 'https://github.com/tidepool-org/uploader/releases/latest/download';
   latestTag = latestTag.substr(1);
   const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
-  console.log('latestWinRelease: ', latestWinRelease);
   const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.dmg`;
-  console.log('latestMacRelease: ', latestMacRelease);
   return {
     latestWinRelease: latestWinRelease,
     latestMacRelease: latestMacRelease,
