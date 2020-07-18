@@ -80,14 +80,14 @@ export default translate()(class UploaderButton extends Component {
         <Flex justifyContent="center">
           <Box mx={2}>
             <Button
-              variant="primary"
+              variant="large"
               key={'pc'}
               onClick={this.handleWinDownload}
             >Download for PC</Button>
           </Box>
           <Box mx={2}>
             <Button
-              variant="primary"
+              variant="large"
               key={'mac'}
               onClick={this.handleMacDownload}
             >Download for Mac</Button>
