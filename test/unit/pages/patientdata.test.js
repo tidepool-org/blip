@@ -397,8 +397,8 @@ describe('PatientData', function () {
 
           links.at(3).simulate('click');
 
-          expect(props.trackMetric.callCount).to.equal(callCount);
-          // expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
         });
       });
     });

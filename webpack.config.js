@@ -222,6 +222,12 @@ const resolve = {
   }
 };
 
+if (isTest) {
+  // Don't make tests to failed when we update a translation in Crowdin
+  resolve.alias['../../locales/en/translation.json'] = '../../test/locales/en/translation.json';
+  resolve.alias['../../locales/fr/translation.json'] = '../../test/locales/fr/translation.json';
+}
+
 let entry = [];
 let devServer;
 if (useWebpackDevServer) {

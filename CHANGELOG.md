@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## Unreleased
+### Fixed
+- YLP-78 Don't let tests failed when we update a translation in Crowdin
+
 ## 1.0.3 - 2020-07-15
 ### Fixed
 - PT-1395 Daily view: time of objects is displayed as UTC while timeline is displayed with locale time
