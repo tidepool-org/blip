@@ -60,8 +60,8 @@ describe('prescriptionFormConstants', function() {
   });
 
   describe('warningThresholds', () => {
-    const lowWarning = 'The value you have chosen is lower than Tidepool generally recommends.';
-    const highWarning = 'The value you have chosen is higher than Tidepool generally recommends.';
+    const lowWarning = 'The value you have entered is lower than Tidepool typically recommends for most people.';
+    const highWarning = 'The value you have entered is higher than Tidepool typically recommends for most people.';
 
     it('should export the warning thresholds with mg/dL as default bg unit', () => {
       expect(prescriptionFormConstants.warningThresholds()).to.eql({
