@@ -102,9 +102,9 @@ describe('UploaderButton', function () {
       expect(macButton()).to.have.length(1);
       expect(macButton().prop('disabled')).to.be.false;
 
+      // NOTE This causes the test to fail because upon clicking the download button the whole page refreshes
       macButton().at(0).simulate('click');
       sinon.assert.called(props.handleDownload(props.latestMacRelease));
-      // sinon.assert.called(props.onClick);
     });
 
     it('should respond to an onClick event on Download Error Button', () => {

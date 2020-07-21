@@ -18,6 +18,7 @@ export default translate()(class UploaderButton extends Component {
       latestWinRelease: null,
       latestMacRelease: null,
       error: null,
+      urlUploaderDownloadPage: URL_UPLOADER_DOWNLOAD_PAGE,
     };
   }
 
@@ -27,11 +28,7 @@ export default translate()(class UploaderButton extends Component {
   };
 
   handleLinkToUploaderDownload = () => { window.location = (URL_UPLOADER_DOWNLOAD_PAGE) };
-  // handleMacDownload = (e) => {
-  //   window.location = (this.state.latestMacRelease);
-  //   e.stopPropagation();
-  //   e.nativeEvent.stopImmediatePropagation();
-  // };
+
   handleMacDownload = () => {
     window.location = (this.state.latestMacRelease);
   };
@@ -39,8 +36,6 @@ export default translate()(class UploaderButton extends Component {
 
   handleDownload = (release) => {
     window.location = (release);
-    release.stopPropagation();
-    release.nativeEvent.stopImmediatePropagation();
   };
 
   UNSAFE_componentWillMount = () => {
@@ -62,6 +57,7 @@ export default translate()(class UploaderButton extends Component {
             variant="large"
             key={'error'}
             onClick={this.handleLinkToUploaderDownload}
+            // onClick={this.handleDownload(this.urlUploaderDownloadPage)}
           >{this.props.buttonText}
           </Button>
         </Box>
@@ -82,6 +78,7 @@ export default translate()(class UploaderButton extends Component {
               variant="large"
               key={'pc'}
               onClick={this.handleWinDownload}
+              // onClick={this.handleDownload(this.latestWinRelease)}
               disabled={!this.state.latestWinRelease}
             >Download for PC</Button>
           </Box>
@@ -90,11 +87,8 @@ export default translate()(class UploaderButton extends Component {
               className="download-mac"
               variant="large"
               key={'mac'}
+              onClick={this.handleMacDownload}
               // onClick={this.handleDownload(this.latestMacRelease)}
-              onClick={() => {
-                this.handleMacDownload();
-                return false;
-              }}
               disabled={!this.state.latestMacRelease}
             >Download for Mac</Button>
           </Box>
