@@ -27,8 +27,21 @@ export default translate()(class UploaderButton extends Component {
   };
 
   handleLinkToUploaderDownload = () => { window.location = (URL_UPLOADER_DOWNLOAD_PAGE) };
-  handleMacDownload = () => { window.location = (this.state.latestMacRelease) };
+  // handleMacDownload = (e) => {
+  //   window.location = (this.state.latestMacRelease);
+  //   e.stopPropagation();
+  //   e.nativeEvent.stopImmediatePropagation();
+  // };
+  handleMacDownload = () => {
+    window.location = (this.state.latestMacRelease);
+  };
   handleWinDownload = () => { window.location = (this.state.latestWinRelease) };
+
+  handleDownload = (release) => {
+    window.location = (release);
+    release.stopPropagation();
+    release.nativeEvent.stopImmediatePropagation();
+  };
 
   UNSAFE_componentWillMount = () => {
     const uploaderRepo = github.getRepo('tidepool-org/uploader');
@@ -70,14 +83,18 @@ export default translate()(class UploaderButton extends Component {
               key={'pc'}
               onClick={this.handleWinDownload}
               disabled={!this.state.latestWinRelease}
-              >Download for PC</Button>
+            >Download for PC</Button>
           </Box>
           <Box mx={2}>
             <Button
               className="download-mac"
               variant="large"
               key={'mac'}
-              onClick={this.handleMacDownload}
+              // onClick={this.handleDownload(this.latestMacRelease)}
+              onClick={() => {
+                this.handleMacDownload();
+                return false;
+              }}
               disabled={!this.state.latestMacRelease}
             >Download for Mac</Button>
           </Box>

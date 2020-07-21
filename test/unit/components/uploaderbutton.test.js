@@ -15,7 +15,10 @@ const expect = chai.expect;
 describe('UploaderButton', function () {
   const props = {
     buttonText: 'Get the Tidepool Uploader',
-    onClick: sinon.spy()
+    onClick: sinon.spy(),
+    handleMacDownload: sinon.spy(),
+    handleDownload: sinon.spy(),
+    latestMacRelease: sinon.spy(),
   };
 
   let wrapper;
@@ -25,6 +28,7 @@ describe('UploaderButton', function () {
         {...props}
       />
     );
+    let window = {location: {reload: sinon.spy()}};
   });
 
   it('should be a function', function() {
@@ -88,13 +92,18 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to onClick on Mac Download Button', () => {
-      const macButton = wrapper.find('button.download-mac');
-      console.log(macButton);
-      expect(macButton).to.have.length(1);
+      wrapper.instance().getWrappedInstance().setState({
+        latestMacRelease: 'test',
+        latestWinRelease: 'test',
+      });
+      wrapper.update();
 
-      // NOTE This returns true, so it is finding the button fails when trying to test the onClick
+      const macButton = () => wrapper.find('button.download-mac').hostNodes();
+      expect(macButton()).to.have.length(1);
+      expect(macButton().prop('disabled')).to.be.false;
 
-      // macButton.simulate('click');
+      macButton().at(0).simulate('click');
+      sinon.assert.called(props.handleDownload(props.latestMacRelease));
       // sinon.assert.called(props.onClick);
     });
 
