@@ -2,12 +2,13 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.1.0 - 2020-07-21
 ### Changed
 - PT-1297 Display Bolus objects additional fields
 ### Fixed
 - Translation update: English / French / German
 - YLP-78 Don't let tests failed when we update a translation in Crowdin
+- YLP-89 Infusion site icon missing in basics calendar
 
 ## 1.0.3 - 2020-07-15
 ### Fixed
