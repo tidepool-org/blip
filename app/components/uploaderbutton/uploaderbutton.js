@@ -18,24 +18,12 @@ export default translate()(class UploaderButton extends Component {
       latestWinRelease: null,
       latestMacRelease: null,
       error: null,
-      urlUploaderDownloadPage: URL_UPLOADER_DOWNLOAD_PAGE,
     };
   }
 
   static propTypes = {
     onClick: PropTypes.func.isRequired,
     buttonText: PropTypes.string.isRequired
-  };
-
-  handleLinkToUploaderDownload = () => { window.location = (URL_UPLOADER_DOWNLOAD_PAGE) };
-
-  handleMacDownload = () => {
-    window.location = (this.state.latestMacRelease);
-  };
-  handleWinDownload = () => { window.location = (this.state.latestWinRelease) };
-
-  handleDownload = (release) => {
-    window.location = (release);
   };
 
   UNSAFE_componentWillMount = () => {
@@ -52,14 +40,19 @@ export default translate()(class UploaderButton extends Component {
     return (
       <Flex justifyContent="center">
         <Box mx={2}>
-          <Button
-            className="download-error"
-            variant="large"
-            key={'error'}
-            onClick={this.handleLinkToUploaderDownload}
-            // onClick={this.handleDownload(this.urlUploaderDownloadPage)}
-          >{this.props.buttonText}
-          </Button>
+          <a className='link-uploader-download'
+            href={URL_UPLOADER_DOWNLOAD_PAGE}
+            onClick={this.props.onClick}
+            style={{ textDecoration: 'none' }}>
+            <Button
+              // href={URL_UPLOADER_DOWNLOAD_PAGE}
+              // onClick={this.props.onClick}
+              className="btn-uploader-download"
+              variant="large"
+              key={'error'}
+            >{this.props.buttonText}
+            </Button>
+          </a>
         </Box>
       </Flex>
     )
@@ -73,24 +66,36 @@ export default translate()(class UploaderButton extends Component {
       content = [
         <Flex justifyContent="center">
           <Box mx={2}>
-            <Button
-              className="download-win"
-              variant="large"
-              key={'pc'}
-              onClick={this.handleWinDownload}
-              // onClick={this.handleDownload(this.latestWinRelease)}
-              disabled={!this.state.latestWinRelease}
-            >Download for PC</Button>
+            <a className='link-download-win'
+              href={this.state.latestWinRelease}
+              onClick={this.props.onClick}
+              style={{ textDecoration: 'none' }}
+            >
+              <Button
+                // href={this.state.latestWinRelease}
+                // onClick={this.props.onClick}
+                className="btn-download-win"
+                variant="large"
+                key={'pc'}
+                disabled={!this.state.latestWinRelease}
+              >Download for PC</Button>
+            </a>
           </Box>
           <Box mx={2}>
-            <Button
-              className="download-mac"
-              variant="large"
-              key={'mac'}
-              onClick={this.handleMacDownload}
-              // onClick={this.handleDownload(this.latestMacRelease)}
-              disabled={!this.state.latestMacRelease}
-            >Download for Mac</Button>
+            <a className='link-download-mac'
+              href={this.state.latestMacRelease}
+              onClick={this.props.onClick}
+              style={{ textDecoration: 'none' }}
+            >
+              <Button
+                // href={this.state.latestMacRelease}
+                // onClick={this.props.onClick}
+                className="btn-download-mac"
+                variant="large"
+                key={'mac'}
+                disabled={!this.state.latestMacRelease}
+              >Download for Mac</Button>
+            </a>
           </Box>
         </Flex>
       ]

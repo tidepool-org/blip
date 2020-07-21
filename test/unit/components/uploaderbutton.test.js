@@ -19,6 +19,7 @@ describe('UploaderButton', function () {
     handleMacDownload: sinon.spy(),
     handleDownload: sinon.spy(),
     latestMacRelease: sinon.spy(),
+    handleLinkToUploaderDownload: sinon.spy(),
   };
 
   let wrapper;
@@ -30,20 +31,20 @@ describe('UploaderButton', function () {
     );
   });
 
-  it('should be a function', function() {
+  it('should be a function', function () {
     expect(UploaderButton).to.be.a('function');
   });
 
-  describe('render', function() {
+  describe('render', function () {
     it('should render without problems', function () {
       expect(wrapper.find(UploaderButton)).to.have.length(1);
     });
 
     it('should have a Mac and a Windows Download button', function () {
-      const macButton = wrapper.find('button.download-mac');
+      const macButton = wrapper.find('button.btn-download-mac');
       expect(macButton).to.have.length(1);
 
-      const winButton = wrapper.find('button.download-mac');
+      const winButton = wrapper.find('button.btn-download-win');
       expect(winButton).to.have.length(1);
     });
 
@@ -53,11 +54,11 @@ describe('UploaderButton', function () {
         latestMacRelease: null,
       });
 
-      const macButton = wrapper.find('button.download-mac');
+      const macButton = wrapper.find('button.btn-download-mac');
       expect(macButton).to.have.length(1);
       expect(macButton.prop('disabled')).to.be.true;
 
-      const winButton = wrapper.find('button.download-mac');
+      const winButton = wrapper.find('button.btn-download-win');
       expect(winButton).to.have.length(1);
       expect(winButton.prop('disabled')).to.be.true;
     });
@@ -69,11 +70,11 @@ describe('UploaderButton', function () {
       });
       wrapper.update();
 
-      const macButton = wrapper.find('button.download-mac');
+      const macButton = wrapper.find('button.btn-download-mac');
       expect(macButton).to.have.length(1);
       expect(macButton.prop('disabled')).to.be.false;
 
-      const winButton = wrapper.find('button.download-mac');
+      const winButton = wrapper.find('button.btn-download-win');
       expect(winButton).to.have.length(1);
       expect(winButton.prop('disabled')).to.be.false;
     });
@@ -83,11 +84,10 @@ describe('UploaderButton', function () {
         error: 'some error',
       });
       wrapper.update();
-      // expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
-      // expect(wrapper.find('.btn-uploader').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
 
-      const errorButton = wrapper.find('button.download-error');
-      expect(errorButton).to.have.length(1);
+      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
+      expect(wrapper.find('button.btn-uploader-download')).to.have.length(1);
+      expect(wrapper.find('.btn-uploader-download').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
     });
 
     it('should respond to onClick on Mac Download Button', () => {
@@ -97,18 +97,22 @@ describe('UploaderButton', function () {
       });
       wrapper.update();
 
-      const macButton = wrapper.find('button.download-mac');
-      // const macButton = () => wrapper.find('button.download-mac');
-      // expect(macButton()).to.have.length(1);
-      // expect(macButton().prop('disabled')).to.be.false;
-
-      // NOTE This causes the test to fail because upon clicking the download button the whole page refreshes
-      // macButton().at(0).simulate('click');
-      // sinon.assert.called(props.handleDownload(props.latestMacRelease));
-
-      var callCount = props.handleMacDownload.callCount;
+      const macButton = wrapper.find('a.link-download-mac');
       macButton.simulate('click');
-      expect(props.handleMacDownload.callCount).to.equal(callCount + 1);
+      expect(props.onClick.calledOnce);
+
+    });
+
+    it('should respond to onClick on Windows Download Button', () => {
+      wrapper.instance().getWrappedInstance().setState({
+        latestMacRelease: 'test',
+        latestWinRelease: 'test',
+      });
+      wrapper.update();
+
+      const winButton = wrapper.find('a.link-download-win');
+      winButton.simulate('click');
+      expect(props.onClick.calledOnce);
 
     });
 
@@ -118,13 +122,16 @@ describe('UploaderButton', function () {
       });
       wrapper.update();
 
-      const errorButton = wrapper.find('button.download-error');
-      expect(errorButton).to.have.length(1);
+      const errorButton = wrapper.find('a.link-uploader-download');
+      errorButton.simulate('click');
+      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
+      expect(props.onClick.calledOnce);
 
-      // NOTE This returns true, so it is finding the button fails when trying to test the onClick
-
+      // NOTE When Button can be used without wrapping it in an <a> tag
+      // const errorButton = wrapper.find('button.btn-uploader-download');
       // errorButton.simulate('click');
-      // sinon.assert.called(props.onClick);
+      // expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).to.have.length(1);
+      // expect(props.onClick.calledOnce);
     });
   });
 });
