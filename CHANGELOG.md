@@ -4,6 +4,7 @@ It is based on Tidepool Blip 1.27.
 
 ## Unreleased
 ### Fixed
+- Translation update: English / French / German
 - YLP-78 Don't let tests failed when we update a translation in Crowdin
 
 ## 1.0.3 - 2020-07-15

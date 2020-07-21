@@ -584,6 +584,7 @@
   "The birthday specified does not match what is in our system. Please contact the clinic that created your account and ask them to update your birthday.": "crwdns36724:0crwdne36724:0",
   "The date and/or time settings of your device were changed recently, and this datum may overlap in the timeline display with other data from the same device.": "crwdns36726:0crwdne36726:0",
   "The diaTribe Foundation": "crwdns36728:0crwdne36728:0",
+  "The period must be less than {{days}} days": "crwdns40342:0{{days}}crwdne40342:0",
   "There is no {{displayType}} data for this time period :(": "crwdns36730:0{{displayType}}crwdne36730:0",
   "There is not enough data to show this statistic.": "crwdns36732:0crwdne36732:0",
   "These people can view {{patientName}}'s data": "crwdns36734:0{{patientName}}crwdne36734:0",
