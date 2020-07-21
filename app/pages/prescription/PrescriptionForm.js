@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { browserHistory } from 'react-router';
 import bows from 'bows';
+import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
+import each from 'lodash/each';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -16,6 +18,8 @@ import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
+import isArray from 'lodash/isArray';
+import { utils as vizUtils } from '@tidepool/viz';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -33,6 +37,7 @@ import {
   validCountryCodes,
 } from './prescriptionFormConstants';
 
+const { TextUtil } = vizUtils.text;
 const log = bows('PrescriptionForm');
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -104,6 +109,7 @@ export const PrescriptionForm = props => {
     creatingPrescription,
     creatingPrescriptionRevision,
     prescription,
+    trackMetric,
   } = props;
 
   const {
@@ -184,6 +190,39 @@ export const PrescriptionForm = props => {
       setActiveStep(step);
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
+    },
+
+    generateTherapySettingsText: (patientRows, therapySettingsRows) => {
+      const textUtil = new TextUtil();
+
+      let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
+
+      textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
+        today: moment().format('MMM D, YYYY'),
+      }));
+
+      textString += textUtil.buildTextLine('');
+
+      textString += textUtil.buildTextLine(t('Patient Profile'));
+      each(patientRows, row => textString += textUtil.buildTextLine(row));
+
+      textString += textUtil.buildTextLine('');
+
+      each(therapySettingsRows, row => {
+        if (isArray(row.value)) {
+          textString += textUtil.buildTextLine('');
+          textString += textUtil.buildTextLine(row.label);
+          each(row.value, value => textString += textUtil.buildTextLine(value));
+        } else {
+          textString += textUtil.buildTextLine(row);
+        }
+      });
+
+      return textString;
+    },
+
+    handleCopyTherapySettingsClicked: () => {
+      trackMetric('Clicked Copy Therapy Settings Order');
     },
 
     singleStepEditComplete: (cancelFieldUpdates) => {
