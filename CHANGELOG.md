@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.11.1 - 2020-07-20
+### Fixed
+- YLP-88 Fix CSS for display infusion site change in the basics page
+
 ## 1.11.0 - 2020-07-10
 ### Changed
 - PT-1297 Display Bolus objects additional fields 
