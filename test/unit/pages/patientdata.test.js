@@ -383,79 +383,79 @@ describe('PatientData', function () {
           expect(noData().length).to.equal(1);
         });
 
-        // it('should track click on main upload button', function() {
-        //   var props = {
-        //     currentPatientInViewId: '40',
-        //     isUserPatient: true,
-        //     patient: {
-        //       userid: '40',
-        //       profile: {
-        //         fullName: 'Fooey McBar'
-        //       }
-        //     },
-        //     fetchingPatient: false,
-        //     fetchingPatientData: false,
-        //     generatingPDF: { inProgress: false },
-        //     pdf: {},
-        //     trackMetric: sinon.stub(),
-        //   };
+        it('should track click on main upload button', function() {
+          var props = {
+            currentPatientInViewId: '40',
+            isUserPatient: true,
+            patient: {
+              userid: '40',
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            trackMetric: sinon.stub(),
+          };
 
-        //   wrapper = mount(<PatientData {...props} />);
+          wrapper = mount(<PatientData {...props} />);
 
-        //   wrapper.setProps(_.assign({}, props, {
-        //     data: {
-        //       metaData: { size: 0 },
-        //     }
-        //   }));
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
-        //   wrapper.update();
+          wrapper.update();
 
-        //   expect(noData().length).to.equal(1);
+          expect(noData().length).to.equal(1);
 
-        //   var links = wrapper.find('.patient-data-uploader-message a');
-        //   var callCount = props.trackMetric.callCount;
+          var links = wrapper.find('.patient-data-uploader-message a');
+          var callCount = props.trackMetric.callCount;
 
-        //   links.at(0).simulate('click');
+          links.at(0).simulate('click');
 
-        //   expect(props.trackMetric.callCount).to.equal(callCount + 1);
-        //   expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
-        // });
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
+        });
 
-        // it('should track click on Blip Notes link', function() {
-        //   var props = {
-        //     currentPatientInViewId: '40',
-        //     isUserPatient: true,
-        //     patient: {
-        //       userid: '40',
-        //       profile: {
-        //         fullName: 'Fooey McBar'
-        //       }
-        //     },
-        //     fetchingPatient: false,
-        //     fetchingPatientData: false,
-        //     generatingPDF: { inProgress: false },
-        //     pdf: {},
-        //     trackMetric: sinon.stub()
-        //   };
+        it('should track click on Blip Notes link', function() {
+          var props = {
+            currentPatientInViewId: '40',
+            isUserPatient: true,
+            patient: {
+              userid: '40',
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            trackMetric: sinon.stub()
+          };
 
-        //   wrapper = mount(<PatientData {...props} />);
+          wrapper = mount(<PatientData {...props} />);
 
-        //   wrapper.setProps(_.assign({}, props, {
-        //     data: {
-        //       metaData: { size: 0 },
-        //     }
-        //   }));
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
 
-        //   wrapper.update();
+          wrapper.update();
 
-        //   var links = wrapper.find('.patient-data-uploader-message a');
-        //   var callCount = props.trackMetric.callCount;
+          var links = wrapper.find('.patient-data-uploader-message a');
+          var callCount = props.trackMetric.callCount;
 
-        //   links.at(3).simulate('click');
+          links.at(3).simulate('click');
 
-        //   expect(props.trackMetric.callCount).to.equal(callCount + 1);
-        //   expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
-        // });
+          expect(props.trackMetric.callCount).to.equal(callCount + 1);
+          expect(props.trackMetric.calledWith('Clicked No Data Get Blip Notes')).to.be.true;
+        });
       });
     });
 
