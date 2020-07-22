@@ -138,8 +138,8 @@ export const PrescriptionForm = props => {
   const storageKey = 'prescriptionForm';
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? activeStepsParam[0] : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? activeStepsParam[1] : undefined);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
