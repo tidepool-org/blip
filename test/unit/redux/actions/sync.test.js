@@ -13,7 +13,6 @@ import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
 
 describe('Actions', () => {
-
   describe('Synchronous Actions', () => {
     describe('showWelcomeMessage', () => {
       it('should be a TSA', () => {
@@ -1583,6 +1582,198 @@ describe('Actions', () => {
         let action = sync.fetchSettingsFailure(error);
 
         expect(action.type).to.equal('FETCH_SETTINGS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPrescriptionsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchPrescriptionsRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PRESCRIPTIONS_REQUEST', () => {
+        let action = sync.fetchPrescriptionsRequest();
+        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_REQUEST');
+      });
+    });
+
+    describe('fetchPrescriptionsSuccess', () => {
+      it('should be a TSA', () => {
+        let prescriptions = [
+          { id: 'one' }
+        ];
+        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PRESCRIPTIONS_SUCCESS', () => {
+        let prescriptions = [
+          { id: 'one' }
+        ];
+        let action = sync.fetchPrescriptionsSuccess(prescriptions);
+
+        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_SUCCESS');
+        expect(action.payload.prescriptions).to.equal(prescriptions);
+      });
+    });
+
+    describe('fetchPrescriptionsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchPrescriptionsFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PRESCRIPTIONS_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.fetchPrescriptionsFailure(error);
+
+        expect(action.type).to.equal('FETCH_PRESCRIPTIONS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('createPrescriptionRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createPrescriptionRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_REQUEST', () => {
+        let action = sync.createPrescriptionRequest();
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_REQUEST');
+      });
+    });
+
+    describe('createPrescriptionSuccess', () => {
+      it('should be a TSA', () => {
+        let prescription = { id: 'one' };
+        let action = sync.createPrescriptionSuccess(prescription);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_SUCCESS', () => {
+        let prescription = { id: 'one' };
+        let action = sync.createPrescriptionSuccess(prescription);
+
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_SUCCESS');
+        expect(action.payload.prescription).to.equal(prescription);
+      });
+    });
+
+    describe('createPrescriptionFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.createPrescriptionFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.createPrescriptionFailure(error);
+
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('createPrescriptionRevisionRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createPrescriptionRevisionRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_REVISION_REQUEST', () => {
+        let action = sync.createPrescriptionRevisionRequest();
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_REVISION_REQUEST');
+      });
+    });
+
+    describe('createPrescriptionRevisionSuccess', () => {
+      it('should be a TSA', () => {
+        let prescription = { id: 'one' };
+        let action = sync.createPrescriptionRevisionSuccess(prescription);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_REVISION_SUCCESS', () => {
+        let prescription = { id: 'one' };
+        let action = sync.createPrescriptionRevisionSuccess(prescription);
+
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_REVISION_SUCCESS');
+        expect(action.payload.prescription).to.equal(prescription);
+      });
+    });
+
+    describe('createPrescriptionRevisionFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.createPrescriptionRevisionFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_PRESCRIPTION_REVISION_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.createPrescriptionRevisionFailure(error);
+
+        expect(action.type).to.equal('CREATE_PRESCRIPTION_REVISION_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('deletePrescriptionRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.deletePrescriptionRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PRESCRIPTION_REQUEST', () => {
+        let action = sync.deletePrescriptionRequest();
+        expect(action.type).to.equal('DELETE_PRESCRIPTION_REQUEST');
+      });
+    });
+
+    describe('deletePrescriptionSuccess', () => {
+      it('should be a TSA', () => {
+        let prescriptionId = 'one';
+        let action = sync.deletePrescriptionSuccess(prescriptionId);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PRESCRIPTION_SUCCESS', () => {
+        let prescriptionId = 'one';
+        let action = sync.deletePrescriptionSuccess(prescriptionId);
+
+        expect(action.type).to.equal('DELETE_PRESCRIPTION_SUCCESS');
+        expect(action.payload.prescriptionId).to.equal(prescriptionId);
+      });
+    });
+
+    describe('deletePrescriptionFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.deletePrescriptionFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PRESCRIPTION_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.deletePrescriptionFailure(error);
+
+        expect(action.type).to.equal('DELETE_PRESCRIPTION_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
