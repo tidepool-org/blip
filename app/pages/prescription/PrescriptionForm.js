@@ -29,6 +29,7 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import Stepper from '../../components/elements/Stepper';
+import i18next from '../../core/language';
 
 import {
   defaultUnits,
@@ -38,6 +39,7 @@ import {
 } from './prescriptionFormConstants';
 
 const { TextUtil } = vizUtils.text;
+const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -100,6 +102,35 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   ),
   displayName: 'PrescriptionForm',
 });
+
+export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
+  const textUtil = new TextUtil();
+
+  let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
+
+  textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
+    today: moment().format('MMM D, YYYY'),
+  }));
+
+  textString += textUtil.buildTextLine('');
+
+  textString += textUtil.buildTextLine(t('Patient Profile'));
+  each(patientRows, row => textString += textUtil.buildTextLine(row));
+
+  textString += textUtil.buildTextLine('');
+
+  each(therapySettingsRows, row => {
+    if (isArray(row.value)) {
+      textString += textUtil.buildTextLine('');
+      textString += textUtil.buildTextLine(row.label);
+      each(row.value, value => textString += textUtil.buildTextLine(value));
+    } else {
+      textString += textUtil.buildTextLine(row);
+    }
+  });
+
+  return textString;
+};
 
 export const PrescriptionForm = props => {
   const {
@@ -193,34 +224,7 @@ export const PrescriptionForm = props => {
       setPendingStep(fromStep);
     },
 
-    generateTherapySettingsText: (patientRows, therapySettingsRows) => {
-      const textUtil = new TextUtil();
-
-      let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
-
-      textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
-        today: moment().format('MMM D, YYYY'),
-      }));
-
-      textString += textUtil.buildTextLine('');
-
-      textString += textUtil.buildTextLine(t('Patient Profile'));
-      each(patientRows, row => textString += textUtil.buildTextLine(row));
-
-      textString += textUtil.buildTextLine('');
-
-      each(therapySettingsRows, row => {
-        if (isArray(row.value)) {
-          textString += textUtil.buildTextLine('');
-          textString += textUtil.buildTextLine(row.label);
-          each(row.value, value => textString += textUtil.buildTextLine(value));
-        } else {
-          textString += textUtil.buildTextLine(row);
-        }
-      });
-
-      return textString;
-    },
+    generateTherapySettingsOrderText,
 
     handleCopyTherapySettingsClicked: () => {
       trackMetric('Clicked Copy Therapy Settings Order');

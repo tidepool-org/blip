@@ -218,7 +218,7 @@ PatientInfo.propTypes = fieldsetPropTypes;
 export const TherapySettings = props => {
   const {
     t,
-    handlers: { activeStepUpdate, generateTherapySettingsText, handleCopyTherapySettingsClicked },
+    handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     meta,
     ...themeProps
   } = props;
@@ -324,7 +324,7 @@ export const TherapySettings = props => {
           buttonTitle={t('For email or notes')}
           buttonText={t('Copy therapy settings order as text')}
           onClick={handleCopyTherapySettingsClicked}
-          getText={generateTherapySettingsText.bind(null, [
+          getText={generateTherapySettingsOrderText.bind(null, [
             {
               label: t('Name'),
               value: patientName,
