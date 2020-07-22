@@ -14,8 +14,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
@@ -37,41 +38,43 @@ const t = i18next.t.bind(i18next);
 var FORM_DATE_FORMAT = t('MM/DD/YYYY');
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
-var PatientInfo = translate()(React.createClass({
+var PatientInfo = translate()(class extends React.Component {
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
-  propTypes: {
-    dataDonationAccounts: React.PropTypes.array,
-    dataDonationAccountsFetched: React.PropTypes.bool,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func,
-    onUpdatePatient: React.PropTypes.func.isRequired,
-    onUpdatePatientSettings: React.PropTypes.func,
-    permsOfLoggedInUser: React.PropTypes.object,
-    patient: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired,
-    updatingDataDonationAccounts: React.PropTypes.bool,
-    updatingPatientBgUnits: React.PropTypes.bool,
-    user: React.PropTypes.object,
-    dataSources: React.PropTypes.array,
-    fetchDataSources: React.PropTypes.func,
-    connectDataSource: React.PropTypes.func,
-    disconnectDataSource: React.PropTypes.func,
-    authorizedDataSource: React.PropTypes.object,
-    api: React.PropTypes.object.isRequired,
-  },
+  static propTypes = {
+    dataDonationAccounts: PropTypes.array,
+    dataDonationAccountsFetched: PropTypes.bool,
+    fetchingPatient: PropTypes.bool.isRequired,
+    fetchingUser: PropTypes.bool.isRequired,
+    onUpdateDataDonationAccounts: PropTypes.func,
+    onUpdatePatient: PropTypes.func.isRequired,
+    onUpdatePatientSettings: PropTypes.func,
+    permsOfLoggedInUser: PropTypes.object,
+    patient: PropTypes.object,
+    trackMetric: PropTypes.func.isRequired,
+    updatingDataDonationAccounts: PropTypes.bool,
+    updatingPatientBgUnits: PropTypes.bool,
+    user: PropTypes.object,
+    dataSources: PropTypes.array,
+    fetchDataSources: PropTypes.func,
+    connectDataSource: PropTypes.func,
+    disconnectDataSource: PropTypes.func,
+    authorizedDataSource: PropTypes.object,
+    api: PropTypes.object.isRequired,
+  };
 
-  getInitialState: function() {
-    var editing = this.isEditingAllowed(this.props.permsOfLoggedInUser) && window.location.hash === '#edit';
-    return {
+  constructor(props, context) {
+    super(props, context);
+    var editing = this.isEditingAllowed(props.permsOfLoggedInUser) && window.location.hash === '#edit';
+
+    this.state = {
       editing,
       validationErrors: {},
       bioLength: 0
     };
-  },
+  }
 
-  render: function() {
+  render() {
     const { t } = this.props;
     if (this.props.fetchingPatient) {
       return this.renderSkeleton();
@@ -159,9 +162,9 @@ var PatientInfo = translate()(React.createClass({
         {this.renderExport()}
       </div>
     );
-  },
+  }
 
-  renderSkeleton: function() {
+  renderSkeleton = () => {
     const { t } = this.props;
     return (
       <div className="PatientInfo">
@@ -187,9 +190,9 @@ var PatientInfo = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  };
 
-  renderEditLink: function() {
+  renderEditLink = () => {
     const { t } = this.props;
     if (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser)) {
       return null;
@@ -207,16 +210,16 @@ var PatientInfo = translate()(React.createClass({
     return (
       <button key="edit" className="PatientInfo-button PatientInfo-button--primary" type="button" onClick={handleClick}>{t('Edit')}</button>
     );
-  },
+  };
 
-  toggleEdit: function() {
+  toggleEdit = () => {
     this.setState({
       editing: !this.state.editing,
       validationErrors: {}
     });
-  },
+  };
 
-  renderEditing: function() {
+  renderEditing = () => {
     var patient = this.props.patient;
     var formValues = this.formValuesFromPatient(patient);
 
@@ -254,9 +257,9 @@ var PatientInfo = translate()(React.createClass({
         {this.renderDataSources()}
       </div>
     );
-  },
+  };
 
-  renderFullNameInput: function(formValues) {
+  renderFullNameInput = (formValues) => {
     var fullNameNode, errorElem, classes;
     var error = this.state.validationErrors.fullName;
     // Legacy: revisit when proper "child accounts" are implemented
@@ -288,9 +291,9 @@ var PatientInfo = translate()(React.createClass({
     return (<div className="PatientInfo-blockRow">
       {fullNameNode}
     </div>);
-  },
+  };
 
-  renderBirthdayInput: function(formValues) {
+  renderBirthdayInput = (formValues) => {
     const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.birthday;
@@ -305,9 +308,9 @@ var PatientInfo = translate()(React.createClass({
         {errorElem}
       </div>
     </div>);
-  },
+  };
 
-  renderDiagnosisDateInput: function(formValues) {
+  renderDiagnosisDateInput = (formValues) => {
     const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.diagnosisDate;
@@ -322,9 +325,9 @@ var PatientInfo = translate()(React.createClass({
         {errorElem}
       </div>
     </div>);
-  },
+  };
 
-  renderDiagnosisTypeInput: function(formValues) {
+  renderDiagnosisTypeInput = (formValues) => {
     const { t } = this.props;
     var classes = 'PatientInfo-input';
     var types = _.clone(DIABETES_TYPES()); // eslint-disable-line new-cap
@@ -349,9 +352,9 @@ var PatientInfo = translate()(React.createClass({
         </select>
       </div>
     </div>);
-  },
+  };
 
-  renderAboutInput: function(formValues) {
+  renderAboutInput = (formValues) => {
     const { t } = this.props;
     var classes = 'PatientInfo-input', errorElem;
     var error = this.state.validationErrors.about;
@@ -376,9 +379,9 @@ var PatientInfo = translate()(React.createClass({
       {charCount}
       {errorElem}
     </div>);
-  },
+  };
 
-  renderMRNInput: function(formValues) {
+  renderMRNInput = (formValues) => {
     var mrn, errorElem, classes;
     const error = this.state.validationErrors.mrn;
     const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
@@ -401,9 +404,9 @@ var PatientInfo = translate()(React.createClass({
     return (<div className="PatientInfo-blockRow">
       {mrn}
     </div>);
-  },
+  };
 
-  renderEmailInput: function(formValues) {
+  renderEmailInput = (formValues) => {
     var email, errorElem, classes;
     const error = this.state.validationErrors.email;
     const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
@@ -426,9 +429,9 @@ var PatientInfo = translate()(React.createClass({
     return (<div className="PatientInfo-blockRow">
       {email}
     </div>);
-  },
+  };
 
-  renderSubmit: function() {
+  renderSubmit = () => {
     const { t } = this.props;
     return (
       <button className="PatientInfo-button PatientInfo-button--primary"
@@ -436,9 +439,9 @@ var PatientInfo = translate()(React.createClass({
         {t('Save changes')}
       </button>
     );
-  },
+  };
 
-  renderPatientSettings: function() {
+  renderPatientSettings = () => {
     return (
       <PatientSettings
         editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
@@ -447,9 +450,9 @@ var PatientInfo = translate()(React.createClass({
         trackMetric={this.props.trackMetric}
       />
     );
-  },
+  };
 
-  renderBgUnitSettings: function() {
+  renderBgUnitSettings = () => {
     return (
       <Trans className="PatientPage-bgUnitSettings" i18nKey="html.patientinfo-units-used">
         <div className="PatientPage-sectionTitle">The units I use are</div>
@@ -464,9 +467,9 @@ var PatientInfo = translate()(React.createClass({
         </div>
       </Trans>
     );
-  },
+  };
 
-  renderDonateForm: function() {
+  renderDonateForm = () => {
     const { t } = this.props;
     if (this.isSamePersonUserAndPatient()) {
       return (
@@ -486,9 +489,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderDataSources: function() {
+  renderDataSources = () => {
     const { t } = this.props;
     if (this.isSamePersonUserAndPatient()) {
       return (
@@ -510,9 +513,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderExport: function() {
+  renderExport = () => {
     return (
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">Export My Data</div>
@@ -521,25 +524,25 @@ var PatientInfo = translate()(React.createClass({
         </div>
       </div>
     )
-  },
+  };
 
-  isSamePersonUserAndPatient: function() {
+  isSamePersonUserAndPatient = () => {
     return personUtils.isSame(this.props.user, this.props.patient);
-  },
+  };
 
-  isEditingAllowed: function(permissions) {
+  isEditingAllowed = (permissions) => {
     if (_.isPlainObject(permissions)) {
       return permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
     }
 
     return false;
-  },
+  };
 
-  getDisplayName: function(patient) {
+  getDisplayName = (patient) => {
     return personUtils.patientFullName(patient);
-  },
+  };
 
-  getAgeText: function(patient, currentDate) {
+  getAgeText = (patient, currentDate) => {
     const { t } = this.props;
     var patientInfo = personUtils.patientInfo(patient) || {};
     var birthday = patientInfo.birthday;
@@ -561,9 +564,9 @@ var PatientInfo = translate()(React.createClass({
     } else {
       return t('Birthdate not known');
     }
-  },
+  };
 
-  getDiagnosisText: function(patient, currentDate) {
+  getDiagnosisText = (patient, currentDate) => {
     const { t } = this.props;
     var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
@@ -611,12 +614,12 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return t('Diagnosed {{diagnosisDate}} as {{diagnosisType}}', {diagnosisDate: diagnosisDateText, diagnosisType: diagnosisTypeText});
-  },
+  };
 
-  getAboutText: function(patient) {
+  getAboutText = (patient) => {
     var patientInfo = personUtils.patientInfo(patient) || {};
     return patientInfo.about;
-  },
+  };
 
   /**
    * Given a patient object, extract the values from it
@@ -625,7 +628,7 @@ var PatientInfo = translate()(React.createClass({
    * @param  {Object} patient
    * @return {Object}
    */
-  formValuesFromPatient: function(patient) {
+  formValuesFromPatient = (patient) => {
     if (!_.isPlainObject(patient) || _.isEmpty(patient)) {
       return {};
     }
@@ -666,9 +669,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return formValues;
-  },
+  };
 
-  handleSubmit: function(e) {
+  handleSubmit = (e) => {
     e.preventDefault();
     var formValues = this.getFormValues();
     const permsOfLoggedInUser = _.get(this.props, 'permsOfLoggedInUser', {});
@@ -689,9 +692,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     this.submitFormValues(formValues);
-  },
+  };
 
-  getFormValues: function() {
+  getFormValues = () => {
     var self = this;
     return _.reduce([
       'fullName',
@@ -707,9 +710,9 @@ var PatientInfo = translate()(React.createClass({
       }
       return acc;
     }, {});
-  },
+  };
 
-  submitFormValues: function(formValues) {
+  submitFormValues = (formValues) => {
     formValues = this.prepareFormValuesForSubmit(formValues);
 
     if(this.props.permsOfLoggedInUser.hasOwnProperty('custodian') && !this.props.patient.username && formValues.username){
@@ -718,9 +721,9 @@ var PatientInfo = translate()(React.createClass({
     // Save optimistically
     this.props.onUpdatePatient(formValues);
     this.toggleEdit();
-  },
+  };
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     const updatedPatient = _.cloneDeep(this.props.patient);
     const updatedPatientProfile = updatedPatient.profile.patient;
 
@@ -768,7 +771,7 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return updatedPatient;
-  }
-}));
+  };
+});
 
 module.exports = PatientInfo;

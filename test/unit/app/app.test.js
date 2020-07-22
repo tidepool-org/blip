@@ -7,11 +7,10 @@
 /* global afterEach */
 
 var React = require('react');
-var createFragment = require('react-addons-create-fragment');
 var _ = require('lodash');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import {
   mapStateToProps,
@@ -46,7 +45,7 @@ describe('App', () => {
   describe('constructor', () => {
     var props = _.assign({}, baseProps, {
       authenticated: false,
-      children: createFragment({}),
+      children: (<React.Fragment></React.Fragment>),
       fetchers: [],
       fetchingPatient: false,
       fetchingUser: {
@@ -66,7 +65,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     it('should set the `dexcomShowBannerMetricTracked` state to false', () => {
@@ -79,7 +78,7 @@ describe('App', () => {
     it('should render without problems or warnings when required props provided', () => {
       var props = _.assign({}, baseProps, {
         authenticated: false,
-        children: createFragment({}),
+        children: (<React.Fragment></React.Fragment>),
         fetchers: [],
         fetchingPatient: false,
         fetchingUser: {
@@ -150,7 +149,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     it('should render the banner or not based on the `showingDonateBanner` prop value', () => {
@@ -177,7 +176,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     it('should render the banner or not based on the `showingDexcomConnectBanner` prop value', () => {
@@ -206,7 +205,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     it('should render the banner or not based on the patient username and permsOfLoggedInUser prop values', () => {
@@ -244,7 +243,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     afterEach(() => {

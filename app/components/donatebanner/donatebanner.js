@@ -15,13 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
-import { browserHistory } from 'react-router';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { translate } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
-const DonateBanner = (props) => {
+export const DonateBanner = translate()((props) => {
   const {
     onClose,
     onConfirm,
@@ -29,7 +31,8 @@ const DonateBanner = (props) => {
     processingDonation,
     trackMetric,
     userIsDonor,
-    t
+    t,
+    push,
   } = props;
 
   const getMessageText = () => {
@@ -83,7 +86,7 @@ const DonateBanner = (props) => {
     if (userIsDonor) {
       // If user is donor, we redirect to settings page
       // so they can choose a nonprofit to share proceeds with
-      browserHistory.push(`/patients/${patient.userid}/profile`);
+      push(`/patients/${patient.userid}/profile`);
       return;
     }
 
@@ -118,15 +121,15 @@ const DonateBanner = (props) => {
       </div>
     </div>
   );
-};
+});
 
 DonateBanner.propTypes = {
-  onClose: React.PropTypes.func.isRequired,
-  onConfirm: React.PropTypes.func.isRequired,
-  processingDonation: React.PropTypes.bool.isRequired,
-  trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object.isRequired,
-  userIsDonor: React.PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  processingDonation: PropTypes.bool.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
+  userIsDonor: PropTypes.bool.isRequired,
 };
 
-export default translate()(DonateBanner);
+export default connect(null, { push })(DonateBanner);

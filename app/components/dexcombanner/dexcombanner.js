@@ -15,20 +15,22 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
-import { browserHistory } from 'react-router';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { translate } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
 
-
-const DexcomBanner = (props) => {
+export const DexcomBanner = translate()((props) => {
   const {
     onClick,
     onClose,
     patient,
     trackMetric,
-    t
+    t,
+    push,
   } = props;
 
   const getMessageText = () => {
@@ -56,7 +58,7 @@ const DexcomBanner = (props) => {
   const handleSubmit = () => {
     onClick(patient.userid);
 
-    browserHistory.push(`/patients/${patient.userid}/profile?dexcomConnect=banner`);
+    push(`/patients/${patient.userid}/profile?dexcomConnect=banner`);
 
     if (trackMetric) {
       trackMetric('clicked get started on Dexcom banner');
@@ -96,13 +98,13 @@ const DexcomBanner = (props) => {
       </div>
     </div>
   );
-};
+});
 
 DexcomBanner.propTypes = {
-  onClick: React.PropTypes.func.isRequired,
-  onClose: React.PropTypes.func.isRequired,
-  trackMetric: React.PropTypes.func.isRequired,
-  patient: React.PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
 };
 
-export default translate()(DexcomBanner);
+export default connect(null, { push })(DexcomBanner);

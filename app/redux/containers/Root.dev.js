@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
+import { ConnectedRouter } from 'connected-react-router';
 import { hot, setConfig } from 'react-hot-loader';
-import Perf from 'react-addons-perf';
-window.Perf = Perf;
+import { ThemeProvider } from 'styled-components';
+
+import baseTheme from '../../themes/baseTheme';
+import { history } from '../store/configureStore.dev';
 
 setConfig({ logLevel: 'warning' })
 
@@ -11,13 +13,15 @@ class Root extends Component {
   render() {
     const { store, routing } = this.props;
     return (
-      <Provider store={store}>
-        <div>
-          <Router history={browserHistory}>
-            {routing}
-          </Router>
-        </div>
-      </Provider>
+      <ThemeProvider theme={baseTheme}>
+        <Provider store={store}>
+          <div>
+            <ConnectedRouter history={history}>
+              {routing}
+            </ConnectedRouter>
+          </div>
+        </Provider>
+      </ThemeProvider>
     );
   }
 };

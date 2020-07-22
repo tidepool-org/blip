@@ -25,10 +25,10 @@ import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
 
-import { routeActions } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
@@ -85,7 +85,7 @@ export function signup(api, accountDetails) {
           dispatch(acceptTerms(api, accountDetails.termsAccepted, user.userid));
         }
         dispatch(sync.signupSuccess(user));
-        dispatch(routeActions.push('/email-verification'));
+        dispatch(push('/email-verification'));
       }
     });
   };
@@ -104,11 +104,15 @@ export function confirmSignup(api, signupKey, signupEmail) {
 
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
+        let errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP;
+        if (_.get(err, 'status') === 404) {
+          errMsg = ErrorMessages.ERR_CONFIRMING_SIGNUP_NOMATCH;
+        }
         dispatch(sync.confirmSignupFailure(
-          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
+          createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
         }
       } else {
         dispatch(sync.confirmSignupSuccess())
@@ -198,9 +202,9 @@ export function acceptTerms(api, acceptedDate, userId) {
         if (loggedInUserId) {
           dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
           if(personUtils.isClinic(user)){
-            dispatch(routeActions.push('/clinician-details'));
+            dispatch(push('/clinician-details'));
           } else {
-            dispatch(routeActions.push('/patients?justLoggedIn=true'));
+            dispatch(push('/patients?justLoggedIn=true'));
           }
         } else {
           dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
@@ -229,7 +233,7 @@ export function login(api, credentials, options, postLoginAction) {
 
         if (err.status === 403) {
           dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
-          dispatch(routeActions.push('/email-verification'));
+          dispatch(push('/email-verification'));
         } else {
           dispatch(sync.loginFailure(error, err));
         }
@@ -259,7 +263,7 @@ export function login(api, credentials, options, postLoginAction) {
                   if (postLoginAction) {
                     dispatch(postLoginAction());
                   }
-                  dispatch(routeActions.push(redirectRoute));
+                  dispatch(push(redirectRoute));
                 }
               }));
             } else {
@@ -267,7 +271,7 @@ export function login(api, credentials, options, postLoginAction) {
               if (postLoginAction) {
                 dispatch(postLoginAction());
               }
-              dispatch(routeActions.push(redirectRoute));
+              dispatch(push(redirectRoute));
             }
           }
         }));
@@ -288,7 +292,7 @@ export function logout(api) {
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
-      dispatch(routeActions.push('/'));
+      dispatch(push('/'));
     });
   }
 }
@@ -311,7 +315,7 @@ export function setupDataStorage(api, patient) {
         ));
       } else {
         dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
-        dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
+        dispatch(push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
@@ -673,7 +677,7 @@ export function updateClinicianProfile(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-        dispatch(routeActions.push('/patients?justLoggedIn=true'));
+        dispatch(push('/patients?justLoggedIn=true'));
       }
     });
   };
@@ -1024,7 +1028,7 @@ export function fetchPatientData(api, options, id) {
     }
 
     function handleFetchSuccess(data, patientId, options) {
-      const { blip: { working }, routing: { location } } = getState();
+      const { blip: { working }, router: { location } } = getState();
       const fetchingPatientId = _.get(working, 'fetchingPatientData.patientId');
 
       dispatch(sync.fetchPatientDataSuccess(id));
@@ -1065,7 +1069,7 @@ export function fetchPatientData(api, options, id) {
         else {
           const combinedData = [
             ...resultsVal.patientData,
-            ...resultsVal.latestPumpSettingsUpload || [],
+            ...(resultsVal.latestPumpSettingsUpload || []),
             ...resultsVal.teamNotes,
           ];
 
@@ -1079,7 +1083,7 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
-  }
+  };
 }
 
 /**

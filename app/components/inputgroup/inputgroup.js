@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -22,29 +23,29 @@ import Select from 'react-select';
 import DatePicker from '../datepicker';
 
 // Input with label and validation error message
-const InputGroup = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string,
-    label: React.PropTypes.node,
-    items: React.PropTypes.array,
-    text: React.PropTypes.node,
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.bool,
-      React.PropTypes.object // dates for datepicker input type are objects
+class InputGroup extends React.Component {
+  static propTypes = {
+    name: PropTypes.string,
+    label: PropTypes.node,
+    items: PropTypes.array,
+    text: PropTypes.node,
+    value: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.bool,
+      PropTypes.object // dates for datepicker input type are objects
     ]),
-    error: React.PropTypes.string,
-    type: React.PropTypes.string.isRequired,
-    placeholder: React.PropTypes.string,
-    rows: React.PropTypes.number,
-    disabled: React.PropTypes.bool,
-    multi: React.PropTypes.bool,
-    onChange: React.PropTypes.func
-  },
+    error: PropTypes.string,
+    type: PropTypes.string.isRequired,
+    placeholder: PropTypes.string,
+    rows: PropTypes.number,
+    disabled: PropTypes.bool,
+    multi: PropTypes.bool,
+    onChange: PropTypes.func
+  };
 
-  DEFAULT_TEXTAREA_ROWS: 3,
+  DEFAULT_TEXTAREA_ROWS = 3;
 
-  render: function() {
+  render() {
     var className = this.getClassName();
     var label = this.renderLabel();
     var input = this.renderInput();
@@ -59,9 +60,9 @@ const InputGroup = React.createClass({
         {message}
       </div>
     );
-  },
+  }
 
-  renderLabel: function() {
+  renderLabel = () => {
     var text = this.props.label;
     var htmlFor = this.props.name;
 
@@ -81,9 +82,9 @@ const InputGroup = React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderInput: function() {
+  renderInput = () => {
     var type = this.props.type;
 
     if (type === 'textarea') {
@@ -122,9 +123,9 @@ const InputGroup = React.createClass({
         disabled={this.props.disabled}
         ref="control"/>
     );
-  },
+  };
 
-  renderTextArea: function() {
+  renderTextArea = () => {
     var rows = this.props.rows || this.DEFAULT_TEXTAREA_ROWS;
 
     return (
@@ -139,9 +140,9 @@ const InputGroup = React.createClass({
         disabled={this.props.disabled}
         ref="control"></textarea>
     );
-  },
+  };
 
-  renderCheckbox: function() {
+  renderCheckbox = () => {
 
     return (
       <label
@@ -161,9 +162,9 @@ const InputGroup = React.createClass({
         {this.props.label}
       </label>
     );
-  },
+  };
 
-  renderRadios: function() {
+  renderRadios = () => {
     var self = this;
     var radios = _.map(this.props.items, function(radio, index) {
       var id = self.props.name + index;
@@ -196,9 +197,9 @@ const InputGroup = React.createClass({
         {radios}
       </div>
     );
-  },
+  };
 
-  renderSelect: function() {
+  renderSelect = () => {
     var isMultiSelect = this.props.multi || false;
 
     var classNames = cx({
@@ -234,9 +235,9 @@ const InputGroup = React.createClass({
         options={this.props.items}
       />
     );
-  },
+  };
 
-  renderDatePicker: function() {
+  renderDatePicker = () => {
     return (
       <DatePicker
         name={this.props.name}
@@ -244,15 +245,15 @@ const InputGroup = React.createClass({
         disabled={this.props.disabled}
         onChange={this.handleChange} />
     );
-  },
+  };
 
-  renderExplanation: function() {
+  renderExplanation = () => {
     return <div className='input-group-explanation'>
       {this.props.text}
     </div>;
-  },
+  };
 
-  renderMessage: function() {
+  renderMessage = () => {
     var error = this.props.error;
     if (error) {
       return (
@@ -262,17 +263,17 @@ const InputGroup = React.createClass({
       );
     }
     return null;
-  },
+  };
 
-  getClassName: function() {
+  getClassName = () => {
     var className = 'input-group form-group clearfix';
     if (this.props.error) {
       className += ' input-group-error';
     }
     return className;
-  },
+  };
 
-  handleChange: function(e) {
+  handleChange = (e) => {
     var target = (e !== null) ? e.target || e : {};
 
     var attributes = {
@@ -294,7 +295,7 @@ const InputGroup = React.createClass({
     if (changeCallback) {
       changeCallback(attributes);
     }
-  }
-});
+  };
+}
 
 module.exports = InputGroup;

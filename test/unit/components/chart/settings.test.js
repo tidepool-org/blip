@@ -7,14 +7,15 @@
 /* global afterEach */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import { shallow } from 'enzyme';
 import _ from 'lodash';
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';
+import { createRenderer } from 'react-test-renderer/shallow';
 
 const expect = chai.expect;
-const renderer = TestUtils.createRenderer();
+const renderer = createRenderer();
 
 describe('Settings', function () {
   const bgPrefs = {

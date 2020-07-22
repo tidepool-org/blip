@@ -4,12 +4,11 @@
 /* global it */
 
 var React = require('react');
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
+var mount = require('enzyme').mount;
+var BrowserRouter = require('react-router-dom').BrowserRouter;
 
 var PeopleList = require('../../../app/components/peoplelist');
-var PatientCard = require('../../../app/components/patientcard');
 
 describe('PeopleList', function () {
   describe('render', function() {
@@ -18,24 +17,21 @@ describe('PeopleList', function () {
       var props = {
         trackMetric: function() {}
       };
-      var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem);
+      var elem = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>)
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should return object with expected properties', function() {
       console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
-      var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem).getWrappedInstance();
-      var state = elem.getInitialState();
-
+      var elem = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>).find(PeopleList).instance().getWrappedInstance();
+      var state = elem.state;
       expect(state.editing).to.equal(false);
     });
   });
@@ -68,16 +64,15 @@ describe('PeopleList', function () {
           }
         }]
       };
-      var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem);
-      var renderedDOM = ReactDOM.findDOMNode(elem);
-      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      var wrapper = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>);
+      var fullNames = wrapper.find('.patientcard-fullname');
+
       expect(fullNames.length).to.equal(5);
-      expect(fullNames[0].title).to.equal('Zoe Doe');
-      expect(fullNames[1].title).to.equal('amanda jones');
-      expect(fullNames[2].title).to.equal('Anna Zork');
-      expect(fullNames[3].title).to.equal('John Doe');
-      expect(fullNames[4].title).to.equal('Tucker Doe');
+      expect(fullNames.at(0).prop('title')).to.equal('Zoe Doe');
+      expect(fullNames.at(1).prop('title')).to.equal('amanda jones');
+      expect(fullNames.at(2).prop('title')).to.equal('Anna Zork');
+      expect(fullNames.at(3).prop('title')).to.equal('John Doe');
+      expect(fullNames.at(4).prop('title')).to.equal('Tucker Doe');
     });
 
     it('should use a patients fullName to sort if present and isOtherPerson', function() {
@@ -116,16 +111,14 @@ describe('PeopleList', function () {
           }
         }]
       };
-      var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem);
-      var renderedDOM = ReactDOM.findDOMNode(elem);
-      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      var wrapper = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>);
+      var fullNames = wrapper.find('.patientcard-fullname');
       expect(fullNames.length).to.equal(5);
-      expect(fullNames[0].title).to.equal('Zoe Doe');
-      expect(fullNames[1].title).to.equal('Alan Rickman');
-      expect(fullNames[2].title).to.equal('Anna Zork');
-      expect(fullNames[3].title).to.equal('Christian Bale');
-      expect(fullNames[4].title).to.equal('John Doe');
+      expect(fullNames.at(0).prop('title')).to.equal('Zoe Doe');
+      expect(fullNames.at(1).prop('title')).to.equal('Alan Rickman');
+      expect(fullNames.at(2).prop('title')).to.equal('Anna Zork');
+      expect(fullNames.at(3).prop('title')).to.equal('Christian Bale');
+      expect(fullNames.at(4).prop('title')).to.equal('John Doe');
     });
 
 
@@ -152,14 +145,12 @@ describe('PeopleList', function () {
           }
         }]
       };
-      var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem);
-      var renderedDOM = ReactDOM.findDOMNode(elem);
-      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      var wrapper = mount(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>);
+      var fullNames = wrapper.find('.patientcard-fullname');
       expect(fullNames.length).to.equal(3);
-      expect(fullNames[0].title).to.equal('Anna Zork');
-      expect(fullNames[1].title).to.equal('John Doe');
-      expect(fullNames[2].title).to.equal('Tucker Doe');
+      expect(fullNames.at(0).prop('title')).to.equal('Anna Zork');
+      expect(fullNames.at(1).prop('title')).to.equal('John Doe');
+      expect(fullNames.at(2).prop('title')).to.equal('Tucker Doe');
     });
   });
 });
