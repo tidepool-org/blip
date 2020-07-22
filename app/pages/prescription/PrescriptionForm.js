@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { browserHistory } from 'react-router';
 import bows from 'bows';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
@@ -104,6 +103,7 @@ export const PrescriptionForm = props => {
     creatingPrescription,
     creatingPrescriptionRevision,
     prescription,
+    history,
   } = props;
 
   const {
@@ -174,7 +174,7 @@ export const PrescriptionForm = props => {
       setStepAsyncState(asyncStates.completed);
       if (isLastStep) {
         // TODO: Set a message to display as a toast on the prescriptions page
-        browserHistory.push('/prescriptions');
+        history.push('/prescriptions');
       }
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);

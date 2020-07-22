@@ -148,7 +148,7 @@ describe('App', () => {
 
     let wrapper;
     beforeEach(() => {
-      wrapper = mount(<App {...props} />);
+      wrapper = shallow(<App {...props} />);
     });
 
     it('should render the banner or not based on the `showingShareDataBanner` prop value', () => {

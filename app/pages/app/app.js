@@ -285,7 +285,8 @@ export class AppComponent extends React.Component {
             onClick={onClickShareDataBanner}
             onClose={onDismissShareDataBanner}
             trackMetric={this.props.context.trackMetric}
-            patient={patient} />
+            patient={patient}
+            history={this.props.history}/>
         </div>
       );
     }

@@ -16,7 +16,6 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 
 import { URL_SHARE_DATA_INFO } from '../../core/constants';
@@ -28,6 +27,7 @@ const ShareDataBanner = (props) => {
     onClose,
     patient,
     trackMetric,
+    history,
     t
   } = props;
 
@@ -56,7 +56,7 @@ const ShareDataBanner = (props) => {
   const handleSubmit = () => {
     onClick(patient.userid);
 
-    browserHistory.push(`/patients/${patient.userid}/share`);
+    history.push(`/patients/${patient.userid}/share`);
 
     if (trackMetric) {
       trackMetric('clicked get started on Share Data banner');
