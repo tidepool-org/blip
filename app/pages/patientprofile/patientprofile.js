@@ -13,7 +13,7 @@ import Patient from '../patient/';
  */
 export function getFetchers(dispatchProps, ownProps, stateProps, api) {
   const fetchers = [
-    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
+    dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
 
   if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
@@ -22,7 +22,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
 
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
-    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'routeParams.id') ) {
+    if (_.get(stateProps, 'user.userid') === _.get(ownProps, 'match.params.id') ) {
       fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
     }
   }
@@ -109,7 +109,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
@@ -118,7 +118,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     connectDataSource: dispatchProps.connectDataSource.bind(null, api),
     disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric,
+    trackMetric: ownProps.trackMetric,
     queryParams: ownProps.location.query,
     api: api
   });

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
+import { ConnectedRouter } from 'connected-react-router';
 import { hot, setConfig } from 'react-hot-loader';
 import { ThemeProvider } from 'styled-components';
 
 import baseTheme from '../../themes/baseTheme';
+import { history } from '../store/configureStore.dev';
 
 setConfig({ logLevel: 'warning' })
 
@@ -15,9 +16,9 @@ class Root extends Component {
       <ThemeProvider theme={baseTheme}>
         <Provider store={store}>
           <div>
-            <Router history={browserHistory}>
+            <ConnectedRouter history={history}>
               {routing}
-            </Router>
+            </ConnectedRouter>
           </div>
         </Provider>
       </ThemeProvider>

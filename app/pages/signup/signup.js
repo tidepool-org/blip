@@ -18,7 +18,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate, Trans} from 'react-i18next';
 import { bindActionCreators } from 'redux';
-import { browserHistory } from 'react-router';
 import sundial from 'sundial';
 
 import * as actions from '../../redux/actions';
@@ -342,13 +341,13 @@ export let Signup = translate()(class extends React.Component {
 
   handleContinueClick = (e) => {
     this.setState({madeSelection: true});
-    browserHistory.push(`/signup/${this.state.selected}`);
+    this.props.history.push(`/signup/${this.state.selected}`);
   };
 
   handleTypeSwitchClick = (type, e) => {
     e.preventDefault();
     this.setState({selected: type});
-    browserHistory.push(`/signup/${type}`);
+    this.props.history.push(`/signup/${type}`);
   };
 
   handleChange = (attributes) => {
@@ -464,9 +463,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     inviteKey: utils.getInviteKey(ownProps.location),
     inviteEmail: utils.getInviteEmail(ownProps.location),
     roles: utils.getRoles(ownProps.location),
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
-    location: ownProps.location
+    trackMetric: ownProps.trackMetric,
+    api: ownProps.api,
+    location: ownProps.location,
+    history: ownProps.history,
   });
 };
 

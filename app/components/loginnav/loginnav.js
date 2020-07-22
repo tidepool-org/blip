@@ -3,7 +3,7 @@ var React = require('react');
 import PropTypes from 'prop-types';
 
 import { translate } from 'react-i18next';
-var Link = require('react-router').Link;
+var Link = require('react-router-dom').Link;
 
 var LoginNav = translate()(class extends React.Component {
   static propTypes = {

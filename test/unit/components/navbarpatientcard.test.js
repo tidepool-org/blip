@@ -6,7 +6,8 @@
 var React = require('react');
 var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
+import { BrowserRouter } from 'react-router-dom';
 import i18next from '../../../app/core/language';
 
 const t = i18next.t.bind(i18next);
@@ -56,7 +57,8 @@ describe('NavbarPatientCard', function () {
         trackMetric: function() {}
       };
       var navbarElem = React.createElement(NavbarPatientCard, props);
-      var elem = TestUtils.renderIntoDocument(navbarElem);
+      var wrapper = React.createElement(BrowserRouter, props, navbarElem);
+      var elem = TestUtils.renderIntoDocument(wrapper);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -68,7 +70,7 @@ describe('NavbarPatientCard', function () {
         patient: rootUser.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -78,7 +80,7 @@ describe('NavbarPatientCard', function () {
         patient: careTeamMemberUpload.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -88,7 +90,7 @@ describe('NavbarPatientCard', function () {
         patient: careTeamMemberNoUpload.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = mount(<BrowserRouter><NavbarPatientCard.WrappedComponent {...props} /></BrowserRouter>);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });

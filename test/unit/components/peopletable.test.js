@@ -23,7 +23,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import PeopleTable from '../../../app/components/peopletable';
+import { PeopleTable } from '../../../app/components/peopletable';
 
 const expect = chai.expect;
 
@@ -73,6 +73,7 @@ describe('PeopleTable', () => {
     ],
     trackMetric: sinon.stub(),
     onRemovePatient: sinon.stub(),
+    push: sinon.stub(),
   };
 
   let wrapper;

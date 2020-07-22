@@ -15,7 +15,6 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -222,8 +221,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     configuredInviteKey: config.INVITE_KEY,
     signupEmail: utils.getSignupEmail(ownProps.location),
     signupKey: utils.getSignupKey(ownProps.location),
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    trackMetric: ownProps.trackMetric,
+    api: ownProps.api,
   });
 };
 

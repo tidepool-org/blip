@@ -1514,8 +1514,8 @@ export let PatientData = translate()(createReactClass({
  */
 export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   const fetchers = [
-    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id),
+    dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.match.params.id),
   ];
 
   if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
@@ -1606,7 +1606,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
-  const api = ownProps.routes[0].api;
+  const api = ownProps.api;
   const assignedDispatchProps = [
     'dataWorkerRemoveDataRequest',
     'dataWorkerRemoveDataSuccess',
@@ -1625,9 +1625,9 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onSaveComment: api.team.replyToMessageThread.bind(api),
     onCreateMessage: dispatchProps.createMessageThread.bind(null, api),
     onEditMessage: dispatchProps.editMessageThread.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric,
+    trackMetric: ownProps.trackMetric,
     queryParams: ownProps.location.query,
-    currentPatientInViewId: ownProps.routeParams.id,
+    currentPatientInViewId: ownProps.match.params.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
     onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
     carelink: carelink,

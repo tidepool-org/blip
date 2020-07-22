@@ -1,5 +1,4 @@
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -31,8 +30,8 @@ const Prescriptions = props => {
     setSearchText(event.target.value);
   }
 
-  const handleAddNew = () => browserHistory.push('/prescriptions/new');
-  const handleEdit = id => () => browserHistory.push(`/prescriptions/${id}/edit`);
+  const handleAddNew = () => this.props.history.push('/prescriptions/new');
+  const handleEdit = id => () => this.props.history.push(`/prescriptions/${id}/edit`);
   const handleDelete = id => () => deletePrescription(id);
 
   const renderEdit = ({ id }) => (
