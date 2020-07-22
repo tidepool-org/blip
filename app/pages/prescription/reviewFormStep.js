@@ -323,7 +323,7 @@ export const TherapySettings = props => {
         <ClipboardButton
           buttonTitle={t('For email or notes')}
           buttonText={t('Copy therapy settings order as text')}
-          onSuccess={handleCopyTherapySettingsClicked}
+          onClick={handleCopyTherapySettingsClicked}
           getText={generateTherapySettingsText.bind(null, [
             {
               label: t('Name'),
