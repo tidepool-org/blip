@@ -16,10 +16,6 @@ describe('UploaderButton', function () {
   const props = {
     buttonText: 'Get the Tidepool Uploader',
     onClick: sinon.spy(),
-    handleMacDownload: sinon.spy(),
-    handleDownload: sinon.spy(),
-    latestMacRelease: sinon.spy(),
-    handleLinkToUploaderDownload: sinon.spy(),
   };
 
   let wrapper;
