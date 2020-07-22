@@ -23,7 +23,6 @@
 /* global afterEach */
 
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { shallow, mount } from 'enzyme';
 
 import ShareDataBanner from '../../../app/components/sharedatabanner';
@@ -37,6 +36,9 @@ describe('ShareDataBanner', () => {
     onClose: sinon.stub(),
     patient: { userid: 1234 },
     trackMetric: sinon.stub(),
+    history: {
+      push: sinon.stub(),
+    },
   };
 
   let wrapper;

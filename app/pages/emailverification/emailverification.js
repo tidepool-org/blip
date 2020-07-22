@@ -49,7 +49,7 @@ export var EmailVerification = translate()(class extends React.Component {
 
   componentWillUnmount() {
     this.props.acknowledgeNotification('resendingEmailVerification');
-  }
+  };
 
   formInputs = () => {
     const { t } = this.props;
@@ -112,7 +112,7 @@ export var EmailVerification = translate()(class extends React.Component {
         {content}
       </div>
     );
-  }
+  };
 
   renderForm = () => {
     const { t } = this.props;
@@ -197,10 +197,10 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, stateProps, _.omit(dispatchProps, 'submitResend'), {
     onSubmitResend: dispatchProps.submitResend.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.trackMetric,
   });
 };
 

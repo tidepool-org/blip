@@ -20,9 +20,10 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
-import { browserHistory } from 'react-router';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
@@ -62,7 +63,7 @@ RemoveLinkCell.propTypes = {
 
 RemoveLinkCell.displayName = 'RemoveLinkCell';
 
-const PeopleTable = translate()(class PeopleTable extends React.Component {
+export const PeopleTable = translate()(class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
@@ -228,7 +229,7 @@ const PeopleTable = translate()(class PeopleTable extends React.Component {
 
   handleRowClick(e, rowIndex) {
     this.props.trackMetric('Selected PwD');
-    browserHistory.push(this.state.dataList[rowIndex].link);
+    this.props.push(this.state.dataList[rowIndex].link);
   }
 
   renderPeopleInstructions() {
@@ -416,4 +417,4 @@ PeopleTable.propTypes = {
   onRemovePatient: PropTypes.func.isRequired,
 };
 
-module.exports = PeopleTable;
+export default connect(null, { push })(PeopleTable);

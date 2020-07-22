@@ -25,8 +25,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import AddEmailBanner from '../../../app/components/addemailbanner';
-import { browserHistory } from 'react-router'
+import { AddEmailBanner } from '../../../app/components/addemailbanner';
+import { BrowserRouter } from 'react-router-dom';
 
 const expect = chai.expect;
 
@@ -34,14 +34,17 @@ describe('AddEmailBanner', () => {
   const props = {
     patient: { userid: 1234 },
     trackMetric: sinon.stub(),
+    push: sinon.stub(),
   };
 
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
-      <AddEmailBanner
-        {...props}
-      />
+      <BrowserRouter>
+        <AddEmailBanner
+          {...props}
+        />
+      </BrowserRouter>
     );
   });
 
@@ -72,12 +75,11 @@ describe('AddEmailBanner', () => {
   });
 
   it('should redirect to the patient profile page when the add email button is clicked', () => {
-    const browserPushSpy = sinon.spy(browserHistory, 'push');
+    const browserPushSpy = props.push;
 
     const emailButton = wrapper.find('button');
     emailButton.simulate('click');
 
     sinon.assert.calledWith(browserPushSpy, `/patients/${props.patient.userid}/profile#edit`);
-    browserPushSpy.restore();
   });
 });
