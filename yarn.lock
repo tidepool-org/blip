@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.0-web-895-review-copy-clipboard.1":
-  version "1.13.0-web-895-review-copy-clipboard.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-web-895-review-copy-clipboard.1.tgz#614b8eb58f277e2c2905f8f3e0dfbf08640beac2"
-  integrity sha512-GjmN389oIos3J2Hgves2HtFeLc/fAx0UEy3nbOu+Ms9GGTioy3f9yWIomAYWWffcQ8500M0vnmM1mHtiwasarg==
+"@tidepool/viz@1.13.0-web-895-review-copy-clipboard.2":
+  version "1.13.0-web-895-review-copy-clipboard.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-web-895-review-copy-clipboard.2.tgz#210e8ed61171abf671f68ca5f1a82eaf09b89b29"
+  integrity sha512-re+UN+LuGpDsZUdWEHBaAJ7titNlEZA7KMk1YiBXiq/2KraMiOi1VaiBJdiqDKwBP5sWCoKITiRXeWypKgOMcQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
