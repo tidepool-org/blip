@@ -108,6 +108,7 @@ export const PrescriptionForm = props => {
     createPrescriptionRevision,
     creatingPrescription,
     creatingPrescriptionRevision,
+    location,
     prescription,
     trackMetric,
   } = props;
@@ -298,6 +299,7 @@ export const PrescriptionForm = props => {
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
     id: stepperId,
+    location,
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
       if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);
