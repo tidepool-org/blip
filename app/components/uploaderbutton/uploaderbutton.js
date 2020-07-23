@@ -16,6 +16,7 @@ const UploaderButton = (props) => {
   const {
     onClick,
     buttonText,
+    ...buttonProps
   } = props;
 
   const [latestWinRelease, setLatestWinRelease] = useState(null);
@@ -67,36 +68,38 @@ const UploaderButton = (props) => {
     content = [
       <Flex justifyContent="center">
         <Box mx={2}>
-          <a className='link-download-win'
+          {/* <a className='link-download-win'
             href={latestWinRelease}
             onClick={onClick}
             style={{ textDecoration: 'none' }}
-          >
+          > */}
             <Button
-              // href={latestWinRelease}
-              // onClick={onClick}
+              {...buttonProps}
+              href={latestWinRelease}
+              onClick={onClick}
               className="btn-download-win"
               variant="large"
               key={'pc'}
               disabled={!latestWinRelease}
             >Download for PC</Button>
-          </a>
+          {/* </a> */}
         </Box>
         <Box mx={2}>
-          <a className='link-download-mac'
+          {/* <a className='link-download-mac'
             href={latestMacRelease}
             onClick={onClick}
             style={{ textDecoration: 'none' }}
-          >
+          > */}
             <Button
-              // href={latestMacRelease}
-              // onClick={onClick}
+              {...buttonProps}
+              href={latestMacRelease}
+              onClick={onClick}
               className="btn-download-mac"
               variant="large"
               key={'mac'}
               disabled={!latestMacRelease}
             >Download for Mac</Button>
-          </a>
+          {/* </a> */}
         </Box>
       </Flex>
     ]
@@ -111,6 +114,7 @@ const UploaderButton = (props) => {
 };
 
 UploaderButton.propTypes = {
+  ...ButtonProps,
   onClick: PropTypes.func.isRequired,
   buttonText: PropTypes.string.isRequired,
 };
