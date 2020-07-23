@@ -1,56 +1,58 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import GitHub from 'github-api';
 import _ from 'lodash';
 import utils from '../../core/utils';
 import { translate } from 'react-i18next';
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box, ButtonProps } from 'rebass/styled-components';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import Button from '../elements/Button';
 
 const github = new GitHub();
 
-export default translate()(class UploaderButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      latestWinRelease: null,
-      latestMacRelease: null,
-      error: null,
-    };
-  }
 
-  static propTypes = {
-    onClick: PropTypes.func.isRequired,
-    buttonText: PropTypes.string.isRequired
-  };
+const UploaderButton = (props) => {
+  const {
+    onClick,
+    buttonText,
+  } = props;
 
-  UNSAFE_componentWillMount = () => {
+  const [latestWinRelease, setLatestWinRelease] = useState(null);
+  const [latestMacRelease, setLatestMacRelease] = useState(null);
+  const [error, setError] = useState(null);
+  const [bothReleases, setBothReleases] = useState();
+
+  useEffect(() => {
     const uploaderRepo = github.getRepo('tidepool-org/uploader');
     uploaderRepo.listReleases((err, releases, request) => {
       if (err) {
-        this.setState({ error: true });
+        setError(true);
       }
-      this.setState(utils.getUploaderDownloadURL(releases));
+      setBothReleases(utils.getUploaderDownloadURL(releases));
     });
-  }
+  }, []);
 
-  renderErrorText = () => {
+  useEffect(() => {
+    setLatestMacRelease(_.get(bothReleases, 'latestMacRelease'));
+    setLatestWinRelease(_.get(bothReleases, 'latestWinRelease'));
+  }, [bothReleases]);
+
+  const renderErrorText = () => {
     return (
       <Flex justifyContent="center">
         <Box mx={2}>
           <a className='link-uploader-download'
             href={URL_UPLOADER_DOWNLOAD_PAGE}
-            onClick={this.props.onClick}
+            onClick={onClick}
             style={{ textDecoration: 'none' }}>
             <Button
               // href={URL_UPLOADER_DOWNLOAD_PAGE}
-              // onClick={this.props.onClick}
+              // onClick={onClick}
               className="btn-uploader-download"
               variant="large"
               key={'error'}
-            >{this.props.buttonText}
+            >{buttonText}
             </Button>
           </a>
         </Box>
@@ -58,53 +60,59 @@ export default translate()(class UploaderButton extends Component {
     )
   }
 
-  render = () => {
-    let content;
-    if (this.state.error) {
-      content = this.renderErrorText();
-    } else {
-      content = [
-        <Flex justifyContent="center">
-          <Box mx={2}>
-            <a className='link-download-win'
-              href={this.state.latestWinRelease}
-              onClick={this.props.onClick}
-              style={{ textDecoration: 'none' }}
-            >
-              <Button
-                // href={this.state.latestWinRelease}
-                // onClick={this.props.onClick}
-                className="btn-download-win"
-                variant="large"
-                key={'pc'}
-                disabled={!this.state.latestWinRelease}
-              >Download for PC</Button>
-            </a>
-          </Box>
-          <Box mx={2}>
-            <a className='link-download-mac'
-              href={this.state.latestMacRelease}
-              onClick={this.props.onClick}
-              style={{ textDecoration: 'none' }}
-            >
-              <Button
-                // href={this.state.latestMacRelease}
-                // onClick={this.props.onClick}
-                className="btn-download-mac"
-                variant="large"
-                key={'mac'}
-                disabled={!this.state.latestMacRelease}
-              >Download for Mac</Button>
-            </a>
-          </Box>
-        </Flex>
-      ]
-    }
-
-    return (
+  let content;
+  if (error) {
+    content = renderErrorText();
+  } else {
+    content = [
       <Flex justifyContent="center">
-        {content}
+        <Box mx={2}>
+          <a className='link-download-win'
+            href={latestWinRelease}
+            onClick={onClick}
+            style={{ textDecoration: 'none' }}
+          >
+            <Button
+              // href={latestWinRelease}
+              // onClick={onClick}
+              className="btn-download-win"
+              variant="large"
+              key={'pc'}
+              disabled={!latestWinRelease}
+            >Download for PC</Button>
+          </a>
+        </Box>
+        <Box mx={2}>
+          <a className='link-download-mac'
+            href={latestMacRelease}
+            onClick={onClick}
+            style={{ textDecoration: 'none' }}
+          >
+            <Button
+              // href={latestMacRelease}
+              // onClick={onClick}
+              className="btn-download-mac"
+              variant="large"
+              key={'mac'}
+              disabled={!latestMacRelease}
+            >Download for Mac</Button>
+          </a>
+        </Box>
       </Flex>
-    );
+    ]
   }
-});
+
+  return (
+    <Flex justifyContent="center">
+      {content}
+    </Flex>
+  );
+
+};
+
+UploaderButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  buttonText: PropTypes.string.isRequired
+};
+
+export default translate()(UploaderButton);

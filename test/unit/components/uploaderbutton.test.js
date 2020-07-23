@@ -11,7 +11,7 @@ import UploaderButton from '../../../app/components/uploaderbutton';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
-
+// TODO REMOVE .only
 describe('UploaderButton', function () {
   const props = {
     buttonText: 'Get the Tidepool Uploader',
