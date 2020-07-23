@@ -81,7 +81,7 @@
     "eslint-plugin-import": "2.20.1",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-lodash": "6.0.0",
-    "eslint-plugin-react": "7.11.1",
+    "eslint-plugin-react": "7.20.3",
     "file-loader": "2.0.0",
     "fixed-data-table-2": "1.0.2",
     "formik": "2.1.4",
