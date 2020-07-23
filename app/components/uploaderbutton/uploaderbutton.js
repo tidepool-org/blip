@@ -45,8 +45,6 @@ export default translate()(class UploaderButton extends Component {
             onClick={this.props.onClick}
             style={{ textDecoration: 'none' }}>
             <Button
-              // href={URL_UPLOADER_DOWNLOAD_PAGE}
-              // onClick={this.props.onClick}
               className="btn-uploader-download"
               variant="large"
               key={'error'}
@@ -72,8 +70,6 @@ export default translate()(class UploaderButton extends Component {
               style={{ textDecoration: 'none' }}
             >
               <Button
-                // href={this.state.latestWinRelease}
-                // onClick={this.props.onClick}
                 className="btn-download-win"
                 variant="large"
                 key={'pc'}
@@ -88,8 +84,6 @@ export default translate()(class UploaderButton extends Component {
               style={{ textDecoration: 'none' }}
             >
               <Button
-                // href={this.state.latestMacRelease}
-                // onClick={this.props.onClick}
                 className="btn-download-mac"
                 variant="large"
                 key={'mac'}

@@ -122,12 +122,6 @@ describe('UploaderButton', function () {
       errorButton.simulate('click');
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
       expect(props.onClick.calledOnce);
-
-      // NOTE When Button can be used without wrapping it in an <a> tag
-      // const errorButton = wrapper.find('button.btn-uploader-download');
-      // errorButton.simulate('click');
-      // expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).to.have.length(1);
-      // expect(props.onClick.calledOnce);
     });
   });
 });
