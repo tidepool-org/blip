@@ -89,7 +89,7 @@
     "gitbook-cli": "2.3.2",
     "github-api": "3.0.0",
     "history": "4.10.0",
-    "html-webpack-plugin": "4.0.0-alpha.2",
+    "html-webpack-plugin": "4.3.0",
     "i18next": "11.9.0",
     "i18next-parser": "1.0.0-beta9",
     "immutability-helper": "3.0.1",
