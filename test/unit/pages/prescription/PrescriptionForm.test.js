@@ -1,10 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { prescriptionForm, PrescriptionForm } from '../../../../app/pages/prescription/PrescriptionForm';
-import i18next from '../../../../app/core/language';
-import { withFormik } from 'formik';
+import moment from 'moment';
 
-const t = i18next.t.bind(i18next);
+import {
+  generateTherapySettingsOrderText,
+  prescriptionForm,
+  PrescriptionForm,
+} from '../../../../app/pages/prescription/PrescriptionForm';
+
+import { withFormik } from 'formik';
 
 /* global chai */
 /* global sinon */
@@ -16,14 +20,18 @@ const expect = chai.expect;
 
 describe('PrescriptionForm', () => {
   let wrapper;
+  const today = moment().format('MMM D, YYYY');
 
   let defaultProps = {
-    t,
+    t: sinon.stub().callsFake(string => string.replace('{{today}}', today)),
     creatingPrescription: { inProgress: false, completed: false },
     creatingPrescriptionRevision: { inProgress: false, completed: false },
+    trackMetric: sinon.stub(),
   }
 
   beforeEach(() => {
+    defaultProps.trackMetric.resetHistory();
+
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultProps} {...formikProps} />);
     wrapper = mount(<Element {...defaultProps} />);
   });
@@ -63,5 +71,83 @@ describe('PrescriptionForm', () => {
 
     const backButton = actions.find('button.step-back').hostNodes();
     expect(backButton).to.have.length(0);
+  });
+
+  describe('generateTherapySettingsOrderText', () => {
+    it('should generate the therapy settings order text', () => {
+      const patientRows = [
+        {
+          label: 'Name',
+          value: 'Foo McBar'
+        },
+        {
+          label: 'Email Address',
+          value: 'foo@mc.bar'
+        },
+      ];
+
+      const therapySettingsRows = [
+        {
+          label: 'Suspend Threshold',
+          value: '115 mg/dL',
+        },
+        {
+          label: 'Basal Schedules',
+          value: [
+            {
+              label: '00:00',
+              value: '0.25 U/hr',
+            },
+            {
+              label: '02:30',
+              value: '0.2 U/hr',
+            },
+          ],
+        },
+      ];
+
+      const textString = generateTherapySettingsOrderText(patientRows, therapySettingsRows);
+
+      const expectedHeaderText = [
+        'Tidepool Loop therapy settings order',
+        `Exported from Tidepool: ${today}`,
+      ].join('\n');
+
+      const expectedProfileText = [
+        'Patient Profile',
+        'Name: Foo McBar',
+        'Email Address: foo@mc.bar',
+      ].join('\n');
+
+      const expectedTherapySettingsText = [
+        'Suspend Threshold: 115 mg/dL',
+        '',
+        'Basal Schedules',
+        '00:00: 0.25 U/hr',
+        '02:30: 0.2 U/hr',
+      ].join('\n');
+
+      expect(textString).to.equal(`${expectedHeaderText}\n\n${expectedProfileText}\n\n${expectedTherapySettingsText}\n`);
+    });
+  });
+
+  describe('handleCopyTherapySettingsClicked', () => {
+    let wrapper;
+    let reviewStepProps = {
+      ...defaultProps,
+      location: { search: '?prescription-form-steps-step=3,0' },
+    };
+
+    beforeEach(() => {
+      const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...reviewStepProps} {...formikProps} />);
+      wrapper = mount(<Element {...reviewStepProps} />);
+    });
+
+    it('should track a metric when copy as text button is clicked', () => {
+      const copyButton = wrapper.find('button[title="For email or notes"]');
+      sinon.assert.notCalled(defaultProps.trackMetric);
+      copyButton.simulate('click');
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Copy Therapy Settings Order');
+    });
   });
 });

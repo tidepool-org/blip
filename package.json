@@ -54,7 +54,7 @@
     "@storybook/addon-viewport": "5.3.19",
     "@storybook/addons": "5.3.19",
     "@storybook/react": "5.3.19",
-    "@tidepool/viz": "1.12.0",
+    "@tidepool/viz": "1.13.0-web-895-review-copy-clipboard.2",
     "async": "2.6.1",
     "autoprefixer": "9.1.5",
     "babel-core": "7.0.0-bridge.0",
