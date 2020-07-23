@@ -21,7 +21,7 @@ const UploaderButton = (props) => {
   const [latestWinRelease, setLatestWinRelease] = useState(null);
   const [latestMacRelease, setLatestMacRelease] = useState(null);
   const [error, setError] = useState(null);
-  const [bothReleases, setBothReleases] = useState();
+  const [releases, setReleases] = useState();
 
   useEffect(() => {
     const uploaderRepo = github.getRepo('tidepool-org/uploader');
@@ -29,14 +29,14 @@ const UploaderButton = (props) => {
       if (err) {
         setError(true);
       }
-      setBothReleases(utils.getUploaderDownloadURL(releases));
+      setReleases(utils.getUploaderDownloadURL(releases));
     });
   }, []);
 
   useEffect(() => {
-    setLatestMacRelease(_.get(bothReleases, 'latestMacRelease'));
-    setLatestWinRelease(_.get(bothReleases, 'latestWinRelease'));
-  }, [bothReleases]);
+    setLatestMacRelease(_.get(releases, 'latestMacRelease'));
+    setLatestWinRelease(_.get(releases, 'latestWinRelease'));
+  }, [releases]);
 
   const renderErrorText = () => {
     return (
@@ -112,7 +112,7 @@ const UploaderButton = (props) => {
 
 UploaderButton.propTypes = {
   onClick: PropTypes.func.isRequired,
-  buttonText: PropTypes.string.isRequired
+  buttonText: PropTypes.string.isRequired,
 };
 
 export default translate()(UploaderButton);

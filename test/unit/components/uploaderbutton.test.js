@@ -11,7 +11,6 @@ import UploaderButton from '../../../app/components/uploaderbutton';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
-// TODO REMOVE .only
 describe('UploaderButton', function () {
   const props = {
     buttonText: 'Get the Tidepool Uploader',
@@ -45,10 +44,10 @@ describe('UploaderButton', function () {
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
-      });
+      // wrapper.instance().getWrappedInstance().setState({
+      //   latestWinRelease: null,
+      //   latestMacRelease: null,
+      // });
 
       const macButton = wrapper.find('button.btn-download-mac');
       expect(macButton).to.have.length(1);
@@ -60,11 +59,11 @@ describe('UploaderButton', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
-      });
-      wrapper.update();
+      // wrapper.instance().getWrappedInstance().setState({
+      //   latestMacRelease: 'test',
+      //   latestWinRelease: 'test',
+      // });
+      // wrapper.update();
 
       const macButton = wrapper.find('button.btn-download-mac');
       expect(macButton).to.have.length(1);
@@ -76,10 +75,10 @@ describe('UploaderButton', function () {
     });
 
     it('should display error button if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        error: 'some error',
-      });
-      wrapper.update();
+      // wrapper.instance().getWrappedInstance().setState({
+      //   error: 'some error',
+      // });
+      // wrapper.update();
 
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
       expect(wrapper.find('button.btn-uploader-download')).to.have.length(1);
@@ -87,11 +86,11 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to onClick on Mac Download Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
-      });
-      wrapper.update();
+      // wrapper.instance().getWrappedInstance().setState({
+      //   latestMacRelease: 'test',
+      //   latestWinRelease: 'test',
+      // });
+      // wrapper.update();
 
       const macButton = wrapper.find('a.link-download-mac');
       macButton.simulate('click');
@@ -100,11 +99,11 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to onClick on Windows Download Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
-      });
-      wrapper.update();
+      // wrapper.instance().getWrappedInstance().setState({
+      //   latestMacRelease: 'test',
+      //   latestWinRelease: 'test',
+      // });
+      // wrapper.update();
 
       const winButton = wrapper.find('a.link-download-win');
       winButton.simulate('click');
@@ -113,10 +112,10 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to an onClick event on Download Error Button', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        error: 'some error',
-      });
-      wrapper.update();
+      // wrapper.instance().getWrappedInstance().setState({
+      //   error: 'some error',
+      // });
+      // wrapper.update();
 
       const errorButton = wrapper.find('a.link-uploader-download');
       errorButton.simulate('click');
