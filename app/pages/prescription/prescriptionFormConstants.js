@@ -14,10 +14,10 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
 export const revisionStates = ['draft', 'pending', 'submitted'];
 
-// TODO: placeholder device id's until provided by upcoming devices api
+// TODO: hard-coded device id's until provided by upcoming devices api
 export const placeholderDeviceIds = {
-  dexcom: '5f04d693383c7ba83133f98b',
-  omnipod: '5f04d7063ed246933cd6ea4e',
+  dexcom: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
+  omnipod: '6678c377-928c-49b3-84c1-19e2dafaff8d',
 };
 
 export const pumpDeviceOptions = [
