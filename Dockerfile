@@ -88,6 +88,7 @@ RUN apk --no-cache update \
   && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
+COPY .yarnrc .
 # Only install `node_modules` dependancies needed for production
 RUN yarn install --production --frozen-lockfile
 USER node
