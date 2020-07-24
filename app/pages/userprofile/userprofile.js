@@ -27,10 +27,7 @@ import { validateForm } from '../../core/validation';
 
 import config from '../../config';
 
-import utils from '../../core/utils';
-import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
-import PeopleList from '../../components/peoplelist';
 
 // A different namespace than the default can be specified in translate()
 export var UserProfile = translate()(class extends React.Component {
@@ -107,7 +104,6 @@ export var UserProfile = translate()(class extends React.Component {
       return false;
     };
 
-
     return (
       <div className="profile">
         <div className="container-box-outer profile-subnav">
@@ -139,7 +135,6 @@ export var UserProfile = translate()(class extends React.Component {
     const {t} = this.props;
     var disabled = this.isResettingUserData();
 
-
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -158,7 +153,6 @@ export var UserProfile = translate()(class extends React.Component {
   };
 
   handleSubmit = (formValues) => {
-    var self = this;
 
     this.resetFormStateBeforeSubmit(formValues);
 
@@ -192,7 +186,6 @@ export var UserProfile = translate()(class extends React.Component {
         { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
       ]);
     }
-
 
     var validationErrors = validateForm(form);
 
@@ -273,10 +266,9 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
-  return Object.assign({}, _.pick(ownProps, 'history'), stateProps, {
+  var api = ownProps.api;
+  return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
   });
 };
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);

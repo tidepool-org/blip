@@ -8,11 +8,7 @@ Originally blip used [director](https://github.com/flatiron/director 'GitHub: di
 
 ### ✨ Today ✨
 
-We ripped apart the old `<App/>` component and refactored to bring in React Router as our routing solution in late 2015. Routes are defined in [app/routes.js](https://github.com/tidepool-org/blip/blob/master/app/routes.js 'blip: app/routes.js'). We make extensive use of [the `onEnter` hook](https://github.com/ReactTraining/react-router/blob/master/docs/API.md#onenternextstate-replace-callback 'React Router docs: Router onEnter') for React Router `<Route/>` elements, including the asynchronous option when a callback function is provided as the third argument; this blocks the route transition until the callback is called.
-
-We also sometimes pass our [redux](./Redux.md) store to an `onEnter` hook function in order to access the application state via `store.getState()` in order to determine whether to continue the current route transition or redirect (depending on whether the logged-in user has verified their sign-up e-mail address or not, [for example](https://github.com/tidepool-org/blip/blob/master/app/routes.js#L154 'blip: routes.js requireNotVerified onEnter hook')).
-
-State changes that require URL changes are rare in blip currently (largely because we simply *don't* sync very much application state with the URL). The vast majority of the changes happen in the `onEnter` hooks defined in `routes.js`, but there are a few other places where we redirect in response to user interaction with `browserHistory.push` (`git grep`-ing for this phrase should find all instances for you) or where we redirect inside a "thunk" action creator; the latter instances can be found with a search for `routeActions.push`.
+We ripped apart the old `<App/>` component and refactored to bring in React Router as our routing solution in late 2015. Routes are defined in [app/routes.js](https://github.com/tidepool-org/blip/blob/master/app/routes.js 'blip: app/routes.js').
 
 ### 🚀 The Future
 
@@ -32,10 +28,6 @@ There may be several ways of solving the problem of affecting `routing` state fr
 
 - viz dispatches actions representing state changes that are reflected in the URL (such as the active view) as per usual in a Redux implementation, but no state changes are defined for these action types in the exported `vizReducer`; instead, blip intercepts all such actions (according to their `type`) with a middleware and dispatches a `routeActions.push` action to update the `routing` state
 - viz includes React Router as a dependency and the top-level component exported to blip requires a set of `href`s as props to populate its React Router `<Link/>`s
-
-#### Upgrading to the 4.x version of React Router
-
-The 4.x version of React Router is, as of mid-November 2016, currently in alpha and includes [many breaking changes](https://github.com/ReactTraining/react-router/tree/v4#v4-faq 'GitHub: React Router v4.x FAQ'). The API changes have already caused some controversy in the community, so we'll have to watch the development and assess whether or not it makes sense to upgrade our dependency in blip. Since React Router is a true community project (i.e., not released by Facebook), it seems unlikely that the 3.x version will enjoy long-term support.
 
 [^a]: As a known issue/remaining tech debt from the introduction of React Router and Redux into the blip codebase, we currently have *some* duplication of information across the `routing` and `blip` branches of blip's state tree. A good example is the user ID hash of the PwD whose data is in view on the `/patients/:id/data` path currently used for all data views; this ID is part of the `routing` state as the `:id` param in the path, but it is *also* set as the [`currentPatientInViewId`](https://github.com/tidepool-org/blip/blob/master/app/redux/reducers/misc.js#L194 'GitHub: blip app/redux/reducers/misc.js') in the `blip` branch of the state tree upon successful fetching of the PwD's profile.
 

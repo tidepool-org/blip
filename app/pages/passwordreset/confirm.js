@@ -18,7 +18,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
 import * as actions from '../../redux/actions';
@@ -226,8 +226,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, dispatchProps, {
     resetKey: ownProps.location.query.resetKey,
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    trackMetric: ownProps.trackMetric,
+    api: ownProps.api,
   });
 };
 

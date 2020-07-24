@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { browserHistory } from 'react-router';
 import bows from 'bows';
+import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
+import each from 'lodash/each';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -16,6 +17,8 @@ import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
+import isArray from 'lodash/isArray';
+import { utils as vizUtils } from '@tidepool/viz';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -25,6 +28,7 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import Stepper from '../../components/elements/Stepper';
+import i18next from '../../core/language';
 
 import {
   defaultUnits,
@@ -33,6 +37,8 @@ import {
   validCountryCodes,
 } from './prescriptionFormConstants';
 
+const { TextUtil } = vizUtils.text;
+const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -96,6 +102,35 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
+export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
+  const textUtil = new TextUtil();
+
+  let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
+
+  textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
+    today: moment().format('MMM D, YYYY'),
+  }));
+
+  textString += textUtil.buildTextLine('');
+
+  textString += textUtil.buildTextLine(t('Patient Profile'));
+  each(patientRows, row => textString += textUtil.buildTextLine(row));
+
+  textString += textUtil.buildTextLine('');
+
+  each(therapySettingsRows, row => {
+    if (isArray(row.value)) {
+      textString += textUtil.buildTextLine('');
+      textString += textUtil.buildTextLine(row.label);
+      each(row.value, value => textString += textUtil.buildTextLine(value));
+    } else {
+      textString += textUtil.buildTextLine(row);
+    }
+  });
+
+  return textString;
+};
+
 export const PrescriptionForm = props => {
   const {
     t,
@@ -103,7 +138,10 @@ export const PrescriptionForm = props => {
     createPrescriptionRevision,
     creatingPrescription,
     creatingPrescriptionRevision,
+    location,
     prescription,
+    trackMetric,
+    history,
   } = props;
 
   const {
@@ -131,8 +169,8 @@ export const PrescriptionForm = props => {
   const storageKey = 'prescriptionForm';
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? activeStepsParam[0] : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? activeStepsParam[1] : undefined);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
@@ -174,7 +212,7 @@ export const PrescriptionForm = props => {
       setStepAsyncState(asyncStates.completed);
       if (isLastStep) {
         // TODO: Set a message to display as a toast on the prescriptions page
-        browserHistory.push('/prescriptions');
+        history.push('/prescriptions');
       }
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
@@ -184,6 +222,12 @@ export const PrescriptionForm = props => {
       setActiveStep(step);
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
+    },
+
+    generateTherapySettingsOrderText,
+
+    handleCopyTherapySettingsClicked: () => {
+      trackMetric('Clicked Copy Therapy Settings Order');
     },
 
     singleStepEditComplete: (cancelFieldUpdates) => {
@@ -259,6 +303,7 @@ export const PrescriptionForm = props => {
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
     id: stepperId,
+    location,
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
       if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);

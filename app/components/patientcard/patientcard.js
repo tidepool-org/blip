@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { translate } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import cx from 'classnames';
 import launchCustomProtocol from 'custom-protocol-detection';

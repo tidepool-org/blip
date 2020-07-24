@@ -33,8 +33,8 @@ and [sometimes other function arguments](https://github.com/tidepool-org/blip/bl
 ```js
 let getFetchers = (dispatchProps, ownProps, api, options) => {
   return [
-    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.routeParams.id)
+    dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
+    dispatchProps.fetchPatientData.bind(null, api, options, ownProps.match.params.id)
   ];
 };
 ```

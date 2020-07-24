@@ -4,8 +4,9 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import { BrowserRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
 
 import { RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
 import { mapStateToProps } from '../../../../app/pages/passwordreset/request';
@@ -28,8 +29,7 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>);
       expect(console.error.callCount).to.equal(0);
     });
   });
@@ -44,8 +44,7 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).instance().getWrappedInstance();
       var formInputs = render.formInputs();
       expect(formInputs.length).to.equal(1);
       expect(formInputs[0].name).to.equal('email');
@@ -64,8 +63,7 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).instance();
       var initialState = render.getWrappedInstance().state;
       expect(initialState.success).to.equal(false);
       expect(Object.keys(initialState.formValues).length).to.equal(0);

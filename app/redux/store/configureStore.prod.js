@@ -15,10 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import { createBrowserHistory } from 'history';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import { browserHistory } from 'react-router';
-import { syncHistory, routeReducer } from 'react-router-redux';
+import { connectRouter, routerMiddleware } from 'connected-react-router';
+import qhistory from 'qhistory';
+import { stringify, parse } from 'qs';
 
 import Worker from 'worker-loader?inline!./../../worker/index';
 
@@ -29,11 +31,11 @@ import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
 import createWorkerMiddleware from '../utils/workerMiddleware';
 
-const reduxRouterMiddleware = syncHistory(browserHistory);
+export const history = qhistory(createBrowserHistory(), stringify, parse);
 
 const reducer = combineReducers({
   blip: reducers,
-  routing: routeReducer,
+  router: connectRouter(history),
 });
 
 const worker = new Worker;
@@ -45,7 +47,7 @@ function _createStore(api) {
   const createStoreWithMiddleware = applyMiddleware(
     workerMiddleware,
     thunkMiddleware,
-    reduxRouterMiddleware,
+    routerMiddleware(history),
     createErrorLogger(api),
     trackingMiddleware(api)
   )(createStore);

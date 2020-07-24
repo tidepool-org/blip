@@ -16,22 +16,17 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
-import sundial from 'sundial';
 import { validateForm } from '../../core/validation';
 
 import * as actions from '../../redux/actions';
 
-import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
-
-var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let ClinicianDetails = translate()(class extends React.Component {
   static propTypes = {
@@ -263,10 +258,10 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.updateClinicianProfile.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.trackMetric,
   });
 };
 

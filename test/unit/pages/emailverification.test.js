@@ -4,14 +4,14 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import { BrowserRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
-import { EmailVerification } from '../../../app/pages/emailverification';
-import { mapStateToProps } from '../../../app/pages/emailverification';
+import { EmailVerification, mapStateToProps } from '../../../app/pages/emailverification';
 
 describe('EmailVerification', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -29,8 +29,7 @@ describe('EmailVerification', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(EmailVerification, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      mount(<BrowserRouter><EmailVerification {...props} /></BrowserRouter>);
       expect(console.error.callCount).to.equal(0);
     });
   });

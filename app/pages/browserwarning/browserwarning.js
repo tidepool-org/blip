@@ -52,7 +52,7 @@ let mapDispatchToProps = {};
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, stateProps, dispatchProps, {
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.trackMetric
   });
 };
 
