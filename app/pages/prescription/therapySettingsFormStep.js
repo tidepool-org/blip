@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField } from 'formik';
+import { FastField, Field } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 
@@ -106,7 +106,7 @@ export const GlucoseSettings = props => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
   const pumpMeta = deviceMeta(pumpId, bgUnits);
-  const thresholds = warningThresholds(bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -185,7 +185,7 @@ export const InsulinSettings = props => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
   const pumpMeta = deviceMeta(pumpId, bgUnits);
-  const thresholds = warningThresholds(bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -243,13 +243,14 @@ export const InsulinSettings = props => {
             </Box>
           )}
         />
-        <FastField
+        <Field
           as={TextInput}
           type="number"
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
           error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
+          warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
           {...pumpMeta.ranges.basalRateMaximum}
           {...inputStyles}
         />
