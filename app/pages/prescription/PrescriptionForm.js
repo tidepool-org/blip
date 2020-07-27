@@ -260,7 +260,7 @@ export const PrescriptionForm = props => {
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
           fieldPath => {
             const value = get(values, fieldPath);
-            // Return schedule field arrays that are set to the default initial empy string values
+            // Return schedule field arrays that are set to the default initial empty string values
             if (isArray(value) && value.length === 1) {
               return includes(_values(value[0]), '');
             }
