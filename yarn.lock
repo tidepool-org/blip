@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.0-develop.1":
-  version "1.13.0-develop.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-develop.1.tgz#ee270fd7ebcb65c8d2f7e0a0193c75cbcecc8fcc"
-  integrity sha512-17RXireVOy6F/5xkUZ+QjkGEV1gSwN44r6tnQODqd3c8FWZsFwo5SAaV+AD0Z7QQDfv3+ZCUUjgkFtFP25asPw==
+"@tidepool/viz@1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.12.0.tgz#85e31ae078f45294c935addc419c0e18b23bdfa5"
+  integrity sha512-tztRDIH92KEbYsZIPFsK7l97l9G+NYygsOZOXUJIU9FlzBU+qy+0YcXK80cYhanlb3fI6De5tgXoOA84XQ6YXA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -14881,7 +14881,7 @@ reduce-component@1.0.1:
   resolved "https://registry.yarnpkg.com/reduce-component/-/reduce-component-1.0.1.tgz#e0c93542c574521bea13df0f9488ed82ab77c5da"
   integrity sha1-4Mk1QsV0UhvqE98PlIjtgqt3xdo=
 
-"reductio@github:crossfilter/reductio#0c45b03559":
+reductio@crossfilter/reductio#0c45b03559:
   version "0.6.3"
   resolved "https://codeload.github.com/crossfilter/reductio/tar.gz/0c45b0355950101d395d6482e2083ce1cdbcf435"
   dependencies:
@@ -17328,10 +17328,10 @@ tideline@1.18.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.44.0-rc.1:
-  version "0.44.0-rc.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.44.0-rc.1.tgz#09a20a9227c862d1aae6f821ea5870dbb60cd1ee"
-  integrity sha512-LXFNQA4yB+zMh5XlP4SqfAyO5QPKt3oTQJETZN60KQOiKxc1CodCUFOHweFVw8eDshIgUWVlJ1YHjCYCdzi33A==
+tidepool-platform-client@0.43.0:
+  version "0.43.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.43.0.tgz#40b032a39012533d976d9bb85aa126b8f5a74cf9"
+  integrity sha512-Xlsuy9tKsxF0mqdVOv/bt7PjFyTFIV6zl28VUiMBVg8pSUoZa4yHU9XceLYWjX/JBABz0jjgpij+4Y9R3v+iuw==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"
