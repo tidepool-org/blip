@@ -60,13 +60,26 @@ describe('prescriptionFormConstants', function() {
   });
 
   describe('warningThresholds', () => {
+    const minBasal = 0.05;
+    const maxBasal = 0.1;
+    const meta = {
+      initialSettings: { basalRateSchedule: { value: [
+        { rate: minBasal },
+        { rate: maxBasal },
+      ] } },
+    };
+
     const lowWarning = 'The value you have entered is lower than Tidepool typically recommends for most people.';
     const highWarning = 'The value you have entered is higher than Tidepool typically recommends for most people.';
+    const basalRateMaximumWarning = 'Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of 0.1 U/hr.';
 
     it('should export the warning thresholds with mg/dL as default bg unit', () => {
-      expect(prescriptionFormConstants.warningThresholds()).to.eql({
+      expect(prescriptionFormConstants.warningThresholds(null, meta)).to.eql({
         basalRate: {
           low: { value: 0, message: lowWarning },
+        },
+        basalRateMaximum: {
+          high: { value: maxBasal * 6 + 0.01, message: basalRateMaximumWarning },
         },
         bloodGlucoseTarget: {
           low: { value: 70, message: lowWarning },
@@ -92,7 +105,7 @@ describe('prescriptionFormConstants', function() {
     });
 
     it('should export the warning thresholds with mmoll/L as provided', () => {
-      const thresholds = prescriptionFormConstants.warningThresholds('mmol/L');
+      const thresholds = prescriptionFormConstants.warningThresholds('mmol/L', meta);
 
       expect(thresholds.bloodGlucoseTarget.low.value).to.equal(3.9);
       expect(thresholds.bloodGlucoseTarget.high.value).to.equal(6.7);

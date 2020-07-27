@@ -2,6 +2,8 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'rebass/styled-components';
 import defaultsDeep from 'lodash/defaultsDeep';
+import map from 'lodash/map';
+import max from 'lodash/max';
 
 import i18next from '../../core/language';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -14,10 +16,10 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
 export const revisionStates = ['draft', 'pending', 'submitted'];
 
-// TODO: placeholder device id's until provided by upcoming devices api
+// TODO: hard-coded device id's until provided by upcoming devices api
 export const placeholderDeviceIds = {
-  dexcom: '5f04d693383c7ba83133f98b',
-  omnipod: '5f04d7063ed246933cd6ea4e',
+  dexcom: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
+  omnipod: '6678c377-928c-49b3-84c1-19e2dafaff8d',
 };
 
 export const pumpDeviceOptions = [
@@ -49,50 +51,6 @@ export const defaultUnits = {
   bolusAmount: 'Units',
   insulinCarbRatio: 'g/U',
   bloodGlucose: MGDL_UNITS,
-};
-
-export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose) => {
-  const lowWarning = t('The value you have entered is lower than Tidepool typically recommends for most people.');
-  const highWarning = t('The value you have entered is higher than Tidepool typically recommends for most people.');
-
-  const thresholds = {
-    basalRate: {
-      low: { value: 0, message: lowWarning },
-    },
-    bloodGlucoseTarget: {
-      low: { value: 70, message: lowWarning },
-      high: { value: 120, message: highWarning },
-    },
-    bolusAmountMaximum: {
-      low: { value: 0, message: lowWarning },
-      high: { value: 20, message: highWarning },
-    },
-    carbRatio: {
-      low: { value: 3, message: lowWarning },
-      high: { value: 28, message: highWarning },
-    },
-    insulinSensitivityFactor: {
-      low: { value: 15, message: lowWarning },
-      high: { value: 400, message: highWarning },
-    },
-    // suspendThreshold: {
-    //   low: { value: 70, message: lowWarning },
-    //   high: { value: 120, message: highWarning },
-    // },
-  };
-
-  if (bgUnits === MMOLL_UNITS) {
-    thresholds.bloodGlucoseTarget.low.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.bloodGlucoseTarget.high.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.high.value, MMOLL_UNITS), MMOLL_UNITS);
-
-    thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
-
-    // thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    // thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
-  }
-
-  return thresholds;
 };
 
 export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
@@ -131,6 +89,58 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
   }
 
   return ranges;
+};
+
+export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => {
+  const lowWarning = t('The value you have entered is lower than Tidepool typically recommends for most people.');
+  const highWarning = t('The value you have entered is higher than Tidepool typically recommends for most people.');
+
+  const maxBasalRate = max(map(meta.initialSettings.basalRateSchedule.value, 'rate'));
+  const basalRateMaximumWarning = t('Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of {{value}} U/hr.', {
+    value: maxBasalRate,
+  });
+
+  const thresholds = {
+    basalRate: {
+      low: { value: 0, message: lowWarning },
+    },
+    basalRateMaximum: {
+      high: { value: maxBasalRate * 6 + 0.01, message: basalRateMaximumWarning }
+    },
+    bloodGlucoseTarget: {
+      low: { value: 70, message: lowWarning },
+      high: { value: 120, message: highWarning },
+    },
+    bolusAmountMaximum: {
+      low: { value: 0, message: lowWarning },
+      high: { value: 20, message: highWarning },
+    },
+    carbRatio: {
+      low: { value: 3, message: lowWarning },
+      high: { value: 28, message: highWarning },
+    },
+    insulinSensitivityFactor: {
+      low: { value: 15, message: lowWarning },
+      high: { value: 400, message: highWarning },
+    },
+    // suspendThreshold: {
+    //   low: { value: 70, message: lowWarning },
+    //   high: { value: 120, message: highWarning },
+    // },
+  };
+
+  if (bgUnits === MMOLL_UNITS) {
+    thresholds.bloodGlucoseTarget.low.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.bloodGlucoseTarget.high.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTarget.high.value, MMOLL_UNITS), MMOLL_UNITS);
+
+    thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
+
+    // thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    // thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+  }
+
+  return thresholds;
 };
 
 // TODO: placeholder device-specific values until provided by the upcoming devices api.

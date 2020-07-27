@@ -88,11 +88,13 @@ RUN apk --no-cache update \
   && apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
+COPY .yarnrc .
 # Only install `node_modules` dependancies needed for production
 RUN yarn install --production --frozen-lockfile
 USER node
 # Copy only files needed to run the server
 COPY --from=build /app/dist dist
+COPY --from=build /app/tilt tilt
 COPY --from=build \
   /app/config.server.js \
   /app/package.json \

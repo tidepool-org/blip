@@ -18,6 +18,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
 import isArray from 'lodash/isArray';
+import { default as _values } from 'lodash/values';
+import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
@@ -256,7 +258,15 @@ export const PrescriptionForm = props => {
       if (!isLastStep) {
         const emptyFieldsInFutureSteps = remove(
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
-          fieldPath => isEmpty(get(values, fieldPath))
+          fieldPath => {
+            const value = get(values, fieldPath);
+            // Return schedule field arrays that are set to the default initial empty string values
+            if (isArray(value) && value.length === 1) {
+              return includes(_values(value[0]), '');
+            }
+            // Return empty values for non-array fields
+            return isEmpty(value);
+          }
         );
 
         // Add empty future fields to the array of fieldpaths to delete.
