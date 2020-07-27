@@ -40,7 +40,7 @@ describe('prescriptionSchema', function() {
       'pumpId',
       'cgmId',
       // 'insulinModel',
-      // 'suspendThreshold',
+      'suspendThreshold',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',
@@ -49,10 +49,10 @@ describe('prescriptionSchema', function() {
       'insulinSensitivitySchedule',
     ]);
 
-    // expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
-    //   'value',
-    //   'units',
-    // ]);
+    expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
+      'value',
+      'units',
+    ]);
 
     expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([
       'value',

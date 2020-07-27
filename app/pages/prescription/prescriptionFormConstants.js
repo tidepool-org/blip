@@ -71,7 +71,7 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
     carbRatio: { min: 1, max: 150, step: 1 },
     insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-    // suspendThreshold: { min: 54, max: 180, step: 1 },
+    suspendThreshold: { min: 54, max: 180, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -83,9 +83,9 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.step = 0.1;
 
-    // ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    // ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
-    // ranges.suspendThreshold.step = 0.1;
+    ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.step = 0.1;
   }
 
   return ranges;
@@ -123,10 +123,10 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => 
       low: { value: 15, message: lowWarning },
       high: { value: 400, message: highWarning },
     },
-    // suspendThreshold: {
-    //   low: { value: 70, message: lowWarning },
-    //   high: { value: 120, message: highWarning },
-    // },
+    suspendThreshold: {
+      low: { value: 70, message: lowWarning },
+      high: { value: 120, message: highWarning },
+    },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -136,8 +136,8 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => 
     thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
     thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    // thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    // thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
@@ -202,7 +202,7 @@ export const stepValidationFields = [
   [
     [
       'training',
-      // 'initialSettings.suspendThreshold.value',
+      'initialSettings.suspendThreshold.value',
       // 'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',

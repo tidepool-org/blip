@@ -99,12 +99,12 @@ const therapySettingsRows = meta => {
         }
       ),
     },
-    // {
-    //   id: 'suspend-threshold',
-    //   label: t('Suspend Threshold'),
-    //   value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-    //   warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
-    // },
+    {
+      id: 'suspend-threshold',
+      label: t('Suspend Threshold'),
+      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+    },
     // {
     //   id: 'insulin-model',
     //   label: t('Insulin Model'),

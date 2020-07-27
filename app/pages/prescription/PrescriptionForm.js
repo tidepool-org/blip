@@ -64,10 +64,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
       cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
       // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-      // suspendThreshold: {
-      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-      //   units: defaultUnits.suspendThreshold,
-      // },
+      suspendThreshold: {
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
+        units: defaultUnits.suspendThreshold,
+      },
       basalRateMaximum: {
         value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,

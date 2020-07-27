@@ -31,7 +31,7 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${pumpMeta.ranges.carbRatio.min}-${pumpMeta.ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${pumpMeta.ranges.insulinSensitivityFactor.min}-${pumpMeta.ranges.insulinSensitivityFactor.max}`,
-    // suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
+    suspendThreshold: `Threshold out of range. Please select a value between ${pumpMeta.ranges.suspendThreshold.min}-${pumpMeta.ranges.suspendThreshold.max}`,
   };
 
   return yup.object().shape({
@@ -81,13 +81,13 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       // insulinModel: yup.string()
       //   .oneOf(map(insulinModelOptions, 'value'))
       //   .required(t('An insulin model must be specified')),
-      // suspendThreshold: yup.object().shape({
-      //   value: yup.number()
-      //     .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-      //     .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
-      //     .required(t('Suspend threshold is required')),
-      //   units: yup.string().default(bgUnits),
-      // }),
+      suspendThreshold: yup.object().shape({
+        value: yup.number()
+          .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
+          .max(pumpMeta.ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
+          .required(t('Suspend threshold is required')),
+        units: yup.string().default(bgUnits),
+      }),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(pumpMeta.ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)

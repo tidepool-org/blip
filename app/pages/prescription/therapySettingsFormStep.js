@@ -150,29 +150,29 @@ export const GlucoseSettings = props => {
           />
         </Box>
 
-        {/* <PopoverLabel
-            id='suspend-threshold'
-            label={t('Suspend Threshold')}
-            mb={2}
-            popoverContent={(
-              <Box p={3}>
-                <Paragraph2>
-                  {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
-                </Paragraph2>
-              </Box>
-            )}
-          />
-          <FastField
-            as={TextInput}
-            type="number"
-            id="initialSettings.suspendThreshold.value"
-            name="initialSettings.suspendThreshold.value"
-            suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.suspendThreshold.value)}
-            warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
-            {...pumpMeta.ranges.suspendThreshold}
-            {...{ ...inputStyles, themeProps: { mb: 3 }}}
-          /> */}
+        <PopoverLabel
+          id='suspend-threshold'
+          label={t('Suspend Threshold')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={TextInput}
+          type="number"
+          id="initialSettings.suspendThreshold.value"
+          name="initialSettings.suspendThreshold.value"
+          suffix={bgUnits}
+          error={getFieldError(meta.initialSettings.suspendThreshold.value)}
+          warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
+          {...pumpMeta.ranges.suspendThreshold}
+          {...{ ...inputStyles, themeProps: { mb: 3 }}}
+        />
       </Box>
     </Box>
   );
