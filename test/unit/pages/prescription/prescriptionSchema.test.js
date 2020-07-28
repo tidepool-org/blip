@@ -67,9 +67,15 @@ describe('prescriptionSchema', function() {
 
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'context',
       'high',
       'low',
       'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context.type).to.equal('object');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context._nodes).to.be.an('array').and.have.members([
+      'min',
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');
