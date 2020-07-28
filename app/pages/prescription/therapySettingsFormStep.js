@@ -64,7 +64,7 @@ export const PatientTraining = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits);
+  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -105,13 +105,37 @@ export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits);
+  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
   const thresholds = warningThresholds(bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Glucose Settings')}</Title>
       <Box px={3}>
+        <PopoverLabel
+          id='suspend-threshold'
+          label={t('Suspend Threshold')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={TextInput}
+          type="number"
+          id="initialSettings.suspendThreshold.value"
+          name="initialSettings.suspendThreshold.value"
+          suffix={bgUnits}
+          error={getFieldError(meta.initialSettings.suspendThreshold.value)}
+          warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
+          {...pumpMeta.ranges.suspendThreshold}
+          {...{ ...inputStyles, themeProps: { mb: 3 }}}
+        />
+
         <PopoverLabel
           id='correction-range'
           label={t('Correction Range')}
@@ -137,6 +161,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
+                ...pumpMeta.ranges.bloodGlucoseTarget,
               },
               {
                 label: t('Upper Target'),
@@ -144,35 +169,12 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
+                ...pumpMeta.ranges.bloodGlucoseTarget,
               },
             ]}
             separator="-"
           />
         </Box>
-
-        <PopoverLabel
-          id='suspend-threshold'
-          label={t('Suspend Threshold')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-        <FastField
-          as={TextInput}
-          type="number"
-          id="initialSettings.suspendThreshold.value"
-          name="initialSettings.suspendThreshold.value"
-          suffix={bgUnits}
-          error={getFieldError(meta.initialSettings.suspendThreshold.value)}
-          warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
-          {...pumpMeta.ranges.suspendThreshold}
-          {...{ ...inputStyles, themeProps: { mb: 3 }}}
-        />
       </Box>
     </Box>
   );
@@ -184,7 +186,7 @@ export const InsulinSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits);
+  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
   const thresholds = warningThresholds(bgUnits, meta);
 
   return (
