@@ -124,7 +124,7 @@ class UserProfile extends React.Component {
       ];
       if (CROWDIN_ACTIVE) {
         // Special "pseudo" language for crowdin live preview
-        locales.push({ value: 'it', label: 'Crowdin' });
+        locales.push({ value: 'co', label: 'Crowdin' });
       }
       inputs.push({
         name: 'lang',

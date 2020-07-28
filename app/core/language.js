@@ -7,7 +7,7 @@ import mainEN from '../../locales/en/translation.json';
 import parameterEN from '../../locales/en/parameter.json';
 import mainFR from '../../locales/fr/translation.json';
 import parameterFR from '../../locales/fr/parameter.json';
-import mainIT from '../../locales/it/translation.json';
+import mainCO from '../../locales/co/translation.json';
 
 const crowdinActive = typeof _jipt === 'object';
 
@@ -64,9 +64,9 @@ const i18nOptions = {
 i18n.use(reactI18nextModule);
 
 if (crowdinActive) {
-  i18nOptions.fallbackLng = 'it';
-  i18nOptions.resources.it = {
-    main: mainIT,
+  i18nOptions.fallbackLng = 'co';
+  i18nOptions.resources.co = {
+    main: mainCO,
     params: parameterEN
   }
 
@@ -80,7 +80,7 @@ i18n.on('languageChanged', (lng) => {
     language = lng;
 
     // Update moment locale, but if crowdin is enabled then force 'en'
-    if (crowdinActive && lng === 'it') {
+    if (crowdinActive && lng === 'co') {
       moment.locale('en');
     } else {
       moment.locale(lng);
