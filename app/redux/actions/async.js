@@ -28,7 +28,7 @@ import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
 
-import { routeActions } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
@@ -86,7 +86,7 @@ export function signup(api, accountDetails) {
           dispatch(acceptTerms(api, accountDetails.termsAccepted, user.userid));
         }
         dispatch(sync.signupSuccess(user));
-        dispatch(routeActions.push('/email-verification'));
+        dispatch(push('/email-verification'));
       }
     });
   };
@@ -113,7 +113,7 @@ export function confirmSignup(api, signupKey, signupEmail) {
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
         }
       } else {
         dispatch(sync.confirmSignupSuccess())
@@ -203,9 +203,9 @@ export function acceptTerms(api, acceptedDate, userId) {
         if (loggedInUserId) {
           dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
           if(personUtils.isClinic(user)){
-            dispatch(routeActions.push('/clinician-details'));
+            dispatch(push('/clinician-details'));
           } else {
-            dispatch(routeActions.push('/patients?justLoggedIn=true'));
+            dispatch(push('/patients?justLoggedIn=true'));
           }
         } else {
           dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
@@ -234,7 +234,7 @@ export function login(api, credentials, options, postLoginAction) {
 
         if (err.status === 403) {
           dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
-          dispatch(routeActions.push('/email-verification'));
+          dispatch(push('/email-verification'));
         } else {
           dispatch(sync.loginFailure(error, err));
         }
@@ -264,7 +264,7 @@ export function login(api, credentials, options, postLoginAction) {
                   if (postLoginAction) {
                     dispatch(postLoginAction());
                   }
-                  dispatch(routeActions.push(redirectRoute));
+                  dispatch(push(redirectRoute));
                 }
               }));
             } else {
@@ -272,7 +272,7 @@ export function login(api, credentials, options, postLoginAction) {
               if (postLoginAction) {
                 dispatch(postLoginAction());
               }
-              dispatch(routeActions.push(redirectRoute));
+              dispatch(push(redirectRoute));
             }
           }
         }));
@@ -293,7 +293,7 @@ export function logout(api) {
     dispatch(worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
-      dispatch(routeActions.push('/'));
+      dispatch(push('/'));
     });
   }
 }
@@ -316,7 +316,7 @@ export function setupDataStorage(api, patient) {
         ));
       } else {
         dispatch(sync.setupDataStorageSuccess(loggedInUserId, createdPatient));
-        dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
+        dispatch(push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
@@ -548,7 +548,6 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
-        console.log(updatedPreferences)
         dispatch(sync.updatePreferencesSuccess(updatedPreferences));
       }
     });
@@ -679,7 +678,7 @@ export function updateClinicianProfile(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
-        dispatch(routeActions.push('/patients?justLoggedIn=true'));
+        dispatch(push('/patients?justLoggedIn=true'));
       }
     });
   };
@@ -961,10 +960,6 @@ export function fetchPatientData(api, options, id) {
           endDate: moment.utc(serverTime).add(1, 'days').toISOString(),
         };
 
-        // As a temporary workaround to some inefficiencies for this query on large datasets, we are
-        // passing in an initial startDate param in the patientdata.js initial data fetcher.
-        if (options.initialStartDate) latestDatumsFetchParams.startDate = options.initialStartDate;
-
         api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
           if (err) {
             dispatch(sync.fetchPatientDataFailure(
@@ -1030,7 +1025,7 @@ export function fetchPatientData(api, options, id) {
     }
 
     function handleFetchSuccess(data, patientId, options) {
-      const { blip: { working }, routing: { location } } = getState();
+      const { blip: { working }, router: { location } } = getState();
       const fetchingPatientId = _.get(working, 'fetchingPatientData.patientId');
 
       dispatch(sync.fetchPatientDataSuccess(id));
@@ -1085,6 +1080,94 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
+  };
+}
+
+/**
+ * Fetch Prescriptions Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ */
+export function fetchPrescriptions(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPrescriptionsRequest());
+
+    api.prescription.getAll((err, prescriptions) => {
+      if (err) {
+        dispatch(sync.fetchPrescriptionsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPrescriptionsSuccess(prescriptions));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {Object} prescription to be created
+ */
+export function createPrescription(api, prescription) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRequest());
+
+    api.prescription.create(prescription, (err, result) => {
+      if (err) {
+        dispatch(sync.createPrescriptionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionSuccess(result));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Revision Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {Object} revision revision to be created
+ * @param  {String} prescriptionID id of prescription to add revision to
+ */
+export function createPrescriptionRevision(api, revision, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRevisionRequest());
+
+    api.prescription.createRevision(revision, prescriptionId, (err, prescription) => {
+      if (err) {
+        dispatch(sync.createPrescriptionRevisionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionRevisionSuccess(prescription));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Prescription Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {String} prescriptionID id of prescription to be deleted
+ */
+export function deletePrescription(api, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.deletePrescriptionRequest());
+
+    api.prescription.delete(prescriptionId, (err) => {
+      if (err) {
+        dispatch(sync.deletePrescriptionFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.deletePrescriptionSuccess(prescriptionId));
+      }
+    });
   };
 }
 

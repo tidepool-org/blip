@@ -23,7 +23,6 @@ import _ from 'lodash';
 import i18next from '../../core/language';
 import config from '../../config';
 import LoginNav from '../../components/loginnav';
-import utils  from '../../core/utils';
 import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 
 import * as actions from '../../redux/actions';
@@ -280,10 +279,10 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.acceptTerms.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.trackMetric
   });
 };
 

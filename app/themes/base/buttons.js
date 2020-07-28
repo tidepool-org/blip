@@ -1,10 +1,10 @@
-export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, lineHeights }) => {
+export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }) => {
   const defaultStyles = {
     fontSize: `${fontSizes[2]}px`,
     fontWeight: fontWeights.regular,
-    lineHeight: lineHeights[0],
+    lineHeight: 0,
     fontFamily: fonts.default,
-    padding: `${space[1]}px ${space[3]}px`,
+    padding: `${space[2]}px ${space[3]}px`,
     height: 'auto',
 
     '.icon': {
@@ -20,9 +20,9 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       borderColor: colors.purpleMedium,
       color: colors.white,
       borderRadius: radii.default,
-      '&:hover,&:active': {
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
+      '&.selected': {
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -38,8 +38,8 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       borderRadius: radii.default,
       '&:hover,&:active': {
         color: colors.white,
-        backgroundColor: colors.text.primary,
-        borderColor: colors.text.primary,
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,
@@ -95,17 +95,17 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       },
       '&:active': {
         backgroundColor: colors.blues[0],
-        color: colors.text.link,
+        color: colors.purpleBright,
       },
       '&:disabled': {
         color: colors.text.primaryDisabled,
       },
       '&.selected': {
-        backgroundColor: colors.text.primary,
+        backgroundColor: colors.blueGreyDark,
         color: colors.white,
 
         '&:disabled': {
-          backgroundColor: colors.text.primaryDisabled,
+          backgroundColor: colors.blueGreyLight,
         },
       },
     },
@@ -125,8 +125,79 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights, 
       '&:hover': {
         borderColor: colors.grays[2],
       },
-      '&:active, &.active': {
+      '&:active, &.selected': {
         borderColor: colors.purpleMedium,
+      },
+      '&:disabled': {
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
+        color: colors.text.primaryDisabled,
+      },
+    },
+    chip: {
+      ...defaultStyles,
+      backgroundColor: colors.white,
+      color: colors.text.primary,
+      border: borders.input,
+      borderColor: colors.grays[1],
+      borderRadius: radii.full,
+      fontSize: `${fontSizes[1]}px`,
+      fontWeight: fontWeights.medium,
+      padding: `7px ${space[5]}px`,
+
+      '&.processing': {
+        color: colors.white,
+        backgroundColor: colors.purpleMedium,
+        borderColor: colors.purpleMedium,
+
+        '.MuiCircularProgress-root': {
+          width: `${fontSizes[2]}px !important`,
+          height: `${fontSizes[2]}px !important`,
+        },
+      },
+      '.icon': {
+        fontSize: `${fontSizes[2]}px`,
+      },
+      '&:hover': {
+        borderColor: colors.grays[2],
+      },
+      '&:active': {
+        color: colors.white,
+        backgroundColor: colors.purpleMedium,
+        borderColor: colors.purpleMedium,
+      },
+      '&.selected': {
+        color: colors.white,
+        backgroundColor: colors.blueGreyDark,
+        borderColor: colors.blueGreyDark,
+      },
+      '&:disabled': {
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
+        color: colors.text.primaryDisabled,
+      },
+      ':focus': {
+        outline: 'none',
+        boxShadow: '0px 0px 0px 2px Highlight',
+      },
+      '@media (-webkit-min-device-pixel-ratio:0)': {
+        ':focus': {
+          boxShadow: `0px 0px 0px 1px ${colors.border.webkitFocus}`,
+        },
+      },
+    },
+    large: {
+      ...defaultStyles,
+      backgroundColor: colors.purpleMedium,
+      border: borders.input,
+      borderColor: colors.purpleMedium,
+      color: colors.white,
+      borderRadius: radii.large,
+      fontSize: `${fontSizes[4]}px`,
+      padding: `${space[5]}px ${space[6]}px`,
+      '&:hover,&:active': {
+        backgroundColor: colors.purpleDark,
+        borderColor: colors.purpleDark,
       },
       '&:disabled': {
         backgroundColor: colors.lightestGrey,

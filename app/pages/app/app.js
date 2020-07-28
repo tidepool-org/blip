@@ -42,11 +42,11 @@ export class AppComponent extends React.Component {
     fetchingPendingSentInvites: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.shape({
       inProgress: PropTypes.bool.isRequired,
-      completed: PropTypes.oneOfType([null, PropTypes.bool]),
+      completed: PropTypes.bool,
     }).isRequired,
     fetchingDataSources: PropTypes.shape({
       inProgress: PropTypes.bool.isRequired,
-      completed: PropTypes.oneOfType([null, PropTypes.bool]),
+      completed: PropTypes.bool,
     }).isRequired,
     location: PropTypes.string.isRequired,
     loggingOut: PropTypes.bool.isRequired,
@@ -83,7 +83,6 @@ export class AppComponent extends React.Component {
     userIsDonor: PropTypes.bool.isRequired,
     userIsSupportingNonprofit: PropTypes.bool.isRequired,
     permsOfLoggedInUser: PropTypes.object,
-    resendEmailVerificationProgress: PropTypes.bool.isRequired,
     resentEmailVerification: PropTypes.bool.isRequired,
   };
 
@@ -309,7 +308,8 @@ export class AppComponent extends React.Component {
             onClick={onClickShareDataBanner}
             onClose={onDismissShareDataBanner}
             trackMetric={this.props.context.trackMetric}
-            patient={patient} />
+            patient={patient}
+            history={this.props.history}/>
         </div>
       );
     }
@@ -706,9 +706,16 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
-    context: ownProps.route,
+    context: {
+      DEBUG: ownProps.DEBUG,
+      api: ownProps.api,
+      config: ownProps.config,
+      log: ownProps.log,
+      personUtils: ownProps.personUtils,
+      trackMetric: ownProps.trackMetric,
+    },
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,

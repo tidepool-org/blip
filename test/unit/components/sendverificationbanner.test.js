@@ -18,7 +18,6 @@ describe('SendVerificationBanner', () => {
     patient: { userid: 1234, username: 'test@example.com' },
     trackMetric: sinon.stub(),
     resendVerification: sinon.stub(),
-    resendEmailVerificationProgress: false,
     resentEmailVerification: false,
   };
 

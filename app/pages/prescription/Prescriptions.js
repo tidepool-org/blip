@@ -1,43 +1,45 @@
 import React from 'react';
-import { browserHistory } from 'react-router';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import values from 'lodash/values';
+import map from 'lodash/map';
+import get from 'lodash/get';
 
 import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
-import { useLocalStorage } from '../../core/hooks';
+import withPrescriptions from './withPrescriptions';
 
 const Prescriptions = props => {
-  const { t } = props;
+  const {
+    t,
+    deletePrescription,
+    deletingPrescription,
+    prescriptions = [],
+  } = props;
 
   const [searchText, setSearchText] = React.useState();
 
-  // TODO: Get prescriptions from backend service when ready
-  const [prescriptions] = useLocalStorage('prescriptions', {});
-
-  const data = values(prescriptions);
+  const data = map(prescriptions, prescription => ({
+    id: get(prescription, 'id'),
+    ...get(prescription, 'latestRevision.attributes', {}),
+  }));
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
   }
 
-  const handleAddNew = () => browserHistory.push('prescriptions/new');
-
-  const handleEdit = id => () => browserHistory.push({
-    pathname: `prescriptions/${id}/edit`,
-    state: {
-      prescription: prescriptions[id],
-      foo: 'bar',
-    },
-  });
-
+  const handleAddNew = () => props.history.push('/prescriptions/new');
+  const handleEdit = id => () => props.history.push(`/prescriptions/${id}/edit`);
+  const handleDelete = id => () => deletePrescription(id);
 
   const renderEdit = ({ id }) => (
     <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>
+  );
+
+  const renderDelete = ({ id }) => (
+    <Button processing={deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
   );
 
   const renderState = ({ state }) => {
@@ -59,7 +61,7 @@ const Prescriptions = props => {
     const stateColors = colors[state] || {
       color: 'text.primary',
       bg: 'transparent',
-    }
+    };
 
     return <Text as="span" px={2} py={1} fontWeight="medium" sx={{ borderRadius: 4 }} color={stateColors.color} bg={stateColors.bg}>{state}</Text>;
   };
@@ -70,6 +72,7 @@ const Prescriptions = props => {
     { title: t('MRN #'), field: 'mrn', align: 'left', searchable: true },
     { title: t('State'), field: 'state', render: renderState, align: 'left', sortable: true},
     { title: t('Edit'), field: 'edit', render: renderEdit, align: 'left' },
+    { title: t('Delete'), field: 'delete', render: renderDelete, align: 'left' },
   ];
 
   return (
@@ -107,4 +110,4 @@ const Prescriptions = props => {
   );
 };
 
-export default translate()(Prescriptions);
+export default withPrescriptions(translate()(Prescriptions));

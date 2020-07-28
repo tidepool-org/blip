@@ -6,6 +6,7 @@
 var React = require('react');
 var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
+var BrowserRouter = require('react-router-dom').BrowserRouter;
 
 var LoginNav = require('../../../app/components/loginnav');
 
@@ -21,7 +22,8 @@ describe('LoginNav', function () {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(LoginNav, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      var wrapper = React.createElement(BrowserRouter, null, elem);
+      var render = TestUtils.renderIntoDocument(wrapper);
       expect(render).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });

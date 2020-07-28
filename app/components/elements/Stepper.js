@@ -34,7 +34,7 @@ const StyledStepper = styled(Base)`
     height: 3px;
     top: -2px;
     position: relative;
-    background-color: ${colors.text.link};
+    background-color: ${colors.purpleBright};
     transition: ${transitions.easeOut};
   }
 
@@ -164,7 +164,13 @@ export const Stepper = props => {
   };
 
   const handleActiveStepOnComplete = () => {
-    if (isFunction(steps[activeStep].onComplete)) steps[activeStep].onComplete();
+    let advanceStep = true;
+
+    if (isFunction(steps[activeStep].onComplete)) {
+      advanceStep = steps[activeStep].onComplete() !== false;
+    }
+
+    return advanceStep;
   };
 
   const completeAsyncStep = () => {
@@ -248,21 +254,22 @@ export const Stepper = props => {
     setSkipped(newSkipped);
 
     if (stepHasSubSteps(activeStep)) {
+      let advanceSubStep = true;
       if (isFunction(steps[activeStep].subSteps[activeSubStep].onComplete)) {
-        steps[activeStep].subSteps[activeSubStep].onComplete();
+        advanceSubStep = steps[activeStep].subSteps[activeSubStep].onComplete() !== false;
       }
       if (activeSubStep < steps[activeStep].subSteps.length - 1) {
-        setActiveSubStep(activeSubStep + 1);
+        if (advanceSubStep) setActiveSubStep(activeSubStep + 1);
       } else {
         if (!pending) {
-          handleActiveStepOnComplete();
-          advanceActiveStep();
+          const advanceStep = handleActiveStepOnComplete();
+          if (advanceStep) advanceActiveStep();
         }
       }
     } else {
       if (!pending) {
-        handleActiveStepOnComplete();
-        advanceActiveStep();
+        const advanceStep = handleActiveStepOnComplete();
+        if (advanceStep) advanceActiveStep();
       }
     }
   };

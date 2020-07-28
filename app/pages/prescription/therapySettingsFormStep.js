@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField } from 'formik';
+import { FastField, Field } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 
@@ -15,7 +15,7 @@ import ScheduleForm from './ScheduleForm';
 
 import {
   deviceMeta,
-  insulinTypeOptions,
+  // insulinModelOptions,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -104,9 +104,9 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpType = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpType, bgUnits);
-  const thresholds = warningThresholds(bgUnits);
+  const pumpId = meta.initialSettings.pumpId.value;
+  const pumpMeta = deviceMeta(pumpId, bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -150,7 +150,7 @@ export const GlucoseSettings = props => {
           />
         </Box>
 
-        <PopoverLabel
+        {/* <PopoverLabel
             id='suspend-threshold'
             label={t('Suspend Threshold')}
             mb={2}
@@ -172,7 +172,7 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
             {...pumpMeta.ranges.suspendThreshold}
             {...{ ...inputStyles, themeProps: { mb: 3 }}}
-          />
+          /> */}
       </Box>
     </Box>
   );
@@ -185,13 +185,13 @@ export const InsulinSettings = props => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
   const pumpId = meta.initialSettings.pumpId.value;
   const pumpMeta = deviceMeta(pumpId, bgUnits);
-  const thresholds = warningThresholds(bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
-        <PopoverLabel
+        {/* <PopoverLabel
           id='insulin-model'
           label={t('Insulin Model')}
           mb={2}
@@ -221,12 +221,12 @@ export const InsulinSettings = props => {
         <FastField
           as={RadioGroup}
           variant="horizontal"
-          id="initialSettings.insulinType"
-          name="initialSettings.insulinType"
-          options={insulinTypeOptions}
-          error={getFieldError(meta.initialSettings.insulinType)}
+          id="initialSettings.insulinModel"
+          name="initialSettings.insulinModel"
+          options={insulinModelOptions}
+          error={getFieldError(meta.initialSettings.insulinModel)}
           mb={4}
-        />
+        /> */}
 
         <PopoverLabel
           id='max-basal'
@@ -243,13 +243,14 @@ export const InsulinSettings = props => {
             </Box>
           )}
         />
-        <FastField
+        <Field
           as={TextInput}
           type="number"
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
           error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
+          warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
           {...pumpMeta.ranges.basalRateMaximum}
           {...inputStyles}
         />
@@ -348,6 +349,9 @@ export const InsulinSettings = props => {
             <Box p={3}>
               <Paragraph2>
                 {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
+              </Paragraph2>
+              <Paragraph2>
+                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
               </Paragraph2>
             </Box>
           )}

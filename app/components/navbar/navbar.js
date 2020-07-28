@@ -1,6 +1,5 @@
 var React = require('react');
-var IndexLink = require('react-router').IndexLink;
-var Link = require('react-router').Link;
+var Link = require('react-router-dom').Link;
 import PropTypes from 'prop-types';
 
 import { translate } from 'react-i18next';
@@ -55,12 +54,12 @@ export default translate()(class extends React.Component {
     };
 
     return (
-      <IndexLink
+      <Link
         to="/"
         className="Navbar-logo"
         onClick={handleClick}>
         <img src={logoSrc}/>
-      </IndexLink>
+      </Link>
     );
   };
 

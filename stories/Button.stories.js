@@ -26,18 +26,20 @@ export default {
 
 const disabled = () => boolean('Disabled', false);
 const processing = () => boolean('Processing', false);
-const active = () => boolean('Active', false);
 
 export const Primary = () => {
   const buttonText = () => text('Button Text', 'Primary');
+
+  const [selected, setSelected] = React.useState(false);
 
   return (
     <React.Fragment>
       <Button
         variant="primary"
         disabled={disabled()}
-        onClick={action('onClick called')}
         processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
       >
         {buttonText()}
       </Button>
@@ -121,12 +123,13 @@ Text.story = {
 
 export const Filter = () => {
   const buttonText = () => text('Button Text', 'Filter');
+  const selected = () => boolean('Selected', false);
 
   return (
     <React.Fragment>
       <Button
         variant="filter"
-        active={active()}
+        selected={selected()}
         disabled={disabled()}
         onClick={action('onClick called')}
         processing={processing()}
@@ -145,6 +148,76 @@ Filter.story = {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=987%3A145',
+    },
+  },
+};
+
+export const Chip = () => {
+  const button1Text = () => text('Chip 1 Text', 'Chip 1');
+  const button2Text = () => text('Chip 2 Text', 'Chip 2');
+  const [selectedChip, setSelectedChip] = React.useState();
+
+  return (
+    <Flex>
+      <Button
+        mr={2}
+        variant="chip"
+        disabled={disabled()}
+        selected={selectedChip === 'chip1'}
+        onClick={() => setSelectedChip('chip1')}
+        processing={processing()}
+      >
+        {button1Text()}
+      </Button>
+      <Button
+        variant="chip"
+        disabled={disabled()}
+        selected={selectedChip === 'chip2'}
+        onClick={() => setSelectedChip('chip2')}
+        processing={processing()}
+      >
+        {button2Text()}
+      </Button>
+    </Flex>
+  );
+};
+
+Chip.story = {
+  name: 'Chip',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2517%3A161',
+    },
+  },
+};
+
+export const Large = () => {
+  const buttonText = () => text('Button Text', 'Large');
+
+  const [selected, setSelected] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="large"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Large.story = {
+  name: 'Large',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
     },
   },
 };
