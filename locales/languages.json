@@ -1,4 +1,30 @@
-[
-  { "value": "en", "label": "English" },
-  { "value": "fr", "label": "Français" }
-]
+{
+  "fallback": "en",
+  "namespaces": [
+    "main",
+    "params"
+  ],
+  "defaultNS": "main",
+  "crowdin": {
+    "fallback": "lol",
+    "resources": {
+      "name": "Crowdin",
+      "main": {},
+      "params": {}
+    }
+  },
+  "resources": {
+    "en": {
+      "name": "English",
+      "main": {},
+      "params": {}
+    },
+    "fr": {
+      "name": "Français",
+      "main": {
+        "Log in": "Connexion"
+      },
+      "params": {}
+    }
+  }
+}

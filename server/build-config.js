@@ -199,7 +199,7 @@ if (process.env.CROWDIN === 'enabled') {
     console.error(`/!\\ Can't find crowdin pattern in index.html: ${reCrowdin.source} /!\\`);
     process.exit(1);
   }
-  indexHtml = indexHtml.replace(reCrowdin,  `$1${crowdinScripts}\n$3`);
+  indexHtml = indexHtml.replace(reCrowdin, `$1${crowdinScripts}\n$3`);
 } else {
   console.info('- Crowdin is disabled');
   indexHtml = indexHtml.replace(reCrowdin, '$1  <!-- disabled -->\n$3');

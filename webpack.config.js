@@ -150,6 +150,13 @@ const fontLoaderConfiguration = [
   },
 ];
 
+const localesLoader = {
+  test: /locales\/languages\.json$/,
+  use: {
+    loader: './locales-loader.js'
+  }
+};
+
 const plugins = [
   // these values are required in the config.app.js file -- we can't use
   // process.env with webpack, we have to create these magic constants
@@ -222,12 +229,6 @@ const resolve = {
   }
 };
 
-if (isTest) {
-  // Don't make tests to failed when we update a translation in Crowdin
-  resolve.alias['../../locales/en/translation.json'] = '../../test/locales/en/translation.json';
-  resolve.alias['../../locales/fr/translation.json'] = '../../test/locales/fr/translation.json';
-}
-
 let entry = [];
 let devServer;
 if (useWebpackDevServer) {
@@ -275,6 +276,7 @@ module.exports = {
       lessLoaderConfiguration,
       cssLoaderConfiguration,
       ...fontLoaderConfiguration,
+      localesLoader,
     ],
   },
   optimization: {

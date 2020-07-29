@@ -28,8 +28,6 @@ In the above example the `Basics` label will be translated if the related entry 
 Steps:
 - Add the JSON file to `locales/<lang>/translation.json`.
 - Update the `artifact.sh` to allow fetching of the parameters translations (`locales/<lang>/parameter.json`).
-- Update `app/core/language.js` for the new translations.
-- Update `app/pages/userprofile/userprofile.js` for your new translations.
 - Update `locales/languages.json` with the new language.
 
 ### Updating the translation files (deprecated, may be dangerous)
