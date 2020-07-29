@@ -3,11 +3,9 @@ import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
 import getLocale from 'browser-locale';
 import moment from 'moment';
-import mainEN from '../../locales/en/translation.json';
 import parameterEN from '../../locales/en/parameter.json';
-import mainFR from '../../locales/fr/translation.json';
-import parameterFR from '../../locales/fr/parameter.json';
-import mainCO from '../../locales/co/translation.json';
+import mainCrowdin from '../../locales/co/translation.json';
+import languages from '../../locales/languages.json'
 
 const crowdinActive = typeof _jipt === 'object';
 
@@ -20,6 +18,15 @@ if (self.localStorage && self.localStorage.lang) {
   }
 }
 
+const resources = {};
+if (languages) {
+  languages.forEach( (lang) => {
+    resources[lang.value] = {
+      main: require(`../../locales/${lang.value}/translation.json`),
+      params: require(`../../locales/${lang.value}/parameter.json`)
+    };
+  })
+}
 const i18nOptions = {
   fallbackLng: 'en',
   lng: language,
@@ -47,17 +54,7 @@ const i18nOptions = {
   ns: ['main', 'params'],
   defaultNS: 'main',
 
-  resources: {
-    en: {
-      // Default namespace
-      main: mainEN,
-      params: parameterEN
-    },
-    fr: {
-      main: mainFR,
-      params: parameterFR
-    }
-  }
+  resources: resources
 }
 
 
@@ -66,7 +63,7 @@ i18n.use(reactI18nextModule);
 if (crowdinActive) {
   i18nOptions.fallbackLng = 'co';
   i18nOptions.resources.co = {
-    main: mainCO,
+    main: mainCrowdin,
     params: parameterEN
   }
 

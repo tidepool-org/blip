@@ -1,6 +1,4 @@
-{
-  "en": "English",
-  "fr": "Français",
-  "de": "Deutsch",
-  "co": "Crowdin"
-}
+[
+  { "value": "en", "label": "English" },
+  { "value": "fr", "label": "Français" }
+]

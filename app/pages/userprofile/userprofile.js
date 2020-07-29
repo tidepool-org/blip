@@ -22,6 +22,7 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
 import i18next from '../../core/language';
+import languages from '../../../locales/languages.json'
 import * as actions from '../../redux/actions';
 
 import { validateForm } from '../../core/validation';
@@ -118,10 +119,7 @@ class UserProfile extends React.Component {
     }
 
     if (config.I18N_ENABLED) {
-      const locales = [
-        { value: 'en', label: 'English' },
-        { value: 'fr', label: 'Français' }
-      ];
+      const locales = languages;
       if (CROWDIN_ACTIVE) {
         // Special "pseudo" language for crowdin live preview
         locales.push({ value: 'co', label: 'Crowdin' });
