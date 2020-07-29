@@ -2,6 +2,8 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'rebass/styled-components';
 import defaultsDeep from 'lodash/defaultsDeep';
+import isNumber from 'lodash/isNumber';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
 
@@ -63,15 +65,22 @@ export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
   return values;
 };
 
-export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
+export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose, meta) => {
+  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  let minBloodGlucoseTarget = 60;
+
+  if (isNumber(suspendThreshold)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
+    ? suspendThreshold
+    : utils.roundBgTarget(utils.translateBg(suspendThreshold, MGDL_UNITS), MGDL_UNITS);
+
   const ranges = {
     basalRate: { min: 0, max: 35, step: 0.05 }, // will need to enforce step in case user types in invalid value
     basalRateMaximum: { min: 0, max: 35, step: 0.25 },
-    bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
+    bloodGlucoseTarget: { min: minBloodGlucoseTarget, max: 180, step: 1 },
     bolusAmountMaximum: { min: 0, max: 30, step: 1 },
     carbRatio: { min: 1, max: 150, step: 1 },
     insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-    // suspendThreshold: { min: 54, max: 180, step: 1 },
+    suspendThreshold: { min: 54, max: 180, step: 1 },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -83,9 +92,9 @@ export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose) => {
     ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.step = 0.1;
 
-    // ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    // ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
-    // ranges.suspendThreshold.step = 0.1;
+    ranges.suspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.suspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.suspendThreshold.step = 0.1;
   }
 
   return ranges;
@@ -123,10 +132,10 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => 
       low: { value: 15, message: lowWarning },
       high: { value: 400, message: highWarning },
     },
-    // suspendThreshold: {
-    //   low: { value: 70, message: lowWarning },
-    //   high: { value: 120, message: highWarning },
-    // },
+    suspendThreshold: {
+      low: { value: 70, message: lowWarning },
+      high: { value: 120, message: highWarning },
+    },
   };
 
   if (bgUnits === MMOLL_UNITS) {
@@ -136,15 +145,15 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => 
     thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
     thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    // thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    // thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.suspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.suspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
 };
 
 // TODO: placeholder device-specific values until provided by the upcoming devices api.
-export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
+export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose, meta) => {
   const metaByDeviceId = {
     [placeholderDeviceIds.dexcom]: {
       manufacturerName: 'Dexcom',
@@ -154,13 +163,13 @@ export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose) => {
       ranges: defaultsDeep({
         basalRate: { min: 0.05, max: 30 },
         basalRateMaximum: { max: 30 },
-      }, defaultRanges(bgUnits))
+      }, defaultRanges(bgUnits, meta))
     },
   };
 
   return metaByDeviceId[deviceId] || {
     manufacturerName: 'Unknown',
-    ranges: defaultRanges(bgUnits),
+    ranges: defaultRanges(bgUnits, meta),
   };
 };
 
@@ -202,7 +211,7 @@ export const stepValidationFields = [
   [
     [
       'training',
-      // 'initialSettings.suspendThreshold.value',
+      'initialSettings.suspendThreshold.value',
       // 'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',
