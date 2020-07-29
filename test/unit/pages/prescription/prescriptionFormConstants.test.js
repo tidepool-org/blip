@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 
 /* global chai */
 /* global describe */
@@ -139,6 +140,20 @@ describe('prescriptionFormConstants', function() {
         insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
         suspendThreshold: { min: 54, max: 180, step: 1 },
       });
+    });
+
+    it('should set the min bloodGlucoseTarget value to the set value of the suspendThreshold field', () => {
+      const meta = {
+        initialSettings: {
+          suspendThreshold: {
+            value: {
+              value: 78,
+            },
+          },
+        },
+      };
+
+      expect(prescriptionFormConstants.defaultRanges(MGDL_UNITS, meta).bloodGlucoseTarget.min).to.equal(78);
     });
 
     it('should export the default ranges with mmoll/L as provided', () => {
