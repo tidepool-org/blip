@@ -55,7 +55,7 @@ export class AppComponent extends React.Component {
     onCloseNotification: PropTypes.func.isRequired,
     onDismissDonateBanner: PropTypes.func.isRequired,
     onDismissDexcomConnectBanner: PropTypes.func.isRequired,
-    onDismissShareDataBanner: PropTypes.func.isRequired,
+    onDismissShareDataBanner: PropTypes.func,
     onUpdateDataDonationAccounts: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     patient: PropTypes.object,
