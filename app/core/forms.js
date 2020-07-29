@@ -68,7 +68,9 @@ export const getFieldError = (fieldMeta, index, key) => {
  * @returns warning string or null
  */
 export const getThresholdWarning = (value, threshold) => {
-  if (value <= get(threshold, 'low.value')) return get(threshold, 'low.message');
-  if (value >= get(threshold, 'high.value')) return get(threshold, 'high.message');
+  if (isNumber(value)) {
+    if (value <= get(threshold, 'low.value')) return get(threshold, 'low.message');
+    if (value >= get(threshold, 'high.value')) return get(threshold, 'high.message');
+  }
   return null;
 };

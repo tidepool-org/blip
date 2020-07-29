@@ -33,6 +33,7 @@ import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 
 import {
+  defaultRanges,
   defaultUnits,
   defaultValues,
   stepValidationFields,
@@ -64,10 +65,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
       cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
       // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-      // suspendThreshold: {
-      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-      //   units: defaultUnits.suspendThreshold,
-      // },
+      suspendThreshold: {
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
+        units: defaultUnits.suspendThreshold,
+      },
       basalRateMaximum: {
         value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
@@ -77,6 +78,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         units: defaultUnits.bolusAmount,
       },
       bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+        context: {
+          min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+        },
         high: '',
         low: '',
         start: 0,
@@ -219,6 +223,15 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
+  // Update minimum blood glucose target values when suspendThreshold changes
+  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+  React.useEffect(() => {
+    each(bloodGlucoseTargetSchedule, (schedule, i) => {
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+    });
+  }, [suspendThreshold]);
+
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
       setActiveStep(step);
@@ -250,6 +263,10 @@ export const PrescriptionForm = props => {
       setStepAsyncState(asyncStates.pending);
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
+
+      for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
+        fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
+      }
 
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
