@@ -88,6 +88,6 @@ export const DIABETES_DATA_TYPES = [
   'physicalActivity',
 ];
 
-export const MGDL_UNITS = t('mg/dL');
-export const MMOLL_UNITS = t('mmol/L');
+export const MGDL_UNITS = 'mg/dL';
+export const MMOLL_UNITS = 'mmol/L';
 export const MGDL_PER_MMOLL = 18.01559;
