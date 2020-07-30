@@ -592,18 +592,18 @@ export function mapStateToProps(state) {
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
-        );
-        permissions = _.get(
-          state.blip.permissionsOfMembersInTargetCareTeam,
-          state.blip.currentPatientInViewId,
-          {}
-          );
-        permsOfLoggedInUser = _.get(
-          state.blip.membershipPermissionsInOtherCareTeams,
-          state.blip.currentPatientInViewId,
-          {}
-        );
-      }
+      );
+      permissions = _.get(
+        state.blip.permissionsOfMembersInTargetCareTeam,
+        state.blip.currentPatientInViewId,
+        {}
+      );
+      permsOfLoggedInUser = _.get(
+        state.blip.membershipPermissionsInOtherCareTeams,
+        state.blip.currentPatientInViewId,
+        {}
+      );
+    }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
