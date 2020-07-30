@@ -1,18 +1,17 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { browserHistory } from 'react-router';
+import React from 'react';
 import { translate } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
-import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
-
-
-const UpdateTypeBanner = (props) => {
+export const UpdateTypeBanner = translate()((props) => {
   const {
     onClick,
     onClose,
     patient,
     trackMetric,
-    t
+    t,
+    push,
   } = props;
 
   const getMessageText = () => {
@@ -21,6 +20,10 @@ const UpdateTypeBanner = (props) => {
 
   const getButtonText = () => {
     return t('Update My Profile');
+  };
+
+  const getLearnMoreText = () => {
+    return t('Add your birthday, diagnosis date, and type');
   };
 
   const handleDismiss = () => {
@@ -32,6 +35,10 @@ const UpdateTypeBanner = (props) => {
   };
 
   const handleClickLearnMore = () => {
+    onClick(patient.userid);
+
+    push(`/patients/${patient.userid}/profile`);
+
     if (trackMetric) {
       trackMetric('clicked learn more Update Type banner');
     }
@@ -40,34 +47,19 @@ const UpdateTypeBanner = (props) => {
   const handleSubmit = () => {
     onClick(patient.userid);
 
-    browserHistory.push(`/patients/${patient.userid}/profile`);
+    push(`/patients/${patient.userid}/profile`);
 
     if (trackMetric) {
       trackMetric('clicked get started on Update Type banner');
     }
   }
 
-  const renderLink = () => {
-    const link = {
-      href: URL_DEXCOM_CONNECT_INFO,
-      text: t('Add your birthday, diagnosis date, and type'),
-      target: '_blank',
-    };
-
-    return (
-      <a
-        className="message-link" href={link.href} target={link.target} onClick={handleClickLearnMore}>
-        {link.text}
-      </a>
-    );
-  };
-
   return (
     <div className='updateTypeBanner container-box-outer'>
       <div className="container-box-inner">
         <div className="updateTypeBanner-message">
           <div className="message-text" children={getMessageText()} />
-          {renderLink()}
+          <a className="message-link" onClick={handleClickLearnMore}>{getLearnMoreText()}</a>
         </div>
 
         <div className="updateTypeBanner-action">
@@ -80,7 +72,7 @@ const UpdateTypeBanner = (props) => {
       </div>
     </div>
   );
-};
+});
 
 UpdateTypeBanner.propTypes = {
   onClick: PropTypes.func.isRequired,
@@ -89,4 +81,4 @@ UpdateTypeBanner.propTypes = {
   patient: PropTypes.object.isRequired,
 };
 
-export default translate()(UpdateTypeBanner);
+export default connect(null, { push })(UpdateTypeBanner);

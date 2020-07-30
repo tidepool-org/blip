@@ -56,8 +56,8 @@ export class AppComponent extends React.Component {
     onCloseNotification: PropTypes.func.isRequired,
     onDismissDonateBanner: PropTypes.func.isRequired,
     onDismissDexcomConnectBanner: PropTypes.func.isRequired,
-    onDismissShareDataBanner: PropTypes.func.isRequired,
-    onDismissUpdateTypeBanner: PropTypes.func.isRequired,
+    onDismissShareDataBanner: PropTypes.func,
+    onDismissUpdateTypeBanner: PropTypes.func,
     onUpdateDataDonationAccounts: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     patient: PropTypes.object,
@@ -574,16 +574,16 @@ export function mapStateToProps(state) {
 
       userHasData = _.get(state, 'blip.data.metaData.patientId') === state.blip.loggedInUserId && _.get(state, 'blip.data.metaData.size', 0) > 0;
 
-      if(user.profile.patient.diagnosisType) {
-        userHasDiabetesType = true;
-      }
-
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
       }
 
       if (_.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
+      }
+
+      if (_.get(user, 'profile.patient.diagnosisType')) {
+          userHasDiabetesType = true;
       }
     }
 
@@ -592,18 +592,18 @@ export function mapStateToProps(state) {
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
-      );
-      permissions = _.get(
-        state.blip.permissionsOfMembersInTargetCareTeam,
-        state.blip.currentPatientInViewId,
-        {}
-      );
-      permsOfLoggedInUser = _.get(
-       state.blip.membershipPermissionsInOtherCareTeams,
-       state.blip.currentPatientInViewId,
-       {}
-      );
-    }
+        );
+        permissions = _.get(
+          state.blip.permissionsOfMembersInTargetCareTeam,
+          state.blip.currentPatientInViewId,
+          {}
+          );
+        permsOfLoggedInUser = _.get(
+          state.blip.membershipPermissionsInOtherCareTeams,
+          state.blip.currentPatientInViewId,
+          {}
+        );
+      }
 
     // Check to see if a data-donating patient has selected a nonprofit to support
     if (userIsDonor) {
