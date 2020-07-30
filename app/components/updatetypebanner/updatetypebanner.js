@@ -15,7 +15,7 @@ export const UpdateTypeBanner = translate()((props) => {
   } = props;
 
   const getMessageText = () => {
-    return t('Complete your profile');
+    return t('Complete your profile.');
   };
 
   const getButtonText = () => {

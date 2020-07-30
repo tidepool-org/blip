@@ -25,12 +25,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { DexcomBanner } from '../../../app/components/dexcombanner';
-import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
+import { UpdateTypeBanner } from '../../../app/components/updatetypebanner';
 
 const expect = chai.expect;
 
-describe('DexcomBanner', () => {
+describe('UpdateTypeBanner', () => {
   const props = {
     onClick: sinon.stub(),
     onClose: sinon.stub(),
@@ -42,7 +41,7 @@ describe('DexcomBanner', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
-      <DexcomBanner
+      <UpdateTypeBanner
         {...props}
       />
     );
@@ -57,18 +56,18 @@ describe('DexcomBanner', () => {
   it('should render without errors when provided all required props', () => {
     console.error = sinon.stub();
 
-    expect(wrapper.find('.dexcomBanner')).to.have.length(1);
+    expect(wrapper.find('.updateTypeBanner')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
   });
 
-  it('should render a link to the dexcom connect info on the website', () => {
-    const expectedText = 'Learn More'
-    const messageLink = wrapper.find('.message-link');
+  // it('should render a link to the dexcom connect info on the website', () => {
+  //   const expectedText = 'Learn More'
+  //   const messageLink = wrapper.find('.message-link');
 
-    expect(messageLink).to.have.length(1);
-    expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
-    expect(messageLink.text()).contains(expectedText);
-  });
+  //   expect(messageLink).to.have.length(1);
+  //   // expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
+  //   expect(messageLink.text()).contains(expectedText);
+  // });
 
   it('should render a close link to dismiss the banner', () => {
     const closeLink = wrapper.find('a.close');
@@ -86,56 +85,56 @@ describe('DexcomBanner', () => {
     const closeLink = wrapper.find('a.close');
     closeLink.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'dismiss Dexcom OAuth banner');
+    sinon.assert.calledWith(props.trackMetric, 'dismiss Update Type banner');
   });
 
   it('should track the appropriate metric when the learn more link is clicked', () => {
     const moreLink = wrapper.find('a.message-link');
     moreLink.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'clicked learn more Dexcom OAuth banner');
+    sinon.assert.calledWith(props.trackMetric, 'clicked learn more Update Type banner');
   });
 
-  it('should call the submit handler when the dexcom button is clicked', () => {
+  it('should call the submit handler when the update type button is clicked', () => {
     const button = wrapper.find('button');
     button.simulate('click');
     sinon.assert.calledOnce(props.onClick);
   });
 
-  it('should track the metrics when the dexcom button is clicked', () => {
+  it('should track the metrics when the update type button is clicked', () => {
     const button = wrapper.find('button');
     button.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'clicked get started on Dexcom banner');
+    sinon.assert.calledWith(props.trackMetric, 'clicked get started on Update Type banner');
   });
 
   describe('render', function () {
     it('should render without errors when provided all required props', () => {
       console.error = sinon.stub();
 
-      expect(wrapper.find('.dexcomBanner')).to.have.length(1);
+      expect(wrapper.find('.updateTypeBanner')).to.have.length(1);
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should render a dexcom message', () => {
-      const expectedText = 'Using Dexcom G5 Mobile on Android? See your data in Tidepool.'
+    it('should render a update type message', () => {
+      const expectedText = 'Complete your profile'
       const messageText = wrapper.find('.message-text');
 
       expect(messageText).to.have.length(1);
       expect(messageText.text()).contains(expectedText);
     });
 
-    it('should render a link to the dexcom connect info on the website', () => {
-      const expectedText = 'Learn More'
-      const messageLink = wrapper.find('.message-link');
+    // it('should render a link to the dexcom connect info on the website', () => {
+    //   const expectedText = 'Learn More'
+    //   const messageLink = wrapper.find('.message-link');
 
-      expect(messageLink).to.have.length(1);
-      expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
-      expect(messageLink.text()).contains(expectedText);
-    });
+    //   expect(messageLink).to.have.length(1);
+    //   expect(messageLink.find({ href: URL_DEXCOM_CONNECT_INFO })).to.have.length(1);
+    //   expect(messageLink.text()).contains(expectedText);
+    // });
 
-    it('should render a get started button', () => {
-      const expectedText = 'Get Started'
+    it('should render a update my profile button', () => {
+      const expectedText = 'Update My Profile'
       const button = wrapper.find('button');
 
       expect(button).to.have.length(1);
