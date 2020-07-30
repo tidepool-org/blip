@@ -15,16 +15,17 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate, Trans } from 'react-i18next';
+import moment from 'moment-timezone'
 import i18next from '../../core/language';
 
 import { Element } from 'react-scroll';
 
 import config from '../../config';
-var personUtils = require('../../core/personutils');
+import personUtils from '../../core/personutils';
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
@@ -35,44 +36,22 @@ import { DIABETES_TYPES } from '../../core/constants';
 const t = i18next.t.bind(i18next);
 
 //date masks we use
-var FORM_DATE_FORMAT = t('MM/DD/YYYY');
-var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
+const FORM_DATE_FORMAT = 'MM/DD/YYYY';
+const SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
-var PatientInfo = translate()(React.createClass({
-  // many things *not* required here because they aren't needed for
-  // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
-  propTypes: {
-    dataDonationAccounts: React.PropTypes.array,
-    dataDonationAccountsFetched: React.PropTypes.bool,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func,
-    onUpdatePatient: React.PropTypes.func.isRequired,
-    onUpdatePatientSettings: React.PropTypes.func,
-    permsOfLoggedInUser: React.PropTypes.object,
-    patient: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired,
-    updatingDataDonationAccounts: React.PropTypes.bool,
-    updatingPatientBgUnits: React.PropTypes.bool,
-    user: React.PropTypes.object,
-    dataSources: React.PropTypes.array,
-    fetchDataSources: React.PropTypes.func,
-    connectDataSource: React.PropTypes.func,
-    disconnectDataSource: React.PropTypes.func,
-    authorizedDataSource: React.PropTypes.object,
-    api: React.PropTypes.object.isRequired,
-  },
+class PatientInfo extends React.Component {
+  constructor(props) {
+    super(props);
 
-  getInitialState: function() {
-    return {
+    this.state = {
       editing: false,
       validationErrors: {},
       bioLength: 0
     };
-  },
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
-  render: function() {
-    const { t } = this.props;
+  render() {
     if (this.props.fetchingPatient) {
       return this.renderSkeleton();
     }
@@ -81,15 +60,14 @@ var PatientInfo = translate()(React.createClass({
       return this.renderEditing();
     }
 
-    var patient = this.props.patient;
-    var self = this;
-    var handleClick = function(e) {
+    const patient = this.props.patient;
+    const handleClick = (e) => {
       e.preventDefault();
-      self.toggleEdit();
+      this.toggleEdit();
     };
-    var nameNode;
-    var ageNode;
-    var diagnosisNode;
+    let nameNode;
+    let ageNode;
+    let diagnosisNode;
     if (this.isSamePersonUserAndPatient()) {
       nameNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
@@ -159,10 +137,9 @@ var PatientInfo = translate()(React.createClass({
         {/*this.renderExport()*/}
       </div>
     );
-  },
+  }
 
-  renderSkeleton: function() {
-    const { t } = this.props;
+  renderSkeleton() {
     return (
       <div className="PatientInfo">
         <div className="PatientPage-sectionTitle">{t('Profile')}</div>
@@ -187,19 +164,17 @@ var PatientInfo = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderEditLink: function() {
-    const { t } = this.props;
+  renderEditLink() {
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
-    var self = this;
-    var handleClick = function(e) {
+    const handleClick = (e) => {
       e.preventDefault();
-      self.props.trackMetric('Clicked Edit Profile');
-      self.toggleEdit();
+      this.props.trackMetric('Clicked Edit Profile');
+      this.toggleEdit();
     };
 
     // Important to add a `key`, different from the "Cancel" button in edit mode
@@ -207,23 +182,22 @@ var PatientInfo = translate()(React.createClass({
     return (
       <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>{t('Edit')}</button>
     );
-  },
+  }
 
-  toggleEdit: function() {
+  toggleEdit() {
     this.setState({
       editing: !this.state.editing,
       validationErrors: {}
     });
-  },
+  }
 
-  renderEditing: function() {
-    var patient = this.props.patient;
-    var formValues = this.formValuesFromPatient(patient);
+  renderEditing() {
+    const patient = this.props.patient;
+    const formValues = this.formValuesFromPatient(patient);
 
-    var self = this;
-    var handleCancel = function(e) {
+    const handleCancel = (e) => {
       e.preventDefault();
-      self.toggleEdit();
+      this.toggleEdit();
     };
 
     return (
@@ -252,45 +226,51 @@ var PatientInfo = translate()(React.createClass({
         {this.renderDataSources()}
       </div>
     );
-  },
+  }
 
-  renderFullNameInput: function(formValues) {
-    var fullNameNode, errorElem, classes;
-    var error = this.state.validationErrors.fullName;
+  renderFullNameInput(formValues) {
+    let fullNameNode, errorElem, classes;
+    const errors = {
+      firstName: this.state.validationErrors.firstName,
+      lastName: this.state.validationErrors.lastName
+    };
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient)) {
       classes = 'PatientInfo-input';
-      if (error) {
+      if (errors.firstName || errors.lastName) {
         classes += ' PatientInfo-input-error';
-        errorElem = <div className="PatientInfo-error-message">{error}</div>;
+        errorElem = <div className="PatientInfo-error-message">
+            {errors.firstName}
+            <br/>
+            {errors.lastName}
+          </div>;
       }
       fullNameNode = (
-        <div className={classes}>
-          <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
+        <div className="PatientInfo-blockRow">
+          <input className={classes} id="firstName" ref="firstName" placeholder={t('First name')} defaultValue={formValues.firstName} />
+          <input className={classes} id="lastName" ref="lastName" placeholder={t('Last name')} defaultValue={formValues.lastName} />
           {errorElem}
         </div>
       );
     }
     else {
-      formValues = _.omit(formValues, 'fullName');
+      formValues = _.omit(formValues, ['firstName','lastName']);
       const fullName = this.getDisplayName(this.props.patient);
       fullNameNode = (
-        <Trans className="PatientInfo-block PatientInfo-block--withArrow" i18nKey="html.patient-info-fullname">
-          {{fullName}} (edit in
-          <Link to="/profile">account</Link>)
-        </Trans>
+        <div className="PatientInfo-block PatientInfo-block--withArrow">
+          {fullName} ({t('edit in')} <Link to="/profile">{t('account')}</Link>)
+        </div>
       );
     }
 
     return (<div className="PatientInfo-blockRow">
       {fullNameNode}
     </div>);
-  },
+  }
 
-  renderBirthdayInput: function(formValues) {
-    const { t } = this.props;
-    var classes = 'PatientInfo-input', errorElem;
-    var error = this.state.validationErrors.birthday;
+  renderBirthdayInput(formValues) {
+    let classes = 'PatientInfo-input', errorElem;
+    const error = this.state.validationErrors.birthday;
     if (error) {
       classes += ' PatientInfo-input-error';
       errorElem = <div className="PatientInfo-error-message">{error}</div>;
@@ -298,16 +278,15 @@ var PatientInfo = translate()(React.createClass({
     return (<div className="PatientInfo-blockRow">
       <div className="">
         <label className="PatientInfo-label" htmlFor="birthday">{t('Date of birth')}</label>
-        <input className={classes} id="birthday" ref="birthday" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.birthday} />
+        <input className={classes} id="birthday" ref="birthday" placeholder={t(FORM_DATE_FORMAT)} defaultValue={formValues.birthday} />
         {errorElem}
       </div>
     </div>);
-  },
+  }
 
-  renderDiagnosisDateInput: function(formValues) {
-    const { t } = this.props;
-    var classes = 'PatientInfo-input', errorElem;
-    var error = this.state.validationErrors.diagnosisDate;
+  renderDiagnosisDateInput(formValues) {
+    let classes = 'PatientInfo-input', errorElem;
+    const error = this.state.validationErrors.diagnosisDate;
     if (error) {
       classes += ' PatientInfo-input-error';
       errorElem = <div className="PatientInfo-error-message">{error}</div>;
@@ -315,21 +294,20 @@ var PatientInfo = translate()(React.createClass({
     return (<div className="PatientInfo-blockRow">
       <div className="">
         <label className="PatientInfo-label" htmlFor="diagnosisDate">{t('Date of diagnosis')}</label>
-        <input className={classes} id="diagnosisDate" ref="diagnosisDate" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.diagnosisDate} />
+        <input className={classes} id="diagnosisDate" ref="diagnosisDate" placeholder={t(FORM_DATE_FORMAT)} defaultValue={formValues.diagnosisDate} />
         {errorElem}
       </div>
     </div>);
-  },
+  }
 
-  renderDiagnosisTypeInput: function(formValues) {
-    const { t } = this.props;
-    var classes = 'PatientInfo-input';
-    var types = _.clone(DIABETES_TYPES()); // eslint-disable-line new-cap
+  renderDiagnosisTypeInput(formValues) {
+    const classes = 'PatientInfo-input';
+    const types = _.clone(DIABETES_TYPES()); // eslint-disable-line new-cap
     types.unshift({
       value: '',
       label: t('Choose One')
     });
-    var options = _.map(types, function(item) {
+    const options = _.map(types, function(item) {
       return <option key={item.value} value={item.value}>{item.label}</option>;
     });
     return (<div className="PatientInfo-blockRow">
@@ -346,23 +324,23 @@ var PatientInfo = translate()(React.createClass({
         </select>
       </div>
     </div>);
-  },
+  }
 
-  renderAboutInput: function(formValues) {
-    const { t } = this.props;
-    var classes = 'PatientInfo-input', errorElem;
-    var error = this.state.validationErrors.about;
+  renderAboutInput(formValues) {
+    let classes = 'PatientInfo-input';
+    let errorElem = null;
+    const error = this.state.validationErrors.about;
     if (error) {
       classes += ' PatientInfo-input-error';
       errorElem = <div className="PatientInfo-error-message">{error}</div>;
     }
 
-    var charCountClass;
+    let charCountClass;
     if (this.state.bioLength > 256) {
       charCountClass = 'PatientInfo-error-message';
     }
 
-    var charCount = <div className={charCountClass}>{this.state.bioLength === 0 ? '' : this.state.bioLength.toString() + '/256'}</div>;
+    const charCount = <div className={charCountClass}>{this.state.bioLength === 0 ? '' : this.state.bioLength.toString() + '/256'}</div>;
     return (<div className="PatientInfo-bio">
       <textarea className={classes} ref="about"
         placeholder={t('Anything you would like to share?')}
@@ -373,19 +351,18 @@ var PatientInfo = translate()(React.createClass({
       {charCount}
       {errorElem}
     </div>);
-  },
+  }
 
-  renderSubmit: function() {
-    const { t } = this.props;
+  renderSubmit() {
     return (
       <button className="PatientInfo-button PatientInfo-button--primary"
         type="submit" onClick={this.handleSubmit}>
         {t('Save changes')}
       </button>
     );
-  },
+  }
 
-  renderPatientSettings: function() {
+  renderPatientSettings() {
     return (
       <PatientSettings
         editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
@@ -394,12 +371,12 @@ var PatientInfo = translate()(React.createClass({
         trackMetric={this.props.trackMetric}
       />
     );
-  },
+  }
 
-  renderBgUnitSettings: function() {
+  renderBgUnitSettings() {
     return (
-      <Trans className="PatientPage-bgUnitSettings" i18nKey="html.patientinfo-units-used">
-        <div className="PatientPage-sectionTitle">The units I use are</div>
+      <div className="PatientPage-bgUnitSettings">
+        <div className="PatientPage-sectionTitle">{t('The units I use are')}</div>
         <div className="PatientInfo-content">
           <PatientBgUnits
             editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
@@ -409,12 +386,11 @@ var PatientInfo = translate()(React.createClass({
             working={this.props.updatingPatientBgUnits || false}
           />
         </div>
-      </Trans>
+      </div>
     );
-  },
+  }
 
-  renderDonateForm: function() {
-    const { t } = this.props;
+  renderDonateForm() {
     if (this.isSamePersonUserAndPatient() && !config.HIDE_DONATE) {
       return (
         <div className="PatientPage-donateForm">
@@ -433,10 +409,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return null;
-  },
+  }
 
-  renderDataSources: function() {
-    const { t } = this.props;
+  renderDataSources() {
     if (this.isSamePersonUserAndPatient() && !config.HIDE_DEXCOM_BANNER) {
       return (
         <Element name="dexcomConnect" className="PatientPage-dataSources">
@@ -457,9 +432,9 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return null;
-  },
+  }
 
-  renderExport: function() {
+  renderExport() {
     return (
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">Export My Data</div>
@@ -468,36 +443,33 @@ var PatientInfo = translate()(React.createClass({
         </div>
       </div>
     )
-  },
+  }
 
-  isSamePersonUserAndPatient: function() {
+  isSamePersonUserAndPatient() {
     return personUtils.isSame(this.props.user, this.props.patient);
-  },
+  }
 
-  isEditingAllowed: function(permissions) {
+  isEditingAllowed(permissions) {
     if (_.isPlainObject(permissions)) {
-      return permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
+      return Object.prototype.hasOwnProperty.call(permissions,'custodian') || Object.prototype.hasOwnProperty.call(permissions,'root');
     }
 
     return false;
-  },
+  }
 
-  getDisplayName: function(patient) {
+  getDisplayName(patient) {
     return personUtils.patientFullName(patient);
-  },
+  }
 
-  getAgeText: function(patient, currentDate) {
-    const { t } = this.props;
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var birthday = patientInfo.birthday;
+  getAgeText(patient,to=moment.utc()) {
+    const patientInfo = personUtils.patientInfo(patient) || {};
+    const birthday = patientInfo.birthday;
 
     if (!birthday) {
-      return;
+      return null;
     }
 
-    var now = new Date();
-    currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-    var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
+    const yrsAgo = to.diff(moment.utc(birthday), 'years');
 
     if (yrsAgo === 1) {
       return t('1 year old');
@@ -508,35 +480,28 @@ var PatientInfo = translate()(React.createClass({
     } else {
       return t('Birthdate not known');
     }
-  },
+  }
 
-  getDiagnosisText: function(patient, currentDate) {
-    const { t } = this.props;
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var diagnosisDate = patientInfo.diagnosisDate;
-    var diagnosisType = patientInfo.diagnosisType;
-    var diagnosisDateText = '';
-    var diagnosisTypeText = '';
-    var yearsAgo;
+  getDiagnosisText(patient,to=moment.utc()) {
+    const patientInfo = personUtils.patientInfo(patient) || {};
+    const { diagnosisDate, diagnosisType } = patientInfo;
+    let diagnosisDateText = '';
+    let diagnosisTypeText = '';
+    let yearsAgo;
 
     if (!diagnosisDate && !diagnosisType) {
       return;
     }
 
-    var now = new Date();
-    currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-
     if (diagnosisDate) {
-      var yearsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
-
+      yearsAgo = to.diff(moment.utc(diagnosisDate), 'years');
+      
       if (yearsAgo === 0) {
         diagnosisDateText = t('this year');
       } else if (yearsAgo === 1) {
         diagnosisDateText = t('1 year ago');
       } else if (yearsAgo > 1) {
         diagnosisDateText = t('{{yearsAgo}} years ago', {yearsAgo});
-      } else if (yearsAgo === 0) {
-        diagnosisDateText = t('this year');
       }
     }
 
@@ -558,12 +523,12 @@ var PatientInfo = translate()(React.createClass({
     }
 
     return t('Diagnosed {{diagnosisDate}} as {{diagnosisType}}', {diagnosisDate: diagnosisDateText, diagnosisType: diagnosisTypeText});
-  },
+  }
 
-  getAboutText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
+  getAboutText(patient) {
+    const patientInfo = personUtils.patientInfo(patient) || {};
     return patientInfo.about;
-  },
+  }
 
   /**
    * Given a patient object, extract the values from it
@@ -572,26 +537,29 @@ var PatientInfo = translate()(React.createClass({
    * @param  {Object} patient
    * @return {Object}
    */
-  formValuesFromPatient: function(patient) {
+  formValuesFromPatient(patient) {
     if (!_.isPlainObject(patient) || _.isEmpty(patient)) {
       return {};
     }
 
-    var formValues = {};
-    var patientInfo = personUtils.patientInfo(patient);
-    var name = personUtils.patientFullName(patient);
-
-    if (name) {
-      formValues.fullName = name;
+    const formValues = {};
+    const patientInfo = personUtils.patientInfo(patient);
+    const firstName = personUtils.patientFirstName(patient);
+    if (firstName) {
+      formValues.firstName = firstName;
     }
-
+    const lastName = personUtils.patientLastName(patient);
+    if (lastName) {
+      formValues.lastName = lastName;
+    }
+    
     if (patientInfo) {
       if (patientInfo.birthday) {
-        formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+        formValues.birthday = sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, t(FORM_DATE_FORMAT));
       }
 
       if (patientInfo.diagnosisDate) {
-        formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+        formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, t(FORM_DATE_FORMAT));
       }
 
       if (patientInfo.diagnosisType) {
@@ -602,18 +570,18 @@ var PatientInfo = translate()(React.createClass({
         formValues.about = patientInfo.about;
       }
     }
-
+    
     return formValues;
-  },
+  }
 
-  handleSubmit: function(e) {
+  handleSubmit(e) {
     e.preventDefault();
-    var formValues = this.getFormValues();
+    const formValues = this.getFormValues();
 
     this.setState({validationErrors: {}});
 
-    var isNameRequired = personUtils.patientIsOtherPerson(this.props.patient);
-    var validationErrors = personUtils.validateFormValues(formValues, isNameRequired,  FORM_DATE_FORMAT);
+    const isNameRequired = personUtils.patientIsOtherPerson(this.props.patient);
+    const validationErrors = personUtils.validateFormValues(formValues, isNameRequired, t(FORM_DATE_FORMAT));
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
@@ -621,46 +589,47 @@ var PatientInfo = translate()(React.createClass({
       });
       return;
     }
-
     this.submitFormValues(formValues);
-  },
+  }
 
-  getFormValues: function() {
-    var self = this;
+  getFormValues() {
     return _.reduce([
-      'fullName',
+      'firstName',
+      'lastName',
       'birthday',
       'diagnosisDate',
       'diagnosisType',
       'about'
-    ], function(acc, key, value) {
-      if (self.refs[key]) {
-        acc[key] = self.refs[key].value;
+    ], (acc, key) => {
+      if (this.refs[key]) {
+        acc[key] = this.refs[key].value;
       }
       return acc;
     }, {});
-  },
+  }
 
-  submitFormValues: function(formValues) {
+  submitFormValues(formValues) {
     formValues = this.prepareFormValuesForSubmit(formValues);
 
     // Save optimistically
     this.props.onUpdatePatient(formValues);
     this.toggleEdit();
-  },
+  }
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit(formValues) {
+    formValues.fullName = `${formValues.firstName} ${formValues.lastName}`
+
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient)) {
       formValues.isOtherPerson = true;
     }
 
     if (formValues.birthday) {
-      formValues.birthday =  sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+      formValues.birthday = sundial.translateMask(formValues.birthday, t(FORM_DATE_FORMAT), SERVER_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
+      formValues.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, t(FORM_DATE_FORMAT), SERVER_DATE_FORMAT);
     }
 
     if (!formValues.diagnosisType) {
@@ -671,16 +640,41 @@ var PatientInfo = translate()(React.createClass({
       delete formValues.about;
     }
 
-    var profile = _.assign({}, this.props.patient.profile, {
+    const profile = _.assign({}, this.props.patient.profile, {
       patient: formValues
     });
 
-    var result = _.assign({}, this.props.patient, {
+    const result = _.assign({}, this.props.patient, {
       profile: profile
     });
 
     return result;
   }
-}));
+}
 
-module.exports = PatientInfo;
+// many things *not* required here because they aren't needed for
+// /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
+PatientInfo.propTypes = {
+  dataDonationAccounts: PropTypes.array,
+  dataDonationAccountsFetched: PropTypes.bool,
+  fetchingPatient: PropTypes.bool.isRequired,
+  fetchingUser: PropTypes.bool.isRequired,
+  onUpdateDataDonationAccounts: PropTypes.func,
+  onUpdatePatient: PropTypes.func.isRequired,
+  onUpdatePatientSettings: PropTypes.func,
+  permsOfLoggedInUser: PropTypes.object,
+  patient: PropTypes.object,
+  trackMetric: PropTypes.func.isRequired,
+  updatingDataDonationAccounts: PropTypes.bool,
+  updatingPatientBgUnits: PropTypes.bool,
+  user: PropTypes.object,
+  dataSources: PropTypes.array,
+  fetchDataSources: PropTypes.func,
+  connectDataSource: PropTypes.func,
+  disconnectDataSource: PropTypes.func,
+  authorizedDataSource: PropTypes.object,
+  api: PropTypes.object.isRequired,
+  queryParams: PropTypes.object,
+};
+
+export default PatientInfo;

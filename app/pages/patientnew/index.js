@@ -12,5 +12,5 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-
-module.exports = require('./patientnew');
+import PatientNew from './patientnew'
+export default PatientNew;

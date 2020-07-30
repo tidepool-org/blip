@@ -86,10 +86,12 @@ class UserProfile extends React.Component {
   }
 
   formInputs() {
-    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    // eslint-disable-next-line lodash/prefer-lodash-typecheck
     const CROWDIN_ACTIVE = typeof _jipt === 'object';
     const inputs = [
-      { name: 'fullName', label: t('Full name'), type: 'text' }
+      { name: 'firstName', label: t('First name'), type: 'text' },
+      { name: 'lastName', label: t('Last name'), type: 'text' }
     ];
 
     if (this.isUserAllowedToChangeEmail()) {
@@ -137,12 +139,12 @@ class UserProfile extends React.Component {
   }
 
   formValuesFromUser(user) {
-    if (user === null || typeof user !== 'object') {
+    if (user === null || !_.isObject(user)) {
       return null;
     }
-
     return {
-      fullName: user.profile && user.profile.fullName,
+      firstName: personUtils.firstName(user),
+      lastName: personUtils.lastName(user),
       username: user.username,
       lang: _.get(user, 'preferences.displayLanguageCode', undefined)
     };
@@ -164,7 +166,7 @@ class UserProfile extends React.Component {
     };
 
     let organization = '';
-    if (user && user.profile && user.profile.organization && user.profile.organization.name) {
+    if (user && _.get(user, 'profile.organization.name',false)) {
       organization = user.profile.organization.name + ' / ';
     }
 
@@ -218,12 +220,10 @@ class UserProfile extends React.Component {
 
   handleSubmit(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
-
     const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
-
     const values = this.prepareFormValuesForSubmit(formValues);
     this.submitFormValues(values);
   }
@@ -238,20 +238,21 @@ class UserProfile extends React.Component {
 
   validateFormValues(formValues) {
     let form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName }
+      { type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName },
+      { type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName }
     ];
 
     if (this.isUserAllowedToChangeEmail()) {
-      form.push({ type: 'email', name: 'username', label: 'email', value: formValues.username });
+      form.push({ type: 'email', name: 'username', label: t('email'), value: formValues.username });
     }
 
     if (this.isUserAllowedToChangePassword() && (formValues.password || formValues.passwordConfirm)) {
       form = _.merge(form, [
-        { type: 'password', name: 'password', label: 'password', value: formValues.password },
+        { type: 'password', name: 'password', label: t('password'), value: formValues.password },
         {
           type: 'confirmPassword',
           name: 'passwordConfirm',
-          label: 'confirm password',
+          label: t('confirm password'),
           value: formValues.passwordConfirm,
           prerequisites: { password: formValues.password }
         }
@@ -269,7 +270,9 @@ class UserProfile extends React.Component {
   prepareFormValuesForSubmit(formValues) {
     const result = {
       profile: {
-        fullName: formValues.fullName
+        firstName: formValues.firstName,
+        lastName: formValues.lastName,
+        fullName: `${formValues.firstName} ${formValues.lastName}`
       },
     };
 
@@ -319,6 +322,10 @@ UserProfile.propTypes = {
     userid: PropTypes.string.isRequired,
     profile: PropTypes.object.isRequired,
   }),
+  updatingUser: PropTypes.shape({
+    inProgress: PropTypes.bool,
+    notification: PropTypes.object
+  })
 };
 
 /**

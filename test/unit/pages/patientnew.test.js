@@ -1,21 +1,16 @@
-/* global beforeEach */
-/* global before */
-/* global after */
 /* global chai */
-/* global describe */
 /* global sinon */
-/* global it */
 
 import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
+import * as i18n from 'i18next';
 
-import { PatientNew } from '../../../app/pages/patientnew';
-import { mapStateToProps } from '../../../app/pages/patientnew';
+import { PatientNew, mapStateToProps } from '../../../app/pages/patientnew/patientnew';
 
-import i18n from 'i18next';
+
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -45,7 +40,7 @@ describe('PatientNew', function () {
       let wrapper = mount(
         <PatientNew {...props}/>
       );
-      const label = wrapper.find('.input-group-label').at(2);
+      const label = wrapper.find('.input-group-label').at(4);
       const select = wrapper.find('.Select__input > input').first();
       const selectPlaceholder = wrapper.find('.Select__placeholder').first();
       expect(label.length).to.equal(1);
@@ -56,14 +51,15 @@ describe('PatientNew', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should be in this expected format', function() {
       console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientNew/>).getWrappedInstance();
-      var initialState = elem.getInitialState();
+      var elem = TestUtils.renderIntoDocument(<PatientNew/>);
+      var initialState = elem.state;
       expect(initialState.working).to.equal(false);
       expect(initialState.formValues.isOtherPerson).to.equal(false);
-      expect(initialState.formValues.fullName).to.equal('');
+      expect(initialState.formValues.firstName).to.equal('');
+      expect(initialState.formValues.lastName).to.equal('');
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
     });
   });
@@ -85,7 +81,8 @@ describe('PatientNew', function () {
         year: '1995'
       },
       diagnosisType: 'type1',
-      fullName: 'John Doh',
+      firstName: 'John',
+      lastName: 'Doh',
       isOtherPerson: false
     };
 
@@ -97,11 +94,12 @@ describe('PatientNew', function () {
 
     it('should call onSubmit with valid form values', function(){
 
-      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
+      wrapper.instance().handleSubmit(formValues);
       expect(props.onSubmit.callCount).to.equal(1);
-
       sinon.assert.calledWith(props.onSubmit, {
         profile: {
+          firstName: 'John',
+          lastName: 'Doh',
           fullName: 'John Doh',
           patient: {
             birthday: '1990-01-20',
@@ -120,23 +118,25 @@ describe('PatientNew', function () {
     describe('When local=fr', () => {
       before((done)=> {
         i18n.off('languageChanged');
-        i18n.changeLanguage('fr', (err, t) => {
+        i18n.changeLanguage('fr', (err) => {
           if(err) console.log(err);
           done();
         });
       });
       after((done) => {
-        i18n.changeLanguage('en', (err, t) => {
+        i18n.changeLanguage('en', (err) => {
           if(err) console.log(err);
           done();
         });
       });
       it('should call onSubmit with valid form values when local=fr', function(){
-          wrapper.instance().getWrappedInstance().handleSubmit(formValues);
+          wrapper.instance().handleSubmit(formValues);
           expect(props.onSubmit.callCount).to.equal(1);
   
           sinon.assert.calledWith(props.onSubmit, {
             profile: {
+              firstName: 'John',
+              lastName: 'Doh',
               fullName: 'John Doh',
               patient: {
                 birthday: '1990-01-20',
@@ -151,13 +151,15 @@ describe('PatientNew', function () {
     });
 
     it('should should not submit diagnosisType if left blank', function(){
-      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, {
+      wrapper.instance().handleSubmit(_.assign({}, formValues, {
         diagnosisType: ''
       }));
       expect(props.onSubmit.callCount).to.equal(1);
 
       sinon.assert.calledWith(props.onSubmit, {
         profile: {
+          firstName: 'John',
+          lastName: 'Doh',
           fullName: 'John Doh',
           patient: {
             birthday: '1990-01-20',
@@ -168,7 +170,7 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with data donation values', function(){
-      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: '' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org'])).to.be.true;
@@ -177,7 +179,7 @@ describe('PatientNew', function () {
     });
 
     it('should call onSubmit and onUpdateDataDonationAccounts with specific values', function(){
-      wrapper.instance().getWrappedInstance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,NSF' }));
+      wrapper.instance().handleSubmit(_.assign({}, formValues, { dataDonate: true, dataDonateDestination: 'JDRF,NSF' }));
       expect(props.onSubmit.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.callCount).to.equal(1);
       expect(props.onUpdateDataDonationAccounts.calledWith(['bigdata@tidepool.org', 'bigdata+JDRF@tidepool.org', 'bigdata+NSF@tidepool.org'])).to.be.true;
@@ -191,7 +193,7 @@ describe('PatientNew', function () {
         fetchingUser: true
       };
       // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>).getWrappedInstance();
+      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
       expect(elem.isFormDisabled()).to.equal(true);
     });
@@ -202,7 +204,7 @@ describe('PatientNew', function () {
         user: {}
       };
       // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>).getWrappedInstance();
+      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
       expect(elem.isFormDisabled()).to.equal(false);
     });

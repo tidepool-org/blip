@@ -13,18 +13,16 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-
-import React from 'react';
-import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
-import { bindActionCreators } from 'redux';
 import _ from 'lodash';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import config from '../../config';
+import i18n from '../../core/language';
 import { validateForm } from '../../core/validation';
-
+import config from '../../config';
 import * as actions from '../../redux/actions';
-
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 import { getDonationAccountCodeFromEmail } from '../../core/utils';
@@ -36,21 +34,30 @@ import {
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
 
-export let PatientNew = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object,
-    working: React.PropTypes.bool.isRequired
-  },
+const t = i18n.t.bind(i18n);
 
-  getFormInputs: function() {
-    const { t } = this.props;
+class PatientNew extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      working: false,
+      formValues: {
+        isOtherPerson: false,
+        firstName:this.getUserFirstName(),
+        lastName:this.getUserLastName(),
+        dataDonateDestination: ''
+      },
+      validationErrors: {},
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
+
+  getFormInputs() {
     const isOtherPerson = this.state.formValues.isOtherPerson;
 
-	const baseInputs = [
+    const baseInputs = [
       {
         name: 'isOtherPerson',
         type: 'radios',
@@ -60,9 +67,16 @@ export let PatientNew = translate()(React.createClass({
         ],
       },
       {
-        name: 'fullName',
+        name: 'firstName',
+        label: t('First Name'),
         type: 'text',
-        placeholder: t('Full name'),
+        placeholder: t('First name')
+      },
+      {
+        name: 'lastName',
+        label: t('Last Name'),
+        type: 'text',
+        placeholder: t('Last name')
       },
       {
         name: 'about',
@@ -86,7 +100,7 @@ export let PatientNew = translate()(React.createClass({
         multi: false,
         value: this.state.formValues.diagnosisType,
         placeholder: t('Choose One'),
-        items: DIABETES_TYPES(),    // eslint-disable-line new-cap
+        items: DIABETES_TYPES(),// eslint-disable-line new-cap
       }
     ];
     if (config.HIDE_DONATE) {
@@ -104,10 +118,10 @@ export let PatientNew = translate()(React.createClass({
         name: 'dataDonateExplainer',
         type: 'explanation',
         text: (
-          <Trans i18nKey="html.patientnew-donate-explainer">
-            You own your data. Read all the details about Tidepool's Big Data
-            Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
-          </Trans>
+          <div>
+            {t("You own your data. Read all the details about Tidepool's Big Data Donation project")} 
+            <a target="_blank" rel="noreferrer" href={URL_BIG_DATA_DONATION_INFO}>{t('here')}</a>.
+          </div>
         ),
       },
       {
@@ -128,42 +142,27 @@ export let PatientNew = translate()(React.createClass({
         ),
       })
     }
-  },
+  }
 
-  getInitialState: function() {
-    return {
-      working: false,
-      formValues: {
-        isOtherPerson: false,
-        fullName: this.getUserFullName(),
-        dataDonateDestination: ''
-      },
-      validationErrors: {},
-    };
-  },
-
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Viewed Profile Create');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      formValues: _.assign(this.state.formValues, {
-        fullName: this.getUserFullName(nextProps)
-      })
-    });
-  },
-
-  getUserFullName: function(props) {
+  getUserFirstName(props) {
     props = props || this.props;
-    return personUtils.fullName(props.user) || '';
-  },
+    return personUtils.firstName(props.user);
+  }
 
-  render: function() {
-    var subnav = this.renderSubnav();
-    var form = this.renderForm();
+  getUserLastName(props) {
+    props = props || this.props;
+    return personUtils.lastName(props.user);
+  }
+
+  render() {
+    const subnav = this.renderSubnav();
+    const form = this.renderForm();
 
     return (
       <div className="PatientNew">
@@ -177,10 +176,9 @@ export let PatientNew = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderSubnav: function() {
-    const { t } = this.props;
+  renderSubnav() {
     return (
       <div className="container-box-outer">
         <div className="container-box-inner PatientNew-subnavInner">
@@ -194,9 +192,9 @@ export let PatientNew = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderForm: function() {
+  renderForm() {
     return (
       <SimpleForm
         inputs={this.getFormInputs()}
@@ -208,23 +206,22 @@ export let PatientNew = translate()(React.createClass({
         onChange={this.handleInputChange}
       />
     );
-  },
+  }
 
-  getSubmitButtonText: function() {
-    const { t } = this.props;
+  getSubmitButtonText() {
     if (this.props.working) {
       return t('Saving...');
     }
     return t('Save');
-  },
+  }
 
-  isFormDisabled: function() {
+  isFormDisabled() {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  }
 
-  handleInputChange: function(attributes) {
-    var key = attributes.name;
-    var value = attributes.value;
+  handleInputChange(attributes) {
+    const key = attributes.name;
+    const value = attributes.value;
     if (!key) {
       return;
     }
@@ -232,11 +229,13 @@ export let PatientNew = translate()(React.createClass({
     var formValues = _.clone(this.state.formValues);
 
     if (key === 'isOtherPerson') {
-      var isOtherPerson = (attributes.value === 'true') ? true : false;
-      var fullName = isOtherPerson ? '' : this.getUserFullName();
+      const isOtherPerson = (attributes.value === 'true') ? true : false;
+      const firstName = isOtherPerson ? '' : this.getUserFirstName();
+      const lastName = isOtherPerson ? '' : this.getUserLastName();
       formValues = _.assign(formValues, {
         isOtherPerson: isOtherPerson,
-        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName
       });
     }
     else if (key === 'dataDonateDestination') {
@@ -254,18 +253,18 @@ export let PatientNew = translate()(React.createClass({
     }
 
     this.setState({formValues: formValues});
-  },
+  }
 
-  handleSubmit: function(formValues) {
+  handleSubmit(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
 
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
 
     if (!_.isEmpty(validationErrors)) {
       return;
     }
 
-    var origFormValues = _.clone(formValues);
+    const origFormValues = _.clone(formValues);
 
     formValues = this.prepareFormValuesForSubmit(formValues);
     this.props.onSubmit(formValues);
@@ -288,17 +287,17 @@ export let PatientNew = translate()(React.createClass({
         });
       }
     }
-  },
+  }
 
-  validateFormValues: function(formValues) {
-    const { t } = this.props;
-    var form = [
-      { type: 'name', name: 'fullName', label: t('full name'), value: formValues.fullName },
+  validateFormValues(formValues) {
+    const form = [
+      { type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName },
+      { type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName },
       { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
       { type: 'diagnosisDate', name: 'diagnosisDate', label: t('diagnosis date'), value: formValues.diagnosisDate, prerequisites: { birthday: formValues.birthday } },
       { type: 'about', name: 'about', label: t('about'), value: formValues.about},
     ];
-    var validationErrors = validateForm(form, this.state.formValues.isOtherPerson);
+    const validationErrors = validateForm(form, this.state.formValues.isOtherPerson);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
@@ -307,37 +306,37 @@ export let PatientNew = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  }
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit(formValues) {
     this.setState({
       working: true,
       formValues: formValues,
       validationErrors: {},
     });
-  },
+  }
 
   // because JavaScript Date will coerce impossible dates into possible ones with
   // no opportunity for exposing the error to the user
   // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
-  makeRawDateString: function(dateObj){
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
+  makeRawDateString(dateObj){
+    let mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
-    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+    const dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
 
     return dateObj.year+'-'+mm+'-'+dd;
-  },
+  }
 
-  isDateObjectComplete: function(dateObj) {
+  isDateObjectComplete(dateObj) {
     if (!dateObj) {
       return false;
     }
     return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
-  },
+  }
 
-  prepareFormValuesForSubmit: function(formValues) {
-    var profile = {};
-    var patient = {
+  prepareFormValuesForSubmit(formValues) {
+    const profile = {};
+    const patient = {
       birthday: this.makeRawDateString(formValues.birthday),
       diagnosisDate: this.makeRawDateString(formValues.diagnosisDate),
     };
@@ -351,13 +350,18 @@ export let PatientNew = translate()(React.createClass({
     }
 
     if (formValues.isOtherPerson) {
-      profile.fullName = this.getUserFullName();
+      profile.firstName = this.getUserFirstName();
+      profile.lastName = this.getUserLastName();
       patient.isOtherPerson = true;
-      patient.fullName = formValues.fullName;
+      patient.firstName = formValues.firstName;
+      patient.lastName = formValues.lastName;
+      patient.fullName = `${formValues.firstName} ${formValues.lastName}`;
     }
     else {
-      profile.fullName = formValues.fullName;
+      profile.firstName = formValues.firstName;
+      profile.lastName = formValues.lastName;
     }
+    profile.fullName = `${profile.firstName} ${profile.lastName}`;
 
     profile.patient = patient;
 
@@ -365,14 +369,23 @@ export let PatientNew = translate()(React.createClass({
       profile: profile,
     };
   }
-}));
+}
+
+PatientNew.propTypes = {
+  fetchingUser: PropTypes.bool.isRequired,
+  onUpdateDataDonationAccounts: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  working: PropTypes.bool.isRequired
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-export function mapStateToProps(state) {
-  var user = null;
+function mapStateToProps(state) {
+  let user = null;
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
@@ -392,7 +405,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  const api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.setupDataStorage.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
@@ -400,4 +413,5 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
+export { PatientNew, mapStateToProps };
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientNew);

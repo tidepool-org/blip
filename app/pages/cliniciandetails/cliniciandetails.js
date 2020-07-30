@@ -14,41 +14,51 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import _ from 'lodash';
 import React from 'react';
-import { Link } from 'react-router';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
-import _ from 'lodash';
-import sundial from 'sundial';
+import i18n from '../../core/language';
 import { validateForm } from '../../core/validation';
-
 import * as actions from '../../redux/actions';
-
-import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
 import personUtils from '../../core/personutils';
 
-var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
+const t = i18n.t.bind(i18n);
 
-export let ClinicianDetails = translate()(React.createClass({
-  propTypes: {
-    fetchingUser: React.PropTypes.bool.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object,
-    working: React.PropTypes.bool.isRequired
-  },
+class ClinicianDetails extends React.Component {
+  constructor(props) {
+    super(props);
 
-  formInputs: function () {
-    const { t } = this.props;
+    this.state = {
+      working: false,
+      formValues: {
+        firstName: this.getUserFirstName(),
+        lastName: this.getUserLastName(),
+        clinicalRole: '',
+        clinicName: '',
+      },
+      validationErrors: {},
+    }
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
+
+  formInputs() {
     return [
     {
-      name: 'fullName',
-      label: t('Full Name'),
+      name: 'firstName',
+      label: t('First Name'),
       type: 'text',
-      placeholder: t('Full name')
+      placeholder: t('First name')
+    },
+    {
+      name: 'lastName',
+      label: t('Last Name'),
+      type: 'text',
+      placeholder: t('Last name')
     },
     {
       name: 'clinicalRole',
@@ -79,54 +89,39 @@ export let ClinicianDetails = translate()(React.createClass({
       label: t('Clinic Phone Number (optional)'),
       type: 'text'
     }
-  ]},
+  ]}
 
-  getInitialState: function() {
-    return {
-      working: false,
-      formValues: {
-        fullName: this.getUserFullName(),
-        clinicalRole: ''
-      },
-      validationErrors: {},
-    };
-  },
-
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('Web - Clinician Details Setup');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      formValues: _.assign(this.state.formValues, {
-        fullName: this.getUserFullName(nextProps)
-      })
-    });
-  },
+  getUserFirstName() {
+    return personUtils.firstName(this.props.user);
+  }
 
-  getUserFullName: function(props) {
-    props = props || this.props;
-    return personUtils.fullName(props.user) || '';
-  },
+  getUserLastName() {
+    return personUtils.lastName(this.props.user);
+  }
 
-  canSubmit: function() {
+  canSubmit() {
+    const { formValues } = this.state;
     if (
-      _.get(this,'state.formValues.fullName.length') &&
-      _.get(this,'state.formValues.clinicalRole.length') &&
-      _.get(this,'state.formValues.clinicName.length')
+      _.get(formValues,'firstName.length') &&
+      _.get(formValues,'lastName.length') &&
+      _.get(formValues,'clinicalRole.length') &&
+      _.get(formValues,'clinicName.length')
     )
       {
         return true;
       } else {
         return false;
       }
-  },
+  }
 
-  render: function() {
-    const { t } = this.props;
-    var form = this.renderForm();
+  render() {
+    const form = this.renderForm();
 
     return (
       <div className="ClinicianDetails">
@@ -148,9 +143,9 @@ export let ClinicianDetails = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderForm: function() {
+  renderForm() {
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -162,47 +157,48 @@ export let ClinicianDetails = translate()(React.createClass({
         onChange={this.handleInputChange}
       />
     );
-  },
+  }
 
-  getSubmitButtonText: function() {
-    const { t } = this.props;
+  getSubmitButtonText() {
     if (this.props.working) {
       return t('Saving...');
     }
     return t('Continue');
-  },
+  }
 
-  isFormDisabled: function() {
+  isFormDisabled() {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  }
 
-  handleInputChange: function(attributes) {
-    var key = attributes.name;
-    var value = attributes.value;
+  handleInputChange(attributes) {
+    const key = attributes.name;
     if (!key) {
       return;
     }
+    const formValues = _.clone(this.state.formValues);
 
-    var formValues = _.clone(this.state.formValues);
+    formValues[key] = attributes.value;
 
-    formValues[key] = value;
+    this.setState({ formValues });
+  }
 
-    this.setState({formValues: formValues});
-  },
-
-  handleSubmit: function(formValues) {
+  handleSubmit(formValues) {
     this.resetFormStateBeforeSubmit(formValues);
 
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
 
     if (!_.isEmpty(validationErrors)) {
       return;
     }
-
-    var user = {
-      fullName: formValues.fullName,
+    const fullName = `${formValues.firstName} ${formValues.lastName}`;
+    const user = {
+      firstName: formValues.firstName,
+      lastName: formValues.lastName,
+      fullName,
       profile: {
-        fullName: formValues.fullName,
+        fullName,
+        firstName: formValues.firstName,
+        lastName: formValues.lastName,
         clinic: {
           role: formValues.clinicalRole,
           name: formValues.clinicName,
@@ -211,41 +207,48 @@ export let ClinicianDetails = translate()(React.createClass({
       }
     };
     this.props.onSubmit(user);
-  },
+  }
 
-  validateFormValues: function(formValues) {
-    var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
+  validateFormValues(formValues) {
+    const form = [
+      { type: 'name', name: 'firstName', label: 'first name', value: formValues.firstName },
+      { type: 'name', name: 'lastName', label: 'last name', value: formValues.lastName },
       { type: 'clinicName', name: 'clinicName', label: 'clinic name', value: formValues.clinicName },
       { type: 'clinicPhone', name: 'clinicPhone', label: 'clinic phone', value: formValues.clinicPhone },
       { type: 'clinicalRole', name: 'clinicalRole', label: 'clinical role', value: formValues.clinicalRole }
     ];
-    var validationErrors = validateForm(form);
+    const validationErrors = validateForm(form, false);
 
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors
-      });
+      this.setState({ validationErrors });
     }
 
     return validationErrors;
-  },
+  }
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit(formValues) {
     this.setState({
       working: true,
-      formValues: formValues,
+      formValues,
       validationErrors: {}
     });
   }
-}));
+}
+
+ClinicianDetails.propTypes = {
+  fetchingUser: PropTypes.bool.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  working: PropTypes.bool.isRequired
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
 export function mapStateToProps(state) {
-  var user = null;
+  let user = null;
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
@@ -259,12 +262,12 @@ export function mapStateToProps(state) {
   };
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
+const mapDispatchToProps = dispatch => bindActionCreators({
   updateClinicianProfile: actions.async.updateClinicianProfile
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.updateClinicianProfile.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric

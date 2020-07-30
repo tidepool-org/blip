@@ -22,20 +22,22 @@ import i18next from './language';
 
 const t = i18next.t.bind(i18next);
 
-// date masks we use
-const FORM_DATE_FORMAT = t('MM/DD/YYYY');
-const SERVER_DATE_FORMAT = 'YYYY-MM-DD';
-
 import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
 let personUtils = {};
 
 personUtils.fullName = (person) => {
-  return utils.getIn(person, ['profile', 'fullName']);
+  return _.get(person, 'profile.fullName','');
+};
+personUtils.firstName = (person) => {
+  return _.get(person, 'profile.firstName', personUtils.fullName(person));
+};
+personUtils.lastName = (person) => {
+  return _.get(person, 'profile.lastName', '');
 };
 
 personUtils.patientInfo = (person) => {
-  return utils.getIn(person, ['profile', 'patient']);
+  return _.get(person, 'profile.patient');
 };
 
 personUtils.hasAcceptedTerms = (person) => {
@@ -67,22 +69,32 @@ personUtils.isDataDonationAccount = (account) => {
 };
 
 personUtils.patientFullName = (person) => {
-  const profile = utils.getIn(person, ['profile'], {});
-  const patientInfo = profile.patient || {};
-
-  if (patientInfo.isOtherPerson) {
-    return patientInfo.fullName;
+  if (personUtils.patientIsOtherPerson(person)) {
+    return _.get(person, 'profile.patient.fullName', personUtils.fullName(person));
   }
+  return personUtils.fullName(person);
+};
 
-  return profile.fullName;
+personUtils.patientFirstName = (person) => {
+  if (personUtils.patientIsOtherPerson(person)) {
+    return _.get(person, 'profile.patient.firstName', personUtils.firstName(person));
+  }
+  return personUtils.firstName(person);
+};
+
+personUtils.patientLastName = (person) => {
+  if (personUtils.patientIsOtherPerson(person)) {
+    return _.get(person, 'profile.patient.lastName', personUtils.lastName(person));
+  }
+  return personUtils.lastName(person);
 };
 
 personUtils.patientIsOtherPerson = (person) => {
-  return Boolean(utils.getIn(person, ['profile', 'patient', 'isOtherPerson']));
+  return Boolean(_.get(person, 'profile.patient.isOtherPerson'));
 };
 
 personUtils.isOnlyCareGiver = (person) => {
-  return Boolean(utils.getIn(person, ['profile', 'isOnlyCareGiver']));
+  return Boolean(_.get(person, 'profile.isOnlyCareGiver'));
 };
 
 personUtils.isSame = (first, second) => {
@@ -153,9 +165,13 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
   const INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
   const OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
 
-  // Legacy: revisit when proper "child accounts" are implemented
-  if (isNameRequired && !formValues.fullName) {
-    validationErrors.fullName = t('Full name is required');
+  if (isNameRequired) {
+    if (!formValues.firstName) {
+      validationErrors.firstName = t('First name is required');
+    }
+    if (!formValues.lastName) {
+      validationErrors.lastName = t('Last name is required');
+    }
   }
 
   const birthday = formValues.birthday;

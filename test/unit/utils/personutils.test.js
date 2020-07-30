@@ -25,6 +25,48 @@ describe('personutils', () => {
     });
   });
 
+  describe('firstName', () => {
+    it('should return first name if exists', () => {
+      var person = {
+        profile: {fullName: 'Mary Smith', firstName: 'Mary'}
+      };
+
+      var result = personUtils.firstName(person);
+
+      expect(result).to.equal(person.profile.firstName);
+    });
+    it('should return fullName if it doesn\'t exist', () => {
+      var person = {
+        profile: {fullName: 'Mary Smith'}
+      };
+
+      var result = personUtils.firstName(person);
+
+      expect(result).to.equal(person.profile.fullName);
+    });
+  });
+
+  describe('lastName', () => {
+    it('should return last name if exists', () => {
+      var person = {
+        profile: {fullName: 'Mary Smith', lastName: 'Smith'}
+      };
+
+      var result = personUtils.lastName(person);
+
+      expect(result).to.equal(person.profile.lastName);
+    });
+    it('should return an empty string if it doesn\'t exist', () => {
+      var person = {
+        profile: {fullName: 'Mary Smith'}
+      };
+
+      var result = personUtils.lastName(person);
+
+      expect(result).to.equal("");
+    });
+  });
+
   describe('patientInfo', () => {
     it('should return patient info if exists', () => {
       var person = {
@@ -336,21 +378,36 @@ describe('personutils', () => {
     var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
     var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
 
-    it('should return error message when name is required but is null', () => {
+    it('should return error message when name is required but first name is null', () => {
       var formValues = {
-        fullName: null,
+        firstName: null,
+        lastName: 'Bloggs',
         birthday: null,
         diagnosisDate: null,
         about: null
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
-      expect(error.fullName).to.equal('Full name is required');
+      expect(error.firstName).to.equal('First name is required');
     });
 
-    it('should not return error message when name is not required and is null', () => {
+    it('should return error message when name is required but last name is null', () => {
       var formValues = {
-        fullName: null,
+        firstName: 'Joe',
+        lastName: null,
+        birthday: null,
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.lastName).to.equal('Last name is required');
+    });
+
+    it('should not return error message when name is not required and first and last names are null', () => {
+      var formValues = {
+        firstName: null,
+        lastName: null,
         birthday: null,
         diagnosisDate: null,
         about: null
@@ -362,7 +419,8 @@ describe('personutils', () => {
 
     it('should return error message when birthday is null', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: null,
         diagnosisDate: null,
         about: null
@@ -375,7 +433,8 @@ describe('personutils', () => {
 
     it('should return error message when birthday is invalid string', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: 'randomstring',
         diagnosisDate: null,
         about: null
@@ -387,7 +446,8 @@ describe('personutils', () => {
 
     it('should return error message when birthday is wrong date format', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '2014-05-01',
         diagnosisDate: null,
         about: null
@@ -399,7 +459,8 @@ describe('personutils', () => {
 
     it('should return error message when diagnosisDate is invalid', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '1234',
         about: null
@@ -411,7 +472,8 @@ describe('personutils', () => {
 
     it('should return error message when diagnosisDate is in wrong format', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '02/02/1988',
         about: null
@@ -423,7 +485,8 @@ describe('personutils', () => {
 
     it('should return no error message when diagnosisDate and birthday are valid and about is empty', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: null
@@ -435,7 +498,8 @@ describe('personutils', () => {
 
     it('should return error message when birthday is in the future', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/2016',
         diagnosisDate: '01/05/1984',
         about: null
@@ -447,7 +511,8 @@ describe('personutils', () => {
 
     it('should return error message when diagnosisDate is in the future', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/05/1984',
         diagnosisDate: '01/01/2016',
         about: null
@@ -459,7 +524,8 @@ describe('personutils', () => {
 
     it('should return error message when diagnosisDate is before birthday', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/05/1984',
         diagnosisDate: '01/01/1983',
         about: null
@@ -471,7 +537,8 @@ describe('personutils', () => {
 
     it('should return no error message when diagnosisDate and birthday and about is valid', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: 'This is a valid length about section'
@@ -483,7 +550,8 @@ describe('personutils', () => {
 
     it('should return error message when about is over max length', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
@@ -498,7 +566,8 @@ describe('personutils', () => {
 
     it('should return no error message when diagnosisDate and birthday and about is at max length', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
@@ -513,7 +582,8 @@ describe('personutils', () => {
 
     it('should return multiple error messages when multiple validation problems', () => {
       var formValues = {
-        fullName: 'Joe Bloggs',
+        firstName: 'Joe',
+        lastName: 'Bloggs',
         birthday: '05/19/2015',
         diagnosisDate: '01/01/2015',
         about: null
