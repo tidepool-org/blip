@@ -23,9 +23,10 @@
 /* global afterEach */
 
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
-import ShareDataBanner from '../../../app/components/sharedatabanner';
+import { ShareDataBanner } from '../../../app/components/sharedatabanner';
+import { BrowserRouter } from 'react-router-dom';
 import { URL_SHARE_DATA_INFO } from '../../../app/core/constants';
 
 const expect = chai.expect;
@@ -36,17 +37,17 @@ describe('ShareDataBanner', () => {
     onClose: sinon.stub(),
     patient: { userid: 1234 },
     trackMetric: sinon.stub(),
-    history: {
-      push: sinon.stub(),
-    },
+    push: sinon.stub(),
   };
 
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
-      <ShareDataBanner
-        {...props}
-      />
+      <BrowserRouter>
+        <ShareDataBanner
+          {...props}
+        />
+      </BrowserRouter>
     );
   });
 
