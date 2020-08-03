@@ -221,7 +221,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   renderPatient = ({fullName, email, link}) => {
     return (
-      <Flex alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor:'pointer'}}>
+      <Flex alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor: 'pointer', height: '2.8em'}}>
         <Box>
           <Text fontWeight="medium">{fullName}</Text>
           <Text>{email}</Text>
@@ -232,7 +232,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   renderBirthday = ({birthday, link}) => {
     return (
-      <Box alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor:'pointer', display:'inline-block'}}>
+      <Box alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor: 'pointer'}}>
         <Text fontWeight="medium">{birthday}</Text>
       </Box>
     )
@@ -312,7 +312,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         orderBy="fullNameOrderable"
         order="asc"
         searchText={this.state.search}
-        rowsPerPage={5}
+        rowsPerPage={8}
         pagination={true}
       />
     );
