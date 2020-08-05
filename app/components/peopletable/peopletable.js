@@ -219,22 +219,18 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     this.setState({search: event.target.value});
   }
 
-  renderPatient = ({fullName, email, link}) => {
-    return (
-      <Flex alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor: 'pointer', height: '2.8em'}}>
-        <Box>
-          <Text fontWeight="medium">{fullName}</Text>
-          <Text>{email}</Text>
-        </Box>
-      </Flex>
-    );
-  }
+  renderPatient = ({fullName, email, link}) => (
+    <Box onClick={this.handleClickPwD(link)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{fullName}</Text>
+      <Text>{email || '\u00A0'}</Text>
+    </Box>
+  );
 
   renderBirthday = ({birthday, link}) => (
     <Box onClick={this.handleClickPwD(link)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{birthday}</Text>
     </Box>
-  ); 
+  );
 
   renderEdit = (patient) => (
     <Icon icon={EditIcon} label={'Edit'} variant={'button'} onClick={this.handleClickEdit(patient)} />
