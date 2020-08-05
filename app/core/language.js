@@ -4,16 +4,20 @@ import { reactI18nextModule } from 'react-i18next';
 import getLocale from 'browser-locale';
 import moment from 'moment';
 
+/* global __I18N_ENABLED__ */
+
+const I18N_ENABLED = __I18N_ENABLED__ === 'true';
+
 // Update moment with the right language, for date display
 i18n.on('languageChanged', lng => {
   moment.locale(lng);
-  if (self.localStorage) {
+  if (I18N_ENABLED && self.localStorage) {
     self.localStorage.lang = lng;
   }
 });
 
-let defaultLanguage = getLocale();
-if (self.localStorage && self.localStorage.lang) {
+let defaultLanguage = I18N_ENABLED ? getLocale() : 'en';
+if (I18N_ENABLED && self.localStorage && self.localStorage.lang) {
   defaultLanguage = self.localStorage.lang;
 }
 
