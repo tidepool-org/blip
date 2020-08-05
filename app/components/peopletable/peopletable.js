@@ -230,21 +230,19 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     );
   }
 
-  renderBirthday = ({birthday, link}) => {
-    return (
-      <Box alignItems="center" onClick={this.handleClickPwD(link)} sx={{cursor: 'pointer'}}>
-        <Text fontWeight="medium">{birthday}</Text>
-      </Box>
-    )
-  }
+  renderBirthday = ({birthday, link}) => (
+    <Box onClick={this.handleClickPwD(link)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{birthday}</Text>
+    </Box>
+  ); 
 
   renderEdit = (patient) => (
     <Icon icon={EditIcon} label={'Edit'} variant={'button'} onClick={this.handleClickEdit(patient)} />
-  )
+  );
 
   renderRemove = (patient) => (
     <Icon icon={DeleteIcon} label={'Remove'} variant={'button'} onClick={this.handleRemove(patient)} />
-  )
+  );
 
   handleWindowResize(windowSize) {
     let tableWidth = 880;
