@@ -32,6 +32,7 @@ const initialState = {
   showingDexcomConnectBanner: null,
   showingShareDataBanner: null,
   seenShareDataBannerMax: false,
+  showingUpdateTypeBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

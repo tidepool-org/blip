@@ -1,19 +1,3 @@
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2017, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
 /* global chai */
 /* global describe */
 /* global context */
@@ -25,13 +9,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { ShareDataBanner } from '../../../app/components/sharedatabanner';
-import { BrowserRouter } from 'react-router-dom';
-import { URL_SHARE_DATA_INFO } from '../../../app/core/constants';
+import { UpdateTypeBanner } from '../../../app/components/updatetypebanner';
 
 const expect = chai.expect;
 
-describe('ShareDataBanner', () => {
+describe('UpdateTypeBanner', () => {
   const props = {
     onClick: sinon.stub(),
     onClose: sinon.stub(),
@@ -43,11 +25,9 @@ describe('ShareDataBanner', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
-      <BrowserRouter>
-        <ShareDataBanner
-          {...props}
-        />
-      </BrowserRouter>
+      <UpdateTypeBanner
+        {...props}
+      />
     );
   });
 
@@ -60,17 +40,8 @@ describe('ShareDataBanner', () => {
   it('should render without errors when provided all required props', () => {
     console.error = sinon.stub();
 
-    expect(wrapper.find('.shareDataBanner')).to.have.length(1);
+    expect(wrapper.find('.updateTypeBanner')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
-  });
-
-  it('should render a link to a share data help article on tidepool website', () => {
-    const expectedText = 'Learn More'
-    const messageLink = wrapper.find('.message-link');
-
-    expect(messageLink).to.have.length(1);
-    expect(messageLink.find({ href: URL_SHARE_DATA_INFO })).to.have.length(1);
-    expect(messageLink.text()).contains(expectedText);
   });
 
   it('should render a close link to dismiss the banner', () => {
@@ -89,56 +60,47 @@ describe('ShareDataBanner', () => {
     const closeLink = wrapper.find('a.close');
     closeLink.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'dismiss Share Data banner');
+    sinon.assert.calledWith(props.trackMetric, 'dismiss Update Type banner');
   });
 
   it('should track the appropriate metric when the learn more link is clicked', () => {
     const moreLink = wrapper.find('a.message-link');
     moreLink.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'clicked learn more Share Data banner');
+    sinon.assert.calledWith(props.trackMetric, 'clicked learn more Update Type banner');
   });
 
-  it('should call the submit handler when the share data button is clicked', () => {
+  it('should call the submit handler when the update type button is clicked', () => {
     const button = wrapper.find('button');
     button.simulate('click');
     sinon.assert.calledOnce(props.onClick);
   });
 
-  it('should track the metrics when the share data button is clicked', () => {
+  it('should track the metrics when the update type button is clicked', () => {
     const button = wrapper.find('button');
     button.simulate('click');
     sinon.assert.calledOnce(props.trackMetric);
-    sinon.assert.calledWith(props.trackMetric, 'clicked get started on Share Data banner');
+    sinon.assert.calledWith(props.trackMetric, 'clicked get started on Update Type banner');
   });
 
   describe('render', function () {
     it('should render without errors when provided all required props', () => {
       console.error = sinon.stub();
 
-      expect(wrapper.find('.shareDataBanner')).to.have.length(1);
+      expect(wrapper.find('.updateTypeBanner')).to.have.length(1);
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should render a share data message', () => {
-      const expectedText = 'New Tidepool Account? Share Your Data with your healthcare team.'
+    it('should render a update type message', () => {
+      const expectedText = 'Complete your profile'
       const messageText = wrapper.find('.message-text');
 
       expect(messageText).to.have.length(1);
       expect(messageText.text()).contains(expectedText);
     });
 
-    it('should render a link to share data article on tidepool website', () => {
-      const expectedText = 'Learn More'
-      const messageLink = wrapper.find('.message-link');
-
-      expect(messageLink).to.have.length(1);
-      expect(messageLink.find({ href: URL_SHARE_DATA_INFO })).to.have.length(1);
-      expect(messageLink.text()).contains(expectedText);
-    });
-
-    it('should render a get started button', () => {
-      const expectedText = 'Get Started'
+    it('should render a update my profile button', () => {
+      const expectedText = 'Update My Profile'
       const button = wrapper.find('button');
 
       expect(button).to.have.length(1);
