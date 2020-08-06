@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import bows from 'bows';
+import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
+import each from 'lodash/each';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -15,6 +17,10 @@ import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
+import isArray from 'lodash/isArray';
+import { default as _values } from 'lodash/values';
+import includes from 'lodash/includes';
+import { utils as vizUtils } from '@tidepool/viz';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -24,14 +30,18 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import Stepper from '../../components/elements/Stepper';
+import i18next from '../../core/language';
 
 import {
+  defaultRanges,
   defaultUnits,
   defaultValues,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
 
+const { TextUtil } = vizUtils.text;
+const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
@@ -55,10 +65,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
       cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
       // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-      // suspendThreshold: {
-      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-      //   units: defaultUnits.suspendThreshold,
-      // },
+      suspendThreshold: {
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
+        units: defaultUnits.suspendThreshold,
+      },
       basalRateMaximum: {
         value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
@@ -68,6 +78,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         units: defaultUnits.bolusAmount,
       },
       bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+        context: {
+          min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+        },
         high: '',
         low: '',
         start: 0,
@@ -95,6 +108,35 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
+export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
+  const textUtil = new TextUtil();
+
+  let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
+
+  textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
+    today: moment().format('MMM D, YYYY'),
+  }));
+
+  textString += textUtil.buildTextLine('');
+
+  textString += textUtil.buildTextLine(t('Patient Profile'));
+  each(patientRows, row => textString += textUtil.buildTextLine(row));
+
+  textString += textUtil.buildTextLine('');
+
+  each(therapySettingsRows, row => {
+    if (isArray(row.value)) {
+      textString += textUtil.buildTextLine('');
+      textString += textUtil.buildTextLine(row.label);
+      each(row.value, value => textString += textUtil.buildTextLine(value));
+    } else {
+      textString += textUtil.buildTextLine(row);
+    }
+  });
+
+  return textString;
+};
+
 export const PrescriptionForm = props => {
   const {
     t,
@@ -102,7 +144,9 @@ export const PrescriptionForm = props => {
     createPrescriptionRevision,
     creatingPrescription,
     creatingPrescriptionRevision,
+    location,
     prescription,
+    trackMetric,
     history,
   } = props;
 
@@ -131,8 +175,8 @@ export const PrescriptionForm = props => {
   const storageKey = 'prescriptionForm';
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? activeStepsParam[0] : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? activeStepsParam[1] : undefined);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
@@ -179,11 +223,26 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
+  // Update minimum blood glucose target values when suspendThreshold changes
+  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+  React.useEffect(() => {
+    each(bloodGlucoseTargetSchedule, (schedule, i) => {
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+    });
+  }, [suspendThreshold]);
+
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
       setActiveStep(step);
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
+    },
+
+    generateTherapySettingsOrderText,
+
+    handleCopyTherapySettingsClicked: () => {
+      trackMetric('Clicked Copy Therapy Settings Order');
     },
 
     singleStepEditComplete: (cancelFieldUpdates) => {
@@ -205,6 +264,10 @@ export const PrescriptionForm = props => {
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
 
+      for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
+        fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
+      }
+
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
@@ -212,7 +275,15 @@ export const PrescriptionForm = props => {
       if (!isLastStep) {
         const emptyFieldsInFutureSteps = remove(
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
-          fieldPath => isEmpty(get(values, fieldPath))
+          fieldPath => {
+            const value = get(values, fieldPath);
+            // Return schedule field arrays that are set to the default initial empty string values
+            if (isArray(value) && value.length === 1) {
+              return includes(_values(value[0]), '');
+            }
+            // Return empty values for non-array fields
+            return isEmpty(value);
+          }
         );
 
         // Add empty future fields to the array of fieldpaths to delete.
@@ -259,6 +330,7 @@ export const PrescriptionForm = props => {
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
     id: stepperId,
+    location,
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
       if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);

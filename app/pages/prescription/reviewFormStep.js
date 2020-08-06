@@ -8,6 +8,7 @@ import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
 import { stepValidationFields, warningThresholds } from './prescriptionFormConstants';
@@ -16,13 +17,15 @@ import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
 import Checkbox from '../../components/elements/Checkbox';
 import Icon from '../../components/elements/Icon';
+import baseTheme from '../../themes/baseTheme';
+import PopoverLabel from '../../components/elements/PopoverLabel';
 
 import {
   fieldsetStyles,
   checkboxStyles,
 } from './prescriptionFormStyles';
-import PopoverLabel from '../../components/elements/PopoverLabel';
 
+const { ClipboardButton } = vizComponents;
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionReview');
 
@@ -32,92 +35,44 @@ const fieldsetPropTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export const PatientInfo = props => {
-  const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
-  const nameStep = [0, 0];
-  const currentStep = [3, 0];
+const patientRows = meta => ([
+  {
+    label: t('Email'),
+    value: meta.email.value,
+    step: [0, 1],
+  },
+  {
+    label: t('Mobile Number'),
+    value: meta.phoneNumber.number.value,
+    step: [1, 0],
+  },
+  // {
+  //   label: t('Type of Account'),
+  //   value: capitalize(meta.type.value),
+  //   step: [0, 0],
+  // },
+  {
+    label: t('Birthdate'),
+    value: meta.birthday.value,
+    step: [0, 0],
+  },
+  {
+    label: t('Gender'),
+    value: capitalize(meta.sex.value),
+    step: [1, 2],
+  },
+  {
+    label: t('MRN'),
+    value: meta.mrn.value,
+    step: [1, 1],
+  },
+]);
 
-  const {
-    firstName,
-    lastName,
-  } = meta;
-
-  const rows = [
-    {
-      label: t('Email'),
-      value: meta.email.value,
-      step: [0, 1],
-    },
-    {
-      label: t('Mobile Number'),
-      value: meta.phoneNumber.number.value,
-      step: [1, 0],
-    },
-    // {
-    //   label: t('Type of Account'),
-    //   value: capitalize(meta.type.value),
-    //   step: [0, 0],
-    // },
-    {
-      label: t('Birthdate'),
-      value: meta.birthday.value,
-      step: [0, 0],
-    },
-    {
-      label: t('Gender'),
-      value: capitalize(meta.sex.value),
-      step: [1, 2],
-    },
-    {
-      label: t('MRN'),
-      value: meta.mrn.value,
-      step: [1, 1]
-    },
-  ];
-
-  const Row = ({ label, value, step, index }) => (
-    <Flex mb={4} justifyContent="space-between" alignItems="center" key={index}>
-      <Body1>{label}</Body1>
-      <Box>
-        <Flex alignItems="center">
-          <Body1 mr={2}>{value}</Body1>
-          <Icon
-            variant="button"
-            icon={EditRoundedIcon}
-            label={t('Edit {{label}}', { label })}
-            onClick={() => activeStepUpdate(step, currentStep)}
-          />
-        </Flex>
-      </Box>
-    </Flex>
-  );
-
-  return (
-    <Box {...themeProps}>
-      <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Headline mr={2}>{firstName.value} {lastName.value}</Headline>
-        <Icon
-            variant="button"
-            icon={EditRoundedIcon}
-            label={t('Edit Patient Name')}
-            onClick={() => activeStepUpdate(nameStep, currentStep)}
-          />
-      </Flex>
-      {map(rows, (row, index) => <Row {...row} index={index} />)}
-    </Box>
-  );
-};
-
-PatientInfo.propTypes = fieldsetPropTypes;
-
-export const TherapySettings = props => {
-  const { t, handlers: { activeStepUpdate }, meta, ...themeProps } = props;
+const therapySettingsRows = meta => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const therapySettingsStep = [2, 0];
-  const currentStep = [3, 0];
-  const thresholds = warningThresholds(bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
-  const rows = [
+  return [
     {
       id: 'cpt-training',
       label: t('CPT Training Required'),
@@ -144,12 +99,12 @@ export const TherapySettings = props => {
         }
       ),
     },
-    // {
-    //   id: 'suspend-threshold',
-    //   label: t('Suspend Threshold'),
-    //   value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-    //   warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
-    // },
+    {
+      id: 'suspend-threshold',
+      label: t('Suspend Threshold'),
+      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+    },
     // {
     //   id: 'insulin-model',
     //   label: t('Insulin Model'),
@@ -163,9 +118,9 @@ export const TherapySettings = props => {
         t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
       ],
       warning: [
-        null,
-        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)
-      ]
+        getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum),
+        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum),
+      ],
     },
     {
       id: 'basal-schedule',
@@ -204,6 +159,81 @@ export const TherapySettings = props => {
       ),
     },
   ];
+};
+
+export const PatientInfo = props => {
+  const {
+    t,
+    handlers: { activeStepUpdate },
+    meta,
+    ...themeProps
+  } = props;
+
+  const nameStep = [0, 0];
+  const currentStep = [3, 0];
+
+  const {
+    firstName,
+    lastName,
+  } = meta;
+
+  const patientName = `${firstName.value} ${lastName.value}`;
+  const rows = patientRows(meta);
+
+  const Row = ({ label, value, step, index }) => (
+    <Flex mb={4} justifyContent="space-between" alignItems="center" key={index}>
+      <Body1>{label}</Body1>
+      <Box>
+        <Flex alignItems="center">
+          <Body1 mr={2}>{value}</Body1>
+          <Icon
+            variant="button"
+            icon={EditRoundedIcon}
+            label={t('Edit {{label}}', { label })}
+            onClick={() => activeStepUpdate(step, currentStep)}
+          />
+        </Flex>
+      </Box>
+    </Flex>
+  );
+
+  return (
+    <Box {...themeProps}>
+      <Flex mb={4} alignItems="center" justifyContent="space-between">
+        <Headline mr={2}>{patientName}</Headline>
+        <Icon
+            variant="button"
+            icon={EditRoundedIcon}
+            label={t('Edit Patient Name')}
+            onClick={() => activeStepUpdate(nameStep, currentStep)}
+          />
+      </Flex>
+      {map(rows, (row, index) => <Row {...row} index={index} />)}
+    </Box>
+  );
+};
+
+PatientInfo.propTypes = fieldsetPropTypes;
+
+export const TherapySettings = props => {
+  const {
+    t,
+    handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
+    meta,
+    ...themeProps
+  } = props;
+
+  const therapySettingsStep = [2, 0];
+  const currentStep = [3, 0];
+
+  const {
+    firstName,
+    lastName,
+  } = meta;
+
+  const patientName = `${firstName.value} ${lastName.value}`;
+
+  const rows = therapySettingsRows(meta);
 
   const Row = ({ label, value, warning, id, index }) => {
     const values = isArray(value) ? value : [value];
@@ -264,15 +294,45 @@ export const TherapySettings = props => {
         {map(rows, (row, index) => <Row {...row} index={index} />)}
       </Box>
 
-      <FastField
-        as={Checkbox}
-        id="therapySettingsReviewed"
-        name="therapySettingsReviewed"
-        checked={!!meta.therapySettingsReviewed.value}
-        required
-        label={t('I have confirmed the therapy settings order for this patient')}
-        {...checkboxStyles}
-      />
+      <Box mb={4}>
+        <FastField
+          as={Checkbox}
+          id="therapySettingsReviewed"
+          name="therapySettingsReviewed"
+          checked={!!meta.therapySettingsReviewed.value}
+          required
+          label={t('I have confirmed the therapy settings order for this patient')}
+          {...checkboxStyles}
+        />
+      </Box>
+
+      <Box
+        mb={4}
+        theme={baseTheme}
+        sx={{
+          button: {
+            border: 'input',
+            color: 'text.primary',
+            '&:hover,&:active': {
+              backgroundColor: 'blueGreyDark',
+              borderColor: 'blueGreyDark',
+            },
+          },
+        }}
+      >
+        <ClipboardButton
+          buttonTitle={t('For email or notes')}
+          buttonText={t('Copy therapy settings order as text')}
+          onClick={handleCopyTherapySettingsClicked}
+          getText={generateTherapySettingsOrderText.bind(null, [
+            {
+              label: t('Name'),
+              value: patientName,
+            },
+            ...patientRows(meta),
+          ], therapySettingsRows(meta))}
+        />
+      </Box>
     </Box>
   );
 };

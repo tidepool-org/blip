@@ -31,7 +31,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
       if(err){
         this.setState({error: true});
       }
-      this.setState(utils.getLatestGithubRelease(releases));
+      this.setState(utils.getUploaderDownloadURL(releases));
     });
   }
 
