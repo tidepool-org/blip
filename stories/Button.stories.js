@@ -191,3 +191,33 @@ Chip.story = {
     },
   },
 };
+
+export const Large = () => {
+  const buttonText = () => text('Button Text', 'Large');
+
+  const [selected, setSelected] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="large"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Large.story = {
+  name: 'Large',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
+    },
+  },
+};

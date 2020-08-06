@@ -22,6 +22,7 @@ import SendVerificationBanner from '../../components/sendverificationbanner';
 import LogoutOverlay from '../../components/logoutoverlay';
 import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
+import UpdateTypeBanner from '../../components/updatetypebanner';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
@@ -55,7 +56,8 @@ export class AppComponent extends React.Component {
     onCloseNotification: PropTypes.func.isRequired,
     onDismissDonateBanner: PropTypes.func.isRequired,
     onDismissDexcomConnectBanner: PropTypes.func.isRequired,
-    onDismissShareDataBanner: PropTypes.func.isRequired,
+    onDismissShareDataBanner: PropTypes.func,
+    onDismissUpdateTypeBanner: PropTypes.func,
     onUpdateDataDonationAccounts: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     patient: PropTypes.object,
@@ -71,6 +73,7 @@ export class AppComponent extends React.Component {
     showingDexcomConnectBanner: PropTypes.bool,
     showingShareDataBanner: PropTypes.bool,
     seenShareDataBannerMax: PropTypes.bool,
+    showingUpdateTypeBanner: PropTypes.bool,
     showBanner: PropTypes.func.isRequired,
     hideBanner: PropTypes.func.isRequired,
     termsAccepted: PropTypes.string,
@@ -90,6 +93,7 @@ export class AppComponent extends React.Component {
       dexcomShowBannerMetricTracked: false,
       donateShowBannerMetricTracked: false,
       shareDataBannerMetricTracked: false,
+      updateTypeBannerMetricTracked: false,
     }
   }
 
@@ -141,11 +145,13 @@ export class AppComponent extends React.Component {
       showingDexcomConnectBanner,
       showingShareDataBanner,
       updateShareDataBannerSeen,
+      showingUpdateTypeBanner,
       seenShareDataBannerMax,
       location,
       userHasData,
       userHasConnectedDataSources,
       userHasSharedDataWithClinician,
+      userHasDiabetesType,
       userIsCurrentPatient,
       userIsSupportingNonprofit,
       patient,
@@ -193,10 +199,13 @@ export class AppComponent extends React.Component {
           }
         }
 
+    let displayDexcomConnectBanner = false;
+
     if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
+        displayDexcomConnectBanner = true;
 
         if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
           this.props.context.trackMetric('Dexcom OAuth banner displayed');
@@ -204,6 +213,20 @@ export class AppComponent extends React.Component {
         }
       } else if (showingDexcomConnectBanner) {
         this.props.hideBanner('dexcom');
+      }
+    }
+
+    if (showingUpdateTypeBanner !== false && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
+      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources && !userHasDiabetesType;
+      if (showUpdateTypeBanner) {
+        this.props.showBanner('updatetype');
+
+        if (this.props.context.trackMetric && !this.state.updateTypeShowBannerMetricTracked) {
+          this.props.context.trackMetric('Update Type banner displayed');
+          this.setState({ updateTypeShowBannerMetricTracked: true });
+        }
+      } else if (showingUpdateTypeBanner) {
+        this.props.hideBanner('updatetype');
       }
     }
   }
@@ -347,6 +370,31 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderUpdateTypeBanner() {
+    this.props.context.log('Rendering update type banner');
+
+    const {
+      showingUpdateTypeBanner,
+      onClickUpdateTypeBanner,
+      onDismissUpdateTypeBanner,
+      patient,
+    } = this.props;
+
+    if (showingUpdateTypeBanner) {
+      return (
+        <div className="App-updatetypebanner">
+          <UpdateTypeBanner
+            onClick={onClickUpdateTypeBanner}
+            onClose={onDismissUpdateTypeBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderAddEmailBanner() {
     this.props.context.log('Rendering clinician add email banner');
 
@@ -460,6 +508,7 @@ export class AppComponent extends React.Component {
     var donatebanner = this.renderDonateBanner();
     var dexcombanner = this.renderDexcomConnectBanner();
     var sharedatabanner = this.renderShareDataBanner();
+    var updatetypebanner = this.renderUpdateTypeBanner();
     var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
@@ -472,6 +521,7 @@ export class AppComponent extends React.Component {
         {donatebanner}
         {dexcombanner}
         {sharedatabanner}
+        {updatetypebanner}
         {this.props.children}
         {footer}
       </div>
@@ -509,6 +559,7 @@ export function mapStateToProps(state) {
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
+  let userHasDiabetesType = false;
 
   if (userHasSharedData) {
     let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
@@ -530,6 +581,10 @@ export function mapStateToProps(state) {
       if (_.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
       }
+
+      if (_.get(user, 'profile.patient.diagnosisType')) {
+          userHasDiabetesType = true;
+      }
     }
 
     if (state.blip.currentPatientInViewId) {
@@ -544,9 +599,9 @@ export function mapStateToProps(state) {
         {}
       );
       permsOfLoggedInUser = _.get(
-       state.blip.membershipPermissionsInOtherCareTeams,
-       state.blip.currentPatientInViewId,
-       {}
+        state.blip.membershipPermissionsInOtherCareTeams,
+        state.blip.currentPatientInViewId,
+        {}
       );
     }
 
@@ -617,8 +672,10 @@ export function mapStateToProps(state) {
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
     showingShareDataBanner: state.blip.showingShareDataBanner,
     seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
+    showingUpdateTypeBanner: state.blip.showingUpdateTypeBanner,
     userIsCurrentPatient,
     userHasData,
+    userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,
     userHasSharedDataWithClinician,
@@ -637,8 +694,10 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onDismissDonateBanner: actions.async.dismissDonateBanner,
   onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
   onDismissShareDataBanner: actions.async.dismissShareDataBanner,
+  onDismissUpdateTypeBanner: actions.async.dismissUpdateTypeBanner,
   onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
   onClickShareDataBanner: actions.async.clickShareDataBanner,
+  onClickUpdateTypeBanner: actions.async.clickUpdateTypeBanner,
   updateShareDataBannerSeen: actions.async.updateShareDataBannerSeen,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
@@ -665,8 +724,10 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
     onDismissShareDataBanner: dispatchProps.onDismissShareDataBanner.bind(null, api),
+    onDismissUpdateTypeBanner: dispatchProps.onDismissUpdateTypeBanner.bind(null, api),
     onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
     onClickShareDataBanner: dispatchProps.onClickShareDataBanner.bind(null, api),
+    onClickUpdateTypeBanner: dispatchProps.onClickUpdateTypeBanner.bind(null, api),
     updateShareDataBannerSeen: dispatchProps.updateShareDataBannerSeen.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
