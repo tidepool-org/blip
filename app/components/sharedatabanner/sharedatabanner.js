@@ -17,18 +17,19 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { translate } from 'react-i18next';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import { URL_SHARE_DATA_INFO } from '../../core/constants';
 
-
-const ShareDataBanner = (props) => {
+export const ShareDataBanner = translate()((props) => {
   const {
     onClick,
     onClose,
     patient,
     trackMetric,
-    history,
-    t
+    t,
+    push,
   } = props;
 
   const getMessageText = () => {
@@ -56,7 +57,7 @@ const ShareDataBanner = (props) => {
   const handleSubmit = () => {
     onClick(patient.userid);
 
-    history.push(`/patients/${patient.userid}/share`);
+    push(`/patients/${patient.userid}/share`);
 
     if (trackMetric) {
       trackMetric('clicked get started on Share Data banner');
@@ -96,7 +97,7 @@ const ShareDataBanner = (props) => {
       </div>
     </div>
   );
-};
+});
 
 ShareDataBanner.propTypes = {
   onClick: PropTypes.func.isRequired,
@@ -105,4 +106,4 @@ ShareDataBanner.propTypes = {
   patient: PropTypes.object.isRequired,
 };
 
-export default translate()(ShareDataBanner);
+export default connect(null, { push })(ShareDataBanner);

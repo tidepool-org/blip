@@ -181,5 +181,10 @@ describe('forms', function() {
       expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
       expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
     });
+
+    it('should return `null` if non-numeric value is passed in', () => {
+      expect(formUtils.getThresholdWarning('', threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning('6', threshold)).to.equal(null);
+    });
   });
 });
