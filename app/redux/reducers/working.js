@@ -53,6 +53,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
+    case types.FETCH_DEVICES_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
     case types.EDIT_MESSAGE_THREAD_REQUEST:
@@ -142,6 +143,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_SUCCESS:
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
+    case types.FETCH_DEVICES_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
     case types.EDIT_MESSAGE_THREAD_SUCCESS:
@@ -251,6 +253,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_FAILURE:
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
+    case types.FETCH_DEVICES_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:
     case types.EDIT_MESSAGE_THREAD_FAILURE:

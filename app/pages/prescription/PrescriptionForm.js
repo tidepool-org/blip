@@ -29,6 +29,7 @@ import profileFormSteps from './profileFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
+import withDevices from './withDevices';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 
@@ -403,4 +404,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default withPrescriptions(withFormik(prescriptionForm())(translate()(PrescriptionForm)));
+export default withPrescriptions(withDevices(withFormik(prescriptionForm())(translate()(PrescriptionForm))));
