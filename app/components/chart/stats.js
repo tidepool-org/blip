@@ -12,6 +12,8 @@ const Stats = (props) => {
     stats,
   } = props;
 
+  const statsWithoutBgExtents = stats.filter((stat) => stat.id !== 'bgExtents');
+
   const renderStats = (stats, animate) => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
       <Stat animate={animate} bgPrefs={bgPrefs} {...stat} />
@@ -20,7 +22,7 @@ const Stats = (props) => {
 
   return (
     <div className="Stats">
-      {renderStats(stats, animateStats)}
+      {renderStats(statsWithoutBgExtents, animateStats)}
     </div>
   );
 }
@@ -31,4 +33,4 @@ Stats.propTypes = {
   stats: PropTypes.array.isRequired,
 };
 
-export default Stats
+export default Stats;
