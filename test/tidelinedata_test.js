@@ -960,4 +960,38 @@ describe('TidelineData', function() {
       expect(message.normalTime).to.equal(moment(message.time).tz('Pacific/Auckland').toISOString());
     });
   });
+
+  describe('deduplicatePhysicalActivities', function() {
+    var data = [
+      new types.PhysicalActivity({
+        deviceTime: '2014-07-01T10:00:00',
+        eventId: 'PA1',
+      }),
+      new types.PhysicalActivity({
+        deviceTime: '2014-07-01T10:30:00',
+        eventId: 'PA1',
+      }),
+      new types.PhysicalActivity({
+        deviceTime: '2014-07-02T10:30:00',
+      }),
+      new types.PhysicalActivity({
+        deviceTime: '2014-07-03T10:30:00',
+        eventId: 'ToBeDeleted',
+      }),
+      new types.PhysicalActivity({
+        deviceTime: '2014-07-04T10:30:00',
+        eventId: 'ToBeDeleted',
+      })
+    ];
+    var thisTd = new TidelineData(data);
+
+    it('should be a function', function() {
+      assert.isFunction(thisTd.deduplicatePhysicalActivities);
+    });
+
+    it('should deduplicate PAs based on eventId', function() {
+      expect(thisTd.physicalActivities.length).to.equal(3);
+    });
+  });
+
 });

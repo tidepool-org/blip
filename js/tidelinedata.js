@@ -229,6 +229,14 @@ function TidelineData(data, opts) {
     }
   };
 
+  this.deduplicatePhysicalActivities = function (data = []) {
+    var physicalActivity = _.groupBy(_.filter( data, {type: 'physicalActivity'}), 'eventId');
+    _.forEach(physicalActivity, (value, key) => {
+      physicalActivity[key] = _.orderBy(value, ['deviceTime'], ['desc']);
+    })
+    this.physicalActivities = _.map(physicalActivity, (value) => value[0]);
+  };
+  
   this.checkTimezone = function() {
     if (!Array.isArray(this.grouped.upload)) {
       return;
@@ -420,6 +428,9 @@ function TidelineData(data, opts) {
     // get DeviceParameters
     this.setDeviceParameters(this.data);
 
+    // get PhysicalActivities
+    this.deduplicatePhysicalActivities(data);
+  
     // Timezone change events (for tooltips)
     this.checkTimezone();
 
@@ -732,6 +743,12 @@ function TidelineData(data, opts) {
   this.setDeviceParameters(data);
 
   endTimer('deviceEvents');
+
+  startTimer('deduplicatePhysicalActivities');
+
+  this.deduplicatePhysicalActivities(data);
+
+  endTimer('deduplicatePhysicalActivities');
 
   this.setBGPrefs();
 

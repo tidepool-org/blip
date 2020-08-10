@@ -325,6 +325,36 @@ var Wizard = function(opts) {
 
 Wizard.prototype = common;
 
+var PhysicalActivity = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    deviceTime: this.makeDeviceTime(),
+    reportedIntensity: 'medium',
+    eventId: this.makeId(),
+    duration: {
+      units: 'minutes',
+      value: 30.0
+    }
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'physicalActivity';
+
+  this.deviceTime = opts.deviceTime;
+  this.duration = opts.duration;
+  if (opts.eventId !== 'ToBeDeleted') {
+    this.eventId = opts.eventId;
+  }
+  this.reportedIntensity = opts.reportedIntensity;
+
+  this.time = this.makeTime();
+  this.createdTime = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
+  this.id = this.makeId();
+};
+
+PhysicalActivity.prototype = common;
+
 module.exports = (function() {
   return {
     Basal: Basal,
@@ -336,5 +366,6 @@ module.exports = (function() {
     SMBG: SMBG,
     Upload: Upload,
     Wizard: Wizard,
+    PhysicalActivity: PhysicalActivity,
   };
 }());

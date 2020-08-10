@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.12.0 2020-08-10
+### Changed 
+- PT-1444 Deduplicate Physical Activity events containing the new EventId field
+
 ## 1.11.1 - 2020-07-20
 ### Fixed
 - YLP-88 Fix CSS for display infusion site change in the basics page

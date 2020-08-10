@@ -259,6 +259,7 @@ function chartDailyFactory(el, options) {
       timezoneAware: chart.options.timePrefs.timezoneAware,
       onPhysicalHover: options.onPhysicalHover,
       onPhysicalOut: options.onPhysicalOut,
+      data: tidelineData.physicalActivities,
     }), true, true);
 
     poolBG.addPlotType('deviceEvent', tideline.plot.reservoirChange(poolBG, {

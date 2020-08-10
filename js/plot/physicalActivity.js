@@ -35,7 +35,8 @@ module.exports = function(pool, opts) {
   return function(selection) {
     opts.xScale = pool.xScale().copy();
 
-    selection.each(function(currentData) {
+    selection.each(function() {
+      var currentData = opts.data;
       var physicalActivty = d3.select(this)
         .selectAll('g.d3-pa-group')
         .data(currentData, function(d) {
