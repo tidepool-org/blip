@@ -72,16 +72,6 @@ export const defaultUnits = {
   bloodGlucose: MGDL_UNITS,
 };
 
-export const defaultValues = (bgUnits = defaultUnits.bloodGlucose) => {
-  const values = {
-    basalRate: 0.05,
-    basalRateMaximum: 0,
-    bolusAmountMaximum: 0,
-  };
-
-  return values;
-};
-
 export const defaultRanges = (bgUnits = defaultUnits.bloodGlucose, meta) => {
   const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
   let minBloodGlucoseTarget = 60;

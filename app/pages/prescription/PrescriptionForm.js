@@ -6,6 +6,7 @@ import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
 import each from 'lodash/each';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -32,11 +33,12 @@ import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
+import { getFloatFromUnitsAndNanos } from '../../core/data';
 
 import {
   defaultRanges,
   defaultUnits,
-  defaultValues,
+  deviceIdMap,
   deviceMeta,
   stepValidationFields,
   validCountryCodes,
@@ -49,7 +51,9 @@ const log = bows('PrescriptionForm');
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
-    const pumpMeta = deviceMeta(selectedPumpId || get(props, 'devices.pumps.0.id'));
+    const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
+    const pump = find(props.devices.pumps, { id: pumpId });
+    const pumpMeta = deviceMeta(pumpId);
 
     return {
       id: get(props, 'prescription.id', ''),
@@ -76,11 +80,11 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           units: defaultUnits.suspendThreshold,
         },
         basalRateMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
+          value: getFloatFromUnitsAndNanos(get(pump, 'guardRails.basalRateMaximum.defaultValue')),
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
+          value: getFloatFromUnitsAndNanos(get(pump, 'guardRails.bolusAmountMaximum.defaultValue')),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
@@ -92,7 +96,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           start: 0,
         }]),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: get(props, 'devices.pumps'),
+          rate: getFloatFromUnitsAndNanos(get(pump, 'guardRails.basalRates.defaultValue')),
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{

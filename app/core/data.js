@@ -21,3 +21,7 @@ export const isMissingBasicsData = (aggregationsByDate = {}) => {
   const basicsData = [basals, boluses, siteChanges, calibration, smbg];
   return !_.some(basicsData, d => _.keys(d.byDate).length > 0);
 }
+
+export const getFloatFromUnitsAndNanos = ({ units, nanos }) => {
+  return parseFloat(parseInt(units) + (parseInt(nanos) / 10e8));
+};
