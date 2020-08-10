@@ -35,10 +35,12 @@
 
 .label {
   flex-grow: 1;
+  font-weight: bold;
 }
 
 .value {
   margin-left: 20px;
+  text-align: right;
 }
 
 .units {
@@ -53,5 +55,4 @@
 
 .pa {
   composes: row;
-  font-weight: bold;
 }

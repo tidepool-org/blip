@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.15.0 2020-08-10
+### Changed
+- PT-1304 Display the new physical activity fields
+
 ## 0.14.0 - 2020-07-15 
 ### Changed
 - PT-1294 Display rescueCarbs recommendation

@@ -38,6 +38,7 @@
 
 import _ from 'lodash';
 import { format } from 'd3-format';
+import { formatLocalizedFromUTC, getHourMinuteFormat } from './datetime';
 import { convertToMmolL } from './bloodglucose';
 import { BG_HIGH, BG_LOW, MMOLL_UNITS, MGDL_UNITS } from './constants';
 
@@ -120,6 +121,17 @@ export function formatPercentage(val, precision = 0) {
     return '--%';
   }
   return format(`.${precision}%`)(val);
+}
+
+/**
+ * Format Input Time
+ * @param {string|number|Date|moment.Moment} utcTime Zulu timestamp (Integer hammertime also OK)
+ * @param {{timezoneAware: boolean, timezoneName?: string}} timePrefs
+ *
+ * @return {string} The formated time for input time in the terminal
+ */
+export function formatInputTime(utcTime, timePrefs) {
+  return formatLocalizedFromUTC(utcTime, timePrefs, getHourMinuteFormat());
 }
 
 /**

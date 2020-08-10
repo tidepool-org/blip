@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import i18next from 'i18next';
-
+import { formatInputTime } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './PhysicalTooltip.css';
@@ -48,7 +48,8 @@ class PhysicalTooltip extends React.Component {
     return display;
   }
 
-  renderPhysicalActivity() {
+  renderPhysicalActivity(pa) {
+    const { timePrefs } = this.props;
     const d = this.getDurationInMinutes();
     const rows = [
       <div key={'title'} className={styles.pa}>
@@ -57,17 +58,29 @@ class PhysicalTooltip extends React.Component {
       <div key={'physical'} className={styles.pa}>
         <div className={styles.label}>{t('Intensity')}</div>
         <div className={styles.value}>
-          {t(`${this.props.physicalActivity.reportedIntensity}-pa`)}
+          {t(`${pa.reportedIntensity}-pa`)}
         </div>
       </div>,
       <div key={'duration'} className={styles.pa}>
         <div className={styles.label}>{t('Duration')}</div>
-        <div className={styles.value}>{`${d.value}`}</div>
-        <div className={styles.units}>{`${d.units}`}</div>
+        <div className={styles.value}>{`${d.value} ${d.units}`}</div>
       </div>,
     ];
+    const inputTime = [];
+    if (pa.inputTime) {
+      inputTime.push(
+        <div key={'inputTime'} className={styles.pa}>
+          <div className={styles.label}>
+            {t('Entered at')}
+          </div>
+          <div className={styles.value}>
+            {formatInputTime(pa.inputTime, timePrefs)}
+          </div>
+        </div>
+      );
+    }
 
-    return <div className={styles.container}>{rows}</div>;
+    return <div className={styles.container}>{rows}{inputTime}</div>;
   }
 
   render() {
@@ -88,7 +101,7 @@ class PhysicalTooltip extends React.Component {
         {...this.props}
         title={title}
         dateTitle={dateTitle}
-        content={this.renderPhysicalActivity()}
+        content={this.renderPhysicalActivity(physicalActivity)}
       />
     );
   }

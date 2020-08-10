@@ -20,8 +20,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
 import { formatDuration } from '../../../utils/datetime';
-import { formatInsulin, formatBgValue } from '../../../utils/format';
-import { formatLocalizedFromUTC, getHourMinuteFormat } from '../../../utils/datetime';
+import { formatInsulin, formatBgValue, formatInputTime } from '../../../utils/format';
 import { getAnnotationMessages } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
@@ -173,10 +172,6 @@ class BolusTooltip extends React.Component {
     return extendedLine;
   }
 
-  getFormatedInputTime(bolus, timePrefs) {
-    return formatLocalizedFromUTC(bolus.inputTime, timePrefs, getHourMinuteFormat());
-  }
-
   getBolusTypeLine(bolusType) {
     return bolusType && (
       <div className={styles.bolus}>
@@ -308,7 +303,7 @@ class BolusTooltip extends React.Component {
     );
     const inputLine = inputTime && (
       <div className={styles.input}>
-        <div className={styles.label}>{t('Entered at {{date}}', {date: this.getFormatedInputTime(bolus, timePrefs)})}</div>
+        <div className={styles.label}>{t('Entered at')} {formatInputTime(bolus.inputTime, timePrefs)}</div>
       </div>
     );
       return (
@@ -439,6 +434,7 @@ BolusTooltip.propTypes = {
   borderWidth: PropTypes.number.isRequired,
   bolus: PropTypes.shape({
     type: PropTypes.string.isRequired,
+    inputTime: PropTypes.string,
   }).isRequired,
   bgPrefs: PropTypes.object.isRequired,
   timePrefs: PropTypes.object.isRequired,

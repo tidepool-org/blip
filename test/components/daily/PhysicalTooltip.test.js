@@ -51,9 +51,25 @@ const normalHours = {
   reportedIntensity: 'medium',
 };
 
+const withInputTime = {
+  type: 'physicalActivity',
+  duration: {
+    units: 'minutes',
+    value: 60,
+  },
+  reportedIntensity: 'medium',
+  inputTime: '2020-07-31T15:40:00.000Z',
+};
+
 const props = {
   position: { top: 200, left: 200 },
   timePrefs: { timezoneAware: false },
+};
+
+const timePrefsUtc = {
+  timezoneAware: true, 
+  timezoneName: "UTC", 
+  timezoneOffset: 0
 };
 
 describe('PhysicalTooltip', () => {
@@ -82,43 +98,52 @@ describe('PhysicalTooltip', () => {
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(2)
-      .children()).to.have.length(3);
+      .children()).to.have.length(2);
     });
 
   describe('Get PhysicalTooltip Duration', () => {
     // eslint-disable-next-line max-len
     it('should return 10 for a 600 seconds physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
-      const d = 10;
-      expect(wrapper.instance().getDurationInMinutes(normal).value).to.equal(d);
+      const d  = { 
+        units: 'minutes', 
+        value: 10 
+      };
+      expect(wrapper.instance().getDurationInMinutes(normal)).to.deep.equal(d);
       expect(wrapper
         .find(formatClassesAsSelector(styles.pa))
         .at(2)
         .find(formatClassesAsSelector(styles.value))
-        .text()).to.equal(`${d}`);
+        .text()).to.equal(`${d.value} ${d.units}`);
     });
     it('should return 60 for a 60 minutes physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalMinutes} />);
-      const d = 60;
-      expect(wrapper.instance().getDurationInMinutes(normalMinutes).value).to.equal(d);
+      const d  = { 
+        units: 'minutes', 
+        value: 60 
+      };
+      expect(wrapper.instance().getDurationInMinutes(normalMinutes)).to.deep.equal(d);
       expect(wrapper
         .find(formatClassesAsSelector(styles.pa))
         .at(2)
         .find(formatClassesAsSelector(styles.value))
-        .text()).to.equal(`${d}`);
+        .text()).to.equal(`${d.value} ${d.units}`);
     });
     it('should return 90 for a 1.5 hours physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalHours} />);
-      const d = 90;
-      expect(wrapper.instance().getDurationInMinutes(normalHours).value).to.equal(d);
+      const d  = { 
+        units: 'minutes', 
+        value: 90 
+      };
+      expect(wrapper.instance().getDurationInMinutes(normalHours)).to.deep.equal(d);
       expect(wrapper
         .find(formatClassesAsSelector(styles.pa))
         .at(2)
         .find(formatClassesAsSelector(styles.value))
-        .text()).to.equal(`${d}`);
+        .text()).to.equal(`${d.value} ${d.units}`);
     });
   });
-  describe('Get  PhysicalTooltip intensity', () => {
+  describe('Get PhysicalTooltip intensity', () => {
     it('should return medium-pa for a medium intensity physical activity', () => {
     const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
     const d = 'medium-pa';
@@ -128,5 +153,23 @@ describe('PhysicalTooltip', () => {
       .find(formatClassesAsSelector(styles.value))
       .text()).to.equal(`${d}`);
     });
+  });
+  describe('Get PhysicalTooltip inpuTime when property is available', () => {
+    it('should contain the InputTime', () => {
+      props.timePrefs = timePrefsUtc;
+      const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={withInputTime} />);
+      const formattedInputTime = '3:40 pm';
+      expect(wrapper.find(formatClassesAsSelector(styles.pa))).to.have.length(4);
+      expect(wrapper
+        .find(formatClassesAsSelector(styles.pa))
+        .at(3)
+        .find(formatClassesAsSelector(styles.label))
+        .text()).to.equal('Entered at');
+      expect(wrapper
+        .find(formatClassesAsSelector(styles.pa))
+        .at(3)
+        .find(formatClassesAsSelector(styles.value))
+        .text()).to.equal(`${formattedInputTime}`);
+      });
   });
 });
