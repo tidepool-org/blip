@@ -2,6 +2,11 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## unreleased
+### Changed 
+- PT-1444 Deduplicate Physical Activity events containing the new EventId field
+- PT-1304 Display the new physical activity fields
+
 ## 1.2.0 - 2020-07-31
 ### Changed
 - YLP-72 Have two distincts fields for first name and last name in profile page
