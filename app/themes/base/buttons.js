@@ -47,6 +47,22 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         color: colors.text.primaryDisabled,
       },
     },
+    secondaryInverted: {
+      ...defaultStyles,
+      border: borders.input,
+      borderRadius: radii.default,
+      color: colors.white,
+      backgroundColor: colors.blueGreyDark,
+      borderColor: colors.blueGreyDark,
+      '&:hover,&:active': {
+        borderColor: colors.blueGreyLight,
+      },
+      '&:disabled': {
+        backgroundColor: colors.lightestGrey,
+        borderColor: colors.lightestGrey,
+        color: colors.text.primaryDisabled,
+      },
+    },
     textPrimary: {
       ...defaultStyles,
       backgroundColor: colors.white,

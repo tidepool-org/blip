@@ -114,8 +114,15 @@ const ScheduleForm = props => {
         </Flex>
       ))}
       <Button
-        variant="secondary"
+        variant="secondaryInverted"
         className="add-schedule"
+        width="100%"
+        sx={{
+          '> div': {
+            width: '100%',
+            textAlign: 'center',
+          },
+        }}
         disabled={(() => {
           const lastSchedule = schedules.value[schedules.value.length - 1];
           return lastSchedule.start >= (MS_IN_DAY - (MS_IN_MIN * 30));

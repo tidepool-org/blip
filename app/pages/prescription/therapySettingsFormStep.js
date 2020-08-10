@@ -231,6 +231,37 @@ export const InsulinSettings = props => {
         /> */}
 
         <PopoverLabel
+          id='basal-rates'
+          label={t('Basal rates')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+
+        <Box {...scheduleGroupStyles}>
+          <ScheduleForm
+            addButtonText={t('Add an additional basal rate')}
+            fieldArrayName='initialSettings.basalRateSchedule'
+            fieldArrayMeta={meta.initialSettings.basalRateSchedule}
+            fields={[
+              {
+                label: t('Basal rates values (in U/hr)'),
+                name: 'rate',
+                suffix: t('U/hr'),
+                threshold: thresholds.basalRate,
+                type: 'number',
+                ...pumpMeta.ranges.basalRate,
+              },
+            ]}
+          />
+        </Box>
+
+        <PopoverLabel
           id='max-basal'
           label={t('Max Basal')}
           mb={2}
@@ -280,37 +311,6 @@ export const InsulinSettings = props => {
           {...pumpMeta.ranges.bolusAmountMaximum}
           {...inputStyles}
         />
-
-        <PopoverLabel
-          id='basal-rates'
-          label={t('Basal rates')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-
-        <Box {...scheduleGroupStyles}>
-          <ScheduleForm
-            addButtonText={t('Add an additional basal rate')}
-            fieldArrayName='initialSettings.basalRateSchedule'
-            fieldArrayMeta={meta.initialSettings.basalRateSchedule}
-            fields={[
-              {
-                label: t('Basal rates values (in U/hr)'),
-                name: 'rate',
-                suffix: t('U/hr'),
-                threshold: thresholds.basalRate,
-                type: 'number',
-                ...pumpMeta.ranges.basalRate,
-              },
-            ]}
-          />
-        </Box>
 
         <PopoverLabel
           id='insulin-to-carb-ratios'

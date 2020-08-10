@@ -8,6 +8,7 @@ import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
@@ -111,18 +112,6 @@ const therapySettingsRows = meta => {
     //   value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
     // },
     {
-      id: 'delivery-limits',
-      label: t('Delivery Limits'),
-      value: [
-        t('Max Basal: {{value}}', { value: `${meta.initialSettings.basalRateMaximum.value.value} U/hr` }),
-        t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
-      ],
-      warning: [
-        getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum),
-        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum),
-      ],
-    },
-    {
       id: 'basal-schedule',
       label: t('Basal Rates'),
       value: map(
@@ -133,6 +122,18 @@ const therapySettingsRows = meta => {
         meta.initialSettings.basalRateSchedule.value,
         (val) => getThresholdWarning(val.rate, thresholds.basalRate)
       ),
+    },
+    {
+      id: 'delivery-limits',
+      label: t('Delivery Limits'),
+      value: [
+        t('Max Basal: {{value}}', { value: `${meta.initialSettings.basalRateMaximum.value.value} U/hr` }),
+        t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
+      ],
+      warning: [
+        getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum),
+        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum),
+      ],
     },
     {
       id: 'isf-schedule',
@@ -185,11 +186,12 @@ export const PatientInfo = props => {
       <Body1>{label}</Body1>
       <Box>
         <Flex alignItems="center">
-          <Body1 mr={2}>{value}</Body1>
+          <Body1 mr={3}>{value}</Body1>
           <Icon
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit {{label}}', { label })}
+            title={t('Edit {{label}}', { label })}
             onClick={() => activeStepUpdate(step, currentStep)}
           />
         </Flex>
@@ -205,6 +207,7 @@ export const PatientInfo = props => {
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit Patient Name')}
+            title={t('Edit Patient Name')}
             onClick={() => activeStepUpdate(nameStep, currentStep)}
           />
       </Flex>
@@ -280,12 +283,56 @@ export const TherapySettings = props => {
     <Box {...themeProps}>
       <Flex mb={3} alignItems="center" justifyContent="space-between">
         <Headline mr={2}>{t('Confirm Therapy Settings')}</Headline>
-        <Icon
-          variant="button"
-          icon={EditRoundedIcon}
-          label={t('Edit therapy settings')}
-          onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
-        />
+        <Box
+          theme={baseTheme}
+          sx={{
+            button: {
+              border: 'none',
+              color: 'text.primary',
+              '&:hover,&:active': {
+                border: 'none',
+                color: 'text.primary',
+                backgroundColor: 'transparent',
+              },
+            },
+            '.success': {
+              padding: '.25em 0 0',
+              display: 'block',
+              fontSize: '1.5em',
+              textAlign: 'center',
+              lineHeight: '1.125em',
+            },
+          }}
+        >
+          <Icon
+            variant="button"
+            icon={EditRoundedIcon}
+            label={t('Edit therapy settings')}
+            title={t('Edit therapy settings')}
+            onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
+          />
+
+          <ClipboardButton
+            buttonTitle={t('Copy therapy settings order as text')}
+            buttonText={(
+              <Icon
+                variant="button"
+                icon={FileCopyRoundedIcon}
+                label={t('Copy therapy settings order as text')}
+                title={t('Copy therapy settings order as text')}
+              />
+            )}
+            successText={<span className="success">{t('✓')}</span>}
+            onClick={handleCopyTherapySettingsClicked}
+            getText={generateTherapySettingsOrderText.bind(null, [
+              {
+                label: t('Name'),
+                value: patientName,
+              },
+              ...patientRows(meta),
+            ], therapySettingsRows(meta))}
+          />
+        </Box>
       </Flex>
 
       <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
@@ -303,34 +350,6 @@ export const TherapySettings = props => {
           required
           label={t('I have confirmed the therapy settings order for this patient')}
           {...checkboxStyles}
-        />
-      </Box>
-
-      <Box
-        mb={4}
-        theme={baseTheme}
-        sx={{
-          button: {
-            border: 'input',
-            color: 'text.primary',
-            '&:hover,&:active': {
-              backgroundColor: 'blueGreyDark',
-              borderColor: 'blueGreyDark',
-            },
-          },
-        }}
-      >
-        <ClipboardButton
-          buttonTitle={t('For email or notes')}
-          buttonText={t('Copy therapy settings order as text')}
-          onClick={handleCopyTherapySettingsClicked}
-          getText={generateTherapySettingsOrderText.bind(null, [
-            {
-              label: t('Name'),
-              value: patientName,
-            },
-            ...patientRows(meta),
-          ], therapySettingsRows(meta))}
         />
       </Box>
     </Box>
