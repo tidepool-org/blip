@@ -6,6 +6,8 @@ import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import filter from 'lodash/filter';
+import includes from 'lodash/includes';
 
 import i18next from '../../core/language';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -18,35 +20,50 @@ export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
 export const revisionStates = ['draft', 'pending', 'submitted'];
 
-// TODO: hard-coded device id's until provided by upcoming devices api
-export const placeholderDeviceIds = {
-  dexcom: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
-  omnipod: '6678c377-928c-49b3-84c1-19e2dafaff8d',
+export const deviceIdMap = {
+  dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
+  omnipodHorizon: '6678c377-928c-49b3-84c1-19e2dafaff8d',
 };
 
-export const pumpDeviceOptions = [
-  {
-    value: placeholderDeviceIds.omnipod,
-    label: t('Omnipod Horizon'),
-    extraInfo: (
-      <Trans>
-        Find information on how to prescribe Omnipod products <Link href="#">here</Link>.
-      </Trans>
-    ),
-  },
-];
+export const validDeviceIds = {
+  cgms: [
+    deviceIdMap.dexcomG6,
+  ],
+  pumps: [
+    deviceIdMap.omnipodHorizon,
+  ],
+};
 
-export const cgmDeviceOptions = [
-  {
-    value: placeholderDeviceIds.dexcom,
-    label: t('Dexcom G6'),
-    extraInfo: (
-      <Trans>
-        Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link href="#">here</Link>.
-      </Trans>
-    ),
-  },
-];
+export const deviceExtraInfo = {
+  [deviceIdMap.dexcomG6]: (
+    <Trans>
+      Find information on how to prescribe Dexcom G6 sensors and transmitters and more <Link href="#">here</Link>.
+    </Trans>
+  ),
+  [deviceIdMap.omnipodHorizon]: (
+    <Trans>
+      Find information on how to prescribe Omnipod products <Link href="#">here</Link>.
+    </Trans>
+  ),
+};
+
+export const pumpDeviceOptions = ({ pumps } = {}) => map(
+  filter(pumps, pump => includes(validDeviceIds.pumps, pump.id)),
+  pump => ({
+    value: pump.id,
+    label: t('{{displayName}}', { displayName: pump.displayName }),
+    extraInfo: deviceExtraInfo[pump.id] || null,
+  }),
+);
+
+export const cgmDeviceOptions = ({ cgms } = {}) => map(
+  filter(cgms, cgm => includes(validDeviceIds.cgms, cgm.id)),
+  cgm => ({
+    value: cgm.id,
+    label: t('{{displayName}}', { displayName: cgm.displayName }),
+    extraInfo: deviceExtraInfo[cgm.id] || null,
+  }),
+);
 
 export const defaultUnits = {
   basalRate: 'Units/hour',
@@ -155,10 +172,10 @@ export const warningThresholds = (bgUnits = defaultUnits.bloodGlucose, meta) => 
 // TODO: placeholder device-specific values until provided by the upcoming devices api.
 export const deviceMeta = (deviceId, bgUnits = defaultUnits.bloodGlucose, meta) => {
   const metaByDeviceId = {
-    [placeholderDeviceIds.dexcom]: {
+    [deviceIdMap.dexcomG6]: {
       manufacturerName: 'Dexcom',
     },
-    [placeholderDeviceIds.omnipod]: {
+    [deviceIdMap.omnipodHorizon]: {
       manufacturerName: 'Omnipod',
       ranges: defaultsDeep({
         basalRate: { min: 0.05, max: 30 },

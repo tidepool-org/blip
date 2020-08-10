@@ -21,8 +21,13 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
+export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
   const pumpMeta = deviceMeta(pumpId, bgUnits);
+
+  const deviceOptions = {
+    pumps: pumpDeviceOptions(devices),
+    cgms: cgmDeviceOptions(devices),
+  }
 
   const rangeErrors = {
     basalRate: `Basal rate out of range. Please select a value between ${pumpMeta.ranges.basalRate.min}-${pumpMeta.ranges.basalRate.max}`,
@@ -74,10 +79,10 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
         .oneOf([MGDL_UNITS, MMOLL_UNITS], t('Please set a valid blood glucose units option'))
         .default(bgUnits),
       pumpId: yup.string()
-        .oneOf(map(pumpDeviceOptions, 'value'))
+        .oneOf(map(deviceOptions.pumps, 'value'))
         .required(t('A pump type must be specified')),
       cgmId: yup.string()
-        .oneOf(map(cgmDeviceOptions, 'value'))
+        .oneOf(map(deviceOptions.cgms, 'value'))
         .required(t('A cgm type must be specified')),
       // insulinModel: yup.string()
       //   .oneOf(map(insulinModelOptions, 'value'))

@@ -37,6 +37,7 @@ import {
   defaultRanges,
   defaultUnits,
   defaultValues,
+  deviceMeta,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
@@ -46,63 +47,69 @@ const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
-  mapPropsToValues: props => ({
-    id: get(props, 'prescription.id', ''),
-    state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-    // type: get(props, 'prescription.latestRevision.attributes.type', ''),
-    firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
-    lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
-    birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
-    email: get(props, 'prescription.latestRevision.attributes.email', ''),
-    emailConfirm: get(props, 'prescription.latestRevision.attributes.email', ''),
-    phoneNumber: {
-      countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
-      number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number', ''),
-    },
-    mrn: get(props, 'prescription.latestRevision.attributes.mrn', ''),
-    sex: get(props, 'prescription.latestRevision.attributes.sex', ''),
-    initialSettings: {
-      bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-      pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
-      cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
-      // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-      suspendThreshold: {
-        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-        units: defaultUnits.suspendThreshold,
+  mapPropsToValues: props => {
+    const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
+    const pumpMeta = deviceMeta(selectedPumpId || get(props, 'devices.pumps.0.id'));
+
+    return {
+      id: get(props, 'prescription.id', ''),
+      state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
+      // type: get(props, 'prescription.latestRevision.attributes.type', ''),
+      firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
+      lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
+      birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
+      email: get(props, 'prescription.latestRevision.attributes.email', ''),
+      emailConfirm: get(props, 'prescription.latestRevision.attributes.email', ''),
+      phoneNumber: {
+        countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
+        number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number', ''),
       },
-      basalRateMaximum: {
-        value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
-        units: defaultUnits.basalRate,
-      },
-      bolusAmountMaximum: {
-        value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
-        units: defaultUnits.bolusAmount,
-      },
-      bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
-        context: {
-          min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+      mrn: get(props, 'prescription.latestRevision.attributes.mrn', ''),
+      sex: get(props, 'prescription.latestRevision.attributes.sex', ''),
+      initialSettings: {
+        bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
+        pumpId: selectedPumpId || '',
+        cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
+        // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
+        suspendThreshold: {
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
+          units: defaultUnits.suspendThreshold,
         },
-        high: '',
-        low: '',
-        start: 0,
-      }]),
-      basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-        rate: defaultValues(bgUnits).basalRate,
-        start: 0,
-      }]),
-      carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-        amount: '',
-        start: 0,
-      }]),
-      insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-        amount: '',
-        start: 0,
-      }]),
-    },
-    training: get(props, 'prescription.latestRevision.attributes.training', ''),
-    therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
-  }),
+        basalRateMaximum: {
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
+          units: defaultUnits.basalRate,
+        },
+        bolusAmountMaximum: {
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
+          units: defaultUnits.bolusAmount,
+        },
+        bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+          context: {
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+          },
+          high: '',
+          low: '',
+          start: 0,
+        }]),
+        basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
+          rate: get(props, 'devices.pumps'),
+          start: 0,
+        }]),
+        carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
+          amount: '',
+          start: 0,
+        }]),
+        insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
+          amount: '',
+          start: 0,
+        }]),
+      },
+      training: get(props, 'prescription.latestRevision.attributes.training', ''),
+      therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
+    };
+  },
   validationSchema: props => prescriptionSchema(
+    props.devices,
     get(props, 'prescription.initialSettings.pumpId'),
     bgUnits
   ),
@@ -145,6 +152,7 @@ export const PrescriptionForm = props => {
     createPrescriptionRevision,
     creatingPrescription,
     creatingPrescriptionRevision,
+    devices,
     location,
     prescription,
     trackMetric,
@@ -162,7 +170,7 @@ export const PrescriptionForm = props => {
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId');
-  const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
+  const meta = getFieldsMeta(prescriptionSchema(devices, pumpId, bgUnits), getFieldMeta);
 
   const asyncStates = {
     initial: { pending: false, complete: false },
@@ -308,7 +316,7 @@ export const PrescriptionForm = props => {
   };
 
   const accountFormStepsProps = accountFormSteps(meta);
-  const profileFormStepsProps = profileFormSteps(meta);
+  const profileFormStepsProps = profileFormSteps(meta, devices);
   const therapySettingsFormStepProps = therapySettingsFormStep(meta);
   const reviewFormStepProps = reviewFormStep(meta, handlers);
 

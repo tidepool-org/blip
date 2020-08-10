@@ -28,7 +28,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list pump device options', function() {
     expect(prescriptionFormConstants.pumpDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.pumpDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.placeholderDeviceIds.omnipod,
+      prescriptionFormConstants.deviceIdMap.omnipodHorizon,
     ]);
 
     _.each(prescriptionFormConstants.pumpDeviceOptions, device => {
@@ -41,7 +41,7 @@ describe('prescriptionFormConstants', function() {
   it('should export the list cgm device options', function() {
     expect(prescriptionFormConstants.cgmDeviceOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.cgmDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.placeholderDeviceIds.dexcom,
+      prescriptionFormConstants.deviceIdMap.dexcomG6,
     ]);
 
     _.each(prescriptionFormConstants.cgmDeviceOptions, device => {
@@ -176,7 +176,7 @@ describe('prescriptionFormConstants', function() {
   describe('deviceMeta', () => {
     describe('Omnipod device ID provided', () => {
       it('should export the device metadata with mg/dL as default bg unit', () => {
-        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.omnipod)).to.eql({
+        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.omnipodHorizon)).to.eql({
           manufacturerName: 'Omnipod',
           ranges: {
             basalRate: { min: 0.05, max: 30, step: 0.05 },
@@ -191,7 +191,7 @@ describe('prescriptionFormConstants', function() {
       });
 
       it('should export the device metadata with mmoll/L as provided', () => {
-        const meta = prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.omnipod, 'mmol/L');
+        const meta = prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.omnipodHorizon, 'mmol/L');
 
         expect(meta.ranges.bloodGlucoseTarget.min).to.equal(3.3);
       });
@@ -199,7 +199,7 @@ describe('prescriptionFormConstants', function() {
 
     describe('Dexcom device ID provided', () => {
       it('should export the device metadata', () => {
-        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.placeholderDeviceIds.dexcom)).to.eql({
+        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.dexcomG6)).to.eql({
           manufacturerName: 'Dexcom',
         });
       });
