@@ -114,7 +114,7 @@ const ScheduleForm = props => {
         </Flex>
       ))}
       <Button
-        variant="secondaryInverted"
+        variant="tertiary"
         className="add-schedule"
         width="100%"
         sx={{
