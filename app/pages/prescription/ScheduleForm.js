@@ -108,7 +108,7 @@ const ScheduleForm = props => {
             onClick={() => remove(index)}
             disabled={index === 0}
             sx={{
-              visibility: index === 0 ? 'hidden' : 'visible',
+              top: index === 0 ? '1em' : 0,
             }}
           />
         </Flex>
