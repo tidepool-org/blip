@@ -72,6 +72,10 @@ const StyledTable = styled(Base)`
   .MuiTableCell-stickyHeader {
     color: inherit;
   }
+
+  .MuiTableSortLabel-root {
+    color: inherit;
+  }
 `;
 
 export const Table = props => {
@@ -189,6 +193,7 @@ export const Table = props => {
         onChange={handlePageChange}
         disabled={count < 2}
         variant="default"
+        buttonVariant="paginationLight"
         my={3}
       />}
     </>
