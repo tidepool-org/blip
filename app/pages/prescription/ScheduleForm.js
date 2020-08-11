@@ -55,7 +55,7 @@ const ScheduleForm = props => {
         <Flex className='schedule-row' key={index} alignItems="flex-start" mb={3}>
           <Field
             as={TextInput}
-            label={index === 0 && t('Start Time')}
+            label={index === 0 ? t('Start Time') : null}
             type="time"
             readOnly={index === 0}
             step={MS_IN_MIN * 30 / 1000}
@@ -82,7 +82,7 @@ const ScheduleForm = props => {
             <React.Fragment key={fieldIndex}>
               <FastField
                 as={TextInput}
-                label={index === 0 && field.label}
+                label={index === 0 ? field.label : null}
                 min={field.min}
                 max={field.max}
                 step={field.step}

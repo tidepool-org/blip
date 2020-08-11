@@ -181,8 +181,8 @@ export const PatientInfo = props => {
   const patientName = `${firstName.value} ${lastName.value}`;
   const rows = patientRows(meta);
 
-  const Row = ({ label, value, step, index }) => (
-    <Flex mb={4} justifyContent="space-between" alignItems="center" key={index}>
+  const Row = ({ label, value, step }) => (
+    <Flex mb={4} justifyContent="space-between" alignItems="center">
       <Body1>{label}</Body1>
       <Box>
         <Flex alignItems="center">
@@ -211,7 +211,7 @@ export const PatientInfo = props => {
             onClick={() => activeStepUpdate(nameStep, currentStep)}
           />
       </Flex>
-      {map(rows, (row, index) => <Row {...row} index={index} />)}
+      {map(rows, (row, index) => <Row {...row} key={index} />)}
     </Box>
   );
 };
@@ -252,12 +252,11 @@ export const TherapySettings = props => {
           borderBottom: 'default',
         }}
         alignItems="flex-start"
-        key={index}
       >
         <Body1 flex="1">{label}</Body1>
         <Box flex="1">
           {map(values, (val, i) => (
-            <Flex>
+            <Flex key={i}>
               <Body1 color={colors[i]} key={i} flexGrow={1}>{val}</Body1>
               {warnings[i] && (
                 <PopoverLabel
@@ -266,7 +265,7 @@ export const TherapySettings = props => {
                   popoverContent={(
                     <Box p={3}>
                       {isArray(warnings[i])
-                        ? map(warnings[i], message => <Paragraph1>{message}</Paragraph1>)
+                        ? map(warnings[i], (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)
                         : <Paragraph1>{warnings[i]}</Paragraph1>
                       }
                     </Box>
@@ -339,7 +338,7 @@ export const TherapySettings = props => {
       <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
 
       <Box mb={4}>
-        {map(rows, (row, index) => <Row {...row} index={index} />)}
+        {map(rows, (row, index) => <Row {...row} index={index} key={index} />)}
       </Box>
 
       <Box mb={4}>
