@@ -65,7 +65,7 @@ class Basics extends Component {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     let renderedContent;
-
+console.log(this.props.stats);
     if (dataQueryComplete) {
       renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
     }

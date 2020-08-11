@@ -1614,8 +1614,8 @@ describe('PatientData', function () {
 
       it('should add appropriate stats when cbg is selected', () => {
         wrapper.setState({ chartPrefs: { basics: { bgSource: 'cbg' } } });
-        console.log('getStatsByChartType(): ', instance.getStatsByChartType());
 
+        console.log('instance.getStatsByChartType(): ', instance.getStatsByChartType());
         expect(instance.getStatsByChartType()).to.eql([
           'timeInRange',
           'averageGlucose',

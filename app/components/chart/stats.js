@@ -22,7 +22,7 @@ const Stats = (props) => {
 
   return (
     <div className="Stats">
-      {renderStats(statsWithoutBgExtents, animateStats)}
+      {renderStats(stats, animateStats)}
     </div>
   );
 }
