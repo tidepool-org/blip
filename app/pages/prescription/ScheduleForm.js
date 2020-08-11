@@ -20,7 +20,6 @@ import { inlineInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 
-
 const ScheduleForm = props => {
   const {
     addButtonText,
