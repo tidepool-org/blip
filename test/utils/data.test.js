@@ -86,26 +86,73 @@ describe('DataUtil', () => {
       deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
       value: 50,
       deviceTime: '2018-02-01T00:00:00',
+      localDate: '2018-02-01',
     }),
     new Types.CBG({
       deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
       value: 60,
       deviceTime: '2018-02-01T00:15:00',
+      localDate: '2018-02-01',
     }),
     new Types.CBG({
       deviceId: 'AbbottFreeStyleLibre-XXX-XXXX',
       value: 100,
       deviceTime: '2018-02-01T00:30:00',
+      localDate: '2018-02-01',
     }),
     new Types.CBG({
       deviceId: 'Dexcom-XXX-XXXX',
       value: 190,
       deviceTime: '2018-02-01T00:45:00',
+      localDate: '2018-02-01',
     }),
     new Types.CBG({
       deviceId: 'Dexcom-XXX-XXXX',
       value: 260,
       deviceTime: '2018-02-01T00:50:00',
+      localDate: '2018-02-01',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 100,
+      deviceTime: '2018-02-02T00:50:00',
+      localDate: '2018-02-02',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 150,
+      deviceTime: '2018-02-03T00:50:00',
+      localDate: '2018-02-03',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 200,
+      deviceTime: '2018-02-03T00:55:00',
+      localDate: '2018-02-03',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 120,
+      deviceTime: '2018-02-03T01:00:00',
+      localDate: '2018-02-03',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 120,
+      deviceTime: '2020-02-01T01:00:00',
+      localDate: '2020-02-01',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 120,
+      deviceTime: '2020-02-02T01:00:00',
+      localDate: '2020-02-02',
+    }),
+    new Types.CBG({
+      deviceId: 'Dexcom-XXX-XXXX',
+      value: 120,
+      deviceTime: '2020-02-03T01:00:00',
+      localDate: '2020-02-03',
     }),
   ];
 
@@ -140,22 +187,27 @@ describe('DataUtil', () => {
     new Types.SMBG({
       value: 60,
       deviceTime: '2018-02-01T00:00:00',
+      localDate: '2018-02-01',
     }),
     new Types.SMBG({
       value: 70,
       deviceTime: '2018-02-01T00:15:00',
+      localDate: '2018-02-01',
     }),
     new Types.SMBG({
       value: 80,
       deviceTime: '2018-02-01T00:30:00',
+      localDate: '2018-02-01',
     }),
     new Types.SMBG({
       value: 200,
       deviceTime: '2018-02-01T00:45:00',
+      localDate: '2018-02-01',
     }),
     new Types.SMBG({
       value: 270,
-      deviceTime: '2018-02-01T00:50:00',
+      deviceTime: '2018-02-02T00:50:00',
+      localDate: '2018-02-02',
     }),
   ];
 
@@ -235,9 +287,19 @@ describe('DataUtil', () => {
     '2018-02-03T00:00:00.000Z',
   ];
 
+  const threeDayEndpoints = [
+    '2018-02-01T00:00:00.000Z',
+    '2018-02-04T00:00:00.000Z',
+  ];
+
   const twoWeekEndpoints = [
     '2018-02-01T00:00:00.000Z',
     '2018-02-15T00:00:00.000Z',
+  ];
+
+  const threeDayEndpoints2020 = [
+    '2020-02-01T00:00:00.000Z',
+    '2020-02-04T00:00:00.000Z',
   ];
 
   const defaultOpts = {
@@ -451,7 +513,7 @@ describe('DataUtil', () => {
     });
 
     it('should remove all data from the crossfilter', () => {
-      expect(dataUtil.data.size()).to.equal(27);
+      expect(dataUtil.data.size()).to.equal(34);
       dataUtil.removeData();
       expect(dataUtil.data.size()).to.equal(0);
     });
@@ -593,6 +655,7 @@ describe('DataUtil', () => {
 
     it('should return the median glucose for smbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getAverageGlucoseData()).to.eql({
         averageGlucose: 136,
         total: 5,
@@ -601,7 +664,30 @@ describe('DataUtil', () => {
 
     it('should return the filtered bg data when `returnBgData` is true', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getAverageGlucoseData(true).bgData).to.be.an('array').and.have.length(5);
+    });
+  });
+
+  describe('getGlucoseDataByDate', () => {
+    it('should return the average glucose and the data grouped by day for cbg data', () => {
+      dataUtil.chartPrefs = { bgSource: 'cbg' };
+      const glucoseDataByDate = dataUtil.getGlucoseDataByDate();
+      expect(glucoseDataByDate.averageGlucose).to.eql(132);
+      expect(glucoseDataByDate.total).to.eql(5);
+      expect(glucoseDataByDate.bgData).to.be.an('array').and.have.length(5);
+      expect(glucoseDataByDate.bgDataByDate['2018-02-01']).to.be.an('array').and.have.length(5);
+    });
+
+    it('should return the average glucose and the data grouped by day for smbg data', () => {
+      dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
+      const glucoseDataByDate = dataUtil.getGlucoseDataByDate();
+      expect(glucoseDataByDate.averageGlucose).to.eql(136);
+      expect(glucoseDataByDate.total).to.eql(5);
+      expect(glucoseDataByDate.bgData).to.be.an('array').and.have.length(5);
+      expect(glucoseDataByDate.bgDataByDate['2018-02-01']).to.be.an('array').and.have.length(4);
+      expect(glucoseDataByDate.bgDataByDate['2018-02-02']).to.be.an('array').and.have.length(1);
     });
   });
 
@@ -715,20 +801,49 @@ describe('DataUtil', () => {
       });
     });
 
-    it('should return the coefficient of variation for cbg data', () => {
-      dataUtil.chartPrefs = { bgSource: 'smbg' };
+    it('should return the coefficient of variation for cbg data for 2 days', () => {
+      dataUtil.chartPrefs = { bgSource: 'cbg' };
+      dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getCoefficientOfVariationData()).to.eql({
-        coefficientOfVariation: 69.0941762401971,
+        coefficientOfVariation: 68.47579720288888,
+        total: 6,
+      });
+    });
+
+    it('should return the coefficient of variation for cbg data for 3 days', () => {
+      dataUtil.chartPrefs = { bgSource: 'cbg' };
+      dataUtil.endpoints = threeDayEndpoints;
+      expect(dataUtil.getCoefficientOfVariationData()).to.eql({
+        coefficientOfVariation: 47.136149296106296,
+        total: 9,
+      });
+    });
+
+    it('should return no value coefficient of variation for cbg data for 3 days having less than 3 values per day', () => {
+      dataUtil.chartPrefs = { bgSource: 'cbg' };
+      dataUtil.endpoints = threeDayEndpoints2020;
+      expect(dataUtil.getCoefficientOfVariationData()).to.eql({
+        insufficientData: true,
+        total: 3,
+        coefficientOfVariation: Number.NaN,
+      });
+    });
+
+    it('should return the coefficient of variation for smbg data', () => {
+      dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
+      expect(dataUtil.getCoefficientOfVariationData()).to.eql({
+        coefficientOfVariation: 63.912988640759494,
         total: 5,
       });
     });
 
-    it('should return `NaN` when less than 3 datums available', () => {
+    it('should return true for insufficientData when less than 3 datums available', () => {
       dataUtil = new DataUtil(smbgData.slice(0, 2), opts({ chartPrefs: { bgSource: 'smbg' } }));
       expect(dataUtil.getCoefficientOfVariationData()).to.eql({
-        coefficientOfVariation: NaN,
         insufficientData: true,
         total: 2,
+        coefficientOfVariation: Number.NaN,
       });
     });
   });
@@ -933,18 +1048,17 @@ describe('DataUtil', () => {
 
   describe('getReadingsInRangeData', () => {
     it('should return the readings in range data when viewing 1 day', () => {
-      dataUtil.endpoints = dayEndpoints;
       expect(dataUtil.getReadingsInRangeData()).to.eql({
         veryLow: 0,
         low: 1,
         target: 2,
         high: 1,
-        veryHigh: 1,
-        total: 5,
+        veryHigh: 0,
+        total: 4,
       });
     });
 
-    it('should return the avg daily readings in range data when viewing more than 1 day', () => {
+    it('should return the readings in range data when viewing 2 days', () => {
       dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getReadingsInRangeData()).to.eql({
         veryLow: 0,
@@ -952,6 +1066,18 @@ describe('DataUtil', () => {
         target: 1,
         high: 0.5,
         veryHigh: 0.5,
+        total: 5,
+      });
+    });
+
+    it('should return the avg daily readings in range data when viewing more than 2 days', () => {
+      dataUtil.endpoints = threeDayEndpoints;
+      expect(dataUtil.getReadingsInRangeData()).to.eql({
+        veryLow: 0,
+        low: 0.3333333333333333,
+        target: 0.6666666666666666,
+        high: 0.3333333333333333,
+        veryHigh: 0.3333333333333333,
         total: 5,
       });
     });
@@ -967,7 +1093,7 @@ describe('DataUtil', () => {
 
       dataUtil.endpoints = twoWeekEndpoints;
       expect(dataUtil.getSensorUsage()).to.eql({
-        sensorUsage: MS_IN_MIN * 55,
+        sensorUsage: MS_IN_MIN * (55 + 5 + 15),
         total: MS_IN_DAY * 14,
       });
     });
@@ -977,28 +1103,61 @@ describe('DataUtil', () => {
     it('should return the average glucose and standard deviation for cbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'cbg' };
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 132,
+        averageGlucose: 132, 
+        insufficientData: false,
+        total: 5,
         standardDeviation: 90.38805230781334,
-        total: 5,
+        coefficientOfVariationByDate: {},
       });
     });
 
-    it('should return the average glucose and standard deviation for cbg data', () => {
+    it('should return the average glucose, standard deviation and cv by date for cbg data', () => {
+      dataUtil.chartPrefs = { bgSource: 'cbg' };
+      expect(dataUtil.getStandardDevData(true)).to.eql({
+        averageGlucose: 132, 
+        insufficientData: false,
+        total: 5,
+        standardDeviation: 90.38805230781334,
+        coefficientOfVariationByDate: {
+          '2018-02-01' : 68.47579720288888
+        },
+      });
+    });
+
+    it('should return the average glucose and standard deviation for smbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 136,
-        standardDeviation: 93.96807968666806,
+        averageGlucose: 136, 
+        insufficientData: false,
         total: 5,
+        standardDeviation: 93.96807968666806,
+        coefficientOfVariationByDate: {
+        },
       });
     });
 
-    it('should return `NaN` when less than 3 datums available', () => {
+    it('should return the average glucose, standard deviation and cv by date for smbg data', () => {
+      dataUtil.chartPrefs = { bgSource: 'smbg' };
+      dataUtil.endpoints = twoDayEndpoints;
+      expect(dataUtil.getStandardDevData(true)).to.eql({
+        averageGlucose: 136, 
+        insufficientData: false,
+        total: 5,
+        standardDeviation: 93.96807968666806,
+        coefficientOfVariationByDate: {
+          '2018-02-01' : 63.912988640759494
+        },
+      });
+    });
+
+    it('should return true for insufficientData when less than 3 datums available', () => {
       dataUtil = new DataUtil(smbgData.slice(0, 2), opts({ chartPrefs: { bgSource: 'smbg' } }));
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 65,
-        standardDeviation: NaN,
+        averageGlucose: 65, 
         insufficientData: true,
         total: 2,
+        standardDeviation: NaN,
       });
     });
   });
@@ -1062,10 +1221,10 @@ describe('DataUtil', () => {
       expect(result).to.eql({
         veryLow: (MS_IN_MIN * 15) / totalDuration * MS_IN_DAY,
         low: (MS_IN_MIN * 15) / totalDuration * MS_IN_DAY,
-        target: (MS_IN_MIN * 15) / totalDuration * MS_IN_DAY,
+        target: (MS_IN_MIN * (15 + 5)) / totalDuration * MS_IN_DAY,
         high: (MS_IN_MIN * 5) / totalDuration * MS_IN_DAY,
         veryHigh: (MS_IN_MIN * 5) / totalDuration * MS_IN_DAY,
-        total: MS_IN_MIN * 55,
+        total: MS_IN_MIN * (55 + 5),
       });
     });
   });

@@ -57,6 +57,10 @@ class Common {
     return new Date().toISOString().slice(0, -5);
   }
 
+  makeLocalDate() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
   makeNormalTime() {
     return this.deviceTime + APPEND;
   }
@@ -133,6 +137,7 @@ export class CBG extends Common {
       deviceTime: this.makeDeviceTime(),
       units: MGDL_UNITS,
       value: 100,
+      localDate: this.makeLocalDate(),
     });
 
     this.type = 'cbg';
@@ -141,6 +146,7 @@ export class CBG extends Common {
     this.deviceId = opts.deviceId;
     this.units = opts.units;
     this.value = opts.value;
+    this.localDate = opts.localDate;
 
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();
@@ -229,6 +235,7 @@ export class SMBG extends Common {
       displayOffset: 0,
       units: MGDL_UNITS,
       value: 100,
+      localDate: this.makeLocalDate(),
     });
 
     this.type = 'smbg';
@@ -236,6 +243,7 @@ export class SMBG extends Common {
     this.deviceTime = opts.deviceTime;
     this.units = opts.units;
     this.value = opts.value;
+    this.localDate = opts.localDate;
 
     this.time = this.makeTime();
     this.timezoneOffset = this.makeTimezoneOffset();

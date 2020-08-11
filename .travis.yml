@@ -13,7 +13,7 @@ addons:
   firefox: latest-esr
 
 before_install:
-  - npm install -g npm@latest
+  - npm install -g npm@6.14.7
 
 install:
   - npm install

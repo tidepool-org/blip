@@ -172,6 +172,20 @@ export class DataUtil {
   };
 
   /**
+   * Returns the average glucose data
+   * with the average glucose data by date
+   */
+  getGlucoseDataByDate = () => {
+    const data = this.getAverageGlucoseData(true);
+
+    const bgDataByDate = _.groupBy(data.bgData, d => d.localDate);
+
+    data.bgDataByDate = bgDataByDate;
+
+    return data;
+  };
+
+  /**
    * Return the number of days which have at least one bolus or one basal data.
    * @param {Array} bolus Array of bolus data
    * @param {Array} basal Array of basal data
@@ -261,22 +275,22 @@ export class DataUtil {
 
   getCoefficientOfVariationData = () => {
     const {
-      averageGlucose,
       insufficientData,
-      standardDeviation,
+      coefficientOfVariationByDate,
       total,
-    } = this.getStandardDevData();
+    } = this.getStandardDevData(true);
 
-    const coefficientOfVariationData = {
-      coefficientOfVariation: standardDeviation / averageGlucose * 100,
-      total,
-    };
-
-    if (insufficientData) {
-      coefficientOfVariationData.insufficientData = true;
+    if (insufficientData || Object.keys(coefficientOfVariationByDate).length === 0) {
+      return {
+        insufficientData: true,
+        total,
+        coefficientOfVariation: Number.NaN,
+      }
     }
-
-    return coefficientOfVariationData;
+    return {
+      coefficientOfVariation : _.meanBy(_.map(coefficientOfVariationByDate)),
+      total,
+    }
   };
 
   getDailyAverageSums = data => {
@@ -425,25 +439,39 @@ export class DataUtil {
     };
   };
 
-  getStandardDevData = () => {
-    const { averageGlucose, bgData, total } = this.getAverageGlucoseData(true);
+  getStandardDevData = (cvByDate = false) => {
+    const { bgData, averageGlucose, bgDataByDate, total } = this.getGlucoseDataByDate();
 
-    if (bgData.length < 3) {
+    if (total < 3) {
       return {
         averageGlucose,
         insufficientData: true,
-        standardDeviation: NaN,
         total,
+        standardDeviation: Number.NaN,
       };
     }
-
     const squaredDiffs = _.map(bgData, d => (d.value - averageGlucose) ** 2);
     const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (bgData.length - 1));
 
+    const coefficientOfVariationByDate = {};
+    if (cvByDate) {
+      _.forEach(bgDataByDate, (value, key) => {
+        // ignore days having less than 3 glycemia values
+        if (value.length >= 3) {
+          const avgGlucose = _.meanBy(value, 'value');
+          const squaredDiffs = _.map(value, d => (d.value - avgGlucose) ** 2);
+          const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (value.length - 1));
+          coefficientOfVariationByDate[key] = standardDeviation / avgGlucose * 100;
+        }
+      })
+    }
+
     return {
       averageGlucose,
-      standardDeviation,
+      insufficientData: false,
       total,
+      standardDeviation,
+      coefficientOfVariationByDate,
     };
   };
 
