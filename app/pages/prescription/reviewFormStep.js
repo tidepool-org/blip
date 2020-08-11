@@ -70,7 +70,7 @@ const patientRows = meta => ([
 
 const therapySettingsRows = meta => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const thresholds = warningThresholds(bgUnits);
+  const thresholds = warningThresholds(bgUnits, meta);
 
   return [
     {
@@ -99,12 +99,12 @@ const therapySettingsRows = meta => {
         }
       ),
     },
-    // {
-    //   id: 'suspend-threshold',
-    //   label: t('Suspend Threshold'),
-    //   value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-    //   warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
-    // },
+    {
+      id: 'suspend-threshold',
+      label: t('Suspend Threshold'),
+      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+    },
     // {
     //   id: 'insulin-model',
     //   label: t('Insulin Model'),
@@ -118,9 +118,9 @@ const therapySettingsRows = meta => {
         t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
       ],
       warning: [
-        null,
-        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)
-      ]
+        getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum),
+        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum),
+      ],
     },
     {
       id: 'basal-schedule',

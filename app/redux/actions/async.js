@@ -1349,6 +1349,44 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
   };
 }
 
+/**
+ * Dismiss Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissUpdateTypeBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      dismissedUpdateTypeBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickUpdateTypeBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      clickedUpdateTypeBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
 
 /**
  * Dismiss Share Data Connect Banner Action Creator

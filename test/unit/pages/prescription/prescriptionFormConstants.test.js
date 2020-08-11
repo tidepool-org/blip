@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 
 /* global chai */
 /* global describe */
@@ -60,13 +61,26 @@ describe('prescriptionFormConstants', function() {
   });
 
   describe('warningThresholds', () => {
+    const minBasal = 0.05;
+    const maxBasal = 0.1;
+    const meta = {
+      initialSettings: { basalRateSchedule: { value: [
+        { rate: minBasal },
+        { rate: maxBasal },
+      ] } },
+    };
+
     const lowWarning = 'The value you have entered is lower than Tidepool typically recommends for most people.';
     const highWarning = 'The value you have entered is higher than Tidepool typically recommends for most people.';
+    const basalRateMaximumWarning = 'Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of 0.1 U/hr.';
 
     it('should export the warning thresholds with mg/dL as default bg unit', () => {
-      expect(prescriptionFormConstants.warningThresholds()).to.eql({
+      expect(prescriptionFormConstants.warningThresholds(null, meta)).to.eql({
         basalRate: {
           low: { value: 0, message: lowWarning },
+        },
+        basalRateMaximum: {
+          high: { value: maxBasal * 6 + 0.01, message: basalRateMaximumWarning },
         },
         bloodGlucoseTarget: {
           low: { value: 70, message: lowWarning },
@@ -84,15 +98,15 @@ describe('prescriptionFormConstants', function() {
           low: { value: 15, message: lowWarning },
           high: { value: 400, message: highWarning },
         },
-        // suspendThreshold: {
-        //   low: { value: 70, message: lowWarning },
-        //   high: { value: 120, message: highWarning },
-        // },
+        suspendThreshold: {
+          low: { value: 70, message: lowWarning },
+          high: { value: 120, message: highWarning },
+        },
       });
     });
 
     it('should export the warning thresholds with mmoll/L as provided', () => {
-      const thresholds = prescriptionFormConstants.warningThresholds('mmol/L');
+      const thresholds = prescriptionFormConstants.warningThresholds('mmol/L', meta);
 
       expect(thresholds.bloodGlucoseTarget.low.value).to.equal(3.9);
       expect(thresholds.bloodGlucoseTarget.high.value).to.equal(6.7);
@@ -100,8 +114,8 @@ describe('prescriptionFormConstants', function() {
       expect(thresholds.insulinSensitivityFactor.low.value).to.equal(0.8);
       expect(thresholds.insulinSensitivityFactor.high.value).to.equal(22.2);
 
-      // expect(thresholds.suspendThreshold.low.value).to.equal(3.9);
-      // expect(thresholds.suspendThreshold.high.value).to.equal(6.7);
+      expect(thresholds.suspendThreshold.low.value).to.equal(3.9);
+      expect(thresholds.suspendThreshold.high.value).to.equal(6.7);
     });
   });
 
@@ -124,8 +138,22 @@ describe('prescriptionFormConstants', function() {
         bolusAmountMaximum: { min: 0, max: 30, step: 1 },
         carbRatio: { min: 1, max: 150, step: 1 },
         insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-        // suspendThreshold: { min: 54, max: 180, step: 1 },
+        suspendThreshold: { min: 54, max: 180, step: 1 },
       });
+    });
+
+    it('should set the min bloodGlucoseTarget value to the set value of the suspendThreshold field', () => {
+      const meta = {
+        initialSettings: {
+          suspendThreshold: {
+            value: {
+              value: 78,
+            },
+          },
+        },
+      };
+
+      expect(prescriptionFormConstants.defaultRanges(MGDL_UNITS, meta).bloodGlucoseTarget.min).to.equal(78);
     });
 
     it('should export the default ranges with mmoll/L as provided', () => {
@@ -139,9 +167,9 @@ describe('prescriptionFormConstants', function() {
       expect(ranges.insulinSensitivityFactor.max).to.equal(27.8);
       expect(ranges.insulinSensitivityFactor.step).to.equal(0.1);
 
-      // expect(ranges.suspendThreshold.min).to.equal(3);
-      // expect(ranges.suspendThreshold.max).to.equal(10);
-      // expect(ranges.suspendThreshold.step).to.equal(0.1);
+      expect(ranges.suspendThreshold.min).to.equal(3);
+      expect(ranges.suspendThreshold.max).to.equal(10);
+      expect(ranges.suspendThreshold.step).to.equal(0.1);
     });
   });
 
@@ -157,7 +185,7 @@ describe('prescriptionFormConstants', function() {
             bolusAmountMaximum: { min: 0, max: 30, step: 1 },
             carbRatio: { min: 1, max: 150, step: 1 },
             insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-            // suspendThreshold: { min: 54, max: 180, step: 1 },
+            suspendThreshold: { min: 54, max: 180, step: 1 },
           },
         });
       });

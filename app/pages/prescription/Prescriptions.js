@@ -30,8 +30,8 @@ const Prescriptions = props => {
     setSearchText(event.target.value);
   }
 
-  const handleAddNew = () => this.props.history.push('/prescriptions/new');
-  const handleEdit = id => () => this.props.history.push(`/prescriptions/${id}/edit`);
+  const handleAddNew = () => props.history.push('/prescriptions/new');
+  const handleEdit = id => () => props.history.push(`/prescriptions/${id}/edit`);
   const handleDelete = id => () => deletePrescription(id);
 
   const renderEdit = ({ id }) => (

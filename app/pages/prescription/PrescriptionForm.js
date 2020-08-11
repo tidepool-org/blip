@@ -18,6 +18,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isInteger from 'lodash/isInteger';
 import isArray from 'lodash/isArray';
+import { default as _values } from 'lodash/values';
+import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
 
 import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
@@ -31,6 +33,7 @@ import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 
 import {
+  defaultRanges,
   defaultUnits,
   defaultValues,
   stepValidationFields,
@@ -62,10 +65,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
       cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
       // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-      // suspendThreshold: {
-      //   value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-      //   units: defaultUnits.suspendThreshold,
-      // },
+      suspendThreshold: {
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
+        units: defaultUnits.suspendThreshold,
+      },
       basalRateMaximum: {
         value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
@@ -75,6 +78,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         units: defaultUnits.bolusAmount,
       },
       bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+        context: {
+          min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+        },
         high: '',
         low: '',
         start: 0,
@@ -217,6 +223,15 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
+  // Update minimum blood glucose target values when suspendThreshold changes
+  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+  React.useEffect(() => {
+    each(bloodGlucoseTargetSchedule, (schedule, i) => {
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+    });
+  }, [suspendThreshold]);
+
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {
       setActiveStep(step);
@@ -249,6 +264,10 @@ export const PrescriptionForm = props => {
       // Delete fields that we never want to send to the backend
       const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
 
+      for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
+        fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
+      }
+
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
       // step via 'Back' button navigation and we don't want to lose existing data previously
@@ -256,7 +275,15 @@ export const PrescriptionForm = props => {
       if (!isLastStep) {
         const emptyFieldsInFutureSteps = remove(
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
-          fieldPath => isEmpty(get(values, fieldPath))
+          fieldPath => {
+            const value = get(values, fieldPath);
+            // Return schedule field arrays that are set to the default initial empty string values
+            if (isArray(value) && value.length === 1) {
+              return includes(_values(value[0]), '');
+            }
+            // Return empty values for non-array fields
+            return isEmpty(value);
+          }
         );
 
         // Add empty future fields to the array of fieldpaths to delete.
