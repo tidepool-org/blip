@@ -33,13 +33,12 @@ import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
-import { getFloatFromUnitsAndNanos } from '../../core/data';
 
 import {
-  defaultRanges,
   defaultUnits,
   deviceIdMap,
-  deviceMeta,
+  getPumpGuardrail,
+  pumpRanges,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
@@ -53,7 +52,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
     const pump = find(props.devices.pumps, { id: pumpId });
-    const pumpMeta = deviceMeta(pumpId);
+    const ranges = pumpRanges(pump);
 
     return {
       id: get(props, 'prescription.id', ''),
@@ -80,23 +79,23 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           units: defaultUnits.suspendThreshold,
         },
         basalRateMaximum: {
-          value: getFloatFromUnitsAndNanos(get(pump, 'guardRails.basalRateMaximum.defaultValue')),
+          value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: getFloatFromUnitsAndNanos(get(pump, 'guardRails.bolusAmountMaximum.defaultValue')),
+          value: getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
           context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ranges.bloodGlucoseTarget.min),
           },
           high: '',
           low: '',
           start: 0,
         }]),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: getFloatFromUnitsAndNanos(get(pump, 'guardRails.basalRates.defaultValue')),
+          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
@@ -173,7 +172,8 @@ export const PrescriptionForm = props => {
 
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
-  const pumpId = get(values, 'initialSettings.pumpId');
+  const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
+  const pump = find(devices.pumps, { id: pumpId });
   const meta = getFieldsMeta(prescriptionSchema(devices, pumpId, bgUnits), getFieldMeta);
 
   const asyncStates = {
@@ -321,8 +321,8 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(meta);
   const profileFormStepsProps = profileFormSteps(meta, devices);
-  const therapySettingsFormStepProps = therapySettingsFormStep(meta);
-  const reviewFormStepProps = reviewFormStep(meta, handlers);
+  const therapySettingsFormStepProps = therapySettingsFormStep(meta, pump);
+  const reviewFormStepProps = reviewFormStep(meta, pump, handlers);
 
   const stepProps = step => ({
     ...step,

@@ -22,6 +22,6 @@ export const isMissingBasicsData = (aggregationsByDate = {}) => {
   return !_.some(basicsData, d => _.keys(d.byDate).length > 0);
 }
 
-export const getFloatFromUnitsAndNanos = ({ units, nanos }) => {
+export const getFloatFromUnitsAndNanos = ({ units, nanos } = {}) => {
   return parseFloat(parseInt(units) + (parseInt(nanos) / 10e8));
 };

@@ -69,9 +69,9 @@ const patientRows = meta => ([
   },
 ]);
 
-const therapySettingsRows = meta => {
+const therapySettingsRows = (pump, meta) => {
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const thresholds = warningThresholds(bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return [
     {
@@ -223,6 +223,7 @@ export const TherapySettings = props => {
     t,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
     meta,
+    pump,
     ...themeProps
   } = props;
 
@@ -236,7 +237,7 @@ export const TherapySettings = props => {
 
   const patientName = `${firstName.value} ${lastName.value}`;
 
-  const rows = therapySettingsRows(meta);
+  const rows = therapySettingsRows(pump, meta);
 
   const Row = ({ label, value, warning, id, index }) => {
     const values = isArray(value) ? value : [value];
@@ -330,7 +331,7 @@ export const TherapySettings = props => {
                 value: patientName,
               },
               ...patientRows(meta),
-            ], therapySettingsRows(meta))}
+            ], therapySettingsRows(pump, meta))}
           />
         </Box>
       </Flex>
@@ -390,11 +391,11 @@ export const PrescriptionReview = translate()(props => (
   </Flex>
 ));
 
-const reviewFormStep = (meta, handlers) => ({
+const reviewFormStep = (meta, pump, handlers) => ({
   label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   disableComplete: !fieldsAreValid(stepValidationFields[3][0], meta),
-  panelContent: <PrescriptionReview meta={meta} handlers={handlers} />
+  panelContent: <PrescriptionReview meta={meta} pump={pump} handlers={handlers} />
 });
 
 export default reviewFormStep;

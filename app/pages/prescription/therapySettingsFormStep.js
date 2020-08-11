@@ -14,8 +14,8 @@ import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
 
 import {
-  deviceMeta,
   // insulinModelOptions,
+  pumpRanges,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -61,16 +61,13 @@ export const PatientInfo = props => {
 PatientInfo.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
-  const { t, meta, ...themeProps } = props;
-  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
+  const { t, meta, pump, ...themeProps } = props;
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
-        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpId}}.', {
-          pumpId: pumpMeta.manufacturerName,
+        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{displayName}}.', {
+          displayName: pump.displayName,
         })}
       </Paragraph2>
       <FastField
@@ -102,11 +99,10 @@ export const InModuleTrainingNotification = props => {
 InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, meta, pump, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
-  const thresholds = warningThresholds(bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -132,7 +128,7 @@ export const GlucoseSettings = props => {
           suffix={bgUnits}
           error={getFieldError(meta.initialSettings.suspendThreshold.value)}
           warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
-          {...pumpMeta.ranges.suspendThreshold}
+          {...ranges.suspendThreshold}
           {...{ ...inputStyles, themeProps: { mb: 3 }}}
         />
 
@@ -161,7 +157,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...pumpMeta.ranges.bloodGlucoseTarget,
+                ...ranges.bloodGlucoseTarget,
               },
               {
                 label: t('Upper Target'),
@@ -169,7 +165,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...pumpMeta.ranges.bloodGlucoseTarget,
+                ...ranges.bloodGlucoseTarget,
               },
             ]}
             separator="-"
@@ -183,11 +179,10 @@ export const GlucoseSettings = props => {
 GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, meta, pump, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
-  const thresholds = warningThresholds(bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -255,7 +250,7 @@ export const InsulinSettings = props => {
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
                 type: 'number',
-                ...pumpMeta.ranges.basalRate,
+                ...ranges.basalRate,
               },
             ]}
           />
@@ -284,7 +279,7 @@ export const InsulinSettings = props => {
           suffix={t('U/hr')}
           error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
           warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
-          {...pumpMeta.ranges.basalRateMaximum}
+          {...ranges.basalRateMaximum}
           {...inputStyles}
         />
 
@@ -308,7 +303,7 @@ export const InsulinSettings = props => {
           suffix={t('U')}
           error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
           warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
-          {...pumpMeta.ranges.bolusAmountMaximum}
+          {...ranges.bolusAmountMaximum}
           {...inputStyles}
         />
 
@@ -337,7 +332,7 @@ export const InsulinSettings = props => {
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
                 type: 'number',
-                ...pumpMeta.ranges.carbRatio,
+                ...ranges.carbRatio,
               },
             ]}
           />
@@ -371,7 +366,7 @@ export const InsulinSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.insulinSensitivityFactor,
                 type: 'number',
-                ...pumpMeta.ranges.insulinSensitivityFactor,
+                ...ranges.insulinSensitivityFactor,
               },
             ]}
           />
@@ -393,10 +388,10 @@ export const TherapySettings = translate()(props => (
   </Box>
 ));
 
-const therapySettingsFormStep = (meta) => ({
+const therapySettingsFormStep = (meta, pump) => ({
   label: t('Enter Therapy Settings'),
   disableComplete: !fieldsAreValid(stepValidationFields[2][0], meta),
-  panelContent: <TherapySettings meta={meta} />
+  panelContent: <TherapySettings meta={meta} pump={pump} />
 });
 
 export default therapySettingsFormStep;
