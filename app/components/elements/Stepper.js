@@ -120,6 +120,7 @@ export const Stepper = props => {
 
     setActiveStep(activeStepProp);
     setActiveSubStep(activeSubStepProp);
+    setTransitioningToStep([activeStepProp, activeSubStepProp].join(','));
   }, [activeStepProp, activeSubStepProp]);
 
   const [skipped, setSkipped] = React.useState(new Set());
