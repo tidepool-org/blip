@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { FastField, Field } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import i18next from '../../core/language';
@@ -67,7 +68,7 @@ export const PatientTraining = props => {
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
         {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{displayName}}.', {
-          displayName: pump.displayName,
+          displayName: get(pump, 'displayName'),
         })}
       </Paragraph2>
       <FastField
