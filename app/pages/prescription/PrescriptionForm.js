@@ -107,7 +107,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           start: 0,
         }]),
       },
-      training: get(props, 'prescription.latestRevision.attributes.training', ''),
+      training: get(props, 'prescription.latestRevision.attributes.training'),
       therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
     };
   },
