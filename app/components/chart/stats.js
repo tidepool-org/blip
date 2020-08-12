@@ -12,8 +12,6 @@ const Stats = (props) => {
     stats,
   } = props;
 
-  const statsWithoutBgExtents = stats.filter((stat) => stat.id !== 'bgExtents');
-
   const renderStats = (stats, animate) => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
       <Stat animate={animate} bgPrefs={bgPrefs} {...stat} />

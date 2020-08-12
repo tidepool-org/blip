@@ -64,8 +64,8 @@ class Basics extends Component {
   render = () => {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
+    const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
     let renderedContent;
-console.log(this.props.stats);
     if (dataQueryComplete) {
       renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
     }
@@ -111,7 +111,7 @@ console.log(this.props.stats);
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
-                  stats={this.props.stats}
+                  stats={statsToRender}
                 />
               </div>
             </div>
