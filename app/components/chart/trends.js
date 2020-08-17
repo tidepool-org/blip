@@ -423,8 +423,6 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.updateChartPrefs(prefs);
   }
 
-
-
   render() {
     const { currentPatientInViewId, t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'trends';
