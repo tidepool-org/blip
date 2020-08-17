@@ -133,13 +133,12 @@ export const generateTherapySettingsOrderText = (patientRows = [], therapySettin
   textString += textUtil.buildTextLine(t('Patient Profile'));
   each(patientRows, row => textString += textUtil.buildTextLine(row));
 
-  textString += textUtil.buildTextLine('');
-
   each(therapySettingsRows, (row, index) => {
-    if (isArray(row.value) || isArray(get(therapySettingsRows, [index - 1, 'value']))) {
-      textString += textUtil.buildTextLine('');
+    textString += textUtil.buildTextLine('');
+
+    if (isArray(row.value)) {
       textString += textUtil.buildTextLine(row.label);
-      isArray(row.value) && each(row.value, value => textString += textUtil.buildTextLine(value));
+      each(row.value, value => textString += textUtil.buildTextLine(value));
     } else {
       textString += textUtil.buildTextLine(row);
     }
