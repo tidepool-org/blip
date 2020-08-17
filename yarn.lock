@@ -1065,6 +1065,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.4.2":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
+  integrity sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/runtime@^7.9.6":
   version "7.9.6"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.6.tgz#a9102eb5cadedf3f31d08a9ecf294af7827ea29f"
@@ -2146,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.0-rc.1":
-  version "1.13.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-rc.1.tgz#f51922ff0c88f947c0b813ecb6dd8703127551bb"
-  integrity sha512-yCeAicjZyaIKRExcM1gTnaan8OM9HnxAII0ofUI9zCUt5kgg6c7Nm7qh6NMn97SX8ZgMfvjz0K5cHa1VekDatQ==
+"@tidepool/viz@1.13.0-rc.2":
+  version "1.13.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-rc.2.tgz#dab915f8551c888b66258aee495989020fd714d3"
+  integrity sha512-79USFnlYhBEGDiC+Cvp2Q5cp6BgGTDxuzv/R/Z91AW6WRvUWsLX6XDewGkuLATVao7vSXkkXhJdoQKDPyn+pIw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -2288,6 +2295,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-test-renderer@^16.8.2":
+  version "16.9.3"
+  resolved "https://registry.yarnpkg.com/@types/react-test-renderer/-/react-test-renderer-16.9.3.tgz#96bab1860904366f4e848b739ba0e2f67bcae87e"
+  integrity sha512-wJ7IlN5NI82XMLOyHSa+cNN4Z0I+8/YaLl04uDgcZ+W+ExWCmCiVTLT/7fRNqzy4OhStZcUwIqLNF7q+AdW43Q==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-textarea-autosize@^4.3.3":
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/@types/react-textarea-autosize/-/react-textarea-autosize-4.3.5.tgz#6c4d2753fa1864c98c0b2b517f67bb1f6e4c46de"
@@ -2309,6 +2323,14 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/react@^16.8.22":
+  version "16.9.46"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.46.tgz#f0326cd7adceda74148baa9bff6e918632f5069e"
+  integrity sha512-dbHzO3aAq1lB3jRQuNpuZ/mnu+CdD3H0WVaaBQA8LTT3S33xhVBUj232T8M3tAhSWJs/D/UqORYUlJNl/8VQZg==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^3.0.2"
 
 "@types/tapable@1.0.2":
   version "1.0.2"
@@ -5484,6 +5506,11 @@ csstype@^2.2.0, csstype@^2.5.2, csstype@^2.5.7, csstype@^2.6.5, csstype@^2.6.7:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.9.tgz#05141d0cd557a56b8891394c1911c40c8a98d098"
   integrity sha512-xz39Sb4+OaTsULgUERcCk+TJj8ylkL4aSVDQiX/ksxbELSqwkgt4d4RD7fovIdgJGSuNYqwZEiVjYY5l0ask+Q==
+
+csstype@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.2.tgz#ee5ff8f208c8cd613b389f7b222c9801ca62b3f7"
+  integrity sha512-ofovWglpqoqbfLNOTBNZLSbMuGrblAf1efvvArGKOZMBrIoJeu5UsAipQolkijtyQx5MtAzT/J9IHj/CEY1mJw==
 
 csv-generate@^0.0.6:
   version "0.0.6"
@@ -10771,11 +10798,6 @@ lodash@4.*, lodash@4.17.19, lodash@^4.0.1, lodash@^4.1.1, lodash@^4.15.0, lodash
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
-
-lodash@4.17.11:
-  version "4.17.11"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
-  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
 lodash@4.17.15:
   version "4.17.15"
