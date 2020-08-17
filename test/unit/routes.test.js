@@ -70,6 +70,12 @@ describe('routes', () => {
   });
 
   describe('requireAuth', () => {
+    const nextStatePatientRoute = {
+      location: {
+        pathname: '/patients',
+      }
+    };
+
     it('should update route to /login if user is not authenticated', (done) => {
       let api = {
         user: {
@@ -120,7 +126,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api, store)(null, replace, () => {
+      requireAuth(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.callCount).to.equal(0);
         done();
       });
@@ -154,7 +160,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api, store)(null, replace, () => {
+      requireAuth(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.callCount).to.equal(0);
         expect(api.user.get.callCount).to.equal(0);
         done();
@@ -231,6 +237,12 @@ describe('routes', () => {
   });
 
   describe('requireAuthAndNoPatient', () => {
+    const nextStatePatientRoute = {
+      location: {
+        pathname: '/login',
+      }
+    };
+
     it('should update the route to /login if the user is not authenticated', (done) => {
       let api = {
         user: {
@@ -246,7 +258,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.withArgs('/login').callCount).to.equal(1);
         done();
       });
@@ -279,7 +291,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
@@ -312,7 +324,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
         done();
@@ -340,7 +352,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.withArgs('/terms').callCount).to.equal(1);
         done();
       });
@@ -370,7 +382,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.withArgs('/terms').callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
         done();
@@ -404,7 +416,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.callCount).to.equal(0);
         done();
       });
@@ -437,7 +449,7 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, store)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(nextStatePatientRoute, replace, () => {
         expect(replace.callCount).to.equal(0);
         expect(api.user.get.callCount).to.equal(0);
         done();
@@ -578,7 +590,13 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireNotVerified(api, store)(null, replace, () => {
+      const nextStateLocation = {
+        location: {
+          pathname: '/email-verification',
+        }
+      };
+
+      requireNotVerified(api, store)(nextStateLocation, replace, () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         expect(api.user.get.callCount).to.equal(0);
         done();

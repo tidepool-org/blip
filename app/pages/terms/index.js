@@ -13,4 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./terms');
+import TermsPage, { Terms, mapStateToProps } from './terms';
+
+export { Terms, mapStateToProps };
+export default TermsPage;

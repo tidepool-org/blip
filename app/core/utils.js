@@ -184,7 +184,7 @@ utils.getDonationAccountCodeFromEmail = function(email) {
 }
 
 utils.hasVerifiedEmail = function(user) {
-  return (user.emailVerified);
+  return _.get(user, 'emailVerified', false);
 }
 
 utils.getSignupKey = function(location) {

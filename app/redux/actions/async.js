@@ -193,11 +193,15 @@ export function acceptTerms(api, acceptedDate, userId) {
       } else {
         if (loggedInUserId) {
           dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-          if(personUtils.isClinic(user)){
-            dispatch(routeActions.push('/clinician-details'));
-          } else {
-            dispatch(routeActions.push('/patients?justLoggedIn=true'));
-          }
+          // Fetch the profile
+          dispatch(fetchUser(api, (err, user) => {
+            // Redirect to the profile detail setup only if not already entered.
+            if (personUtils.isClinic(user) && !personUtils.haveClinicProfile(user)) {
+              dispatch(routeActions.push('/clinician-details'));
+            } else {
+              dispatch(routeActions.push('/patients?justLoggedIn=true'));
+            }
+          }));
         } else {
           dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
         }
@@ -248,7 +252,7 @@ export function login(api, credentials, options, postLoginAction) {
           const isClinic = personUtils.isClinic(user);
 
           let redirectRoute = '/patients?justLoggedIn=true';
-          if (isClinic && !_.get(user, ['profile', 'clinic'], false)) {
+          if (isClinic && !personUtils.haveClinicProfile(user)) {
             redirectRoute = '/clinician-details';
           }
 

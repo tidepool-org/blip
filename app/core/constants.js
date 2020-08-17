@@ -45,7 +45,7 @@ export const CONFIG = {
     support: 'https://www.diabeloop.com',
     legal: config.ASSETS_URL + 'terms.pdf',
     terms: config.ASSETS_URL + 'terms.pdf',
-    get termsText() {  return t('Diabeloop Applications Terms of Use'); },
+    get termsText() { return t('Diabeloop Applications Terms of Use'); },
     privacy: config.ASSETS_URL + 'data-privacy.pdf',
     get privacyText() { return t('Privacy Policy'); }
   }

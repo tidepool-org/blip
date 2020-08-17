@@ -63,7 +63,6 @@ export class AppComponent extends React.Component {
     loggingOut: React.PropTypes.bool.isRequired,
     updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
-    onAcceptTerms: React.PropTypes.func.isRequired,
     onCloseNotification: React.PropTypes.func.isRequired,
     onDismissDonateBanner: React.PropTypes.func.isRequired,
     onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
@@ -531,10 +530,9 @@ export function mapStateToProps(state) {
     userHasConnectedDataSources,
     userIsSupportingNonprofit,
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  acceptTerms: actions.async.acceptTerms,
   fetchDataSources: actions.async.fetchDataSources,
   fetchUser: actions.async.fetchUser,
   logout: actions.async.logout,
@@ -554,7 +552,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,
-    onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),

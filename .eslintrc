@@ -12,6 +12,10 @@
     "define": false,
     "console": false
   },
+  "ignorePatterns": [
+    "**/dist/*",
+    "**/node_modules/*"
+  ],
   "rules": {
     "quotes": [1, "single", {
       "avoidEscape": true
@@ -42,6 +46,7 @@
     "no-unused-vars": 1,
     "no-unreachable": 1,
     "no-useless-escape": 1,
+    "semi": 1,
     "jsx-a11y/alt-text": 1,
     "jsx-a11y/click-events-have-key-events": 1,
     "jsx-a11y/anchor-is-valid": 1,

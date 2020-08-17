@@ -407,66 +407,137 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
-        let acceptedDate = new Date();
-        let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
-        let api = {
+        const acceptedDate = new Date();
+        const loggedInUserId = 'abc';
+        const termsData = { termsAccepted: new Date() };
+        const user = {
+          emailVerified: true,
+          username: 'john.doe@example.com',
+          id: loggedInUserId
+        };
+        const api = {
           user: {
-            acceptTerms: sinon.stub().callsArgWith(1, null)
+            acceptTerms: sinon.stub().callsArgWith(1, null),
+            get: sinon.stub().callsArgWith(0, null, user),
           }
         };
 
-        let expectedActions = [
+        const expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: {
+            userId: loggedInUserId,
+            acceptedDate
+          }},
+          { type: 'FETCH_USER_REQUEST'},
+          { type: 'FETCH_USER_SUCCESS', payload: { user } },
           { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
         ];
-        _.each(expectedActions, (action) => {
+
+        _.forEach(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest);
+        const store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician', () => {
-        let acceptedDate = new Date();
-        let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
-        let user = {
-          roles: ['clinic']
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician if profile not set', () => {
+        const acceptedDate = new Date();
+        const loggedInUserId = 'abc';
+        const termsData = { termsAccepted: new Date() };
+        const user = {
+          roles: ['clinic'],
+          emailVerified: true,
+          username: 'john.doe@example.com',
+          id: loggedInUserId
         };
-        let api = {
+        const api = {
           user: {
-            acceptTerms: sinon.stub().callsArgWith(1, null, user)
+            acceptTerms: sinon.stub().callsArgWith(1, null, user),
+            get: sinon.stub().callsArgWith(0, null, user),
           }
         };
 
-        let expectedActions = [
+        const expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: {
+            userId: loggedInUserId,
+            acceptedDate
+          }},
+          { type: 'FETCH_USER_REQUEST'},
+          { type: 'FETCH_USER_SUCCESS', payload: { user } },
           { type: '@@router/TRANSITION', payload: { args: [ '/clinician-details' ], method: 'push' } }
         ];
-        _.each(expectedActions, (action) => {
+
+        _.forEach(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
-        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
 
-        let store = mockStore(initialStateForTest);
+        const store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
         expect(api.user.acceptTerms.callCount).to.equal(1);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+      });
+
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to /patients for clinician if profile is set', () => {
+        const acceptedDate = new Date();
+        const loggedInUserId = 500;
+        const termsData = { termsAccepted: new Date() };
+        const user = {
+          roles: ['clinic'],
+          emailVerified: true,
+          username: 'john.doe@example.com',
+          id: loggedInUserId,
+          profile: {
+            clinic: {}
+          },
+        };
+        const api = {
+          user: {
+            acceptTerms: sinon.stub().callsArgWith(1, null, user),
+            get: sinon.stub().callsArgWith(0, null, user),
+          }
+        };
+
+        const expectedActions = [
+          { type: 'ACCEPT_TERMS_REQUEST' },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: {
+            userId: loggedInUserId,
+            acceptedDate
+          }},
+          { type: 'FETCH_USER_REQUEST'},
+          { type: 'FETCH_USER_SUCCESS', payload: { user } },
+          { type: '@@router/TRANSITION', payload: { args: [ '/patients?justLoggedIn=true' ], method: 'push' } }
+        ];
+
+        _.forEach(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        const store = mockStore(initialStateForTest);
+        store.dispatch(async.acceptTerms(api, acceptedDate));
+
+        const actions = store.getActions();
+        expect(actions, 'actions').to.eql(expectedActions);
+        expect(api.user.acceptTerms.callCount).to.equal(1);
+        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {

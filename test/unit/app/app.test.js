@@ -1,16 +1,10 @@
 /* global chai */
-/* global sinon */
-/* global describe */
-/* global it */
-/* global context */
-/* global beforeEach */
-/* global afterEach */
 
 import _ from 'lodash';
 import React from 'react';
 import createFragment from 'react-addons-create-fragment';
 import TestUtils from 'react-dom/test-utils';
-
+import sinon from 'sinon';
 import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import {
@@ -59,7 +53,6 @@ describe('App', () => {
       },
       location: '/foo',
       loggingOut: false,
-      onAcceptTerms: sinon.stub(),
       onCloseNotification: sinon.stub(),
       onLogout: sinon.stub()
     });
@@ -76,8 +69,24 @@ describe('App', () => {
   });
 
   describe('render', () => {
+    before(() => {
+      try {
+        // FIXME should not protect this call
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+      }
+    });
+    after(() => {
+      // @ts-ignore
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+    });
+
     it('should render without problems or warnings when required props provided', () => {
-      var props = _.assign({}, baseProps, {
+      const props = _.assign({}, baseProps, {
         authenticated: false,
         children: createFragment({}),
         fetchers: [],
@@ -92,24 +101,24 @@ describe('App', () => {
         },
         location: '/foo',
         loggingOut: false,
-        onAcceptTerms: sinon.stub(),
         onCloseNotification: sinon.stub(),
         onLogout: sinon.stub()
       });
 
-      var elem = TestUtils.renderIntoDocument(<App {...props}/>);
+      console.error.resetHistory();
+      const elem = TestUtils.renderIntoDocument(<App {...props}/>);
       expect(elem).to.be.ok;
-      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      expect(console.error.callCount).to.be.equal(0);
+      const app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
     });
 
 
     it('should console.error when required props not provided', () => {
-      console.error = sinon.stub();
-
+      console.error.resetHistory();
       var elem = TestUtils.renderIntoDocument(<App {...baseProps}/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(11);
+      expect(console.error.callCount).to.be.above(0);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
     });

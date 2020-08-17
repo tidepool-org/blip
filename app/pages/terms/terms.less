@@ -12,172 +12,24 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-@terms-vs-box-width: 500px;
-@terms-sm-box-width: 600px;
-@terms-md-box-width: 700px;
-@terms-box-width:    800px;
 
-@terms-age-box-width: 500px;
-
-.terms {
-  width: 100%;
-  height: 100%;
-}
-
-.terms-content {
-  margin-top: 80px;
-  margin-bottom: 80px;
-}
-
-.terms-box {
-  margin-right: auto;
-  margin-left: auto;
-  padding-left: @spacing-small;
-  padding-right: @spacing-small;
-
-  @media(min-width: @terms-box-width) {
-    width: @terms-box-width;
-  }
-}
-
-.terms-age-box {
-  margin-right: auto;
-  margin-left: auto;
-  padding-left: @spacing-small;
-  padding-right: @spacing-small;
-
-  @media(min-width: @terms-age-box-width) {
-    width: @terms-age-box-width;
-  }
+.container-terms {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  color: @gray-darkest;
 }
 
 .terms-title {
   font-size: 18px;
-  line-height: 20px;
+  line-height: 1.5rem;
   font-weight: bold;
-  color: @gray-darkest;
-  margin-bottom: @spacing-large;
+  margin-bottom: 0px;
 }
 
-.iframe-holder {
-  overflow: scroll-y !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-
-.terms-link {
-  display: block;
-  margin: 15px 0;
-  font-size: 1em;
-}
-
-.terms-iframe-terms {
-  margin-bottom: @spacing-large;
-  width: @terms-box-width;
-  height: 500px;
-
-  @media(max-width: @terms-vs-box-width) {
-    width: 95%;
-    height: 940px;
-  }
-
-  @media(min-width: @terms-vs-box-width) and (max-width: @terms-sm-box-width) {
-    width: @terms-vs-box-width;
-    height: 700px;
-  }
-
-  @media(min-width: @terms-sm-box-width) and (max-width: @terms-md-box-width) {
-    width: @terms-sm-box-width;
-    height: 640px;
-  }
-
-  @media(min-width: @terms-md-box-width) and (max-width: @terms-box-width) {
-    width: @terms-md-box-width;
-    height: 600px;
-  }
-}
-
-.terms-iframe-privacy {
-  margin-bottom: @spacing-large;
-  width: @terms-box-width;
-  height: 700px;
-
-  @media(max-width: @terms-vs-box-width) {
-    width: 95%;
-    height: 1190px;
-  }
-
-  @media(min-width: @terms-vs-box-width) and (max-width: @terms-sm-box-width) {
-    width: @terms-vs-box-width;
-    height: 990px;
-  }
-
-  @media(min-width: @terms-sm-box-width) and (max-width: @terms-md-box-width) {
-    width: @terms-sm-box-width;
-    height: 840px;
-  }
-
-  @media(min-width: @terms-md-box-width) and (max-width: @terms-box-width) {
-    width: @terms-md-box-width;
-    height: 770px;
-  }
-}
-
-.terms-text {
-  margin-bottom: @spacing-large;
-
-  p {
-    margin-top: 0;
-    margin-bottom: @spacing-base;
-  }
-}
-
-.terms-form {
-  margin-bottom: @spacing-base;
-}
-
-.terms-age-radio {
-  margin-bottom: @spacing-base;
-  padding-bottom: 20px;
-
-  label {
-    padding-left: 20px;
-    padding-bottom: 10px;
-    cursor: pointer;
-    color: @gray-darkest;
-  }
-
-  input[type="radio"] {
-    float: left;
-    margin-left: -20px;
-    margin-top: 3px;
-  }
-}
-
-.terms-accept-checkbox {
-  margin-bottom: @spacing-base;
-
-  label {
-    padding-left: 20px;
-    padding-bottom: 10px;
-    cursor: pointer;
-    color: @gray-darkest;
-  }
-
-  input[type="checkbox"] {
-    float: left;
-    margin-left: -20px;
-    margin-top: 3px;
-  }
-}
-
-.terms-button {
-  &:extend(.btn all);
-  &:extend(.btn-primary all);
-
-  margin-top: 5px;
-}
-
-.terms-button-hidden {
-  &:extend(.terms-button all);
-  display: none;
+#checkbox-agreed-terms {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
 }

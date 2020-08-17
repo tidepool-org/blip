@@ -13,281 +13,170 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-import React  from 'react';
-import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
-import { bindActionCreators } from 'redux';
+
 import _ from 'lodash';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Trans } from 'react-i18next';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import i18next from '../../core/language';
 import config from '../../config';
-import LoginNav from '../../components/loginnav';
 import { CONFIG } from '../../core/constants';
 
 import * as actions from '../../redux/actions';
 
+/** @type {(s: string, params?: object) => string} */
 const t = i18next.t.bind(i18next);
 
-var brand = CONFIG[config.BRANDING].name;
-
-var urlTermsOfUse = CONFIG[config.BRANDING].terms;
-var textTermsOfUse = CONFIG[config.BRANDING].termsText;
-
-var urlPrivacyPolicy = CONFIG[config.BRANDING].privacy;
-var textPrivacyPolicy = CONFIG[config.BRANDING].privacyText;
-
-const ACCEPT_OF_AGE = <Trans parent="span" i18nKey="html.terms-accept-of-age">
-  I am 18 or older and I accept the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
-</Trans>;
-
-const ACCEPT_ON_BEHALF = <Trans parent="span" i18nKey="html.terms-accept-on-behalf">
-  I agree that my child aged 13 through 17 can use {brand} Applications and agree that they are also bound to the terms of the <a href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
-</Trans>;
-
-const TERMS_OF_USE_UPDATED = <Trans parent="span" i18nKey="html.terms-of-use-updated">
-  The Terms of Use and Privacy Policy have changed since you last used {brand}.<br/>
-  You need to accept the changes to continue.
-</Trans>;
-
-export const Terms = translate()(class Terms extends React.Component {
-  static propTypes = {
-    ages: React.PropTypes.object.isRequired,
-    authenticated: React.PropTypes.bool.isRequired,
-    messages: React.PropTypes.object.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    termsAccepted: React.PropTypes.bool.isRequired,
-    acceptedLatestTerms: React.PropTypes.bool.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
-  };
-
-  static get defaultProps () {
-    return {
-      ages: {
-        OF_AGE: {value: '>=18', label: t(' I am 18 years old or older.')},
-        WITH_CONSENT: {value: '13-17', label: t(' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms below.') },
-        NOT_OF_AGE: {value: '<=12', label: t(' I am 12 years old or younger.')}
-      },
-      messages: {
-        ACCEPT_OF_AGE: ACCEPT_OF_AGE,
-        ACCEPT_ON_BEHALF:  ACCEPT_ON_BEHALF,
-        TERMS_OF_USE_UPDATED: TERMS_OF_USE_UPDATED,
-        SORRY_NOT_OF_AGE: t('We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'),
-      }
-    };
-  }
-
+export class Terms extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       agreed: false,
-      agreedOnBehalf: false,
-      ageSelected: props.ages.OF_AGE.value // default
     };
   }
 
-  renderAgeConsentStep() {
-    return (
-      <div className='terms-age-radio'>
-        <label>
-          <input type='radio' name='age'
-            key={this.props.ages.OF_AGE.value}
-            value={this.props.ages.OF_AGE.value}
-            onChange={this.handleAgeChange.bind(this)}
-            defaultChecked={true} />
-          {this.props.ages.OF_AGE.label}
-        </label>
-        <label>
-          <input type='radio' name='age'
-            key={this.props.ages.WITH_CONSENT.value}
-            value={this.props.ages.WITH_CONSENT.value}
-            onChange={this.handleAgeChange.bind(this)} />
-          {this.props.ages.WITH_CONSENT.label}
-        </label>
-        <label>
-          <input type='radio' name='age'
-            key={this.props.ages.NOT_OF_AGE.value}
-            value={this.props.ages.NOT_OF_AGE.value}
-            onChange={this.handleAgeChange.bind(this)} />
-          {this.props.ages.NOT_OF_AGE.label}
-        </label>
-      </div>
-    );
-  }
+  renderTermsTitle() {
+    const { termsWasAccepted } = this.props;
+    /** @type {string} */
+    const brand = _.get(CONFIG, `${config.BRANDING}.name`, 'Tidepool');
 
-  renderTermsUpdated() {
-    if (!this.props.termsAccepted) {
-      return null;
-    }
-
-    return (
-      <div className='terms-title'>
-        <p>{this.props.messages.TERMS_OF_USE_UPDATED}</p>
-      </div>
-    );
-  }
-
-  getTermsAndPrivacyButtonState() {
-    var isDisabled = !this.state.agreed;
-
-    if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
-      isDisabled = true;
-    } else if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
-      if (this.state.agreed && this.state.agreedOnBehalf) {
-        isDisabled = false;
-      }
-      else {
-        isDisabled = true;
-      }
-    }
-    return isDisabled;
-  }
-
-  renderForm() {
-    var termsUpdated = this.renderTermsUpdated();
-    var ageConsent = this.renderAgeConsentStep();
-    var agreeConfirmation = this.renderAgreeCheckboxes();
-    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
-    var continueBtnClass = (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value)
-      ? 'terms-button-hidden' : 'terms-button';
-
-    var termsForm;
-    if (this.props.authenticated && !this.props.acceptedLatestTerms) {
-      termsForm = (
-        <form className='terms-form'>
-          {termsUpdated}
-          {ageConsent}
-          {agreeConfirmation}
-          <button
-            className={continueBtnClass}
-            onClick={this.handleTermsAndPrivacySubmit.bind(this)}
-            disabled={continueBtnDisabled}>Continue</button>
-        </form>
+    let termsTitle = null;
+    if (termsWasAccepted) {
+      termsTitle = (
+        <p id="terms-title-updated" className="terms-title">
+          <span>{t('The Terms of Use and Privacy Policy have changed since you last used {{brand}}.', { brand })}</span>
+          <br />
+          <span>{t('You need to accept the changes to continue.')}</span>
+        </p>
+      );
+    } else {
+      termsTitle = (
+        <p id="terms-title-first-time" className="terms-title">
+          <span>{t('You need to accept the Terms of Use and Privacy Policy of {{brand}} to continue.', { brand })}</span>
+        </p>
       );
     }
-    return (
-      <div>
-        {termsForm}
-      </div>
-    );
+
+    return termsTitle;
   }
 
-  renderAgreeCheckboxes() {
-    var onBehalf;
-    if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
-      onBehalf = (
-        <label htmlFor='agreedOnBehalf'>
+  /**
+   *
+   * @param {boolean} agreed True when the checkbox is checked.
+   */
+  renderCheckboxAgreedTerms(agreed) {
+    const branding = CONFIG[config.BRANDING];
+    const {
+      termsText: textTermsOfUse,
+      privacyText: textPrivacyPolicy,
+      terms: urlTermsOfUse,
+      privacy: urlPrivacyPolicy
+    } = branding;
+
+    // TODO Reuse <Trans /> from react-i18next after update to v11.6.0+
+    // https://react.i18next.com/latest/trans-component#alternative-usage-v-11-6-0
+    return (
+      <p id="checkbox-agreed-terms">
+        <label id="label-checkbox-agreed-terms" htmlFor='input-agreed-terms'>
           <input
-            id='agreedOnBehalf'
+            id='input-agreed-terms'
             type='checkbox'
             className='js-terms-checkbox'
-            checked={this.state.agreedOnBehalf}
-            onChange={this.handleOnBehalfAgreementChange.bind(this)} />
-          {this.props.messages.ACCEPT_ON_BEHALF}
+            checked={agreed}
+            onChange={() => this.setState({ agreed: !this.state.agreed })} />
+          &nbsp;
+          <Trans parent="span" i18nKey="html.terms-of-use.updated" i18n={i18next}>
+            I am 18 or older and I accept the terms of the
+            &nbsp;
+            <a href={urlTermsOfUse} target='_blank' rel='noreferrer'>{textTermsOfUse}</a>
+            &nbsp;
+            and the
+            &nbsp;
+            <a href={urlPrivacyPolicy} target='_blank' rel='noreferrer'>{textPrivacyPolicy}</a>
+          </Trans>
         </label>
-      );
-    }
-
-    var acceptTerms;
-    if (this.state.ageSelected !== this.props.ages.NOT_OF_AGE.value) {
-      acceptTerms = (
-        <label htmlFor='agreed'>
-          <input
-            id='agreed'
-            type='checkbox'
-            className='js-terms-checkbox'
-            checked={this.state.agreed}
-            onChange={this.handleAgreementChange.bind(this)} />
-          {this.props.messages.ACCEPT_OF_AGE}
-        </label>
-      );
-    }
-
-    var sorryMessage;
-    if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
-      sorryMessage = (
-        <div ref='sorryMsg'>
-          <p className='terms-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
-        </div>
-    );
-    }
-
-    return (
-      <div className='terms-accept-checkbox'>
-        {acceptTerms}
-        {onBehalf}
-        {sorryMessage}
-      </div>
+      </p>
     );
   }
 
   render() {
-    var content = '';
-    if (this.props.authenticated && !this.props.acceptedLatestTerms) {
-      content = this.renderForm();
-    }
+    const { agreed } = this.state;
+
+    const termsTitle = this.renderTermsTitle();
+    const checkboxAgreedTerms = this.renderCheckboxAgreedTerms(agreed);
 
     return (
-      <div className='terms js-terms'>
-        <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
-        <div className='terms-content terms-box'>
-          {content}
+      <div className="container-terms">
+        {termsTitle}
+        {checkboxAgreedTerms}
+        <div id="button-agreed-terms">
+          <button
+              className="btn btn-primary"
+              onClick={this.handleTermsAndPrivacySubmit.bind(this)}
+              disabled={!agreed}>
+            {t('Continue')}
+          </button>
+          <button
+              className="btn btn-secondary"
+              onClick={this.handleRejectTerms.bind(this)}>
+            {t('Reject')}
+          </button>
         </div>
       </div>
     );
-
-  }
-
-  handleAgeChange(e) {
-    this.setState({ageSelected: e.target.value, agreed: false, agreedOnBehalf: false});
-  }
-
-  handleAgreementChange() {
-    this.setState({agreed: !this.state.agreed});
-  }
-
-  handleOnBehalfAgreementChange() {
-    this.setState({agreedOnBehalf: !this.state.agreedOnBehalf});
   }
 
   handleTermsAndPrivacySubmit(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    this.props.trackMetric('Agreed To Terms Of Use');
+    const { termsWasAccepted } = this.props;
+    e.preventDefault();
+    this.props.trackMetric(termsWasAccepted ? 'Agreed to the new Terms Of Use' : 'Agreed to Terms Of Use');
     this.props.onSubmit();
   }
-});
+
+  handleRejectTerms(e) {
+    const { termsWasAccepted } = this.props;
+    e.preventDefault();
+    this.props.trackMetric(termsWasAccepted ? 'Rejected the new Terms Of Use' : 'Rejected the Terms Of Use');
+    this.props.onRefuse();
+  }
+}
+
+Terms.propTypes = {
+  termsWasAccepted: PropTypes.bool.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onRefuse: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-
 export function mapStateToProps(state) {
-  var termsAccepted = 0;
-
-  if (state.blip.allUsersMap) {
-    if (state.blip.loggedInUserId) {
-      termsAccepted = state.blip.allUsersMap[state.blip.loggedInUserId].termsAccepted;
-    }
-  }
+  /** @type {string} */
+  const loggedInUserId = _.get(state, 'blip.loggedInUserId', 'invalidUserId');
+  /** @type {string|null} */
+  const termsAcceptedDate = _.get(state, `blip.allUsersMap.${loggedInUserId}.termsAccepted`, null);
+  const termsWasAccepted = termsAcceptedDate !== null;
 
   return {
-    authenticated: state.blip.isLoggedIn,
-    termsAccepted: !_.isEmpty(termsAccepted),
-    acceptedLatestTerms: new Date(config.LATEST_TERMS) < new Date(termsAccepted),
+    termsWasAccepted,
   };
-};
+}
 
-let mapDispatchToProps = dispatch => bindActionCreators({
+const mapDispatchToProps = dispatch => bindActionCreators({
   acceptTerms: actions.async.acceptTerms,
+  logout: actions.async.logout,
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.acceptTerms.bind(null, api),
+    onRefuse: dispatchProps.logout.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
