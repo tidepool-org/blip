@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.14.0-add-bgextents-stat.1":
-  version "1.14.0-add-bgextents-stat.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-add-bgextents-stat.1.tgz#89506c9fae57af38c73d50f3cb9617954714c9c0"
-  integrity sha512-HLwVeU+bzgzb4altfW/PvrpiSYf+oIC3J0WtUX5zP5BzgpVnb+rzmYILFv3uQuf3ZD0FIu95cTYyD9N7u5JD4g==
+"@tidepool/viz@1.14.0-add-bgextents-stat.2":
+  version "1.14.0-add-bgextents-stat.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-add-bgextents-stat.2.tgz#90c1995d9dc13abde9878398b02c173d00ac03b8"
+  integrity sha512-Cp+2NSU2F/bMUXhC0wvGpZyrEpbqUlxa9N9TfTs48N8UiJU2HnSyhPDqe1+NKmnOto+l0spRvZvUIkAQfftxCA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
