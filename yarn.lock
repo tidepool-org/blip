@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.0-update-reductio.1":
-  version "1.13.0-update-reductio.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0-update-reductio.1.tgz#c69e38b6b5a10c9a0b8fd9b7ccb024e04dfb9a15"
-  integrity sha512-VLkku3fJdXymHgvvjvy9nUV0/2C6DTfT7lolxRAc6FJfPgp10PkB5VP1B+BG4orJLhv4kJfFON/s/uOQIkX46g==
+"@tidepool/viz@1.14.0-add-bgextents-stat.2":
+  version "1.14.0-add-bgextents-stat.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-add-bgextents-stat.2.tgz#90c1995d9dc13abde9878398b02c173d00ac03b8"
+  integrity sha512-Cp+2NSU2F/bMUXhC0wvGpZyrEpbqUlxa9N9TfTs48N8UiJU2HnSyhPDqe1+NKmnOto+l0spRvZvUIkAQfftxCA==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -2173,7 +2173,7 @@
     gsap "2.0.2"
     i18next "11.9.0"
     intl "1.2.5"
-    lodash "4.17.11"
+    lodash "4.17.19"
     memorystream "0.3.1"
     moment "2.22.2"
     moment-timezone "0.5.21"
@@ -10793,11 +10793,6 @@ lodash@4.*, lodash@4.17.19, lodash@^4.0.1, lodash@^4.1.1, lodash@^4.15.0, lodash
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
-
-lodash@4.17.11:
-  version "4.17.11"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
-  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
 lodash@4.17.15:
   version "4.17.15"
