@@ -190,6 +190,7 @@ export const PrescriptionForm = props => {
   const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
+  const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
 
@@ -258,17 +259,13 @@ export const PrescriptionForm = props => {
     },
 
     singleStepEditComplete: (cancelFieldUpdates) => {
-      const advanceStep = false;
-
       if (cancelFieldUpdates) {
-        resetForm();
+        resetForm({values: cloneDeep(singleStepEditValues) });
       } else {
         resetForm({ values: cloneDeep(values) });
       }
 
       handlers.activeStepUpdate(pendingStep);
-
-      return advanceStep;
     },
 
     stepSubmit: () => {
@@ -341,11 +338,17 @@ export const PrescriptionForm = props => {
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
+    disableDefaultStepHandlers: isSingleStepEdit,
     id: stepperId,
-    location,
+    location: get(window, 'location', location),
     onStepChange: (newStep) => {
       setStepAsyncState(asyncStates.initial);
-      if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);
+      if (isSingleStepEdit) {
+        setSingleStepEditValues(values)
+      } else {
+        handlers.activeStepUpdate(newStep);
+      }
+
       log('Step to', newStep.join(','));
     },
     steps: [
