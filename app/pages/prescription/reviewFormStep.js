@@ -289,6 +289,7 @@ export const TherapySettings = props => {
             button: {
               border: 'none',
               color: 'text.primary',
+              paddingRight: 0,
               '&:hover,&:active': {
                 border: 'none',
                 color: 'text.primary',
