@@ -8,6 +8,11 @@ import { MGDL_UNITS } from '../../../../app/core/constants';
 
 const expect = chai.expect;
 
+const devices = {
+  cgms: [{ id: prescriptionFormConstants.deviceIdMap.dexcomG6 }],
+  pumps: [{ id: prescriptionFormConstants.deviceIdMap.omnipodHorizon }],
+};
+
 describe('prescriptionFormConstants', function() {
   it('should export the `dateFormat`', function() {
     expect(prescriptionFormConstants.dateFormat).to.equal('YYYY-MM-DD');
@@ -26,12 +31,13 @@ describe('prescriptionFormConstants', function() {
   });
 
   it('should export the list pump device options', function() {
-    expect(prescriptionFormConstants.pumpDeviceOptions).to.be.an('array');
-    expect(_.map(prescriptionFormConstants.pumpDeviceOptions, 'value')).to.eql([
+    const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
+    expect(pumpDeviceOptions).to.be.an('array');
+    expect(_.map(pumpDeviceOptions, 'value')).to.eql([
       prescriptionFormConstants.deviceIdMap.omnipodHorizon,
     ]);
 
-    _.each(prescriptionFormConstants.pumpDeviceOptions, device => {
+    _.each(pumpDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
       expect(device.extraInfo).to.be.an('object');
@@ -39,12 +45,13 @@ describe('prescriptionFormConstants', function() {
   });
 
   it('should export the list cgm device options', function() {
-    expect(prescriptionFormConstants.cgmDeviceOptions).to.be.an('array');
-    expect(_.map(prescriptionFormConstants.cgmDeviceOptions, 'value')).to.eql([
+    const cgmDeviceOptions = prescriptionFormConstants.cgmDeviceOptions(devices);
+    expect(cgmDeviceOptions).to.be.an('array');
+    expect(_.map(cgmDeviceOptions, 'value')).to.eql([
       prescriptionFormConstants.deviceIdMap.dexcomG6,
     ]);
 
-    _.each(prescriptionFormConstants.cgmDeviceOptions, device => {
+    _.each(cgmDeviceOptions, device => {
       expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
       expect(device.extraInfo).to.be.an('object');
@@ -75,10 +82,7 @@ describe('prescriptionFormConstants', function() {
     const basalRateMaximumWarning = 'Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of 0.1 U/hr.';
 
     it('should export the warning thresholds with mg/dL as default bg unit', () => {
-      expect(prescriptionFormConstants.warningThresholds(null, meta)).to.eql({
-        basalRate: {
-          low: { value: 0, message: lowWarning },
-        },
+      expect(prescriptionFormConstants.warningThresholds(devices.pumps[0], null, meta)).to.eql({
         basalRateMaximum: {
           high: { value: maxBasal * 6 + 0.01, message: basalRateMaximumWarning },
         },
@@ -106,7 +110,7 @@ describe('prescriptionFormConstants', function() {
     });
 
     it('should export the warning thresholds with mmoll/L as provided', () => {
-      const thresholds = prescriptionFormConstants.warningThresholds('mmol/L', meta);
+      const thresholds = prescriptionFormConstants.warningThresholds(devices.pumps[0], 'mmol/L', meta);
 
       expect(thresholds.bloodGlucoseTarget.low.value).to.equal(3.9);
       expect(thresholds.bloodGlucoseTarget.high.value).to.equal(6.7);
@@ -119,19 +123,9 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  describe('defaultValues', () => {
-    it('should export the default values', () => {
-      expect(prescriptionFormConstants.defaultValues()).to.eql({
-        basalRate: 0.05,
-        basalRateMaximum: 0,
-        bolusAmountMaximum: 0,
-      });
-    });
-  });
-
-  describe('defaultRanges', () => {
+  describe('pumpRanges', () => {
     it('should export the default ranges with mg/dL as default bg unit', () => {
-      expect(prescriptionFormConstants.defaultRanges()).to.eql({
+      expect(prescriptionFormConstants.pumpRanges(devices.pumps[0])).to.eql({
         basalRate: { min: 0, max: 35, step: 0.05 },
         basalRateMaximum: { min: 0, max: 35, step: 0.25 },
         bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
@@ -153,11 +147,11 @@ describe('prescriptionFormConstants', function() {
         },
       };
 
-      expect(prescriptionFormConstants.defaultRanges(MGDL_UNITS, meta).bloodGlucoseTarget.min).to.equal(78);
+      expect(prescriptionFormConstants.pumpRanges(devices.pumps[0], MGDL_UNITS, meta).bloodGlucoseTarget.min).to.equal(78);
     });
 
     it('should export the default ranges with mmoll/L as provided', () => {
-      const ranges = prescriptionFormConstants.defaultRanges('mmol/L');
+      const ranges = prescriptionFormConstants.pumpRanges(devices.pumps[0], 'mmol/L');
 
       expect(ranges.bloodGlucoseTarget.min).to.equal(3.3);
       expect(ranges.bloodGlucoseTarget.max).to.equal(10);
@@ -170,54 +164,6 @@ describe('prescriptionFormConstants', function() {
       expect(ranges.suspendThreshold.min).to.equal(3);
       expect(ranges.suspendThreshold.max).to.equal(10);
       expect(ranges.suspendThreshold.step).to.equal(0.1);
-    });
-  });
-
-  describe('deviceMeta', () => {
-    describe('Omnipod device ID provided', () => {
-      it('should export the device metadata with mg/dL as default bg unit', () => {
-        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.omnipodHorizon)).to.eql({
-          manufacturerName: 'Omnipod',
-          ranges: {
-            basalRate: { min: 0.05, max: 30, step: 0.05 },
-            basalRateMaximum: { min: 0, max: 30, step: 0.25 },
-            bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
-            bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-            carbRatio: { min: 1, max: 150, step: 1 },
-            insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-            suspendThreshold: { min: 54, max: 180, step: 1 },
-          },
-        });
-      });
-
-      it('should export the device metadata with mmoll/L as provided', () => {
-        const meta = prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.omnipodHorizon, 'mmol/L');
-
-        expect(meta.ranges.bloodGlucoseTarget.min).to.equal(3.3);
-      });
-    });
-
-    describe('Dexcom device ID provided', () => {
-      it('should export the device metadata', () => {
-        expect(prescriptionFormConstants.deviceMeta(prescriptionFormConstants.deviceIdMap.dexcomG6)).to.eql({
-          manufacturerName: 'Dexcom',
-        });
-      });
-    });
-
-    describe('Unknown device ID provided', () => {
-      it('should export the device metadata with mg/dL as default bg unit', () => {
-        expect(prescriptionFormConstants.deviceMeta('foo')).to.eql({
-          manufacturerName: 'Unknown',
-          ranges: prescriptionFormConstants.defaultRanges(),
-        });
-      });
-
-      it('should export the device metadata with mmoll/L as provided', () => {
-        const meta = prescriptionFormConstants.deviceMeta('foo', 'mmol/L');
-
-        expect(meta.ranges.bloodGlucoseTarget.min).to.equal(3.3);
-      });
     });
   });
 
