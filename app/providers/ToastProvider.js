@@ -11,11 +11,11 @@ export function ToastProvider({ children }) {
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (toast) setOpen(get(toast, 'open', true));
+    setOpen(get(toast, 'open', !!toast));
   }, [toast]);
 
   const set = toast => setToast(toast);
-  const clear = () => setToast({ ...toast, open: false });
+  const clear = () => setToast(null);
 
   return (
     <ToastContext.Provider value={{ set, clear }}>
