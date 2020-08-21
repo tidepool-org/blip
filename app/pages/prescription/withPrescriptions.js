@@ -69,7 +69,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.api;
   return assign(
-    {},
+    { ...ownProps },
     stateProps,
     {
       createPrescription: dispatchProps.createPrescription.bind(null, api),

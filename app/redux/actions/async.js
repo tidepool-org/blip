@@ -1172,6 +1172,27 @@ export function deletePrescription(api, prescriptionId) {
 }
 
 /**
+ * Fetch Devices Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ */
+export function fetchDevices(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchDevicesRequest());
+
+    api.devices.getAll((err, devices) => {
+      if (err) {
+        dispatch(sync.fetchDevicesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DEVICES, err), err
+        ));
+      } else {
+        dispatch(sync.fetchDevicesSuccess(devices));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
