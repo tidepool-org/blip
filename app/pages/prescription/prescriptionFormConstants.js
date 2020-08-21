@@ -182,21 +182,21 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, met
     },
     insulinSensitivityFactor: {
       low: {
-        value: getPumpGuardrail(pump, 'correctionRange.insulinSensitivity.minimum', 15),
+        value: getPumpGuardrail(pump, 'insulinSensitivity.recommendedBounds.minimum', 15),
         message: lowWarning,
       },
       high: {
-        value: getPumpGuardrail(pump, 'correctionRange.insulinSensitivity.maximum', 400),
+        value: getPumpGuardrail(pump, 'insulinSensitivity.recommendedBounds.maximum', 400),
         message: highWarning,
       },
     },
     suspendThreshold: {
       low: {
-        value: getPumpGuardrail(pump, 'correctionRange.suspendThreshold.minimum', 70),
+        value: getPumpGuardrail(pump, 'suspendThreshold.recommendedBounds.minimum', 70),
         message: lowWarning,
       },
       high: {
-        value: getPumpGuardrail(pump, 'correctionRange.suspendThreshold.maximum', 120),
+        value: getPumpGuardrail(pump, 'suspendThreshold.recommendedBounds.maximum', 120),
         message: highWarning,
       },
     },
