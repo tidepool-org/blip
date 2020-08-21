@@ -33,6 +33,7 @@ import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
+import { useToasts } from '../../providers/ToastProvider';
 
 import {
   defaultUnits,
@@ -169,6 +170,8 @@ export const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
+  const { set: setToast } = useToasts();
+
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
@@ -223,14 +226,23 @@ export const PrescriptionForm = props => {
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
-    const { inProgress, completed, prescriptionId } = get(values, 'id') ? creatingPrescriptionRevision : creatingPrescription;
+    const isRevision = !!get(values, 'id');
+    const isDraft = get(values, 'state') === 'draft';
+    const { inProgress, completed, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
 
     if (prescriptionId) setFieldValue('id', prescriptionId);
 
     if (!inProgress && completed) {
       setStepAsyncState(asyncStates.completed);
       if (isLastStep) {
-        // TODO: Set a message to display as a toast on the prescriptions page
+        let messageAction = 'sent';
+        if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+
+        setToast({
+          message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
+          variant: 'success',
+        });
+
         history.push('/prescriptions');
       }
     }
