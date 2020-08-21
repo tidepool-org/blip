@@ -33,3 +33,10 @@ describe('isMissingBasicsData', () => {
     expect(dataUtils.isMissingBasicsData(hasCalibrations)).to.be.false;
   });
 });
+
+describe('getFloatFromUnitsAndNanos', () => {
+  it('should return a float from an object with units and nanos integers', () => {
+    expect(dataUtils.getFloatFromUnitsAndNanos({ units: 5, nanos: 500000000 })).to.equal(5.5);
+    expect(dataUtils.getFloatFromUnitsAndNanos({ units: 0, nanos: 35000000 })).to.equal(0.035);
+  });
+});
