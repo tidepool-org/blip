@@ -53,7 +53,7 @@ PopoverLabel.propTypes = {
   icon: PropTypes.elementType.isRequired,
   iconLabel: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   popoverContent: PropTypes.node,
   popoverWidth: PropTypes.string.isRequired,
   triggerOnHover: PropTypes.bool,

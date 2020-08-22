@@ -1778,6 +1778,57 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchDevicesRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchDevicesRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DEVICES_REQUEST', () => {
+        let action = sync.fetchDevicesRequest();
+        expect(action.type).to.equal('FETCH_DEVICES_REQUEST');
+      });
+    });
+
+    describe('fetchDevicesSuccess', () => {
+      it('should be a TSA', () => {
+        let devices = [
+          { id: 'one' }
+        ];
+        let action = sync.fetchDevicesSuccess(devices);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DEVICES_SUCCESS', () => {
+        let devices = [
+          { id: 'one' }
+        ];
+        let action = sync.fetchDevicesSuccess(devices);
+
+        expect(action.type).to.equal('FETCH_DEVICES_SUCCESS');
+        expect(action.payload.devices).to.equal(devices);
+      });
+    });
+
+    describe('fetchDevicesFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.fetchDevicesFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_DEVICES_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.fetchDevicesFailure(error);
+
+        expect(action.type).to.equal('FETCH_DEVICES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('fetchMessageThreadRequest', () => {
       it('should be a TSA', () => {
         let action = sync.fetchMessageThreadRequest();
