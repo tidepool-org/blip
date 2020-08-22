@@ -9,7 +9,6 @@ import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
 import personUtils from '../../core/personutils';
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -24,11 +23,11 @@ import LogoutOverlay from '../../components/logoutoverlay';
 import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
 import UpdateTypeBanner from '../../components/updatetypebanner';
+
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-// Providers
-import { ToastProvider } from '../../providers/ToastProvider';
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -523,9 +522,7 @@ export class AppComponent extends React.Component {
         {dexcombanner}
         {sharedatabanner}
         {updatetypebanner}
-        <ToastProvider>
-          {this.props.children}
-        </ToastProvider>
+        {this.props.children}
         {footer}
       </div>
     );
