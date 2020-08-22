@@ -16,7 +16,7 @@ describe('prescriptionSchema', function() {
     expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
-      'type',
+      // 'type',
       'firstName',
       'lastName',
       'birthday',
@@ -27,6 +27,7 @@ describe('prescriptionSchema', function() {
       'sex',
       'initialSettings',
       'training',
+      'therapySettingsReviewed',
     ]);
 
     expect(schema.fields.phoneNumber._nodes).to.be.an('array').and.have.members([
@@ -37,8 +38,8 @@ describe('prescriptionSchema', function() {
     expect(schema.fields.initialSettings._nodes).to.be.an('array').and.have.members([
       'bloodGlucoseUnits',
       'pumpId',
-      'cgmType',
-      'insulinType',
+      'cgmId',
+      // 'insulinModel',
       'suspendThreshold',
       'basalRateMaximum',
       'bolusAmountMaximum',
@@ -66,9 +67,15 @@ describe('prescriptionSchema', function() {
 
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'context',
       'high',
       'low',
       'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context.type).to.equal('object');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context._nodes).to.be.an('array').and.have.members([
+      'min',
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');

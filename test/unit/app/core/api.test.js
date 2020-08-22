@@ -32,6 +32,10 @@ describe('api', () => {
       destroySession: sinon.stub(),
       isLoggedIn: sinon.stub(),
       logAppError: sinon.stub(),
+      getPrescriptions: sinon.stub(),
+      createPrescription: sinon.stub(),
+      createPrescriptionRevision: sinon.stub(),
+      deletePrescription: sinon.stub(),
     };
 
     rollbar = {
@@ -57,6 +61,10 @@ describe('api', () => {
     tidepool.destroySession.resetHistory();
     tidepool.isLoggedIn.resetHistory();
     tidepool.logAppError.resetHistory();
+    tidepool.getPrescriptions.resetHistory();
+    tidepool.createPrescription.resetHistory();
+    tidepool.createPrescriptionRevision.resetHistory();
+    tidepool.deletePrescription.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -495,6 +503,41 @@ describe('api', () => {
         api.errors.log(error);
         sinon.assert.calledOnce(rollbar.error);
         sinon.assert.calledWith(rollbar.error, originalError, { displayError: { other: 'property' }});
+      });
+    });
+  });
+
+
+  describe('prescription', () => {
+    describe('getAll', () => {
+      it('should call tidepool.getPrescriptions with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.prescription.getAll(cb);
+        sinon.assert.calledWith(tidepool.getPrescriptions, cb);
+      });
+    });
+
+    describe('create', () => {
+      it('should call tidepool.createPrescription with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.prescription.create({ foo: 'bar' }, cb);
+        sinon.assert.calledWith(tidepool.createPrescription, { foo: 'bar' }, cb);
+      });
+    });
+
+    describe('createRevision', () => {
+      it('should call tidepool.createPrescriptionRevision with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.prescription.createRevision({ foo: 'bar' }, 'id', cb);
+        sinon.assert.calledWith(tidepool.createPrescriptionRevision, { foo: 'bar' }, 'id', cb);
+      });
+    });
+
+    describe('delete', () => {
+      it('should call tidepool.deletePrescription with the appropriate args', () => {
+        const cb = sinon.stub();
+        api.prescription.delete('id', cb);
+        sinon.assert.calledWith(tidepool.deletePrescription, 'id', cb);
       });
     });
   });

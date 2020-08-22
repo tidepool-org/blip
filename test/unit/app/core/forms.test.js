@@ -43,6 +43,7 @@ describe('forms', function() {
       countryCode: { ...notTouchedAndError, value: 'bar' },
       number: { ...touchedAndNoError, value: 'baz' },
       ext: { ...touchedAndNoError, value: 123 },
+      isCellNumber: { ...notTouchedAndNoError, value: true },
     },
     other: {
       deeply: {
@@ -61,6 +62,7 @@ describe('forms', function() {
           countryCode: {},
           number: {},
           ext: {},
+          isCellNumber: {},
         },
       },
       other: {
@@ -104,6 +106,12 @@ describe('forms', function() {
       expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.ext).to.eql({
         ...touchedAndNoError,
         value: 123,
+        valid: true,
+      });
+
+      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.isCellNumber).to.eql({
+        ...notTouchedAndNoError,
+        value: true,
         valid: true,
       });
 
@@ -172,6 +180,11 @@ describe('forms', function() {
     it('should return `null` if provided value is not outside the thresholds', () => {
       expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
       expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
+    });
+
+    it('should return `null` if non-numeric value is passed in', () => {
+      expect(formUtils.getThresholdWarning('', threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning('6', threshold)).to.equal(null);
     });
   });
 });

@@ -13,6 +13,8 @@ coverage
 tmp
 web
 *.log
+Dockerfile
+.dockerignore
 
 # Use yarn.lock
 package-lock.json

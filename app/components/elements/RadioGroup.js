@@ -83,6 +83,7 @@ export const RadioGroup = (props) => {
     value,
     variant,
     required,
+    onChange,
     error,
     ...wrapperProps
   } = props;
@@ -119,6 +120,7 @@ export const RadioGroup = (props) => {
             name={name}
             value={option.value}
             checked={value === option.value}
+            onChange={onChange}
             label={option.label}
             error={error}
           />

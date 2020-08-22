@@ -54,7 +54,7 @@ const StyledTabGroup = styled(Tabs)`
   min-height: auto;
 
   .MuiTabs-indicator {
-    background-color: ${colors.text.link};
+    background-color: ${colors.purpleBright};
   }
 `;
 

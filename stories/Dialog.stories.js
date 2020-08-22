@@ -7,7 +7,7 @@ import { ThemeProvider } from 'styled-components';
 import baseTheme from '../app/themes/baseTheme';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../app/components/elements/Dialog';
 import Button from '../app/components/elements/Button';
-import { Body1, MediumTitle } from '../app/components/elements/FontStyles';
+import { Paragraph1, MediumTitle } from '../app/components/elements/FontStyles';
 
 /* eslint-disable max-len */
 
@@ -45,9 +45,9 @@ export const DialogStory = () => {
 
     while (i > 0) {
       paragraphs.push((
-        <Body1 id={`paragraph-${i}`} key={`paragraph-${i}`}>
+        <Paragraph1 id={`paragraph-${i}`} key={`paragraph-${i}`}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </Body1>
+        </Paragraph1>
       ));
       i--;
     }

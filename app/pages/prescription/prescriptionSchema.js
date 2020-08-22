@@ -12,8 +12,8 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  insulinTypeOptions,
-  typeOptions,
+  // insulinModelOptions,
+  // typeOptions,
   sexOptions,
   trainingOptions,
   validCountryCodes,
@@ -27,7 +27,8 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
   const rangeErrors = {
     basalRate: `Basal rate out of range. Please select a value between ${pumpMeta.ranges.basalRate.min}-${pumpMeta.ranges.basalRate.max}`,
     basalRateMaximum: `Basal limit out of range. Please select a value between ${pumpMeta.ranges.basalRateMaximum.min}-${pumpMeta.ranges.basalRateMaximum.max}`,
-    bloodGlucoseTarget: `Correction target out of range. Please select a value between ${pumpMeta.ranges.bloodGlucoseTarget.min}-${pumpMeta.ranges.bloodGlucoseTarget.max}`,
+    bloodGlucoseTargetMin: `Correction target out of range. Please select a value between ${pumpMeta.ranges.bloodGlucoseTarget.min}-${pumpMeta.ranges.bloodGlucoseTarget.max}`,
+    bloodGlucoseTargetMax: `Correction target out of range. Please select a value below ${pumpMeta.ranges.bloodGlucoseTarget.max}`,
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${pumpMeta.ranges.bolusAmountMaximum.min}-${pumpMeta.ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${pumpMeta.ranges.carbRatio.min}-${pumpMeta.ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${pumpMeta.ranges.insulinSensitivityFactor.min}-${pumpMeta.ranges.insulinSensitivityFactor.max}`,
@@ -38,9 +39,9 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     id: yup.string(),
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
-    type: yup.string()
-      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
-      .required(t('Account type is required')),
+    // type: yup.string()
+    //   .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
+    //   .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
     lastName: yup.string().required(t('Last name is required')),
@@ -75,12 +76,12 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       pumpId: yup.string()
         .oneOf(map(pumpDeviceOptions, 'value'))
         .required(t('A pump type must be specified')),
-      cgmType: yup.string()
+      cgmId: yup.string()
         .oneOf(map(cgmDeviceOptions, 'value'))
         .required(t('A cgm type must be specified')),
-      insulinType: yup.string()
-        .oneOf(map(insulinTypeOptions, 'value'))
-        .required(t('A cgm type must be specified')),
+      // insulinModel: yup.string()
+      //   .oneOf(map(insulinModelOptions, 'value'))
+      //   .required(t('An insulin model must be specified')),
       suspendThreshold: yup.object().shape({
         value: yup.number()
           .min(pumpMeta.ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
@@ -106,13 +107,16 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       }),
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
+          context: yup.object().shape({
+            min: yup.number().default(pumpMeta.ranges.bloodGlucoseTarget.min),
+          }),
           high: yup.number()
-            .min(pumpMeta.ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTarget)
-            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTarget)
+            .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(pumpMeta.ranges.bloodGlucoseTarget.min, '${min}'))
+            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
             .required(t('High target is required')),
           low: yup.number()
-            .min(pumpMeta.ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTarget)
-            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTarget)
+            .min(yup.ref('context.min') || pumpMeta.ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTargetMin.replace(pumpMeta.ranges.bloodGlucoseTarget.min, '${min}'))
+            .max(pumpMeta.ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
             .required(t('Low target is required')),
           start: yup.number()
             .integer()
@@ -164,5 +168,7 @@ export default (pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     training: yup.string()
       .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
       .required(t('Training type is required')),
+    therapySettingsReviewed: yup.boolean()
+      .test('isTrue', t('Please confirm the therapy settings for this patient'), value => (value === true)),
   });
 };

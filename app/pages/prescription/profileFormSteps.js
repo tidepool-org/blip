@@ -13,8 +13,20 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
-import { sexOptions, cgmDeviceOptions, pumpDeviceOptions } from './prescriptionFormConstants';
-import { fieldsetStyles, condensedInputStyles, checkboxGroupStyles, checkboxStyles } from './prescriptionFormStyles';
+
+import {
+  fieldsetStyles,
+  condensedInputStyles,
+  checkboxGroupStyles,
+  checkboxStyles,
+} from './prescriptionFormStyles';
+
+import {
+  sexOptions,
+  cgmDeviceOptions,
+  pumpDeviceOptions,
+  stepValidationFields,
+} from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
@@ -129,14 +141,14 @@ export const PatientDevices = translate()(props => {
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
-              id="initialSettings.cgmType"
-              name="initialSettings.cgmType"
-              checked={!isEmpty(meta.initialSettings.cgmType.value)}
+              id="initialSettings.cgmId"
+              name="initialSettings.cgmId"
+              checked={!isEmpty(meta.initialSettings.cgmId.value)}
               label={device.label}
               onChange={e => {
-                setFieldValue('initialSettings.cgmType', e.target.checked ? device.value : '')
+                setFieldValue('initialSettings.cgmId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.cgmType)}
+              error={getFieldError(meta.initialSettings.cgmId)}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>
@@ -151,22 +163,22 @@ const accountFormSteps = (meta) => ({
   label: t('Complete Patient Profile'),
   subSteps: [
     {
-      disableComplete: !fieldsAreValid(['phoneNumber.number'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][0], meta),
       onComplete: () => log('Patient Phone Number Complete'),
       panelContent: <PatientPhone meta={meta} />
     },
     {
-      disableComplete: !fieldsAreValid(['mrn'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][1], meta),
       onComplete: () => log('Patient MRN Complete'),
       panelContent: <PatientMRN meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(['sex'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][2], meta),
       onComplete: () => log('Patient Gender Complete'),
       panelContent: <PatientGender meta={meta} />,
     },
     {
-      disableComplete: !fieldsAreValid(['initialSettings.pumpId', 'initialSettings.cgmType'], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][3], meta),
       onComplete: () => log('Patient Devices Complete'),
       panelContent: <PatientDevices meta={meta} />,
     },

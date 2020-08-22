@@ -15,7 +15,7 @@ const expect = chai.expect;
 describe('UploaderButton', function () {
   const props = {
     buttonText: 'Get the Tidepool Uploader',
-    onClick: sinon.spy()
+    onClick: sinon.spy(),
   };
 
   let wrapper;
@@ -27,17 +27,21 @@ describe('UploaderButton', function () {
     );
   });
 
-  it('should be a function', function() {
+  it('should be a function', function () {
     expect(UploaderButton).to.be.a('function');
   });
 
-  describe('render', function() {
+  describe('render', function () {
     it('should render without problems', function () {
       expect(wrapper.find(UploaderButton)).to.have.length(1);
     });
 
-    it('should have a pair of download links', function () {
-      expect(wrapper.find('a.btn-uploader')).to.have.length(2);
+    it('should have a Mac and a Windows Download button', function () {
+      const macButton = wrapper.find('button.btn-download-mac');
+      expect(macButton).to.have.length(1);
+
+      const winButton = wrapper.find('button.btn-download-win');
+      expect(winButton).to.have.length(1);
     });
 
     it('should have disabled download buttons if no URLs have been set', () => {
@@ -45,7 +49,14 @@ describe('UploaderButton', function () {
         latestWinRelease: null,
         latestMacRelease: null,
       });
-      expect(wrapper.find('a.disabled')).to.have.length(2);
+
+      const macButton = wrapper.find('button.btn-download-mac');
+      expect(macButton).to.have.length(1);
+      expect(macButton.prop('disabled')).to.be.true;
+
+      const winButton = wrapper.find('button.btn-download-win');
+      expect(winButton).to.have.length(1);
+      expect(winButton.prop('disabled')).to.be.true;
     });
 
     it('should have active buttons if URLs have been set', () => {
@@ -54,27 +65,63 @@ describe('UploaderButton', function () {
         latestWinRelease: 'test',
       });
       wrapper.update();
-      expect(wrapper.find('a')).to.have.length(2);
-      expect(wrapper.find('a.disabled')).to.have.length(0);
+
+      const macButton = wrapper.find('button.btn-download-mac');
+      expect(macButton).to.have.length(1);
+      expect(macButton.prop('disabled')).to.be.false;
+
+      const winButton = wrapper.find('button.btn-download-win');
+      expect(winButton).to.have.length(1);
+      expect(winButton.prop('disabled')).to.be.false;
     });
 
-    it('should display download link if error retrieving github releases', () => {
+    it('should display error button if error retrieving github releases', () => {
       wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
       wrapper.update();
+
       expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
-      expect(wrapper.find('.btn-uploader').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
+      expect(wrapper.find('button.btn-uploader-download')).to.have.length(1);
+      expect(wrapper.find('.btn-uploader-download').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
     });
 
-    it('should respond to an onClick event', () => {
+    it('should respond to onClick on Mac Download Button', () => {
+      wrapper.instance().getWrappedInstance().setState({
+        latestMacRelease: 'test',
+        latestWinRelease: 'test',
+      });
+      wrapper.update();
+
+      const macButton = wrapper.find('a.link-download-mac');
+      macButton.simulate('click');
+      expect(props.onClick.calledOnce);
+
+    });
+
+    it('should respond to onClick on Windows Download Button', () => {
+      wrapper.instance().getWrappedInstance().setState({
+        latestMacRelease: 'test',
+        latestWinRelease: 'test',
+      });
+      wrapper.update();
+
+      const winButton = wrapper.find('a.link-download-win');
+      winButton.simulate('click');
+      expect(props.onClick.calledOnce);
+
+    });
+
+    it('should respond to an onClick event on Download Error Button', () => {
       wrapper.instance().getWrappedInstance().setState({
         error: 'some error',
       });
       wrapper.update();
-      var callCount = props.onClick.callCount;
-      wrapper.find('a').simulate('click');
-      expect(props.onClick.callCount).to.equal(callCount + 1);
+
+      const errorButton = wrapper.find('a.link-uploader-download');
+      errorButton.simulate('click');
+      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
+      expect(props.onClick.calledOnce);
     });
   });
 });

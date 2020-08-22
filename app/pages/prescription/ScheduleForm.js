@@ -14,21 +14,12 @@ import i18next from '../../core/language';
 import TextInput from '../../components/elements/TextInput';
 import Icon from '../../components/elements/Icon';
 import Button from '../../components/elements/Button';
-import { MS_IN_MIN, MS_IN_HOUR, MS_IN_DAY } from '../../core/constants';
+import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
+import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 
-export const convertMsPer24ToTimeString = msPer24 => {
-  const hours = `0${new Date(msPer24).getUTCHours()}`.slice(-2);
-  const minutes = `0${new Date(msPer24).getUTCMinutes()}`.slice(-2);
-  return `${hours}:${minutes}`;
-};
-
-export const convertTimeStringToMsPer24 = timeString => {
-  const [hours, minutes] = map(timeString.split(':'), val => parseInt(val, 10));
-  return (hours * MS_IN_HOUR) + (minutes * MS_IN_MIN);
-}
 
 const ScheduleForm = props => {
   const {

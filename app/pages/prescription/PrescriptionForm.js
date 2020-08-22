@@ -2,77 +2,104 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import bows from 'bows';
+import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
 import { Persist } from 'formik-persist';
+import each from 'lodash/each';
 import get from 'lodash/get';
+import map from 'lodash/map';
+import noop from 'lodash/noop';
+import omit from 'lodash/omit';
+import remove from 'lodash/remove';
+import slice from 'lodash/slice';
+import isEmpty from 'lodash/isEmpty';
+import flattenDeep from 'lodash/flattenDeep';
+import cloneDeep from 'lodash/cloneDeep';
+import isUndefined from 'lodash/isUndefined';
+import isInteger from 'lodash/isInteger';
+import isArray from 'lodash/isArray';
+import { default as _values } from 'lodash/values';
+import includes from 'lodash/includes';
+import { utils as vizUtils } from '@tidepool/viz';
 
-import { getFieldsMeta } from '../../core/forms';
-import { useLocalStorage } from '../../core/hooks';
+import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
-import therapySettingsFormSteps from './therapySettingsFormSteps';
-import { defaultUnits, defaultValues, validCountryCodes } from './prescriptionFormConstants';
-
-import Checkbox from '../../components/elements/Checkbox';
+import therapySettingsFormStep from './therapySettingsFormStep';
+import reviewFormStep from './reviewFormStep';
+import withPrescriptions from './withPrescriptions';
 import Stepper from '../../components/elements/Stepper';
+import i18next from '../../core/language';
 
-/* global crypto, Uint8Array, Promise */
+import {
+  defaultRanges,
+  defaultUnits,
+  defaultValues,
+  stepValidationFields,
+  validCountryCodes,
+} from './prescriptionFormConstants';
 
+const { TextUtil } = vizUtils.text;
+const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
-const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
+export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => ({
-    id: get(props, 'match.params.id', ''),
-    state: get(props, 'prescription.state', 'draft'),
-    type: get(props, 'prescription.type', ''),
-    firstName: get(props, 'prescription.firstName', ''),
-    lastName: get(props, 'prescription.lastName', ''),
-    birthday: get(props, 'prescription.birthday', ''),
-    email: get(props, 'prescription.email', ''),
-    emailConfirm: get(props, 'prescription.email', ''),
+    id: get(props, 'prescription.id', ''),
+    state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
+    // type: get(props, 'prescription.latestRevision.attributes.type', ''),
+    firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
+    lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
+    birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
+    email: get(props, 'prescription.latestRevision.attributes.email', ''),
+    emailConfirm: get(props, 'prescription.latestRevision.attributes.email', ''),
     phoneNumber: {
-      countryCode: get(props, 'prescription.phoneNumber.countryCode', validCountryCodes[0]),
-      number: get(props, 'prescription.phoneNumber.number', ''),
+      countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
+      number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number', ''),
     },
-    mrn: get(props, 'prescription.mrn', ''),
-    sex: get(props, 'prescription.sex', ''),
+    mrn: get(props, 'prescription.latestRevision.attributes.mrn', ''),
+    sex: get(props, 'prescription.latestRevision.attributes.sex', ''),
     initialSettings: {
-      bloodGlucoseUnits: get(props, 'prescription.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-      pumpId: get(props, 'prescription.initialSettings.pumpId', ''),
-      cgmType: get(props, 'prescription.initialSettings.cgmType', ''),
-      insulinType: get(props, 'prescription.initialSettings.insulinType', ''),
+      bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
+      pumpId: get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId', ''),
+      cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
+      // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
       suspendThreshold: {
-        value: get(props, 'prescription.initialSettings.suspendThreshold.value', defaultValues(bgUnits).suspendThreshold),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
         units: defaultUnits.suspendThreshold,
       },
       basalRateMaximum: {
-        value: get(props, 'prescription.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value', defaultValues(bgUnits).basalRateMaximum),
         units: defaultUnits.basalRate,
       },
       bolusAmountMaximum: {
-        value: get(props, 'prescription.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
+        value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', defaultValues(bgUnits).bolusAmountMaximum),
         units: defaultUnits.bolusAmount,
       },
-      bloodGlucoseTargetSchedule: get(props, 'prescription.initialSettings.bloodGlucoseTargetSchedule', [{
-        high: defaultValues(bgUnits).bloodGlucoseTarget.high,
-        low: defaultValues(bgUnits).bloodGlucoseTarget.low,
+      bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
+        context: {
+          min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', defaultRanges(bgUnits).bloodGlucoseTarget.min),
+        },
+        high: '',
+        low: '',
         start: 0,
       }]),
-      basalRateSchedule: get(props, 'prescription.initialSettings.basalRateSchedule', [{
+      basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
         rate: defaultValues(bgUnits).basalRate,
         start: 0,
       }]),
-      carbohydrateRatioSchedule: get(props, 'prescription.initialSettings.carbohydrateRatioSchedule', [{
-        amount: defaultValues(bgUnits).carbRatio,
+      carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
+        amount: '',
         start: 0,
       }]),
-      insulinSensitivitySchedule: get(props, 'prescription.initialSettings.insulinSensitivitySchedule', [{
-        amount: defaultValues(bgUnits).insulinSensitivityFactor,
+      insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
+        amount: '',
         start: 0,
       }]),
     },
-    training: get(props, 'prescription.training', ''),
+    training: get(props, 'prescription.latestRevision.attributes.training', ''),
+    therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
   }),
   validationSchema: props => prescriptionSchema(
     get(props, 'prescription.initialSettings.pumpId'),
@@ -81,128 +108,256 @@ const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   displayName: 'PrescriptionForm',
 });
 
-const withPrescription = Component => props => {
-  // Until backend service is ready, get prescriptions from localStorage
-  const [prescriptions] = useLocalStorage('prescriptions', {});
+export const generateTherapySettingsOrderText = (patientRows = [], therapySettingsRows = []) => {
+  const textUtil = new TextUtil();
 
-  const id = get(props, 'match.params.id', '');
-  const prescription = get(prescriptions, id);
+  let textString = textUtil.buildTextLine(t('Tidepool Loop therapy settings order'));
 
-  return <Component prescription={prescription} {...props} />
+  textString += textUtil.buildTextLine(t('Exported from Tidepool: {{today}}', {
+    today: moment().format('MMM D, YYYY'),
+  }));
+
+  textString += textUtil.buildTextLine('');
+
+  textString += textUtil.buildTextLine(t('Patient Profile'));
+  each(patientRows, row => textString += textUtil.buildTextLine(row));
+
+  textString += textUtil.buildTextLine('');
+
+  each(therapySettingsRows, row => {
+    if (isArray(row.value)) {
+      textString += textUtil.buildTextLine('');
+      textString += textUtil.buildTextLine(row.label);
+      each(row.value, value => textString += textUtil.buildTextLine(value));
+    } else {
+      textString += textUtil.buildTextLine(row);
+    }
+  });
+
+  return textString;
 };
 
-const PrescriptionForm = props => {
-  const { t } = props;
+export const PrescriptionForm = props => {
+  const {
+    t,
+    createPrescription,
+    createPrescriptionRevision,
+    creatingPrescription,
+    creatingPrescriptionRevision,
+    location,
+    prescription,
+    trackMetric,
+    history,
+  } = props;
 
   const {
     getFieldMeta,
-    setFieldValue,
     handleSubmit,
+    resetForm,
+    setFieldValue,
     values,
   } = useFormikContext();
 
+  const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId');
   const meta = getFieldsMeta(prescriptionSchema(pumpId, bgUnits), getFieldMeta);
 
-  /* WIP Scaffolding Start */
-  const sleep = m => new Promise(r => setTimeout(r, m));
-
-  // Until backend service is ready, save prescriptions to localStorage
-  const [prescriptions, setPrescriptions] = useLocalStorage('prescriptions', {});
-
-  const initialAsyncState = () => ({ pending: false, complete: false });
-  const [finalAsyncState, setFinalAsyncState] = React.useState(initialAsyncState());
-  const [stepAsyncState, setStepAsyncState] = React.useState(initialAsyncState());
-  const [prescriptionReviewed, setPrescriptionReviewed] = React.useState(false);
-
-  const renderStepConfirmation = (name, label, checked, onChange) => (
-    <Checkbox
-      checked={checked}
-      name={name}
-      label={label}
-      onChange={onChange}
-      required
-    />
-  );
-
-  const handleStepSubmit = async () => {
-    function uuidv4() {
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16) // eslint-disable-line no-bitwise
-      );
-    }
-
-    const prescriptionValues = values => {
-      const prescription = { ...values };
-      delete prescription.emailConfirm;
-      prescription.state = 'draft';
-      return prescription;
-    };
-
-    setStepAsyncState({ pending: true, complete: false });
-
-    const id = values.id || uuidv4();
-    if (!values.id) setFieldValue('id', id);
-
-    await sleep(1000);
-
-    setPrescriptions({
-      ...prescriptions,
-      [id]: {
-        ...prescriptionValues(values),
-        id,
-      },
-    });
-
-    setStepAsyncState({ pending: false, complete: true });
+  const asyncStates = {
+    initial: { pending: false, complete: false },
+    pending: { pending: true, complete: false },
+    completed: { pending: false, complete: true },
   };
-  /* WIP Scaffolding End */
+
+  const params = () => new URLSearchParams(location.search);
+  const activeStepParamKey = `${stepperId}-step`;
+  const activeStepsParam = params().get(activeStepParamKey);
+  const storageKey = 'prescriptionForm';
+
+  const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
+  const [pendingStep, setPendingStep] = React.useState([]);
+  const isSingleStepEdit = !!pendingStep.length;
+  let isLastStep = activeStep === stepValidationFields.length - 1;
+
+  // Determine the latest incomplete step, and default to starting there
+  React.useEffect(() => {
+    if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
+      let firstInvalidStep;
+      let firstInvalidSubStep;
+      let currentStep = 0;
+      let currentSubStep = 0;
+
+      while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
+        while (currentSubStep < stepValidationFields[currentStep].length) {
+          if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
+            firstInvalidStep = currentStep;
+            firstInvalidSubStep = currentSubStep;
+            break;
+          }
+          currentSubStep++
+        }
+
+        currentStep++;
+        currentSubStep = 0;
+      }
+
+      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+      setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
+    }
+  }, []);
+
+  // Handle changes to stepper async state for completed prescription creation and revision updates
+  React.useEffect(() => {
+    const { inProgress, completed, prescriptionId } = get(values, 'id') ? creatingPrescriptionRevision : creatingPrescription;
+
+    if (prescriptionId) setFieldValue('id', prescriptionId);
+
+    if (!inProgress && completed) {
+      setStepAsyncState(asyncStates.completed);
+      if (isLastStep) {
+        // TODO: Set a message to display as a toast on the prescriptions page
+        history.push('/prescriptions');
+      }
+    }
+  }, [creatingPrescription, creatingPrescriptionRevision]);
+
+  // Update minimum blood glucose target values when suspendThreshold changes
+  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+  React.useEffect(() => {
+    each(bloodGlucoseTargetSchedule, (schedule, i) => {
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+    });
+  }, [suspendThreshold]);
+
+  const handlers = {
+    activeStepUpdate: ([step, subStep], fromStep = []) => {
+      setActiveStep(step);
+      setActiveSubStep(subStep);
+      setPendingStep(fromStep);
+    },
+
+    generateTherapySettingsOrderText,
+
+    handleCopyTherapySettingsClicked: () => {
+      trackMetric('Clicked Copy Therapy Settings Order');
+    },
+
+    singleStepEditComplete: (cancelFieldUpdates) => {
+      const advanceStep = false;
+
+      if (cancelFieldUpdates) {
+        resetForm();
+      } else {
+        resetForm({ values: cloneDeep(values) });
+      }
+
+      handlers.activeStepUpdate(pendingStep);
+
+      return advanceStep;
+    },
+
+    stepSubmit: () => {
+      setStepAsyncState(asyncStates.pending);
+      // Delete fields that we never want to send to the backend
+      const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
+
+      for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
+        fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
+      }
+
+      // Also delete any fields from future form steps if empty
+      // We can't simply delete all future steps, as the clinician may have returned to the current
+      // step via 'Back' button navigation and we don't want to lose existing data previously
+      // entered in the later steps.
+      if (!isLastStep) {
+        const emptyFieldsInFutureSteps = remove(
+          flattenDeep(slice(stepValidationFields, activeStep + 1)),
+          fieldPath => {
+            const value = get(values, fieldPath);
+            // Return schedule field arrays that are set to the default initial empty string values
+            if (isArray(value) && value.length === 1) {
+              return includes(_values(value[0]), '');
+            }
+            // Return empty values for non-array fields
+            return isEmpty(value);
+          }
+        );
+
+        // Add empty future fields to the array of fieldpaths to delete.
+        // N.B. There are some fieldpaths we check that end in '.value' or '.number'. If those keys
+        // are empty, we exclude the parent object.
+        fieldsToDelete.push(...map(
+          emptyFieldsInFutureSteps,
+          fieldPath => fieldPath.replace(/\.(value|number)$/, '')
+        ));
+      }
+
+      const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
+      prescriptionAttributes.state = 'draft';
+
+      if (values.id) {
+        createPrescriptionRevision(prescriptionAttributes, values.id);
+      } else {
+        createPrescription(prescriptionAttributes);
+      }
+    },
+  };
+
+  const accountFormStepsProps = accountFormSteps(meta);
+  const profileFormStepsProps = profileFormSteps(meta);
+  const therapySettingsFormStepProps = therapySettingsFormStep(meta);
+  const reviewFormStepProps = reviewFormStep(meta, handlers);
+
+  const stepProps = step => ({
+    ...step,
+    completeText: isSingleStepEdit ? t('Update and Review') : step.completeText,
+    backText: isSingleStepEdit ? t('Cancel Update') : step.backText,
+    hideBack: isSingleStepEdit ? false : step.hideBack,
+    disableBack: isSingleStepEdit ? false : step.disableBack,
+    onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : step.onComplete,
+    onBack: isSingleStepEdit ? handlers.singleStepEditComplete.bind(null, true) : step.onBack,
+  });
+
+  const subStepProps = subSteps => map(subSteps, subStep => stepProps(subStep));
 
   const stepperProps = {
+    activeStep,
+    activeSubStep,
     'aria-label': t('New Prescription Form'),
     backText: t('Previous Step'),
     completeText: t('Save and Continue'),
-    id: 'prescription-form-steps',
+    id: stepperId,
+    location,
     onStepChange: (newStep) => {
-      setPrescriptionReviewed(false);
-      setFinalAsyncState(initialAsyncState());
-      setStepAsyncState(initialAsyncState());
+      setStepAsyncState(asyncStates.initial);
+      if (!isSingleStepEdit) handlers.activeStepUpdate(newStep);
       log('Step to', newStep.join(','));
     },
     steps: [
       {
-        ...accountFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...accountFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(accountFormStepsProps.subSteps),
       },
       {
-        ...profileFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...profileFormStepsProps,
+        onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
+        subSteps: subStepProps(profileFormStepsProps.subSteps),
       },
       {
-        ...therapySettingsFormSteps(meta),
-        onComplete: handleStepSubmit,
-        asyncState: stepAsyncState,
+        ...stepProps(therapySettingsFormStepProps),
+        onComplete: isSingleStepEdit ? handlers.singleStepEditComplete : handlers.stepSubmit,
+        asyncState: isSingleStepEdit ? null : stepAsyncState,
       },
       {
-        label: 'Review and Send Prescription',
-        onComplete: async () => {
-          setFinalAsyncState({ pending: true, complete: false });
-          await sleep(2000);
-          setFinalAsyncState({ pending: false, complete: true });
-        },
-        disableComplete: !prescriptionReviewed || finalAsyncState.complete,
-        asyncState: finalAsyncState,
-        completed: finalAsyncState.complete,
-        completeText: finalAsyncState.complete ? t('Prescription Sent') : t('Send Prescription'),
-        panelContent: renderStepConfirmation(
-          'review-checkbox',
-          'The prescription details are correct',
-          prescriptionReviewed,
-          (e) => setPrescriptionReviewed(e.target.checked),
-        ),
+        ...reviewFormStepProps,
+        onComplete: handlers.stepSubmit,
+        asyncState: stepAsyncState,
       },
     ],
     themeProps: {
@@ -222,21 +377,16 @@ const PrescriptionForm = props => {
     },
   };
 
-  const params = () => new URLSearchParams(location.search);
-  const activeStepParamKey = `${stepperProps.id}-step`;
-  const activeStepsParam = params().get(activeStepParamKey);
-  const storageKey = 'prescriptionForm';
-
   // When a user comes to this component initially, without the active step and subStep set by the
   // Stepper component in the url, we delete any persisted state from localStorage.
   // As well, when editing an existing prescription, we delete it so that the current prescription
   // values replace whatever values were previously stored
-  if (props.prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
+  if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
 
   return (
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
-      <Stepper {...stepperProps} />
+      {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       <Persist name={storageKey} />
     </form>
   );
@@ -253,4 +403,4 @@ PrescriptionForm.defaultProps = {
   location: window.location,
 };
 
-export default translate()(withPrescription(withFormik(prescriptionForm())(PrescriptionForm)));
+export default withPrescriptions(withFormik(prescriptionForm())(translate()(PrescriptionForm)));

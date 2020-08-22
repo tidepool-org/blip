@@ -132,6 +132,55 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
   }
 };
 
+export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'updatetype' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'updatetype') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUpdateTypeBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'updatetype') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'sharedata' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'sharedata') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedShareDataBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'sharedata') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.count > 2) ? true : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
@@ -529,6 +578,27 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
       return update(state, { $set: authorizedDataSource });
     case types.LOGOUT_REQUEST:
       return {};
+    default:
+      return state;
+  }
+};
+
+export const prescriptions = (state = initialState.prescriptions, action) => {
+  switch (action.type) {
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+      const prescriptions = _.get(action.payload, 'prescriptions', {});
+      return update(state, { $set: prescriptions });
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+      const prescription = _.get(action.payload, 'prescription', {});
+      return update(state, { $push: [prescription] });
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+      const updatedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescription.id });
+      return update(state, { $splice: [[updatedPrescriptionIndex, 1, action.payload.prescription]] });
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+      const deletedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionId });
+      return update(state, { $splice: [[deletedPrescriptionIndex, 1]] });
+    case types.LOGOUT_REQUEST:
+      return [];
     default:
       return state;
   }

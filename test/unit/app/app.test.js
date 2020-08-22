@@ -136,6 +136,33 @@ describe('App', () => {
     });
   });
 
+  describe('renderShareDataBanner', () => {
+    let props = _.assign({}, baseProps, {
+      showingShareDataBanner: null,
+      onClickShareDataBanner: sinon.stub(),
+      onDismissShareDataBanner: sinon.stub(),
+      showBanner: sinon.stub(),
+      hideBanner: sinon.stub(),
+      patient: {},
+    });
+
+    let wrapper;
+    beforeEach(() => {
+      wrapper = shallow(<App {...props} />);
+    });
+
+    it('should render the banner or not based on the `showingShareDataBanner` prop value', () => {
+      wrapper.setProps({ showingShareDataBanner: true });
+      expect(wrapper.find('.App-sharedatabanner').length).to.equal(1);
+
+      wrapper.setProps({ showingShareDataBanner: null });
+      expect(wrapper.find('.App-sharedatabanner').length).to.equal(0);
+
+      wrapper.setProps({ showingShareDataBanner: false });
+      expect(wrapper.find('.App-sharedatabanner').length).to.equal(0);
+    });
+  });
+
   describe('renderDonateBanner', () => {
     let props = _.assign({}, baseProps, {
       showingDonateBanner: null,
@@ -252,11 +279,83 @@ describe('App', () => {
       props.context.trackMetric.reset();
     });
 
-    context('user has uploaded data and has not donated data', () => {
+    context('user has uploaded data and has not shared data with a clinician', () => {
+      it('should show the share data banner, but only if user is on a patient data view', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+        sinon.assert.callCount(props.showBanner, 0);
+
+        wrapper.setProps({ location: '/patients/1234/data' })
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'sharedata');
+      });
+
+      it('should not show the share data banner if user has dismissed it', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'sharedata');
+        props.showBanner.reset();
+
+        wrapper.setProps({
+          showingShareDataBanner: false,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+      });
+
+      it('should not show the share data banner if user has seen it three times', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          patient: {
+            userid: '1234'
+          },
+          seenShareDataBannerMax: true,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+      });
+    });
+
+    context('user has uploaded data and has shared data with a clinician', () => {
+      it('should not show the share data banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          userHasSharedDataWithClinician: true,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+
+      });
+    });
+
+    context('user has uploaded data, dismissed share data banner, and has not donated data', () => {
       it('should show the donate banner, but only if user is on a patient data view', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
+          showingShareDataBanner: false,
         });
 
         sinon.assert.callCount(props.showBanner, 0);
@@ -270,6 +369,7 @@ describe('App', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
+          showingShareDataBanner: false,
           location: '/patients/1234/data',
         });
 
@@ -315,11 +415,12 @@ describe('App', () => {
       });
     });
 
-    context('user has uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
+    context('user has dismissed the share data banner, uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
       it('should show the banner', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
+          showingShareDataBanner: false,
           showingDonateBanner: true,
           userIsSupportingNonprofit: false,
           location: '/patients/1234/data',
@@ -330,10 +431,11 @@ describe('App', () => {
       });
     });
 
-    context('user has uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
-      it('should hide the banner', () => {
+    context('user has has dismissed the share data banner, uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
+      it('should hide the donate banner', () => {
         wrapper.setProps({
           userHasUploadedData: true,
+          showingShareDataBanner: false,
           showingDonateBanner: true,
           userIsSupportingNonprofit: true,
           location: '/patients/1234/data',
@@ -350,6 +452,7 @@ describe('App', () => {
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingShareDataBanner: false,
           showingDonateBanner: true,
         });
 
@@ -359,10 +462,11 @@ describe('App', () => {
       });
     });
 
-    context('donate banner is not showing', () => {
+    context('share data and donate banners are not showing', () => {
       beforeEach(() => {
         wrapper.setProps({
           showingDonateBanner: false,
+          showingShareDataBanner: false,
         });
       });
 
@@ -453,12 +557,88 @@ describe('App', () => {
       });
     });
 
+    context('user has has seen, dismissed, or satisfied the requirements for the share data, donate data, and dexcom banners', () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          showingDonateBanner: false,
+          showingShareDataBanner: false,
+          showingDexcomConnectBanner: false,
+        });
+      });
+
+      it('should show the update type banner, but only if user is on a patient data view', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          showingShareDataBanner: false,
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+          userHasDiabeteType: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 0);
+
+        wrapper.setProps({ location: '/patients/1234/data' })
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWith(props.showBanner, 'updatetype');
+      });
+
+      it('should show only the update type banner', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: false,
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'updatetype');
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
+      });
+
+      it('should not show the update type banner if user has diabetes type in profile', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasConnectedDataSources: false,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: false,
+          showingShareDataBanner: false,
+          showingDexcomConnectBanner: false,
+          userHasDiabetesType: true,
+        });
+
+        sinon.assert.neverCalledWithMatch(props.showBanner, 'updatetype');
+      });
+
+      it('should hide the update type banner if the user has dismissed it', () => {
+        wrapper.setProps({
+          userHasUploadedData: true,
+          showingDonateBanner: false,
+          userIsSupportingNonprofit: true,
+          showingDexcomConnectBanner: false,
+          showingShareDataBanner: false,
+          showingUpdateTypeBanner: true,
+          userHasDiabeteType: false,
+          location: '/patients/1234/data',
+        });
+
+        sinon.assert.callCount(props.hideBanner, 1);
+        sinon.assert.calledWith(props.hideBanner, 'updatetype');
+      });
+    });
+
     context('dexcom banner is showing', () => {
       it('should track the display banner metric', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingShareDataBanner: false,
           showingDonateBanner: false,
         });
 
@@ -473,6 +653,53 @@ describe('App', () => {
           userHasData: true,
           location: '/patients/1234/data',
           showingDonateBanner: false,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+      });
+    });
+
+    context('share data banner is showing', () => {
+      it('should track the display banner metric', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'sharedata');
+        sinon.assert.calledWith(props.context.trackMetric, 'Share Data banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+          patient: {
+            userid: '1234'
+          },
+          updateShareDataBannerSeen: sinon.stub(),
         });
 
         sinon.assert.callCount(props.showBanner, 1);
@@ -492,6 +719,7 @@ describe('App', () => {
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingShareDataBanner: false,
           showingDonateBanner: true,
         });
 
@@ -505,6 +733,7 @@ describe('App', () => {
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingShareDataBanner: false,
           showingDonateBanner: true,
         });
 
@@ -515,6 +744,37 @@ describe('App', () => {
         wrapper.setProps({});
 
         sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+      });
+    });
+
+    context('update type banner is showing', () => {
+      it('should track the display banner metric', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: false,
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.calledWithMatch(props.showBanner, 'updatetype');
+        sinon.assert.calledWith(props.context.trackMetric, 'Update Type banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: false,
+          showingDonateBanner: false,
+          showingDexcomConnectBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });

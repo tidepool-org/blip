@@ -32,6 +32,7 @@ import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
+import { loggedInUserId } from '../reducers/misc';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -959,10 +960,6 @@ export function fetchPatientData(api, options, id) {
           endDate: moment.utc(serverTime).add(1, 'days').toISOString(),
         };
 
-        // As a temporary workaround to some inefficiencies for this query on large datasets, we are
-        // passing in an initial startDate param in the patientdata.js initial data fetcher.
-        if (options.initialStartDate) latestDatumsFetchParams.startDate = options.initialStartDate;
-
         api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
           if (err) {
             dispatch(sync.fetchPatientDataFailure(
@@ -1083,6 +1080,94 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
+  };
+}
+
+/**
+ * Fetch Prescriptions Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ */
+export function fetchPrescriptions(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPrescriptionsRequest());
+
+    api.prescription.getAll((err, prescriptions) => {
+      if (err) {
+        dispatch(sync.fetchPrescriptionsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PRESCRIPTIONS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPrescriptionsSuccess(prescriptions));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {Object} prescription to be created
+ */
+export function createPrescription(api, prescription) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRequest());
+
+    api.prescription.create(prescription, (err, result) => {
+      if (err) {
+        dispatch(sync.createPrescriptionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionSuccess(result));
+      }
+    });
+  };
+}
+
+/**
+ * Create Prescription Revision Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {Object} revision revision to be created
+ * @param  {String} prescriptionID id of prescription to add revision to
+ */
+export function createPrescriptionRevision(api, revision, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.createPrescriptionRevisionRequest());
+
+    api.prescription.createRevision(revision, prescriptionId, (err, prescription) => {
+      if (err) {
+        dispatch(sync.createPrescriptionRevisionFailure(
+          createActionError(ErrorMessages.ERR_CREATING_PRESCRIPTION_REVISION, err), err
+        ));
+      } else {
+        dispatch(sync.createPrescriptionRevisionSuccess(prescription));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Prescription Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param  {String} prescriptionID id of prescription to be deleted
+ */
+export function deletePrescription(api, prescriptionId) {
+  return (dispatch) => {
+    dispatch(sync.deletePrescriptionRequest());
+
+    api.prescription.delete(prescriptionId, (err) => {
+      if (err) {
+        dispatch(sync.deletePrescriptionFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PRESCRIPTION, err), err
+        ));
+      } else {
+        dispatch(sync.deletePrescriptionSuccess(prescriptionId));
+      }
+    });
   };
 }
 
@@ -1246,7 +1331,7 @@ export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
 }
 
 /**
- * Click Donate Banner Action Creator
+ * Click Dexcom Banner Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  */
@@ -1260,6 +1345,117 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
       clickedDexcomConnectBannerTime: clickedDate,
     };
 
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Dismiss Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissUpdateTypeBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      dismissedUpdateTypeBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickUpdateTypeBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      clickedUpdateTypeBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+
+/**
+ * Dismiss Share Data Connect Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissShareDataBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      dismissedShareDataBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Share Data Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickShareDataBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('sharedata'));
+
+    const preferences = {
+      clickedShareDataBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Count Share Data Banner Seen Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function updateShareDataBannerSeen(api, patientId) {
+  const viewDate = sundial.utcDateString();
+  const viewMoment = moment(viewDate);
+
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const loggedInUser = allUsersMap[loggedInUserId];
+    var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
+    var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
+
+    const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
+
+    const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
+
+    if(diffMoment > 0) {
+      seenShareDataBannerCount += 1;
+      seenShareDataBannerDate = viewDate;
+    }
+
+    const preferences = {
+      seenShareDataBannerDate: seenShareDataBannerDate,
+      seenShareDataBannerCount: seenShareDataBannerCount,
+    };
+
+    dispatch(sync.bannerCount(seenShareDataBannerCount));
     dispatch(updatePreferences(api, patientId, preferences));
   };
 }
