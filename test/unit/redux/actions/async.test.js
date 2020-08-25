@@ -986,20 +986,26 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
+        const callback = sinon.stub();
+
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
         expect(api.access.leaveGroup.callCount).to.equal(1)
         expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
+        // assert callback contains no error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null);
       });
 
       it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', () => {
         let patientId = 27;
+        let error = {status: 500, body: 'Error!'};
         let api = {
           access: {
-            leaveGroup: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            leaveGroup: sinon.stub().callsArgWith(1, error)
           }
         };
 
@@ -1008,21 +1014,26 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
-          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: error } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
+        const callback = sinon.stub();
+
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBERSHIP });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
-        expect(api.access.leaveGroup.callCount).to.equal(1)
+        expect(api.access.leaveGroup.callCount).to.equal(1);
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error);
       });
     });
 
