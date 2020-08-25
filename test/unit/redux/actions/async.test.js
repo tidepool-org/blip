@@ -3543,6 +3543,62 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchDevices', () => {
+      it('should trigger FETCH_DEVICES_SUCCESS and it should call devices.getAll once for a successful request', () => {
+        let devices = [
+          { id: 'one' }
+        ];
+
+        let api = {
+          devices: {
+            getAll: sinon.stub().callsArgWith(0, null, devices),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_DEVICES_REQUEST' },
+          { type: 'FETCH_DEVICES_SUCCESS', payload: { devices : devices } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchDevices(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.devices.getAll.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_DEVICES_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          devices: {
+            getAll: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_DEVICES);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_DEVICES_REQUEST' },
+          { type: 'FETCH_DEVICES_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchDevices(api));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DEVICES });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.devices.getAll.callCount).to.equal(1);
+      });
+    });
+
     describe('fetchMessageThread', () => {
       it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {
         let messageThread = [
