@@ -14,17 +14,28 @@
   },
   "ignorePatterns": [
     "**/dist/*",
-    "**/node_modules/*"
+    "**/node_modules/*",
+    "server/templates/cloudfront-lambda-blip-request-viewer.js"
   ],
   "rules": {
-    "quotes": [1, "single", {
-      "avoidEscape": true
-    }],
-    "strict": [1, "never"],
+    "quotes": [
+      1,
+      "single",
+      {
+        "avoidEscape": true
+      }
+    ],
+    "strict": [
+      1,
+      "never"
+    ],
     "eol-last": 1,
     "camelcase": 2,
     "eqeqeq": 1,
-    "wrap-iife": [1, "inside"],
+    "wrap-iife": [
+      1,
+      "inside"
+    ],
     "new-cap": 2,
     "no-bitwise": 2,
     "no-caller": 2,
@@ -41,8 +52,21 @@
     "no-redeclare": 1,
     "no-self-assign": 1,
     "no-undef": 1,
-    "no-underscore-dangle": ["warn", { "allow": ["_paq", "__Rewire__", "__ResetDependency__", "__get__"] }],
-    "no-use-before-define": [1, "nofunc"],
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": [
+          "_paq",
+          "__Rewire__",
+          "__ResetDependency__",
+          "__get__"
+        ]
+      }
+    ],
+    "no-use-before-define": [
+      1,
+      "nofunc"
+    ],
     "no-unused-vars": 1,
     "no-unreachable": 1,
     "no-useless-escape": 1,

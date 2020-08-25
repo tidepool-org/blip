@@ -47,3 +47,7 @@ server/.npmrc
 
 # Branding
 **/diabeloop/*.png
+
+# Lambda testing
+test/lambda/dist
+test/lambda/templates

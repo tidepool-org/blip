@@ -6,3 +6,4 @@
 start-docker.sh
 update-version.sh
 Dockerfile
+/test

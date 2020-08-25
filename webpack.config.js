@@ -1,3 +1,4 @@
+/* eslint-disable lodash/prefer-lodash-typecheck */
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -5,6 +6,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const SriWebpackPlugin = require('webpack-subresource-integrity');
 const DblpHtmlWebpackPlugin = require('./dblp-webpack-html-plugin');
 const buildConfig = require('./server/config.app');
 
@@ -170,10 +172,18 @@ const plugins = [
   new MiniCssExtractPlugin({
     filename: isDev ? 'style.css' : 'style.[contenthash].css',
   }),
+  new SriWebpackPlugin({
+    hashFuncNames: ['sha512'],
+    enabled: isProduction,
+  }),
   new HtmlWebpackPlugin({
-    template: 'index.ejs',
+    template: 'server/templates/index.html',
     favicon: 'favicon.ico',
-    minify: false
+    minify: false,
+    scriptLoading: 'defer',
+    inject: 'body',
+    showErrors: !isProduction,
+    title: buildConfig.BRANDING,
   }),
 ];
 

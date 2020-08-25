@@ -1,3 +1,4 @@
+/* eslint-disable lodash/prefer-lodash-typecheck */
 const { ShellString } = require('shelljs');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -17,6 +18,12 @@ function getHash(str) {
 	const hash = crypto.createHash('md5');
 	hash.update(str);
 	return hash.digest('hex').substr(0, 20);
+}
+
+function getIntegrity(str, algorithm = 'sha512') {
+	const hash = crypto.createHash(algorithm)
+	hash.update(str);
+	return hash.digest('base64');
 }
 
 const start = Date.now();
@@ -84,7 +91,8 @@ if (reConfig.test(indexHtml)) {
       configURL = `${process.env.PUBLIC_PATH}/${configURL}`;
     }
   }
-  const configStrRepl = `<script type="text/javascript" src="${configURL}"></script>`;
+  const integrity = getIntegrity(configJs);
+  const configStrRepl = `<script defer type="text/javascript" src="${configURL}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>`;
   indexHtml = indexHtml.replace(reConfig, configStrRepl);
 } else {
   console.error('/!\\ Missing config template part /!\\');
@@ -99,7 +107,7 @@ if (!reZendesk.test(indexHtml)) {
 }
 if (typeof process.env.HELP_LINK === 'string' && process.env.HELP_LINK.startsWith('https://')) {
   console.info('- Using HELP_LINK:', process.env.HELP_LINK);
-  helpLink = `<script id="ze-snippet" type="text/javascript" src="${process.env.HELP_LINK}"></script>`;
+  helpLink = `<script id="ze-snippet" type="text/javascript" defer src="${process.env.HELP_LINK}"></script>`;
 } else {
   console.info('- Help link is disabled');
 }
@@ -132,6 +140,7 @@ case 'matomo':
     });
 
     fileHash = getHash(matomoJs);
+    const integrity = `integrity="sha512-${getIntegrity(matomoJs)}" crossorigin="anonymous"`;
     const fileName = `matomo.${fileHash}.js`;
 
     let matomoConfigScript = null;
@@ -141,16 +150,16 @@ case 'matomo':
     if (typeof process.env.PUBLIC_PATH === 'string' && process.env.PUBLIC_PATH.startsWith('https')) {
       console.info(`  => Using public path: ${process.env.PUBLIC_PATH}`);
       if (process.env.PUBLIC_PATH.endsWith('/')) {
-        matomoConfigScript = `<script type="text/javascript" src="${process.env.PUBLIC_PATH}${fileName}"></script>`;
+        matomoConfigScript = `<script defer type="text/javascript" src="${process.env.PUBLIC_PATH}${fileName}" ${integrity}></script>`;
       } else {
-        matomoConfigScript = `<script type="text/javascript" src="${process.env.PUBLIC_PATH}/${fileName}"></script>`;
+        matomoConfigScript = `<script defer type="text/javascript" src="${process.env.PUBLIC_PATH}/${fileName}" ${integrity}></script>`;
       }
     } else {
-      matomoConfigScript = `<script type="text/javascript" src="${fileName}"></script>`;
+      matomoConfigScript = `<script defer type="text/javascript" src="${fileName}" ${integrity}></script>`;
     }
 
     // Matomo main script
-    matomoScript = `<script type="text/javascript" src="${matomoTrackerUrl}matomo.js"></script>`;
+    matomoScript = `<script defer type="text/javascript" src="${matomoTrackerUrl}matomo.js"></script>`;
 
     const matomoConfigScripts = `  ${matomoConfigScript}\n  ${matomoScript}\n`;
     indexHtml = indexHtml.replace(reMatomoJs, `$1${matomoConfigScripts}$3`);
@@ -170,7 +179,7 @@ case 'disabled':
   indexHtml = indexHtml.replace(reMatomoJs, '$1  <!-- Tracker disabled -->\n$3');
   break;
 default:
-  console.error(`/!\ Unknown tracker ${process.env.METRICS_SERVICE} /!\\`);
+  console.error(`/!\\ Unknown tracker ${process.env.METRICS_SERVICE} /!\\`);
   indexHtml = indexHtml.replace(reMatomoJs, '$1  <!-- Tracker disabled -->\n$3');
   break;
 }
@@ -188,13 +197,14 @@ if (process.env.CROWDIN === 'enabled') {
   console.info(`  => Setting up crowdin project: ${crowdinProject}`);
   crowdinJs = crowdinJs.replace(reCrowdinBranding, crowdinProject);
   fileHash = getHash(crowdinJs);
+  const integrity = getIntegrity(crowdinJs);
   const fileName = `crowdin.${fileHash}.js`;
   shellStr = new ShellString(crowdinJs);
   shellStr.to(`${distDir}/${fileName}`);
 
   const crowdinScripts = `\
-  <script type="text/javascript" src="${fileName}"></script>\n\
-  <script type="text/javascript" src="https://cdn.crowdin.com/jipt/jipt.js"></script>`;
+  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>\n\
+  <script type="text/javascript" defer src="https://cdn.crowdin.com/jipt/jipt.js"></script>`;
   if (!reCrowdin.test(indexHtml)) {
     console.error(`/!\\ Can't find crowdin pattern in index.html: ${reCrowdin.source} /!\\`);
     process.exit(1);

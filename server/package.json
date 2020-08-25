@@ -5,7 +5,9 @@
   "scripts": {
     "server": "node server",
     "build": "npm run build-config",
+    "prebuild-config": "rm -fv dist/config*.js",
     "build-config": "NODE_ENV=production node build-config.js",
+    "gen-lambda": "node cloudfront-gen-lambda.js",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/"
   },
   "engines": {
@@ -20,7 +22,8 @@
     "morgan": "1.10.0"
   },
   "devDependencies": {
-    "lodash": "^4.17.15",
+    "handlebars": "^4.7.6",
+    "lodash": "^4.17.19",
     "shelljs": "^0.8.4"
   }
 }

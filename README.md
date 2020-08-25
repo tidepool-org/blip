@@ -110,7 +110,6 @@ You can specify the HTTP port using the `PORT` env var:
 $ PORT=3001 npm run server
 ```
 
-
 ## Debugging
 
 The app uses the [bows](http://latentflip.com/bows/) library to log debugging messages to the browser's console. It is disabled by default (which makes it production-friendly). To see the messages type `localStorage.debug = true` in the browser console and refresh the page. Create a logger for a particular app module by giving it a name, such as:
@@ -165,6 +164,19 @@ To do it manually, fist be sure to set the environment variables needed (see the
 # Start the docker server:
 :blip/server$ docker run -p 3000:3000 blip:dev
 ```
+
+## Integration with CloudFront
+
+To manually publish blip to CloudFront, follow theses steps (quick summary):
+- Setup the environment variables for your build (see `config/*.sh`)
+- build the package: `npm run build`
+- `mv dist server/dist`
+- `cd server`
+- `npm run build`
+- `TARGET_ENVIRONNEMENT=<env> npm run gen-lambda` replacing `<env>` with yours (ex: `preview`, `production`)
+- Publish on S3 the dist files except: `config*.js`, `index.html` and `cloudfront*.js`
+- Publish the new lambda edge version with the content of `server/dist/cloudfront-<env>-blip-request-viewer.js`
+- Update the lambda edge version in the CloudFront distribution, using the new ARN link.
 
 ## Documentation for developers
 

@@ -12,6 +12,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+/* eslint-disable lodash/prefer-lodash-typecheck */
 
 const pkg = require('./package.json');
 
@@ -44,6 +45,12 @@ function integerFromText(value, defaultValue) {
   return intValue;
 }
 
+/**
+ *
+ * @param {string | undefined} value env var value
+ * @param {string} defaultValue returned value if value is undefined
+ * @returns {string}
+ */
 function stringOption(value, defaultValue) {
   if (typeof value === 'string' && value !== 'disabled') {
     return value;

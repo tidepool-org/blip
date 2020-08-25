@@ -49,6 +49,9 @@ fi
 
 bash build.sh
 
+# CloudFront Lambda edge tests:
+npm run test-cloudfront
+
 # Publish only on the main node version build
 # TODO: Get node version using: "$(node --version | cut -c 2-)" to make this script usable on another build system ?
 if [ "${ARTIFACT_NODE_VERSION}" = "${TRAVIS_NODE_VERSION:-0.0.0}" ]; then

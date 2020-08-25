@@ -7,11 +7,12 @@
     "url": "https://github.com/mdblp/blip"
   },
   "scripts": {
-    "mrproper": "rm -rf dist node_modules coverage deploy server/dist server/node_modules server/.npmrc artifact_node.sh artifact_packaging.sh artifact_images.sh",
+    "mrproper": "rm -rf dist node_modules coverage deploy server/dist server/node_modules server/.npmrc artifact_node.sh artifact_packaging.sh artifact_images.sh test/lambda/dist/ test/lambda/templates/",
     "pretest-docker": "docker build --tag blip:test -f test/Dockerfile --build-arg npm_token=${nexus_token} .",
     "test-docker": "docker run blip:test",
     "test": "TZ=UTC NODE_ENV=test karma --log-level debug start",
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha",
+    "test-cloudfront": "bash test/lambda/run-lambda-tests.sh",
     "start-dev": "NODE_ENV=development USE_WEBPACK_DEV_SERVER=true ALLOW_SIGNUP_PATIENT=false ALLOW_PATIENT_CHANGE_EMAIL=false I18N_ENABLED=true ALLOW_PATIENT_CHANGE_PASSWORD=false HIDE_DONATE=true HIDE_DEXCOM_BANNER=true HIDE_UPLOAD_LINK=true CAN_SEE_PWD_LOGIN=true BRANDING='diabeloop' METRICS_SERVICE='disabled' HELP_LINK='disabled' webpack-dev-server --cache --colors --progress --port 3001 --host 0.0.0.0",
     "prebuild": "rm -rf dist server/dist deploy",
     "build": "npm run build-app && npm run build-config",
@@ -136,7 +137,8 @@
     "url-loader": "4.1.0",
     "webpack": "4.43.0",
     "webpack-cli": "3.3.12",
-    "webpack-dev-server": "3.11.0"
+    "webpack-dev-server": "3.11.0",
+    "webpack-subresource-integrity": "^1.4.1"
   },
   "peerDependencies": {
     "babel-core": "6.x || ^7.0.0-bridge.0",
