@@ -975,23 +975,38 @@ describe('TidelineData', function() {
         deviceTime: '2014-07-02T10:30:00',
       }),
       new types.PhysicalActivity({
-        deviceTime: '2014-07-03T10:30:00',
-        eventId: 'ToBeDeleted',
+        inputTime: moment.utc().subtract(4, 'hours').toISOString(),
+        eventId: 'PA2',
       }),
       new types.PhysicalActivity({
-        deviceTime: '2014-07-04T10:30:00',
-        eventId: 'ToBeDeleted',
+        inputTime: moment.utc().subtract(3, 'hours').toISOString(),
+        eventId: 'PA2',
       })
     ];
-    var thisTd = new TidelineData(data);
+    var thisTd = new TidelineData(_.cloneDeep(data), {});
 
     it('should be a function', function() {
       assert.isFunction(thisTd.deduplicatePhysicalActivities);
     });
 
+    const PA1 = _.filter(thisTd.physicalActivities, { 'eventId': 'PA1' });
+    const PA2 = _.filter(thisTd.physicalActivities, { 'eventId': 'PA2' });
+    const PA3 = _.filter(thisTd.physicalActivities, { 'eventId': data[2].id });
+
     it('should deduplicate PAs based on eventId', function() {
+      // PA1, PA2 and undefined
       expect(thisTd.physicalActivities.length).to.equal(3);
+      expect(PA1.length).to.equal(1);
+      expect(PA2.length).to.equal(1);
+      expect(PA3.length).to.equal(1);
     });
+
+    it('should have taken the most recent activity by eventID', () => {
+      expect(PA1[0].id).to.equal(data[1].id);
+      expect(PA1[0].inputTime).to.equal(data[1].deviceTime + '.000Z');
+      expect(PA2[0].id).to.equal(data[4].id);
+      expect(PA2[0].inputTime).to.equal(data[4].inputTime);
+    })
   });
 
 });

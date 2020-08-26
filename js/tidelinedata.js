@@ -117,7 +117,7 @@ function TidelineData(data, opts) {
     // Portal-api data loaded through V1 route force an UTC timezone
     // Portal-api data are:
     //      - pumpSettings/upload type
-    //      - deviceEvent type + deviceParameter subType 
+    //      - deviceEvent type + deviceParameter subType
     if(["UTC","Etc/GMT","GMT"].indexOf(datum.timezone) > -1 ) {
       if (["pumpSettings","upload"].indexOf(datum.type) > -1) {
         return false;
@@ -230,13 +230,27 @@ function TidelineData(data, opts) {
   };
 
   this.deduplicatePhysicalActivities = function (data = []) {
+    // normalize eventId and inputTime
+    _.filter( data, {type: 'physicalActivity'}).forEach(
+      pa => {
+        if (!_.isString(pa.eventId) || _.isEmpty(pa.eventId)) {
+          pa.eventId = pa.id;
+        }
+        if (!_.isString(pa.inputTime) || _.isEmpty(pa.inputTime)) {
+          pa.inputTime = pa.normalTime;
+        }
+        return pa;
+      });
+    // get all PAs grouped by eventID
     var physicalActivity = _.groupBy(_.filter( data, {type: 'physicalActivity'}), 'eventId');
+    // For each eventID sort by inputTime 
     _.forEach(physicalActivity, (value, key) => {
-      physicalActivity[key] = _.orderBy(value, ['deviceTime'], ['desc']);
+      physicalActivity[key] = _.orderBy(value, ['inputTime'], ['desc']);
     })
+    // For each eventID take the most recent item
     this.physicalActivities = _.map(physicalActivity, (value) => value[0]);
   };
-  
+
   this.checkTimezone = function() {
     if (!Array.isArray(this.grouped.upload)) {
       return;
@@ -429,8 +443,8 @@ function TidelineData(data, opts) {
     this.setDeviceParameters(this.data);
 
     // get PhysicalActivities
-    this.deduplicatePhysicalActivities(data);
-  
+    this.deduplicatePhysicalActivities(this.data);
+
     // Timezone change events (for tooltips)
     this.checkTimezone();
 

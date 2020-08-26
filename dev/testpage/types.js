@@ -330,7 +330,6 @@ var PhysicalActivity = function(opts) {
   var defaults = {
     deviceTime: this.makeDeviceTime(),
     reportedIntensity: 'medium',
-    eventId: this.makeId(),
     duration: {
       units: 'minutes',
       value: 30.0
@@ -342,7 +341,10 @@ var PhysicalActivity = function(opts) {
 
   this.deviceTime = opts.deviceTime;
   this.duration = opts.duration;
-  if (opts.eventId !== 'ToBeDeleted') {
+  if (opts.inputTime) {
+    this.inputTime = opts.inputTime;
+  }
+  if (opts.eventId) {
     this.eventId = opts.eventId;
   }
   this.reportedIntensity = opts.reportedIntensity;

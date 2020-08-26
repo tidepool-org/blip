@@ -31,7 +31,14 @@ module.exports = function karmaConfig(config) {
     browsers,
     captureTimeout: 60000,
     colors: true,
-    concurrency: Infinity,
+    concurrency: 1,
+    coverageReporter: {
+      dir: 'coverage/',
+      reporters: [
+        { type: 'html' },
+        { type: 'text' },
+      ],
+    },
     customLaunchers: {
       CustomChromeHeadless: {
         base: 'ChromeHeadless',
