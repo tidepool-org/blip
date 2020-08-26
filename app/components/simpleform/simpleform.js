@@ -122,7 +122,9 @@ var SimpleForm = React.createClass({
         multi={multi}
         placeholder={placeholder}
         disabled={disabled}
-        onChange={this.handleChange}/>
+        onChange={this.handleChange}
+        info={input.info}
+      />
     );
   },
 

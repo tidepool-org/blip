@@ -40,7 +40,8 @@ const InputGroup = React.createClass({
     rows: React.PropTypes.number,
     disabled: React.PropTypes.bool,
     multi: React.PropTypes.bool,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    info: React.PropTypes.string,
   },
 
   DEFAULT_TEXTAREA_ROWS: 3,
@@ -121,6 +122,7 @@ const InputGroup = React.createClass({
         className="input-group-control form-control"
         id={this.props.name}
         name={this.props.name}
+        title={this.props.info}
         value={this.props.value}
         placeholder={this.props.placeholder}
         onChange={this.handleChange}
@@ -259,6 +261,7 @@ const InputGroup = React.createClass({
         name={this.props.name}
         value={this.props.value}
         disabled={this.props.disabled}
+        title={this.props.info}
         onChange={this.handleChange} />
     );
   },

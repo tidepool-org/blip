@@ -87,10 +87,26 @@ class UserProfile extends React.Component {
   }
 
   formInputs() {
-    const inputs = [
-      { name: 'firstName', label: t('First name'), type: 'text' },
-      { name: 'lastName', label: t('Last name'), type: 'text' }
-    ];
+    const inputs = [];
+    const disabled = personUtils.isPatient(this.props.user);
+    const firstName = { 
+      name: 'firstName', 
+      label: t('First name'), 
+      type: 'text', 
+      disabled: disabled
+    };
+    const lastName = { 
+      name: 'lastName', 
+      label: t('Last name'), 
+      type: 'text', 
+      disabled: disabled
+    };
+    if (disabled) {
+      firstName.info = t('This field can only be modified from your handset');
+      lastName.info = t('This field can only be modified from your handset');
+    }
+    inputs.push(firstName);
+    inputs.push(lastName);
 
     if (this.isUserAllowedToChangeEmail()) {
       inputs.push({
@@ -231,10 +247,12 @@ class UserProfile extends React.Component {
   }
 
   validateFormValues(formValues) {
-    let form = [
-      { type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName },
-      { type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName }
-    ];
+
+    let form = [];
+    if (!personUtils.isPatient(this.props.user)) {
+      form.push({ type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName });
+      form.push({ type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName });
+    }
 
     if (this.isUserAllowedToChangeEmail()) {
       form.push({ type: 'email', name: 'username', label: t('email'), value: formValues.username });
@@ -262,13 +280,15 @@ class UserProfile extends React.Component {
   }
 
   prepareFormValuesForSubmit(formValues) {
-    const result = {
-      profile: {
+    const result = {};
+
+    if (!personUtils.isPatient(this.props.user)) {
+      result.profile = {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
         fullName: `${formValues.firstName} ${formValues.lastName}`
-      },
-    };
+      };
+    }
 
     if (this.isUserAllowedToChangeEmail()) {
       result.username = formValues.username;

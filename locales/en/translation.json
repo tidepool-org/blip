@@ -587,6 +587,7 @@
   "This basal rate was running for longer than 5 days, which we cannot display.": "This basal rate was running for longer than 5 days, which we cannot display.",
   "This basal was extended by one second because the duration and time reported by {{source}} do not match up exactly.": "This basal was extended by one second because the duration and time reported by {{source}} do not match up exactly.",
   "This BG value was above or below {{source}}'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.": "This BG value was above or below {{source}}'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.",
+  "This field can only be modified from your handset": "This field can only be modified from your handset",
   "This field is required.": "This field is required.",
   "this field": "this field",
   "This is for me, I have diabetes": "This is for me, I have diabetes",
