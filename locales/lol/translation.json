@@ -587,6 +587,7 @@
   "This basal rate was running for longer than 5 days, which we cannot display.": "crwdns36736:0crwdne36736:0",
   "This basal was extended by one second because the duration and time reported by {{source}} do not match up exactly.": "crwdns36738:0{{source}}crwdne36738:0",
   "This BG value was above or below {{source}}'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.": "crwdns36740:0{{source}}crwdne36740:0",
+  "This field can only be modified from your handset": "crwdns42990:0crwdne42990:0",
   "This field is required.": "crwdns36744:0crwdne36744:0",
   "this field": "crwdns36742:0crwdne36742:0",
   "This is for me, I have diabetes": "crwdns36746:0crwdne36746:0",
