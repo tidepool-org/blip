@@ -2,7 +2,9 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## unreleased
+### Fixed
+-  PT-1480 Tideline 1.12.1
 ### Engineering Use
 - YLP-107 Create lambda edge generatation script for CloudFront
 
