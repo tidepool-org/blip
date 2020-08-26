@@ -100,7 +100,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     },
     pagination: {
       ...defaultStyles,
-      fontSize: `${fontSizes[0]}px`,
+      fontSize: `${fontSizes[1]}px`,
       fontWeight: fontWeights.medium,
       backgroundColor: 'transparent',
       color: colors.text.primary,
@@ -132,7 +132,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     },
     paginationLight: {
       ...defaultStyles,
-      fontSize: `${fontSizes[0]}px`,
+      fontSize: `${fontSizes[1]}px`,
       fontWeight: fontWeights.medium,
       backgroundColor: 'transparent',
       color: colors.text.primary,
