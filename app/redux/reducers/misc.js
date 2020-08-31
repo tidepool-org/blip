@@ -151,6 +151,25 @@ export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBa
   }
 };
 
+export const showingUploaderBanner = (state = initialState.showingUploaderBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'uploader' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'uploader') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUploaderBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUploaderBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'uploader') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
   switch (action.type) {
     case types.SHOW_BANNER:

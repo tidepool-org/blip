@@ -33,6 +33,7 @@ const initialState = {
   showingShareDataBanner: null,
   seenShareDataBannerMax: false,
   showingUpdateTypeBanner: null,
+  showingUploaderBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
