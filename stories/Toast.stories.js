@@ -66,7 +66,7 @@ Toasts.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
+      url: 'https://www.figma.com/file/ey1CgC9MYEsx1DQhpZiyMg/Prescription-Flow-v1?node-id=254%3A2',
     },
   },
 };
