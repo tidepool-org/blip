@@ -71,7 +71,7 @@ describe('ToastProvider', () => {
     expect(toast.find('div.info')).to.have.lengthOf(1);
   });
 
-  it('should close the toast when triggered by the `clear` method', () => {
+  it('should close the toast when triggered by the `clear` method from an external element', () => {
     const wrapper = mount(
       <ToastProvider>
         <Element toast={{ message: 'Info!' }}/>
@@ -86,6 +86,24 @@ describe('ToastProvider', () => {
     expect(button).to.have.lengthOf(1);
 
     button.simulate('click');
+    expect(toast()).to.have.lengthOf(0);
+  });
+
+  it('should close the toast when triggered by the `close` icon of the toast', () => {
+    const wrapper = mount(
+      <ToastProvider>
+        <Element toast={{ message: 'Info!' }}/>
+      </ToastProvider>
+    );
+
+    const toast = () => wrapper.childAt(1);
+    expect(toast()).to.have.lengthOf(1);
+    expect(toast().text()).to.equal('Info!');
+
+    const closeIcon = toast().find('span.close');
+    expect(closeIcon).to.have.lengthOf(1);
+
+    closeIcon.simulate('click');
     expect(toast()).to.have.lengthOf(0);
   });
 });
