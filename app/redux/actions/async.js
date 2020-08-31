@@ -328,11 +328,12 @@ export function setupDataStorage(api, patient) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
-export function removeMembershipInOtherCareTeam(api, patientId) {
+export function removeMembershipInOtherCareTeam(api, patientId, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.removeMembershipInOtherCareTeamRequest());
 
     api.access.leaveGroup(patientId, (err) => {
+      cb(err);
       if (err) {
         dispatch(sync.removeMembershipInOtherCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err

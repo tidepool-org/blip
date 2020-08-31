@@ -130,6 +130,38 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         },
       },
     },
+    paginationLight: {
+      ...defaultStyles,
+      fontSize: `${fontSizes[0]}px`,
+      fontWeight: fontWeights.medium,
+      backgroundColor: 'transparent',
+      color: colors.text.primary,
+      border: 0,
+      borderRadius: radii.input,
+      padding: 1,
+      '> div': {
+        display: 'flex',
+        alignItems: 'center',
+      },
+      '&:hover': {
+        backgroundColor: colors.lightGrey,
+      },
+      '&:active': {
+        backgroundColor: colors.blues[0],
+        color: colors.purpleBright,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+      },
+      '&.selected': {
+        backgroundColor: colors.blues[0],
+        color: colors.purpleBright,
+
+        '&:disabled': {
+          backgroundColor: colors.blueGreyLight,
+        },
+      },
+    },
     filter: {
       ...defaultStyles,
       ...tertiaryStyles,
