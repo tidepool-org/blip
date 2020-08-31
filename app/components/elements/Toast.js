@@ -37,6 +37,7 @@ export const Toast = props => {
       <Flex
         alignItems="center"
         justifyContent="space-between"
+        className={variant}
         px={3}
         py={2}
         theme={baseTheme}
