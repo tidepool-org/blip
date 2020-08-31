@@ -1,20 +1,3 @@
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
 import _ from 'lodash';
 import sundial from 'sundial';
 import async from 'async';
@@ -1403,6 +1386,44 @@ export function clickUpdateTypeBanner(api, patientId, clickedDate) {
 
     const preferences = {
       clickedUpdateTypeBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Dismiss Uploader Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissUploaderBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('uploader'));
+
+    const preferences = {
+      dismissedUploaderBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Uploader Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickUploaderBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('uploader'));
+
+    const preferences = {
+      clickedUploaderBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));
