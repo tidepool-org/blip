@@ -3,13 +3,10 @@ import { mount } from 'enzyme';
 import { ToastProvider, useToasts } from '../../../../app/providers/ToastProvider';
 
 /* global chai */
-/* global sinon */
 /* global describe */
 /* global it */
-/* global beforeEach */
 
 const expect = chai.expect;
-const assert = chai.assert;
 
 const Element = ({ toast }) => {
   const { set, clear } = useToasts();
