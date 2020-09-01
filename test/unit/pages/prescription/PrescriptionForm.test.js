@@ -8,8 +8,6 @@ import {
   PrescriptionForm,
 } from '../../../../app/pages/prescription/PrescriptionForm';
 
-import { ToastProvider } from '../../../../app/providers/ToastProvider';
-
 import { withFormik } from 'formik';
 
 /* global chai */
@@ -36,11 +34,7 @@ describe('PrescriptionForm', () => {
     defaultProps.trackMetric.resetHistory();
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultProps} {...formikProps} />);
-    wrapper = mount(
-      <ToastProvider>
-        <Element {...defaultProps} />
-      </ToastProvider>
-    );
+    wrapper = mount(<Element {...defaultProps} />);
   });
 
   it('should render the prescription form with a submit handler', () => {
@@ -147,11 +141,7 @@ describe('PrescriptionForm', () => {
 
     beforeEach(() => {
       const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...reviewStepProps} {...formikProps} />);
-      wrapper = mount(
-        <ToastProvider>
-          <Element {...reviewStepProps} />
-        </ToastProvider>
-      );
+      wrapper = mount(<Element {...reviewStepProps} />);
     });
 
     it('should track a metric when copy as text button is clicked', () => {

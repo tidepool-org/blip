@@ -9,7 +9,6 @@ import steppers from './base/steppers';
 import tabGroups from './base/tabGroups';
 import paginators from './base/paginators';
 import tables from './base/tables';
-import toasts from './base/toasts';
 import forms from './base/forms';
 
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
@@ -35,7 +34,6 @@ export const colors = {
     info: colorPalette.primary.purpleMedium,
     warning: '#FFAB00',
     danger: '#DE350C',
-    success: '#47B881',
   },
 };
 
@@ -104,7 +102,6 @@ const variants = {
   steppers: steppers({ colors, fonts, fontWeights, fontSizes }),
   tabGroups: tabGroups({ colors, fonts, fontWeights, fontSizes }),
   tables: tables({ borders, colors, fonts, fontSizes, shadows }),
-  toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
 };
 
 export default {
