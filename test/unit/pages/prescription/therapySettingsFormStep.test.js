@@ -12,7 +12,7 @@ const meta = {
   training: { valid: true },
   initialSettings: {
     suspendThreshold: { value: { valid: true } },
-    // insulinModel: { valid: true },
+    insulinModel: { valid: true },
     basalRateMaximum: { value: { valid: true } },
     bolusAmountMaximum: { value: { valid: true } },
     bloodGlucoseTargetSchedule: { valid: true },
@@ -43,7 +43,7 @@ describe('therapySettingsFormStep', function() {
     expect(therapySettingsFormStep(meta).disableComplete).to.be.false;
     expect(therapySettingsFormStep(invalidateMeta('training')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.suspendThreshold.value')).disableComplete).to.be.true;
-    // expect(therapySettingsFormStep(invalidateMeta('initialSettings.insulinModel')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(invalidateMeta('initialSettings.insulinModel')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.basalRateMaximum.value')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.bolusAmountMaximum.value')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;

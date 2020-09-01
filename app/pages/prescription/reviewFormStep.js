@@ -106,11 +106,11 @@ const therapySettingsRows = (pump, meta) => {
       value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
       warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
     },
-    // {
-    //   id: 'insulin-model',
-    //   label: t('Insulin Model'),
-    //   value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
-    // },
+    {
+      id: 'insulin-model',
+      label: t('Insulin Model'),
+      value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
+    },
     {
       id: 'basal-schedule',
       label: t('Basal Rates'),

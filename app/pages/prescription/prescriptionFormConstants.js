@@ -67,9 +67,10 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
 
 export const defaultUnits = {
   basalRate: 'Units/hour',
+  bloodGlucose: MGDL_UNITS,
   bolusAmount: 'Units',
   insulinCarbRatio: 'g/U',
-  bloodGlucose: MGDL_UNITS,
+  suspendThreshold: MGDL_UNITS,
 };
 
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
@@ -232,10 +233,10 @@ export const trainingOptions = [
   { value: 'inModule', label: t('No, Patient can self start with Tidepool Loop in-app tutorial') },
 ];
 
-// export const insulinModelOptions = [
-//   { value: 'rapidAdult', label: t('Rapid Acting Adult') },
-//   { value: 'rapidChild', label: t('Rapid Acting Child') },
-// ];
+export const insulinModelOptions = [
+  { value: 'rapidAdult', label: t('Rapid Acting Adult') },
+  { value: 'rapidChild', label: t('Rapid Acting Child') },
+];
 
 export const validCountryCodes = [1];
 
@@ -255,7 +256,7 @@ export const stepValidationFields = [
     [
       'training',
       'initialSettings.suspendThreshold.value',
-      // 'initialSettings.insulinModel',
+      'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',
       'initialSettings.bloodGlucoseTargetSchedule',

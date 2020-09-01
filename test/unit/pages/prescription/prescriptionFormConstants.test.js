@@ -365,18 +365,18 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  // it('should export the list the prescription insulin type options', function() {
-  //   expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
-  //   expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
-  //     'rapidAdult',
-  //     'rapidChild',
-  //   ]);
+  it('should export the list the prescription insulin type options', function() {
+    expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
+      'rapidAdult',
+      'rapidChild',
+    ]);
 
-  //   _.each(prescriptionFormConstants.insulinModelOptions, device => {
-  //     expect(device.value).to.be.a('string');
-  //     expect(device.label).to.be.a('string');
-  //   })
-  // });
+    _.each(prescriptionFormConstants.insulinModelOptions, device => {
+      expect(device.value).to.be.a('string');
+      expect(device.label).to.be.a('string');
+    })
+  });
 
   // it('should export the list of valid country codes', function() {
   //   expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);

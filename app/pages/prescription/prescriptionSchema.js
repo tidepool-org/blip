@@ -11,7 +11,7 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  // insulinModelOptions,
+  insulinModelOptions,
   pumpRanges,
   // typeOptions,
   sexOptions,
@@ -85,9 +85,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       cgmId: yup.string()
         .oneOf(map(deviceOptions.cgms, 'value'))
         .required(t('A cgm type must be specified')),
-      // insulinModel: yup.string()
-      //   .oneOf(map(insulinModelOptions, 'value'))
-      //   .required(t('An insulin model must be specified')),
+      insulinModel: yup.string()
+        .oneOf(map(insulinModelOptions, 'value'))
+        .required(t('An insulin model must be specified')),
       suspendThreshold: yup.object().shape({
         value: yup.number()
           .min(ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
