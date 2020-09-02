@@ -40,22 +40,22 @@ const patientRows = meta => ([
   {
     label: t('Email'),
     value: meta.email.value,
-    step: [0, 1],
+    step: [0, 2],
   },
   {
     label: t('Mobile Number'),
     value: meta.phoneNumber.number.value,
     step: [1, 0],
   },
-  // {
-  //   label: t('Type of Account'),
-  //   value: capitalize(meta.type.value),
-  //   step: [0, 0],
-  // },
+  {
+    label: t('Type of Account'),
+    value: capitalize(meta.type.value),
+    step: [0, 0],
+  },
   {
     label: t('Birthdate'),
     value: meta.birthday.value,
-    step: [0, 0],
+    step: [0, 1],
   },
   {
     label: t('Gender'),
@@ -170,7 +170,7 @@ export const PatientInfo = props => {
     ...themeProps
   } = props;
 
-  const nameStep = [0, 0];
+  const nameStep = [0, 1];
   const currentStep = [3, 0];
 
   const {

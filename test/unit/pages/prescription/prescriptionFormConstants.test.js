@@ -325,18 +325,18 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  // it('should export the list the prescription account type options', function() {
-  //   expect(prescriptionFormConstants.typeOptions).to.be.an('array');
-  //   expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
-  //     'patient',
-  //     'caregiver',
-  //   ]);
+  it('should export the list the prescription account type options', function() {
+    expect(prescriptionFormConstants.typeOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
+      'patient',
+      'caregiver',
+    ]);
 
-  //   _.each(prescriptionFormConstants.typeOptions, device => {
-  //     expect(device.value).to.be.a('string');
-  //     expect(device.label).to.be.a('string');
-  //   })
-  // });
+    _.each(prescriptionFormConstants.typeOptions, device => {
+      expect(device.value).to.be.a('string');
+      expect(device.label).to.be.a('string');
+    })
+  });
 
   it('should export the list the prescription patient sex options', function() {
     expect(prescriptionFormConstants.sexOptions).to.be.an('array');
