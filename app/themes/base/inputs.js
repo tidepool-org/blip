@@ -79,6 +79,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     alignItems: 'center',
     fontSize: fontSizes[1],
     fontWeight: fontWeights.medium,
+    input: { width: 'auto' },
   };
 
   const checkboxGroup = {

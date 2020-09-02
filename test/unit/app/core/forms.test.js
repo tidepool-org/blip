@@ -31,6 +31,7 @@ describe('forms', function() {
   };
 
   const errorArray = {
+    touched: true,
     error: [
       { foo: null },
       { bar: 'error!' },

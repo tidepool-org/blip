@@ -107,7 +107,7 @@ export const PatientGender = translate()(props => {
 });
 
 export const PatientDevices = translate()(props => {
-  const { t, meta } = props;
+  const { t, meta, devices } = props;
 
   const {
     setFieldValue,
@@ -117,7 +117,7 @@ export const PatientDevices = translate()(props => {
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
       <Flex {...checkboxGroupStyles}>
-        {map(pumpDeviceOptions, device => (
+        {map(pumpDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
@@ -137,7 +137,7 @@ export const PatientDevices = translate()(props => {
         ))}
       </Flex>
       <Flex {...checkboxGroupStyles}>
-        {map(cgmDeviceOptions, device => (
+        {map(cgmDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>
             <FastField
               as={Checkbox}
@@ -159,7 +159,7 @@ export const PatientDevices = translate()(props => {
   );
 });
 
-const accountFormSteps = (meta) => ({
+const profileFormSteps = (meta, devices) => ({
   label: t('Complete Patient Profile'),
   subSteps: [
     {
@@ -180,9 +180,9 @@ const accountFormSteps = (meta) => ({
     {
       disableComplete: !fieldsAreValid(stepValidationFields[1][3], meta),
       onComplete: () => log('Patient Devices Complete'),
-      panelContent: <PatientDevices meta={meta} />,
+      panelContent: <PatientDevices meta={meta} devices={devices} />,
     },
   ],
 });
 
-export default accountFormSteps;
+export default profileFormSteps;
