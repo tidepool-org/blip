@@ -336,7 +336,7 @@ export const TherapySettings = props => {
         </Box>
       </Flex>
 
-      <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
+      <Box mb={4} as={Body1}>{t('Are you sure you want to start {{patientName}} with the below therapy settings order?', { patientName })}</Box>
 
       <Box mb={4}>
         {map(rows, (row, index) => <Row {...row} index={index} key={index} />)}

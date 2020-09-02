@@ -41,7 +41,7 @@ export const PatientPhone = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
+      <Headline mb={4}>{t('What is the mobile phone number the patient will use with Tidepool Loop?')}</Headline>
       <FastField
         as={() => (
           <InputMask
@@ -73,9 +73,11 @@ export const PatientPhone = translate()(props => {
 export const PatientMRN = translate()(props => {
   const { t, meta } = props;
 
+  const patientName = meta.firstName.value;
+
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
+      <Headline mb={4}>{t('What is {{patientName}}\'s Medical Record Number?', { patientName })}</Headline>
       <FastField
         as={TextInput}
         label={t('Medical Record Number')}

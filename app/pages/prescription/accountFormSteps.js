@@ -21,7 +21,7 @@ export const AccountType = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('Who are you creating your account for?')}</Headline>
+      <Headline mb={4}>{t('Who are you creating an account for?')}</Headline>
       <FastField
         as={RadioGroup}
         variant="verticalBordered"
@@ -48,7 +48,7 @@ export const PatientInfo = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('Please enter patient\'s name and birthdate')}</Headline>
+      <Headline mb={4}>{t('Please enter the patient\'s name and birthdate')}</Headline>
       <FastField
         as={TextInput}
         label={t('First Name')}
@@ -80,7 +80,7 @@ export const PatientInfo = translate()(props => {
             <TextInput
               name="birthday"
               id="birthday"
-              label={t('Patient\'s Birthday')}
+              label={t('Birthdate')}
               error={getFieldError(meta.birthday)}
               {...condensedInputStyles}
             />
@@ -94,9 +94,16 @@ export const PatientInfo = translate()(props => {
 export const PatientEmail = translate()(props => {
   const { t, meta } = props;
 
+  const patientName = meta.firstName.value;
+  const accountType = meta.type.value;
+
+  const headline = accountType === 'caregiver'
+    ? t('What is {{patientName}}\'s parent/guardian\'s name and email address?', { patientName })
+    : t('What is {{patientName}}\'s email address?', { patientName });
+
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s email address?')}</Headline>
+      <Headline mb={4}>{headline}</Headline>
       <FastField
         as={TextInput}
         label={t('Email Address')}
@@ -114,7 +121,7 @@ export const PatientEmail = translate()(props => {
         {...condensedInputStyles}
       />
       <Caption mt={5} mb={3}>
-        {t('This email will be used for an account set up request to the end user and for all Tidepool correspondence.')}
+        {t('This email will be used for an account set up invitation to the end user and for all Tidepool correspondence.')}
       </Caption>
     </Box>
   );
@@ -131,7 +138,6 @@ const accountFormSteps = meta => ({
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
-      hideBack: true,
       onComplete: () => log('Patient Info Complete'),
       panelContent: <PatientInfo meta={meta} />,
     },
