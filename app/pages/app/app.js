@@ -417,7 +417,7 @@ export class AppComponent extends React.Component {
   }
 
   renderUploaderBanner() {
-    this.props.context.log('Rendering update type banner');
+    this.props.context.log('Rendering uploader banner');
 
     const {
       showingUploaderBanner,
