@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { FastField, Field } from 'formik';
 import { Box, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import i18next from '../../core/language';
@@ -14,8 +15,8 @@ import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
 
 import {
-  deviceMeta,
   // insulinModelOptions,
+  pumpRanges,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -61,16 +62,13 @@ export const PatientInfo = props => {
 PatientInfo.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
-  const { t, meta, ...themeProps } = props;
-  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
+  const { t, meta, pump, ...themeProps } = props;
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Paragraph2>
-        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{pumpId}}.', {
-          pumpId: pumpMeta.manufacturerName,
+        {t('Request for certified pump trainer (CPT) in-person training. Required (TBD) for patients new to {{displayName}}.', {
+          displayName: get(pump, 'displayName'),
         })}
       </Paragraph2>
       <FastField
@@ -102,11 +100,10 @@ export const InModuleTrainingNotification = props => {
 InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, meta, pump, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
-  const thresholds = warningThresholds(bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -132,7 +129,7 @@ export const GlucoseSettings = props => {
           suffix={bgUnits}
           error={getFieldError(meta.initialSettings.suspendThreshold.value)}
           warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
-          {...pumpMeta.ranges.suspendThreshold}
+          {...ranges.suspendThreshold}
           {...{ ...inputStyles, themeProps: { mb: 3 }}}
         />
 
@@ -161,7 +158,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...pumpMeta.ranges.bloodGlucoseTarget,
+                ...ranges.bloodGlucoseTarget,
               },
               {
                 label: t('Upper Target'),
@@ -169,7 +166,7 @@ export const GlucoseSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.bloodGlucoseTarget,
                 type: 'number',
-                ...pumpMeta.ranges.bloodGlucoseTarget,
+                ...ranges.bloodGlucoseTarget,
               },
             ]}
             separator="-"
@@ -183,11 +180,10 @@ export const GlucoseSettings = props => {
 GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, meta, pump, ...themeProps } = props;
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const pumpId = meta.initialSettings.pumpId.value;
-  const pumpMeta = deviceMeta(pumpId, bgUnits, meta);
-  const thresholds = warningThresholds(bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -231,57 +227,6 @@ export const InsulinSettings = props => {
         /> */}
 
         <PopoverLabel
-          id='max-basal'
-          label={t('Max Basal')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('Maximum basal rate is the automatically adjusted basal rate that Tidepool Loop is allowed to enact to help reach your correction range.')}
-              </Paragraph2>
-              <Paragraph2>
-                {t('For first time users of an automated system, Tidepool suggests you start with 3x your highest basal rate.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-        <Field
-          as={TextInput}
-          type="number"
-          id="initialSettings.basalRateMaximum.value"
-          name="initialSettings.basalRateMaximum.value"
-          suffix={t('U/hr')}
-          error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
-          warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
-          {...pumpMeta.ranges.basalRateMaximum}
-          {...inputStyles}
-        />
-
-        <PopoverLabel
-          id='max-bolus'
-          label={t('Max Bolus')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('Maximum bolus is the highest bolus amount that you will allow Tidepool Loop to recommend at one time to cover carbs or bring down high glucose.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-        <FastField
-          as={TextInput}
-          type="number"
-          id="initialSettings.bolusAmountMaximum.value"
-          name="initialSettings.bolusAmountMaximum.value"
-          suffix={t('U')}
-          error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
-          warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
-          {...pumpMeta.ranges.bolusAmountMaximum}
-          {...inputStyles}
-        />
-
-        <PopoverLabel
           id='basal-rates'
           label={t('Basal rates')}
           mb={2}
@@ -306,11 +251,62 @@ export const InsulinSettings = props => {
                 suffix: t('U/hr'),
                 threshold: thresholds.basalRate,
                 type: 'number',
-                ...pumpMeta.ranges.basalRate,
+                ...ranges.basalRate,
               },
             ]}
           />
         </Box>
+
+        <PopoverLabel
+          id='max-basal'
+          label={t('Max Basal')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('Maximum basal rate is the automatically adjusted basal rate that Tidepool Loop is allowed to enact to help reach your correction range.')}
+              </Paragraph2>
+              <Paragraph2>
+                {t('For first time users of an automated system, Tidepool suggests you start with 3x your highest basal rate.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+        <Field
+          as={TextInput}
+          type="number"
+          id="initialSettings.basalRateMaximum.value"
+          name="initialSettings.basalRateMaximum.value"
+          suffix={t('U/hr')}
+          error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
+          warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
+          {...ranges.basalRateMaximum}
+          {...inputStyles}
+        />
+
+        <PopoverLabel
+          id='max-bolus'
+          label={t('Max Bolus')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('Maximum bolus is the highest bolus amount that you will allow Tidepool Loop to recommend at one time to cover carbs or bring down high glucose.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+        <FastField
+          as={TextInput}
+          type="number"
+          id="initialSettings.bolusAmountMaximum.value"
+          name="initialSettings.bolusAmountMaximum.value"
+          suffix={t('U')}
+          error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
+          warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
+          {...ranges.bolusAmountMaximum}
+          {...inputStyles}
+        />
 
         <PopoverLabel
           id='insulin-to-carb-ratios'
@@ -337,7 +333,7 @@ export const InsulinSettings = props => {
                 suffix: t('g/U'),
                 threshold: thresholds.carbRatio,
                 type: 'number',
-                ...pumpMeta.ranges.carbRatio,
+                ...ranges.carbRatio,
               },
             ]}
           />
@@ -371,7 +367,7 @@ export const InsulinSettings = props => {
                 suffix: bgUnits,
                 threshold: thresholds.insulinSensitivityFactor,
                 type: 'number',
-                ...pumpMeta.ranges.insulinSensitivityFactor,
+                ...ranges.insulinSensitivityFactor,
               },
             ]}
           />
@@ -393,10 +389,10 @@ export const TherapySettings = translate()(props => (
   </Box>
 ));
 
-const therapySettingsFormStep = (meta) => ({
+const therapySettingsFormStep = (meta, pump) => ({
   label: t('Enter Therapy Settings'),
   disableComplete: !fieldsAreValid(stepValidationFields[2][0], meta),
-  panelContent: <TherapySettings meta={meta} />
+  panelContent: <TherapySettings meta={meta} pump={pump} />
 });
 
 export default therapySettingsFormStep;

@@ -184,7 +184,7 @@
   "html.patients-setup-data-storage": "Tambien puedes <1>configurar el almacenamiento de datos</1> para algun paciente con diabetes",
   "html.patientsettings-target-range": "Mi rango objetivo <1>ES</1>",
   "html.peopletable-instructions": "Escriba el nombre de un paciente en el cuadro de búsqueda o haga clic en <1> Mostrar todo </1> para consultar todos los pacientes.",
-  "html.peopletable-remove-patient-confirm": "<0> ¿Está seguro de que desea eliminar a este paciente de su lista? </0> <1> Ya no podrá ver ni comentar sus datos. </1>",
+  "html.peopletable-remove-patient-confirm": "<0><0>¿Está seguro de que desea eliminar a este paciente: </0><1>{{fullName}}</1><2>de su lista?</2></0><1>Ya no podrá ver ni comentar sus datos. </1>",
   "html.setting-no-uploaded-data": "<0> La vista Configuración del dispositivo muestra las tasas basales, las proporciones de carbohidratos, los factores de sensibilidad y más, pero parece que aún no ha cargado los datos de la bomba. </1> su bomba. </1> <2> Si acaba de cargar, intente <1> actualizar </1>. </2>",
   "html.signup-clinician": "Si usted quiere brindar atención médica y desea crear una cuenta, <1> haga clic aquí </1>.",
   "html.signup-invited": "<0> Ha sido invitado a Tidepool. </0> <1> Regístrese para ver la invitación. </1>",
