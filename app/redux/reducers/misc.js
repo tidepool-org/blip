@@ -622,14 +622,3 @@ export const prescriptions = (state = initialState.prescriptions, action) => {
       return state;
   }
 };
-
-export const devices = (state = initialState.devices, action) => {
-  switch (action.type) {
-    case types.FETCH_DEVICES_SUCCESS:
-      const devices = _.get(action.payload, 'devices', {});
-      return update(state, { $set: devices });
-
-    default:
-      return state;
-  }
-};

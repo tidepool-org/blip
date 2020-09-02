@@ -55,8 +55,7 @@ export const fieldsAreValid = (fieldNames, fieldsMeta) => !includes(map(fieldNam
  */
 export const getFieldError = (fieldMeta, index, key) => {
   if (isArray(fieldMeta.error)) {
-    const fieldError = get(fieldMeta, `error.${index}.${key}`);
-    return fieldMeta.touched && fieldError ? fieldError : null;
+    return get(fieldMeta.error, `${index}.${key}`, null);
   }
 
   return (fieldMeta.touched || fieldMeta.initialValue) && fieldMeta.error ? fieldMeta.error : null;

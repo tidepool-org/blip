@@ -844,27 +844,6 @@ api.prescription.delete = function(prescriptionId, cb) {
   return tidepool.deletePrescription(prescriptionId, cb);
 };
 
-// ----- Devices -----
-
-api.devices = {};
-
-api.devices.getAll = function(cb) {
-  async.parallel({
-    cgm: tidepool.getCGMDevices,
-    pump: tidepool.getPumpDevices,
-  },
-  function(err, results) {
-    if (err) {
-      return cb(err);
-    }
-
-    cb(null, {
-      ...results.cgm,
-      ...results.pump,
-    });
-  });
-};
-
 // ----- Errors -----
 
 api.errors = {};

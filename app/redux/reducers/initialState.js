@@ -65,7 +65,6 @@ const initialState = {
   pendingReceivedInvites: [],
   pendingSentInvites: [],
   prescriptions: [],
-  devices: {},
   messageThread: null,
   working: {
     acceptingReceivedInvite: Object.assign({}, working),
@@ -84,7 +83,6 @@ const initialState = {
     creatingPrescription: Object.assign({}, working),
     creatingPrescriptionRevision: Object.assign({}, working),
     deletingPrescription: Object.assign({}, working),
-    fetchingDevices: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
     creatingMessageThread: Object.assign({}, working),
     editingMessageThread: Object.assign({}, working),
