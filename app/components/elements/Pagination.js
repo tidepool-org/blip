@@ -18,7 +18,7 @@ import Icon from './Icon';
 import baseTheme from '../../themes/baseTheme';
 
 export const Pagination = props => {
-  const { id, variant, buttonVariant, ...paginationProps } = props;
+  const { id, variant, ...paginationProps } = props;
 
   const classNames = cx({
     condensed: variant === 'condensed',
@@ -35,7 +35,7 @@ export const Pagination = props => {
           <ul className="prev-controls">
             {map(prevControls, ({ type, ...item }) => (
               <li id={`${id}-${type}`} key={`${id}-${type}`}>
-                <Button px={2} variant={buttonVariant} {...item}>
+                <Button px={2} variant="pagination" {...item}>
                   {type === 'first' && <Icon variant="static" theme={baseTheme} label="Go to first page" icon={FirstPageRoundedIcon} />}
                   {type === 'previous' && <Icon variant="static" theme={baseTheme} label="Go to previous page" icon={NavigateBeforeRoundedIcon} />}
                   {variant === 'default' && <Text pl={1}>{capitalize(type)}</Text>}
@@ -62,7 +62,7 @@ export const Pagination = props => {
                 );
               } else if (type === 'page') {
                 children = (
-                  <Button className={pageClassNames} variant={buttonVariant} {...item}>
+                  <Button className={pageClassNames} variant="pagination" {...item}>
                     {page}
                   </Button>
                 );
@@ -76,7 +76,7 @@ export const Pagination = props => {
           <ul className="next-controls">
             {map(nextControls, ({ type, ...item }) => (
               <li id={`${id}-${type}`} key={`${id}-${type}`}>
-                <Button px={2} variant={buttonVariant} {...item}>
+                <Button px={2} variant="pagination" {...item}>
                   {variant === 'default' && <Text pr={1}>{capitalize(type)}</Text>}
                   {type === 'next' && <Icon variant="static" theme={baseTheme} label="Go to next page" icon={NavigateNextRoundedIcon} />}
                   {type === 'last' && <Icon variant="static" theme={baseTheme} label="Go to last page" icon={LastPageRoundedIcon} />}
@@ -95,12 +95,10 @@ Pagination.propTypes = {
   ...PaginationProps,
   ...BoxProps,
   variant: PropTypes.oneOf(['default', 'condensed']),
-  buttonVariant: PropTypes.oneOf(['pagination', 'paginationLight']),
 };
 
 Pagination.defaultProps = {
   variant: 'default',
-  buttonVariant: 'pagination',
 };
 
 export default Pagination;

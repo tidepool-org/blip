@@ -26,8 +26,6 @@ const meta = {
   therapySettingsReviewed: { valid: true, value: true }
 };
 
-const pump = { id: 'myPump' };
-
 const handlers = {
   activeStepUpdate: sinon.stub(),
 };
@@ -51,11 +49,10 @@ describe('reviewFormStep', function() {
     expect(reviewFormStep().completeText).to.equal('Save Prescription');
   });
 
-  it('should include panel content with meta, pump, and handlers passed along as props', () => {
-    const step = reviewFormStep(meta, pump, handlers);
+  it('should include panel content with meta and handlers passed along', () => {
+    const step = reviewFormStep(meta, handlers);
     expect(step.panelContent.type).to.be.a('function');
     expect(step.panelContent.props.meta).to.eql(meta);
-    expect(step.panelContent.props.pump).to.eql(pump);
     expect(step.panelContent.props.handlers).to.eql(handlers);
   });
 

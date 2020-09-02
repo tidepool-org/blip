@@ -36,7 +36,6 @@ export const ERR_FETCHING_PRESCRIPTIONS = t('Something went wrong while fetching
 export const ERR_CREATING_PRESCRIPTION = t('Something went wrong while creating your prescription.');
 export const ERR_CREATING_PRESCRIPTION_REVISION = t('Something went wrong while updating your prescription.');
 export const ERR_DELETING_PRESCRIPTION = t('Something went wrong while deleting your prescription.');
-export const ERR_FETCHING_DEVICES = t('Something went wrong while fetching the devices list.');
 export const ERR_FETCHING_MESSAGE_THREAD = t('Something went wrong while fetching a message thread.');
 export const ERR_CREATING_MESSAGE_THREAD = t('Something went wrong while creating a message thread.');
 export const ERR_EDITING_MESSAGE_THREAD = t('Something went wrong while editing a message thread.');

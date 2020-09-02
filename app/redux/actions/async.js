@@ -328,12 +328,11 @@ export function setupDataStorage(api, patient) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
-export function removeMembershipInOtherCareTeam(api, patientId, cb = _.noop) {
+export function removeMembershipInOtherCareTeam(api, patientId) {
   return (dispatch) => {
     dispatch(sync.removeMembershipInOtherCareTeamRequest());
 
     api.access.leaveGroup(patientId, (err) => {
-      cb(err);
       if (err) {
         dispatch(sync.removeMembershipInOtherCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err
@@ -1167,27 +1166,6 @@ export function deletePrescription(api, prescriptionId) {
         ));
       } else {
         dispatch(sync.deletePrescriptionSuccess(prescriptionId));
-      }
-    });
-  };
-}
-
-/**
- * Fetch Devices Action Creator
- *
- * @param  {Object} api - an instance of the API wrapper
- */
-export function fetchDevices(api) {
-  return (dispatch) => {
-    dispatch(sync.fetchDevicesRequest());
-
-    api.devices.getAll((err, devices) => {
-      if (err) {
-        dispatch(sync.fetchDevicesFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_DEVICES, err), err
-        ));
-      } else {
-        dispatch(sync.fetchDevicesSuccess(devices));
       }
     });
   };

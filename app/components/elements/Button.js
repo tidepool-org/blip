@@ -68,7 +68,6 @@ Button.propTypes = {
   variant: PropTypes.oneOf([
     'primary',
     'secondary',
-    'tertiary',
     'textPrimary',
     'textSecondary',
     'pagination',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -7,7 +7,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Box, BoxProps } from 'rebass/styled-components';
-import Pagination from './Pagination';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -72,10 +71,6 @@ const StyledTable = styled(Base)`
   .MuiTableCell-stickyHeader {
     color: inherit;
   }
-
-  .MuiTableSortLabel-root {
-    color: inherit;
-  }
 `;
 
 export const Table = props => {
@@ -85,22 +80,16 @@ export const Table = props => {
     id,
     label,
     onFilter,
+    page,
     rowHover,
     rowsPerPage,
     searchText,
     variant,
-    pagination,
-    paginationProps,
     ...tableProps
   } = props;
 
   const [order, setOrder] = useState(props.order || 'asc');
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
-  const [page, setPage] = React.useState(1);
-
-  useEffect(() => {
-    setPage(1);
-  }, [searchText]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -110,10 +99,6 @@ export const Table = props => {
 
   const createSortHandler = (property) => (event) => {
     handleRequestSort(event, property);
-  };
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
   };
 
   const sortedData = stableSort(data, getComparator(order, orderBy));
@@ -127,78 +112,60 @@ export const Table = props => {
     ? filterData(sortedData, searchFields, searchText, onFilter)
     : sortedData;
 
-  const count = Math.ceil(filteredData.length / rowsPerPage);
-
   const pageIndex = page - 1;
   const pagedData = rowsPerPage && rowsPerPage < filteredData.length
     ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage)
     : filteredData;
 
   return (
-    <>
-      <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
-        <TableHead>
-          <TableRow>
-            {map(columns, (col, index) => {
-              const InnerCell = col.sortable ? TableSortLabel : 'span';
-              const colSortBy = (col.sortBy || col.field);
+    <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
+      <TableHead>
+        <TableRow>
+          {map(columns, (col, index) => {
+            const InnerCell = col.sortable ? TableSortLabel : 'span';
 
-              return (
-                <TableCell
-                  id={`${id}-header-${col.field}`}
-                  key={`${id}-header-${col.field}`}
-                  align={col.align || (index === 0 ? 'left' : 'right')}
-                  sortDirection={orderBy === colSortBy ? order : false}
+            return (
+              <TableCell
+                id={`${id}-header-${col.field}`}
+                key={`${id}-header-${col.field}`}
+                align={col.align || index === 0 ? 'left' : 'right'}
+                sortDirection={orderBy === col.field ? order : false}
+              >
+                <Box
+                  as={InnerCell}
+                  active={orderBy === col.field}
+                  direction={orderBy.split('.')[0] === col.field ? order : 'asc'}
+                  onClick={col.sortable ? createSortHandler(col.sortBy || col.field) : noop}
                 >
-                  <Box
-                    as={InnerCell}
-                    active={orderBy === colSortBy}
-                    direction={orderBy.split('.')[0] === colSortBy ? order : 'asc'}
-                    onClick={col.sortable ? createSortHandler(colSortBy) : noop}
-                  >
-                    {col.title}
-                  </Box>
-                </TableCell>
-              );
-            })}
+                  {col.title}
+                </Box>
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {map(pagedData, (d, rowIndex) => (
+          <TableRow
+            id={`${id}-row-${rowIndex}`}
+            key={`${id}-row-${rowIndex}`}
+            hover={rowHover}
+          >
+            {map(columns, (col, index) => (
+              <TableCell
+                id={`${id}-row-${rowIndex}-${col.field}`}
+                key={`${id}-row-${rowIndex}-${col.field}`}
+                component={index === 0 ? 'th' : 'td'}
+                scope={index === 0 ? 'row' : undefined}
+                align={col.align || index === 0 ? 'left' : 'right'}
+              >
+                {isFunction(col.render) ? col.render(d) : d[col.field]}
+              </TableCell>
+            ))}
           </TableRow>
-        </TableHead>
-        <TableBody>
-          {map(pagedData, (d, rowIndex) => (
-            <TableRow
-              id={`${id}-row-${rowIndex}`}
-              key={`${id}-row-${rowIndex}`}
-              hover={rowHover}
-            >
-              {map(columns, (col, index) => (
-                <TableCell
-                  id={`${id}-row-${rowIndex}-${col.field}`}
-                  key={`${id}-row-${rowIndex}-${col.field}`}
-                  component={index === 0 ? 'th' : 'td'}
-                  scope={index === 0 ? 'row' : undefined}
-                  align={col.align || (index === 0 ? 'left' : 'right')}
-                  size={get(col, 'size', 'medium')}
-                  padding={get(col, 'padding', 'default')}
-                >
-                  {isFunction(col.render) ? col.render(d) : d[col.field]}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Box>
-      {pagination && <Pagination
-        id={`${id}-pagination`}
-        page={page}
-        count={count}
-        onChange={handlePageChange}
-        disabled={count < 2}
-        variant="default"
-        buttonVariant="paginationLight"
-        my={3}
-        {...paginationProps}
-      />}
-    </>
+        ))}
+      </TableBody>
+    </Box>
   );
 };
 
@@ -214,8 +181,6 @@ Table.propTypes = {
     searchable: PropTypes.bool,
     searchBy: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
     render: PropTypes.func,
-    size: PropTypes.string,
-    padding: PropTypes.string,
   })).isRequired,
   data: PropTypes.array.isRequired,
   id: PropTypes.string.isRequired,
@@ -223,10 +188,7 @@ Table.propTypes = {
   onFilter: PropTypes.func,
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
-  pagination: PropTypes.bool,
-  paginationProps: PropTypes.object,
   rowHover: PropTypes.bool,
-  rowsPerPage: PropTypes.number,
   searchText: PropTypes.string,
   stickyHeader: PropTypes.bool,
   variant: PropTypes.oneOf(['default', 'condensed']),
@@ -236,9 +198,6 @@ Table.defaultProps = {
   order: 'asc',
   rowHover: true,
   variant: 'default',
-  paginationProps: {
-    style: { fontSize: '14px' },
-  },
 };
 
 export default Table;

@@ -925,31 +925,6 @@ export function deletePrescriptionFailure(error, apiError) {
   };
 }
 
-export function fetchDevicesRequest() {
-  return {
-    type: ActionTypes.FETCH_DEVICES_REQUEST,
-  };
-}
-
-export function fetchDevicesSuccess(devices) {
-  return {
-    type: ActionTypes.FETCH_DEVICES_SUCCESS,
-    payload: {
-      devices: devices,
-    },
-  };
-}
-
-export function fetchDevicesFailure(error, apiError) {
-  return {
-    type: ActionTypes.FETCH_DEVICES_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,
