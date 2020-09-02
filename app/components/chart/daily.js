@@ -27,6 +27,7 @@ import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
+import DeviceSelection from './deviceSelection';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -314,6 +315,11 @@ class Daily extends Component {
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                updateChartPrefs={this.props.updateChartPrefs}
+                deviceIds={_.get(this.props, 'data.metaData.deviceIds')}
               />
             </div>
           </div>

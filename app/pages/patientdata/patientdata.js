@@ -139,6 +139,7 @@ export let PatientData = translate()(createReactClass({
         settings: {
           touched: false,
         },
+        excludedDevices: [],
       },
       printOpts: {
         numDays: {
@@ -1074,6 +1075,7 @@ export let PatientData = translate()(createReactClass({
         'latestPumpUpload',
         'patientId',
         'size',
+        'deviceIds',
       ],
       types: '*',
       raw,
@@ -1172,7 +1174,7 @@ export let PatientData = translate()(createReactClass({
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,deviceIds',
           timePrefs,
           bgPrefs,
         });
@@ -1250,7 +1252,7 @@ export let PatientData = translate()(createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources',
+      metaData: 'bgSources,deviceIds',
     });
 
     if (this.state.queryingData) return;
@@ -1261,6 +1263,7 @@ export let PatientData = translate()(createReactClass({
       chartType: this.state.chartType,
       endpoints: this.state.endpoints,
       metaData: options.metaData,
+      excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
     };
 
     const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
