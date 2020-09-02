@@ -23,6 +23,7 @@ import LogoutOverlay from '../../components/logoutoverlay';
 import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
 import UpdateTypeBanner from '../../components/updatetypebanner';
+import UploaderBanner from '../../components/uploaderbanner';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
@@ -58,6 +59,7 @@ export class AppComponent extends React.Component {
     onDismissDexcomConnectBanner: PropTypes.func.isRequired,
     onDismissShareDataBanner: PropTypes.func,
     onDismissUpdateTypeBanner: PropTypes.func,
+    onDismissUploaderBanner: PropTypes.func,
     onUpdateDataDonationAccounts: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     patient: PropTypes.object,
@@ -74,6 +76,7 @@ export class AppComponent extends React.Component {
     showingShareDataBanner: PropTypes.bool,
     seenShareDataBannerMax: PropTypes.bool,
     showingUpdateTypeBanner: PropTypes.bool,
+    showingUploaderBanner: PropTypes.bool,
     showBanner: PropTypes.func.isRequired,
     hideBanner: PropTypes.func.isRequired,
     termsAccepted: PropTypes.string,
@@ -94,6 +97,7 @@ export class AppComponent extends React.Component {
       donateShowBannerMetricTracked: false,
       shareDataBannerMetricTracked: false,
       updateTypeBannerMetricTracked: false,
+      uploaderBannerMetricTracked: false,
     }
   }
 
@@ -145,8 +149,9 @@ export class AppComponent extends React.Component {
       showingDexcomConnectBanner,
       showingShareDataBanner,
       updateShareDataBannerSeen,
-      showingUpdateTypeBanner,
       seenShareDataBannerMax,
+      showingUpdateTypeBanner,
+      showingUploaderBanner,
       location,
       userHasData,
       userHasConnectedDataSources,
@@ -163,11 +168,27 @@ export class AppComponent extends React.Component {
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
-    const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
+    const showUploaderBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+    let displayUploaderBanner = false;
+
+    if (showingUploaderBanner !== false) {
+      if (showUploaderBanner) {
+        this.props.showBanner('uploader');
+        displayUploaderBanner = true;
+
+        if (this.props.context.trackMetric && !this.state.uploaderShowBannerMetricTracked) {
+          this.props.context.trackMetric('Uploader banner displayed');
+          this.setState({ uploaderShowBannerMetricTracked: true });
+        }
+      } else if (showingUploaderBanner) {
+        this.props.hideBanner('uploader');
+      }
+    }
 
     let displayShareDataBanner = false;
 
-    if (showingShareDataBanner !== false) {
+    if (showingShareDataBanner !== false && !displayUploaderBanner) {
+      const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
       if (showShareDataBanner) {
         this.props.showBanner('sharedata');
         displayShareDataBanner = true;
@@ -184,7 +205,7 @@ export class AppComponent extends React.Component {
 
     let displayDonateBanner = false;
 
-    if (showingDonateBanner !== false && !displayShareDataBanner) {
+    if (showingDonateBanner !== false && !displayUploaderBanner && !displayShareDataBanner) {
       const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
           if (showDonateBanner) {
             this.props.showBanner('donate');
@@ -201,7 +222,7 @@ export class AppComponent extends React.Component {
 
     let displayDexcomConnectBanner = false;
 
-    if (showingDexcomConnectBanner !== false && !displayShareDataBanner && !displayDonateBanner) {
+    if (showingDexcomConnectBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
@@ -216,7 +237,7 @@ export class AppComponent extends React.Component {
       }
     }
 
-    if (showingUpdateTypeBanner !== false && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
+    if (showingUpdateTypeBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
       const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources && !userHasDiabetesType;
       if (showUpdateTypeBanner) {
         this.props.showBanner('updatetype');
@@ -395,6 +416,31 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderUploaderBanner() {
+    this.props.context.log('Rendering uploader banner');
+
+    const {
+      showingUploaderBanner,
+      onClickUploaderBanner,
+      onDismissUploaderBanner,
+      patient,
+    } = this.props;
+
+    if (showingUploaderBanner) {
+      return (
+        <div className="App-uploaderbanner">
+          <UploaderBanner
+            onClick={onClickUploaderBanner}
+            onClose={onDismissUploaderBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderAddEmailBanner() {
     this.props.context.log('Rendering clinician add email banner');
 
@@ -509,6 +555,7 @@ export class AppComponent extends React.Component {
     var dexcombanner = this.renderDexcomConnectBanner();
     var sharedatabanner = this.renderShareDataBanner();
     var updatetypebanner = this.renderUpdateTypeBanner();
+    var uploaderbanner = this.renderUploaderBanner();
     var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
@@ -522,6 +569,7 @@ export class AppComponent extends React.Component {
         {dexcombanner}
         {sharedatabanner}
         {updatetypebanner}
+        {uploaderbanner}
         {this.props.children}
         {footer}
       </div>
@@ -673,6 +721,7 @@ export function mapStateToProps(state) {
     showingShareDataBanner: state.blip.showingShareDataBanner,
     seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
     showingUpdateTypeBanner: state.blip.showingUpdateTypeBanner,
+    showingUploaderBanner: state.blip.showingUploaderBanner,
     userIsCurrentPatient,
     userHasData,
     userHasDiabetesType,
@@ -695,9 +744,11 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
   onDismissShareDataBanner: actions.async.dismissShareDataBanner,
   onDismissUpdateTypeBanner: actions.async.dismissUpdateTypeBanner,
+  onDismissUploaderBanner: actions.async.dismissUploaderBanner,
   onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
   onClickShareDataBanner: actions.async.clickShareDataBanner,
   onClickUpdateTypeBanner: actions.async.clickUpdateTypeBanner,
+  onClickUploaderBanner: actions.async.clickUploaderBanner,
   updateShareDataBannerSeen: actions.async.updateShareDataBannerSeen,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
@@ -725,9 +776,11 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
     onDismissShareDataBanner: dispatchProps.onDismissShareDataBanner.bind(null, api),
     onDismissUpdateTypeBanner: dispatchProps.onDismissUpdateTypeBanner.bind(null, api),
+    onDismissUploaderBanner: dispatchProps.onDismissUploaderBanner.bind(null, api),
     onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
     onClickShareDataBanner: dispatchProps.onClickShareDataBanner.bind(null, api),
     onClickUpdateTypeBanner: dispatchProps.onClickUpdateTypeBanner.bind(null, api),
+    onClickUploaderBanner: dispatchProps.onClickUploaderBanner.bind(null, api),
     updateShareDataBannerSeen: dispatchProps.updateShareDataBannerSeen.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
