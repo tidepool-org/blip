@@ -17,85 +17,44 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
-import cx from 'classnames';
-import { Table, Column, Cell } from 'fixed-data-table-2';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
+import { Flex, Box, Text } from 'rebass/styled-components';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 
-import { SortHeaderCell, SortTypes } from './sortheadercell';
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../modaloverlay';
 
-const TextCell = ({ rowIndex, data, col, icon, ...props }) => (
-  <Cell {...props}>
-    <div className="peopletable-cell">
-      {icon}
-      <div className="peopletable-cell-content">
-        {data[rowIndex][col]}
-      </div>
-    </div>
-  </Cell>
-);
-
-TextCell.propTypes = {
-  col: PropTypes.string,
-  data: PropTypes.array,
-  rowIndex: PropTypes.number,
-  icon: PropTypes.object,
-};
-
-const RemoveLinkCell = ({ rowIndex, data, handleClick, ...props }) => (
-  <Cell {...props}>
-    <div onClick={(e) => e.stopPropagation()} className="peopletable-cell remove">
-      <i onClick={handleClick(data[rowIndex], rowIndex)} className="peopletable-icon-remove icon-delete"></i>
-    </div>
-  </Cell>
-);
-
-RemoveLinkCell.propTypes = {
-  data: PropTypes.array,
-  rowIndex: PropTypes.number,
-  handleClick: PropTypes.func,
-};
-
-RemoveLinkCell.displayName = 'RemoveLinkCell';
+import Table from '../elements/Table';
+import Icon from '../elements/Icon';
 
 export const PeopleTable = translate()(class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.getRowClassName = this.getRowClassName.bind(this);
-    this.handleFilterChange = this.handleFilterChange.bind(this);
     this.handleOverlayClick = this.handleOverlayClick.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleRemovePatient = this.handleRemovePatient.bind(this);
-    this.handleRowClick = this.handleRowClick.bind(this);
-    this.handleSortChange = this.handleSortChange.bind(this);
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
+    this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.handleClickPwD = this.handleClickPwD.bind(this);
+    this.handleClickEdit = this.handleClickEdit.bind(this);
 
     this.state = {
-      currentRowIndex: -1,
-      searching: false,
       showNames: false,
       dataList: this.buildDataList(),
-      colSortDirs: {
-        fullNameOrderable: SortTypes.ASC,
-      },
       showModalOverlay: false,
       dialog: '',
       tableHeight: 590,
+      search:'',
     };
 
     WindowSizeListener.DEBOUNCE_TIME = 50;
-  }
-
-  componentDidMount() {
-    //setup default sorting but don't track via metrics
-    this.handleSortChange('fullNameOrderable', SortTypes.ASC, false);
   }
 
   //nextProps contains list of people being watched
@@ -122,58 +81,11 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         birthday: bday,
         birthdayOrderable: new Date(bday),
         userid: person.userid,
+        email: _.get(person, 'emails[0]'),
       };
     });
 
-    return _.orderBy(
-      list,
-      ['fullNameOrderable'],
-      _.get(this.state, 'colSortDirs.fullNameOrderable', [SortTypes.ASC])
-    );
-  }
-
-  handleFilterChange(e) {
-    if (_.isEmpty(e.target.value)) {
-      this.setState({
-        searching: false,
-        dataList: this.buildDataList(),
-      });
-      return;
-    }
-
-    const filterBy = e.target.value.toLowerCase();
-
-    const filtered = _.filter(this.buildDataList(), (person) => {
-      return _.get(person, 'fullName', '').toLowerCase().indexOf(filterBy) !== -1;
-    });
-
-    this.setState({
-      searching: true,
-      dataList: filtered,
-    });
-  }
-
-  handleSortChange(columnKey, sortDir, track) {
-    const sorted = _.orderBy(this.state.dataList, [columnKey], [sortDir]);
-
-    if (track) {
-      let metricMessage = 'Sort by ';
-
-      if (columnKey === 'fullNameOrderable') {
-        metricMessage += 'Name';
-      } else if (columnKey === 'birthdayOrderable') {
-        metricMessage += 'Birthday';
-      }
-      metricMessage += ` ${sortDir}`;
-      this.props.trackMetric(metricMessage);
-    }
-
-    this.setState({
-      dataList: sorted,
-      colSortDirs: {
-        [columnKey]: sortDir,
-      },
-    });
+    return list;
   }
 
   renderSearchBar() {
@@ -186,7 +98,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         <input
           type="search"
           className="peopletable-search-box form-control-border"
-          onChange={this.handleFilterChange}
+          onChange={this.handleSearchChange}
           placeholder={t('Search by Name')}
         />
       </div>
@@ -194,7 +106,6 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 
   handleToggleShowNames() {
-
     let toggleLabel = 'Clicked Hide All';
     if ( !this.state.showNames ){
       toggleLabel = 'Clicked Show All';
@@ -214,22 +125,11 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
     return (
       <div className="peopletable-names-toggle-wrapper">
-        <a className="peopletable-names-toggle" disabled={this.state.searching} onClick={this.handleToggleShowNames}>
+        <a className="peopletable-names-toggle" disabled={this.state.search} onClick={this.handleToggleShowNames}>
           {toggleLabel}
         </a>
       </div>
     );
-  }
-
-  getRowClassName(rowIndex) {
-    return cx({
-      'peopletable-active-row': rowIndex === this.state.currentRowIndex,
-    });
-  }
-
-  handleRowClick(e, rowIndex) {
-    this.props.trackMetric('Selected PwD');
-    this.props.push(this.state.dataList[rowIndex].link);
   }
 
   renderPeopleInstructions() {
@@ -242,11 +142,12 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   renderRemoveDialog(patient) {
     const { t } = this.props;
+    const fullName = patient.fullName;
     return (
       <div className="patient-remove-dialog">
         <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
           <p>
-            Are you sure you want to remove this patient from your list?
+            Are you sure you want to remove patient: {{fullName}} from your list?
           </p>
           <p>
             You will no longer be able to see or comment on their data.
@@ -257,7 +158,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
             {t('Cancel')}
           </button>
           <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
-          {t('Remove')}
+            {t('Remove')}
           </button>
         </div>
       </div>
@@ -275,9 +176,8 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleRemovePatient(patient) {
     return () => {
-      this.props.onRemovePatient(patient.userid, function (err) {
+      this.props.onRemovePatient(patient.userid, (err) => {
         this.setState({
-          currentRowIndex: -1,
           showModalOverlay: false,
         });
       });
@@ -286,10 +186,9 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     };
   }
 
-  handleRemove(patient, rowIndex) {
+  handleRemove(patient) {
     return () => {
       this.setState({
-        currentRowIndex: rowIndex,
         showModalOverlay: true,
         dialog: this.renderRemoveDialog(patient)
       });
@@ -299,9 +198,47 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   handleOverlayClick() {
     this.setState({
       showModalOverlay: false,
-      currentRowIndex: -1,
     });
   }
+
+  handleClickPwD(link) {
+    return () => {
+      this.props.trackMetric('Selected PwD');
+      this.props.push(link);
+    }
+  }
+
+  handleClickEdit(patient) {
+    return () => {
+      this.props.trackMetric('Clicked Edit PwD');
+      this.props.push(`/patients/${patient.userid}/profile#edit`);
+    }
+  }
+
+  handleSearchChange(event) {
+    this.setState({search: event.target.value});
+  }
+
+  renderPatient = ({fullName, email, link}) => (
+    <Box onClick={this.handleClickPwD(link)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{fullName}</Text>
+      <Text>{email || '\u00A0'}</Text>
+    </Box>
+  );
+
+  renderBirthday = ({birthday, link}) => (
+    <Box onClick={this.handleClickPwD(link)} sx={{ cursor: 'pointer' }}>
+      <Text fontWeight="medium">{birthday}</Text>
+    </Box>
+  );
+
+  renderEdit = (patient) => (
+    <Icon icon={EditIcon} label={'Edit'} variant={'button'} onClick={this.handleClickEdit(patient)} />
+  );
+
+  renderRemove = (patient) => (
+    <Icon icon={DeleteIcon} label={'Remove'} variant={'button'} onClick={this.handleRemove(patient)} />
+  );
 
   handleWindowResize(windowSize) {
     let tableWidth = 880;
@@ -323,75 +260,63 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 
   renderPeopleTable() {
-    const { t } = this.props;
-    const { colSortDirs, dataList, tableWidth, tableHeight } = this.state;
+    const columns = [
+      {
+        title: 'Patient',
+        field: 'profile',
+        align: 'left',
+        sortable: true,
+        sortBy: 'fullNameOrderable',
+        render: this.renderPatient,
+        searchable: true,
+        searchBy: ['fullName', 'email'],
+      },
+      {
+        title: 'Birthday',
+        field: 'birthday',
+        align: 'left',
+        sortable: true,
+        sortBy: 'birthdayOrderable',
+        render: this.renderBirthday,
+      },
+      {
+        title: 'Edit',
+        field: 'edit',
+        render: this.renderEdit,
+        align: 'center',
+        size: 'small',
+        padding: 'checkbox',
+      },
+      {
+        title: 'Remove',
+        field: 'remove',
+        render: this.renderRemove,
+        align: 'center',
+        size: 'small',
+        padding: 'checkbox',
+      },
+    ];
 
     return (
       <Table
-        rowHeight={65}
-        headerHeight={50}
-        width={tableWidth}
-        height={tableHeight}
-        rowsCount={dataList.length}
-        rowClassNameGetter={this.getRowClassName}
-        onRowClick={this.handleRowClick}
-        {...this.props}
-      >
-        <Column
-          columnKey="fullNameOrderable"
-          header={
-            <SortHeaderCell
-              onSortChange={this.handleSortChange}
-              sortDir={colSortDirs.fullNameOrderable}
-            >
-              {t('NAME')}
-            </SortHeaderCell>
-          }
-          cell={<TextCell
-            className="fullName"
-            data={dataList}
-            col="fullName"
-            icon={<i className="peopletable-icon-profile icon-profile"></i>}
-          />}
-          width={20}
-          flexGrow={1}
-        />
-
-        <Column
-          columnKey="birthdayOrderable"
-          header={
-            <SortHeaderCell
-              onSortChange={this.handleSortChange}
-              sortDir={colSortDirs.birthdayOrderable}
-            >
-              {t('BIRTHDAY')}
-            </SortHeaderCell>
-          }
-          cell={<TextCell
-            data={dataList}
-            col="birthday"
-          />}
-          width={120}
-          flexGrow={0}
-        />
-
-        <Column
-          columnKey="remove"
-          cell={<RemoveLinkCell
-            data={dataList}
-            handleClick={this.handleRemove.bind(this)}
-          />}
-          width={30}
-          flexGrow={0}
-        />
-      </Table>
-    )
+        id={'peopleTable'}
+        label={'peopletablelabel'}
+        columns={columns}
+        data={this.state.dataList}
+        orderBy="fullNameOrderable"
+        order="asc"
+        searchText={this.state.search}
+        rowsPerPage={8}
+        pagination={true}
+        style={{fontSize:'14px'}}
+      />
+    );
   }
 
   renderPeopleArea() {
-    const { showNames, searching } = this.state;
+    const { showNames, search } = this.state;
 
-    if (!showNames && !searching) {
+    if (!showNames && !search) {
       return this.renderPeopleInstructions();
     } else {
       return this.renderPeopleTable();
