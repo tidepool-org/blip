@@ -14,6 +14,7 @@ import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
+import DeviceSelection from './deviceSelection';
 
 import {
   components as vizComponents,
@@ -461,6 +462,11 @@ const Trends = translate()(class Trends extends PureComponent {
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
                 stats={statsToRender}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                updateChartPrefs={this.props.updateChartPrefs}
+                deviceIds={_.get(this.props, 'data.metaData.deviceIds')}
               />
             </div>
           </div>

@@ -19,6 +19,7 @@ import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
+import DeviceSelection from './deviceSelection';
 
 class Basics extends Component {
   static propTypes = {
@@ -112,6 +113,11 @@ class Basics extends Component {
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
                   stats={statsToRender}
+                />
+                <DeviceSelection
+                  chartPrefs={this.props.chartPrefs}
+                  updateChartPrefs={this.props.updateChartPrefs}
+                  deviceIds={_.get(this.props, 'data.metaData.deviceIds')}
                 />
               </div>
             </div>
