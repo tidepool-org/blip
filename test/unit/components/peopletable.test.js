@@ -110,8 +110,8 @@ describe('PeopleTable', () => {
       expect(wrapper.find('.peopletable-instructions').hostNodes()).to.have.length(1);
     });
 
-    it('should default search to an empty string and showNames to be false', function () {
-      expect(wrapper.instance().getWrappedInstance().state.search).to.equal('');
+    it('should default searching and showNames to be false', function () {
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(false);
       expect(wrapper.instance().getWrappedInstance().state.showNames).to.equal(false);
     });
   });
@@ -121,7 +121,7 @@ describe('PeopleTable', () => {
       wrapper.find('.peopletable-names-toggle').simulate('click');
       wrapper.setState({ showNames: true });
       // 5 people plus one row for the header
-      expect(wrapper.find('.MuiTableRow-root')).to.have.length(6);
+      expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
 
     it('should trigger a call to trackMetric', function () {
@@ -138,21 +138,21 @@ describe('PeopleTable', () => {
 
   describe('searching', function () {
     it('should show a row of data for each person', function () {
-      wrapper.instance().getWrappedInstance().setState({ showNames: true, search: '' });
+      wrapper.instance().getWrappedInstance().setState({ searching: true });
       wrapper.update();
       // 5 people plus one row for the header
-      expect(wrapper.find('.MuiTableRow-root')).to.have.length(6);
+      expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(6);
     });
 
     it('should show a row of data for each person that matches the search value', function () {
       // showing `amanda` or `Anna`
       wrapper.find('input').simulate('change', {target: {value: 'a'}});
-      expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
-      expect(wrapper.instance().getWrappedInstance().state.search).to.equal('a');
+      expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(3);
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(true);
       // now just showing `amanda`
       wrapper.find('input').simulate('change', {target: {value: 'am'}});
-      expect(wrapper.find('.MuiTableRow-root')).to.have.length(2);
-      expect(wrapper.instance().getWrappedInstance().state.search).to.equal('am');
+      expect(wrapper.find('.public_fixedDataTableRow_main')).to.have.length(2);
+      expect(wrapper.instance().getWrappedInstance().state.searching).to.equal(true);
     });
 
     it('should NOT trigger a call to trackMetric', function () {
@@ -172,7 +172,7 @@ describe('PeopleTable', () => {
     });
 
     it('should have a remove icon for each patient', function () {
-      expect(wrapper.find('span[aria-label="Remove"]')).to.have.length(5);
+      expect(wrapper.find('.peopletable-icon-remove')).to.have.length(5);
     });
 
     it('should show open a modal for removing a patient when their remove icon is clicked', function () {
@@ -184,7 +184,7 @@ describe('PeopleTable', () => {
       expect(overlay().is('.ModalOverlay--show')).to.be.false;
 
       // Click the remove link for the last patient
-      const removeLink = wrapper.find('span[aria-label="Remove"]').last();
+      const removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
       const handleRemoveSpy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleRemove');
       sinon.assert.notCalled(handleRemoveSpy);
       removeLink.simulate('click');
@@ -192,12 +192,18 @@ describe('PeopleTable', () => {
 
       // Ensure the currentRowIndex is set to highlight the proper patient
       const state = (key) => wrapper.instance().getWrappedInstance().state[key];
+      const currentRow = state('currentRowIndex');
+      expect(currentRow).to.equal(4);
+      const activeRow = wrapper.find('.peopletable-active-row').hostNodes();
+      expect(activeRow).to.have.length(1);
+      expect(activeRow.html()).to.contain('Zoe Doe');
 
       // Ensure the renderRemoveDialog method is called with the correct patient
       // Since we've clicked the last one, and the default sort is fullName alphabetically,
       // it should be 'Zoe Doe'
       sinon.assert.callCount(renderRemoveDialog, 1);
-      sinon.assert.calledWithMatch(renderRemoveDialog, {fullName: 'Zoe Doe'});
+      sinon.assert.calledWith(renderRemoveDialog, state('dataList')[currentRow]);
+      expect(state('dataList')[currentRow].fullName).to.equal('Zoe Doe');
 
       // Ensure the modal is showing
       expect(overlay().is('.ModalOverlay--show')).to.be.true;
@@ -213,7 +219,7 @@ describe('PeopleTable', () => {
       wrapper.find('.peopletable-names-toggle').simulate('click');
       overlay = () => wrapper.find('.ModalOverlay');
 
-      removeLink = wrapper.find('span[aria-label="Remove"]').last();
+      removeLink = wrapper.find('RemoveLinkCell').last().find('i.peopletable-icon-remove');
       removeLink.simulate('click');
     });
 
@@ -249,11 +255,13 @@ describe('PeopleTable', () => {
 
   describe('handleRemove', function (){
     let patient;
+    let rowIndex;
     let proxy;
 
     beforeEach(function () {
       patient = wrapper.instance().getWrappedInstance().state.dataList[0];
-      proxy = wrapper.instance().getWrappedInstance().handleRemove(patient);
+      rowIndex = 4;
+      proxy = wrapper.instance().getWrappedInstance().handleRemove(patient, rowIndex);
     });
 
     it('should return a proxy function', function () {
@@ -262,11 +270,13 @@ describe('PeopleTable', () => {
 
     it('should set the modal and currentRowIndex state appropriately when called', function () {
       const state = key => wrapper.instance().getWrappedInstance().state[key];
+      expect(state('currentRowIndex')).to.equal(-1);
       expect(state('showModalOverlay')).to.be.false;
       expect(state('dialog')).to.equal('');
 
       proxy();
 
+      expect(state('currentRowIndex')).to.equal(rowIndex);
       expect(state('showModalOverlay')).to.be.true;
       expect(state('dialog')).to.be.an('object');
     });

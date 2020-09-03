@@ -955,7 +955,6 @@ export let PatientData = translate()(createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.bgExtents);
         break;
 
       case 'daily':
@@ -984,7 +983,6 @@ export let PatientData = translate()(createReactClass({
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.bgExtents);
         break;
     }
 

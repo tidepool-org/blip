@@ -1,20 +1,3 @@
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
 import _ from 'lodash';
 import sundial from 'sundial';
 import async from 'async';
@@ -328,12 +311,11 @@ export function setupDataStorage(api, patient) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
-export function removeMembershipInOtherCareTeam(api, patientId, cb = _.noop) {
+export function removeMembershipInOtherCareTeam(api, patientId) {
   return (dispatch) => {
     dispatch(sync.removeMembershipInOtherCareTeamRequest());
 
     api.access.leaveGroup(patientId, (err) => {
-      cb(err);
       if (err) {
         dispatch(sync.removeMembershipInOtherCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err
@@ -1173,27 +1155,6 @@ export function deletePrescription(api, prescriptionId) {
 }
 
 /**
- * Fetch Devices Action Creator
- *
- * @param  {Object} api - an instance of the API wrapper
- */
-export function fetchDevices(api) {
-  return (dispatch) => {
-    dispatch(sync.fetchDevicesRequest());
-
-    api.devices.getAll((err, devices) => {
-      if (err) {
-        dispatch(sync.fetchDevicesFailure(
-          createActionError(ErrorMessages.ERR_FETCHING_DEVICES, err), err
-        ));
-      } else {
-        dispatch(sync.fetchDevicesSuccess(devices));
-      }
-    });
-  };
-}
-
-/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1403,6 +1364,44 @@ export function clickUpdateTypeBanner(api, patientId, clickedDate) {
 
     const preferences = {
       clickedUpdateTypeBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Dismiss Uploader Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissUploaderBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('uploader'));
+
+    const preferences = {
+      dismissedUploaderBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Uploader Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickUploaderBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('uploader'));
+
+    const preferences = {
+      clickedUploaderBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));

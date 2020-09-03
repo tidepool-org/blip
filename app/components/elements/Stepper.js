@@ -60,7 +60,6 @@ export const Stepper = props => {
     backText,
     children,
     completeText,
-    disableDefaultStepHandlers,
     id,
     history,
     location,
@@ -88,12 +87,11 @@ export const Stepper = props => {
     }
   };
 
+  setInitialActiveStepFromParams();
+
   const [transitioningToStep, setTransitioningToStep] = React.useState();
   const [activeStep, setActiveStep] = React.useState(initialActiveStep);
   const [activeSubStep, setActiveSubStep] = React.useState(initialActiveSubStep);
-  const [pendingStep, setPendingStep] = React.useState([]);
-  const [skipped, setSkipped] = React.useState(new Set());
-  const [processing, setProcessing] = React.useState(false);
   const prevActiveStep = usePrevious(activeStep);
 
   React.useEffect(() => {
@@ -123,6 +121,10 @@ export const Stepper = props => {
     setActiveStep(activeStepProp);
     setActiveSubStep(activeSubStepProp);
   }, [activeStepProp, activeSubStepProp]);
+
+  const [skipped, setSkipped] = React.useState(new Set());
+  const [processing, setProcessing] = React.useState(false);
+  const [pendingStep, setPendingStep] = React.useState([]);
 
   const isHorizontal = variant === 'horizontal';
   const isStepOptional = stepIndex => steps[stepIndex].optional;
@@ -162,9 +164,13 @@ export const Stepper = props => {
   };
 
   const handleActiveStepOnComplete = () => {
+    let advanceStep = true;
+
     if (isFunction(steps[activeStep].onComplete)) {
-      steps[activeStep].onComplete();
+      advanceStep = steps[activeStep].onComplete() !== false;
     }
+
+    return advanceStep;
   };
 
   const completeAsyncStep = () => {
@@ -248,21 +254,22 @@ export const Stepper = props => {
     setSkipped(newSkipped);
 
     if (stepHasSubSteps(activeStep)) {
+      let advanceSubStep = true;
       if (isFunction(steps[activeStep].subSteps[activeSubStep].onComplete)) {
-        steps[activeStep].subSteps[activeSubStep].onComplete();
+        advanceSubStep = steps[activeStep].subSteps[activeSubStep].onComplete() !== false;
       }
       if (activeSubStep < steps[activeStep].subSteps.length - 1) {
-        if (!disableDefaultStepHandlers) setActiveSubStep(activeSubStep + 1);
+        if (advanceSubStep) setActiveSubStep(activeSubStep + 1);
       } else {
         if (!pending) {
-          handleActiveStepOnComplete();
-          if (!disableDefaultStepHandlers) advanceActiveStep();
+          const advanceStep = handleActiveStepOnComplete();
+          if (advanceStep) advanceActiveStep();
         }
       }
     } else {
       if (!pending) {
-        handleActiveStepOnComplete();
-        if (!disableDefaultStepHandlers) advanceActiveStep();
+        const advanceStep = handleActiveStepOnComplete();
+        if (advanceStep) advanceActiveStep();
       }
     }
   };
@@ -273,13 +280,13 @@ export const Stepper = props => {
         steps[activeStep].subSteps[activeSubStep].onBack();
       }
 
-      if (activeSubStep > 0 && !disableDefaultStepHandlers) {
+      if (activeSubStep > 0) {
         setActiveSubStep(activeSubStep - 1);
         return;
       }
     }
 
-    if (activeStep > 0 && !disableDefaultStepHandlers) {
+    if (activeStep > 0) {
       const newActiveStep = activeStep - 1;
       setActiveStep(newActiveStep);
       setActiveSubStep(stepHasSubSteps(newActiveStep)
@@ -293,7 +300,7 @@ export const Stepper = props => {
   };
 
   const handleSkip = () => {
-    if (!disableDefaultStepHandlers) advanceActiveStep();
+    advanceActiveStep();
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
@@ -446,7 +453,6 @@ Stepper.propTypes = {
   activeSubStep: PropTypes.number,
   backText: PropTypes.string,
   completeText: PropTypes.string,
-  disableDefaultStepHandlers: PropTypes.bool,
   history: PropTypes.shape({
     pushState: PropTypes.func.isRequired,
   }),
@@ -475,7 +481,6 @@ Stepper.propTypes = {
 Stepper.defaultProps = {
   backText: t('Back'),
   completeText: t('Continue'),
-  disableDefaultStepHandlers: false,
   history: window.history,
   location: window.location,
   skipText: t('Skip'),

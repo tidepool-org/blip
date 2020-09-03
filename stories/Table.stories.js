@@ -14,6 +14,7 @@ import baseTheme from '../app/themes/baseTheme';
 import Table from '../app/components/elements/Table';
 import Avatar from '../app/components/elements/Avatar';
 import TextInput from '../app/components/elements/TextInput';
+import Pagination from '../app/components/elements/Pagination';
 import Select from '../app/components/elements/Select';
 import Button from '../app/components/elements/Button';
 import Icon from '../app/components/elements/Icon';
@@ -126,64 +127,28 @@ const background = () => options('Background Color', backgrounds, 'transparent',
 
 export const Simple = () => {
   const [searchText, setSearchText] = useState();
-
-  function handleSearchChange(event) {
-    setSearchText(event.target.value);
-  }
-
-  return (
-    <React.Fragment>
-      <Flex my={3} justifyContent="flex-end" flexGrow>
-        <TextInput
-          themeProps={{
-            width: 'auto',
-            minWidth: '250px',
-          }}
-          placeholder="enter search text"
-          icon={SearchIcon}
-          label="Search clinicians"
-          name="search"
-          onChange={handleSearchChange}
-          variant="condensed"
-        />
-      </Flex>
-      <Table
-        label="Sample clinician list"
-        id="my-table"
-        stickyHeader={stickyHeader()}
-        rowHover={rowHover()}
-        variant={variant()}
-        data={data}
-        columns={columns}
-        bg={background()}
-        searchText={searchText}
-        orderBy="patient.name"
-        order="asc"
-      />
-    </React.Fragment>
-  );
-};
-
-Simple.story = {
-  name: 'Simple',
-  parameters: {
-    design: {
-      type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=4%3A993',
-    },
-  },
-};
-
-export const Paged = () => {
-  const [searchText, setSearchText] = useState();
+  const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(3);
 
+  const getPageCount = rowCount => Math.ceil(rowCount / rowsPerPage);
+  const [count, setCount] = React.useState(getPageCount(data.length));
+
   function handleSearchChange(event) {
     setSearchText(event.target.value);
+    setPage(1);
   }
 
   const handleRowsPerPageChange = event => {
+    setPage(1);
     setRowsPerPage(+event.target.value);
+  };
+
+  const handlePageChange = (event, newValue) => {
+    setPage(newValue);
+  };
+
+  const handleFilterChange = filteredData => {
+    setCount(getPageCount(filteredData.length));
   };
 
   const rowsPerPageOptions = [
@@ -231,17 +196,27 @@ export const Paged = () => {
         columns={columns}
         bg={background()}
         searchText={searchText}
+        onFilter={handleFilterChange}
+        page={page}
         rowsPerPage={rowsPerPage}
         orderBy="patient.name"
         order="asc"
-        pagination
+      />
+      <Pagination
+        id="my-paginator`"
+        page={page}
+        count={count}
+        onChange={handlePageChange}
+        disabled={count < 2}
+        variant="default"
+        my={3}
       />
     </React.Fragment>
   );
 };
 
-Paged.story = {
-  name: 'Paged',
+Simple.story = {
+  name: 'Simple',
   parameters: {
     design: {
       type: 'figma',
