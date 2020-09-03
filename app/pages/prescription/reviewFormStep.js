@@ -4,6 +4,8 @@ import { translate } from 'react-i18next';
 import { FastField } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import find from 'lodash/find';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
@@ -12,7 +14,7 @@ import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
-import { stepValidationFields, warningThresholds } from './prescriptionFormConstants';
+import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -109,7 +111,7 @@ const therapySettingsRows = (pump, meta) => {
     {
       id: 'insulin-model',
       label: t('Insulin Model'),
-      value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
+      value: get(find(insulinModelOptions, { value: meta.initialSettings.insulinModel.value }), 'label', ''),
     },
     {
       id: 'basal-schedule',

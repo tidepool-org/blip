@@ -234,8 +234,8 @@ export const trainingOptions = [
 ];
 
 export const insulinModelOptions = [
-  { value: 'rapidAdult', label: t('Rapid Acting Adult') },
-  { value: 'rapidChild', label: t('Rapid Acting Child') },
+  { value: 'rapidAdult', label: t('Rapid Acting - Adult') },
+  { value: 'rapidChild', label: t('Rapid Acting - Child') },
 ];
 
 export const validCountryCodes = [1];
