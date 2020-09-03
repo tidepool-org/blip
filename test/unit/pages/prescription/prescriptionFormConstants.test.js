@@ -299,9 +299,7 @@ describe('prescriptionFormConstants', function() {
       const meta = {
         initialSettings: {
           bloodGlucoseSuspendThreshold: {
-            value: {
-              value: 78,
-            },
+            value: 78,
           },
         },
       };

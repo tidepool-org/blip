@@ -88,13 +88,10 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       insulinModel: yup.string()
         .oneOf(map(insulinModelOptions, 'value'))
         .required(t('An insulin model must be specified')),
-      bloodGlucoseSuspendThreshold: yup.object().shape({
-        value: yup.number()
-          .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
-          .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
-          .required(t('Suspend threshold is required')),
-        units: yup.string().default(bgUnits),
-      }),
+      bloodGlucoseSuspendThreshold: yup.number()
+        .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
+        .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
+        .required(t('Suspend threshold is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)

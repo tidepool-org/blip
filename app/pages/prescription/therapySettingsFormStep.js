@@ -124,11 +124,11 @@ export const GlucoseSettings = props => {
         <FastField
           as={TextInput}
           type="number"
-          id="initialSettings.bloodGlucoseSuspendThreshold.value"
-          name="initialSettings.bloodGlucoseSuspendThreshold.value"
+          id="initialSettings.bloodGlucoseSuspendThreshold"
+          name="initialSettings.bloodGlucoseSuspendThreshold"
           suffix={bgUnits}
-          error={getFieldError(meta.initialSettings.bloodGlucoseSuspendThreshold.value)}
-          warning={getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value.value, thresholds.bloodGlucoseSuspendThreshold)}
+          error={getFieldError(meta.initialSettings.bloodGlucoseSuspendThreshold)}
+          warning={getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value, thresholds.bloodGlucoseSuspendThreshold)}
           {...ranges.bloodGlucoseSuspendThreshold}
           {...{ ...inputStyles, themeProps: { mb: 3 }}}
         />

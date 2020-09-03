@@ -76,7 +76,7 @@ export const defaultUnits = {
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
-  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value.value');
+  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
   let minBloodGlucoseTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
 
   if (isNumber(bloodGlucoseSuspendThreshold)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
@@ -255,7 +255,7 @@ export const stepValidationFields = [
   [
     [
       'training',
-      'initialSettings.bloodGlucoseSuspendThreshold.value',
+      'initialSettings.bloodGlucoseSuspendThreshold',
       'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',

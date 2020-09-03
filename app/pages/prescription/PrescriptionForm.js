@@ -75,10 +75,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         pumpId: selectedPumpId || '',
         cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
         insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-        bloodGlucoseSuspendThreshold: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold.value', ''),
-          units: defaultUnits.bloodGlucoseSuspendThreshold,
-        },
+        bloodGlucoseSuspendThreshold: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ''),
         basalRateMaximum: {
           value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
           units: defaultUnits.basalRate,
@@ -89,7 +86,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
           context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold.value', ranges.bloodGlucoseTarget.min),
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ranges.bloodGlucoseTarget.min),
           },
           high: '',
           low: '',
@@ -249,7 +246,7 @@ export const PrescriptionForm = props => {
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
   // Update minimum blood glucose target values when bloodGlucoseSuspendThreshold changes
-  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value.value');
+  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
   const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
   React.useEffect(() => {
     each(bloodGlucoseTargetSchedule, (schedule, i) => {

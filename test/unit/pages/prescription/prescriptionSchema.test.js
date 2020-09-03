@@ -49,11 +49,6 @@ describe('prescriptionSchema', function() {
       'insulinSensitivitySchedule',
     ]);
 
-    expect(schema.fields.initialSettings.fields.bloodGlucoseSuspendThreshold._nodes).to.be.an('array').and.have.members([
-      'value',
-      'units',
-    ]);
-
     expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([
       'value',
       'units',
