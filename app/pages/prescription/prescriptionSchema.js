@@ -38,7 +38,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
-    suspendThreshold: `Threshold out of range. Please select a value between ${ranges.suspendThreshold.min}-${ranges.suspendThreshold.max}`,
+    bloodGlucoseSuspendThreshold: `Threshold out of range. Please select a value between ${ranges.bloodGlucoseSuspendThreshold.min}-${ranges.bloodGlucoseSuspendThreshold.max}`,
   };
 
   return yup.object().shape({
@@ -88,10 +88,10 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       insulinModel: yup.string()
         .oneOf(map(insulinModelOptions, 'value'))
         .required(t('An insulin model must be specified')),
-      suspendThreshold: yup.object().shape({
+      bloodGlucoseSuspendThreshold: yup.object().shape({
         value: yup.number()
-          .min(ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-          .max(ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
+          .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
+          .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
           .required(t('Suspend threshold is required')),
         units: yup.string().default(bgUnits),
       }),

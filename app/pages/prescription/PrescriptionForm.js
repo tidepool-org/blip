@@ -75,9 +75,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         pumpId: selectedPumpId || '',
         cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
         insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-        suspendThreshold: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-          units: defaultUnits.suspendThreshold,
+        bloodGlucoseSuspendThreshold: {
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold.value', ''),
+          units: defaultUnits.bloodGlucoseSuspendThreshold,
         },
         basalRateMaximum: {
           value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
@@ -89,7 +89,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
           context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ranges.bloodGlucoseTarget.min),
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold.value', ranges.bloodGlucoseTarget.min),
           },
           high: '',
           low: '',
@@ -248,14 +248,14 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
-  // Update minimum blood glucose target values when suspendThreshold changes
-  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  // Update minimum blood glucose target values when bloodGlucoseSuspendThreshold changes
+  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value.value');
   const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
   React.useEffect(() => {
     each(bloodGlucoseTargetSchedule, (schedule, i) => {
-      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, bloodGlucoseSuspendThreshold);
     });
-  }, [suspendThreshold]);
+  }, [bloodGlucoseSuspendThreshold]);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = []) => {

@@ -103,8 +103,8 @@ const therapySettingsRows = (pump, meta) => {
     {
       id: 'suspend-threshold',
       label: t('Suspend Threshold'),
-      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+      value: `${meta.initialSettings.bloodGlucoseSuspendThreshold.value.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value.value, thresholds.bloodGlucoseSuspendThreshold)
     },
     {
       id: 'insulin-model',
