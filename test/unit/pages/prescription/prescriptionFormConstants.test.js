@@ -88,9 +88,10 @@ describe('prescriptionFormConstants', function() {
   it('should export the default units', () => {
     expect(prescriptionFormConstants.defaultUnits).to.eql({
       basalRate: 'Units/hour',
+      bloodGlucose: 'mg/dL',
+      bloodGlucoseSuspendThreshold: MGDL_UNITS,
       bolusAmount: 'Units',
       insulinCarbRatio: 'g/U',
-      bloodGlucose: 'mg/dL',
     });
   });
 

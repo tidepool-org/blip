@@ -68,9 +68,9 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
 export const defaultUnits = {
   basalRate: 'Units/hour',
   bloodGlucose: MGDL_UNITS,
+  bloodGlucoseSuspendThreshold: MGDL_UNITS,
   bolusAmount: 'Units',
   insulinCarbRatio: 'g/U',
-  bloodGlucoseSuspendThreshold: MGDL_UNITS,
 };
 
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
