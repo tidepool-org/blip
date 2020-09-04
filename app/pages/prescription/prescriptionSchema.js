@@ -11,7 +11,7 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  // insulinModelOptions,
+  insulinModelOptions,
   pumpRanges,
   // typeOptions,
   sexOptions,
@@ -38,7 +38,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
-    suspendThreshold: `Threshold out of range. Please select a value between ${ranges.suspendThreshold.min}-${ranges.suspendThreshold.max}`,
+    bloodGlucoseSuspendThreshold: `Threshold out of range. Please select a value between ${ranges.bloodGlucoseSuspendThreshold.min}-${ranges.bloodGlucoseSuspendThreshold.max}`,
   };
 
   return yup.object().shape({
@@ -85,16 +85,13 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       cgmId: yup.string()
         .oneOf(map(deviceOptions.cgms, 'value'))
         .required(t('A cgm type must be specified')),
-      // insulinModel: yup.string()
-      //   .oneOf(map(insulinModelOptions, 'value'))
-      //   .required(t('An insulin model must be specified')),
-      suspendThreshold: yup.object().shape({
-        value: yup.number()
-          .min(ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-          .max(ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
-          .required(t('Suspend threshold is required')),
-        units: yup.string().default(bgUnits),
-      }),
+      insulinModel: yup.string()
+        .oneOf(map(insulinModelOptions, 'value'))
+        .required(t('An insulin model must be specified')),
+      bloodGlucoseSuspendThreshold: yup.number()
+        .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
+        .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
+        .required(t('Suspend threshold is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)
