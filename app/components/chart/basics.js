@@ -58,12 +58,9 @@ class Basics extends Component {
 
   getInitialState = () => ({
     atMostRecent: true,
-    availableDevices: this.getRenderedDevices(this.props),
     inTransition: false,
     title: this.getTitle(),
   });
-
-  getRenderedDevices = (props) => _.uniq(_.map(_.get(props, 'data.data.combined', []), d => d.deviceId));
 
   render = () => {
     const { t } = this.props;
@@ -121,10 +118,7 @@ class Basics extends Component {
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   updateChartPrefs={this.props.updateChartPrefs}
-                  devices={_.filter(
-                    _.get(this.props, 'data.metaData.devices', []),
-                    device => _.includes(this.state.availableDevices, device.id)
-                  )}
+                  devices={_.get(this.props, 'data.metaData.devices', [])}
                 />
               </div>
             </div>
