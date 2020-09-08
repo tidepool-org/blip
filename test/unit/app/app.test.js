@@ -143,7 +143,7 @@ describe('App', () => {
       onDismissUploaderBanner: sinon.stub(),
       showBanner: sinon.stub(),
       hideBanner: sinon.stub(),
-      patient: {},
+      user: {},
     });
 
     let wrapper;
@@ -520,6 +520,25 @@ describe('App', () => {
         sinon.assert.callCount(props.showBanner, 1);
         sinon.assert.calledWithMatch(props.showBanner, 'donate');
         sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
+        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
+      });
+
+      it('should only track the display banner metric once', () => {
+        wrapper.setProps({
+          userIsCurrentPatient: true,
+          userHasData: true,
+          location: '/patients/1234/data',
+          showingShareDataBanner: false,
+        });
+
+        sinon.assert.callCount(props.showBanner, 1);
+        sinon.assert.callCount(props.context.trackMetric, 1);
+
+        wrapper.setProps({});
+        wrapper.setProps({});
+
+        sinon.assert.callCount(props.showBanner, 3);
+        sinon.assert.callCount(props.context.trackMetric, 1);
       });
     });
 
@@ -751,40 +770,6 @@ describe('App', () => {
       });
     });
 
-    context('donate banner is showing', () => {
-      it('should track the display banner metric', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: true,
-        });
-
-        sinon.assert.callCount(props.showBanner, 1);
-        sinon.assert.calledWithMatch(props.showBanner, 'donate');
-        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
-      });
-
-      it('should only track the display banner metric once', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.callCount(props.showBanner, 1);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({});
-        wrapper.setProps({});
-
-        sinon.assert.callCount(props.showBanner, 3);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-      });
-    });
-
     context('update type banner is showing', () => {
       it('should track the display banner metric', () => {
         wrapper.setProps({
@@ -807,6 +792,8 @@ describe('App', () => {
           userIsCurrentPatient: true,
           userHasData: true,
           location: '/patients/1234/data',
+          showingUploaderBanner: false,
+          showingShareDataBanner: false,
         });
 
         sinon.assert.callCount(props.showBanner, 1);
