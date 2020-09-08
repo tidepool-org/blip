@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 describe('prescriptionSchema', function() {
   it('should export a schema object with appropriate nodes', function() {
-    const schema = prescriptionSchema();
+    const schema = prescriptionSchema({});
 
     expect(schema).to.be.an('object');
 
