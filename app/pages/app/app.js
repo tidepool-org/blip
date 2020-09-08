@@ -4,6 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
+import moment from 'moment';
 
 import * as actions from '../../redux/actions';
 
@@ -160,6 +161,7 @@ export class AppComponent extends React.Component {
       userIsCurrentPatient,
       userIsSupportingNonprofit,
       patient,
+      authenticated,
     } = nextProps;
 
     if (!utils.isOnSamePage(this.props, nextProps)) {
@@ -168,7 +170,7 @@ export class AppComponent extends React.Component {
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
 
-    const showUploaderBanner = isBannerRoute && userIsCurrentPatient && userHasData;
+    const showUploaderBanner = authenticated && moment().isBefore('2020-10-01');
     let displayUploaderBanner = false;
 
     if (showingUploaderBanner !== false) {
@@ -423,7 +425,7 @@ export class AppComponent extends React.Component {
       showingUploaderBanner,
       onClickUploaderBanner,
       onDismissUploaderBanner,
-      patient,
+      user,
     } = this.props;
 
     if (showingUploaderBanner) {
@@ -433,7 +435,7 @@ export class AppComponent extends React.Component {
             onClick={onClickUploaderBanner}
             onClose={onDismissUploaderBanner}
             trackMetric={this.props.context.trackMetric}
-            patient={patient} />
+            user={user} />
         </div>
       );
     }

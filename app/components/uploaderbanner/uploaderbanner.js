@@ -8,13 +8,13 @@ export const UploaderBanner = translate()((props) => {
   const {
     onClick,
     onClose,
-    patient,
+    user,
     trackMetric,
     t,
   } = props;
 
   const handleDismiss = () => {
-    onClose(patient.userid);
+    onClose(user.userid);
 
     if (trackMetric) {
       trackMetric('dismiss Uploader Version Warning banner');
@@ -22,7 +22,7 @@ export const UploaderBanner = translate()((props) => {
   };
 
   const handleClickUpdateGuide = () => {
-    onClick(patient.userid);
+    onClick(user.userid);
 
     window.open('https://support.tidepool.org/hc/en-us/articles/360047528891-Updating-Tidepool-Uploader');
 
@@ -32,7 +32,7 @@ export const UploaderBanner = translate()((props) => {
   };
 
   const handleSubmit = () => {
-    onClick(patient.userid);
+    onClick(user.userid);
 
     window.open('https://www.tidepool.org/download');
 
@@ -71,7 +71,7 @@ UploaderBanner.propTypes = {
   onClick: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  patient: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default connect(null, { push })(UploaderBanner);
