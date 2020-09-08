@@ -244,6 +244,7 @@ class Daily extends Component {
     this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
     return {
       atMostRecent: false,
+      availableDevices: this.getRenderedDevices(this.props),
       endpoints: [],
       initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
@@ -261,6 +262,12 @@ class Daily extends Component {
     if (wrappedInstance && (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved)) {
       wrappedInstance.rerenderChart(nextProps);
     }
+    if (newDataRecieved) this.setState({
+      availableDevices: _.union(
+        this.getRenderedDevices(nextProps),
+        this.state.availableDevices,
+      ),
+    });
   };
 
   componentWillUnmount = () => {
@@ -268,6 +275,8 @@ class Daily extends Component {
       this.state.debouncedDateRangeUpdate.cancel();
     }
   };
+
+  getRenderedDevices = (props) => _.uniq(_.map(_.get(props, 'data.data.combined', []), d => d.deviceId));
 
   render = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
@@ -318,8 +327,12 @@ class Daily extends Component {
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 updateChartPrefs={this.props.updateChartPrefs}
-                deviceIds={_.get(this.props, 'data.metaData.deviceIds')}
+                devices={_.filter(
+                  _.get(this.props, 'data.metaData.devices', []),
+                  device => _.includes(this.state.availableDevices, device.id)
+                )}
               />
             </div>
           </div>

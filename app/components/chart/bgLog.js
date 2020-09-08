@@ -206,6 +206,7 @@ class BgLog extends Component {
   getInitialState = () => {
     return {
       atMostRecent: false,
+      availableDevices: this.getRenderedDevices(this.props),
       inTransition: false,
       showingValues: this.props.isClinicAccount,
       title: '',
@@ -222,6 +223,12 @@ class BgLog extends Component {
         { showingValues: this.state.showingValues },
       ));
     }
+    if (newDataRecieved) this.setState({
+      availableDevices: _.union(
+        this.getRenderedDevices(nextProps),
+        this.state.availableDevices,
+      ),
+    });
   };
 
   componentWillUnmount = () => {
@@ -229,6 +236,8 @@ class BgLog extends Component {
       this.state.debouncedDateRangeUpdate.cancel();
     }
   };
+
+  getRenderedDevices = (props) => _.uniq(_.map(_.get(props, 'data.data.combined', []), d => d.deviceId));
 
   render = () => {
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'bgLog';
@@ -257,8 +266,12 @@ class BgLog extends Component {
               />
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
                 updateChartPrefs={this.props.updateChartPrefs}
-                deviceIds={_.get(this.props, 'data.metaData.deviceIds')}
+                devices={_.filter(
+                  _.get(this.props, 'data.metaData.devices', []),
+                  device => _.includes(this.state.availableDevices, device.id)
+                )}
               />
             </div>
           </div>
