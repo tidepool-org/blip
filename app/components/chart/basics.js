@@ -44,6 +44,7 @@ class Basics extends Component {
     updateBasicsSettings: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   static displayName = 'Basics';
@@ -117,8 +118,9 @@ class Basics extends Component {
                 <DeviceSelection
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  updateChartPrefs={this.props.updateChartPrefs}
                   devices={_.get(this.props, 'data.metaData.devices', [])}
+                  updateChartPrefs={this.props.updateChartPrefs}
+                  removeGeneratedPDFS={this.props.removeGeneratedPDFS}
                 />
               </div>
             </div>
