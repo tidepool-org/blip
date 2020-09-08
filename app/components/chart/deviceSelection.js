@@ -8,16 +8,16 @@ import { Box, Flex } from 'rebass/styled-components';
 import { colors, fontSizes } from '../../themes/baseTheme';
 
 export const DeviceSelection = (props) => {
-  const { chartPrefs, chartType, updateChartPrefs, devices = [] } = props;
-  const excludedDevices = get(chartPrefs, [chartType, 'excludedDevices'], []);
+  const { chartPrefs, updateChartPrefs, devices = [] } = props;
+  const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
   const toggleDevice = (e) => {
     const prefs = cloneDeep(chartPrefs);
 
     if (e.target.checked) {
-      pull(prefs[chartType].excludedDevices, e.target.value);
+      pull(prefs.excludedDevices, e.target.value);
     } else {
-      prefs[chartType].excludedDevices = union(prefs[chartType].excludedDevices, [e.target.value]);
+      prefs.excludedDevices = union(prefs.excludedDevices, [e.target.value]);
     }
 
     updateChartPrefs(prefs, true, true);
@@ -77,7 +77,7 @@ export const DeviceSelection = (props) => {
               },
             },
             '.MuiExpansionPanelSummary-expandIcon': {
-              // This CSS specificity fight wasn't my favorite but is required due....
+              // This CSS specificity fight wasn't my favorite but is required to override `styled-component` styles down the line
               '&.MuiExpansionPanelSummary-expandIcon': {
                 '&.MuiIconButton-edgeEnd': {
                   padding: '0px',
@@ -101,7 +101,6 @@ DeviceSelection.propTypes = {
   chartPrefs: PropTypes.shape({
     excludedDevices: PropTypes.array,
   }),
-  chartType: PropTypes.oneOf(['basics', 'daily', 'trends', 'weekly']).isRequired,
   devices: PropTypes.array,
   updateChartPrefs: PropTypes.func,
 };

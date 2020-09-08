@@ -64,7 +64,6 @@ const Trends = translate()(class Trends extends PureComponent {
     this.log = bows('Trends');
 
     this.state = {
-      availableDevices: this.getRenderedDevices(props),
       inTransition: false,
       title: '',
       visibleDays: 0,
@@ -100,16 +99,6 @@ const Trends = translate()(class Trends extends PureComponent {
     this.toggleWeekdays = this.toggleWeekdays.bind(this);
     this.toggleWeekends = this.toggleWeekends.bind(this);
   }
-
-  UNSAFE_componentWillReceiveProps = nextProps => {
-    const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    if (newDataRecieved) this.setState({
-      availableDevices: _.union(
-        this.getRenderedDevices(nextProps),
-        this.state.availableDevices,
-      ),
-    });
-  };
 
   componentWillUnmount = () => {
     if (this.state.debouncedDateRangeUpdate) {
@@ -435,16 +424,9 @@ const Trends = translate()(class Trends extends PureComponent {
     this.props.updateChartPrefs(prefs);
   }
 
-  getRenderedDevices = (props) => _.uniq(_.map(_.get(props, 'data.data.combined', []), d => d.deviceId));
-
   render() {
     const { currentPatientInViewId, t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'trends';
-
-    const renderableDevices = _.union(
-      _.uniq(_.map(_.get(this.props, 'data.data.combined', []), d => d.deviceId)),
-      _.get(this.props, ['chartPrefs', this.chartType, 'excludedDevices'])
-    );
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -484,10 +466,7 @@ const Trends = translate()(class Trends extends PureComponent {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 updateChartPrefs={this.props.updateChartPrefs}
-                devices={_.filter(
-                  _.get(this.props, 'data.metaData.devices', []),
-                  device => _.includes(this.state.availableDevices, device.id)
-                )}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
               />
             </div>
           </div>
