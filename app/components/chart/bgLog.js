@@ -193,6 +193,7 @@ class BgLog extends Component {
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -258,8 +259,9 @@ class BgLog extends Component {
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                updateChartPrefs={this.props.updateChartPrefs}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>

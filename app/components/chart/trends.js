@@ -54,7 +54,8 @@ const Trends = translate()(class Trends extends PureComponent {
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    uploadUrl: PropTypes.string.isRequired
+    uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -466,8 +467,9 @@ const Trends = translate()(class Trends extends PureComponent {
               <DeviceSelection
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                updateChartPrefs={this.props.updateChartPrefs}
                 devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>

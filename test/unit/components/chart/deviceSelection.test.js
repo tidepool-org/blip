@@ -17,11 +17,15 @@ const expect = chai.expect;
 
 describe('DeviceSelection', () => {
   const props = {
-    deviceIds: ['device1', 'device2'],
+    devices: [
+      { id: 'device1' },
+      { id: 'device2' }
+    ],
     chartPrefs: {
       excludedDevices: [],
     },
     updateChartPrefs: sinon.stub(),
+    removeGeneratedPDFS: sinon.stub(),
   };
 
   let wrapper;
@@ -44,13 +48,21 @@ describe('DeviceSelection', () => {
     expect(wrapper.find(Box).at(3).text()).to.equal('2');
 
     wrapper.setProps({
-      deviceIds: ['device1', 'device2', 'device3'],
+      devices: [
+        { id: 'device1' },
+        { id: 'device2' },
+        { id: 'device3' },
+      ]
     });
 
     expect(wrapper.find(Box).at(3).text()).to.equal('3');
 
     wrapper.setProps({
-      deviceIds: ['device1', 'device2', 'device3'],
+      devices: [
+        { id: 'device1' },
+        { id: 'device2' },
+        { id: 'device3' },
+      ],
       chartPrefs: {
         excludedDevices: ['device1'],
       },
@@ -63,13 +75,21 @@ describe('DeviceSelection', () => {
     expect(wrapper.find('Checkbox').length).to.equal(2);
 
     wrapper.setProps({
-      deviceIds: ['device1', 'device2', 'device3'],
+      devices: [
+        { id: 'device1' },
+        { id: 'device2' },
+        { id: 'device3' },
+      ]
     });
 
     expect(wrapper.find('Checkbox').length).to.equal(3);
 
     wrapper.setProps({
-      deviceIds: ['device1', 'device2', 'device3'],
+      devices: [
+        { id: 'device1' },
+        { id: 'device2' },
+        { id: 'device3' },
+      ],
       chartPrefs: {
         excludedDevices: ['device1'],
       },
@@ -78,12 +98,13 @@ describe('DeviceSelection', () => {
     expect(wrapper.find('Checkbox').length).to.equal(3);
   });
 
-  it('should call updateChartPrefs on Checkbox change adding or removing devices', () => {
+  it('should call updateChartPrefs and removeGeneratedPDFS on Checkbox change adding or removing devices', () => {
     const checkboxes = wrapper.find('Checkbox');
     const checkbox1 = checkboxes.at(0).find('input');
     const checkbox2 = checkboxes.at(1).find('input');
 
     sinon.assert.callCount(props.updateChartPrefs, 0);
+    sinon.assert.callCount(props.removeGeneratedPDFS, 0);
 
     checkbox1.simulate('change', {
       target: { value: 'device1', checked: false },
@@ -94,6 +115,7 @@ describe('DeviceSelection', () => {
       props.updateChartPrefs,
       sinon.match({ excludedDevices: ['device1'] })
     );
+    sinon.assert.callCount(props.removeGeneratedPDFS, 1);
 
     wrapper.setProps({ chartPrefs: { excludedDevices: ['device1'] } });
 
@@ -106,6 +128,7 @@ describe('DeviceSelection', () => {
       props.updateChartPrefs,
       sinon.match({ excludedDevices: ['device1', 'device2'] })
     );
+    sinon.assert.callCount(props.removeGeneratedPDFS, 2);
 
     wrapper.setProps({
       chartPrefs: { excludedDevices: ['device1', 'device2'] },
@@ -120,6 +143,7 @@ describe('DeviceSelection', () => {
       props.updateChartPrefs,
       sinon.match({ excludedDevices: ['device2'] })
     );
+    sinon.assert.callCount(props.removeGeneratedPDFS, 3);
 
     wrapper.setProps({
       chartPrefs: { excludedDevices: ['device2'] },
@@ -134,5 +158,6 @@ describe('DeviceSelection', () => {
       props.updateChartPrefs,
       sinon.match({ excludedDevices: [] })
     );
+    sinon.assert.callCount(props.removeGeneratedPDFS, 4);
   });
 });

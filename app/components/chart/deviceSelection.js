@@ -8,7 +8,7 @@ import { Box, Flex } from 'rebass/styled-components';
 import { colors, fontSizes } from '../../themes/baseTheme';
 
 export const DeviceSelection = (props) => {
-  const { chartPrefs, updateChartPrefs, devices = [] } = props;
+  const { chartPrefs,  devices = [], updateChartPrefs, removeGeneratedPDFS } = props;
   const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
   const toggleDevice = (e) => {
@@ -21,6 +21,7 @@ export const DeviceSelection = (props) => {
     }
 
     updateChartPrefs(prefs, true, true);
+    removeGeneratedPDFS();
   };
 
   return (
@@ -101,8 +102,18 @@ DeviceSelection.propTypes = {
   chartPrefs: PropTypes.shape({
     excludedDevices: PropTypes.array,
   }),
-  devices: PropTypes.array,
-  updateChartPrefs: PropTypes.func,
+  devices: PropTypes.arrayOf(
+    PropTypes.shape({
+      bgm: PropTypes.bool,
+      cgm: PropTypes.bool,
+      id: PropTypes.string,
+      label: PropTypes.string,
+      pump: PropTypes.bool,
+      serialNumber: PropTypes.string,
+    }
+  )),
+  removeGeneratedPDFS: PropTypes.func.isRequired,
+  updateChartPrefs: PropTypes.func.isRequired,
 };
 
 export default DeviceSelection;
