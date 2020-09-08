@@ -92,9 +92,11 @@ export let PatientData = translate()(createReactClass({
     var state = {
       chartPrefs: {
         basics: {
+          excludedDevices: [],
           sections: {},
         },
         daily: {
+          excludedDevices: [],
           extentSize: 1,
         },
         trends: {
@@ -108,6 +110,7 @@ export let PatientData = translate()(createReactClass({
             sunday: true,
           },
           activeDomain: '2 weeks',
+          excludedDevices: [],
           extentSize: 14,
           // we track both showingCbg & showingSmbg as separate Booleans for now
           // in case we decide to layer BGM & CGM data, as has been discussed/prototyped
@@ -134,12 +137,12 @@ export let PatientData = translate()(createReactClass({
         },
         bgLog: {
           bgSource: 'smbg',
+          excludedDevices: [],
           extentSize: 14,
         },
         settings: {
           touched: false,
         },
-        excludedDevices: [],
       },
       printOpts: {
         numDays: {
@@ -1077,7 +1080,7 @@ export let PatientData = translate()(createReactClass({
         'latestPumpUpload',
         'patientId',
         'size',
-        'deviceIds',
+        'devices',
       ],
       types: '*',
       raw,
@@ -1176,7 +1179,7 @@ export let PatientData = translate()(createReactClass({
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,deviceIds',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
           timePrefs,
           bgPrefs,
         });
@@ -1254,7 +1257,7 @@ export let PatientData = translate()(createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,deviceIds',
+      metaData: 'bgSources,devices',
     });
 
     if (this.state.queryingData) return;
@@ -1263,9 +1266,9 @@ export let PatientData = translate()(createReactClass({
     let chartQuery = {
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
+      excludedDevices: _.get(this.state, ['chartPrefs', this.state.chartType, 'excludedDevices']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
-      excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
     };
 
     const activeDays = _.get(this.state, ['chartPrefs', this.state.chartType, 'activeDays']);
