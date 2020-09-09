@@ -25,10 +25,10 @@ export const AccountType = translate()(props => {
       <FastField
         as={RadioGroup}
         variant="verticalBordered"
-        id="type"
-        name="type"
+        id="accountType"
+        name="accountType"
         options={typeOptions}
-        error={getFieldError(meta.type)}
+        error={getFieldError(meta.accountType)}
       />
     </Box>
   );
@@ -94,16 +94,52 @@ export const PatientInfo = translate()(props => {
 export const PatientEmail = translate()(props => {
   const { t, meta } = props;
 
-  const patientName = meta.firstName.value;
-  const accountType = meta.type.value;
+  const {
+    setFieldTouched,
+    setFieldValue,
+  } = useFormikContext();
 
-  const headline = accountType === 'caregiver'
+  const patientName = meta.firstName.value;
+  const isCaregiverAccount = meta.accountType.value === 'caregiver';
+
+  const headline = isCaregiverAccount
     ? t('What is {{patientName}}\'s parent/guardian\'s name and email address?', { patientName })
     : t('What is {{patientName}}\'s email address?', { patientName });
+
+  React.useEffect(() => {
+    // Set these fields to empty strings to pass frontend validation since
+    // they're hidden for non-caregiver accounts
+    if (!isCaregiverAccount) {
+      setFieldValue('caregiverFirstName', '');
+      setFieldValue('caregiverLastName', '');
+      setFieldTouched('caregiverFirstName', true);
+      setFieldTouched('caregiverLastName', true);
+    }
+  }, []);
 
   return (
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{headline}</Headline>
+      {isCaregiverAccount && (
+        <FastField
+          as={TextInput}
+          label={t('First Name')}
+          id="caregiverFirstName"
+          name="caregiverFirstName"
+          error={getFieldError(meta.caregiverFirstName)}
+          {...condensedInputStyles}
+        />
+      )}
+      {isCaregiverAccount && (
+        <FastField
+          as={TextInput}
+          label={t('Last Name')}
+          id="caregiverLastName"
+          name="caregiverLastName"
+          error={getFieldError(meta.caregiverLastName)}
+          {...condensedInputStyles}
+        />
+      )}
       <FastField
         as={TextInput}
         label={t('Email Address')}

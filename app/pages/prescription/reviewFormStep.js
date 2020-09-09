@@ -51,7 +51,7 @@ const patientRows = meta => ([
   },
   {
     label: t('Type of Account'),
-    value: capitalize(meta.type.value),
+    value: capitalize(meta.accountType.value),
     step: [0, 0],
   },
   {

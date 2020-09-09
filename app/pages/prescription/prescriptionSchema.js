@@ -45,12 +45,21 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     id: yup.string(),
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
-    type: yup.string()
+    accountType: yup.string()
       .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
       .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
-    lastName: yup.string().required(t('Last name is required')),
+    lastName: yup.string()
+      .required(t('Last name is required')),
+    caregiverFirstName: yup.string().when('accountType', {
+      is: 'caregiver',
+      then: yup.string().required(t('First name is required')),
+    }),
+    caregiverLastName: yup.string().when('accountType', {
+      is: 'caregiver',
+      then: yup.string().required(t('Last name is required')),
+    }),
     birthday: yup.string()
       .test('matchesDateFormat', t('Please enter a valid date in the requested format'), value => moment(value, dateFormat, true).isValid())
       .test('isPastDate', t('Please enter a date prior to today'), value => value < moment().format(dateFormat))

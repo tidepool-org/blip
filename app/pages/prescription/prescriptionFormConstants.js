@@ -242,9 +242,9 @@ export const validCountryCodes = [1];
 
 export const stepValidationFields = [
   [
-    ['type'],
+    ['accountType'],
     ['firstName', 'lastName', 'birthday'],
-    ['email', 'emailConfirm'],
+    ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
   ],
   [
     ['phoneNumber.number'],

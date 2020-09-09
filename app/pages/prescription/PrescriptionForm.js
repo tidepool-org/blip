@@ -58,8 +58,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     return {
       id: get(props, 'prescription.id', ''),
       state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-      // type: get(props, 'prescription.latestRevision.attributes.type', ''),
+      accountType: get(props, 'prescription.latestRevision.attributes.accountType', ''),
       firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
+      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName', ''),
+      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName', ''),
       lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
       birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
       email: get(props, 'prescription.latestRevision.attributes.email', ''),
