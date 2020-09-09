@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.0.tgz#ec5757be9f5c1e080a99510e59de986c28e00493"
-  integrity sha512-6/P/SzJcQ1ByKPmHt5Pf8dCnwkePX0ojGc7yNeT8YqCARUburzbIVma1AxLsTJx0cQjhocI1PF4h6Lg40qt+4A==
+"@tidepool/viz@1.14.0-device-filter.1":
+  version "1.14.0-device-filter.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-device-filter.1.tgz#11604f6f82ac5ef40bce647d61f8f936b98d5379"
+  integrity sha512-FB2vBloeZW95yBEjAba3CNDf6juR0duJZ8feZOjhP9CRaw2+UVdi7ckf0BrqSF5zoBtT+LHYIDyINAPFdRyXRQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -17303,10 +17303,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tideline@1.18.0:
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.18.0.tgz#05599d28067030a7bf13dafcdff1b2c6ba92b76d"
-  integrity sha512-T8Q3YsChKyQEVDfc943YBw6FqWe5cb82QmcT9N3lbHvvsAK1fHr66tT2LqwApWadO5PlyxAyeSuaDTyxpj3eqQ==
+tideline@1.19.0-device-filter.1:
+  version "1.19.0-device-filter.1"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.19.0-device-filter.1.tgz#f5dca251662fb2576f282505ba11f1c014287ab4"
+  integrity sha512-3HnT7JAs46hjOxM3TtSSgYOp/I54mTNFUZ5UM9r6TrGgFmhOlTSnJQtgdQtrNvdFDqJWwR2uoLCHf9jZXa/3ug==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
