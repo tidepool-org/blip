@@ -33,6 +33,7 @@ const log = bows('PrescriptionAccount');
 
 export const PatientPhone = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
 
   const {
     setFieldValue,
@@ -41,7 +42,7 @@ export const PatientPhone = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
+      <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
         as={() => (
           <InputMask
@@ -56,7 +57,7 @@ export const PatientPhone = translate()(props => {
             <TextInput
               name="phoneNumber.number"
               id="phoneNumber.number"
-              label={t('Patient Phone Number')}
+              label={t('Phone Number')}
               error={getFieldError(meta.phoneNumber.number)}
               {...condensedInputStyles}
             />
@@ -72,10 +73,11 @@ export const PatientPhone = translate()(props => {
 
 export const PatientMRN = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
+      <Headline mb={4}>{t('What is {{patientName}}\'s Medical Record Number?', { patientName })}</Headline>
       <FastField
         as={TextInput}
         label={t('Medical Record Number')}
@@ -90,10 +92,11 @@ export const PatientMRN = translate()(props => {
 
 export const PatientGender = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s gender?')}</Headline>
+      <Headline mb={4}>{t('What is the {{patientName}}\'s gender?', { patientName })}</Headline>
       <FastField
         as={RadioGroup}
         variant="verticalBordered"
@@ -108,6 +111,7 @@ export const PatientGender = translate()(props => {
 
 export const PatientDevices = translate()(props => {
   const { t, meta, devices } = props;
+  const patientName = meta.firstName.value;
 
   const {
     setFieldValue,
@@ -115,7 +119,7 @@ export const PatientDevices = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
+      <Headline mb={4}>{t('Does {{patientName}} have the necessary prescriptions for Tidepool Loop compatible devices?', { patientName })}</Headline>
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>

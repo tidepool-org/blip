@@ -4,6 +4,8 @@ import { translate } from 'react-i18next';
 import { FastField } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import find from 'lodash/find';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
@@ -12,7 +14,7 @@ import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
-import { stepValidationFields, warningThresholds } from './prescriptionFormConstants';
+import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -40,22 +42,22 @@ const patientRows = meta => ([
   {
     label: t('Email'),
     value: meta.email.value,
-    step: [0, 1],
+    step: [0, 2],
   },
   {
     label: t('Mobile Number'),
     value: meta.phoneNumber.number.value,
     step: [1, 0],
   },
-  // {
-  //   label: t('Type of Account'),
-  //   value: capitalize(meta.type.value),
-  //   step: [0, 0],
-  // },
+  {
+    label: t('Type of Account'),
+    value: capitalize(meta.accountType.value),
+    step: [0, 0],
+  },
   {
     label: t('Birthdate'),
     value: meta.birthday.value,
-    step: [0, 0],
+    step: [0, 1],
   },
   {
     label: t('Gender'),
@@ -103,14 +105,14 @@ const therapySettingsRows = (pump, meta) => {
     {
       id: 'suspend-threshold',
       label: t('Suspend Threshold'),
-      value: `${meta.initialSettings.suspendThreshold.value.value} ${bgUnits}`,
-      warning: getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)
+      value: `${meta.initialSettings.bloodGlucoseSuspendThreshold.value} ${bgUnits}`,
+      warning: getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value, thresholds.bloodGlucoseSuspendThreshold)
     },
-    // {
-    //   id: 'insulin-model',
-    //   label: t('Insulin Model'),
-    //   value: meta.initialSettings.insulinModel.value === 'rapidAdult' ? t('Rapid Acting - Adult') : t('Rapid Acting - Child'), // TODO: use option labels, and empty string if missing
-    // },
+    {
+      id: 'insulin-model',
+      label: t('Insulin Model'),
+      value: get(find(insulinModelOptions, { value: meta.initialSettings.insulinModel.value }), 'label', ''),
+    },
     {
       id: 'basal-schedule',
       label: t('Basal Rates'),
@@ -170,7 +172,7 @@ export const PatientInfo = props => {
     ...themeProps
   } = props;
 
-  const nameStep = [0, 0];
+  const nameStep = [0, 1];
   const currentStep = [3, 0];
 
   const {
@@ -336,7 +338,7 @@ export const TherapySettings = props => {
         </Box>
       </Flex>
 
-      <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
+      <Box mb={4} as={Body1}>{t('Are you sure you want to start {{patientName}} with the below therapy settings order?', { patientName })}</Box>
 
       <Box mb={4}>
         {map(rows, (row, index) => <Row {...row} index={index} key={index} />)}
