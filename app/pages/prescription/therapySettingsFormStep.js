@@ -15,7 +15,7 @@ import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
 
 import {
-  // insulinModelOptions,
+  insulinModelOptions,
   pumpRanges,
   stepValidationFields,
   trainingOptions,
@@ -124,12 +124,12 @@ export const GlucoseSettings = props => {
         <FastField
           as={TextInput}
           type="number"
-          id="initialSettings.suspendThreshold.value"
-          name="initialSettings.suspendThreshold.value"
+          id="initialSettings.bloodGlucoseSuspendThreshold"
+          name="initialSettings.bloodGlucoseSuspendThreshold"
           suffix={bgUnits}
-          error={getFieldError(meta.initialSettings.suspendThreshold.value)}
-          warning={getThresholdWarning(meta.initialSettings.suspendThreshold.value.value, thresholds.suspendThreshold)}
-          {...ranges.suspendThreshold}
+          error={getFieldError(meta.initialSettings.bloodGlucoseSuspendThreshold)}
+          warning={getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value, thresholds.bloodGlucoseSuspendThreshold)}
+          {...ranges.bloodGlucoseSuspendThreshold}
           {...{ ...inputStyles, themeProps: { mb: 3 }}}
         />
 
@@ -189,7 +189,7 @@ export const InsulinSettings = props => {
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
-        {/* <PopoverLabel
+        <PopoverLabel
           id='insulin-model'
           label={t('Insulin Model')}
           mb={2}
@@ -224,7 +224,7 @@ export const InsulinSettings = props => {
           options={insulinModelOptions}
           error={getFieldError(meta.initialSettings.insulinModel)}
           mb={4}
-        /> */}
+        />
 
         <PopoverLabel
           id='basal-rates'
