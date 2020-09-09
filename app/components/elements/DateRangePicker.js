@@ -67,6 +67,11 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
       background: ${colors.purpleLight};
       border-radius: 0;
     }
+    &.CalendarDay__blocked_out_of_range {
+      background-color: ${colors.lightestGrey};
+      color: ${colors.blueGreyLight};
+      border-radius: 0;
+    }
   }
 `;
 
@@ -74,6 +79,7 @@ export const DateRangePicker = props => {
   const {
     startDate,
     endDate,
+    setDates,
     error,
     focusedInput: focusedInputProp,
     label,
@@ -84,7 +90,6 @@ export const DateRangePicker = props => {
     ...datePickerProps
   } = props;
 
-  const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
 
   const inputClasses = cx({
@@ -100,9 +105,9 @@ export const DateRangePicker = props => {
         </Label>
       )}
       <DateRangePickerBase
-        startDate={dates.startDate}
+        startDate={startDate}
         startDateId={props.startDateId}
-        endDate={dates.endDate}
+        endDate={endDate}
         endDateId={props.endDateId}
         onDatesChange={newDates => {
           setDates(newDates);

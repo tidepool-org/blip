@@ -45,14 +45,15 @@ DatePickerStory.story = {
 };
 
 export const DateRangePickerStory = () => {
-  const initialStartDate = new Date();
-  const initialEndDate = new Date();
-  initialEndDate.setDate(initialEndDate.getDate() + 7);
+  // The date knob functionality is not working with the new dates/setDates
+  // const initialStartDate = new Date();
+  // const initialEndDate = new Date();
+  // initialEndDate.setDate(initialEndDate.getDate() + 7);
 
-  const dateKnob = (name, defaultValue) => {
-    const stringTimestamp = date(name, defaultValue);
-    return moment.utc(stringTimestamp);
-  };
+  // const dateKnob = (name, defaultValue) => {
+  //   const stringTimestamp = date(name, defaultValue);
+  //   return moment.utc(stringTimestamp);
+  // };
 
   const focusedInputKnob = () => {
     const label = 'Initially Focused Input';
@@ -72,6 +73,8 @@ export const DateRangePickerStory = () => {
 
   const [orientation, setOrientation] = useState('horizontal');
 
+  const [dates, setDates] = useState({ startDate: null, endDate: null });
+
   const handleWindowResize = size => {
     setOrientation(size.windowWidth > 550 ? 'horizontal' : 'vertical');
   };
@@ -84,8 +87,11 @@ export const DateRangePickerStory = () => {
         endDateId="dateRangeEnd"
         orientation={orientation}
         focusedInput={focusedInputKnob()}
-        startDate={dateKnob('Initial Start Date', initialStartDate)}
-        endDate={dateKnob('Initial End Date', initialEndDate)}
+        // startDate={dateKnob('Initial Start Date', initialStartDate)}
+        // endDate={dateKnob('Initial End Date', initialEndDate)}
+        setDates={setDates}
+        startDate={dates.startDate}
+        endDate={dates.endDate}
       />
       <WindowSizeListener onResize={handleWindowResize} />
     </React.Fragment>

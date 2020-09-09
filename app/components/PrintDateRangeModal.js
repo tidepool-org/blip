@@ -75,9 +75,7 @@ export const PrintDateRangeModal = (props) => {
           setDates={setDates}
           startDate={dates.startDate}
           endDate={dates.endDate}
-          // isOutsideRange={day => isAfterDay(day, moment())}
           isOutsideRange={day => (moment().diff(day) < 0)}
-          // isOutsideRange
         />
         {error && (
           <Flex mt={4} className={inputClasses}>
