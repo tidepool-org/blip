@@ -42,22 +42,22 @@ const patientRows = meta => ([
   {
     label: t('Email'),
     value: meta.email.value,
-    step: [0, 1],
+    step: [0, 2],
   },
   {
     label: t('Mobile Number'),
     value: meta.phoneNumber.number.value,
     step: [1, 0],
   },
-  // {
-  //   label: t('Type of Account'),
-  //   value: capitalize(meta.type.value),
-  //   step: [0, 0],
-  // },
+  {
+    label: t('Type of Account'),
+    value: capitalize(meta.accountType.value),
+    step: [0, 0],
+  },
   {
     label: t('Birthdate'),
     value: meta.birthday.value,
-    step: [0, 0],
+    step: [0, 1],
   },
   {
     label: t('Gender'),
@@ -172,7 +172,7 @@ export const PatientInfo = props => {
     ...themeProps
   } = props;
 
-  const nameStep = [0, 0];
+  const nameStep = [0, 1];
   const currentStep = [3, 0];
 
   const {
@@ -338,7 +338,7 @@ export const TherapySettings = props => {
         </Box>
       </Flex>
 
-      <Box mb={4} as={Body1}>{t('Are you sure you want to start this patient on this therapy settings order?')}</Box>
+      <Box mb={4} as={Body1}>{t('Are you sure you want to start {{patientName}} with the below therapy settings order?', { patientName })}</Box>
 
       <Box mb={4}>
         {map(rows, (row, index) => <Row {...row} index={index} key={index} />)}

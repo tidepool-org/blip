@@ -217,10 +217,10 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, met
   return thresholds;
 };
 
-// export const typeOptions = [
-//   { value: 'patient', label: t('Patient') },
-//   { value: 'caregiver', label: t('Patient and caregiver') },
-// ];
+export const typeOptions = [
+  { value: 'patient', label: t('Patient') },
+  { value: 'caregiver', label: t('Patient and caregiver') },
+];
 
 export const sexOptions = [
   { value: 'female', label: t('Female') },
@@ -242,9 +242,9 @@ export const validCountryCodes = [1];
 
 export const stepValidationFields = [
   [
-    // ['type'],
+    ['accountType'],
     ['firstName', 'lastName', 'birthday'],
-    ['email', 'emailConfirm'],
+    ['caregiverFirstName', 'caregiverLastName', 'email', 'emailConfirm'],
   ],
   [
     ['phoneNumber.number'],
