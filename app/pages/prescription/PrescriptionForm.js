@@ -166,6 +166,7 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
+    validateForm,
     values,
   } = useFormikContext();
 
@@ -198,6 +199,7 @@ export const PrescriptionForm = props => {
 
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
+    // validateForm(values);
     if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
       let firstInvalidStep;
       let firstInvalidSubStep;

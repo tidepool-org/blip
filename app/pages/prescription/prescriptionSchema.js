@@ -46,8 +46,8 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
     accountType: yup.string()
-      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
-      .required(t('Account type is required')),
+      .oneOf(map(typeOptions, 'value'), t('Please select a valid option')),
+      // .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
     lastName: yup.string()

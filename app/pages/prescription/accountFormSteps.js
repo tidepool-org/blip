@@ -1,11 +1,13 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { FastField, useFormikContext } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box } from 'rebass/styled-components';
 import bows from 'bows';
 import InputMask from 'react-input-mask';
+import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
@@ -18,30 +20,35 @@ const log = bows('PrescriptionAccount');
 
 export const AccountType = translate()(props => {
   const { t, meta } = props;
+  const initialFocusedInputRef = useInitialFocusedInput();
+
+  console.log('meta.accountType', meta.accountType);
 
   return (
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating an account for?')}</Headline>
-      <FastField
+      <Field
         as={RadioGroup}
         variant="verticalBordered"
         id="accountType"
         name="accountType"
         options={typeOptions}
         error={getFieldError(meta.accountType)}
+        innerRef={initialFocusedInputRef}
       />
     </Box>
   );
 });
 
 export const PatientInfo = translate()(props => {
-  const { t, meta } = props;
+  const { t, meta, initialFocusedInput = 'firstName' } = props;
 
   const {
     setFieldValue,
     setFieldTouched,
   } = useFormikContext();
 
+  const initialFocusedInputRef = useInitialFocusedInput();
   const dateFormatRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
   const dateInputFormat = 'MM/DD/YYYY';
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
@@ -55,6 +62,7 @@ export const PatientInfo = translate()(props => {
         id="firstName"
         name="firstName"
         error={getFieldError(meta.firstName)}
+        innerRef={initialFocusedInput === 'firstName' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
       <FastField
@@ -82,6 +90,7 @@ export const PatientInfo = translate()(props => {
               id="birthday"
               label={t('Birthdate')}
               error={getFieldError(meta.birthday)}
+              innerRef={initialFocusedInput === 'birthday' ? initialFocusedInputRef : undefined}
               {...condensedInputStyles}
             />
           </InputMask>
@@ -93,6 +102,7 @@ export const PatientInfo = translate()(props => {
 
 export const PatientEmail = translate()(props => {
   const { t, meta } = props;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldTouched,
@@ -101,6 +111,11 @@ export const PatientEmail = translate()(props => {
 
   const patientName = meta.firstName.value;
   const isCaregiverAccount = meta.accountType.value === 'caregiver';
+
+  const initialFocusedInput = get(props, 'initialFocusedInput', isCaregiverAccount
+    ? 'caregiverFirstName'
+    : 'email'
+  );
 
   const headline = isCaregiverAccount
     ? t('What is {{patientName}}\'s parent/guardian\'s name and email address?', { patientName })
@@ -127,6 +142,7 @@ export const PatientEmail = translate()(props => {
           id="caregiverFirstName"
           name="caregiverFirstName"
           error={getFieldError(meta.caregiverFirstName)}
+          innerRef={initialFocusedInput === 'caregiverFirstName' ? initialFocusedInputRef : undefined}
           {...condensedInputStyles}
         />
       )}
@@ -146,6 +162,7 @@ export const PatientEmail = translate()(props => {
         id="email"
         name="email"
         error={getFieldError(meta.email)}
+        innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
       <FastField
@@ -170,7 +187,7 @@ const accountFormSteps = meta => ({
       disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
       hideBack: true,
       onComplete: () => log('Account Type Complete'),
-      panelContent: <AccountType meta={meta} />
+      panelContent: <AccountType meta={meta} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
