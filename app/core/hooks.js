@@ -1,4 +1,4 @@
-import {useCallback, useRef, useEffect, useState} from 'react'
+import {useCallback, useRef, useEffect, useState, createRef} from 'react'
 import update from 'immutability-helper'
 
 import { useField, useFormikContext } from 'formik';
@@ -152,4 +152,15 @@ export const useLocalStorage = (key, initialValue) => {
   };
 
   return [storedValue, setValue];
+};
+
+export const useInitialFocusedInput = () => {
+  // const ref = createRef();
+  const ref = useRef();
+
+  useEffect(() => {
+    if (ref.current) ref.current.focus();
+  }, [ref]);
+
+  return ref;
 };
