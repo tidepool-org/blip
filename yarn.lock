@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.14.0-device-filter.3":
-  version "1.14.0-device-filter.3"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-device-filter.3.tgz#f3438c7bef9a0f70ae08f70cd9c42da499bffd39"
-  integrity sha512-NPf/3/pncR6hFeRL8Gu/hghzU+TxbKmgWs3xVXdubx62qg1VOuEt+5GgX6pn0Ow5su0UGCHqupy3DUOSLhlSlw==
+"@tidepool/viz@1.14.0-device-filter.4":
+  version "1.14.0-device-filter.4"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0-device-filter.4.tgz#a485e550a49513576b1dfa93001f71cb534d16af"
+  integrity sha512-lzVI4QHyH67dneJ57JFadIcQdr3VxcLpEkMeArY8JYELXyzMdym41TIfwGjOzRAdXbqN6gmNze6+0gsMSyc7YQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
