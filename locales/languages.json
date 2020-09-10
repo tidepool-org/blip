@@ -25,6 +25,13 @@
         "Log in": "Connexion"
       },
       "params": {}
+    },
+    "de": {
+      "name": "German",
+      "main": {
+        "Log in": "Einloggen"
+      },
+      "params": {}
     }
   }
 }
