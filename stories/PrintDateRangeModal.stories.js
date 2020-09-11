@@ -24,7 +24,7 @@ export default {
 
 export const PrintDateRangeModalStory = () => {
   const [open, setOpen] = useState(true);
-  const [dates, setDates] = useState({ startDate: null, endDate: null });
+  // const [dates, setDates] = useState({ startDate: null, endDate: null });
 
   const handleClickOpen = () => setOpen(true);
 
@@ -53,9 +53,9 @@ export const PrintDateRangeModalStory = () => {
         onClose={handleClose}
         // onClickPrint={onClickPrint}
         onClickPrint={action('clicked Print')}
-        setDates={setDates}
-        startDate={dates.startDate}
-        endDate={dates.endDate}
+        // setDates={setDates}
+        // startDate={dates.startDate}
+        // endDate={dates.endDate}
       />
     </React.Fragment>
   );

@@ -79,7 +79,6 @@ export const DateRangePicker = props => {
   const {
     startDate,
     endDate,
-    setDates,
     error,
     focusedInput: focusedInputProp,
     label,
@@ -90,7 +89,12 @@ export const DateRangePicker = props => {
     ...datePickerProps
   } = props;
 
+  const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
+
+  React.useEffect(() => {
+    setDates({ startDate, endDate });
+  }, [startDate, endDate]);
 
   const inputClasses = cx({
     error,
@@ -105,9 +109,9 @@ export const DateRangePicker = props => {
         </Label>
       )}
       <DateRangePickerBase
-        startDate={startDate}
+        startDate={dates.startDate}
         startDateId={props.startDateId}
-        endDate={endDate}
+        endDate={dates.endDate}
         endDateId={props.endDateId}
         onDatesChange={newDates => {
           setDates(newDates);

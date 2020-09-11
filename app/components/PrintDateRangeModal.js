@@ -72,7 +72,6 @@ export const PrintDateRangeModal = (props) => {
       <DialogContent style={{ height: 450 }}>
         <Paragraph1>Or select a custom date range</Paragraph1>
         <DateRangePicker
-          setDates={setDates}
           startDate={dates.startDate}
           endDate={dates.endDate}
           isOutsideRange={day => (moment().diff(day) < 0)}
