@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import bows from 'bows';
 import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
-import { Persist } from 'formik-persist';
+import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -190,16 +190,20 @@ export const PrescriptionForm = props => {
   const storageKey = 'prescriptionForm';
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
 
+  // Revalidate form whenever values change
+  React.useEffect(() => {
+    validateForm();
+  }, [values]);
+
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
-    // validateForm(values);
     if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
       let firstInvalidStep;
       let firstInvalidSubStep;
@@ -415,7 +419,7 @@ export const PrescriptionForm = props => {
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
       {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
-      <Persist name={storageKey} />
+      <PersistFormikValues persistInvalid name={storageKey} />
     </form>
   );
 };
