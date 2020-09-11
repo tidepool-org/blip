@@ -27,7 +27,7 @@ export const AccountType = translate()(props => {
   return (
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating an account for?')}</Headline>
-      <Field
+      <FastField
         as={RadioGroup}
         variant="verticalBordered"
         id="accountType"
@@ -81,7 +81,7 @@ export const PatientInfo = translate()(props => {
             alwaysShowMask
             defaultValue={meta.birthday.value.replace(dateFormatRegex, '$2/$3/$1')}
             onBlur={e => {
-              setFieldTouched('birthday', true);
+              setFieldTouched('birthday');
               setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))
             }}
           >
