@@ -155,7 +155,6 @@ export const useLocalStorage = (key, initialValue) => {
 };
 
 export const useInitialFocusedInput = () => {
-  // const ref = createRef();
   const ref = useRef();
 
   useEffect(() => {
