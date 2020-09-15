@@ -31,4 +31,4 @@ Stats.propTypes = {
   stats: PropTypes.array.isRequired,
 };
 
-export default Stats
+export default Stats;
