@@ -193,6 +193,7 @@ export const PrescriptionForm = props => {
   const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
+  const [initialFocusedInput, setInitialFocusedInput] = React.useState();
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
@@ -263,10 +264,11 @@ export const PrescriptionForm = props => {
   }, [bloodGlucoseSuspendThreshold]);
 
   const handlers = {
-    activeStepUpdate: ([step, subStep], fromStep = []) => {
+    activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
       setActiveStep(step);
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
+      setInitialFocusedInput(initialFocusedInput);
     },
 
     generateTherapySettingsOrderText,
@@ -332,7 +334,7 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const accountFormStepsProps = accountFormSteps(meta);
+  const accountFormStepsProps = accountFormSteps(meta, initialFocusedInput);
   const profileFormStepsProps = profileFormSteps(meta, devices);
   const therapySettingsFormStepProps = therapySettingsFormStep(meta, pump);
   const reviewFormStepProps = reviewFormStep(meta, pump, handlers);
