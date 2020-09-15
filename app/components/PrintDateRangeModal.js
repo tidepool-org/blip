@@ -74,6 +74,7 @@ export const PrintDateRangeModal = (props) => {
         <DateRangePicker
           startDate={dates.startDate}
           endDate={dates.endDate}
+          onDatesChange={dates => setDates(dates)}
           isOutsideRange={day => (moment().diff(day) < 0)}
         />
         {error && (
