@@ -132,6 +132,25 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
   }
 };
 
+export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'updatetype' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'updatetype') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUpdateTypeBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'updatetype') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
   switch (action.type) {
     case types.SHOW_BANNER:
@@ -580,6 +599,17 @@ export const prescriptions = (state = initialState.prescriptions, action) => {
       return update(state, { $splice: [[deletedPrescriptionIndex, 1]] });
     case types.LOGOUT_REQUEST:
       return [];
+    default:
+      return state;
+  }
+};
+
+export const devices = (state = initialState.devices, action) => {
+  switch (action.type) {
+    case types.FETCH_DEVICES_SUCCESS:
+      const devices = _.get(action.payload, 'devices', {});
+      return update(state, { $set: devices });
+
     default:
       return state;
   }

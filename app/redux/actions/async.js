@@ -328,11 +328,12 @@ export function setupDataStorage(api, patient) {
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
  */
-export function removeMembershipInOtherCareTeam(api, patientId) {
+export function removeMembershipInOtherCareTeam(api, patientId, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.removeMembershipInOtherCareTeamRequest());
 
     api.access.leaveGroup(patientId, (err) => {
+      cb(err);
       if (err) {
         dispatch(sync.removeMembershipInOtherCareTeamFailure(
           createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err
@@ -1172,6 +1173,27 @@ export function deletePrescription(api, prescriptionId) {
 }
 
 /**
+ * Fetch Devices Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ */
+export function fetchDevices(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchDevicesRequest());
+
+    api.devices.getAll((err, devices) => {
+      if (err) {
+        dispatch(sync.fetchDevicesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_DEVICES, err), err
+        ));
+      } else {
+        dispatch(sync.fetchDevicesSuccess(devices));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1343,6 +1365,44 @@ export function clickDexcomConnectBanner(api, patientId, clickedDate) {
 
     const preferences = {
       clickedDexcomConnectBannerTime: clickedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Dismiss Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function dismissUpdateTypeBanner(api, patientId, dismissedDate) {
+  dismissedDate = dismissedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      dismissedUpdateTypeBannerTime: dismissedDate,
+    };
+
+    dispatch(updatePreferences(api, patientId, preferences));
+  };
+}
+
+/**
+ * Click Update Type Banner Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function clickUpdateTypeBanner(api, patientId, clickedDate) {
+  clickedDate = clickedDate || sundial.utcDateString();
+
+  return (dispatch) => {
+    dispatch(sync.dismissBanner('updatetype'));
+
+    const preferences = {
+      clickedUpdateTypeBannerTime: clickedDate,
     };
 
     dispatch(updatePreferences(api, patientId, preferences));

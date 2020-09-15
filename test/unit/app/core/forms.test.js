@@ -31,6 +31,7 @@ describe('forms', function() {
   };
 
   const errorArray = {
+    touched: true,
     error: [
       { foo: null },
       { bar: 'error!' },
@@ -180,6 +181,11 @@ describe('forms', function() {
     it('should return `null` if provided value is not outside the thresholds', () => {
       expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
       expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
+    });
+
+    it('should return `null` if non-numeric value is passed in', () => {
+      expect(formUtils.getThresholdWarning('', threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning('6', threshold)).to.equal(null);
     });
   });
 });

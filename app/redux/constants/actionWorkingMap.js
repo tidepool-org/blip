@@ -52,6 +52,11 @@ export default (type) => {
     case types.DELETE_PRESCRIPTION_FAILURE:
       return 'deletingPrescription';
 
+    case types.FETCH_DEVICES_REQUEST:
+    case types.FETCH_DEVICES_SUCCESS:
+    case types.FETCH_DEVICES_FAILURE:
+      return 'fetchingDevices';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:

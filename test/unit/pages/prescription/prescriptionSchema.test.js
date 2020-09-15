@@ -9,16 +9,18 @@ const expect = chai.expect;
 
 describe('prescriptionSchema', function() {
   it('should export a schema object with appropriate nodes', function() {
-    const schema = prescriptionSchema();
+    const schema = prescriptionSchema({});
 
     expect(schema).to.be.an('object');
 
     expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
-      // 'type',
+      'accountType',
       'firstName',
       'lastName',
+      'caregiverFirstName',
+      'caregiverLastName',
       'birthday',
       'email',
       'emailConfirm',
@@ -39,8 +41,8 @@ describe('prescriptionSchema', function() {
       'bloodGlucoseUnits',
       'pumpId',
       'cgmId',
-      // 'insulinModel',
-      // 'suspendThreshold',
+      'insulinModel',
+      'bloodGlucoseSuspendThreshold',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',
@@ -48,11 +50,6 @@ describe('prescriptionSchema', function() {
       'carbohydrateRatioSchedule',
       'insulinSensitivitySchedule',
     ]);
-
-    // expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
-    //   'value',
-    //   'units',
-    // ]);
 
     expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([
       'value',
@@ -67,9 +64,15 @@ describe('prescriptionSchema', function() {
 
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
+      'context',
       'high',
       'low',
       'start',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context.type).to.equal('object');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context._nodes).to.be.an('array').and.have.members([
+      'min',
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');

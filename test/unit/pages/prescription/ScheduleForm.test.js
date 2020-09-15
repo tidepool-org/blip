@@ -18,6 +18,7 @@ describe('ScheduleForm', () => {
   const meta = {
     fooSchedule: {
       valid: true,
+      touched: true,
       error: [
         { start: 'some start error!'}
       ],

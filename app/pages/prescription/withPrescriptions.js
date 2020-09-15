@@ -67,17 +67,18 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return assign(
-    {},
+    { ...ownProps },
     stateProps,
     {
       createPrescription: dispatchProps.createPrescription.bind(null, api),
       createPrescriptionRevision: dispatchProps.createPrescriptionRevision.bind(null, api),
       deletePrescription: dispatchProps.deletePrescription.bind(null, api),
       fetchers: getFetchers(dispatchProps, stateProps, api),
-      prescriptionId: ownProps.params.id,
-      trackMetric: ownProps.routes[0].trackMetric,
+      prescriptionId: ownProps.match.params.id,
+      trackMetric: ownProps.trackMetric,
+      history: ownProps.history
     }
   );
 };

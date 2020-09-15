@@ -84,6 +84,33 @@ Secondary.story = {
   },
 };
 
+export const Tertiary = () => {
+  const buttonText = () => text('Button Text', 'Tertiary');
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="tertiary"
+        disabled={disabled()}
+        onClick={action('onClick called')}
+        processing={processing()}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Tertiary.story = {
+  name: 'Tertiary',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
+    },
+  },
+};
+
 export const Text = () => {
   const buttonPrimaryText = () => text('Primary Button Text', 'Apply');
   const buttonSecondaryText = () => text('Secondary Button Text', 'Cancel');
@@ -188,6 +215,36 @@ Chip.story = {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2517%3A161',
+    },
+  },
+};
+
+export const Large = () => {
+  const buttonText = () => text('Button Text', 'Large');
+
+  const [selected, setSelected] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="large"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Large.story = {
+  name: 'Large',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
     },
   },
 };

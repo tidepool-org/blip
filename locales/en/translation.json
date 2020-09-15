@@ -173,7 +173,7 @@
   "html.patients-setup-data-storage": "You can also <1>setup data storage</1> for someone’s diabetes data.",
   "html.patientsettings-target-range": "My target range <1>is</1>",
   "html.peopletable-instructions": "Type a patient name in the search box or click <1>Show All</1> to display all patients.",
-  "html.peopletable-remove-patient-confirm": "<0>Are you sure you want to remove this patient from your list?</0><1>You will no longer be able to see or comment on their data.</1>",
+  "html.peopletable-remove-patient-confirm": "<0><0>Are you sure you want to remove patient: </0><1>{{fullName}}</1><2> from your list?</2></0><1>You will no longer be able to see or comment on their data.</1>",
   "html.setting-no-uploaded-data": "<0>The Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven't uploaded pump data yet.</0><1>To see your Device Settings, <1>upload</1> your pump.</1><2>If you just uploaded, try <1>refreshing</1>.</2>",
   "html.signup-clinician": "If you are a Healthcare Provider and want to create an account, please <1>click here</1>.",
   "html.signup-invited": "<0>You've been invited to Tidepool.</0><1>Sign up to view the invitation.</1>",
