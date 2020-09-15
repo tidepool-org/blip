@@ -22,8 +22,6 @@ export const AccountType = translate()(props => {
   const { t, meta } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
 
-  console.log('meta.accountType', meta.accountType);
-
   return (
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('Who are you creating an account for?')}</Headline>
@@ -74,7 +72,7 @@ export const PatientInfo = translate()(props => {
         {...condensedInputStyles}
       />
       <FastField
-        as={() => (
+        as={({innerRef}) => (
           <InputMask
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
@@ -90,11 +88,12 @@ export const PatientInfo = translate()(props => {
               id="birthday"
               label={t('Birthdate')}
               error={getFieldError(meta.birthday)}
-              innerRef={initialFocusedInput === 'birthday' ? initialFocusedInputRef : undefined}
+              innerRef={innerRef}
               {...condensedInputStyles}
             />
           </InputMask>
         )}
+        innerRef={initialFocusedInput === 'birthday' ? initialFocusedInputRef : undefined}
       />
     </Box>
   );
@@ -180,7 +179,7 @@ export const PatientEmail = translate()(props => {
   );
 });
 
-const accountFormSteps = meta => ({
+const accountFormSteps = (meta, initialFocusedInput) => ({
   label: t('Create Patient Account'),
   subSteps: [
     {
@@ -192,7 +191,7 @@ const accountFormSteps = meta => ({
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
       onComplete: () => log('Patient Info Complete'),
-      panelContent: <PatientInfo meta={meta} />,
+      panelContent: <PatientInfo meta={meta} initialFocusedInput={initialFocusedInput} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][2], meta),
