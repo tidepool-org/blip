@@ -80,6 +80,10 @@ export const TextInput = (props) => {
 
 TextInput.propTypes = {
   ...InputProps,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
