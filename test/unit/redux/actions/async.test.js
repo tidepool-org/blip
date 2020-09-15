@@ -986,20 +986,26 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
+        const callback = sinon.stub();
+
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
         expect(api.access.leaveGroup.callCount).to.equal(1)
         expect(api.user.getAssociatedAccounts.callCount).to.equal(1);
+        // assert callback contains no error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null);
       });
 
       it('should trigger REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE and it should call removeMembershipInOtherCareTeam once for a failed request', () => {
         let patientId = 27;
+        let error = {status: 500, body: 'Error!'};
         let api = {
           access: {
-            leaveGroup: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'})
+            leaveGroup: sinon.stub().callsArgWith(1, error)
           }
         };
 
@@ -1008,21 +1014,26 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },
-          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE', error: err, meta: { apiError: error } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId));
+        const callback = sinon.stub();
+
+        store.dispatch(async.removeMembershipInOtherCareTeam(api, patientId, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REMOVING_MEMBERSHIP });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.access.leaveGroup.calledWith(patientId)).to.be.true;
-        expect(api.access.leaveGroup.callCount).to.equal(1)
+        expect(api.access.leaveGroup.callCount).to.equal(1);
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error);
       });
     });
 
@@ -3529,6 +3540,62 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.prescription.delete.withArgs(prescriptionId).callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchDevices', () => {
+      it('should trigger FETCH_DEVICES_SUCCESS and it should call devices.getAll once for a successful request', () => {
+        let devices = [
+          { id: 'one' }
+        ];
+
+        let api = {
+          devices: {
+            getAll: sinon.stub().callsArgWith(0, null, devices),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_DEVICES_REQUEST' },
+          { type: 'FETCH_DEVICES_SUCCESS', payload: { devices : devices } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchDevices(api));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.devices.getAll.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_DEVICES_FAILURE and it should call error once for a failed request', () => {
+        let api = {
+          devices: {
+            getAll: sinon.stub().callsArgWith(0, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_DEVICES);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_DEVICES_REQUEST' },
+          { type: 'FETCH_DEVICES_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchDevices(api));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_DEVICES });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.devices.getAll.callCount).to.equal(1);
       });
     });
 

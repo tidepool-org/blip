@@ -20,7 +20,6 @@ import { inlineInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
 
-
 const ScheduleForm = props => {
   const {
     addButtonText,
@@ -55,7 +54,7 @@ const ScheduleForm = props => {
         <Flex className='schedule-row' key={index} alignItems="flex-start" mb={3}>
           <Field
             as={TextInput}
-            label={index === 0 && t('Start Time')}
+            label={index === 0 ? t('Start Time') : null}
             type="time"
             readOnly={index === 0}
             step={MS_IN_MIN * 30 / 1000}
@@ -82,7 +81,7 @@ const ScheduleForm = props => {
             <React.Fragment key={fieldIndex}>
               <FastField
                 as={TextInput}
-                label={index === 0 && field.label}
+                label={index === 0 ? field.label : null}
                 min={field.min}
                 max={field.max}
                 step={field.step}
@@ -108,14 +107,21 @@ const ScheduleForm = props => {
             onClick={() => remove(index)}
             disabled={index === 0}
             sx={{
-              visibility: index === 0 ? 'hidden' : 'visible',
+              top: index === 0 ? '1em' : 0,
             }}
           />
         </Flex>
       ))}
       <Button
-        variant="secondary"
+        variant="tertiary"
         className="add-schedule"
+        width="100%"
+        sx={{
+          '> div': {
+            width: '100%',
+            textAlign: 'center',
+          },
+        }}
         disabled={(() => {
           const lastSchedule = schedules.value[schedules.value.length - 1];
           return lastSchedule.start >= (MS_IN_DAY - (MS_IN_MIN * 30));
