@@ -24,12 +24,18 @@ export default {
 
 export const PrintDateRangeModalStory = () => {
   const [open, setOpen] = useState(true);
+  const [error, setError] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleClickOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
+    setSubmitted(false);
+    setError(false);
   };
+
+  const validateDates = ({ startDate, endDate }) => setError(!startDate || !endDate);
 
   return (
     <React.Fragment>
@@ -37,9 +43,15 @@ export const PrintDateRangeModalStory = () => {
         Open Print Dialog
       </Button>
       <PrintDateRangeModal
+        error={error}
         open={open}
         onClose={handleClose}
-        onClickPrint={action('clicked Print')}
+        onClickPrint={dates => {
+          setSubmitted(true);
+          validateDates(dates);
+          action('clicked Print')();
+        }}
+        onDatesChange={dates => submitted && validateDates(dates)}
       />
     </React.Fragment>
   );

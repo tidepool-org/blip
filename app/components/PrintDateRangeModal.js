@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import map from 'lodash/map';
-import { Flex } from 'rebass';
-import cx from 'classnames';
+import noop from 'lodash/noop';
+import { Flex } from 'rebass/styled-components';
 import moment from 'moment';
 
 import Button from './elements/Button';
@@ -18,13 +19,18 @@ export const PrintDateRangeModal = (props) => {
   const {
     onClose,
     onClickPrint,
+    onDatesChange,
     open,
     disabled,
     error,
-    required,
   } = props;
 
   const [dates, setDates] = useState({ startDate: null, endDate: null });
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+
+  useEffect(() => {
+    onDatesChange(dates);
+  }, [dates])
 
   const getLastNDays = (startDate) => ({
     startDate: moment().subtract(startDate, 'days'),
@@ -35,11 +41,6 @@ export const PrintDateRangeModal = (props) => {
     return moment().subtract(start, 'days').isSame(dates.startDate, 'day') && moment().isSame(dates.endDate, 'day');
   };
 
-  const inputClasses = cx({
-    error,
-    required,
-  });
-
   const options = [7, 14, 21, 30];
 
   return (
@@ -47,9 +48,9 @@ export const PrintDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={onClose}>
         <MediumTitle>Print Report</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} style={{ marginRight: 100 }}>
+      <DialogContent divider pb={6}>
         <Paragraph1>Number of days (most recent)</Paragraph1>
-        <Flex>
+        <Flex mb={4}>
           {map(options, (option, i) => (
             <Button
               mx={1}
@@ -67,33 +68,44 @@ export const PrintDateRangeModal = (props) => {
             </Button>
           ))}
         </Flex>
-      </DialogContent>
-      <DialogContent style={{ height: 450 }}>
         <Paragraph1>Or select a custom date range</Paragraph1>
         <DateRangePicker
           startDate={dates.startDate}
           endDate={dates.endDate}
           onDatesChange={dates => setDates(dates)}
           isOutsideRange={day => (moment().diff(day) < 0)}
+          onFocusChange={input => setDatePickerOpen(!!input)}
+          themeProps={{
+            minWidth: '580px',
+            minHeight: datePickerOpen ? '300px' : undefined,
+          }}
         />
         {error && (
-          <Flex mt={4} className={inputClasses}>
-            <Caption>
-              Must Select at number of days or custom date range
-            </Caption>
-          </Flex>
+          <Caption mt={2} color="feedback.danger">
+            Please select a date range
+          </Caption>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button variant="textSecondary" onClick={onClose} style={{ flex: '50%' }}>
+      <DialogActions justifyContent="space-between" alignContent="center" py={2}>
+        <Button variant="textSecondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="textPrimary" onClick={() => onClickPrint(dates)} style={{ textAlign: 'right' }}>
+        <Button variant="textPrimary" onClick={() => onClickPrint(dates)}>
           Print
         </Button>
       </DialogActions>
     </Dialog>
   );
+};
+
+PrintDateRangeModal.PropTypes = {
+  onDatesChange: PropTypes.func,
+  onClickPrint: PropTypes.func,
+};
+
+PrintDateRangeModal.defaultProps = {
+  onDatesChange: noop,
+  onClickPrint: noop,
 };
 
 export default PrintDateRangeModal;
