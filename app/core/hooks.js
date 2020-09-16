@@ -159,7 +159,7 @@ export const useInitialFocusedInput = () => {
 
   useEffect(() => {
     if (ref.current) ref.current.focus();
-  }, [ref]);
+  }, [ref.current]);
 
   return ref;
 };
