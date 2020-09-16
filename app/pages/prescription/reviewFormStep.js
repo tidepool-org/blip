@@ -14,6 +14,7 @@ import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
@@ -58,6 +59,7 @@ const patientRows = meta => ([
     label: t('Birthdate'),
     value: meta.birthday.value,
     step: [0, 1],
+    initialFocusedInput: 'birthday',
   },
   {
     label: t('Gender'),
@@ -172,6 +174,8 @@ export const PatientInfo = props => {
     ...themeProps
   } = props;
 
+  const initialFocusedInputRef = useInitialFocusedInput();
+
   const nameStep = [0, 1];
   const currentStep = [3, 0];
 
@@ -183,7 +187,7 @@ export const PatientInfo = props => {
   const patientName = `${firstName.value} ${lastName.value}`;
   const rows = patientRows(meta);
 
-  const Row = ({ label, value, step }) => (
+  const Row = ({ label, value, step, initialFocusedInput }) => (
     <Flex mb={4} justifyContent="space-between" alignItems="center">
       <Body1>{label}</Body1>
       <Box>
@@ -194,7 +198,7 @@ export const PatientInfo = props => {
             icon={EditRoundedIcon}
             label={t('Edit {{label}}', { label })}
             title={t('Edit {{label}}', { label })}
-            onClick={() => activeStepUpdate(step, currentStep)}
+            onClick={() => activeStepUpdate(step, currentStep, initialFocusedInput)}
           />
         </Flex>
       </Box>
@@ -211,6 +215,7 @@ export const PatientInfo = props => {
             label={t('Edit Patient Name')}
             title={t('Edit Patient Name')}
             onClick={() => activeStepUpdate(nameStep, currentStep)}
+            innerRef={initialFocusedInputRef}
           />
       </Flex>
       {map(rows, (row, index) => <Row {...row} key={index} />)}
