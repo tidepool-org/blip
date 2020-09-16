@@ -316,6 +316,7 @@ export const Stepper = props => {
             variant="secondary"
             className="step-back"
             onClick={handleBack}
+            tabIndex={0}
           >
             {step.backText || backText}
           </Button>
@@ -327,6 +328,7 @@ export const Stepper = props => {
             py={2}
             className="step-skip"
             onClick={handleSkip}
+            tabIndex={0}
           >
             {step.skipText || skipText}
           </Button>
@@ -342,6 +344,7 @@ export const Stepper = props => {
             type={(activeStep === steps.length - 1 && activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1)
               ? 'submit' : 'button'
             }
+            tabIndex={0}
           >
             {step.completeText || completeText}
           </Button>
