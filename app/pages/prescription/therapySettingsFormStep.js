@@ -7,6 +7,7 @@ import bows from 'bows';
 import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
 import { Paragraph2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -63,6 +64,7 @@ PatientInfo.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
   const { t, meta, pump, ...themeProps } = props;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -78,6 +80,7 @@ export const PatientTraining = props => {
         name="training"
         options={trainingOptions}
         error={getFieldError(meta.training)}
+        innerRef={initialFocusedInputRef}
       />
     </Box>
   );

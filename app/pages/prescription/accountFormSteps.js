@@ -1,11 +1,13 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { FastField, useFormikContext } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box } from 'rebass/styled-components';
 import bows from 'bows';
 import InputMask from 'react-input-mask';
+import get from 'lodash/get';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
@@ -18,6 +20,7 @@ const log = bows('PrescriptionAccount');
 
 export const AccountType = translate()(props => {
   const { t, meta } = props;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -29,19 +32,21 @@ export const AccountType = translate()(props => {
         name="accountType"
         options={typeOptions}
         error={getFieldError(meta.accountType)}
+        innerRef={initialFocusedInputRef}
       />
     </Box>
   );
 });
 
 export const PatientInfo = translate()(props => {
-  const { t, meta } = props;
+  const { t, meta, initialFocusedInput = 'firstName' } = props;
 
   const {
     setFieldValue,
     setFieldTouched,
   } = useFormikContext();
 
+  const initialFocusedInputRef = useInitialFocusedInput();
   const dateFormatRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
   const dateInputFormat = 'MM/DD/YYYY';
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
@@ -55,6 +60,7 @@ export const PatientInfo = translate()(props => {
         id="firstName"
         name="firstName"
         error={getFieldError(meta.firstName)}
+        innerRef={initialFocusedInput === 'firstName' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
       <FastField
@@ -66,14 +72,14 @@ export const PatientInfo = translate()(props => {
         {...condensedInputStyles}
       />
       <FastField
-        as={() => (
+        as={({innerRef}) => (
           <InputMask
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
             alwaysShowMask
             defaultValue={meta.birthday.value.replace(dateFormatRegex, '$2/$3/$1')}
             onBlur={e => {
-              setFieldTouched('birthday', true);
+              setFieldTouched('birthday');
               setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))
             }}
           >
@@ -82,10 +88,12 @@ export const PatientInfo = translate()(props => {
               id="birthday"
               label={t('Birthdate')}
               error={getFieldError(meta.birthday)}
+              innerRef={innerRef}
               {...condensedInputStyles}
             />
           </InputMask>
         )}
+        innerRef={initialFocusedInput === 'birthday' ? initialFocusedInputRef : undefined}
       />
     </Box>
   );
@@ -93,6 +101,7 @@ export const PatientInfo = translate()(props => {
 
 export const PatientEmail = translate()(props => {
   const { t, meta } = props;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldTouched,
@@ -101,6 +110,11 @@ export const PatientEmail = translate()(props => {
 
   const patientName = meta.firstName.value;
   const isCaregiverAccount = meta.accountType.value === 'caregiver';
+
+  const initialFocusedInput = get(props, 'initialFocusedInput', isCaregiverAccount
+    ? 'caregiverFirstName'
+    : 'email'
+  );
 
   const headline = isCaregiverAccount
     ? t('What is {{patientName}}\'s parent/guardian\'s name and email address?', { patientName })
@@ -127,6 +141,7 @@ export const PatientEmail = translate()(props => {
           id="caregiverFirstName"
           name="caregiverFirstName"
           error={getFieldError(meta.caregiverFirstName)}
+          innerRef={initialFocusedInput === 'caregiverFirstName' ? initialFocusedInputRef : undefined}
           {...condensedInputStyles}
         />
       )}
@@ -146,6 +161,7 @@ export const PatientEmail = translate()(props => {
         id="email"
         name="email"
         error={getFieldError(meta.email)}
+        innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
       <FastField
@@ -163,19 +179,19 @@ export const PatientEmail = translate()(props => {
   );
 });
 
-const accountFormSteps = meta => ({
+const accountFormSteps = (meta, initialFocusedInput) => ({
   label: t('Create Patient Account'),
   subSteps: [
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
       hideBack: true,
       onComplete: () => log('Account Type Complete'),
-      panelContent: <AccountType meta={meta} />
+      panelContent: <AccountType meta={meta} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
       onComplete: () => log('Patient Info Complete'),
-      panelContent: <PatientInfo meta={meta} />,
+      panelContent: <PatientInfo meta={meta} initialFocusedInput={initialFocusedInput} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[0][2], meta),

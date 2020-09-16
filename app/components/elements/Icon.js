@@ -22,7 +22,7 @@ const StyledIcon = styled(Box)`
 `;
 
 export const Icon = props => {
-  const { icon: IconElement, label, variant, ...buttonProps } = props;
+  const { icon: IconElement, innerRef, label, variant, ...buttonProps } = props;
   const as = props.variant === 'icons.button' ? 'button' : 'span';
 
   const classNames = cx({
@@ -35,6 +35,8 @@ export const Icon = props => {
       aria-label={label}
       className={classNames}
       variant={`icons.${variant}`}
+      onKeyPress={(e) => (buttonProps.onClick && e.key === 'Enter' ? buttonProps.onClick(e) : null)}
+      ref={innerRef}
       {...buttonProps}
     >
       <IconElement />
@@ -46,11 +48,17 @@ Icon.propTypes = {
   ...BoxProps,
   disabled: PropTypes.bool,
   icon: PropTypes.elementType.isRequired,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   label: PropTypes.string.isRequired,
+  tabIndex: PropTypes.number.isRequired,
   variant: PropTypes.oneOf(['default', 'static', 'button']),
 };
 
 Icon.defaultProps = {
+  tabIndex: 0,
   variant: 'default',
 };
 
