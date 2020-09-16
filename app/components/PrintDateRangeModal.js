@@ -14,7 +14,6 @@ import {
 } from './elements/Dialog';
 import { Paragraph1, MediumTitle, Caption } from './elements/FontStyles';
 
-
 export const PrintDateRangeModal = (props) => {
   const {
     onClose,

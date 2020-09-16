@@ -24,24 +24,12 @@ export default {
 
 export const PrintDateRangeModalStory = () => {
   const [open, setOpen] = useState(true);
-  // const [dates, setDates] = useState({ startDate: null, endDate: null });
 
   const handleClickOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
   };
-
-  // This function is used to check the dates that are being passed,
-  // but is commented out while not in use
-
-  // const onClickPrint = (dates) => {
-  //   if (dates.startDate !== null) {
-  //     alert('startDate: ' + dates.startDate.format('Y-MM-DD') + '\n' + 'endDate: ' + dates.endDate.format('Y-MM-DD'));
-  //   } else {
-  //     alert('no dates selected');
-  //   }
-  // };
 
   return (
     <React.Fragment>
@@ -51,11 +39,7 @@ export const PrintDateRangeModalStory = () => {
       <PrintDateRangeModal
         open={open}
         onClose={handleClose}
-        // onClickPrint={onClickPrint}
         onClickPrint={action('clicked Print')}
-        // setDates={setDates}
-        // startDate={dates.startDate}
-        // endDate={dates.endDate}
       />
     </React.Fragment>
   );
