@@ -8,6 +8,7 @@ import map from 'lodash/map';
 import InputMask from 'react-input-mask';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
@@ -34,6 +35,7 @@ const log = bows('PrescriptionAccount');
 export const PatientPhone = translate()(props => {
   const { t, meta } = props;
   const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldValue,
@@ -44,7 +46,7 @@ export const PatientPhone = translate()(props => {
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
-        as={() => (
+        as={({innerRef}) => (
           <InputMask
             mask="(999) 999-9999"
             alwaysShowMask
@@ -59,10 +61,12 @@ export const PatientPhone = translate()(props => {
               id="phoneNumber.number"
               label={t('Phone Number')}
               error={getFieldError(meta.phoneNumber.number)}
+              innerRef={innerRef}
               {...condensedInputStyles}
             />
           </InputMask>
         )}
+        innerRef={initialFocusedInputRef}
       />
       <Caption mt={5} mb={3}>
         {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
@@ -74,6 +78,7 @@ export const PatientPhone = translate()(props => {
 export const PatientMRN = translate()(props => {
   const { t, meta } = props;
   const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -84,6 +89,7 @@ export const PatientMRN = translate()(props => {
         id="mrn"
         name="mrn"
         error={getFieldError(meta.mrn)}
+        innerRef={initialFocusedInputRef}
         {...condensedInputStyles}
       />
     </Box>
@@ -93,6 +99,7 @@ export const PatientMRN = translate()(props => {
 export const PatientGender = translate()(props => {
   const { t, meta } = props;
   const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -104,6 +111,7 @@ export const PatientGender = translate()(props => {
         name="sex"
         options={sexOptions}
         error={getFieldError(meta.sex)}
+        innerRef={initialFocusedInputRef}
       />
     </Box>
   );
@@ -112,6 +120,7 @@ export const PatientGender = translate()(props => {
 export const PatientDevices = translate()(props => {
   const { t, meta, devices } = props;
   const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldValue,
@@ -134,6 +143,7 @@ export const PatientDevices = translate()(props => {
                 setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
               error={getFieldError(meta.initialSettings.pumpId)}
+              innerRef={initialFocusedInputRef}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>
