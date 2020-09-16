@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { usePrevious, useFieldArray } from '../../../../app/core/hooks';
+import { usePrevious, useFieldArray, useInitialFocusedInput } from '../../../../app/core/hooks';
 import { renderHook } from '@testing-library/react-hooks';
 import { Formik } from 'formik';
 import _ from 'lodash';
+import { mount } from 'enzyme';
 
 /* global chai */
 /* global sinon */
@@ -202,6 +203,31 @@ describe('hooks', function() {
 
       expect(usePreviousResult.current).to.equal('foo');
       expect(fooResult.current.foo).to.equal('bar');
+    });
+  });
+
+  describe('useInitialFocusedInput', () => {
+    let wrapper;
+
+    afterEach(() => {
+      // We make sure to unmount, since the element is being attached to the document body
+      // to test focus and we don't want it to stick around and pollute other tests.
+      wrapper && wrapper.unmount();
+    });
+
+    it('should focus an element when ref is assigned to element', () => {
+      const { result: { current: ref }, rerender } = renderHook(() => useInitialFocusedInput());
+      expect(ref.current).to.be.undefined;
+
+      wrapper = mount(<button ref={ref}>Click Me</button>, { attachTo: document.body });
+      const button = wrapper.find('button').getDOMNode();
+
+      const focusedElement = () => document.activeElement;
+
+      expect(focusedElement()).to.not.equal(button);
+      rerender();
+
+      expect(focusedElement()).to.equal(button);
     });
   });
 });
