@@ -31,7 +31,6 @@
   "dependencies": {
     "body-parser": "1.18.3",
     "express": "4.16.3",
-    "hakken": "0.1.11",
     "helmet": "3.13.0",
     "rollbar": "2.14.4"
   },
