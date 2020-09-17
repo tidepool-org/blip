@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import { Flex } from 'rebass/styled-components';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -21,59 +21,68 @@ export const PrintDateRangeModal = (props) => {
     onClickPrint,
     onDatesChange,
     open,
-    disabled,
     error,
+    timePrefs: { timezoneName },
   } = props;
 
-  const [dates, setDates] = useState({ startDate: null, endDate: null });
+  const endOfToday = moment().tz(timezoneName).endOf('day').subtract(1, 'ms');
+
+  // We want the set dates to start at the floor of the start date and the ceiling of the end date
+  // to ensure we are selecting full days of data.
+  const setDateRangeToExtents = ({ startDate, endDate }) => ({
+    startDate: startDate ? moment(startDate).tz(timezoneName).startOf('day') : null,
+    endDate: endDate ? moment(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
+  });
+
+  const getLastNDays = (days) => {
+    return setDateRangeToExtents({
+      startDate: moment(endOfToday).tz(timezoneName).subtract(days - 1, 'days'),
+      endDate: endOfToday,
+    });
+  };
+
+  const presetOptions = [7, 14, 21, 30];
+  const [dates, setDates] = useState(getLastNDays(presetOptions[0]));
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   useEffect(() => {
     onDatesChange(dates);
   }, [dates])
 
-  const getLastNDays = (startDate) => ({
-    startDate: moment().subtract(startDate, 'days'),
-    endDate: moment(),
-  });
-
-  const doesChipDateMatch = (start) => {
-    return moment().subtract(start, 'days').isSame(dates.startDate, 'day') && moment().isSame(dates.endDate, 'day');
+  const doesChipDateMatch = (selectedDays) => {
+    return moment(endOfToday).tz(timezoneName).subtract(selectedDays - 1, 'days').isSame(dates.startDate, 'day') && endOfToday.isSame(dates.endDate, 'day');
   };
 
-  const options = [7, 14, 21, 30];
-
   return (
-    <Dialog maxWidth="md" open={open} onClose={onClose}>
+    <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={onClose}>
       <DialogTitle divider={false} onClose={onClose}>
         <MediumTitle>Print Report</MediumTitle>
       </DialogTitle>
       <DialogContent divider pb={6}>
         <Paragraph1>Number of days (most recent)</Paragraph1>
         <Flex mb={4}>
-          {map(options, (option, i) => (
+          {map(presetOptions, (days, i) => (
             <Button
               mx={1}
               variant="chip"
-              disabled={disabled}
-              id={`${option}-${i}`}
-              key={option}
-              value={option}
-              selected={doesChipDateMatch(option)}
-              onClick={() => {
-                setDates(getLastNDays(option));
-              }}
+              id={`latest-${days}-days`}
+              key={i}
+              value={days}
+              selected={doesChipDateMatch(days)}
+              onClick={() => setDates(getLastNDays(days))}
             >
-              {option} days
+              {days} days
             </Button>
           ))}
         </Flex>
         <Paragraph1>Or select a custom date range</Paragraph1>
         <DateRangePicker
           startDate={dates.startDate}
+          startDateId="printDateRangeStart"
           endDate={dates.endDate}
-          onDatesChange={dates => setDates(dates)}
-          isOutsideRange={day => (moment().diff(day) < 0)}
+          endDateId="printDateRangeEnd"
+          onDatesChange={dates => setDates(setDateRangeToExtents(dates))}
+          isOutsideRange={day => (endOfToday.diff(day) < 0)}
           onFocusChange={input => setDatePickerOpen(!!input)}
           themeProps={{
             minWidth: '580px',
@@ -98,14 +107,22 @@ export const PrintDateRangeModal = (props) => {
   );
 };
 
-PrintDateRangeModal.PropTypes = {
-  onDatesChange: PropTypes.func,
+PrintDateRangeModal.propTypes = {
+  error: PropTypes.bool,
   onClickPrint: PropTypes.func,
+  onClose: PropTypes.func,
+  onDatesChange: PropTypes.func,
+  open: PropTypes.bool,
+  timePrefs: PropTypes.shape({
+    timezoneAware: PropTypes.bool,
+    timezoneName: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 PrintDateRangeModal.defaultProps = {
-  onDatesChange: noop,
   onClickPrint: noop,
+  onClose: noop,
+  onDatesChange: noop,
 };
 
 export default PrintDateRangeModal;
