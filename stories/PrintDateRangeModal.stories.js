@@ -66,7 +66,7 @@ PrintDateRangeModalStory.story = {
     design: {
       type: 'figma',
       url:
-        'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=8%3A826',
+        'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2209%3A256',
     },
   },
 };
