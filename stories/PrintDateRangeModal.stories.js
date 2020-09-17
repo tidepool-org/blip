@@ -49,9 +49,12 @@ export const PrintDateRangeModalStory = () => {
         onClickPrint={dates => {
           setSubmitted(true);
           validateDates(dates);
-          action('clicked Print')();
+          action('clicked Print')(dates);
         }}
         onDatesChange={dates => submitted && validateDates(dates)}
+        timePrefs={{
+          timezoneName: 'UTC',
+        }}
       />
     </React.Fragment>
   );
