@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
+import isEqual from 'lodash/isEqual';
 import { Flex } from 'rebass/styled-components';
 import moment from 'moment-timezone';
 
@@ -25,7 +26,7 @@ export const PrintDateRangeModal = (props) => {
     timePrefs: { timezoneName },
   } = props;
 
-  const endOfToday = moment().tz(timezoneName).endOf('day').subtract(1, 'ms');
+  const endOfToday = useMemo(() => moment().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
   // We want the set dates to start at the floor of the start date and the ceiling of the end date
   // to ensure we are selecting full days of data.
@@ -42,16 +43,13 @@ export const PrintDateRangeModal = (props) => {
   };
 
   const presetOptions = [7, 14, 21, 30];
+  const presetDateRanges = useMemo(() => map(presetOptions, getLastNDays), [open]);
   const [dates, setDates] = useState(getLastNDays(presetOptions[0]));
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   useEffect(() => {
     onDatesChange(dates);
   }, [dates])
-
-  const doesChipDateMatch = (selectedDays) => {
-    return moment(endOfToday).tz(timezoneName).subtract(selectedDays - 1, 'days').isSame(dates.startDate, 'day') && endOfToday.isSame(dates.endDate, 'day');
-  };
 
   return (
     <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={onClose}>
@@ -68,7 +66,7 @@ export const PrintDateRangeModal = (props) => {
               id={`latest-${days}-days`}
               key={i}
               value={days}
-              selected={doesChipDateMatch(days)}
+              selected={isEqual(dates, presetDateRanges[i])}
               onClick={() => setDates(getLastNDays(days))}
             >
               {days} days
