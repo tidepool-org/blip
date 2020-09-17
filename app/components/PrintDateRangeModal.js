@@ -93,7 +93,7 @@ export const PrintDateRangeModal = (props) => {
           </Caption>
         )}
       </DialogContent>
-      <DialogActions justifyContent="space-between" alignContent="center" py={2}>
+      <DialogActions justifyContent="space-between" py={2}>
         <Button variant="textSecondary" onClick={onClose}>
           Cancel
         </Button>
