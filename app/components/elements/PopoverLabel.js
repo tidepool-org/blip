@@ -8,7 +8,7 @@ import {
   usePopupState,
   bindHover,
   bindPopover,
-  bindTrigger,
+  bindToggle,
 } from 'material-ui-popup-state/hooks';
 
 import Popover from './Popover';
@@ -27,6 +27,7 @@ const PopoverLabel = props => {
   } = props;
 
   const popupState = usePopupState({
+    disableAutoFocus: true,
     variant: 'popover',
     popupId: id,
   });
@@ -38,7 +39,7 @@ const PopoverLabel = props => {
         <Icon
           label={iconLabel}
           icon={icon}
-          {...(triggerOnHover ? bindHover(popupState) : bindTrigger(popupState))}
+          {...(triggerOnHover ? bindHover(popupState) : bindToggle(popupState))}
         />
       </Label>
 
