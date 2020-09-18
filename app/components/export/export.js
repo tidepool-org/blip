@@ -28,6 +28,7 @@ export default translate()(class Export extends Component {
     api: PropTypes.object.isRequired,
     patient: PropTypes.object.isRequired,
     user: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -53,6 +54,7 @@ export default translate()(class Export extends Component {
   }
 
   handleSubmit(event) {
+    this.props.trackMetric('Clicked "export data"');
     event.preventDefault();
     this.setState({ error: null });
     let options = _.pick(this.state, [
@@ -107,6 +109,25 @@ export default translate()(class Export extends Component {
       }
     }
 
+    let metric;
+
+    switch (name) {
+      case 'format':
+        metric = 'Selected file format';
+        break;
+      case 'startDate':
+      case 'endDate':
+        metric = 'Selected custom start/end date';
+        break;
+      case 'bgUnits':
+        metric = 'Selected diabetes data format';
+        break;
+      default:
+        break;
+    }
+
+    metric && this.props.trackMetric(metric);
+
     this.setState({
       [name]: value
     });
@@ -128,6 +149,7 @@ export default translate()(class Export extends Component {
       endDate,
       startDate,
     });
+    this.props.trackMetric('Selected pre-determined date range');
   }
 
   render() {
