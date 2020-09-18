@@ -26,6 +26,7 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 
 import Stats from './stats';
+import DeviceSelection from './deviceSelection';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -192,6 +193,7 @@ class BgLog extends Component {
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -253,6 +255,13 @@ class BgLog extends Component {
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>

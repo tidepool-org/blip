@@ -35,6 +35,10 @@ export const colors = {
     warning: '#FFAB00',
     danger: '#DE350C',
   },
+  stat: {
+    border: '#75849F',
+    text: '#727375',
+  },
 };
 
 export const borders = {

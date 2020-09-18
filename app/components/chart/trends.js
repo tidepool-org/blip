@@ -14,6 +14,7 @@ import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
+import DeviceSelection from './deviceSelection';
 
 import {
   components as vizComponents,
@@ -53,7 +54,8 @@ const Trends = translate()(class Trends extends PureComponent {
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    uploadUrl: PropTypes.string.isRequired
+    uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -460,6 +462,13 @@ const Trends = translate()(class Trends extends PureComponent {
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>
