@@ -58,11 +58,11 @@ DialogTitle.defaultProps = {
 
 /* Dialog Content Start */
 const StyledDialogContent = styled(Box)`
-  div:first-child {
+  > div:first-child {
     margin-top: 0;
   }
 
-  div:last-child {
+  > div:last-child {
     margin-bottom: 0;
   }
 `;
