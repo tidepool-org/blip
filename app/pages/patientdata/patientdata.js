@@ -145,6 +145,18 @@ export let PatientData = translate()(createReactClass({
           daily: 15,
           bgLog: 30,
         },
+        daily: {
+          endDate: null,
+          numDays: 14,
+        },
+        bgLog: {
+          endDate: null,
+          numDays: 30,
+        },
+        basics: {
+          endDate: null,
+          numDays: 21,
+        },
       },
       createMessage: null,
       createMessageDatetime: null,
@@ -526,6 +538,81 @@ export let PatientData = translate()(createReactClass({
 
     this.log('stats', stats);
     return stats;
+  },
+
+  generateCustomPDF: function(props = this.props, state = this.state, dates) {
+    const patientSettings = _.get(props, 'patient.settings', {});
+    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
+    const pdfPatient = _.assign({}, props.patient, {
+      settings: _.assign({}, patientSettings, { siteChangeSource }),
+    });
+
+    const opts = {
+      patient: pdfPatient,
+    };
+
+    const commonQueries = {
+      bgPrefs: state.bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs: state.timePrefs,
+    };
+
+    const queries = {
+      basics: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
+          { chartType: 'basics' }
+        ),
+        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+        stats: this.getStatsByChartType('basics'),
+        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        ...commonQueries,
+      },
+      daily: {
+        endpoints: _.map(dates, date => moment.utc(date).valueOf()),
+        aggregationsByDate: 'dataByDate, statsByDate',
+        stats: this.getStatsByChartType('daily'),
+        types: {
+          basal: {},
+          bolus: {},
+          cbg: {},
+          deviceEvent: {},
+          food: {},
+          message: {},
+          smbg: {},
+          wizard: {},
+        },
+        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+        ...commonQueries,
+      },
+      bgLog: {
+        endpoints: this.getChartEndpoints(
+          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
+          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
+        ),
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      },
+      settings: {
+        ...commonQueries,
+      },
+    };
+
+    this.log('Generating PDF with', queries, opts);
+
+    window.downloadPDFDataQueries = () => {
+      console.save(queries, 'PDFDataQueries.json');
+    };
+
+    props.generatePDFRequest(
+      'combined',
+      queries,
+      opts,
+      this.props.currentPatientInViewId,
+    );
   },
 
   generatePDF: function (props = this.props, state = this.state) {
