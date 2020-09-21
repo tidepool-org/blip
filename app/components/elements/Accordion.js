@@ -10,7 +10,6 @@ import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 import {
   borders,
   colors,
-  space,
   fonts,
   fontSizes,
   fontWeights,
@@ -43,7 +42,7 @@ const StyledAccordionHeader = styled(ExpansionPanelSummary)`
 `;
 
 const StyledAccordionContent = styled(ExpansionPanelDetails)`
-  padding: ${space[3]}px;
+  padding: 0;
   color: ${colors.text.primarySubdued};
 `;
 
@@ -81,9 +80,13 @@ export const Accordion = (props) => {
       <Box
         as={StyledAccordionContent}
         id={`${label}-content`}
-        {...themeProps.panel}
       >
-        {children}
+        <Box
+          p={3}
+          {...themeProps.panel}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );
