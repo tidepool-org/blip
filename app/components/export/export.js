@@ -205,7 +205,10 @@ export default translate()(class Export extends Component {
           </div>
 
           <div>
-            <a onClick={() => this.setState({ allTime: true })}>All Data</a> |
+            <a onClick={() => {
+              this.props.trackMetric('Selected pre-determined date range');
+              this.setState({ allTime: true });
+            }}>All Data</a> |
             <a onClick={() => this.setDateRange(90)}> Last 90 Days</a> |
             <a onClick={() => this.setDateRange(30)}> Last 30 Days</a> |
             <a onClick={() => this.setDateRange(14)}> Last 14 Days</a>
