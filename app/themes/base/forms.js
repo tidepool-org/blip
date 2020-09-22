@@ -17,7 +17,9 @@ export default ({ colors }) => ({
       backgroundColor: colors.purpleMedium,
 
       '> div': {
-        transform: 'translateX(28px) !important',
+        transform: 'translateX(27px) !important',
+        marginTop: 0,
+        marginLeft: 0,
       },
     },
     '&:focus': {
