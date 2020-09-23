@@ -20,6 +20,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var ReactDOM = require('react-dom');
 
 var d3 = require('d3');
@@ -50,11 +51,14 @@ if (_.isEmpty(dataUrl)) {
 }
 dataUrl = 'data/' + dataUrl;
 
-var Example = React.createClass({
+var Example = createReactClass({
+  displayName: 'Example',
   log: bows('Example'),
+
   componentDidMount: function() {
     this.fetchData();
   },
+
   getInitialState: function() {
     return {
       bgPrefs: {
@@ -93,6 +97,7 @@ var Example = React.createClass({
       chartType: 'empty'
     };
   },
+
   render: function() {
     var chart = this.renderChart();
     /* jshint ignore:start */
@@ -105,6 +110,7 @@ var Example = React.createClass({
     );
     /* jshint ignore:end */
   },
+
   renderChart: function() {
     switch (this.state.chartType) {
       case 'empty':
@@ -176,11 +182,13 @@ var Example = React.createClass({
         /* jshint ignore:end */
     }
   },
+
   // fetch & process
   fetchData: function() {
     this.log('Fetching data...');
     d3.json(dataUrl, this.processData);
   },
+
   processData: function(err, data) {
     this.log('Processing data...');
     if (err) {
@@ -191,6 +199,7 @@ var Example = React.createClass({
     console.timeEnd('Nurseshark Total');
     this.updateData(data.processedData);
   },
+
   updateData: function(data) {
     console.time('TidelineData Total');
     var tidelineData = new TidelineData(data, {
@@ -208,6 +217,7 @@ var Example = React.createClass({
       chartType: 'daily'
     });
   },
+
   // handlers
   handleSwitchToDaily: function(datetime) {
     this.setState({
@@ -215,17 +225,20 @@ var Example = React.createClass({
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
+
   handleSwitchToModal: function(datetime) {
     this.setState({
       chartType: 'modal',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
+
   handleSwitchToSettings: function() {
     this.setState({
       chartType: 'settings'
     });
   },
+
   handleSwitchToWeekly: function(datetime) {
     datetime = datetime || this.state.datetimeLocation;
     if (this.state.chartPrefs.timePrefs.timezoneAware) {
@@ -236,6 +249,7 @@ var Example = React.createClass({
       initialDatetimeLocation: datetime
     });
   },
+
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.cloneDeep(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
@@ -245,13 +259,14 @@ var Example = React.createClass({
       // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   },
+
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime
     }, function() {
       // this.log('Global example state changed:', JSON.stringify(this.state));
     });
-  }
+  },
 });
 
 ReactDOM.render(

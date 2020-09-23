@@ -15,13 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+/* jshint esversion:6 */
 
 var _ = require('lodash');
 var bows = require('bows');
 var cx = require('classnames');
 var moment = require('moment-timezone');
+var PropTypes = require('prop-types');
 var React = require('react');
+
+var createReactClass = require('create-react-class');
 
 var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
@@ -35,31 +38,33 @@ var togglableState = require('../TogglableState');
 
 var { DDD_FORMAT } = require('../../../../js/data/util/constants');
 
-var CalendarContainer = React.createClass({
+var CalendarContainer = createReactClass({
+  displayName: 'CalendarContainer',
   mixins: [BasicsUtils],
+
   propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    chart: React.PropTypes.func.isRequired,
-    chartWidth: React.PropTypes.number.isRequired,
-    data: React.PropTypes.object.isRequired,
-    days: React.PropTypes.array.isRequired,
-    hasHover: React.PropTypes.bool.isRequired,
-    hoverDisplay: React.PropTypes.func,
-    onSelectDay: React.PropTypes.func.isRequired,
-    sectionId: React.PropTypes.string.isRequired,
-    selector: React.PropTypes.func,
-    selectorOptions: React.PropTypes.object,
-    selectorMetaData: React.PropTypes.object,
-    settingsTogglable: React.PropTypes.oneOf([
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    chart: PropTypes.func.isRequired,
+    chartWidth: PropTypes.number.isRequired,
+    data: PropTypes.object.isRequired,
+    days: PropTypes.array.isRequired,
+    hasHover: PropTypes.bool.isRequired,
+    hoverDisplay: PropTypes.func,
+    onSelectDay: PropTypes.func.isRequired,
+    sectionId: PropTypes.string.isRequired,
+    selector: PropTypes.func,
+    selectorOptions: PropTypes.object,
+    selectorMetaData: PropTypes.object,
+    settingsTogglable: PropTypes.oneOf([
       togglableState.open,
       togglableState.closed,
       togglableState.off,
     ]).isRequired,
-    timezone: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    title: React.PropTypes.string.isRequired
+    timezone: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired
   },
 
   actions: basicsActions,
@@ -212,7 +217,7 @@ var CalendarContainer = React.createClass({
         );
       }
     });
-  }
+  },
 });
 
 module.exports = CalendarContainer;

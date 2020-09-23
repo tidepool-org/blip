@@ -1,4 +1,6 @@
+var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var moment = require('moment-timezone');
 var cx = require('classnames');
 var _ = require('lodash');
@@ -8,26 +10,30 @@ var t = i18next.t.bind(i18next);
 var BasicsUtils = require('../BasicsUtils');
 var constants = require('../../logic/constants');
 
-var HoverDay = React.createClass({
+var HoverDay = createReactClass({
+  displayName: 'HoverDay',
   mixins: [BasicsUtils],
+
   propTypes: {
-    data: React.PropTypes.object,
-    date: React.PropTypes.string.isRequired,
-    dayAbbrevMask: React.PropTypes.string.isRequired,
-    hoverDisplay: React.PropTypes.func,
-    onHover: React.PropTypes.func.isRequired,
-    onSelectDay: React.PropTypes.func.isRequired,
-    subtotalType: React.PropTypes.string,
-    timezone: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired,
-    title: React.PropTypes.string.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    data: PropTypes.object,
+    date: PropTypes.string.isRequired,
+    dayAbbrevMask: PropTypes.string.isRequired,
+    hoverDisplay: PropTypes.func,
+    onHover: PropTypes.func.isRequired,
+    onSelectDay: PropTypes.func.isRequired,
+    subtotalType: PropTypes.string,
+    timezone: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   },
+
   getDefaultProps: function() {
     return {
       dayAbbrevMask: 'MMM D'
     };
   },
+
   handleClickDay: function() {
     this.props.onSelectDay(
       moment.tz(this.props.date, this.props.timezone)
@@ -40,12 +46,15 @@ var HoverDay = React.createClass({
       this.props.title
     );
   },
+
   mouseEnter: function () {
     this.props.onHover(this.props.date);
   },
+
   mouseLeave: function () {
     this.props.onHover(null);
   },
+
   render: function() {
     var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day--HOVER': true,
@@ -70,7 +79,7 @@ var HoverDay = React.createClass({
         {display}
       </div>
     );
-  }
+  },
 });
 
 module.exports = HoverDay;

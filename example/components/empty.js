@@ -17,9 +17,13 @@
 var bows = require('bows');
 var React = require('react');
 
-var Empty = React.createClass({
+var createReactClass = require('create-react-class');
+
+var Empty = createReactClass({
+  displayName: 'Empty',
   chartType: 'empty',
   log: bows('Empty View'),
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -38,7 +42,7 @@ var Empty = React.createClass({
       </div>
       );
     /* jshint ignore:end */
-  }
+  },
 });
 
 module.exports = Empty;

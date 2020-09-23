@@ -16,7 +16,9 @@
  */
 var _ = require('lodash');
 var bows = require('bows');
+var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var ReactDOM = require('react-dom');
 
 // tideline dependencies & plugins
@@ -29,24 +31,28 @@ var tideline = {
   log: bows('Settings')
 };
 
-var Settings = React.createClass({
+var Settings = createReactClass({
+  displayName: 'Settings',
   chartType: 'settings',
   log: bows('Settings View'),
+
   propTypes: {
-    bgPrefs: React.PropTypes.object.isRequired,
-    chartPrefs: React.PropTypes.object.isRequired,
-    patientData: React.PropTypes.object.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToModal: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired
+    bgPrefs: PropTypes.object.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    patientData: PropTypes.object.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToModal: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToWeekly: PropTypes.func.isRequired
   },
+
   getInitialState: function() {
     return {
       atMostRecent: true,
       title: ''
     };
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -74,48 +80,60 @@ var Settings = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   // handlers
   handleClickModal: function() {
     this.props.onSwitchToModal();
   },
+
   handleClickMostRecent: function() {
     return;
   },
+
   handleClickOneDay: function() {
     this.props.onSwitchToDaily();
   },
+
   handleClickTwoWeeks: function() {
     this.props.onSwitchToWeekly();
   },
+
   handleClickSettings: function() {
     // when you're on settings view, clicking settings does nothing
     return;
-  }
+  },
 });
 
-var SettingsChart = React.createClass({
+var SettingsChart = createReactClass({
+  displayName: 'SettingsChart',
   chartOpts: ['bgUnits'],
   log: bows('Settings Chart'),
+
   propTypes: {
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patientData: PropTypes.object.isRequired,
   },
+
   componentDidMount: function() {
     this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData);
   },
+
   componentWillUnmount: function() {
     this.unmountChart();
   },
+
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
     this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
   },
+
   unmountChart: function() {
     this.log('Unmounting...');
     this.chart.destroy();
   },
+
   initializeChart: function(data) {
     this.log('Initializing...');
     if (_.isEmpty(data)) {
@@ -124,13 +142,14 @@ var SettingsChart = React.createClass({
 
     this.chart.load(data);
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
       <div id="tidelineContainer"></div>
       );
     /* jshint ignore:end */
-  }
+  },
 });
 
 module.exports = Settings;

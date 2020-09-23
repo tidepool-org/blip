@@ -111,7 +111,7 @@
   "settings": {
     "react": {
       "pragma": "React",
-      "version": "15.6.2"
+      "version": "16.13.1"
     }
   }
 }

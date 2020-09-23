@@ -18,22 +18,27 @@
 var _ = require('lodash');
 var classnames = require('classnames');
 var d3 = require('d3');
+var PropTypes = require('prop-types');
 var React = require('react');
+
+var createReactClass = require('create-react-class');
 
 var basicsActions = require('../../logic/actions');
 var BasicsUtils = require('../BasicsUtils');
 var format = require('../../../../../js/data/util/format');
 
-var SummaryGroup = React.createClass({
+var SummaryGroup = createReactClass({
+  displayName: 'SummaryGroup',
   mixins: [BasicsUtils],
+
   propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    data: React.PropTypes.object.isRequired,
-    selectedSubtotal: React.PropTypes.string.isRequired,
-    selectorOptions: React.PropTypes.object.isRequired,
-    sectionId: React.PropTypes.string.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    data: PropTypes.object.isRequired,
+    selectedSubtotal: PropTypes.string.isRequired,
+    selectorOptions: PropTypes.object.isRequired,
+    sectionId: PropTypes.string.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   },
 
   actions: basicsActions,

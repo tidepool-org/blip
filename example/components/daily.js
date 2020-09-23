@@ -17,7 +17,9 @@
 var _ = require('lodash');
 var bows = require('bows');
 var moment = require('moment-timezone');
+var PropTypes = require('prop-types');
 var React = require('react');
+var createReactClass = require('create-react-class');
 var ReactDOM = require('react-dom');
 
 // tideline dependencies & plugins
@@ -28,21 +30,24 @@ var Footer = require('./footer');
 
 var DDDD_MMMM_D_FORMAT = require('../../js/data/util/constants');
 
-var Daily = React.createClass({
+var Daily = createReactClass({
+  displayName: 'Daily',
   chartType: 'daily',
   log: bows('Daily View'),
+
   propTypes: {
-    bgPrefs: React.PropTypes.object.isRequired,
-    chartPrefs: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToModal: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    bgPrefs: PropTypes.object.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patientData: PropTypes.object.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToModal: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToWeekly: PropTypes.func.isRequired,
+    updateChartPrefs: PropTypes.func.isRequired,
+    updateDatetimeLocation: PropTypes.func.isRequired
   },
+
   getInitialState: function() {
     return {
       atMostRecent: false,
@@ -50,6 +55,7 @@ var Daily = React.createClass({
       title: ''
     };
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -90,28 +96,34 @@ var Daily = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   getTitle: function(datetime) {
     if (this.props.chartPrefs.timePrefs.timezoneAware) {
       return moment(datetime).tz(this.props.chartPrefs.timePrefs.timezoneName).format('dddd, MMMM D');
     }
     return moment(datetime).utc().format(DDDD_MMMM_D_FORMAT);
   },
+
   // handlers
   handleClickModal: function() {
     var datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToModal(datetime);
   },
+
   handleClickMostRecent: function() {
     this.refs.chart.goToMostRecent();
   },
+
   handleClickOneDay: function() {
     // when you're on one-day view, clicking one-day does nothing
     return;
   },
+
   handleClickTwoWeeks: function() {
     var datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
+
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
       datetimeLocation: datetimeLocationEndpoints[1],
@@ -119,65 +131,78 @@ var Daily = React.createClass({
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
   },
+
   handleInTransition: function(inTransition) {
     this.setState({
       inTransition: inTransition
     });
   },
+
   handleMostRecent: function(atMostRecent) {
     this.setState({
       atMostRecent: atMostRecent
     });
   },
+
   handlePanBack: function() {
     this.refs.chart.panBack();
   },
+
   handlePanForward: function() {
     this.refs.chart.panForward();
-  }
+  },
 });
 
-var DailyChart = React.createClass({
+var DailyChart = createReactClass({
+  displayName: 'DailyChart',
   chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Daily Chart'),
+
   propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patientData: PropTypes.object.isRequired,
+    timePrefs: PropTypes.object.isRequired,
     // handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
+    onDatetimeLocationChange: PropTypes.func.isRequired,
+    onMostRecent: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired
   },
+
   getInitialState: function() {
     return {
       datetimeLocation: null
     };
   },
+
   componentDidMount: function() {
     this.mountChart();
     this.initializeChart(this.props.initialDatetimeLocation);
     this.bindEvents();
   },
+
   componentWillUnmount: function() {
     this.unmountChart();
   },
+
   mountChart: function() {
     this.log('Mounting...');
     this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
   },
+
   unmountChart: function() {
     this.log('Unmounting...');
     this.chart.destroy();
   },
+
   bindEvents: function() {
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
   },
+
   initializeChart: function(datetime) {
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
@@ -195,6 +220,7 @@ var DailyChart = React.createClass({
       this.chart.locate();
     }
   },
+
   render: function() {
     /* jshint ignore:start */
     return (
@@ -202,6 +228,7 @@ var DailyChart = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
@@ -209,23 +236,28 @@ var DailyChart = React.createClass({
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
+
   rerenderChart: function() {
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
   },
+
   getCurrentDay: function() {
     return this.chart.getCurrentDay().toISOString();
   },
+
   goToMostRecent: function() {
     this.chart.setAtDate(null, true);
   },
+
   panBack: function() {
     this.chart.panBack();
   },
+
   panForward: function() {
     this.chart.panForward();
-  }
+  },
 });
 
 module.exports = Daily;

@@ -24,6 +24,7 @@ var t = i18next.t.bind(i18next);
 var tideline = require('../../../js/');
 
 var _ = require('lodash');
+var PropTypes = require('prop-types');
 var React = require('react');
 
 require('./less/basics.less');
@@ -37,22 +38,22 @@ var Section = require('./components/DashboardSection');
 
 var togglableState = require('./TogglableState');
 
-var BasicsChart = React.createClass({
-  propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    onSelectDay: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object.isRequired,
-    patientData: React.PropTypes.object.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object.isRequired,
-    size: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    updateBasicsData: React.PropTypes.func.isRequired,
-    updateBasicsSettings: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-  },
+class BasicsChart extends React.Component {
+  static propTypes = {
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    onSelectDay: PropTypes.func.isRequired,
+    patient: PropTypes.object.isRequired,
+    patientData: PropTypes.object.isRequired,
+    permsOfLoggedInUser: PropTypes.object.isRequired,
+    size: PropTypes.object.isRequired,
+    timePrefs: PropTypes.object.isRequired,
+    updateBasicsData: PropTypes.func.isRequired,
+    updateBasicsSettings: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+  };
 
-  _adjustSectionsBasedOnAvailableData: function(basicsData) {
+  _adjustSectionsBasedOnAvailableData = (basicsData) => {
     var insulinDataAvailable = this._insulinDataAvailable();
     var noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
     var noSMBGDataMessage = t("This section requires data from a blood-glucose meter, so there's nothing to display.");
@@ -107,9 +108,9 @@ var BasicsChart = React.createClass({
         }
       });
     }
-  },
+  };
 
-  _insulinDataAvailable: function() {
+  _insulinDataAvailable = () => {
     var {
       basal,
       bolus,
@@ -120,22 +121,22 @@ var BasicsChart = React.createClass({
       return true;
     }
     return false;
-  },
+  };
 
-  _automatedBasalEventsAvailable: function() {
+  _automatedBasalEventsAvailable = () => {
     return _.get(this.props, 'patientData.basicsData.data.basal.summary.automatedStop.count', 0) > 0;
-  },
+  };
 
-  _hasSectionData: function (section) {
+  _hasSectionData = (section) => {
     var basicsData = this.props.patientData.basicsData;
 
     // check that section has data within range of current view
     return _.some(basicsData.data[section].data, function(datum) {
       return (datum.time >= basicsData.dateRange[0]);
     });
-  },
+  };
 
-  _availableDeviceData: function () {
+  _availableDeviceData = () => {
     var deviceTypes = [];
 
     if (this._hasSectionData('cbg')) {
@@ -149,9 +150,9 @@ var BasicsChart = React.createClass({
     }
 
     return deviceTypes;
-  },
+  };
 
-  componentWillMount: function() {
+  componentWillMount() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
@@ -167,9 +168,9 @@ var BasicsChart = React.createClass({
     }
     this.setState(basicsData);
     basicsActions.bindApp(this);
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     var availableDeviceData = this._availableDeviceData();
 
     if (availableDeviceData.length > 0) {
@@ -180,22 +181,22 @@ var BasicsChart = React.createClass({
 
       this.props.trackMetric('web - viewed basics data', { device });
     }
-  },
+  }
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     this.props.updateBasicsData(this.state);
-  },
+  }
 
-  render: function() {
+  render() {
     var rightColumn = this.renderColumn('right');
     return (
       <div>
         {rightColumn}
       </div>
     );
-  },
+  }
 
-  renderColumn: function(columnSide) {
+  renderColumn = (columnSide) => {
     var self = this;
     var timePrefs = this.props.timePrefs;
     var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
@@ -232,8 +233,8 @@ var BasicsChart = React.createClass({
           trackMetric={self.props.trackMetric} />
       );
     });
-  }
-});
+  };
+}
 
 module.exports = sizeMe({ monitorHeight: true })(BasicsChart);
 module.exports.inner = BasicsChart;

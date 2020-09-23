@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -16,22 +17,26 @@
  */
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 var cx = require('classnames');
 
 var d3 = window.d3;
 
 var DaysGroup = require('./dayfiltergroup');
 
-var ModalSubNav = React.createClass({
+var ModalSubNav = createReactClass({
+  displayName: 'ModalSubNav',
+
   propTypes: {
-    activeDays: React.PropTypes.object.isRequired,
-    activeDomain: React.PropTypes.string.isRequired,
-    extentSize: React.PropTypes.number.isRequired,
-    domainClickHandlers: React.PropTypes.object.isRequired,
-    onClickDay: React.PropTypes.func.isRequired,
-    toggleWeekdays: React.PropTypes.func.isRequired,
-    toggleWeekends: React.PropTypes.func.isRequired
+    activeDays: PropTypes.object.isRequired,
+    activeDomain: PropTypes.string.isRequired,
+    extentSize: PropTypes.number.isRequired,
+    domainClickHandlers: PropTypes.object.isRequired,
+    onClickDay: PropTypes.func.isRequired,
+    toggleWeekdays: PropTypes.func.isRequired,
+    toggleWeekends: PropTypes.func.isRequired
   },
+
   DAY_ABBREVS: {
     monday: 'M',
     tuesday: 'Tu',
@@ -41,16 +46,19 @@ var ModalSubNav = React.createClass({
     saturday: 'Sa',
     sunday: 'Su'
   },
+
   getInitialState: function() {
     return {
       weekdaysActive: true,
       weekendsActive: true
     };
   },
+
   componentWillReceiveProps: function(nextProps) {
     this.areWeekdaysActive(nextProps);
     this.areWeekendsActive(nextProps);
   },
+
   render: function() {
     var domainLinks = this.renderDomainLinks();
     var dayFilters = this.renderDayFilters();
@@ -66,6 +74,7 @@ var ModalSubNav = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   renderDomainLinks: function() {
     var domains = ['1 week', '2 weeks', '4 weeks'];
     var domainLinks = [];
@@ -95,6 +104,7 @@ var ModalSubNav = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
       'active': domain === this.props.activeDomain,
@@ -106,6 +116,7 @@ var ModalSubNav = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   renderDayFilters: function() {
     var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     var dayLinks = [];
@@ -129,6 +140,7 @@ var ModalSubNav = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   renderDay: function(day) {
     var dayLinkClass = cx({
       'dayFilter': true,
@@ -141,6 +153,7 @@ var ModalSubNav = React.createClass({
       );
     /* jshint ignore:end */
   },
+
   areWeekdaysActive: function(props) {
     var weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
     var active = true;
@@ -155,12 +168,14 @@ var ModalSubNav = React.createClass({
       weekdaysActive: active
     });
   },
+
   areWeekendsActive: function(props) {
     var activeDays = props.activeDays;
     this.setState({
       weekendsActive: activeDays.saturday && activeDays.sunday
     });
   },
+
   // handlers
   handleSelectDaysGroup: function(category) {
     if (category === 'weekday') {
@@ -169,7 +184,7 @@ var ModalSubNav = React.createClass({
     else if (category === 'weekend') {
       this.props.toggleWeekends(this.state.weekendsActive);
     }
-  }
+  },
 });
 
 module.exports = ModalSubNav;

@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "1.12.1",
+  "version": "1.13.0",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
@@ -21,11 +21,12 @@
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha",
     "start": "NODE_ENV=development webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
-    "lint": "eslint js plugins example test"
+    "lint": "eslint js plugins test --quiet"
   },
   "dependencies": {
     "bows": "1.7.2",
     "classnames": "2.2.6",
+    "create-react-class": "^15.6.3",
     "crossfilter2": "1.4.8",
     "d3": "3.5.17",
     "d3.chart": "0.3.0",
@@ -33,10 +34,9 @@
     "i18next": "11.9.0",
     "lodash": "4.17.15",
     "moment-timezone": "0.5.31",
-    "react": "15.6.2",
-    "react-addons-pure-render-mixin": "15.6.2",
-    "react-dom": "15.6.2",
-    "react-sizeme": "2.5.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-sizeme": "2.6.12",
     "sundial": "github:mdblp/sundial#dblp.0.2.0"
   },
   "devDependencies": {
@@ -52,7 +52,7 @@
     "chai": "4.2.0",
     "css-loader": "3.6.0",
     "enzyme": "3.11.0",
-    "enzyme-adapter-react-15": "1.4.1",
+    "enzyme-adapter-react-16": "1.15.2",
     "eslint": "7.3.1",
     "eslint-plugin-import": "2.21.2",
     "eslint-plugin-jsx-a11y": "6.3.1",
@@ -76,7 +76,7 @@
     "postcss-calc": "7.0.2",
     "postcss-custom-properties": "9.1.1",
     "postcss-loader": "3.0.0",
-    "react-test-renderer": "15.6.2",
+    "react-test-renderer": "16.13.1",
     "sinon": "9.0.2",
     "style-loader": "1.1.2",
     "url-loader": "4.1.0",
