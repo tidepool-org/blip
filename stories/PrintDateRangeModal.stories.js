@@ -23,29 +23,13 @@ export default {
 };
 
 export const PrintDateRangeModalStory = () => {
-  const initialErrorState = {
-    basics: false,
-    bgLog: false,
-    daily: false,
-  };
-
   const [open, setOpen] = useState(true);
-  const [errors, setErrors] = useState(initialErrorState);
-  const [submitted, setSubmitted] = useState(false);
 
   const handleClickOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
-    setSubmitted(false);
-    setErrors(initialErrorState);
   };
-
-  const validateDates = ({ basics, bgLog, daily }) => setErrors({
-    basics: !basics.startDate || !basics.endDate,
-    bgLog: !bgLog.startDate || !bgLog.endDate,
-    daily: !daily.startDate || !daily.endDate,
-  });
 
   return (
     <React.Fragment>
@@ -53,7 +37,6 @@ export const PrintDateRangeModalStory = () => {
         Open Print Dialog
       </Button>
       <PrintDateRangeModal
-        errors={errors}
         mostRecentDatumDates={{
           basics: moment.utc().valueOf(),
           bgLog: moment.utc().subtract(2, 'd').valueOf(),
@@ -61,12 +44,8 @@ export const PrintDateRangeModalStory = () => {
         }}
         open={open}
         onClose={handleClose}
-        onClickPrint={dates => {
-          setSubmitted(true);
-          validateDates(dates);
-          action('clicked Print')(dates);
-        }}
-        onDatesChange={dates => submitted && validateDates(dates)}
+        onClickPrint={opts => action('Clicked Print')(opts)}
+        onDatesChange={dates => action('Updated Dates')(dates)}
         timePrefs={{
           timezoneName: 'UTC',
         }}

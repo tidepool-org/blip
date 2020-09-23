@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
@@ -25,9 +26,17 @@ export const PrintDateRangeModal = (props) => {
     onClickPrint,
     onDatesChange,
     open,
-    errors,
     timePrefs: { timezoneName },
   } = props;
+
+  const initialErrorState = {
+    basics: false,
+    bgLog: false,
+    daily: false,
+  };
+
+  const [errors, setErrors] = useState(initialErrorState);
+  const [submitted, setSubmitted] = useState(false);
 
   const endOfToday = useMemo(() => moment().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
@@ -61,7 +70,7 @@ export const PrintDateRangeModal = (props) => {
   const [dailyEnabled, setDailyEnabled] = useState(true);
   const [dailyDays, setDailyDays] = useState(dailyDaysOptions[0]);
 
-  const [deviceSettingsEnabled, setDeviceSettingsEnabled] = useState(true);
+  const [settingsEnabled, setSettingsEnabled] = useState(true);
 
   const presetDateRanges = {
     basics: useMemo(() => map(basicsDaysOptions, days => getLastNDays(days, 'basics')), [open]),
@@ -77,12 +86,43 @@ export const PrintDateRangeModal = (props) => {
 
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
+  const datesMatchPreset = (dates, presetDates) => {
+    return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
+  };
+
+  const validateDates = ({ basics, bgLog, daily }) => {
+    const validationErrors = {
+      basics: !moment.isMoment(basics.startDate) || !moment.isMoment(basics.endDate),
+      bgLog: !moment.isMoment(bgLog.startDate) || !moment.isMoment(bgLog.endDate),
+      daily: !moment.isMoment(daily.startDate) || !moment.isMoment(daily.endDate),
+    };
+
+    setErrors(validationErrors);
+    return validationErrors;
+  };
+
   useEffect(() => {
+    if (submitted) validateDates(dates);
     onDatesChange(dates);
   }, [dates]);
 
-  const datesMatchPreset = (dates, presetDates) => {
-    return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
+  const handleSubmit = () => {
+    setSubmitted(true);
+    const validationErrors = validateDates(dates);
+    if (!isEqual(validationErrors, initialErrorState)) return;
+
+    onClickPrint({
+      basics: { ...dates.basics, enabled: basicsEnabled },
+      bgLog: { ...dates.bgLog, enabled: bgLogEnabled },
+      daily: { ...dates.daily, enabled: dailyEnabled },
+      settings: { enabled: settingsEnabled },
+    });
+  };
+
+  const handleClose = () => {
+    setSubmitted(false);
+    setErrors(initialErrorState);
+    onClose();
   };
 
   // Accordion Panels
@@ -147,10 +187,10 @@ export const PrintDateRangeModal = (props) => {
       setEnabled: setBgLogEnabled,
     },
     {
-      enabled: deviceSettingsEnabled,
+      enabled: settingsEnabled,
       header: 'Device Settings',
-      key: 'deviceSettings',
-      setEnabled: setDeviceSettingsEnabled,
+      key: 'settings',
+      setEnabled: setSettingsEnabled,
     },
   ];
 
@@ -224,10 +264,10 @@ export const PrintDateRangeModal = (props) => {
         ))}
       </DialogContent>
       <DialogActions justifyContent="space-between" py={2}>
-        <Button variant="textSecondary" onClick={onClose}>
+        <Button variant="textSecondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="textPrimary" onClick={() => onClickPrint(dates)}>
+        <Button variant="textPrimary" onClick={handleSubmit}>
           Print
         </Button>
       </DialogActions>
@@ -236,11 +276,6 @@ export const PrintDateRangeModal = (props) => {
 };
 
 PrintDateRangeModal.propTypes = {
-  errors: PropTypes.shape({
-    basics: PropTypes.bool,
-    bgLog: PropTypes.bool,
-    daily: PropTypes.bool,
-  }),
   mostRecentDatumDates: PropTypes.shape({
     basics: PropTypes.number.isRequired,
     bgLog: PropTypes.number.isRequired,
