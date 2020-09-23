@@ -1,3 +1,6 @@
+import _ from 'lodash';
+import { TweenMax } from 'gsap';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -15,9 +18,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import { TweenMax } from 'gsap';
-import React, { PropTypes, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 

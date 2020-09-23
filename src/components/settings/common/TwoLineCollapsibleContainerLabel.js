@@ -1,3 +1,5 @@
+import cx from 'classnames';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -15,8 +17,9 @@
  * == BSD2 LICENSE ==
  */
 
-import cx from 'classnames';
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 import norgie from './norgie.css';
 import styles from './TwoLineCollapsibleContainerLabel.css';

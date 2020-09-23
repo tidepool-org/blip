@@ -27,7 +27,9 @@
 // - date is focused (through hover) fatter & solid line connecting the dots
 //   this style also applies when a single smbg is focused
 
-import React, { PropTypes, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { TransitionMotion, spring } from 'react-motion';

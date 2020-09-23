@@ -1,3 +1,20 @@
+const BUMPERS = {
+  top: 50,
+  bottom: 30,
+};
+
+const MARGINS = {
+  top: 30,
+  right: 10,
+  bottom: 10,
+  left: 40,
+};
+
+const SMBG_OPTS = {
+  maxR: 7.5,
+  r: 6,
+};
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -22,24 +39,9 @@
  * in child components as well are assigned to default props, but those that are only used
  * in this parent/container component are just used directly as constants.
  */
-const BUMPERS = {
-  top: 50,
-  bottom: 30,
-};
+import PropTypes from 'prop-types';
 
-const MARGINS = {
-  top: 30,
-  right: 10,
-  bottom: 10,
-  left: 40,
-};
-
-const SMBG_OPTS = {
-  maxR: 7.5,
-  r: 6,
-};
-
-import React, { PropTypes, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import sizeMe from 'react-sizeme';
 import _ from 'lodash';
 
@@ -72,11 +74,13 @@ export class TrendsSVGContainer extends PureComponent {
     };
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     this.setScales();
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const width = nextProps.size.width || this.state.size.width;
     const height = nextProps.size.height || this.state.size.height;
 

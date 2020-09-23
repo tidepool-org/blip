@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 const withDefaultYPosition = (WrappedComponent) => {
   const WithDefault = (props) => {

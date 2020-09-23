@@ -51,7 +51,8 @@ class Tooltip extends React.PureComponent {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.calculateOffset(nextProps);
   }
 

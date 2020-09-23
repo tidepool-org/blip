@@ -48,7 +48,8 @@ export class PumpSettingsContainer extends React.PureComponent {
     onSwitchToDaily: PropTypes.func,
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     const { markSettingsViewed } = this.props;
     const {
       manufacturerKey,

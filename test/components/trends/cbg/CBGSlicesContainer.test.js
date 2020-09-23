@@ -58,12 +58,12 @@ describe('CBGSlicesContainer', () => {
 
   describe('componentWillMount', () => {
     it('sets mungedData in state', () => {
-      sinon.spy(CBGSlicesContainer.prototype, 'componentWillMount');
+      sinon.spy(CBGSlicesContainer.prototype, 'UNSAFE_componentWillMount');
       sinon.spy(CBGSlicesContainer.prototype, 'setState');
-      expect(CBGSlicesContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(CBGSlicesContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(0);
       expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(0);
       mount(<CBGSlicesContainer {...props} />);
-      expect(CBGSlicesContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(CBGSlicesContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(1);
       expect(CBGSlicesContainer.prototype.setState.callCount).to.equal(1);
       const undefineds = {
         firstQuartile: undefined,

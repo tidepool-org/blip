@@ -16,7 +16,7 @@ packageConfig.externals = {
   moment: 'moment',
   'moment-timezone': 'moment-timezone',
   react: 'react',
-  'react-addons-update': 'react-addons-update',
+  'immutability-helper': 'immutability-helper',
   'react-collapse': 'react-collapse',
   'react-dimensions': 'react-dimensions',
   'react-height': 'react-height',

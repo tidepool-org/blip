@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';
 import SMBGToolTip from '../../daily/smbgtooltip/SMBGTooltip';
@@ -146,11 +148,11 @@ FocusedSMBGPointLabel.propTypes = {
       left: PropTypes.number.isRequired,
     }),
   }),
-  grouped: React.PropTypes.bool.isRequired,
-  lines: React.PropTypes.bool.isRequired,
+  grouped: PropTypes.bool.isRequired,
+  lines: PropTypes.bool.isRequired,
   timePrefs: PropTypes.shape({
-    timezoneAware: React.PropTypes.bool.isRequired,
-    timezoneName: React.PropTypes.string,
+    timezoneAware: PropTypes.bool.isRequired,
+    timezoneName: PropTypes.string,
   }).isRequired,
 };
 

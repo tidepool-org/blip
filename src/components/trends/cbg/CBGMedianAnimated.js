@@ -1,3 +1,6 @@
+import _ from 'lodash';
+import cx from 'classnames';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -15,9 +18,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import cx from 'classnames';
-import React, { PropTypes, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
+import React, { PureComponent } from 'react';
 import { TransitionMotion, spring } from 'react-motion';
 
 import { classifyBgValue } from '../../../utils/bloodglucose';

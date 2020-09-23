@@ -1,6 +1,6 @@
 /* global document */
 
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
@@ -44,7 +44,7 @@ const datumPropType = PropTypes.shape({
 
 const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
 
-class Stat extends React.PureComponent {
+class Stat extends PureComponent {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
     alwaysShowSummary: PropTypes.bool,
@@ -115,7 +115,8 @@ class Stat extends React.PureComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState(() => this.getStateByType(nextProps));
     this.chartProps = this.getChartPropsByType(nextProps);
   }
@@ -460,6 +461,7 @@ class Stat extends React.PureComponent {
             x: i + 1,
             y: d.value,
             deviation: d.deviation,
+            eventKey: i,
           })),
           dataComponent: (
             <BgBar
@@ -546,6 +548,7 @@ class Stat extends React.PureComponent {
             x: i + 1,
             y: total > 0 ? d.value / total : d.value,
             id: d.id,
+            eventKey: i,
           })),
           dataComponent: (
             <HoverBar

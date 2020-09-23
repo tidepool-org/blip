@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
+import React, { PureComponent } from 'react';
 import Markdown from 'react-markdown';
 import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';

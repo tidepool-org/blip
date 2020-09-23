@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -15,8 +17,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React, { PropTypes, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
+import React, { PureComponent } from 'react';
 import { range } from 'd3-array';
 
 import { THIRTY_MINS, TWENTY_FOUR_HRS } from '../../../utils/datetime';
@@ -68,12 +71,14 @@ export default class CBGSlicesContainer extends PureComponent {
     };
   }
 
-  componentWillMount() {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillMount() {
     const { binSize, data } = this.props;
     this.setState({ mungedData: this.mungeData(binSize, data) });
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { binSize, data } = nextProps;
     if (binSize !== this.props.binSize || data !== this.props.data) {
       this.setState({ mungedData: this.mungeData(binSize, data) });

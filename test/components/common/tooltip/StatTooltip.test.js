@@ -44,9 +44,9 @@ describe('StatTooltip', () => {
       ],
     }));
     const messages = wrapper.find(formatClassesAsSelector(styles.message)).hostNodes();
-    expect(messages.at(0).html()).to.include('<em><span>italic</span></em>');
-    expect(messages.at(1).html()).to.include('<strong><span>bold</span></strong>');
-    expect(messages.at(2).html()).to.include('<a target="_blank" href="http://www.example.com"><span>link</span>');
+    expect(messages.at(0).html()).to.include('<em>italic</em>');
+    expect(messages.at(1).html()).to.include('<strong>bold</strong>');
+    expect(messages.at(2).html()).to.include('<a target="_blank" href="http://www.example.com">link</a>');
   });
 
   it('should render a divider between messages', () => {

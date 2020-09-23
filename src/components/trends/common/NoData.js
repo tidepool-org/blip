@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import _ from 'lodash';
 
 import styles from './NoData.css';
@@ -65,7 +67,7 @@ NoData.defaultProps = {
 };
 
 NoData.propTypes = {
-  dataType: React.PropTypes.oneOf(['cbg', 'smbg']).isRequired,
+  dataType: PropTypes.oneOf(['cbg', 'smbg']).isRequired,
   displayTypes: PropTypes.object.isRequired,
   position: PropTypes.shape({
     x: PropTypes.number.isRequired,

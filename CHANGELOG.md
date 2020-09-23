@@ -1,6 +1,9 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## 0.16.0 2020-09-23
+- YLP-159 Upgrade blip, viz and tideline from react15 to react16
+
 ## 0.15.1 2020-08-10
 ### Fixed
 - YLP-15 Calculate coefficient of Variation with correct formula: 2 weeks CV displays the result of average daily CV of the 14 days

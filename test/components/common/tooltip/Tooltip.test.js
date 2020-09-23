@@ -253,7 +253,7 @@ describe('Tooltip', () => {
     });
 
     it('calls componentWillReceiveProps (which calls calculateOffset) on props update', () => {
-      sinon.spy(Tooltip.prototype, 'componentWillReceiveProps');
+      sinon.spy(Tooltip.prototype, 'UNSAFE_componentWillReceiveProps');
       const wrapper = mount(
         <Tooltip
           position={position}
@@ -264,13 +264,13 @@ describe('Tooltip', () => {
       const instance = wrapper.instance();
 
       const calcSpy = sinon.spy(instance, 'calculateOffset');
-      expect(Tooltip.prototype.componentWillReceiveProps.callCount).to.equal(0);
+      expect(Tooltip.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
       expect(calcSpy.callCount).to.equal(0);
       wrapper.setProps({ title: 'New title!' });
-      expect(Tooltip.prototype.componentWillReceiveProps.calledOnce).to.be.true;
+      expect(Tooltip.prototype.UNSAFE_componentWillReceiveProps.calledOnce).to.be.true;
       expect(calcSpy.calledOnce).to.be.true;
       expect(calcSpy.args[0][0]).to.deep.equal(wrapper.props());
-      Tooltip.prototype.componentWillReceiveProps.restore();
+      Tooltip.prototype.UNSAFE_componentWillReceiveProps.restore();
       instance.calculateOffset.restore();
     });
   });

@@ -114,13 +114,13 @@ describe('TrendsSVGContainer', () => {
   describe('componentWillMount', () => {
     it('should call the `setScales` method', () => {
       sinon.spy(TrendsSVGContainer.prototype, 'setScales');
-      sinon.spy(TrendsSVGContainer.prototype, 'componentWillMount');
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(0);
+      sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillMount');
+      expect(TrendsSVGContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(0);
       expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(0);
       shallow(<TrendsSVGContainer {...props} />);
-      expect(TrendsSVGContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(TrendsSVGContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(1);
       expect(TrendsSVGContainer.prototype.setScales.callCount).to.equal(1);
-      TrendsSVGContainer.prototype.componentWillMount.restore();
+      TrendsSVGContainer.prototype.UNSAFE_componentWillMount.restore();
       TrendsSVGContainer.prototype.setScales.restore();
     });
   });
@@ -163,7 +163,7 @@ describe('TrendsSVGContainer', () => {
 
       describe('when a cbg slice segment has been focused long enough', () => {
         it('should set focusedSegmentDataGroupedByDate in state', () => {
-          sinon.spy(TrendsSVGContainer.prototype, 'componentWillReceiveProps');
+          sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillReceiveProps');
           sinon.spy(TrendsSVGContainer.prototype, 'setState');
           const focusedSlice = {
             data: {
@@ -174,10 +174,10 @@ describe('TrendsSVGContainer', () => {
             },
           };
           const focusedSliceKeys = ['thirdQuartile', 'ninetiethQuantile'];
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ cbgData: props.cbgData, focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
           expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.deep.equal({
             size: {
@@ -191,14 +191,14 @@ describe('TrendsSVGContainer', () => {
               '2017-01-01': props.cbgData,
             },
           });
-          TrendsSVGContainer.prototype.componentWillReceiveProps.restore();
+          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
           TrendsSVGContainer.prototype.setState.restore();
         });
       });
 
       describe('when you\'ve moved to focus a different cbg slice segment', () => {
         it('should calculate new focusedSegmentDataGroupedByDate object', () => {
-          sinon.spy(TrendsSVGContainer.prototype, 'componentWillReceiveProps');
+          sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillReceiveProps');
           sinon.spy(TrendsSVGContainer.prototype, 'setState');
           const focusedSlice = {
             data: {
@@ -209,34 +209,34 @@ describe('TrendsSVGContainer', () => {
             },
           };
           const focusedSliceKeys = ['firstQuartile', 'thirdQuartile'];
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
           expect(TrendsSVGContainer.prototype.setState.args[1][0]).to.deep.equal({
             focusedSegmentDataGroupedByDate: {},
           });
-          TrendsSVGContainer.prototype.componentWillReceiveProps.restore();
+          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
           TrendsSVGContainer.prototype.setState.restore();
         });
       });
 
       describe('when you\'ve just stopped focusing a cbg slice segment', () => {
         it('should reset focusedSegmentDataGroupedByDate to `null` in state', () => {
-          sinon.spy(TrendsSVGContainer.prototype, 'componentWillReceiveProps');
+          sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillReceiveProps');
           sinon.spy(TrendsSVGContainer.prototype, 'setState');
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({
             focusedSlice: null, focusedSliceKeys: null, showingCbgDateTraces: false,
           });
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(2);
           expect(TrendsSVGContainer.prototype.setState.args[1][0]).to.deep.equal({
             focusedSegmentDataGroupedByDate: null,
           });
-          TrendsSVGContainer.prototype.componentWillReceiveProps.restore();
+          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
           TrendsSVGContainer.prototype.setState.restore();
         });
       });
@@ -250,9 +250,9 @@ describe('TrendsSVGContainer', () => {
 
       describe('when you haven\'t focused a cbg slice segment', () => {
         it('should not set the `focusedSegmentDataGroupedByDate` state in componentWillReceiveProps', () => {
-          sinon.spy(TrendsSVGContainer.prototype, 'componentWillReceiveProps');
+          sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillReceiveProps');
           sinon.spy(TrendsSVGContainer.prototype, 'setState');
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({
             activeDays: {
@@ -265,17 +265,17 @@ describe('TrendsSVGContainer', () => {
               sunday: true,
             },
           });
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.args[0][0]).to.not.include.keys('focusedSegmentDataGroupedByDate');
-          TrendsSVGContainer.prototype.componentWillReceiveProps.restore();
+          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
           TrendsSVGContainer.prototype.setState.restore();
         });
       });
 
       describe('when you\'ve just focused a cbg slice segment', () => {
         it('should not set the `focusedSegmentDataGroupedByDate` state in componentWillReceiveProps', () => {
-          sinon.spy(TrendsSVGContainer.prototype, 'componentWillReceiveProps');
+          sinon.spy(TrendsSVGContainer.prototype, 'UNSAFE_componentWillReceiveProps');
           sinon.spy(TrendsSVGContainer.prototype, 'setState');
           const focusedSlice = {
             data: {
@@ -286,12 +286,12 @@ describe('TrendsSVGContainer', () => {
             },
           };
           const focusedSliceKeys = ['thirdQuartile', 'ninetiethQuantile'];
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(0);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(0);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(0);
           wrapper.setProps({ cbgData: props.cbgData, focusedSlice, focusedSliceKeys });
-          expect(TrendsSVGContainer.prototype.componentWillReceiveProps.callCount).to.equal(1);
+          expect(TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.callCount).to.equal(1);
           expect(TrendsSVGContainer.prototype.setState.callCount).to.equal(1);
-          TrendsSVGContainer.prototype.componentWillReceiveProps.restore();
+          TrendsSVGContainer.prototype.UNSAFE_componentWillReceiveProps.restore();
           TrendsSVGContainer.prototype.setState.restore();
         });
       });

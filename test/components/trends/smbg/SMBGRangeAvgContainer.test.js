@@ -54,12 +54,12 @@ describe('SMBGRangeAvgContainer', () => {
 
   describe('componentWillMount', () => {
     it('sets mungedData in state', () => {
-      sinon.spy(SMBGRangeAvgContainer.prototype, 'componentWillMount');
+      sinon.spy(SMBGRangeAvgContainer.prototype, 'UNSAFE_componentWillMount');
       sinon.spy(SMBGRangeAvgContainer.prototype, 'setState');
-      expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(0);
+      expect(SMBGRangeAvgContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(0);
       expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(0);
       shallow(<SMBGRangeAvgContainer {...props} />);
-      expect(SMBGRangeAvgContainer.prototype.componentWillMount.callCount).to.equal(1);
+      expect(SMBGRangeAvgContainer.prototype.UNSAFE_componentWillMount.callCount).to.equal(1);
       expect(SMBGRangeAvgContainer.prototype.setState.callCount).to.equal(1);
       expect(SMBGRangeAvgContainer.prototype.setState.firstCall.args[0])
         .to.deep.equal({ mungedData:

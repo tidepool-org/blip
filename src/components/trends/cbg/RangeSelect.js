@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -15,8 +17,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 

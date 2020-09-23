@@ -136,7 +136,7 @@ export class TrendsContainer extends React.Component {
     smbgLines: PropTypes.bool.isRequired,
     timePrefs: PropTypes.shape({
       timezoneAware: PropTypes.bool.isRequired,
-      timezoneName: React.PropTypes.string,
+      timezoneName: PropTypes.string,
     }).isRequired,
     yScaleClampTop: PropTypes.shape({
       [MGDL_UNITS]: PropTypes.number.isRequired,

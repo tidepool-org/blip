@@ -1,6 +1,7 @@
 /**
  * Copied from https://github.com/esayemm/connect-with-transition-group (ISC license)
  * Cannot use dist from npm because `const` is not available yet under node v0.12.x
+ * updated according to https://github.com/esayemm/connect-with-transition-group/pull/2
  */
 
 /* eslint-disable func-names, lodash/prefer-lodash-method, no-param-reassign */
@@ -30,19 +31,19 @@ export default function connectWithTransitionGroup(connect) {
 
   willFunctions.forEach((key) => {
     connect.prototype[key] = function (cb) {
-      if (this.refs.wrappedInstance[key]) {
-        this.refs.wrappedInstance[key](cb);
-      } else {
-        cb();
-      }
+        if (this.wrappedInstance[key]) {
+          this.wrappedInstance[key](cb);
+        } else {
+          cb();
+        }
     };
   });
 
   didFunctions.forEach((key) => {
     connect.prototype[key] = function () {
-      if (this.refs.wrappedInstance[key]) {
-        this.refs.wrappedInstance[key]();
-      }
+        if (this.wrappedInstance[key]) {
+        this.wrappedInstance[key]();
+        }
     };
   });
 

@@ -1,3 +1,6 @@
+import _ from 'lodash';
+import { range } from 'd3-array';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2016, Tidepool Project
@@ -15,9 +18,9 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-import { range } from 'd3-array';
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 import * as datetime from '../../../utils/datetime';
 
