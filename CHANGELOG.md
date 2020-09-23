@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## unreleased 
+### Changed
+- YLP-158 Delete Consent banner from all environments.
+
 ## 1.4.2 - 2020-09-09  
 ### Fixed
 - YLP-157 Add german locale to the list of available languages.

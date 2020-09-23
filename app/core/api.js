@@ -52,9 +52,6 @@ api.init = function(cb) {
 
   tidepool.initialize(function() {
     api.log('Initialized');
-    if (document.cookie.indexOf('CookieConsent') >= 0) {
-      api.metrics.track('CookieConsent', 24);
-    }
     if (typeof config.BRANDING === 'string') {
       api.metrics.track('setDocumentTitle', constants[config.BRANDING].name, cb);
     } else if (cb) {
@@ -793,9 +790,7 @@ api.metrics.track = function(eventName, properties, cb) {
     if (typeof window._paq !== 'undefined') {
       // Using Matomo Tracker
       api.log(`Matomo trackEvent ${eventName}:`, properties);
-      if (eventName === 'CookieConsent') {
-        window._paq.push(['setConsentGiven', properties]);
-      } else if (eventName === 'setCustomUrl') {
+      if (eventName === 'setCustomUrl') {
         window._paq.push(['setCustomUrl', properties]);
       } else if (eventName === 'setUserId') {
         window._paq.push(['setUserId', properties]);
