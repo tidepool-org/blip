@@ -26,17 +26,8 @@ export const PrintDateRangeModal = (props) => {
     onClickPrint,
     onDatesChange,
     open,
-    timePrefs: { timezoneName },
+    timePrefs: { timezoneName = 'UTC' },
   } = props;
-
-  const initialErrorState = {
-    basics: false,
-    bgLog: false,
-    daily: false,
-  };
-
-  const [errors, setErrors] = useState(initialErrorState);
-  const [submitted, setSubmitted] = useState(false);
 
   const endOfToday = useMemo(() => moment().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
@@ -54,37 +45,50 @@ export const PrintDateRangeModal = (props) => {
 
     return setDateRangeToExtents({
       startDate: moment(endDate).tz(timezoneName).subtract(days - 1, 'days'),
-      endDate: endDate,
+      endDate,
     });
   };
 
-  const basicsDaysOptions = [7,14,21];
-  const [basicsEnabled, setBasicsEnabled] = useState(true);
-  const [basicsDays, setBasicsDays] = useState(basicsDaysOptions[2]);
+  const basicsDaysOptions = [14, 21, 30];
+  const bgLogDaysOptions = [14, 21,30];
+  const dailyDaysOptions = [14, 21, 30];
 
-  const bgLogDaysOptions = [7,14,21,30];
-  const [bgLogEnabled, setBgLogEnabled] = useState(true);
-  const [bgLogDays, setBgLogDays] = useState(bgLogDaysOptions[3]);
+  const defaultDates = () => ({
+    basics: getLastNDays(basicsDaysOptions[0], 'basics'),
+    bgLog: getLastNDays(bgLogDaysOptions[2], 'bgLog'),
+    daily: getLastNDays(dailyDaysOptions[0], 'daily'),
+  });
 
-  const dailyDaysOptions = [7,14,21];
-  const [dailyEnabled, setDailyEnabled] = useState(true);
-  const [dailyDays, setDailyDays] = useState(dailyDaysOptions[0]);
+  const defaults = useMemo(() => ({
+    datePickerOpen: false,
+    dates: defaultDates(),
+    enabled: {
+      basics: true,
+      bgLog: true,
+      daily: true,
+      settings: true,
+    },
+    errors: {
+      basics: false,
+      bgLog: false,
+      daily: false,
+    },
+    expandedPanel: 'basics',
+    submitted: false,
+  }), [mostRecentDatumDates]);
 
-  const [settingsEnabled, setSettingsEnabled] = useState(true);
+  const [dates, setDates] = useState(defaults.dates);
+  const [enabled, setEnabled] = useState(defaults.enabled);
+  const [errors, setErrors] = useState(defaults.errors);
+  const [expandedPanel, setExpandedPanel] = React.useState(defaults.expandedPanel);
+  const [submitted, setSubmitted] = useState(defaults.submitted);
+  const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
   const presetDateRanges = {
     basics: useMemo(() => map(basicsDaysOptions, days => getLastNDays(days, 'basics')), [open]),
     bgLog: useMemo(() => map(bgLogDaysOptions, days => getLastNDays(days, 'bgLog')), [open]),
     daily: useMemo(() => map(dailyDaysOptions, days => getLastNDays(days, 'daily')), [open]),
   };
-
-  const [dates, setDates] = useState({
-    basics: getLastNDays(basicsDays, 'basics'),
-    bgLog: getLastNDays(bgLogDays, 'bgLog'),
-    daily: getLastNDays(dailyDays, 'daily'),
-  });
-
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   const datesMatchPreset = (dates, presetDates) => {
     return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
@@ -101,33 +105,7 @@ export const PrintDateRangeModal = (props) => {
     return validationErrors;
   };
 
-  useEffect(() => {
-    if (submitted) validateDates(dates);
-    onDatesChange(dates);
-  }, [dates]);
-
-  const handleSubmit = () => {
-    setSubmitted(true);
-    const validationErrors = validateDates(dates);
-    if (!isEqual(validationErrors, initialErrorState)) return;
-
-    onClickPrint({
-      basics: { ...dates.basics, enabled: basicsEnabled },
-      bgLog: { ...dates.bgLog, enabled: bgLogEnabled },
-      daily: { ...dates.daily, enabled: dailyEnabled },
-      settings: { enabled: settingsEnabled },
-    });
-  };
-
-  const handleClose = () => {
-    setSubmitted(false);
-    setErrors(initialErrorState);
-    onClose();
-  };
-
   // Accordion Panels
-  const [expandedPanel, setExpandedPanel] = React.useState('basics');
-
   const handleAccordionChange = key => (event, isExpanded) => {
     setExpandedPanel(key);
   };
@@ -157,46 +135,65 @@ export const PrintDateRangeModal = (props) => {
 
   const panels = [
     {
-      days: basicsDays,
       daysOptions: basicsDaysOptions,
-      enabled: basicsEnabled,
-      error: errors.basics,
       header: 'Basics Chart',
       key: 'basics',
-      setDays: setBasicsDays,
-      setEnabled: setBasicsEnabled,
     },
     {
-      days: dailyDays,
       daysOptions: dailyDaysOptions,
-      enabled: dailyEnabled,
-      error: errors.daily,
       header: 'Daily Charts',
       key: 'daily',
-      setDays: setDailyDays,
-      setEnabled: setDailyEnabled,
     },
     {
-      days: bgLogDays,
       daysOptions: bgLogDaysOptions,
-      enabled: bgLogEnabled,
-      error: errors.bgLog,
       header: 'BG Log Chart',
       key: 'bgLog',
-      setDays: setBgLogDays,
-      setEnabled: setBgLogEnabled,
     },
     {
-      enabled: settingsEnabled,
       header: 'Device Settings',
       key: 'settings',
-      setEnabled: setSettingsEnabled,
     },
   ];
 
+  // Handlers
+  const handleSubmit = () => {
+    setSubmitted(true);
+    const validationErrors = validateDates(dates);
+    if (!isEqual(validationErrors, defaults.errors)) return;
+
+    onClickPrint({
+      basics: { ...dates.basics, enabled: enabled.basics },
+      bgLog: { ...dates.bgLog, enabled: enabled.bgLog },
+      daily: { ...dates.daily, enabled: enabled.daily },
+      settings: { enabled: enabled.settings },
+    });
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  // Set to default state when dialog is newly opened
+  useEffect(() => {
+    if (open) {
+      setDatePickerOpen(defaults.datePickerOpen);
+      setDates(defaults.dates);
+      setEnabled(defaults.enabled);
+      setErrors(defaults.errors);
+      setExpandedPanel(defaults.expandedPanel);
+      setSubmitted(defaults.submitted);
+    }
+  }, [open]);
+
+  // Validate dates if submitted and call `onDatesChange` prop method when dates change
+  useEffect(() => {
+    if (submitted) validateDates(dates);
+    onDatesChange(dates);
+  }, [dates]);
+
   return (
-    <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={onClose}>
-      <DialogTitle divider={false} onClose={onClose}>
+    <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
+      <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>Print Report</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} minWidth="400px" p={0}>
@@ -209,13 +206,13 @@ export const PrintDateRangeModal = (props) => {
                   <Switch
                     name={`enabled-${panel.key}`}
                     ml={4}
-                    checked={panel.enabled}
-                    onClick={() => panel.setEnabled(enabled => !enabled)}
+                    checked={enabled[panel.key]}
+                    onClick={() => setEnabled({ ...enabled, [panel.key]: !enabled[panel.key] })}
                   />
                 </Label>
               </Flex>
 
-              {panel.enabled && panel.days && (
+              {enabled[panel.key] && panel.daysOptions && (
                 <Box>
                   <Box mb={5}>
                     <Body1 mb={2}>Number of days (most recent)</Body1>
@@ -255,7 +252,7 @@ export const PrintDateRangeModal = (props) => {
                 </Box>
               )}
             </Box>
-            {panel.error && (
+            {errors[panel.key] && (
               <Caption mt={2} color="feedback.danger">
                 Please select a date range
               </Caption>
