@@ -43,6 +43,7 @@ import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
@@ -140,22 +141,30 @@ export let PatientData = translate()(createReactClass({
           touched: false,
         },
       },
+      printDialogOpen: false,
       printOpts: {
         numDays: {
+          enabled: true,
           daily: 15,
           bgLog: 30,
         },
         daily: {
+          enabled: true,
           endDate: null,
           numDays: 14,
         },
         bgLog: {
+          enabled: true,
           endDate: null,
           numDays: 30,
         },
         basics: {
+          enabled: true,
           endDate: null,
           numDays: 21,
+        },
+        settings: {
+          enabled: true,
         },
       },
       createMessage: null,
@@ -188,12 +197,14 @@ export let PatientData = translate()(createReactClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
+    const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
+        {printDialog}
         <Loader show={showLoader} />
       </div>
     );
@@ -296,6 +307,24 @@ export let PatientData = translate()(createReactClass({
 
   renderUploadOverlay: function() {
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+  },
+
+  renderPrintDialog: function() {
+    return (
+      <PrintDateRangeModal
+        mostRecentDatumDates={{
+          basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
+          bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
+          daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
+        }}
+        open={this.state.printDialogOpen}
+        onClose={() => this.setState({ printDialogOpen: false })}
+        onClickPrint={opts => {
+          console.log('opts', opts);
+        }}
+        timePrefs={this.state.timePrefs}
+      />
+    );
   },
 
   isEmptyPatientData: function() {
@@ -615,83 +644,83 @@ export let PatientData = translate()(createReactClass({
     );
   },
 
-  generatePDF: function (props = this.props, state = this.state) {
-    const patientSettings = _.get(props, 'patient.settings', {});
-    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-    const pdfPatient = _.assign({}, props.patient, {
-      settings: _.assign({}, patientSettings, { siteChangeSource }),
-    });
+  // generatePDF: function (props = this.props, state = this.state) {
+  //   const patientSettings = _.get(props, 'patient.settings', {});
+  //   const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
+  //   const pdfPatient = _.assign({}, props.patient, {
+  //     settings: _.assign({}, patientSettings, { siteChangeSource }),
+  //   });
 
-    const opts = {
-      patient: pdfPatient,
-    };
+  //   const opts = {
+  //     patient: pdfPatient,
+  //   };
 
-    const commonQueries = {
-      bgPrefs: state.bgPrefs,
-      metaData: 'latestPumpUpload, bgSources',
-      timePrefs: state.timePrefs,
-    };
+  //   const commonQueries = {
+  //     bgPrefs: state.bgPrefs,
+  //     metaData: 'latestPumpUpload, bgSources',
+  //     timePrefs: state.timePrefs,
+  //   };
 
-    const queries = {
-      basics: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
-          { chartType: 'basics' }
-        ),
-        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        stats: this.getStatsByChartType('basics'),
-        bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
-        ...commonQueries,
-      },
-      daily: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
-          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
-        ),
-        aggregationsByDate: 'dataByDate, statsByDate',
-        stats: this.getStatsByChartType('daily'),
-        types: {
-          basal: {},
-          bolus: {},
-          cbg: {},
-          deviceEvent: {},
-          food: {},
-          message: {},
-          smbg: {},
-          wizard: {},
-        },
-        bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
-        ...commonQueries,
-      },
-      bgLog: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
-        ),
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
-        ...commonQueries,
-      },
-      settings: {
-        ...commonQueries,
-      },
-    };
+  //   const queries = {
+  //     basics: {
+  //       endpoints: this.getChartEndpoints(
+  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
+  //         { chartType: 'basics' }
+  //       ),
+  //       aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+  //       stats: this.getStatsByChartType('basics'),
+  //       bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+  //       ...commonQueries,
+  //     },
+  //     daily: {
+  //       endpoints: this.getChartEndpoints(
+  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
+  //         { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
+  //       ),
+  //       aggregationsByDate: 'dataByDate, statsByDate',
+  //       stats: this.getStatsByChartType('daily'),
+  //       types: {
+  //         basal: {},
+  //         bolus: {},
+  //         cbg: {},
+  //         deviceEvent: {},
+  //         food: {},
+  //         message: {},
+  //         smbg: {},
+  //         wizard: {},
+  //       },
+  //       bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
+  //       ...commonQueries,
+  //     },
+  //     bgLog: {
+  //       endpoints: this.getChartEndpoints(
+  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
+  //         { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
+  //       ),
+  //       aggregationsByDate: 'dataByDate',
+  //       stats: this.getStatsByChartType('bgLog'),
+  //       types: { smbg: {} },
+  //       bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+  //       ...commonQueries,
+  //     },
+  //     settings: {
+  //       ...commonQueries,
+  //     },
+  //   };
 
-    this.log('Generating PDF with', queries, opts);
+  //   this.log('Generating PDF with', queries, opts);
 
-    window.downloadPDFDataQueries = () => {
-      console.save(queries, 'PDFDataQueries.json');
-    };
+  //   window.downloadPDFDataQueries = () => {
+  //     console.save(queries, 'PDFDataQueries.json');
+  //   };
 
-    props.generatePDFRequest(
-      'combined',
-      queries,
-      opts,
-      this.props.currentPatientInViewId,
-    );
-  },
+  //   props.generatePDFRequest(
+  //     'combined',
+  //     queries,
+  //     opts,
+  //     this.props.currentPatientInViewId,
+  //   );
+  // },
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
@@ -879,11 +908,13 @@ export let PatientData = translate()(createReactClass({
       fromChart: this.state.chartType
     });
 
-    if (pdf.url) {
-      const printWindow = window.open(pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
+    this.setState({ printDialogOpen: true });
+
+    // if (pdf.url) {
+    //   const printWindow = window.open(pdf.url);
+    //   printWindow.focus();
+    //   printWindow.print();
+    // }
   },
 
   handleClickRefresh: function(e) {
@@ -1329,9 +1360,9 @@ export let PatientData = translate()(createReactClass({
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
     // we check to see if we need to generate a new pdf to avoid stale data
-    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
-      this.generatePDF(nextProps, nextState);
-    }
+    // if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
+    //   this.generatePDF(nextProps, nextState);
+    // }
   },
 
   queryData: function (query, options = {}) {

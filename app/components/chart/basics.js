@@ -75,7 +75,8 @@ class Basics extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
+          printReady={true}
+          // printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
