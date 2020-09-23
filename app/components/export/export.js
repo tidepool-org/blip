@@ -117,7 +117,7 @@ export default translate()(class Export extends Component {
         break;
       case 'startDate':
       case 'endDate':
-        metric = 'Selected custom start/end date';
+        metric = 'Selected custom start or end date';
         break;
       case 'bgUnits':
         metric = 'Selected diabetes data format';

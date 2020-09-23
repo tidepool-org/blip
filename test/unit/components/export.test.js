@@ -151,7 +151,7 @@ describe('Export', () => {
         target: { name: 'startDate', value: newStartDate }
       });
       sinon.assert.calledOnce(props.trackMetric);
-      sinon.assert.calledWith(props.trackMetric, 'Selected custom start/end date');
+      sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
       expect(wrappedInstance.state.startDate).to.equal(
         newStartDate
       );
@@ -160,7 +160,7 @@ describe('Export', () => {
         target: { name: 'endDate', value: newEndDate }
       });
       sinon.assert.calledOnce(props.trackMetric);
-      sinon.assert.calledWith(props.trackMetric, 'Selected custom start/end date');
+      sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
       expect(wrappedInstance.state.endDate).to.equal(
         newEndDate
       );
