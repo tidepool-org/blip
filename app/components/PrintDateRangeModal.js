@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import map from 'lodash/map';
+import mapValues from 'lodash/mapValues';
 import noop from 'lodash/noop';
 import { Flex, Box } from 'rebass/styled-components';
 import { Label, Switch } from '@rebass/forms/styled-components';
@@ -162,9 +163,9 @@ export const PrintDateRangeModal = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     onClickPrint({
-      basics: { ...dates.basics, enabled: enabled.basics },
-      bgLog: { ...dates.bgLog, enabled: enabled.bgLog },
-      daily: { ...dates.daily, enabled: enabled.daily },
+      basics: { ...mapValues(dates.basics, d => d.valueOf()), enabled: enabled.basics },
+      bgLog: { ...mapValues(dates.bgLog, d => d.valueOf()), enabled: enabled.bgLog },
+      daily: { ...mapValues(dates.daily, d => d.valueOf()), enabled: enabled.daily },
       settings: { enabled: enabled.settings },
     });
   };
