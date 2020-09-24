@@ -1,12 +1,3 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global before */
-/* global beforeEach */
-/* global afterEach */
-/* global context */
-/* global after */
 
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
@@ -15,10 +6,12 @@ import _ from 'lodash';
 import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import sinon from 'sinon';
+import chai from 'chai';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import utils from '../../../app/core/utils';
 import DataUtilStub from '../../helpers/DataUtil';
+import createReactClass from 'create-react-class';
 
 const { Loader } = vizComponents;
 
@@ -78,17 +71,17 @@ describe('PatientData', function () {
 
 
   before(() => {
-    PD.__Rewire__('Basics', React.createClass({
+    PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
       }
     }));
-    PD.__Rewire__('Trends', React.createClass({
+    PD.__Rewire__('Trends',createReactClass({
       render: function() {
         return (<div className='fake-trends-view'></div>);
       }
     }));
-    PD.__Rewire__('BgLog', React.createClass({
+    PD.__Rewire__('BgLog', createReactClass({
       render: function() {
         return (<div className='fake-bgLog-view'></div>);
       }
@@ -483,7 +476,8 @@ describe('PatientData', function () {
             elem.setInitialChartType(processedData);
           };
 
-          elem.componentWillReceiveProps({
+          // eslint-disable-next-line new-cap
+          elem.UNSAFE_componentWillReceiveProps({
             patient: _.assign({}, props.patient, {
               settings: {},
             }),
@@ -766,8 +760,10 @@ describe('PatientData', function () {
               loading: false,
               chartType: elem.deriveChartTypeFromLatestData(data[0], []),
             });
-          }
-          elem.componentWillReceiveProps({
+          };
+
+          // eslint-disable-next-line new-cap
+          elem.UNSAFE_componentWillReceiveProps({
             patient: _.assign({}, props.patient, {
               settings: {},
             }),
@@ -817,8 +813,10 @@ describe('PatientData', function () {
               loading: false,
               chartType: elem.deriveChartTypeFromLatestData(data[0]),
             });
-          }
-          elem.componentWillReceiveProps({
+          };
+
+          // eslint-disable-next-line new-cap
+          elem.UNSAFE_componentWillReceiveProps({
             patient: _.assign({}, props.patient, {
               settings: {},
             }),

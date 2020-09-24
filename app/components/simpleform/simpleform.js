@@ -1,4 +1,5 @@
 
+var PropTypes = require('prop-types');
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -20,55 +21,55 @@ var _ = require('lodash');
 var InputGroup = require('../inputgroup');
 
 // Simple form with validation errors, submit button, and notification message
-var SimpleForm = React.createClass({
-  propTypes: {
-    inputs: React.PropTypes.array,
-    formValues: React.PropTypes.object,
-    validationErrors: React.PropTypes.object,
-    submitButtonText: React.PropTypes.string,
-    submitDisabled: React.PropTypes.bool,
-    onSubmit: React.PropTypes.func,
-    onChange: React.PropTypes.func,
-    notification: React.PropTypes.object,
-    disabled: React.PropTypes.bool,
-    renderSubmit: React.PropTypes.bool,
-  },
+class SimpleForm extends React.Component {
+  static propTypes = {
+    inputs: PropTypes.array,
+    formValues: PropTypes.object,
+    validationErrors: PropTypes.object,
+    submitButtonText: PropTypes.string,
+    submitDisabled: PropTypes.bool,
+    onSubmit: PropTypes.func,
+    onChange: PropTypes.func,
+    notification: PropTypes.object,
+    disabled: PropTypes.bool,
+    renderSubmit: PropTypes.bool,
+  };
 
-  getDefaultProps: function() {
-    return {
-      formValues: {},
-      validationErrors: {},
-      renderSubmit: true,
-    };
-  },
+  static defaultProps = {
+    formValues: {},
+    validationErrors: {},
+    renderSubmit: true,
+  };
 
-  getInitialState: function() {
+  constructor(props, context) {
+    super(props, context);
     var formValues =
-      this.getInitialFormValues(this.props.inputs, this.props.formValues);
-    return {
+      this.getInitialFormValues(props.inputs, props.formValues);
+
+    this.state = {
       formValues: formValues
     };
-  },
+  }
 
   // Make sure all inputs have a defined form value (can be blank)
-  getInitialFormValues: function(inputsProp, formValuesProp) {
+  getInitialFormValues = (inputsProp, formValuesProp) => {
     var formValues = {};
     _.forEach(inputsProp, function(input) {
       var name = input.name;
       formValues[name] = formValuesProp[name];
     });
     return formValues;
-  },
+  };
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // Keep form values in sync with upstream changes
     // (here `setState` will not trigger a double render)
     var formValues =
       this.getInitialFormValues(nextProps.inputs, nextProps.formValues);
     this.setState({formValues: formValues});
-  },
+  }
 
-  render: function() {
+  render() {
     var inputs = this.renderInputs();
     var submitButton = this.props.renderSubmit ? this.renderSubmitButton() : null;
     var notification = this.renderNotification();
@@ -85,9 +86,9 @@ var SimpleForm = React.createClass({
           </div>
         </form>
     );
-  },
+  }
 
-  renderInputs: function() {
+  renderInputs = () => {
     var self = this;
     var inputs = this.props.inputs || [];
     if (inputs.length) {
@@ -95,9 +96,9 @@ var SimpleForm = React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderInput: function(input) {
+  renderInput = (input) => {
     var name = input.name;
     var type = input.type;
     var label = input.label;
@@ -126,9 +127,9 @@ var SimpleForm = React.createClass({
         info={input.info}
       />
     );
-  },
+  };
 
-  renderSubmitButton: function() {
+  renderSubmitButton = () => {
     var text = this.props.submitButtonText || 'Submit';
     var disabled = this.props.disabled || this.props.submitDisabled;
 
@@ -139,9 +140,9 @@ var SimpleForm = React.createClass({
         disabled={disabled}
         ref="submitButton">{text}</button>
     );
-  },
+  };
 
-  renderNotification: function() {
+  renderNotification = () => {
     var notification = this.props.notification;
     if (notification && notification.message) {
       var type = notification.type || 'alert';
@@ -157,9 +158,9 @@ var SimpleForm = React.createClass({
       );
     }
     return null;
-  },
+  };
 
-  handleChange: function(attributes) {
+  handleChange = (attributes) => {
     var key = attributes.name;
     var value = attributes.value;
 
@@ -170,9 +171,9 @@ var SimpleForm = React.createClass({
       formValues[key] = value;
       this.setState({formValues: formValues});
     }
-  },
+  };
 
-  handleSubmit: function(e) {
+  handleSubmit = (e) => {
     if (e) {
       e.preventDefault();
     }
@@ -182,11 +183,11 @@ var SimpleForm = React.createClass({
       var formValues = _.clone(this.state.formValues);
       submit(formValues);
     }
-  },
+  };
 
-  getFormValues: function() {
+  getFormValues = () => {
     return _.cloneDeep(this.state.formValues);
-  }
-});
+  };
+}
 
 module.exports = SimpleForm;

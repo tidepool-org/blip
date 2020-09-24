@@ -152,7 +152,7 @@ class PeopleTable extends React.Component {
   }
 
   //nextProps contains list of people being watched
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
     if (nextProps.people !== this.props.people) {
       this.setState( {dataList: this.buildDataList()} );

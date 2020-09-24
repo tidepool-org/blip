@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -35,19 +37,31 @@ var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 var formText = 'Welcome!';
 
-export let VerificationWithPassword = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
-    notification: React.PropTypes.object,
-    signupEmail: React.PropTypes.string.isRequired,
-    signupKey: React.PropTypes.string.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired
-  },
+export let VerificationWithPassword = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
+    notification: PropTypes.object,
+    signupEmail: PropTypes.string.isRequired,
+    signupKey: PropTypes.string.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired
+  };
 
-  formInputs: function() {
+  constructor(props) {
+    super(props);
+    var formValues = {};
+
+    this.state = {
+      loading: true,
+      formValues: formValues,
+      validationErrors: {},
+      notification: null
+    };
+  }
+
+  formInputs = () => {
     const { t } = this.props;
     return [
       { name: 'explanation', type: 'explanation', text: formText },
@@ -55,49 +69,38 @@ export let VerificationWithPassword = translate()(React.createClass({
       { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
       { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
     ];
-  },
+  };
 
-  componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.setState({ loading: false });
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       this.props.trackMetric('VCA Home Verification - Screen Displayed');
     }
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (_.get(this.props, 'notification.message', null) === null &&
         _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
       this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
     }
-  },
+  }
 
-  getInitialState: function() {
-    var formValues = {};
-
-    return {
-      loading: true,
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
-    };
-  },
-
-  isFormDisabled: function() {
+  isFormDisabled = () => {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  };
 
-  getSubmitButtonText: function() {
+  getSubmitButtonText = () => {
     const { t } = this.props;
     if (this.props.working) {
       return t('Setting up...');
     }
     return t('Ready!');
-  },
+  };
 
-  render: function() {
+  render() {
     return (
       <div className="VerificationWithPassword">
         <LoginNav
@@ -119,9 +122,9 @@ export let VerificationWithPassword = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     if (this.props.working) {
@@ -138,17 +141,17 @@ export let VerificationWithPassword = translate()(React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
     this.props.onSubmit(this.props.api, this.props.signupKey, this.props.signupEmail, formValues.birthday, formValues.password);
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var form = [
       { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
@@ -168,10 +171,9 @@ export let VerificationWithPassword = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-
-  handleInputChange: function(attributes) {
+  handleInputChange = (attributes) => {
     var key = attributes.name;
     var value = attributes.value;
     if (!key) {
@@ -181,25 +183,24 @@ export let VerificationWithPassword = translate()(React.createClass({
     var formValues = _.clone(this.state.formValues);
     formValues[key] = value;
     this.setState({formValues: formValues});
-  },
+  };
 
-  makeRawDateString: function(dateObj){
+  makeRawDateString = (dateObj) => {
 
     var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
     var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
 
     return dateObj.year+'-'+mm+'-'+dd;
-  },
+  };
 
-
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     return {
       birthday: this.makeRawDateString(formValues.birthday),
       password: formValues.password
     };
-  },
-}));
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

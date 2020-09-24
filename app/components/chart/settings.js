@@ -1,4 +1,7 @@
 
+import _ from 'lodash';
+import bows from 'bows';
+
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -15,8 +18,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
-import bows from 'bows';
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Trans, translate } from 'react-i18next';
@@ -33,37 +36,35 @@ const tideline = {
   log: bows('Settings')
 };
 
-const Settings = translate()(React.createClass({
-  chartType: 'settings',
-  log: bows('Settings View'),
-  propTypes: {
-    bgPrefs: React.PropTypes.object.isRequired,
-    chartPrefs: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    canPrint: React.PropTypes.bool.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
-    onClickNoDataRefresh: React.PropTypes.func.isRequired,
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToTrends: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired
-  },
+const Settings = translate()(class extends React.Component {
+  static propTypes = {
+    bgPrefs: PropTypes.object.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    timePrefs: PropTypes.object.isRequired,
+    patient: PropTypes.object,
+    patientData: PropTypes.object.isRequired,
+    canPrint: PropTypes.bool.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
+    onClickNoDataRefresh: PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired
+  };
 
-  getInitialState: function() {
-    return {
-      atMostRecent: true,
-      inTransition: false,
-      title: ''
-    };
-  },
+  state = {
+    atMostRecent: true,
+    inTransition: false,
+    title: ''
+  };
+  log = bows('Settings View');
+  chartType = 'settings';
 
-  render: function() {
+  render() {
     return (
       <div id="tidelineMain">
         <Header
@@ -96,9 +97,9 @@ const Settings = translate()(React.createClass({
         ref="footer" />
       </div>
       );
-  },
+  }
 
-  renderChart: function() {
+  renderChart = () => {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
     const self = this;
@@ -118,9 +119,9 @@ const Settings = translate()(React.createClass({
         view='display'
       />
     );
-  },
+  };
 
-  renderMissingSettingsMessage: function() {
+  renderMissingSettingsMessage = () => {
     const self = this;
     const handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Settings');
@@ -137,9 +138,9 @@ const Settings = translate()(React.createClass({
       </Trans>
     );
 
-  },
+  };
 
-  isMissingSettings: function() {
+  isMissingSettings = () => {
     const data = this.props.patientData;
     const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
     if (pumpSettings === false) {
@@ -152,43 +153,43 @@ const Settings = translate()(React.createClass({
     }
 
     return false;
-  },
+  };
 
   // handlers
-  handleClickTrends: function(e) {
+  handleClickTrends = (e) => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToTrends();
-  },
+  };
 
-  handleClickMostRecent: function(e) {
+  handleClickMostRecent = (e) => {
     if (e) {
       e.preventDefault();
     }
     return;
-  },
+  };
 
-  handleClickOneDay: function(e) {
+  handleClickOneDay = (e) => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
-  },
+  };
 
-  handleClickSettings: function(e) {
+  handleClickSettings = (e) => {
     if (e) {
       e.preventDefault();
     }
     return;
-  },
+  };
 
-  handleClickBgLog: function(e) {
+  handleClickBgLog = (e) => {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToBgLog();
-  }
-}));
+  };
+});
 
 module.exports = Settings;

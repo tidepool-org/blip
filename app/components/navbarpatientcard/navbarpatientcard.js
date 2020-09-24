@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { translate } from 'react-i18next';
 import { Link } from 'react-router';
@@ -27,23 +29,21 @@ var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
 
-var NavbarPatientCard = translate()(React.createClass({
-  propTypes: {
-    href: React.PropTypes.string.isRequired,
-    currentPage: React.PropTypes.string,
-    uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object,
-  },
+var NavbarPatientCard = translate()(class extends React.Component {
+  static propTypes = {
+    href: PropTypes.string.isRequired,
+    currentPage: PropTypes.string,
+    uploadUrl: PropTypes.string,
+    patient: PropTypes.object,
+    trackMetric: PropTypes.func.isRequired,
+    permsOfLoggedInUser: PropTypes.object,
+  };
 
-  getInitialState: function() {
-    return {
-      showUploadOverlay: false,
-    };
-  },
+  state = {
+    showUploadOverlay: false,
+  };
 
-  render: function() {
+  render() {
     var patient = this.props.patient || {};
     var self = this;
 
@@ -72,9 +72,9 @@ var NavbarPatientCard = translate()(React.createClass({
         {overlay}
       </div>
     );
-  },
+  }
 
-  renderView: function() {
+  renderView = () => {
     const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
@@ -89,9 +89,9 @@ var NavbarPatientCard = translate()(React.createClass({
     return (
       <Link className={classes} onClick={handleClick} to={this.props.href}>{t('View')}</Link>
     );
-  },
+  };
 
-  renderProfile: function(patient) {
+  renderProfile = (patient) => {
     const { t } = this.props;
     var url = '';
     if (!_.isEmpty(patient.link)) {
@@ -117,9 +117,9 @@ var NavbarPatientCard = translate()(React.createClass({
         </div>
       </Link>
     );
-  },
+  };
 
-  renderUpload: function(patient) {
+  renderUpload = (patient) => {
     const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
@@ -143,9 +143,9 @@ var NavbarPatientCard = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderShare: function(patient) {
+  renderShare = (patient) => {
     const { t } = this.props;
 
     var shareUrl = '';
@@ -170,15 +170,15 @@ var NavbarPatientCard = translate()(React.createClass({
     }
 
     return null;
-  },
+  };
 
-  renderOverlay: function() {
+  renderOverlay = () => {
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
-  },
+  };
 
-  getFullName: function() {
+  getFullName = () => {
     return personUtils.patientFullName(this.props.patient);
-  },
-}));
+  };
+});
 
 module.exports = NavbarPatientCard;

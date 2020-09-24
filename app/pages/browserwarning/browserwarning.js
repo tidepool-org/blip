@@ -13,7 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { PropTypes, Component } from 'react'
+import PropTypes from 'prop-types';
+
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -24,7 +26,7 @@ import BrowserWarningComponent from '../../components/browserwarning';
 export class BrowserWarning extends Component {
   static propTypes = {
     authenticated: PropTypes.bool.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: PropTypes.func.isRequired
   };
 
   render() {

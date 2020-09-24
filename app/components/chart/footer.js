@@ -23,8 +23,8 @@ import { translate } from 'react-i18next';
 import { components } from '@tidepool/viz';
 const RangeSelect = components.RangeSelect;
 
-var TidelineFooter = translate()(React.createClass({
-  propTypes: {
+var TidelineFooter = translate()(class extends React.Component {
+  static propTypes = {
     chartType: PropTypes.string.isRequired,
     onClickBoxOverlay: PropTypes.func,
     onClickGroup: PropTypes.func,
@@ -39,8 +39,9 @@ var TidelineFooter = translate()(React.createClass({
     showingValues: PropTypes.bool,
     displayFlags: PropTypes.object,
     currentPatientInViewId: PropTypes.string,
-  },
-  render: function() {
+  };
+
+  render() {
     const { t } = this.props;
     var refreshLinkClass = cx({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
@@ -107,6 +108,6 @@ var TidelineFooter = translate()(React.createClass({
       </div>
     );
   }
-}));
+});
 
 export default TidelineFooter;

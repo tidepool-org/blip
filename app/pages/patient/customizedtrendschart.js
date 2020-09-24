@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 
 const CustomizedTrendsChart = (props) => {
@@ -70,14 +72,14 @@ const CustomizedTrendsChart = (props) => {
 }
 
 CustomizedTrendsChart.propTypes = {
-  max: React.PropTypes.oneOfType([
-    React.PropTypes.number,
-    React.PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
+  max: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
   ]).isRequired,
 
-  min: React.PropTypes.oneOfType([
-    React.PropTypes.number,
-    React.PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
+  min: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string, // mmol/L values need to be a string to display as 'trailing zero' floats
   ]).isRequired,
 };
 

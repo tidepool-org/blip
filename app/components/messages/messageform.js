@@ -15,7 +15,10 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
+import createReactClass from 'create-react-class';
 import _ from 'lodash';
 import sundial from 'sundial';
 import { translate } from 'react-i18next';
@@ -23,15 +26,18 @@ import { translate } from 'react-i18next';
 var MessageMixins = require('./messagemixins');
 
 // Form for creating new Notes or adding Comments
-var MessageForm = translate()(React.createClass({
+var MessageForm = translate()(createReactClass({
+  displayName: 'MessageForm',
   mixins: [MessageMixins],
+
   propTypes: {
-    formFields: React.PropTypes.object,
-    messagePrompt: React.PropTypes.string,
-    onCancel: React.PropTypes.func,
-    onSubmit: React.PropTypes.func,
-    timePrefs: React.PropTypes.object.isRequired
+    formFields: PropTypes.object,
+    messagePrompt: PropTypes.string,
+    onCancel: PropTypes.func,
+    onSubmit: PropTypes.func,
+    timePrefs: PropTypes.object.isRequired
   },
+
   /*
    * Declared so that we can reset them easily
    */
@@ -46,14 +52,17 @@ var MessageForm = translate()(React.createClass({
       changeDateTime: false
     };
   },
+
   getInitialState: function() {
     return this.initialState();
   },
+
   componentDidMount: function() {
     if (this.isExistingNoteEdit()) {
       this.initEdit();
     }
   },
+
   getDefaultProps: function () {
     return {
       DATE_MASK: 'YYYY-MM-DD',
@@ -61,6 +70,7 @@ var MessageForm = translate()(React.createClass({
       EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm'
     };
   },
+
   getEditableDateAndTime: function(ts) {
     var editableTime, editableDate;
     if (this.isTimezoneAware()) {
@@ -78,15 +88,19 @@ var MessageForm = translate()(React.createClass({
       date: editableDate
     };
   },
+
   isExistingNoteEdit: function() {
     return _.isEmpty(this.props.formFields) === false;
   },
+
   hasTextToEdit: function(){
     return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableText) === false;
   },
+
   hasTimestampToEdit: function(){
     return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableTimestamp) === false;
   },
+
   initEdit: function() {
     var editable;
     if (this.hasTimestampToEdit()) {
@@ -118,6 +132,7 @@ var MessageForm = translate()(React.createClass({
     }
     this.refs.messageText.rows = 3;
   },
+
   /*
    * If there is now a message showing
    * - make sure the current datetime is set
@@ -128,6 +143,7 @@ var MessageForm = translate()(React.createClass({
   handleMsgChange: function(e) {
     this.setState({msg: e.target.value});
   },
+
   /*
    * Use the given onCancel handler or just
    * clear the data if there wasn't one given
@@ -140,12 +156,15 @@ var MessageForm = translate()(React.createClass({
       this.setState(this.initialState());
     }
   },
+
   handleDateChange: function(e) {
     this.setState({date: e.target.value});
   },
+
   handleTimeChange: function(e) {
     this.setState({time: e.target.value});
   },
+
   /*
    * If we are allowing the date to be edited then
    *  - set as the whenUtc date as will be the case for most new dates
@@ -169,6 +188,7 @@ var MessageForm = translate()(React.createClass({
 
     return utcTimestamp;
   },
+
   handleSaving: function(e) {
     if (e) {
       e.preventDefault();
@@ -184,10 +204,12 @@ var MessageForm = translate()(React.createClass({
       }.bind(this));
     }
   },
+
   handleSaved: function() {
     this.refs.messageText.rows = 1;
     this.setState(this.initialState());
   },
+
   handleGrow: function(e) {
     if (e) {
       e.preventDefault();
@@ -197,6 +219,7 @@ var MessageForm = translate()(React.createClass({
       this.setState({editing: true, whenUtc: sundial.utcDateString()});
     }
   },
+
   /*
    * Split the timestamp into the date and time
    * components to allow for editing
@@ -212,6 +235,7 @@ var MessageForm = translate()(React.createClass({
       date: editable.date
     });
   },
+
   isButtonDisabled: function() {
     var msg = this.state.msg;
     return !(msg && msg.length);
@@ -245,6 +269,7 @@ var MessageForm = translate()(React.createClass({
     }
     return displayDate;
   },
+
   /*
    * Enables the editing of the notes date and time components
    */
@@ -266,6 +291,7 @@ var MessageForm = translate()(React.createClass({
       </div>
     );
   },
+
   renderButtons: function() {
     const { t } = this.props;
     let saveBtnText = t('Post_submit');
@@ -290,6 +316,7 @@ var MessageForm = translate()(React.createClass({
       </div>
     );
   },
+
   renderTextArea: function() {
     return (
       <div className='messageform-textarea-wrapper'>
@@ -305,6 +332,7 @@ var MessageForm = translate()(React.createClass({
       </div>
     );
   },
+
   render: function() {
     var date = this.renderDisplayDate(this.hasTimestampToEdit());
     var textArea = this.renderTextArea();
@@ -325,8 +353,7 @@ var MessageForm = translate()(React.createClass({
         {buttons}
       </form>
     );
-  }
-
+  },
 }));
 
 module.exports = MessageForm;

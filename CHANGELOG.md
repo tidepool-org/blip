@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## unreleased 
 ### Changed
 - YLP-158 Delete Consent banner from all environments.
+- YLP-159 Upgrade blip, viz and tideline from react15 to react16
 
 ## 1.4.2 - 2020-09-09  
 ### Fixed

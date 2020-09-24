@@ -97,7 +97,7 @@ class DatePicker extends React.Component {
       const today = new Date();
       value = {
         day: today.getDate(),
-        months: today.getMonth(),
+        month: today.getMonth(),
         year: today.getFullYear(),
       };
     }

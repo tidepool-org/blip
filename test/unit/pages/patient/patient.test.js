@@ -7,6 +7,7 @@
 
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
+import createReactClass from 'create-react-class';
 
 import Patient from '../../../../app/pages/patient/patient';
 import { PatientTeam } from '../../../../app/pages/patient/patientteam';
@@ -15,7 +16,7 @@ const { expect } = chai;
 
 describe('Patient', function () {
   before(() => {
-    Patient.__Rewire__('PatientInfo', React.createClass({
+    Patient.__Rewire__('PatientInfo', createReactClass({
       render: function() {
         return (<div className='fake-patient-info-view'></div>);
       }
@@ -48,7 +49,7 @@ describe('Patient', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('Initial State', function() {
     it('should return an object', function() {
       var props = {};
       var patientElem = React.createElement(Patient, props);

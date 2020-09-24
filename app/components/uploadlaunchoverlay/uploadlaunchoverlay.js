@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /**
  * Copyright (c) 2017, Tidepool Project
  *
@@ -13,7 +15,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import { translate, Trans } from 'react-i18next';
 import cx from 'classnames';
@@ -36,10 +39,10 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
   }
 
   static propTypes = {
-    modalDismissHandler: React.PropTypes.func.isRequired,
+    modalDismissHandler: PropTypes.func.isRequired,
   };
 
-  componentWillMount = () => {
+  UNSAFE_componentWillMount = () => {
     const uploaderRepo = github.getRepo('tidepool-org/chrome-uploader');
     uploaderRepo.listReleases((err, releases, request) => {
       if(err){

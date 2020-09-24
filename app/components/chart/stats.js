@@ -47,7 +47,7 @@ class Stats extends Component {
     };
   }
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     const update = this.updatesRequired(nextProps);
 
     if (update) {

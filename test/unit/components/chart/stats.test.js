@@ -14,19 +14,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global chai */
-/* global describe */
-/* global context */
-/* global sinon */
-/* global it */
-/* global before */
-/* global after */
-/* global beforeEach */
-/* global afterEach */
 
 import React from 'react';
 import _ from 'lodash';
 import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import chai from 'chai';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import DataUtilStub from '../../../helpers/DataUtil';
 
@@ -149,7 +142,7 @@ describe('Stats', () => {
           'glucoseManagementIndicator',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -170,7 +163,7 @@ describe('Stats', () => {
           'averageGlucose',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -222,7 +215,7 @@ describe('Stats', () => {
           'coefficientOfVariation',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -242,7 +235,7 @@ describe('Stats', () => {
           'carbs',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -287,7 +280,7 @@ describe('Stats', () => {
           'coefficientOfVariation',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -324,7 +317,7 @@ describe('Stats', () => {
           'coefficientOfVariation',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -344,7 +337,7 @@ describe('Stats', () => {
           'coefficientOfVariation',
         ];
 
-        _.each(expectedStats, statId => {
+        _.forEach(expectedStats, statId => {
           expect(wrapper.find(`#Stat--${statId}`)).to.have.length(1);
         });
       });
@@ -553,7 +546,8 @@ describe('Stats', () => {
       const setStateSpy = sinon.spy(instance, 'setState');
       sinon.assert.callCount(setStateSpy, 0);
 
-      instance.componentWillReceiveProps(_.assign({}, baseProps, {
+      // eslint-disable-next-line new-cap
+      instance.UNSAFE_componentWillReceiveProps(_.assign({}, baseProps, {
         bgSource: 'smbg',
       }));
 
@@ -572,7 +566,8 @@ describe('Stats', () => {
         endpoints: ['foo', 'bar'],
       });
 
-      instance.componentWillReceiveProps(nextProps);
+      // eslint-disable-next-line new-cap
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
       sinon.assert.calledWith(dataUtilEndpointsSpy.set, ['foo', 'bar']);
@@ -591,7 +586,8 @@ describe('Stats', () => {
         chartPrefs: { trends: { activeDays: { monday: false } } },
       });
 
-      instance.componentWillReceiveProps(nextProps);
+      // eslint-disable-next-line new-cap
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);
@@ -701,7 +697,7 @@ describe('Stats', () => {
       sinon.assert.callCount(getStatData, 7);
       sinon.assert.callCount(getStatTitle, 7);
 
-      _.each(instance.state.stats, stat => {
+      _.forEach(instance.state.stats, stat => {
         sinon.assert.calledWith(getStatAnnotations, sinon.match.object, stat.id);
         sinon.assert.calledWith(getStatData, sinon.match.object, stat.id);
         sinon.assert.calledWith(getStatTitle, stat.id);

@@ -27,14 +27,14 @@ describe('Messages', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('Initial State', function() {
     it('should equal expected initial state', function() {
       var props = {
         messages : []
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().getInitialState();
+      var state = render.getWrappedInstance().state;
 
       expect(state.messages).to.deep.equal(props.messages);
     });

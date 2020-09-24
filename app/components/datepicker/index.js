@@ -20,4 +20,4 @@ export default DatePicker;
 export {
   DatePicker,
   RangeDatePicker
-}
+};

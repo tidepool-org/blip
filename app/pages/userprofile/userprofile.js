@@ -17,6 +17,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
@@ -36,6 +37,22 @@ const MESSAGE_TIMEOUT = 5000;
 const t = i18next.t.bind(i18next);
 
 class UserProfile extends React.Component {
+  static propTypes = {
+    fetchingUser: PropTypes.bool.isRequired,
+    router: PropTypes.object.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    user: PropTypes.shape({
+      username: PropTypes.string.isRequired,
+      userid: PropTypes.string.isRequired,
+      profile: PropTypes.object.isRequired,
+    }),
+    updatingUser: PropTypes.shape({
+      inProgress: PropTypes.bool,
+      notification: PropTypes.object
+    })
+  };
+
   constructor(props) {
     super(props);
 
@@ -171,7 +188,7 @@ class UserProfile extends React.Component {
     const handleClickBack = (e) => {
       e.preventDefault();
       this.props.trackMetric('Clicked Back in Account');
-      this.props.history.goBack();
+      this.props.router.goBack();
       return false;
     };
 
@@ -326,21 +343,7 @@ class UserProfile extends React.Component {
   }
 }
 
-UserProfile.propTypes = {
-  fetchingUser: PropTypes.bool.isRequired,
-  history: PropTypes.object.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  trackMetric: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-    userid: PropTypes.string.isRequired,
-    profile: PropTypes.object.isRequired,
-  }),
-  updatingUser: PropTypes.shape({
-    inProgress: PropTypes.bool,
-    notification: PropTypes.object
-  })
-};
+
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -366,11 +369,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
   const api = ownProps.routes[0].api;
-  return Object.assign({}, _.pick(ownProps, 'history'), stateProps, {
+  return Object.assign({}, _.pick(ownProps, 'router'), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
 
 export { UserProfile, mapStateToProps };
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile));

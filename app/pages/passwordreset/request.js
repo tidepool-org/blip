@@ -15,6 +15,9 @@
  */
 
 
+import PropTypes from 'prop-types';
+
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -32,33 +35,31 @@ import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export let RequestPasswordReset = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
-    notification: React.PropTypes.object,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired
-  },
+export let RequestPasswordReset = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
+    notification: PropTypes.object,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired
+  };
 
-  formInputs: function() {
+  state = {
+    success: false,
+    formValues: {},
+    validationErrors: {},
+    notification: null
+  };
+
+  formInputs = () => {
     const { t } = this.props;
     return [
       {name: 'email', label: t('Email'), type: 'email'}
     ];
-  },
+  };
 
-  getInitialState: function() {
-    return {
-      success: false,
-      formValues: {},
-      validationErrors: {},
-      notification: null
-    };
-  },
-
-  render: function() {
+  render() {
     const { t } = this.props;
     var content;
     if (this.state.success) {
@@ -101,9 +102,9 @@ export let RequestPasswordReset = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderForm: function() {
+  renderForm = () => {
     const { t } = this.props;
     var submitButtonText = this.props.working ? t('Sending email...') : t('Send reset link');
 
@@ -117,9 +118,9 @@ export let RequestPasswordReset = translate()(React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification || this.props.notification}/>
     );
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     if (this.props.working) {
@@ -139,18 +140,18 @@ export let RequestPasswordReset = translate()(React.createClass({
     this.setState({
       success: true
     })
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.props.acknowledgeNotification('requestingPasswordReset');
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var validationErrors = {};
     var IS_REQUIRED = t('This field is required.');
@@ -171,8 +172,8 @@ export let RequestPasswordReset = translate()(React.createClass({
     }
 
     return validationErrors;
-  }
-}));
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

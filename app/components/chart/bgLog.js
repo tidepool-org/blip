@@ -15,6 +15,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
@@ -39,19 +41,19 @@ import Footer from './footer';
 
 class BgLogChart extends Component {
   static propTypes = {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patient: PropTypes.object,
+    patientData: PropTypes.object.isRequired,
+    timePrefs: PropTypes.object.isRequired,
     // handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onClickValues: React.PropTypes.func.isRequired,
-    onSelectSMBG: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired,
-    isClinicAccount: React.PropTypes.bool.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
+    onMostRecent: PropTypes.func.isRequired,
+    onClickValues: PropTypes.func.isRequired,
+    onSelectSMBG: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired,
+    isClinicAccount: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -159,27 +161,27 @@ class BgLogChart extends Component {
 
 class BgLog extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
-    chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
-    initialDatetimeLocation: React.PropTypes.string,
-    isClinicAccount: React.PropTypes.bool.isRequired,
-    canPrint: React.PropTypes.bool.isRequired,
-    onClickNoDataRefresh: React.PropTypes.func.isRequired,
-    onClickRefresh: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    patientData: React.PropTypes.object.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string.isRequired,
+    bgPrefs: PropTypes.object.isRequired,
+    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+    chartPrefs: PropTypes.object.isRequired,
+    dataUtil: PropTypes.object,
+    initialDatetimeLocation: PropTypes.string,
+    isClinicAccount: PropTypes.bool.isRequired,
+    canPrint: PropTypes.bool.isRequired,
+    onClickNoDataRefresh: PropTypes.func.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    patientData: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired,
+    timePrefs: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    updateDatetimeLocation: PropTypes.func.isRequired,
+    uploadUrl: PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -206,7 +208,7 @@ class BgLog extends Component {
     }
   };
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     if (this.props.loading && !nextProps.loading) {
       this.refs.chart.rerenderChart();
     }

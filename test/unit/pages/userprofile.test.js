@@ -13,7 +13,7 @@ const { assert, expect } = chai;
 describe('UserProfile', function () {
   const props = {
     fetchingUser: false,
-    history: {
+    router: {
       goBack: sinon.stub()
     },
     onSubmit: sinon.stub(),
@@ -38,7 +38,7 @@ describe('UserProfile', function () {
   });
 
   afterEach(() => {
-    props.history.goBack.reset();
+    props.router.goBack.reset();
     props.onSubmit.reset();
     props.trackMetric.reset();
   });
@@ -69,16 +69,16 @@ describe('UserProfile', function () {
       expect(state.notification).to.equal(null);
     });
 
-    it('should take a step back through history on clicking back button', () => {
+    it('should take a step back through router on clicking back button', () => {
       var elem = <UserProfile {...props} />;
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.history.goBack.callCount).to.equal(0);
+      expect(props.router.goBack.callCount).to.equal(0);
       TestUtils.Simulate.click(backButton);
       expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.history.goBack.callCount).to.equal(1);
+      expect(props.router.goBack.callCount).to.equal(1);
     });
   });
 

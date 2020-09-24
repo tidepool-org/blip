@@ -1,4 +1,6 @@
 
+var React = require('react');
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -14,18 +16,19 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
+import PropTypes from 'prop-types';
+
 import { translate } from 'react-i18next';
 var Link = require('react-router').Link;
 
-var LoginNav = translate()(React.createClass({
-  propTypes: {
-    page: React.PropTypes.string,
-    hideLinks: React.PropTypes.bool,
-    trackMetric: React.PropTypes.func.isRequired
-  },
+var LoginNav = translate()(class extends React.Component {
+  static propTypes = {
+    page: PropTypes.string,
+    hideLinks: PropTypes.bool,
+    trackMetric: PropTypes.func.isRequired
+  };
 
-  render: function() {
+  render() {
     var link = this.renderLink();
 
     return (
@@ -39,9 +42,9 @@ var LoginNav = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderLink: function() {
+  renderLink = () => {
     if (this.props.hideLinks) {
       return null;
     }
@@ -72,7 +75,7 @@ var LoginNav = translate()(React.createClass({
         to={href}
         className={className}><i className={icon}></i>{' ' + text}</Link>
     );
-  }
-}));
+  };
+});
 
 module.exports = LoginNav;

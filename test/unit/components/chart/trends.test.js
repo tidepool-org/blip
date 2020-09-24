@@ -15,17 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* global chai */
-/* global describe */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
-/* global sinon */
-
 import React from 'react';
-import _ from 'lodash';
+import sinon from 'sinon';
+import chai from 'chai';
 import Trends from '../../../../app/components/chart/trends';
-import { shallow, render } from 'enzyme';
+import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
@@ -177,9 +171,13 @@ describe('Trends', () => {
       ];
 
       wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        const title = render(instance.getTitle());
-        expect(title.html()).to.be.equal('<span>Jan 15, 2018&#xA0;-&#xA0;Jan 28, 2018</span>');
-        done();
+        try {
+          const title = shallow(instance.getTitle());
+          expect(title.contains(<span>Jan 15, 2018&#xA0;-&#xA0;Jan 28, 2018</span>)).to.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
     });
 
@@ -203,9 +201,13 @@ describe('Trends', () => {
       expect(title).to.be.equal('Loading...');
 
       wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        title = render(instance.getTitle());
-        expect(title.html()).to.be.equal('<span>Mar 5, 2018&#xA0;-&#xA0;Mar 11, 2018</span>');
-        done();
+        try {
+          const title = shallow(instance.getTitle());
+          expect(title.contains(<span>Mar 5, 2018&#xA0;-&#xA0;Mar 11, 2018</span>)).to.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
     });
 
@@ -229,9 +231,13 @@ describe('Trends', () => {
       expect(title).to.be.equal('Loading...');
 
       wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        title = render(instance.getTitle());
-        expect(title.html()).to.be.equal('<span>Mar 11, 2018&#xA0;-&#xA0;Mar 17, 2018</span>');
-        done();
+        try {
+          const title = shallow(instance.getTitle());
+          expect(title.contains(<span>Mar 11, 2018&#xA0;-&#xA0;Mar 17, 2018</span>)).to.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
     });
 

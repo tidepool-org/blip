@@ -67,7 +67,8 @@ describe('VerificationWithPassword', () => {
       };
       let elem = React.createElement(VerificationWithPassword, props);
       let render = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(elem), VerificationWithPassword.WrappedComponent);
-      render.componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
+      // eslint-disable-next-line new-cap
+      render.UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
@@ -75,7 +76,7 @@ describe('VerificationWithPassword', () => {
     });
   });
 
-  describe('getInitialState', () => {
+  describe('initial state', () => {
     it('should return an Object that matches expectedInitialState', () => {
       console.error = sinon.stub();
       let props = {
@@ -88,7 +89,7 @@ describe('VerificationWithPassword', () => {
         working: false
       }
       let expectedInitialState = {
-        loading: true,
+        loading: false,
         formValues: {},
         validationErrors: {},
         notification: null
@@ -97,7 +98,7 @@ describe('VerificationWithPassword', () => {
       let elem = React.createElement(VerificationWithPassword, props);
       let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
       expect(console.error.callCount).to.equal(0);
-      expect(render.getInitialState()).to.eql(expectedInitialState);
+      expect(render.state).to.eql(expectedInitialState);
     });
   });
 
@@ -115,7 +116,7 @@ describe('VerificationWithPassword', () => {
         working: false
       }
       let expectedInitialState = {
-        loading: true,
+        loading: false,
         formValues: {},
         validationErrors: {},
         notification: null
@@ -124,7 +125,7 @@ describe('VerificationWithPassword', () => {
       let elem = React.createElement(VerificationWithPassword, props);
       let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
 
-      expect(render.getInitialState()).to.eql(expectedInitialState);
+      expect(render.state).to.eql(expectedInitialState);
 
       render.handleInputChange({name: 'password', value: 'foo'});
 

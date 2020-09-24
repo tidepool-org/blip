@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -23,8 +25,8 @@ const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
 export default translate()(class Export extends Component {
   static propTypes = {
-    api: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object.isRequired,
+    api: PropTypes.object.isRequired,
+    patient: PropTypes.object.isRequired,
   };
 
   constructor(props) {

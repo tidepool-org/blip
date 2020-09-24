@@ -68,7 +68,7 @@ describe('ConfirmPasswordReset', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should be in this expected format', function() {
       console.error = sinon.stub();
       var props = {
@@ -82,7 +82,7 @@ describe('ConfirmPasswordReset', function () {
       };
       var elem = React.createElement(ConfirmPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getWrappedInstance().getInitialState();
+      var initialState = render.getWrappedInstance().state;
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);

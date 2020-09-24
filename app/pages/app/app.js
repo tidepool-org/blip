@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -13,7 +15,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -46,48 +49,48 @@ require('../../style.less');
 document.title = CONFIG[config.BRANDING].name;
 export class AppComponent extends React.Component {
   static propTypes = {
-    authenticated: React.PropTypes.bool.isRequired,
-    children: React.PropTypes.object.isRequired,
-    fetchers: React.PropTypes.array.isRequired,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.shape({
-      inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.bool,
+    authenticated: PropTypes.bool.isRequired,
+    children: PropTypes.object.isRequired,
+    fetchers: PropTypes.array.isRequired,
+    fetchingPatient: PropTypes.bool.isRequired,
+    fetchingPendingSentInvites: PropTypes.bool.isRequired,
+    fetchingUser: PropTypes.shape({
+      inProgress: PropTypes.bool.isRequired,
+      completed: PropTypes.bool,
     }).isRequired,
-    fetchingDataSources: React.PropTypes.shape({
-      inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.bool,
+    fetchingDataSources: PropTypes.shape({
+      inProgress: PropTypes.bool.isRequired,
+      completed: PropTypes.bool,
     }).isRequired,
-    location: React.PropTypes.string.isRequired,
-    loggingOut: React.PropTypes.bool.isRequired,
-    updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object,
-    onCloseNotification: React.PropTypes.func.isRequired,
-    onDismissDonateBanner: React.PropTypes.func.isRequired,
-    onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    onLogout: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
-    context: React.PropTypes.shape({
-      DEBUG: React.PropTypes.bool.isRequired,
-      api: React.PropTypes.object.isRequired,
-      config: React.PropTypes.object.isRequired,
-      log: React.PropTypes.func.isRequired,
-      personUtils: React.PropTypes.object.isRequired,
-      trackMetric: React.PropTypes.func.isRequired,
+    location: PropTypes.string.isRequired,
+    loggingOut: PropTypes.bool.isRequired,
+    updatingDataDonationAccounts: PropTypes.bool.isRequired,
+    notification: PropTypes.object,
+    onCloseNotification: PropTypes.func.isRequired,
+    onDismissDonateBanner: PropTypes.func.isRequired,
+    onDismissDexcomConnectBanner: PropTypes.func.isRequired,
+    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
+    onLogout: PropTypes.func.isRequired,
+    patient: PropTypes.object,
+    context: PropTypes.shape({
+      DEBUG: PropTypes.bool.isRequired,
+      api: PropTypes.object.isRequired,
+      config: PropTypes.object.isRequired,
+      log: PropTypes.func.isRequired,
+      personUtils: PropTypes.object.isRequired,
+      trackMetric: PropTypes.func.isRequired,
     }).isRequired,
-    showingDonateBanner: React.PropTypes.bool,
-    showingDexcomConnectBanner: React.PropTypes.bool,
-    showBanner: React.PropTypes.func.isRequired,
-    hideBanner: React.PropTypes.func.isRequired,
-    termsAccepted: React.PropTypes.string,
-    user: React.PropTypes.object,
-    userHasData: React.PropTypes.bool.isRequired,
-    userIsCurrentPatient: React.PropTypes.bool.isRequired,
-    userIsDonor: React.PropTypes.bool.isRequired,
-    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object,
+    showingDonateBanner: PropTypes.bool,
+    showingDexcomConnectBanner: PropTypes.bool,
+    showBanner: PropTypes.func.isRequired,
+    hideBanner: PropTypes.func.isRequired,
+    termsAccepted: PropTypes.string,
+    user: PropTypes.object,
+    userHasData: PropTypes.bool.isRequired,
+    userIsCurrentPatient: PropTypes.bool.isRequired,
+    userIsDonor: PropTypes.bool.isRequired,
+    userIsSupportingNonprofit: PropTypes.bool.isRequired,
+    permsOfLoggedInUser: PropTypes.object,
   };
 
   constructor(props) {
@@ -133,7 +136,7 @@ export class AppComponent extends React.Component {
    * Before rendering for first time
    * begin fetching any required data
    */
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.doFetching(this.props);
   }
 
@@ -141,7 +144,7 @@ export class AppComponent extends React.Component {
    * Before any subsequent re-rendering
    * begin fetching any required data
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {
       showingDonateBanner,
       showingDexcomConnectBanner,

@@ -1,4 +1,5 @@
 
+var PropTypes = require('prop-types');
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -16,15 +17,15 @@
 
 var React = require('react');
 
-var MailTo = React.createClass({
-  propTypes: {
-    linkTitle : React.PropTypes.string.isRequired,
-    emailAddress : React.PropTypes.string.isRequired,
-    emailSubject : React.PropTypes.string.isRequired,
-    onLinkClicked: React.PropTypes.func.isRequired
-  },
+class MailTo extends React.Component {
+  static propTypes = {
+    linkTitle : PropTypes.string.isRequired,
+    emailAddress : PropTypes.string.isRequired,
+    emailSubject : PropTypes.string.isRequired,
+    onLinkClicked: PropTypes.func.isRequired
+  };
 
-  render: function() {
+  render() {
 
     var mailtoInfo = 'mailto:'+this.props.emailAddress+'?Subject='+this.props.emailSubject;
 
@@ -39,7 +40,6 @@ var MailTo = React.createClass({
       </div>
     );
   }
-
-});
+}
 
 module.exports = MailTo;

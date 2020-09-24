@@ -54,7 +54,7 @@ describe('RequestPasswordReset', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('Initial State', function() {
     it('should be in this expected format', function() {
       console.error = sinon.stub();
       var props = {
@@ -66,7 +66,7 @@ describe('RequestPasswordReset', function () {
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getWrappedInstance().getInitialState();
+      var initialState = render.getWrappedInstance().state;
       expect(initialState.success).to.equal(false);
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);

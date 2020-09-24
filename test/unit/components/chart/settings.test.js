@@ -8,9 +8,10 @@
 import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
+import { createRenderer } from 'react-test-renderer/shallow';
 var expect = chai.expect;
 
-const renderer = TestUtils.createRenderer();
+const renderer = createRenderer();
 
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';

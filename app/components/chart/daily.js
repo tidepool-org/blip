@@ -15,6 +15,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
@@ -47,35 +49,35 @@ import Footer from './footer';
 
 const DailyChart = translate()(class DailyChart extends Component {
   static propTypes = {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    bolusRatio: React.PropTypes.number,
-    dynamicCarbs: React.PropTypes.bool,
-    initialDatetimeLocation: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    bolusRatio: PropTypes.number,
+    dynamicCarbs: PropTypes.bool,
+    initialDatetimeLocation: PropTypes.string,
+    patient: PropTypes.object,
+    patientData: PropTypes.object.isRequired,
+    timePrefs: PropTypes.object.isRequired,
     // message handlers
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onShowMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: PropTypes.func.isRequired,
+    onShowMessageThread: PropTypes.func.isRequired,
     // other handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired,
-    onBolusHover: React.PropTypes.func.isRequired,
-    onBolusOut: React.PropTypes.func.isRequired,
-    onSMBGHover: React.PropTypes.func.isRequired,
-    onSMBGOut: React.PropTypes.func.isRequired,
-    onCBGHover: React.PropTypes.func.isRequired,
-    onCBGOut: React.PropTypes.func.isRequired,
-    onCarbHover: React.PropTypes.func.isRequired,
-    onCarbOut: React.PropTypes.func.isRequired,
-    onReservoirHover: React.PropTypes.func.isRequired,
-    onReservoirOut: React.PropTypes.func.isRequired,
-    onPhysicalHover: React.PropTypes.func.isRequired,
-    onPhysicalOut: React.PropTypes.func.isRequired,
-    onParameterHover: React.PropTypes.func.isRequired,
-    onParameterOut: React.PropTypes.func.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
+    onMostRecent: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired,
+    onBolusHover: PropTypes.func.isRequired,
+    onBolusOut: PropTypes.func.isRequired,
+    onSMBGHover: PropTypes.func.isRequired,
+    onSMBGOut: PropTypes.func.isRequired,
+    onCBGHover: PropTypes.func.isRequired,
+    onCBGOut: PropTypes.func.isRequired,
+    onCarbHover: PropTypes.func.isRequired,
+    onCarbOut: PropTypes.func.isRequired,
+    onReservoirHover: PropTypes.func.isRequired,
+    onReservoirOut: PropTypes.func.isRequired,
+    onPhysicalHover: PropTypes.func.isRequired,
+    onPhysicalOut: PropTypes.func.isRequired,
+    onParameterHover: PropTypes.func.isRequired,
+    onParameterOut: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -217,32 +219,32 @@ const DailyChart = translate()(class DailyChart extends Component {
 
 class Daily extends Component {
   static propTypes = {
-    bgPrefs: React.PropTypes.object.isRequired,
-    bgSource: React.PropTypes.oneOf(BG_DATA_TYPES),
-    chartPrefs: React.PropTypes.object.isRequired,
-    dataUtil: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    canPrint: React.PropTypes.bool.isRequired,
+    bgPrefs: PropTypes.object.isRequired,
+    bgSource: PropTypes.oneOf(BG_DATA_TYPES),
+    chartPrefs: PropTypes.object.isRequired,
+    dataUtil: PropTypes.object,
+    timePrefs: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    patientData: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired,
+    canPrint: PropTypes.bool.isRequired,
     // refresh handler
-    onClickRefresh: React.PropTypes.func.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
     // message handlers
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onShowMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: PropTypes.func.isRequired,
+    onShowMessageThread: PropTypes.func.isRequired,
     // navigation handlers
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onSwitchToTrends: React.PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     // PatientData state updaters
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    updateChartPrefs: PropTypes.func.isRequired,
+    updateDatetimeLocation: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -263,7 +265,7 @@ class Daily extends Component {
     };
   };
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     if (this.props.loading && !nextProps.loading) {
       this.refs.chart.getWrappedInstance().rerenderChart();
     }

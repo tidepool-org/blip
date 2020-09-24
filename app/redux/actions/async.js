@@ -24,7 +24,7 @@ import { checkCacheValid } from 'redux-cache';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
 import config from '../../config';
 

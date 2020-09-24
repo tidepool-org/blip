@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React from 'react';
-import createFragment from 'react-addons-create-fragment';
 import TestUtils from 'react-dom/test-utils';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
@@ -40,7 +39,7 @@ describe('App', () => {
   describe('constructor', () => {
     var props = _.assign({}, baseProps, {
       authenticated: false,
-      children: createFragment({}),
+      children: (<React.Fragment></React.Fragment>),
       fetchers: [],
       fetchingPatient: false,
       fetchingUser: {
@@ -88,7 +87,7 @@ describe('App', () => {
     it('should render without problems or warnings when required props provided', () => {
       const props = _.assign({}, baseProps, {
         authenticated: false,
-        children: createFragment({}),
+        children: (<React.Fragment></React.Fragment>),
         fetchers: [],
         fetchingPatient: false,
         fetchingUser: {

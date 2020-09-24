@@ -18,7 +18,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import i18next from '../../core/language';
 import _ from 'lodash';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import bows from 'bows';
 
 const SELECT_BEGIN = 0;
@@ -163,7 +163,7 @@ class RangeDatePicker extends React.Component {
     }
 
     const months = [
-      this.renderMonth(moment.utc(displayMonth).tz(timezone).subtract(1, 'month')),
+      this.renderMonth(moment.tz(displayMonth, timezone).subtract(1, 'month')),
       this.renderMonth(displayMonth)
     ];
 
@@ -202,21 +202,21 @@ class RangeDatePicker extends React.Component {
 
   /**
    * Render a month
-   * @param {moment} month The month to render
+   * @param {moment.Moment} month The month to render
    */
   renderMonth(month) {
     const { timezone } = this.props;
     // Build the weekdays (Su Mo Tu We Th Fr Sa)
     const weekDays = [];
     for (let i=0; i<7; i++) {
-      const weekDay = moment().weekday(i);
+      const weekDay = moment.tz(timezone).weekday(i);
       const weekDayLabel = weekDay.format('dd');
       weekDays.push(<span className="weekday" key={weekDayLabel}>{weekDayLabel}</span>);
     }
 
     // Build days
     const monthDays = []; // Array of JSX.Element
-    const day = moment.utc(month).tz(timezone).weekday(0); // First day to display
+    const day = moment.tz(month, timezone).weekday(0); // First day to display
 
     // Previous month
     while (day.get('month') !== month.get('month')) {
@@ -247,7 +247,7 @@ class RangeDatePicker extends React.Component {
 
   /**
    * Render a single day of the calendar
-   * @param {moment} day The day to display
+   * @param {moment.Moment} day The day to display
    * @param {boolean} sameMonth if false the day will not be displayed: using CSS class `day-invisible`,
    * and no event possible on that day
    */
@@ -312,7 +312,7 @@ class RangeDatePicker extends React.Component {
 
   /**
    * Click on the prev/next month arrows
-   * @param {Event} e click event
+   * @param {React.MouseEvent<HTMLSpanElement>} e click event
    */
   handlePrevNextMonth(e) {
     const { timezone } = this.props;
@@ -321,9 +321,9 @@ class RangeDatePicker extends React.Component {
     const id = target.getAttribute('id');
 
     if (id === 'datepicker-popup-prev-month') {
-      this.setState({ displayMonth: moment(displayMonth).tz(timezone).subtract(1, 'month') });
+      this.setState({ displayMonth: moment.tz(displayMonth, timezone).subtract(1, 'month') });
     } else if (id === 'datepicker-popup-next-month') {
-      this.setState({ displayMonth: moment.utc(displayMonth).tz(timezone).add(1, 'month') });
+      this.setState({ displayMonth: moment.tz(displayMonth, timezone).add(1, 'month') });
     } else {
       // ignore: error somewhere ?
       this.log.error('handlePrevNextMonth(): Invalid event target');
@@ -359,25 +359,25 @@ class RangeDatePicker extends React.Component {
       this.log(`selectedBegin: ${hoverDate.toISOString()}`);
       this.setState({
         nextSelection: SELECT_END,
-        selectedBegin: moment.utc(hoverDate).tz(timezone),
+        selectedBegin: moment.tz(hoverDate, timezone),
       });
 
-    } else if (nextSelection === SELECT_END) {
-      let begin = moment.utc(selectedBegin).tz(timezone);
-      let end = moment.utc(hoverDate).tz(timezone);
+    } else {
+      let begin = moment.tz(selectedBegin, timezone);
+      let end = moment.tz(hoverDate, timezone);
 
       let diffDays = Math.abs(end.diff(begin, 'days'));
       this.log(`diffDays: ${diffDays}`);
 
       if (minDuration > 0 && diffDays < minDuration) {
-        begin = moment.utc(end).tz(timezone).subtract(minDuration, 'days');
+        begin = moment.tz(end, timezone).subtract(minDuration, 'days');
         diffDays = end.diff(begin, 'days');
         this.log(`diffDays adjusted: ${diffDays}`);
       } else if (maxDuration > 0 && diffDays > maxDuration) {
         if (begin.isBefore(end)) {
-          begin = moment.utc(end).tz(timezone).subtract(maxDuration, 'days');
+          begin = moment.tz(end, timezone).subtract(maxDuration, 'days');
         } else {
-          begin = moment.utc(end).tz(timezone).add(maxDuration, 'days');
+          begin = moment.tz(end, timezone).add(maxDuration, 'days');
         }
         diffDays = end.diff(begin, 'days');
         this.log(`diffDays adjusted: ${diffDays}`);
@@ -390,14 +390,13 @@ class RangeDatePicker extends React.Component {
 
   /**
    * Accept the range
-   * @param {Event} e click event
    */
-  handleApply(e) {
+  handleApply(/* e */) {
     const { timezone } = this.props;
     const { selectedBegin, selectedEnd } = this.state;
 
-    let begin = moment.utc(selectedBegin).tz(timezone);
-    let end = moment.utc(selectedEnd).tz(timezone);
+    let begin = moment.tz(selectedBegin, timezone);
+    let end = moment.tz(selectedEnd, timezone);
     if (begin.isAfter(end)) {
       const tmp = begin;
       begin = end;

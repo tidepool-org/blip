@@ -14,6 +14,8 @@
 * not, you can obtain one from Tidepool Project at tidepool.org.
 * == BSD2 LICENSE ==
 */
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { Cell } from 'fixed-data-table-2';
 
@@ -69,10 +71,10 @@ class SortHeaderCell extends React.Component {
 }
 
 SortHeaderCell.propTypes = {
-  columnKey: React.PropTypes.string,
-  onSortChange: React.PropTypes.func,
-  sortDir: React.PropTypes.string,
-  title: React.PropTypes.string,
+  columnKey: PropTypes.string,
+  onSortChange: PropTypes.func,
+  sortDir: PropTypes.string,
+  title: PropTypes.string,
 };
 
 export { SortHeaderCell, SortTypes };

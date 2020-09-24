@@ -234,7 +234,7 @@ describe('Signup', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('Initial State', function() {
     it('should return expected initial state', function() {
       var props = {
         inviteEmail: 'gordonmdent@gmail.com',
@@ -242,9 +242,9 @@ describe('Signup', function () {
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var state = render.getInitialState();
+      var state = render.state;
 
-      expect(state.loading).to.equal(true);
+      expect(state.loading).to.equal(false); // once rendered, loading has been set to false
       expect(state.formValues.username).to.equal(props.inviteEmail);
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);

@@ -14,7 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -29,41 +32,43 @@ import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
 import config from '../../config';
 
-const Patient = translate()(React.createClass({
+const Patient = translate()(createReactClass({
+  displayName: 'Patient',
+
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    cancellingInvite: React.PropTypes.bool,
-    dataDonationAccounts: React.PropTypes.array,
-    dataDonationAccountsFetched: React.PropTypes.bool,
-    changingMemberPermissions: React.PropTypes.bool,
-    fetchers: React.PropTypes.array.isRequired,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    invitingMemberInfo: React.PropTypes.object,
-    onCancelInvite: React.PropTypes.func,
-    onChangeMemberPermissions: React.PropTypes.func,
-    onInviteMember: React.PropTypes.func,
-    onRemoveMember: React.PropTypes.func,
-    onUpdateDataDonationAccounts: React.PropTypes.func,
-    onUpdatePatient: React.PropTypes.func,
-    onUpdatePatientSettings: React.PropTypes.func,
-    patient: React.PropTypes.object,
-    pendingSentInvites: React.PropTypes.array,
-    removingMember: React.PropTypes.bool,
-    shareOnly: React.PropTypes.bool,
-    trackMetric: React.PropTypes.func.isRequired,
-    updatingDataDonationAccounts: React.PropTypes.bool,
-    updatingPatientBgUnits: React.PropTypes.bool,
-    user: React.PropTypes.object,
-    dataSources: React.PropTypes.array,
-    fetchDataSources: React.PropTypes.func,
-    connectDataSource: React.PropTypes.func,
-    disconnectDataSource: React.PropTypes.func,
-    authorizedDataSource: React.PropTypes.object,
-    queryParams: React.PropTypes.object,
-    api: React.PropTypes.object,
+    acknowledgeNotification: PropTypes.func.isRequired,
+    cancellingInvite: PropTypes.bool,
+    dataDonationAccounts: PropTypes.array,
+    dataDonationAccountsFetched: PropTypes.bool,
+    changingMemberPermissions: PropTypes.bool,
+    fetchers: PropTypes.array.isRequired,
+    fetchingPatient: PropTypes.bool.isRequired,
+    fetchingUser: PropTypes.bool.isRequired,
+    invitingMemberInfo: PropTypes.object,
+    onCancelInvite: PropTypes.func,
+    onChangeMemberPermissions: PropTypes.func,
+    onInviteMember: PropTypes.func,
+    onRemoveMember: PropTypes.func,
+    onUpdateDataDonationAccounts: PropTypes.func,
+    onUpdatePatient: PropTypes.func,
+    onUpdatePatientSettings: PropTypes.func,
+    patient: PropTypes.object,
+    pendingSentInvites: PropTypes.array,
+    removingMember: PropTypes.bool,
+    shareOnly: PropTypes.bool,
+    trackMetric: PropTypes.func.isRequired,
+    updatingDataDonationAccounts: PropTypes.bool,
+    updatingPatientBgUnits: PropTypes.bool,
+    user: PropTypes.object,
+    dataSources: PropTypes.array,
+    fetchDataSources: PropTypes.func,
+    connectDataSource: PropTypes.func,
+    disconnectDataSource: PropTypes.func,
+    authorizedDataSource: PropTypes.object,
+    queryParams: PropTypes.object,
+    api: PropTypes.object,
   },
 
   getInitialState: function() {
@@ -246,9 +251,9 @@ const Patient = translate()(React.createClass({
    * Before rendering for first time
    * begin fetching any required data
    */
-  componentWillMount: function() {
+  UNSAFE_componentWillMount: function() {
     this.doFetching(this.props);
-  }
+  },
 }));
 
 export default Patient;

@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { translate, Trans } from 'react-i18next';
@@ -30,11 +32,11 @@ import { getDonationAccountCodeFromEmail } from '../../core/utils';
 
 export default translate()(class DonateForm extends Component {
   static propTypes = {
-    dataDonationAccounts: React.PropTypes.array.isRequired,
-    dataDonationAccountsFetched: React.PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    dataDonationAccounts: PropTypes.array.isRequired,
+    dataDonationAccountsFetched: PropTypes.bool.isRequired,
+    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -52,7 +54,7 @@ export default translate()(class DonateForm extends Component {
     return _.reject(dataDonationAccounts, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL });
   }
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     if (!this.props.dataDonationAccountsFetched && nextProps.dataDonationAccountsFetched ) {
       const initialFormValues = this.getInitialFormValues(nextProps);
 
