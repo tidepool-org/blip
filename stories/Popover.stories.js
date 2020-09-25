@@ -59,7 +59,7 @@ export const Simple = () => {
       <Popover width="20em" {...bindPopover(popupState)}>
         <Box p={3}>
           <Subheading>
-              Insulin Sensitivity Factor
+            Insulin Sensitivity Factor
           </Subheading>
           <Paragraph1>
             <Text color="text.primarySubdued">

@@ -16,9 +16,11 @@ describe('prescriptionSchema', function() {
     expect(schema._nodes).to.be.an('array').and.have.members([
       'id',
       'state',
-      // 'type',
+      'accountType',
       'firstName',
       'lastName',
+      'caregiverFirstName',
+      'caregiverLastName',
       'birthday',
       'email',
       'emailConfirm',
@@ -39,19 +41,14 @@ describe('prescriptionSchema', function() {
       'bloodGlucoseUnits',
       'pumpId',
       'cgmId',
-      // 'insulinModel',
-      'suspendThreshold',
+      'insulinModel',
+      'bloodGlucoseSuspendThreshold',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',
       'basalRateSchedule',
       'carbohydrateRatioSchedule',
       'insulinSensitivitySchedule',
-    ]);
-
-    expect(schema.fields.initialSettings.fields.suspendThreshold._nodes).to.be.an('array').and.have.members([
-      'value',
-      'units',
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateMaximum._nodes).to.be.an('array').and.have.members([

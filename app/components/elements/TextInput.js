@@ -27,6 +27,7 @@ export const TextInput = (props) => {
     name,
     width = ['100%', '75%', '50%'],
     icon,
+    innerRef,
     prefix,
     suffix,
     themeProps,
@@ -57,6 +58,7 @@ export const TextInput = (props) => {
           name={name}
           placeholder={placeholder}
           className={inputClasses}
+          ref={innerRef}
           {...inputProps}
         />
         {icon && <Icon className="icon" icon={icon} label={label} />}
@@ -78,6 +80,10 @@ export const TextInput = (props) => {
 
 TextInput.propTypes = {
   ...InputProps,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,

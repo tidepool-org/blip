@@ -153,3 +153,13 @@ export const useLocalStorage = (key, initialValue) => {
 
   return [storedValue, setValue];
 };
+
+export const useInitialFocusedInput = () => {
+  const ref = useRef();
+
+  useEffect(() => {
+    if (ref.current) ref.current.focus();
+  }, [ref.current]);
+
+  return ref;
+};

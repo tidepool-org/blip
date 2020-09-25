@@ -55,6 +55,10 @@ export const DatePicker = props => {
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
 
+  React.useEffect(() => {
+    setDate(dateProp);
+  }, [dateProp]);
+
   const inputClasses = cx({
     error,
     required,

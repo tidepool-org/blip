@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import bows from 'bows';
 import moment from 'moment';
 import { FastField, withFormik, useFormikContext } from 'formik';
-import { Persist } from 'formik-persist';
+import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -33,6 +33,7 @@ import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
+import { useToasts } from '../../providers/ToastProvider';
 
 import {
   defaultUnits,
@@ -57,8 +58,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     return {
       id: get(props, 'prescription.id', ''),
       state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-      // type: get(props, 'prescription.latestRevision.attributes.type', ''),
+      accountType: get(props, 'prescription.latestRevision.attributes.accountType', ''),
       firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
+      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName', ''),
+      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName', ''),
       lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
       birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
       email: get(props, 'prescription.latestRevision.attributes.email', ''),
@@ -73,11 +76,8 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
         pumpId: selectedPumpId || '',
         cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
-        // insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-        suspendThreshold: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ''),
-          units: defaultUnits.suspendThreshold,
-        },
+        insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
+        bloodGlucoseSuspendThreshold: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ''),
         basalRateMaximum: {
           value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
           units: defaultUnits.basalRate,
@@ -88,7 +88,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
           context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.suspendThreshold.value', ranges.bloodGlucoseTarget.min),
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ranges.bloodGlucoseTarget.min),
           },
           high: '',
           low: '',
@@ -166,8 +166,11 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
+    validateForm,
     values,
   } = useFormikContext();
+
+  const { set: setToast } = useToasts();
 
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
@@ -187,12 +190,18 @@ export const PrescriptionForm = props => {
   const storageKey = 'prescriptionForm';
 
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
-  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[0], 10) : undefined);
-  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam[1], 10) : undefined);
+  const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
+  const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
   const [pendingStep, setPendingStep] = React.useState([]);
+  const [initialFocusedInput, setInitialFocusedInput] = React.useState();
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
+
+  // Revalidate form whenever values change
+  React.useEffect(() => {
+    validateForm();
+  }, [values]);
 
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
@@ -223,33 +232,43 @@ export const PrescriptionForm = props => {
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
-    const { inProgress, completed, prescriptionId } = get(values, 'id') ? creatingPrescriptionRevision : creatingPrescription;
+    const isRevision = !!get(values, 'id');
+    const isDraft = get(values, 'state') === 'draft';
+    const { inProgress, completed, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
 
     if (prescriptionId) setFieldValue('id', prescriptionId);
 
     if (!inProgress && completed) {
       setStepAsyncState(asyncStates.completed);
       if (isLastStep) {
-        // TODO: Set a message to display as a toast on the prescriptions page
+        let messageAction = 'sent';
+        if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+
+        setToast({
+          message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
+          variant: 'success',
+        });
+
         history.push('/prescriptions');
       }
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
-  // Update minimum blood glucose target values when suspendThreshold changes
-  const suspendThreshold = get(meta, 'initialSettings.suspendThreshold.value.value');
+  // Update minimum blood glucose target values when bloodGlucoseSuspendThreshold changes
+  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
   const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
   React.useEffect(() => {
     each(bloodGlucoseTargetSchedule, (schedule, i) => {
-      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, suspendThreshold);
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, bloodGlucoseSuspendThreshold);
     });
-  }, [suspendThreshold]);
+  }, [bloodGlucoseSuspendThreshold]);
 
   const handlers = {
-    activeStepUpdate: ([step, subStep], fromStep = []) => {
+    activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
       setActiveStep(step);
       setActiveSubStep(subStep);
       setPendingStep(fromStep);
+      setInitialFocusedInput(initialFocusedInput);
     },
 
     generateTherapySettingsOrderText,
@@ -315,7 +334,7 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const accountFormStepsProps = accountFormSteps(meta);
+  const accountFormStepsProps = accountFormSteps(meta, initialFocusedInput);
   const profileFormStepsProps = profileFormSteps(meta, devices);
   const therapySettingsFormStepProps = therapySettingsFormStep(meta, pump);
   const reviewFormStepProps = reviewFormStep(meta, pump, handlers);
@@ -402,7 +421,7 @@ export const PrescriptionForm = props => {
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
       {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
-      <Persist name={storageKey} />
+      <PersistFormikValues persistInvalid name={storageKey} />
     </form>
   );
 };

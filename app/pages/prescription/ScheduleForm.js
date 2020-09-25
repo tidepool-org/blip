@@ -106,6 +106,7 @@ const ScheduleForm = props => {
             icon={DeleteOutlineRoundedIcon}
             onClick={() => remove(index)}
             disabled={index === 0}
+            tabIndex={index === 0 ? -1 : 0}
             sx={{
               top: index === 0 ? '1em' : 0,
             }}
