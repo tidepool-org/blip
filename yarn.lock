@@ -3317,12 +3317,17 @@ async@2.6.1:
   dependencies:
     lodash "^4.17.10"
 
-async@^2.0.1, async@^2.5.0, async@^2.6.0, async@^2.6.2:
+async@^2.0.1, async@^2.5.0, async@^2.6.2:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.3.tgz#d72625e2344a3656e3a3ad4fa749fa83299d82ff"
   integrity sha512-zflvls11DCy+dQWzTW2dzuilv8Z5X/pjfmZOWba6TNIVDm+2UDaJmXSOXlasHKfNBs8oo3M0aT50fDEWfKZjXg==
   dependencies:
     lodash "^4.17.14"
+
+async@^3.1.1:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/async/-/async-3.2.0.tgz#b3a2685c5ebb641d3de02d161002c60fc9f85720"
+  integrity sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==
 
 async@~1.2.1:
   version "1.2.1"
@@ -10847,11 +10852,6 @@ lodash.flow@^3.3.0:
   resolved "https://registry.yarnpkg.com/lodash.flow/-/lodash.flow-3.5.0.tgz#87bf40292b8cf83e4e8ce1a3ae4209e20071675a"
   integrity sha1-h79AKSuM+D5OjOGjrkIJ4gBxZ1o=
 
-lodash.foreach@^4.2.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.foreach/-/lodash.foreach-4.5.0.tgz#1a6a35eace401280c7f06dddec35165ab27e3e53"
-  integrity sha1-Gmo16s5AEoDH8G3d7DUWWrJ+PlM=
-
 lodash.get@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
@@ -15726,15 +15726,13 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rollbar-sourcemap-webpack-plugin@2.5.3:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/rollbar-sourcemap-webpack-plugin/-/rollbar-sourcemap-webpack-plugin-2.5.3.tgz#77ed12a95f6d6651c36b76722bbdd281478874ff"
-  integrity sha512-ra/jKTF17/a2BdK5JweBp0cOF6wgp3rp89I044Sw8YmyFRZxw+rXuNUZee1rSuT54zIDGuC6QGZ/VOo2OIJB5Q==
+rollbar-sourcemap-webpack-plugin@2.11.4:
+  version "2.11.4"
+  resolved "https://registry.yarnpkg.com/rollbar-sourcemap-webpack-plugin/-/rollbar-sourcemap-webpack-plugin-2.11.4.tgz#463f4e71aba6b15d8aa6699745039c6a6e0d245f"
+  integrity sha512-dHGfw7Ktur6HcMXLdhxR3GOT7KCCXOBEgI/egtgdSxPPUOEjLUgPM8m/FLyOmnWYjFSTmpzfGlOUdqhOkYzEdQ==
   dependencies:
-    async "^2.6.0"
-    babel-runtime "^6.26.0"
+    async "^3.1.1"
     lodash.find "^4.3.0"
-    lodash.foreach "^4.2.0"
     lodash.isfunction "^3.0.9"
     lodash.isstring "^4.0.1"
     lodash.reduce "^4.3.0"
