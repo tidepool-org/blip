@@ -142,31 +142,6 @@ export let PatientData = translate()(createReactClass({
         },
       },
       printDialogOpen: false,
-      printOpts: {
-        numDays: {
-          enabled: true,
-          daily: 15,
-          bgLog: 30,
-        },
-        daily: {
-          enabled: true,
-          endDate: null,
-          numDays: 14,
-        },
-        bgLog: {
-          enabled: true,
-          endDate: null,
-          numDays: 30,
-        },
-        basics: {
-          enabled: true,
-          endDate: null,
-          numDays: 21,
-        },
-        settings: {
-          enabled: true,
-        },
-      },
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -321,6 +296,7 @@ export let PatientData = translate()(createReactClass({
         onClose={() => this.setState({ printDialogOpen: false })}
         onClickPrint={opts => {
           console.log('opts', opts);
+          this.generatePDF(this.props, this.state, opts);
         }}
         timePrefs={this.state.timePrefs}
       />
@@ -569,7 +545,8 @@ export let PatientData = translate()(createReactClass({
     return stats;
   },
 
-  generateCustomPDF: function(props = this.props, state = this.state, dates) {
+  // TODO: may be able to simplify signature if we don't need to ever pass nextProps or nextState
+  generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
@@ -578,6 +555,7 @@ export let PatientData = translate()(createReactClass({
 
     const opts = {
       patient: pdfPatient,
+      ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
     };
 
     const commonQueries = {
@@ -586,19 +564,32 @@ export let PatientData = translate()(createReactClass({
       timePrefs: state.timePrefs,
     };
 
-    const queries = {
-      basics: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
-          { chartType: 'basics' }
-        ),
+    const queries = {};
+
+    if (!opts.basics.disabled) {
+      queries.basics = {
+        endpoints: pdfOpts.basics.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        stats: this.getStatsByChartType('basics'),
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        stats: this.getStatsByChartType('basics'),
         ...commonQueries,
-      },
-      daily: {
-        endpoints: _.map(dates, date => moment.utc(date).valueOf()),
+      };
+    }
+
+    if (!opts.bgLog.disabled) {
+      queries.bgLog = {
+        endpoints: pdfOpts.bgLog.endpoints,
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      };
+    }
+
+    if (!opts.daily.disabled) {
+      queries.daily = {
+        endpoints: pdfOpts.daily.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
         types: {
@@ -613,22 +604,14 @@ export let PatientData = translate()(createReactClass({
         },
         bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
         ...commonQueries,
-      },
-      bgLog: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
-        ),
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+      };
+    }
+
+    if (!opts.settings.disabled) {
+      queries.settings = {
         ...commonQueries,
-      },
-      settings: {
-        ...commonQueries,
-      },
-    };
+      };
+    }
 
     this.log('Generating PDF with', queries, opts);
 
@@ -643,84 +626,6 @@ export let PatientData = translate()(createReactClass({
       this.props.currentPatientInViewId,
     );
   },
-
-  // generatePDF: function (props = this.props, state = this.state) {
-  //   const patientSettings = _.get(props, 'patient.settings', {});
-  //   const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-  //   const pdfPatient = _.assign({}, props.patient, {
-  //     settings: _.assign({}, patientSettings, { siteChangeSource }),
-  //   });
-
-  //   const opts = {
-  //     patient: pdfPatient,
-  //   };
-
-  //   const commonQueries = {
-  //     bgPrefs: state.bgPrefs,
-  //     metaData: 'latestPumpUpload, bgSources',
-  //     timePrefs: state.timePrefs,
-  //   };
-
-  //   const queries = {
-  //     basics: {
-  //       endpoints: this.getChartEndpoints(
-  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
-  //         { chartType: 'basics' }
-  //       ),
-  //       aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-  //       stats: this.getStatsByChartType('basics'),
-  //       bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
-  //       ...commonQueries,
-  //     },
-  //     daily: {
-  //       endpoints: this.getChartEndpoints(
-  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
-  //         { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
-  //       ),
-  //       aggregationsByDate: 'dataByDate, statsByDate',
-  //       stats: this.getStatsByChartType('daily'),
-  //       types: {
-  //         basal: {},
-  //         bolus: {},
-  //         cbg: {},
-  //         deviceEvent: {},
-  //         food: {},
-  //         message: {},
-  //         smbg: {},
-  //         wizard: {},
-  //       },
-  //       bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
-  //       ...commonQueries,
-  //     },
-  //     bgLog: {
-  //       endpoints: this.getChartEndpoints(
-  //         moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-  //         { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
-  //       ),
-  //       aggregationsByDate: 'dataByDate',
-  //       stats: this.getStatsByChartType('bgLog'),
-  //       types: { smbg: {} },
-  //       bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
-  //       ...commonQueries,
-  //     },
-  //     settings: {
-  //       ...commonQueries,
-  //     },
-  //   };
-
-  //   this.log('Generating PDF with', queries, opts);
-
-  //   window.downloadPDFDataQueries = () => {
-  //     console.save(queries, 'PDFDataQueries.json');
-  //   };
-
-  //   props.generatePDFRequest(
-  //     'combined',
-  //     queries,
-  //     opts,
-  //     this.props.currentPatientInViewId,
-  //   );
-  // },
 
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
@@ -1356,6 +1261,10 @@ export let PatientData = translate()(createReactClass({
     const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
+
+    // TODO: may need to generate the pdf here AFTER fetching old data.
+    // OR: have an async handler on the print dialog submit, and, when fetch and generation are
+    // complete, exit the dialog and opent the url.  Probably this.
 
     // Ahead-Of-Time pdf generation for non-blocked print popup.
     // Whenever patientData is processed or the chartType changes, such as after a refresh
