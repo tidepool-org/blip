@@ -139,6 +139,7 @@ export let PatientData = translate()(createReactClass({
         settings: {
           touched: false,
         },
+        excludedDevices: [],
       },
       printOpts: {
         numDays: {
@@ -370,7 +371,8 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
+            ref="tideline"
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
       case 'daily':
         return (
@@ -398,7 +400,8 @@ export let PatientData = translate()(createReactClass({
             updateChartPrefs={this.updateChartPrefs}
             updatingDatum={this.props.updatingDatum}
             queryDataCount={this.state.queryDataCount}
-            ref="tideline" />
+            ref="tideline"
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
       case 'trends':
         return (
@@ -423,7 +426,8 @@ export let PatientData = translate()(createReactClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.state.queryDataCount}
-            ref="tideline" />
+            ref="tideline"
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
       case 'bgLog':
         return (
@@ -451,7 +455,8 @@ export let PatientData = translate()(createReactClass({
             uploadUrl={this.props.uploadUrl}
             pdf={this.props.pdf.combined || {}}
             queryDataCount={this.state.queryDataCount}
-            ref="tideline" />
+            ref="tideline"
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
           );
       case 'settings':
         return this.renderSettings();
@@ -543,6 +548,7 @@ export let PatientData = translate()(createReactClass({
       bgPrefs: state.bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
       timePrefs: state.timePrefs,
+      excludedDevices: state.chartPrefs.excludedDevices,
     };
 
     const queries = {
@@ -1076,6 +1082,7 @@ export let PatientData = translate()(createReactClass({
         'latestPumpUpload',
         'patientId',
         'size',
+        'devices',
       ],
       types: '*',
       raw,
@@ -1174,7 +1181,7 @@ export let PatientData = translate()(createReactClass({
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
           timePrefs,
           bgPrefs,
         });
@@ -1252,7 +1259,7 @@ export let PatientData = translate()(createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources',
+      metaData: 'bgSources,devices',
     });
 
     if (this.state.queryingData) return;
@@ -1261,6 +1268,7 @@ export let PatientData = translate()(createReactClass({
     let chartQuery = {
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
+      excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };

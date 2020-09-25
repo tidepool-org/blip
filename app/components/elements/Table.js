@@ -90,6 +90,7 @@ export const Table = props => {
     searchText,
     variant,
     pagination,
+    paginationProps,
     ...tableProps
   } = props;
 
@@ -195,6 +196,7 @@ export const Table = props => {
         variant="default"
         buttonVariant="paginationLight"
         my={3}
+        {...paginationProps}
       />}
     </>
   );
@@ -222,6 +224,7 @@ Table.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
   pagination: PropTypes.bool,
+  paginationProps: PropTypes.object,
   rowHover: PropTypes.bool,
   rowsPerPage: PropTypes.number,
   searchText: PropTypes.string,
@@ -233,6 +236,9 @@ Table.defaultProps = {
   order: 'asc',
   rowHover: true,
   variant: 'default',
+  paginationProps: {
+    style: { fontSize: '14px' },
+  },
 };
 
 export default Table;
