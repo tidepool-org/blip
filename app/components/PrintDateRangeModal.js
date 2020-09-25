@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import map from 'lodash/map';
-import mapValues from 'lodash/mapValues';
 import noop from 'lodash/noop';
 import { Flex, Box } from 'rebass/styled-components';
 import { Label, Switch } from '@rebass/forms/styled-components';
@@ -30,13 +29,13 @@ export const PrintDateRangeModal = (props) => {
     timePrefs: { timezoneName = 'UTC' },
   } = props;
 
-  const endOfToday = useMemo(() => moment().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
+  const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
   // We want the set dates to start at the floor of the start date and the ceiling of the end date
   // to ensure we are selecting full days of data.
   const setDateRangeToExtents = ({ startDate, endDate }) => ({
-    startDate: startDate ? moment(startDate).tz(timezoneName).startOf('day') : null,
-    endDate: endDate ? moment(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
+    startDate: startDate ? moment.utc(startDate).tz(timezoneName).startOf('day') : null,
+    endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
   const getLastNDays = (days, chartType) => {
@@ -45,7 +44,7 @@ export const PrintDateRangeModal = (props) => {
       : endOfToday;
 
     return setDateRangeToExtents({
-      startDate: moment(endDate).tz(timezoneName).subtract(days - 1, 'days'),
+      startDate: moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days'),
       endDate,
     });
   };
@@ -156,6 +155,11 @@ export const PrintDateRangeModal = (props) => {
     },
   ];
 
+  const formatDateEndpoints = dates => ([
+    dates.startDate.valueOf(),
+    moment.utc(dates.endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+  ]);
+
   // Handlers
   const handleSubmit = () => {
     setSubmitted(true);
@@ -163,10 +167,10 @@ export const PrintDateRangeModal = (props) => {
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     onClickPrint({
-      basics: { ...mapValues(dates.basics, d => d.valueOf()), enabled: enabled.basics },
-      bgLog: { ...mapValues(dates.bgLog, d => d.valueOf()), enabled: enabled.bgLog },
-      daily: { ...mapValues(dates.daily, d => d.valueOf()), enabled: enabled.daily },
-      settings: { enabled: enabled.settings },
+      basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
+      bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
+      daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
+      settings: { disabled: !enabled.settings },
     });
   };
 
