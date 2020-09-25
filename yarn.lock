@@ -4227,7 +4227,7 @@ buffer-fill@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-fill/-/buffer-fill-1.0.0.tgz#f8f78b76789888ef39f205cd637f68e702122b2c"
   integrity sha1-+PeLdniYiO858gXNY39o5wISKyw=
 
-buffer-from@^1.0.0, buffer-from@~1.1.1:
+buffer-from@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
@@ -15739,15 +15739,13 @@ rollbar-sourcemap-webpack-plugin@2.11.4:
     request "^2.88.0"
     verror "^1.6.1"
 
-rollbar@2.14.4:
-  version "2.14.4"
-  resolved "https://registry.yarnpkg.com/rollbar/-/rollbar-2.14.4.tgz#b89f6ddd57adb88ae48f6d8c46619ef44fb27888"
-  integrity sha512-96m2/pBV8UioBjmqa7/WXiPIcumuuGvmfiB9WHRdVBdHcAuBhYBivWl+NMmS/op2XZ54qAmJyd3uThW6SSKvzQ==
+rollbar@2.19.3:
+  version "2.19.3"
+  resolved "https://registry.yarnpkg.com/rollbar/-/rollbar-2.19.3.tgz#9779c4567cb5e49bb18e9bb60b70810ba4aad755"
+  integrity sha512-SBGEN999+wAlE2Q25pfzqUCqNiplpRPbgv/oYn4eW3Kk4CJox/mMGaSB9BWidX2Vep5TGpxxuyWCHrqklS+s/w==
   dependencies:
     async "~1.2.1"
-    buffer-from "~1.1.1"
     console-polyfill "0.3.0"
-    debug "2.6.9"
     error-stack-parser "^2.0.4"
     json-stringify-safe "~5.0.0"
     lru-cache "~2.2.1"
