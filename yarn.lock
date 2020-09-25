@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.13.1.tgz#5f58a3ef91a76229288631e55d053bb87044f19c"
-  integrity sha512-oYVSAxqifT+o0sKggBteP27R+H6yAC/+hgZlRl7maQamm8WL1y2xQchCRHWtIdEzOzyenx9VBVYpHcQmTOXUxg==
+"@tidepool/viz@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.14.0.tgz#0e0288911421b2dd7b7e5234068069cb396104d1"
+  integrity sha512-R1zeUmzbk45VXR/HUxWPqttojIJrcCXHa2cmpj+ihRp/wQYItjDUXHHEVGDUmX4gLj3orRSEEuwBnhEBXmaEcw==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -17323,10 +17323,10 @@ tideline@1.19.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.43.0:
-  version "0.43.0"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.43.0.tgz#40b032a39012533d976d9bb85aa126b8f5a74cf9"
-  integrity sha512-Xlsuy9tKsxF0mqdVOv/bt7PjFyTFIV6zl28VUiMBVg8pSUoZa4yHU9XceLYWjX/JBABz0jjgpij+4Y9R3v+iuw==
+tidepool-platform-client@0.44.0:
+  version "0.44.0"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.44.0.tgz#9252d8975d14cde868431069c20cc27e8146518e"
+  integrity sha512-14SJml7m8lkK//tV579taKXhydUooZVxIMnPpHcGwZdEpDmeaq3WxqjPSV13ijtUwhP/dOE/3/oMjbOLu8Wg5A==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

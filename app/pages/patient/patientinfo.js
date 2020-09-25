@@ -520,10 +520,15 @@ var PatientInfo = translate()(class extends React.Component {
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">Export My Data</div>
         <div className="PatientInfo-content">
-          <Export api={this.props.api} patient={this.props.patient} user={this.props.user}/>
+          <Export
+            api={this.props.api}
+            patient={this.props.patient}
+            user={this.props.user}
+            trackMetric={this.props.trackMetric}
+          />
         </div>
       </div>
-    )
+    );
   };
 
   isSamePersonUserAndPatient = () => {
