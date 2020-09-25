@@ -21,6 +21,7 @@ import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
 
 export const PrintDateRangeModal = (props) => {
   const {
+    maxDays,
     mostRecentDatumDates,
     onClose,
     onClickPrint,
@@ -94,11 +95,16 @@ export const PrintDateRangeModal = (props) => {
     return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
   };
 
+  const validateDatesSet = dates => (!moment.isMoment(dates.startDate) || !moment.isMoment(dates.endDate)
+    ? 'Please select a date range'
+    : false
+  );
+
   const validateDates = ({ basics, bgLog, daily }) => {
     const validationErrors = {
-      basics: !moment.isMoment(basics.startDate) || !moment.isMoment(basics.endDate),
-      bgLog: !moment.isMoment(bgLog.startDate) || !moment.isMoment(bgLog.endDate),
-      daily: !moment.isMoment(daily.startDate) || !moment.isMoment(daily.endDate),
+      basics: validateDatesSet(basics),
+      bgLog: validateDatesSet(bgLog),
+      daily: validateDatesSet(daily),
     };
 
     setErrors(validationErrors);
@@ -246,7 +252,11 @@ export const PrintDateRangeModal = (props) => {
                       endDate={dates[panel.key].endDate}
                       endDateId={`${[panel.key]}-end-date`}
                       onDatesChange={newDates => setDates({ ...dates, [panel.key]: setDateRangeToExtents(newDates) })}
-                      isOutsideRange={day => (endOfToday.diff(day) < 0)}
+                      isOutsideRange={day => (
+                        endOfToday.diff(day) < 0 ||
+                        (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
+                        (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
+                      )}
                       onFocusChange={input => setDatePickerOpen(!!input)}
                       themeProps={{
                         minWidth: '580px',
@@ -259,7 +269,7 @@ export const PrintDateRangeModal = (props) => {
             </Box>
             {errors[panel.key] && (
               <Caption mt={2} color="feedback.danger">
-                Please select a date range
+                {errors[panel.key]}
               </Caption>
             )}
           </Accordion>
@@ -278,6 +288,7 @@ export const PrintDateRangeModal = (props) => {
 };
 
 PrintDateRangeModal.propTypes = {
+  maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
     basics: PropTypes.number.isRequired,
     bgLog: PropTypes.number.isRequired,
@@ -294,6 +305,7 @@ PrintDateRangeModal.propTypes = {
 };
 
 PrintDateRangeModal.defaultProps = {
+  maxDays: 90,
   onClickPrint: noop,
   onClose: noop,
   onDatesChange: noop,
