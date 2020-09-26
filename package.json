@@ -160,7 +160,7 @@
     "stylelint-processor-styled-components": "1.10.0",
     "sundial": "1.6.0",
     "terser": "4.8.0",
-    "terser-webpack-plugin": "2.2.1",
+    "terser-webpack-plugin": "2.3.8",
     "tideline": "1.19.0",
     "tidepool-platform-client": "0.44.0",
     "tidepool-standard-action": "0.1.1",
