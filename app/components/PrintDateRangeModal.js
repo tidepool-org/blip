@@ -27,6 +27,7 @@ export const PrintDateRangeModal = (props) => {
     onClickPrint,
     onDatesChange,
     open,
+    processing,
     timePrefs: { timezoneName = 'UTC' },
   } = props;
 
@@ -172,12 +173,14 @@ export const PrintDateRangeModal = (props) => {
     const validationErrors = validateDates(dates);
     if (!isEqual(validationErrors, defaults.errors)) return;
 
-    onClickPrint({
+    const printOpts = {
       basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
       settings: { disabled: !enabled.settings },
-    });
+    };
+
+    onClickPrint(printOpts);
   };
 
   const handleClose = () => {
@@ -279,7 +282,7 @@ export const PrintDateRangeModal = (props) => {
         <Button variant="textSecondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="textPrimary" onClick={handleSubmit}>
+        <Button variant="textPrimary" processing={processing} onClick={handleSubmit}>
           Print
         </Button>
       </DialogActions>
@@ -298,6 +301,7 @@ PrintDateRangeModal.propTypes = {
   onClose: PropTypes.func,
   onDatesChange: PropTypes.func,
   open: PropTypes.bool,
+  processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string.isRequired,
