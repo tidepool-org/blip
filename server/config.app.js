@@ -85,7 +85,6 @@ const config = {
   METRICS_SERVICE: stringOption(process.env.METRICS_SERVICE, 'disabled'),
   MAX_FAILED_LOGIN_ATTEMPTS: integerFromText(process.env.MAX_FAILED_LOGIN_ATTEMPTS, 5),
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: integerFromText(process.env.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT, 10),
-  TERMS_PRIVACY_DATE: stringOption(process.env.TERMS_PRIVACY_DATE, ''),
   DEV: isDev || isTest,
   TEST: isTest,
 };

@@ -42,7 +42,6 @@ const defaultConfig  = {
   METRICS_SERVICE: 'disabled',
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
-  TERMS_PRIVACY_DATE: '',
   DEV: true,
   TEST: false,
 };

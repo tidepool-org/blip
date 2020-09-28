@@ -115,15 +115,15 @@ export class Terms extends React.Component {
         {checkboxAgreedTerms}
         <div id="button-agreed-terms">
           <button
-              className="btn btn-primary"
-              onClick={this.handleTermsAndPrivacySubmit.bind(this)}
-              disabled={!agreed}>
-            {t('Continue')}
-          </button>
-          <button
               className="btn btn-secondary"
               onClick={this.handleRejectTerms.bind(this)}>
             {t('Reject')}
+          </button>
+          <button
+              className="btn btn-primary"
+              onClick={this.handleTermsAndPrivacySubmit.bind(this)}
+              disabled={!agreed}>
+            {t('Accept')}
           </button>
         </div>
       </div>
