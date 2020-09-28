@@ -175,7 +175,7 @@ class BolusTooltip extends React.Component {
   getBolusTypeLine(bolusType) {
     return bolusType && (
       <div className={styles.bolus}>
-        <div className={styles.label}>{t('Bolus')}</div>
+        <div className={styles.label}>{t('bolus_type')}</div>
         <div className={styles.value}>{t(`bolus_${bolusType}`)}</div>
       </div>
     );
