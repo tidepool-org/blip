@@ -2153,10 +2153,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.15.0-web-981-customizable-print-dates.1":
-  version "1.15.0-web-981-customizable-print-dates.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.15.0-web-981-customizable-print-dates.1.tgz#46fc3be22e04a421f36137dca113cd6b9cf8cfb7"
-  integrity sha512-rYYVg6R8K4YZNTxa3ALlqD1Hh7muKFNfvOQSNgnS36hxB6zMA2WWHMF6wuZ99f7vLDdhiB7S2RVjjjW7esKtTQ==
+"@tidepool/viz@1.15.0-web-981-customizable-print-dates.2":
+  version "1.15.0-web-981-customizable-print-dates.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.15.0-web-981-customizable-print-dates.2.tgz#f7ee8a8961e9fd17ec3eecddb2387445215df33d"
+  integrity sha512-CbqX5/IaKJ3vKIU1FwwZEIU+ia4jQnW2SUwyoGgw36Fz+1KQt+/UkaOrxfcufKFeA2GI62maaJiP/hUJtIsz0w==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
