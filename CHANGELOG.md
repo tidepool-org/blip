@@ -7,6 +7,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-152 Design update consent screen.
 - YLP-158 Delete Consent banner from all environments.
 - YLP-159 Upgrade blip, viz and tideline from react15 to react16
+- YLP-180 Create separate string for bolus type
 
 ## 1.4.2 - 2020-09-09  
 ### Fixed
