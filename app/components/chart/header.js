@@ -10,7 +10,6 @@ import printPng from './img/print-icon-2x.png';
 const Header = translate()(class Header extends Component {
   static propTypes = {
     patient: PropTypes.object,
-    printReady: PropTypes.bool,
     title: PropTypes.string.isRequired,
     chartType: PropTypes.string.isRequired,
     inTransition: PropTypes.bool.isRequired,
@@ -27,10 +26,6 @@ const Header = translate()(class Header extends Component {
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
-  };
-
-  static defaultProps = {
-    printReady: true,
   };
 
   renderStandard = () => {
@@ -116,7 +111,6 @@ const Header = translate()(class Header extends Component {
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': showPrintLink,
       'patient-data-subnav-hidden': !showPrintLink,
-      'patient-data-subnav-disabled': !this.props.printReady,
     });
 
     return (
@@ -138,8 +132,7 @@ const Header = translate()(class Header extends Component {
         <div className="app-no-print patient-data-subnav-right">
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
-            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
+            <img className="print-icon" src={printPng} alt="Print" />
             {t('Print')}
           </a>
         </div>

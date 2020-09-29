@@ -36,7 +36,6 @@ class Basics extends Component {
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
-    pdf: PropTypes.object.isRequired,
     stats: PropTypes.array.isRequired,
     permsOfLoggedInUser: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
@@ -75,8 +74,6 @@ class Basics extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={true}
-          // printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
