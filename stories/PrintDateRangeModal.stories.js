@@ -38,7 +38,7 @@ export const PrintDateRangeModalStory = () => {
 
   const [processing, setProcessing] = React.useState(false);
 
-  const fetchedUntil = moment.utc().subtract(60, 'days').valueOf();
+  const fetchedUntil = moment.utc().subtract(32, 'days').valueOf();
 
   const handleClickPrint = async (opts) => {
     action('Clicked Print')(opts);
@@ -49,7 +49,7 @@ export const PrintDateRangeModalStory = () => {
 
     // If fetchUntil is earlier than the point to which we've fetched data, we need to first fetch
     // data to that date prior to generating the PDF
-    if (fetchUntil < fetchedUntil) { // TODO: get for furthest-back startDate
+    if (fetchUntil < fetchedUntil) {
       action('Fetching Data for PDF')(opts);
       await sleep(2000);
     }
