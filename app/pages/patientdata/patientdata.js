@@ -142,6 +142,8 @@ export let PatientData = translate()(createReactClass({
         },
       },
       printDialogOpen: false,
+      printDialogProcessing: false,
+      printDialogPDFOpts: null,
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -293,11 +295,28 @@ export let PatientData = translate()(createReactClass({
           daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
         }}
         open={this.state.printDialogOpen}
-        onClose={() => this.setState({ printDialogOpen: false })}
+        onClose={this.closePrintDialog}
         onClickPrint={opts => {
-          console.log('opts', opts);
-          this.generatePDF(this.props, this.state, opts);
+          this.setState({ printDialogProcessing: true })
+
+          // Determine the earliest startDate needed to fetch data to.
+          const earliestPrintDate = _.min(_.at(opts, _.map(_.keys(opts), key => `${key}.endpoints.0`)));
+          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          if (startDate < fetchedUntil) {
+            this.fetchEarlierData({
+              returnData: false,
+              showLoading: false,
+              startDate,
+            });
+
+            this.setState({ printDialogPDFOpts: opts });
+          } else {
+            this.generatePDF(this.props, this.state, opts);
+          }
         }}
+        processing={this.state.printDialogProcessing}
         timePrefs={this.state.timePrefs}
       />
     );
@@ -337,7 +356,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -378,11 +396,9 @@ export let PatientData = translate()(createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
             stats={stats}
-            // updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -409,7 +425,6 @@ export let PatientData = translate()(createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -466,7 +481,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             queryDataCount={this.state.queryDataCount}
             ref="tideline" />
           );
@@ -500,6 +514,13 @@ export let PatientData = translate()(createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
+  },
+
+  closePrintDialog: function() {
+    this.setState({
+      printDialogOpen: false,
+      printDialogPDFOpts: null,
+    });
   },
 
   closeMessageThread: function(){
@@ -545,7 +566,6 @@ export let PatientData = translate()(createReactClass({
     return stats;
   },
 
-  // TODO: may be able to simplify signature if we don't need to ever pass nextProps or nextState
   generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
@@ -808,18 +828,13 @@ export let PatientData = translate()(createReactClass({
     this.updateChart('settings');
   },
 
-  handleClickPrint: function(pdf = {}) {
+  handleClickPrint: function() {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
 
+    this.props.removeGeneratedPDFS();
     this.setState({ printDialogOpen: true });
-
-    // if (pdf.url) {
-    //   const printWindow = window.open(pdf.url);
-    //   printWindow.focus();
-    //   printWindow.print();
-    // }
   },
 
   handleClickRefresh: function(e) {
@@ -1253,25 +1268,32 @@ export let PatientData = translate()(createReactClass({
       if (newDataAdded) {
         // New data has been added. Let's query it to update the chart.
         this.queryData();
+
+        // If new date was fetched to support requested PDF dates, kick off pdf generation
+        if (this.state.printDialogPDFOpts) {
+          this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        }
       }
     }
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
-    // TODO: may need to generate the pdf here AFTER fetching old data.
-    // OR: have an async handler on the print dialog submit, and, when fetch and generation are
-    // complete, exit the dialog and opent the url.  Probably this.
+    if (nextState.printDialogProcessing && pdfGenerated) {
+      this.setState({ printDialogProcessing: false });
 
-    // Ahead-Of-Time pdf generation for non-blocked print popup.
-    // Whenever patientData is processed or the chartType changes, such as after a refresh
-    // we check to see if we need to generate a new pdf to avoid stale data
-    // if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
-    //   this.generatePDF(nextProps, nextState);
-    // }
+      if (nextState.printDialogOpen && !pdfGenerationFailed) {
+        this.closePrintDialog();
+      }
+
+      if (nextProps.pdf.combined.url) {
+        const printWindow = window.open(nextProps.pdf.combined.url);
+        printWindow.focus();
+        printWindow.print();
+      }
+    }
   },
 
   queryData: function (query, options = {}) {
@@ -1460,36 +1482,27 @@ export let PatientData = translate()(createReactClass({
       return;
     };
 
-    _.defaults(options, {
-      showLoading: true,
-    })
-
-    this.log('fetching');
-
     const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
-    const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
-      end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
-    };
-
-    const count = this.state.fetchEarlierDataCount + 1;
-
-    this.setState({
-      loading: options.showLoading,
-      requestedPatientDataRange,
-      fetchEarlierDataCount: count,
-    });
-
     const fetchOpts = _.defaults(options, {
-      startDate: requestedPatientDataRange.start,
-      endDate: requestedPatientDataRange.end,
+      showLoading: true,
+      startDate: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
+      endDate: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
+
+    const count = this.state.fetchEarlierDataCount + 1;
+
+    this.setState({
+      loading: options.showLoading,
+      fetchEarlierDataCount: count,
+    });
+
+    this.log('fetching');
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
