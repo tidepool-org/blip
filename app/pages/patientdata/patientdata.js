@@ -289,6 +289,7 @@ export let PatientData = translate()(createReactClass({
   renderPrintDialog: function() {
     return (
       <PrintDateRangeModal
+        id="print-dialog"
         mostRecentDatumDates={{
           basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
           bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),

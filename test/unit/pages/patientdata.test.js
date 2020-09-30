@@ -954,6 +954,26 @@ describe('PatientData', function () {
         instance.setState({ chartEndpoints: { current: [1000, 2000] } });
       });
 
+      it('should render a print dialog, with appropriate initial props', () => {
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' } });
+        wrapper.update();
+
+        const dialog = wrapper.find('#print-dialog');
+        expect(dialog.length).to.equal(1);
+        const dialogProps = dialog.props();
+
+        expect(dialogProps.open).to.equal(false);
+        expect(dialogProps.processing).to.equal(false);
+        expect(dialogProps.maxDays).to.equal(90);
+        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
+
+        expect(dialogProps.mostRecentDatumDates).to.be.an('object').and.have.keys([
+          'basics',
+          'bgLog',
+          'daily',
+        ]);
+      });
+
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
@@ -2355,6 +2375,53 @@ describe('PatientData', function () {
             // ensure queryData called with zero args
             sinon.assert.calledWithExactly(queryDataSpy, ...[]);
           });
+
+          it('should not generate a pdf if `printDialogPDFOpts` state is not set', () => {
+            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: undefined })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF not called
+            sinon.assert.notCalled(generatePDFSpy);
+          });
+
+          it('should generate a pdf if `printDialogPDFOpts` state is set', () => {
+            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
+
+            const pdfOpts = {
+              basics: {},
+              bgLog: {},
+              daily: {},
+              settings: {},
+            }
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: pdfOpts })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF is called
+            sinon.assert.calledWith(generatePDFSpy, sinon.match.object, sinon.match.object, pdfOpts);
+          });
         });
       });
     });
@@ -2655,6 +2722,64 @@ describe('PatientData', function () {
           });
         });
       });
+    });
+  });
+
+  describe('closePrintDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should set the `printDialogOpen` state to false and `printDialogPDFOpts` to null', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.closePrintDialog();
+
+      sinon.assert.calledWith(setStateSpy, {
+        printDialogOpen: false,
+        printDialogPDFOpts: null,
+      });
+    });
+  });
+
+  describe('handleClickPrint', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    afterEach(() => {
+      defaultProps.trackMetric.reset();
+      defaultProps.removeGeneratedPDFS.reset();
+    });
+
+    it('should set the `printDialogOpen` state true', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.handleClickPrint();
+
+      sinon.assert.calledWith(setStateSpy, {
+        printDialogOpen: true,
+      });
+    });
+
+    it('should track a metric', () => {
+      instance.handleClickPrint();
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Print', {
+        fromChart: instance.state.chartType,
+      });
+    });
+
+    it('should remove previously generated pdfs', () => {
+      defaultProps.removeGeneratedPDFS.resetHistory();
+      instance.handleClickPrint();
+      sinon.assert.calledOnce(defaultProps.removeGeneratedPDFS);
     });
   });
 
