@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const util = require('util');
 const zlib = require('zlib');
 const chai = require('chai');
-const lambda = require('./dist/cloudfront-test-blip-request-viewer');
+const lambda = require('../../dist/lambda/cloudfront-test-blip-request-viewer');
 
 describe('CloudFront Lambda Generator', function () {
   const { expect } = chai;

@@ -10,8 +10,6 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
  *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 /* eslint-disable lodash/prefer-lodash-typecheck */
 const fs = require('fs');
@@ -20,12 +18,20 @@ const crypto = require('crypto');
 const handlebars = require('handlebars');
 const blipConfig = require('./config.app');
 
+const _ = require('lodash');
+
+const reTitle = /<title>([^<]*)<\/title>/;
+const reZendesk = /(^\s+<!-- Start of support Zendesk Widget script -->\n)(.*\n)?(^\s+<!-- End of support Zendesk Widget script -->)/m;
+const reTrackerUrl = /const u = '(.*)';/;
+const reTrackerSiteId = /const id = ([0-9]);/;
+const reMatomoJs = /(^\s+<!-- Start of Tracker Code -->\n)(.*\n)*(^\s+<!-- End of Tracker Code -->)/m;
+const reCrowdin = /(^\s+<!-- Start of Crowdin -->\n)(.*\n)*(^\s+<!-- End of Crowdin -->)/m;
+const reCrowdinBranding = /BRANDING/;
+
 const reUrl = /(^https?:\/\/[^/]+).*/;
 const reDashCase = /[A-Z](?:(?=[^A-Z])|[A-Z]*(?=[A-Z][^A-Z]|$))/g;
 const scriptConfigJs = '<script defer type="text/javascript" src="config.js" integrity="{{CONFIG_HASH}}" crossorigin="anonymous"></script>';
-const templateFilename = 'templates/cloudfront-lambda-blip-request-viewer.js';
-const indexHtmlFilename = 'dist/index.html';
-const outputFilenameTemplate = 'dist/cloudfront-{{ TARGET_ENVIRONNEMENT }}-blip-request-viewer.js';
+const outputFilenameTemplate = 'cloudfront-{{ TARGET_ENVIRONMENT }}-blip-request-viewer.js';
 
 const featurePolicy = [
   "accelerometer 'none'",
@@ -63,6 +69,22 @@ let lambdaTemplate = null;
 let indexHtml = null;
 /** @type {string} */
 let distribFiles = null;
+
+let distDir = null;
+let templateDir = null;
+const templateFilename = path.resolve(`${__dirname}/template.lambda-request-viewer.js`);
+
+function getHash(str) {
+	const hash = crypto.createHash('md5');
+	hash.update(str);
+	return hash.digest('hex').substr(0, 20);
+}
+
+function getIntegrity(str, algorithm = 'sha512') {
+	const hash = crypto.createHash(algorithm);
+	hash.update(str);
+	return hash.digest('base64');
+}
 
 /**
  * Transform a camelCase string to dash-case
@@ -143,12 +165,11 @@ function genOutputFile() {
     return;
   }
 
-  const hash = crypto.createHash('sha512');
   let configJs = `window.config = ${JSON.stringify(blipConfig, null, 2)};`;
   console.log('Using config:', configJs);
+  const hash = crypto.createHash('sha512');
   hash.update(configJs);
   const configHash = `sha512-${hash.digest('base64')}`;
-  console.log('Configuration hash:', configHash);
 
   const templateParameters = {
     ...blipConfig,
@@ -156,10 +177,10 @@ function genOutputFile() {
     INDEX_HTML: '',
     CONFIG_JS: configJs,
     CONFIG_HASH: configHash,
-    TARGET_ENVIRONNEMENT: process.env.TARGET_ENVIRONNEMENT.toLowerCase(),
+    TARGET_ENVIRONMENT: process.env.TARGET_ENVIRONMENT.toLowerCase(),
     FEATURE_POLICY: featurePolicy.join(';'),
     GEN_DATE: new Date().toISOString(),
-    CSP: '',
+    CSP: ''
   };
 
   const csp = genContentSecurityPolicy();
@@ -174,9 +195,16 @@ function genOutputFile() {
   const lambdaFile = template(templateParameters);
 
   template = handlebars.compile(outputFilenameTemplate, { noEscape: true });
-  const outputFilename = template(templateParameters);
+  const outputFilename = `${distDir}/lambda/${template(templateParameters)}`;
   console.log(`Saving to ${outputFilename}`);
-  fs.writeFile(outputFilename, lambdaFile, { encoding: 'utf-8' }, afterGenOutputFile);
+  fs.mkdir(`${distDir}/lambda`, { recursive: true }, (err) => {
+    if (err) {
+      throw err;
+    } else {
+      fs.writeFile(outputFilename, lambdaFile, { encoding: 'utf-8' }, afterGenOutputFile);
+    }
+  });
+
 }
 
 /**
@@ -193,30 +221,13 @@ function withFilesList(err, files) {
   const selectedFiles = ["'config.js'"];
   for (const file of files) {
     const filename = path.basename(file);
-    if (/^config(\.[0-9a-z])?.js$/.test(filename)) {
-      // Exclude the config.[contenthash].js file
+    if (filename === 'index.html') {
+      // Exclude the index.html file, send in the lambda
       continue;
     }
     selectedFiles.push(`'${filename}'`);
   }
   distribFiles = selectedFiles.join(',');
-  genOutputFile();
-}
-
-/**
- * @param {NodeJS.ErrnoException | null} err
- * @param {string} data
- */
-function withIndexHtml(err, data) {
-  if (err) {
-    console.error(err);
-    process.exitCode = 1;
-    return;
-  }
-  console.log('Using', indexHtmlFilename);
-
-  indexHtml = data.replace(/<script[^>]+src="config(\.[0-9a-z]+)?.js"[^>]*><\/script>/, scriptConfigJs);
-  indexHtml = indexHtml.replace(/<(script)/g, '<$1 nonce="${nonce}"');
   genOutputFile();
 }
 
@@ -235,14 +246,165 @@ function withTemplate(err, data) {
   genOutputFile();
 }
 
-if (typeof process.env.TARGET_ENVIRONNEMENT !== 'string' || process.env.TARGET_ENVIRONNEMENT.length < 1) {
-  console.error('Missing environnement variable TARGET_ENVIRONNEMENT');
-  process.exitCode = 1;
-} else if (typeof process.env.API_HOST !== 'string' || !reUrl.test(process.env.API_HOST)) {
-  console.error('Missing or invalid environnement variable API_HOST');
-  process.exitCode = 1;
-} else {
-  fs.readdir('dist', withFilesList);
-  fs.readFile(templateFilename, { encoding: 'utf-8' }, withTemplate);
-  fs.readFile(indexHtmlFilename, { encoding: 'utf-8' }, withIndexHtml);
+function getDistDir(defaultDir) {
+  let dir = null;
+  if (process.argv.length === 3) {
+    dir = path.resolve(process.argv[2]);
+  } else if(process.env.DIST_DIR !== undefined && process.env.DIST_DIR !== '') {
+    dir = path.resolve(process.env.DIST_DIR);
+  } else {
+    dir = path.resolve(defaultDir);
+  }
+  console.info(`Using dist directory: '${dir}'`);
+  return dir;
 }
+
+
+/*** Main ***/
+
+// Check required ENV variables
+if (typeof process.env.TARGET_ENVIRONMENT !== 'string' || process.env.TARGET_ENVIRONMENT.length < 1) {
+  console.error('Missing environnement variable TARGET_ENVIRONMENT');
+  process.exit(1);
+}
+
+if (typeof process.env.API_HOST !== 'string' || !reUrl.test(process.env.API_HOST)) {
+  console.error('Missing or invalid environnement variable API_HOST');
+  process.exit(1);
+}
+
+// Determined dist dir location ${__dirname}/../static-dist
+distDir = getDistDir(`${__dirname}/../dist`);
+console.info(`Using dist directory: ${distDir}`);
+
+// Determined template dir location:
+templateDir = path.resolve(`${__dirname}/../templates`);
+console.info(`Using template directory: ${templateDir}`);
+
+// Display configuration used
+console.info('Using configuration:', blipConfig);
+
+const indexHtmlPath = path.resolve(`${distDir}/static/index.html`);
+indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
+if (typeof process.env.BRANDING === 'string') {
+  const title = process.env.BRANDING.replace(/^\w/, (c) => { return c.toUpperCase(); });
+  console.info(`- Setup title to ${title}`);
+  indexHtml = indexHtml.replace(reTitle, `<title>${title}</title>`);
+}
+
+// *** ZenDesk ***
+let helpLink = '<!-- Zendesk disabled -->';
+if (!reZendesk.test(indexHtml)) {
+  console.error(`/!\\ Can't find help pattern in index.html: ${reZendesk.source} /!\\`);
+  process.exit(1);
+}
+if (typeof process.env.HELP_LINK === 'string' && process.env.HELP_LINK.startsWith('https://')) {
+  console.info('- Using HELP_LINK:', process.env.HELP_LINK);
+  helpLink = `<script id="ze-snippet" type="text/javascript" defer src="${process.env.HELP_LINK}"></script>`;
+} else {
+  console.info('- Help link is disabled');
+}
+indexHtml = indexHtml.replace(reZendesk, `$1  ${helpLink}\n$3`);
+
+// *** Matomo ***
+if (!reMatomoJs.test(indexHtml)) {
+  console.error(`/!\\ Can't find tracker pattern in index.html: ${reMatomoJs.source} /!\\`);
+  process.exit(1);
+}
+switch (_.get(process, 'env.METRICS_SERVICE', 'disabled')) {
+case 'matomo':
+  console.info('- Using matomo tracker code');
+  if (!_.isEmpty(process.env.MATOMO_TRACKER_URL) && process.env.MATOMO_TRACKER_URL.startsWith('http')) {
+    // Replace tracker Javascript
+
+    let matomoTrackerUrl = process.env.MATOMO_TRACKER_URL;
+    if (!matomoTrackerUrl.endsWith('/')) {
+      matomoTrackerUrl = `${matomoTrackerUrl}/`;
+    }
+
+    let matomoJs = fs.readFileSync(`${templateDir}/matomo.js`, 'utf8');
+    console.info(`  => Setting up matomo tracker code: ${matomoTrackerUrl}`);
+    const updatedSrc = matomoJs.replace(reTrackerUrl, (m, u) => {
+      return m.replace(u, matomoTrackerUrl);
+    });
+    const siteId = _.get(process, 'env.MATOMO_TRACKER_SITEID', 1);
+    matomoJs = updatedSrc.replace(reTrackerSiteId, (m, u) => {
+      return m.replace(u, siteId);
+    });
+
+    let fileHash = getHash(matomoJs);
+    const integrity = `integrity="sha512-${getIntegrity(matomoJs)}" crossorigin="anonymous"`;
+    const fileName = `matomo.${fileHash}.js`;
+
+    let matomoConfigScript = null;
+    let matomoScript = null;
+
+    // Public path declared (for CloudFront)
+    if (typeof process.env.PUBLIC_PATH === 'string' && process.env.PUBLIC_PATH.startsWith('https')) {
+      console.info(`  => Using public path: ${process.env.PUBLIC_PATH}`);
+      if (process.env.PUBLIC_PATH.endsWith('/')) {
+        matomoConfigScript = `<script defer type="text/javascript" src="${process.env.PUBLIC_PATH}${fileName}" ${integrity}></script>`;
+      } else {
+        matomoConfigScript = `<script defer type="text/javascript" src="${process.env.PUBLIC_PATH}/${fileName}" ${integrity}></script>`;
+      }
+    } else {
+      matomoConfigScript = `<script defer type="text/javascript" src="${fileName}" ${integrity}></script>`;
+    }
+
+    // Matomo main script
+    matomoScript = `<script defer type="text/javascript" src="${matomoTrackerUrl}matomo.js"></script>`;
+
+    const matomoConfigScripts = `  ${matomoConfigScript}\n  ${matomoScript}\n`;
+    indexHtml = indexHtml.replace(reMatomoJs, `$1${matomoConfigScripts}$3`);
+
+    fs.writeFileSync(`${distDir}/static/${fileName}`, matomoJs);
+  } else {
+    console.error('  /!\\ Invalid matomo config url, please verify your MATOMO_TRACKER_URL env variable /!\\');
+  }
+  break;
+case 'disabled':
+  console.info('- Tracker code is disabled');
+  indexHtml = indexHtml.replace(reMatomoJs, '$1  <!-- Tracker disabled -->\n$3');
+  break;
+default:
+  console.error(`/!\\ Unknown tracker ${process.env.METRICS_SERVICE} /!\\`);
+  indexHtml = indexHtml.replace(reMatomoJs, '$1  <!-- Tracker disabled -->\n$3');
+  break;
+}
+
+// *** Crowdin ***
+if (process.env.CROWDIN === 'enabled') {
+  console.info('- Enable crowdin...');
+  let crowdinJs = fs.readFileSync(`${templateDir}/crowdin.js`, 'utf8');
+  let crowdinProject = blipConfig.BRANDING;
+  switch (blipConfig.BRANDING) {
+  case 'diabeloop':
+    crowdinProject = 'yourloops';
+    break;
+  }
+  console.info(`  => Setting up crowdin project: ${crowdinProject}`);
+  crowdinJs = crowdinJs.replace(reCrowdinBranding, crowdinProject);
+  const fileHash = getHash(crowdinJs);
+  const integrity = getIntegrity(crowdinJs);
+  const fileName = `crowdin.${fileHash}.js`;
+  fs.writeFileSync(`${distDir}/static/${fileName}`, crowdinJs);
+
+  const crowdinScripts = `\
+  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>\n\
+  <script type="text/javascript" defer src="https://cdn.crowdin.com/jipt/jipt.js"></script>`;
+  if (!reCrowdin.test(indexHtml)) {
+    console.error(`/!\\ Can't find crowdin pattern in index.html: ${reCrowdin.source} /!\\`);
+    process.exit(1);
+  }
+  indexHtml = indexHtml.replace(reCrowdin, `$1${crowdinScripts}\n$3`);
+} else {
+  console.info('- Crowdin is disabled');
+  indexHtml = indexHtml.replace(reCrowdin, '$1  <!-- disabled -->\n$3');
+}
+
+fs.readdir(`${distDir}/static`, withFilesList);
+fs.readFile(templateFilename, { encoding: 'utf-8' }, withTemplate);
+indexHtml = indexHtml.replace(/(<!-- config -->)/, scriptConfigJs);
+indexHtml = indexHtml.replace(/<(script)/g, '<$1 nonce="${nonce}"');
+genOutputFile();
+

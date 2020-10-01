@@ -166,18 +166,30 @@ To do it manually, fist be sure to set the environment variables needed (see the
 ```
 
 ## Integration with CloudFront
+Blip is designed to be published on AWS Cloudfront. The "static" js and html content (result of webpack) is published on an s3 bucket and the configuration and security stuff is handled by a lambda edge function.
 
-To manually publish blip to CloudFront, follow theses steps (quick summary):
-- Setup the environment variables for your build (see `config/*.sh`)
-- build the package: `npm run build`
-- `mv dist server/dist`
-- `cd server`
-- `npm run build`
-- `TARGET_ENVIRONNEMENT=<env> npm run gen-lambda` replacing `<env>` with yours (ex: `preview`, `production`)
-- Publish on S3 the dist files except: `config*.js`, `index.html` and `cloudfront*.js`
-- Publish the new lambda edge version with the content of `server/dist/cloudfront-<env>-blip-request-viewer.js`
-- Update the lambda edge version in the CloudFront distribution, using the new ARN link.
+### Local testing
+To test blip locally as if it was running on CloudFront with a lambda@edge middleware you can execute the following command (from root dir):
+* launch a docker container docker lambci/lambda:nodejs10.x in "watch mode": `docker run --rm -e DOCKER_LAMBDA_WATCH=1 -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 -v $PWD/dist/lambda:/var/task:ro,delegated -d --name blip-middleware lambci/lambda:nodejs10.x cloudfront-test-blip-request-viewer.handler` assuming you compile the lambda script with $TARGET_ENVIRONMENT=test.
+* the docker container will pickup any changes you apply to the lambda script
+* source the relevant env file: `. ./config/local.sh`
+* then start blip server to serve static js files: `npm run server`
 
+### Deploy and test on a k8s cluster
+To run blip on k8s (or even on a simple docker compose) you can re-use the deployment image.  
+Create a deployment with 2 pods: 
+* lambci/lambda:nodejs10.x to execute the lambda
+* node:10-alpine to execute the server
+Attach these 2 pods to a volume and use an init container to copy the app files (lambda script + static dist) on the volume.
+`docker run -v blip:/www --env-file .docker.env blip-deployment "-c" "cd server && npm run gen-lambda && cp -R /dist/static /www && cp -R /dist/lambda /static"`
+
+### Deploy to aws cloud front
+To publish blip to CloudFront the simplest solution is to build the docker image provided under ./cloudfront-dist and use it.  
+1. From the root folder execute: `docker build -t blip-deploy -f cloudfront-dist/Dockerfile.deployment .` 
+1. Prepare an environment file that contains the configuration for the environment you want to deploy to. You can use the template provided in ./cloudfront-dist/docker.template.env.  
+1. Execute the docker image built just above: `docker run --env-file ./cloudfront-dist/deployment/cf-blip.env -it blip-deploy`
+Et voila, the deployment starts. Of course you need credentials for the aws account you target ;)
+ 
 ## Documentation for developers
 
 + [Blip developer guide](docs/StartHere.md)

@@ -1,4 +1,4 @@
-FROM node:10.15.3-alpine AS base
+FROM node:10-alpine AS base
 RUN apk --no-cache update && \
   apk --no-cache upgrade && \
   apk add --no-cache --virtual .user-deps shadow && \
@@ -7,10 +7,12 @@ RUN apk --no-cache update && \
 
 FROM base AS buildServer
 WORKDIR /app
-COPY . .
-RUN chown -R node:node /app/dist
+COPY ./dist/static ./dist
+COPY ./server .
+RUN chown -R node:node /app
+ENV NODE_ENV=production
+RUN npm install
 
 FROM buildServer AS production
 USER node
-ENTRYPOINT [ "/bin/sh" ]
-CMD [ "start-docker.sh" ]
+CMD [ "node", "server.js", "dist" ]

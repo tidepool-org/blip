@@ -69,5 +69,4 @@ script:
   - npm run lint
   - npm run test
   - npm run security-checks
-  - bash server/update-version.sh
   - bash artifact.sh

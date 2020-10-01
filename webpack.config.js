@@ -177,7 +177,7 @@ const plugins = [
     enabled: isProduction,
   }),
   new HtmlWebpackPlugin({
-    template: 'server/templates/index.html',
+    template: 'templates/index.html',
     favicon: 'favicon.ico',
     minify: false,
     scriptLoading: 'defer',
@@ -220,7 +220,7 @@ const minimizer = [
 /** @type {webpack.Output} */
 const output = {
   filename: isDev || isTest ? 'bundle.js' : 'bundle.[hash].js',
-  path: path.join(__dirname, 'dist'),
+  path: path.join(__dirname, 'dist/static'),
   globalObject: `(typeof self !== 'undefined' ? self : this)`, // eslint-disable-line quotes
 };
 

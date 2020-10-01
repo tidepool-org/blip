@@ -9,6 +9,9 @@ It is based on Tidepool Blip 1.27.
 - YLP-159 Upgrade blip, viz and tideline from react15 to react16
 - YLP-180 Create separate string for bolus type
 
+### Engineering
+- YLP-128 Refactor to move to Cloudfront
+
 ## 1.4.2 - 2020-09-09  
 ### Fixed
 - YLP-157 Add german locale to the list of available languages.

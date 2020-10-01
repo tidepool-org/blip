@@ -19,7 +19,6 @@ Thumbs.db
 _book
 node_modules
 tmp
-deploy/
 dist/
 config/*
 !config/local.sh
@@ -44,6 +43,7 @@ microscanner
 # Build system
 server/matomo.js
 server/.npmrc
+cloudfront-dist/deployment/.env
 
 # Branding
 **/diabeloop/*.png
