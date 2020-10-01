@@ -230,13 +230,13 @@ export const PrintDateRangeModal = (props) => {
                 <Box>
                   <Box mb={5}>
                     <Body1 mb={2}>Number of days (most recent)</Body1>
-                    <Flex>
+                    <Flex id={`days-${panel.key}`}>
                       {map(panel.daysOptions, (days, i) => (
                         <Button
                           mr={2}
                           variant="chip"
-                          id={`days-${panel.key}`}
-                          name={`days-${panel.key}`}
+                          id={`days-${panel.key}-${i}`}
+                          name={`days-${panel.key}-${i}`}
                           key={`days-${panel.key}-${i}`}
                           value={days}
                           selected={datesMatchPreset(dates[panel.key], presetDateRanges[panel.key][i])}
@@ -271,7 +271,7 @@ export const PrintDateRangeModal = (props) => {
               )}
             </Box>
             {errors[panel.key] && (
-              <Caption mt={2} color="feedback.danger">
+              <Caption mt={2} color="feedback.danger" id={`${panel.key}-error`}>
                 {errors[panel.key]}
               </Caption>
             )}
@@ -279,10 +279,10 @@ export const PrintDateRangeModal = (props) => {
         ))}
       </DialogContent>
       <DialogActions justifyContent="space-between" py={2}>
-        <Button variant="textSecondary" onClick={handleClose}>
+        <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="textPrimary" processing={processing} onClick={handleSubmit}>
+        <Button variant="textPrimary" className="print-submit" processing={processing} onClick={handleSubmit}>
           Print
         </Button>
       </DialogActions>
