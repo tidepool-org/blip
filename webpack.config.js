@@ -171,6 +171,9 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
+    minify: {
+      removeComments: false,
+    },
   }),
 ];
 
