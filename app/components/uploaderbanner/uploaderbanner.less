@@ -1,17 +1,18 @@
-.updateTypeBannerLink {
-  color: #316383;
+.uploaderBannerLink {
+  color: #fcecec;
+  cursor: pointer;
 }
 
-.updateTypeBannerLinkHover {
-  color: @purple-dark;
+.uploaderBannerLinkHover {
+  color: @white-color;
   text-decoration: underline;
 }
 
-.updateTypeBanner {
-  color: @purple-dark;
+.uploaderBanner {
+  color: @white-color;
 
   .container-box-inner {
-    background-color: #40ebf9;
+    background-color: #DB2E2C;
     display: flex;
     justify-content: space-between;
     padding: 4px 10px;
@@ -20,7 +21,7 @@
   }
 }
 
-.updateTypeBanner-message {
+.uploaderBanner-message {
   .message-text {
     display: inline-block;
     margin-right: 8px;
@@ -28,37 +29,37 @@
 
   .message-link {
     display: inline-block;
-    &:extend(.updateTypeBannerLink);
+    &:extend(.uploaderBannerLink);
 
     &:hover {
-      &:extend(.updateTypeBannerLinkHover);
+      &:extend(.uploaderBannerLinkHover);
     }
   }
 }
 
-.updateTypeBanner-close {
+.uploaderBanner-close {
   width: 24px;
   text-align: right;
   padding-top: 5px;
 
   a {
-    &:extend(.updateTypeBannerLink);
+    &:extend(.uploaderBannerLink);
     font-size: 24px;
 
     &:hover {
-      &:extend(.updateTypeBannerLinkHover);
+      &:extend(.uploaderBannerLinkHover);
       text-decoration: none;
     }
   }
 }
 
-.updateTypeBanner-action {
+.uploaderBanner-action {
   flex-grow: 1;
   text-align: right;
 
   button {
-    background-color: #22d1e0;
-    color: @purple-dark;
+    background-color: #F2504B;
+    color: @white-color;
     border: 0;
     border-radius: 4px;
     padding: 7px 12px;
@@ -66,7 +67,7 @@
 
     &:hover {
       background-color: @white-color;
-      color: #0068b5;
+      color: #DB2E2C;
     }
 
     &:disabled {

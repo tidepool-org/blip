@@ -37,6 +37,10 @@ export const colors = {
     danger: '#DE350C',
     success: '#47B881',
   },
+  stat: {
+    border: '#75849F',
+    text: '#727375',
+  },
 };
 
 export const borders = {

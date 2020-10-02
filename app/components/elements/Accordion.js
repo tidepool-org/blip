@@ -18,7 +18,7 @@ import {
 
 const StyledAccordion = styled(ExpansionPanel)`
   font-family: ${fonts.default};
-  font-size: ${fontSizes[1]};
+  font-size: ${fontSizes[1]}px;
   color: ${colors.text.primary};
   box-shadow: none;
   border-bottom: ${borders.divider};
@@ -56,12 +56,13 @@ export const Accordion = (props) => {
     themeProps,
     icon,
     label,
+    square,
     ...accordionProps
   } = props;
 
   return (
     <Box
-      square
+      square={square}
       as={StyledAccordion}
       {...themeProps.wrapper}
       {...accordionProps}
@@ -111,6 +112,7 @@ Accordion.propTypes = {
 Accordion.defaultProps = {
   icon: <ExpandMoreRoundedIcon />,
   themeProps: {},
+  square: true,
 };
 
 export default Accordion;

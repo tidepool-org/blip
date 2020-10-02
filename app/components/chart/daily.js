@@ -27,6 +27,7 @@ import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
+import DeviceSelection from './deviceSelection';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -228,6 +229,7 @@ class Daily extends Component {
     onUpdateChartDateRange: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -312,6 +314,13 @@ class Daily extends Component {
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>

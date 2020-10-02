@@ -19,6 +19,7 @@ import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
+import DeviceSelection from './deviceSelection';
 
 class Basics extends Component {
   static propTypes = {
@@ -42,6 +43,7 @@ class Basics extends Component {
     updateBasicsSettings: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   static displayName = 'Basics';
@@ -110,6 +112,13 @@ class Basics extends Component {
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
                   stats={statsToRender}
+                />
+                <DeviceSelection
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  devices={_.get(this.props, 'data.metaData.devices', [])}
+                  updateChartPrefs={this.props.updateChartPrefs}
+                  removeGeneratedPDFS={this.props.removeGeneratedPDFS}
                 />
               </div>
             </div>

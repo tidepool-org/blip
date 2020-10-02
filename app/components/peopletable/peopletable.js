@@ -308,6 +308,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         searchText={this.state.search}
         rowsPerPage={8}
         pagination={true}
+        style={{fontSize:'14px'}}
       />
     );
   }

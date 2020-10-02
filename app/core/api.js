@@ -881,6 +881,9 @@ api.errors.log = function(error, message, properties, cb) {
       _.assign(extra, { displayError: _.omit(error, ['originalError']) });
       error = error.originalError;
     }
+    if (_.get(error, 'body.reason')) {
+      error.message = `API Error: ${error.body.reason}`;
+    }
     rollbar.error(error, extra);
   }
 
