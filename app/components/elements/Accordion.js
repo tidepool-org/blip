@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import get from 'lodash/get';
 import { Box, BoxProps } from 'rebass/styled-components';
 import { default as ExpansionPanel, ExpansionPanelProps } from '@material-ui/core/ExpansionPanel';
 import { default as ExpansionPanelSummary, ExpansionPanelSummaryProps } from '@material-ui/core/ExpansionPanelSummary';
@@ -10,7 +11,6 @@ import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 import {
   borders,
   colors,
-  space,
   fonts,
   fontSizes,
   fontWeights,
@@ -22,6 +22,7 @@ const StyledAccordion = styled(ExpansionPanel)`
   color: ${colors.text.primary};
   box-shadow: none;
   border-bottom: ${borders.divider};
+  position: static;
 
   &.Mui-expanded {
     margin: 0;
@@ -31,6 +32,7 @@ const StyledAccordion = styled(ExpansionPanel)`
 const StyledAccordionHeader = styled(ExpansionPanelSummary)`
   font-family: inherit;
   flex-direction: row-reverse;
+  color: ${props => get(colors, props.color, 'inherit')};
 
   .MuiIconButton-edgeEnd {
     margin-right: 0px;
@@ -43,7 +45,7 @@ const StyledAccordionHeader = styled(ExpansionPanelSummary)`
 `;
 
 const StyledAccordionContent = styled(ExpansionPanelDetails)`
-  padding: ${space[3]}px;
+  padding: 0;
   color: ${colors.text.primarySubdued};
 `;
 
@@ -82,9 +84,13 @@ export const Accordion = (props) => {
       <Box
         as={StyledAccordionContent}
         id={`${label}-content`}
-        {...themeProps.panel}
       >
-        {children}
+        <Box
+          p={3}
+          {...themeProps.panel}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

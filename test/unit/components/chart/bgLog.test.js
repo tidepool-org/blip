@@ -131,33 +131,11 @@ describe('BG Log', () => {
       expect(stats.length).to.equal(1);
     });
 
-    it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
+    it('should have a print button and icon and call onClickPrint when clicked', () => {
       let mountedWrapper = mount(<BgLog {...baseProps} />);
-
-      var printLink = mountedWrapper.find('.printview-print-icon').hostNodes();
-      expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
-
-      var spinner = mountedWrapper.find('.print-loading-spinner').hostNodes();
-      expect(spinner.length).to.equal(1);
-    });
-
-    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
-      var props = _.assign({}, baseProps, {
-        pdf: {
-          url: 'blobURL',
-        },
-      });
-
-      let mountedWrapper = mount(<BgLog {...props} />);
-      const instance = mountedWrapper.instance().getWrappedInstance();
 
       var printLink = mountedWrapper.find('.printview-print-icon');
       expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
-
-      var spinner = mountedWrapper.find('.print-loading-spinner');
-      expect(spinner.length).to.equal(0);
 
       expect(baseProps.onClickPrint.callCount).to.equal(0);
       printLink.simulate('click');

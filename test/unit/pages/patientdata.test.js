@@ -954,6 +954,26 @@ describe('PatientData', function () {
         instance.setState({ chartEndpoints: { current: [1000, 2000] } });
       });
 
+      it('should render a print dialog, with appropriate initial props', () => {
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' } });
+        wrapper.update();
+
+        const dialog = wrapper.find('#print-dialog');
+        expect(dialog.length).to.equal(1);
+        const dialogProps = dialog.props();
+
+        expect(dialogProps.open).to.equal(false);
+        expect(dialogProps.processing).to.equal(false);
+        expect(dialogProps.maxDays).to.equal(90);
+        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
+
+        expect(dialogProps.mostRecentDatumDates).to.be.an('object').and.have.keys([
+          'basics',
+          'bgLog',
+          'daily',
+        ]);
+      });
+
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
@@ -2356,175 +2376,98 @@ describe('PatientData', function () {
             // ensure queryData called with zero args
             sinon.assert.calledWithExactly(queryDataSpy, ...[]);
           });
+
+          it('should not generate a pdf if `printDialogPDFOpts` state is not set', () => {
+            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: undefined })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF not called
+            sinon.assert.notCalled(generatePDFSpy);
+          });
+
+          it('should generate a pdf if `printDialogPDFOpts` state is set', () => {
+            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
+
+            const pdfOpts = {
+              basics: {},
+              bgLog: {},
+              daily: {},
+              settings: {},
+            }
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, printDialogPDFOpts: pdfOpts })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF is called
+            sinon.assert.calledWith(generatePDFSpy, sinon.match.object, sinon.match.object, pdfOpts);
+          });
         });
       });
     });
   });
 
   describe('componentWillUpdate', function() {
-    it('should generate a pdf when patient data is processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: 1 },
-        },
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
+    let windowOpenSpy;
 
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
-
-      elem.generatePDF.reset()
-      expect(elem.generatePDF.callCount).to.equal(0);
-
-      wrapper.instance().forceUpdate();
-      expect(elem.generatePDF.callCount).to.equal(1);
+    beforeEach(() => {
+      windowOpenSpy = sinon.spy(window, 'open');
     });
 
-    it('should not generate a pdf when one is currently generating', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: 1 },
-        },
-        generatingPDF: { inProgress: true },
-        pdf: {},
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
-      wrapper.instance().forceUpdate();
-
-      expect(elem.generatePDF.callCount).to.equal(0);
+    afterEach(() => {
+      windowOpenSpy.restore();
     });
 
-    it('should not generate a pdf when patient data is not yet processed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: undefined },
-        },
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
+    context('print dialog is processing and pdf is generated', () => {
+      it('should close the dialog and reset the processing and pdf options state, and open the pdf', function () {
+        var props = {
+          currentPatientInViewId: 40,
+          isUserPatient: true,
+          patient: {
+            userid: 40,
+            profile: {
+              fullName: 'Fooey McBar'
+            }
+          },
+          data: {
+            metaData: { size: 1 },
+          },
+          pdf: { combined: { url: 'pdfUrl' } },
+        };
 
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
+        const wrapper = mount(<PatientData {...props} />);
+        const instance = wrapper.instance().getWrappedInstance();
+        const setStateSpy = sinon.spy(instance, 'setState');
 
-      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
-      wrapper.instance().forceUpdate();
+        instance.setState({ printDialogProcessing: true, printDialogOpen: true });
+        sinon.assert.callCount(setStateSpy, 3);
+        sinon.assert.calledWith(setStateSpy, { printDialogProcessing: false });
+        sinon.assert.calledWith(setStateSpy, { printDialogOpen: false, printDialogPDFOpts: null });
 
-      expect(elem.generatePDF.callCount).to.equal(0);
-    });
-
-    it('should not generate a pdf when patient data exists, but new data query is processing', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: 1 },
-        },
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ queryingData: true, chartEndpoints: { current: [100, 200] } });
-      wrapper.instance().forceUpdate();
-
-      expect(elem.generatePDF.callCount).to.equal(0);
-    });
-
-    it('should not generate a pdf when one has already been generated', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: 1 },
-        },
-        generatingPDF: { inProgress: false, completed: true },
-        pdf: { combined: {} },
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
-      wrapper.instance().forceUpdate();
-
-      expect(elem.generatePDF.callCount).to.equal(0);
-    });
-
-    it('should not generate a pdf when a previous attempt to generate has failed', function () {
-      var props = {
-        currentPatientInViewId: 40,
-        isUserPatient: true,
-        patient: {
-          userid: 40,
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        data: {
-          metaData: { size: 1 },
-        },
-        generatingPDF: { inProgress: false, notification: { type: 'error' } },
-        pdf: {},
-      };
-
-      const wrapper = mount(<PatientData {...props} />);
-      const elem = wrapper.instance().getWrappedInstance();
-      sinon.stub(elem, 'generatePDF');
-
-      wrapper.instance().getWrappedInstance().setState({ chartEndpoints: { current: [100, 200] } });
-      wrapper.instance().forceUpdate();
-
-      expect(elem.generatePDF.callCount).to.equal(0);
+        sinon.assert.callCount(windowOpenSpy, 1);
+        sinon.assert.calledWith(windowOpenSpy, 'pdfUrl');
+      });
     });
   });
 
@@ -2784,6 +2727,64 @@ describe('PatientData', function () {
     });
   });
 
+  describe('closePrintDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should set the `printDialogOpen` state to false and `printDialogPDFOpts` to null', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.closePrintDialog();
+
+      sinon.assert.calledWith(setStateSpy, {
+        printDialogOpen: false,
+        printDialogPDFOpts: null,
+      });
+    });
+  });
+
+  describe('handleClickPrint', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    afterEach(() => {
+      defaultProps.trackMetric.reset();
+      defaultProps.removeGeneratedPDFS.reset();
+    });
+
+    it('should set the `printDialogOpen` state true', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.handleClickPrint();
+
+      sinon.assert.calledWith(setStateSpy, {
+        printDialogOpen: true,
+      });
+    });
+
+    it('should track a metric', () => {
+      instance.handleClickPrint();
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Print', {
+        fromChart: instance.state.chartType,
+      });
+    });
+
+    it('should remove previously generated pdfs', () => {
+      defaultProps.removeGeneratedPDFS.resetHistory();
+      instance.handleClickPrint();
+      sinon.assert.calledOnce(defaultProps.removeGeneratedPDFS);
+    });
+  });
+
   describe('generatePDF', () => {
     let wrapper;
     let instance;
@@ -2799,6 +2800,17 @@ describe('PatientData', function () {
       timePrefs,
     };
 
+    const args = [
+      undefined,
+      undefined,
+      {
+        basics: { endpoints: 'basics endpoints'},
+        bgLog: { endpoints: 'bgLog endpoints'},
+        daily: { endpoints: 'daily endpoints'},
+        settings: { endpoints: 'settings endpoints'},
+      },
+    ];
+
     beforeEach(() => {
       wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       wrapper.setState({ bgPrefs, timePrefs });
@@ -2807,7 +2819,7 @@ describe('PatientData', function () {
     });
 
     it('should call `props.generatePDFRequest` with appropriate args', () => {
-      instance.generatePDF();
+      instance.generatePDF(...args);
       sinon.assert.calledWith(defaultProps.generatePDFRequest,
         'combined',
         {
@@ -2816,26 +2828,25 @@ describe('PatientData', function () {
           bgLog: sinon.match.object,
           settings: sinon.match.object,
         },
-        { patient: sinon.match(defaultProps.patient) }
+        {
+          patient: sinon.match(defaultProps.patient),
+          basics: sinon.match.object,
+          daily: sinon.match.object,
+          bgLog: sinon.match.object,
+          settings: sinon.match.object,
+        },
       );
     });
 
     context('generating basics query', () => {
-      it('should set the `endpoints` query based on the latest basics data available', () => {
-        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
-        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'basics');
-        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'basics' });
-
+      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.endpoints).to.eql(queryEndpointsStub);
+        expect(query.basics.endpoints).to.eql('basics endpoints');
       });
 
       it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.basics.aggregationsByDate).to.equal('basals, boluses, fingersticks, siteChanges');
       });
@@ -2843,7 +2854,7 @@ describe('PatientData', function () {
       it('should query the required `stats`', () => {
         instance.getStatsByChartType = sinon.stub().returns('basics stats');
 
-        instance.generatePDF();
+        instance.generatePDF(...args);
 
         sinon.assert.calledWith(instance.getStatsByChartType, 'basics');
 
@@ -2853,13 +2864,13 @@ describe('PatientData', function () {
 
       it('should query the required `bgSource` from `chartPrefs.basics.bgSource` state', () => {
         wrapper.setState({ chartPrefs: { basics: { bgSource: 'basics bgSource' } } });
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.basics.bgSource).to.equal('basics bgSource');
       });
 
       it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.basics.bgPrefs).to.eql(commonQueries.bgPrefs);
         expect(query.basics.metaData).to.equal(commonQueries.metaData);
@@ -2868,27 +2879,20 @@ describe('PatientData', function () {
     });
 
     context('generating daily query', () => {
-      it('should set the `endpoints` query based on the latest daily data available', () => {
-        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
-        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'daily');
-        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { applyTimeZoneToStart: true, chartType: 'daily', extentSize: 15 });
-
+      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.endpoints).to.eql(queryEndpointsStub);
+        expect(query.daily.endpoints).to.eql('daily endpoints');
       });
 
       it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.daily.aggregationsByDate).to.equal('dataByDate, statsByDate');
       });
 
       it('should query the required `types`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.daily.types).to.eql({
           basal: {},
@@ -2905,7 +2909,7 @@ describe('PatientData', function () {
       it('should query the required `stats`', () => {
         instance.getStatsByChartType = sinon.stub().returns('daily stats');
 
-        instance.generatePDF();
+        instance.generatePDF(...args);
 
         sinon.assert.calledWith(instance.getStatsByChartType, 'daily');
 
@@ -2915,13 +2919,13 @@ describe('PatientData', function () {
 
       it('should query the required `bgSource` from `chartPrefs.daily.bgSource` state', () => {
         wrapper.setState({ chartPrefs: { daily: { bgSource: 'daily bgSource' } } });
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.daily.bgSource).to.equal('daily bgSource');
       });
 
       it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.daily.bgPrefs).to.eql(commonQueries.bgPrefs);
         expect(query.daily.metaData).to.equal(commonQueries.metaData);
@@ -2930,27 +2934,20 @@ describe('PatientData', function () {
     });
 
     context('generating bgLog query', () => {
-      it('should set the `endpoints` query based on the latest bgLog data available', () => {
-        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(mostRecentDatumTimeStub);
-        instance.getChartEndpoints = sinon.stub().returns(queryEndpointsStub);
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, instance.props, 'bgLog');
-        sinon.assert.calledWith(instance.getChartEndpoints, mostRecentDatumTimeStub, { chartType: 'bgLog', extentSize: 30 });
-
+      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.endpoints).to.eql(queryEndpointsStub);
+        expect(query.bgLog.endpoints).to.eql('bgLog endpoints');
       });
 
       it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.bgLog.aggregationsByDate).to.equal('dataByDate');
       });
 
       it('should query the required `types`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.bgLog.types).to.eql({
           smbg: {},
@@ -2960,7 +2957,7 @@ describe('PatientData', function () {
       it('should query the required `stats`', () => {
         instance.getStatsByChartType = sinon.stub().returns('bgLog stats');
 
-        instance.generatePDF();
+        instance.generatePDF(...args);
 
         sinon.assert.calledWith(instance.getStatsByChartType, 'bgLog');
 
@@ -2970,13 +2967,13 @@ describe('PatientData', function () {
 
       it('should query the required `bgSource` from `chartPrefs.bgLog.bgSource` state', () => {
         wrapper.setState({ chartPrefs: { bgLog: { bgSource: 'bgLog bgSource' } } });
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.bgLog.bgSource).to.equal('bgLog bgSource');
       });
 
       it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.bgLog.bgPrefs).to.eql(commonQueries.bgPrefs);
         expect(query.bgLog.metaData).to.equal(commonQueries.metaData);
@@ -2986,7 +2983,7 @@ describe('PatientData', function () {
 
     context('generating settings query', () => {
       it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
+        instance.generatePDF(...args);
         const query = defaultProps.generatePDFRequest.getCall(0).args[1];
         expect(query.settings.bgPrefs).to.eql(commonQueries.bgPrefs);
         expect(query.settings.metaData).to.equal(commonQueries.metaData);
@@ -3528,10 +3525,6 @@ describe('PatientData', function () {
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
           fetchEarlierDataCount: 1,
-          requestedPatientDataRange: {
-            start: expectedStart,
-            end: expectedEnd,
-          },
         });
       });
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms';
+import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
 import cx from 'classnames';

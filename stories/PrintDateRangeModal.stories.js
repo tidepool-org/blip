@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-
+import moment from 'moment-timezone';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from 'styled-components';
+import at from 'lodash/at';
+import map from 'lodash/map';
+import min from 'lodash/min';
+import keys from 'lodash/keys';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
 import PrintDateRangeModal from '../app/components/PrintDateRangeModal';
 
 /* eslint-disable max-len */
+const sleep = m => new Promise(r => setTimeout(r, m));
 
 // Wrap each story component with the base theme
 const withTheme = Story => (
@@ -24,18 +29,36 @@ export default {
 
 export const PrintDateRangeModalStory = () => {
   const [open, setOpen] = useState(true);
-  const [error, setError] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   const handleClickOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
-    setSubmitted(false);
-    setError(false);
   };
 
-  const validateDates = ({ startDate, endDate }) => setError(!startDate || !endDate);
+  const [processing, setProcessing] = React.useState(false);
+
+  const fetchedUntil = moment.utc().subtract(32, 'days').valueOf();
+
+  const handleClickPrint = async (opts) => {
+    action('Clicked Print')(opts);
+    setProcessing(true);
+
+    // Determine the earliest startDate needed to fetch data to.
+    const fetchUntil = min(at(opts, map(keys(opts), key => `${key}.endpoints.0`)));
+
+    // If fetchUntil is earlier than the point to which we've fetched data, we need to first fetch
+    // data to that date prior to generating the PDF
+    if (fetchUntil < fetchedUntil) {
+      action('Fetching Data for PDF')(opts);
+      await sleep(2000);
+    }
+
+    action('Generating PDF')(opts);
+    await sleep(1000);
+    setProcessing(false);
+    action('Open PDF')(opts);
+  };
 
   return (
     <React.Fragment>
@@ -43,15 +66,17 @@ export const PrintDateRangeModalStory = () => {
         Open Print Dialog
       </Button>
       <PrintDateRangeModal
-        error={error}
+        fetchedUntil={fetchedUntil}
+        mostRecentDatumDates={{
+          basics: moment.utc().valueOf(),
+          bgLog: moment.utc().subtract(2, 'd').valueOf(),
+          daily: moment.utc().valueOf(),
+        }}
         open={open}
         onClose={handleClose}
-        onClickPrint={dates => {
-          setSubmitted(true);
-          validateDates(dates);
-          action('clicked Print')(dates);
-        }}
-        onDatesChange={dates => submitted && validateDates(dates)}
+        onClickPrint={handleClickPrint}
+        onDatesChange={dates => action('Updated Dates')(dates)}
+        processing={processing}
         timePrefs={{
           timezoneName: 'UTC',
         }}
@@ -65,8 +90,7 @@ PrintDateRangeModalStory.story = {
   parameters: {
     design: {
       type: 'figma',
-      url:
-        'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2209%3A256',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2209%3A256',
     },
   },
 };

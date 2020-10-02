@@ -210,7 +210,6 @@ class Daily extends Component {
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
-    pdf: PropTypes.object.isRequired,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     updatingDatum: PropTypes.object.isRequired,
@@ -280,7 +279,6 @@ class Daily extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
