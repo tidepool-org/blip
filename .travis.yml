@@ -13,7 +13,7 @@ matrix:
 
 env:
   global:
-    - SECURITY_SCAN=true
+    - SECURITY_SCAN=false
     - nexus_token=$NEXUS_TOKEN
 
 cache: npm
