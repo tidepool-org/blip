@@ -4,6 +4,7 @@
   "linkable": true,
   "linkToItself": false,
   "comments": [
+    "Install npm-link-up globally: https://github.com/ORESoftware/npm-link-up#installation",
     "Copy to `.nlu.json`",
     "In `.nlu.json`, add packages by name to the `list` array to link them. Remove to unlink.",
     "Always run `nlu run` to apply changes",
