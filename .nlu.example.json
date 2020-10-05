@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oresoftware/npm-link-up/master/assets/nlu.schema.json",
+  "npm-link-up": true,
+  "linkable": true,
+  "linkToItself": false,
+  "comments": [
+    "Copy to `.nlu.json`",
+    "In `.nlu.json`, add packages by name to the `list` array to link them. Remove to unlink.",
+    "Always run `nlu run` to apply changes",
+    "Run `yarn startLocal` to run the application"
+  ],
+  "searchRoots": [
+    ".."
+  ],
+  "ignore": [
+    "/node_modules/",
+    "/.git/"
+  ],
+  "list": [
+    "tidepool-platform-client",
+    "tideline",
+    "@tidepool/viz"
+  ]
+}
