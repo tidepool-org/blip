@@ -22,7 +22,9 @@ const StyledAccordion = styled(ExpansionPanel)`
   color: ${colors.text.primary};
   box-shadow: none;
   border-bottom: ${borders.divider};
-  position: static;
+  &:before {
+    background-color: transparent;
+  }
 
   &.Mui-expanded {
     margin: 0;
