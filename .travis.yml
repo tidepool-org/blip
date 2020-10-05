@@ -33,26 +33,9 @@ deploy:
   # Control deployment by setting a value for `on`. Setting the `branch`
   # option to `master` means Travis will only attempt a deployment on
   # builds of your repo's master branch (e.g., after you merge a PR).
-  - provider: s3
-    on:
-      tags: true
-      node_js: 10.15.3
-    # You can refer to environment variables from Travis repo settings!
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    region: $AWS_DEFAULT_REGION
-    # Name of the S3 bucket to which your site should be uploaded.
-    bucket: $AWS_BUCKET
-    # Prevent Travis from deleting your built site so it can be uploaded.
-    skip_cleanup: true
-    # Path of the source directory containing your built site.
-    local_dir: deploy
-    # Path to a directory containing your built site.
-    upload_dir: deploy
-    # Set the Cache-Control header.
-    cache_control: "max-age=21600"
   # Deploy SOUP list
   - provider: s3
+    edge: true
     on:
       tags: true
       node_js: 10.15.3
