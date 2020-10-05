@@ -38,3 +38,6 @@ package-lock.json
 
 # Ignore old translation files
 locales/*/*_old.json
+
+# npm-link-up
+.nlu.json
