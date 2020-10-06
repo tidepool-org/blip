@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "description": "Blip is a web app for type 1 diabetes (T1D) built on top of the [Tidepool](http://tidepool.org/) platform.",
   "repository": {

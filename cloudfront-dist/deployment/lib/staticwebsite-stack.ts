@@ -123,7 +123,8 @@ export class StaticWebSiteStack extends core.Stack {
       sources: [s3deploy.Source.asset(`${distDir}/static`)],
       destinationBucket: bucket,
       destinationKeyPrefix: `${props?.FrontAppName}/${props?.version}`,
-      distribution
+      distribution,
+      distributionPaths: ['/index.html']
     });
 
   }

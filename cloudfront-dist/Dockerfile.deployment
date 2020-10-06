@@ -21,7 +21,6 @@ FROM node:12.18.3-alpine as content
 WORKDIR /content
 COPY ./dist/static ./static-dist/
 COPY ./templates ./templates
-RUN rm /content/static-dist/index.html
 
 # this part contains the aws lambda middleware
 FROM node:12.18.3-alpine as lambda
@@ -47,7 +46,7 @@ ENV BUCKET=
 ENV FRONT_APP_NAME=blip
 ENV TARGET_ENVIRONMENT=
 ENV API_HOST=
-ENV DIST_DIR=./dist/static
+ENV DIST_DIR=/dist
 WORKDIR /dist
 COPY --from=lambda /server ./server
 COPY --from=deployment /cloudfront-dist ./cloudfront-dist

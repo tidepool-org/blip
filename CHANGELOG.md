@@ -2,14 +2,15 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased 
+## 1.5.0 - 2020-10-05  
 ### Changed
 - YLP-152 Design update consent screen.
 - YLP-158 Delete Consent banner from all environments.
 - YLP-159 Upgrade blip, viz and tideline from react15 to react16
 - YLP-180 Create separate string for bolus type
 
-### Engineering
+
+### Other Notes
 - YLP-128 Refactor to move to Cloudfront
 - Prevent from security scan to run
 
@@ -17,7 +18,7 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - YLP-157 Add german locale to the list of available languages.
 
-## 1.4.1 2020-08-31
+## 1.4.1 - 2020-08-31  
 ### Fixed
 - Updating german translations
 
@@ -25,8 +26,10 @@ It is based on Tidepool Blip 1.27.
 ### Changed
 - YLP-92 Block patient name edition in profile
 
+
 ### Fixed
 - PT-1480 Tideline 1.12.1
+
 
 ### Engineering Use
 - YLP-107 Create lambda edge generatation script for CloudFront
@@ -40,13 +43,14 @@ It is based on Tidepool Blip 1.27.
 - PT-1444 Deduplicate Physical Activity events containing the new EventId field
 - PT-1304 Display the new physical activity fields
 - YLP-115 Add intermediate screen after login to renew consent
+
 ### Fixed
 - YLP-15 Calculate coefficient of Variation with correct formula: 2 weeks CV displays the result of average daily CV of the 14 days
-
 
 ## 1.2.0 - 2020-07-31  
 ### Changed
 - YLP-72 Have two distincts fields for first name and last name in profile page
+
 
 ### Engineering Use
 - YLP-48 Change crowdin pseudo language from 'it' to 'lol'
@@ -55,6 +59,7 @@ It is based on Tidepool Blip 1.27.
 ## 1.1.0 - 2020-07-21  
 ### Changed
 - PT-1297 Display Bolus objects additional fields
+
 
 ### Fixed
 - Translation update: English / French / German
@@ -69,6 +74,7 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - PT-1168 Fix display bug when updating user profile
 - PT-1125 Add missing calendar translation
+
 
 ### Engineering Use
 - PT-1345 Fix vulnerabilities and update build system
@@ -92,6 +98,7 @@ It is based on Tidepool Blip 1.27.
 - Blip Medical Device published as major version.
 
 
+
 ### Fixed
 - Fix regression introduced in PT-1309
 - Disable German language
@@ -106,10 +113,12 @@ It is based on Tidepool Blip 1.27.
  - PT-1251 Display TIR result of last 24 hours in patients search page.
 
 
+
 ### Changed
 - PT-1205 Add timezone info on tooltips when necessary
 - PT-1254 Disable Highwater from Blip
 - PT-1256 Improve PDF generation
+
 
 
 ### Engineering Use
@@ -123,6 +132,7 @@ It is based on Tidepool Blip 1.27.
   - PT-1230 CGM / BGM labels don't change with language
 
 
+
 ### Fixed
 - PT-1218 Zendesk Contact form is not offloaded
 - PT-419 Manage Language in Zendesk widget
@@ -134,8 +144,10 @@ It is based on Tidepool Blip 1.27.
 - PT-1194 Search Page: add a way to open the patient page in a new tab
 
 
+
 ### Fixed
 - PT-1157 Revert temporary fix PT-1115
+
 
 
 ### Other Notes
@@ -161,6 +173,7 @@ It is based on Tidepool Blip 1.27.
 - PT-1027 Inform the user when he has reach a max login attempt
 
 
+
 ### Changed
 - PT-1189 Review support email to be yourloops@diabeloop.com
 - PT-1113 Upgrade Viz to 0.11.2 and Tideline to 1.7.2: Change basal insulin colors in widget and graph 
@@ -169,6 +182,7 @@ It is based on Tidepool Blip 1.27.
 - PT-1140 Split the link to the terms of Use in the footer
 - PT-1009 Manage the update of the data privacy
 - PT-1197 Basics screen wording update
+
 
 
 ### Fixed
@@ -181,11 +195,13 @@ It is based on Tidepool Blip 1.27.
 - PT-1008 Add a 3 months button in Trending page
 
 
+
 ### Changed
 - PT-1052 Rework sign up (direct link to clinician signup from home page + clinician option selected as default in signup page)
 - PT-1100 Move message notes to the bottom of the daily page
 - PT-1041 Rework invitation page for clinicals users
 - PT-1111 Allow capacity to reset the search
+
 
 
 ### Fixed
@@ -202,8 +218,10 @@ It is based on Tidepool Blip 1.27.
  - PT-865 Display physical activity in Bolus/Food section
 
 
+
 ### Changed
  - PT-836 Display list of patients to clinician as a default behaviour
+
 
 
 ### Fixed
@@ -224,8 +242,10 @@ It is based on Tidepool Blip 1.27.
 - PT-728 Analytics/metrics for Blip/Front usage
 
 
+
 ### Changed
 - PT-755 Update naming for stopped loop mode
+
 
 
 ### Fixed
@@ -263,6 +283,7 @@ It is based on Tidepool Blip 1.27.
 - PT-545 Display infusion site changes for Diabeloop Devices
 
 
+
 ### Fixed
 - PT-532 One can create a patient even if the application is not allowing it
 
@@ -270,6 +291,7 @@ It is based on Tidepool Blip 1.27.
 ### Added
 - PT-376 Integrate latest change from [Tidepool 1.20.2](https://github.com/tidepool-org/blip/releases/tag/v1.20.2)
 - PT-513 Display history of parameters change in patient settings page.
+
 
 
 ### Fixed
@@ -294,6 +316,7 @@ It is based on Tidepool Blip 1.27.
  - Add Diabeloop link in footer
 
 
+
 ### Other Notes
  Other Notes
 
@@ -312,3 +335,4 @@ It is based on Tidepool Blip 1.27.
    - user automatically disconnected [PT-69]
    - Fix race condition [PT-17]
    - Fix Unknown DOM property class [PT-163]
+
