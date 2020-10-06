@@ -2,10 +2,11 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Loading from 'react-loading';
 import { translate } from 'react-i18next';
+import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 
 import printPng from './img/print-icon-2x.png';
+import Icon from '../elements/Icon';
 
 const Header = translate()(class Header extends Component {
   static propTypes = {
@@ -19,6 +20,7 @@ const Header = translate()(class Header extends Component {
     iconMostRecent: PropTypes.string,
     onClickBack: PropTypes.func,
     onClickBasics: PropTypes.func,
+    onClickChartDates: PropTypes.func,
     onClickTrends: PropTypes.func,
     onClickMostRecent: PropTypes.func,
     onClickNext: PropTypes.func,
@@ -26,6 +28,10 @@ const Header = translate()(class Header extends Component {
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onClickChartDates: _.noop,
   };
 
   renderStandard = () => {
@@ -125,16 +131,30 @@ const Header = translate()(class Header extends Component {
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
           <div className={dateLinkClass}>
             {this.props.title}
+            {this.props.chartType === 'basics' && (
+              <Icon
+                variant="default"
+                sx={{
+                  ml: 2,
+                  mt: -1,
+                  color: 'white',
+                  outline: 'none',
+                }}
+                label="Close"
+                icon={DateRangeRoundedIcon}
+                onClick={this.props.onClickChartDates}
+              />
+            )}
           </div>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             <img className="print-icon" src={printPng} alt="Print" />
             {t('Print')}
           </a>
+          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
         </div>
       </div>
     );
