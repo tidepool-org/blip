@@ -144,6 +144,7 @@ export let PatientData = translate()(createReactClass({
       },
       datesDialogOpen: false,
       datesDialogProcessing: false,
+      datesDialogFetchingData: false,
       printDialogOpen: false,
       printDialogProcessing: false,
       printDialogPDFOpts: null,
@@ -300,41 +301,29 @@ export let PatientData = translate()(createReactClass({
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
         onSubmit={dates => {
-          this.setState({ datesDialogProcessing: true })
-          console.log('dates', dates);
-          // this.handleChartDateRangeUpdate()
+          this.setState({ datesDialogProcessing: true });
 
           // Determine the earliest startDate needed to fetch data to.
-          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
-          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
+          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
           const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
 
+          const updateOpts = {
+            showLoading: true,
+            updateChartEndpoints: true,
+          };
+
           if (startDate < fetchedUntil) {
-            if (!this.props.fetchingPatientData && newChartRangeNeedsDataFetch) {
-              const options = {
-                showLoading: true,
-                returnData: false
-              };
+            this.setState({ datesDialogFetchingData: true });
 
-              this.fetchEarlierData(options);
-            }
-
-            // this.fetchEarlierData({
-            //   returnData: false,
-            //   showLoading: false,
-            //   startDate,
-            // });
-
-            // this.setState({ printDialogPDFOpts: opts });
-          } else {
-            const updateOpts = {
+            this.fetchEarlierData({
               showLoading: true,
-              updateChartEndpoints: true,
-            };
-
-            this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+              returnData: false
+            });
+          } else {
             this.closeDatesDialog();
           }
+          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
@@ -581,6 +570,8 @@ export let PatientData = translate()(createReactClass({
   closeDatesDialog: function() {
     this.setState({
       datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
     });
   },
 
@@ -1354,9 +1345,15 @@ export let PatientData = translate()(createReactClass({
         // New data has been added. Let's query it to update the chart.
         this.queryData();
 
-        // If new date was fetched to support requested PDF dates, kick off pdf generation
+        // If new data was fetched to support requested PDF dates, kick off pdf generation.
         if (this.state.printDialogPDFOpts) {
           this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        }
+
+        // If new data was fetched to support new chart dates,
+        // close the and reset the chart date dialog.
+        if (this.state.datesDialogFetchingData) {
+          this.closeDatesDialog();
         }
       }
     }
