@@ -129,7 +129,7 @@ export const ChartDateRangeModal = (props) => {
   }, [dates]);
 
   return (
-    <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="ChartDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
@@ -182,10 +182,10 @@ export const ChartDateRangeModal = (props) => {
         </Box>
       </DialogContent>
       <DialogActions justifyContent="space-between" py={2}>
-        <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
+        <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
-        <Button variant="textPrimary" className="print-submit" processing={processing} onClick={handleSubmit}>
+        <Button variant="textPrimary" className="chart-dates-submit" processing={processing} onClick={handleSubmit}>
           {t('Apply')}
         </Button>
       </DialogActions>
