@@ -18,6 +18,7 @@
     "/.git/"
   ],
   "list": [
+    "blip",
     "tidepool-platform-client",
     "tideline",
     "@tidepool/viz"
