@@ -140,7 +140,7 @@ const Header = translate()(class Header extends Component {
                   color: 'white',
                   outline: 'none',
                 }}
-                label="Close"
+                label="Choose custom date range"
                 icon={DateRangeRoundedIcon}
                 onClick={this.props.onClickChartDates}
               />
