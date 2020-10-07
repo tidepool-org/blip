@@ -196,9 +196,9 @@ export const ChartDateRangeModal = (props) => {
 ChartDateRangeModal.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDate: PropTypes.number.isRequired,
-  onSubmit: PropTypes.func,
   onClose: PropTypes.func,
   onDatesChange: PropTypes.func,
+  onSubmit: PropTypes.func,
   open: PropTypes.bool,
   processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
