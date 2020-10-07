@@ -3,10 +3,6 @@ import moment from 'moment-timezone';
 import { withDesign } from 'storybook-addon-designs';
 import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from 'styled-components';
-import at from 'lodash/at';
-import map from 'lodash/map';
-import min from 'lodash/min';
-import keys from 'lodash/keys';
 
 import baseTheme from '../app/themes/baseTheme';
 import Button from '../app/components/elements/Button';
@@ -38,26 +34,24 @@ export const ChartDateRangeModalStory = () => {
 
   const [processing, setProcessing] = React.useState(false);
 
-  const fetchedUntil = moment.utc().subtract(32, 'days').valueOf();
+  const fetchedUntil = moment.utc().subtract(30, 'days').valueOf();
 
-  const handleClickPrint = async (opts) => {
-    action('Clicked Apply')(opts);
+  const handleClickPrint = async range => {
+    action('Clicked Apply')(range);
     setProcessing(true);
 
-    // Determine the earliest startDate needed to fetch data to.
-    const fetchUntil = min(at(opts, map(keys(opts), key => `${key}.endpoints.0`)));
+    // Determine the earliest start date needed to fetch data to.
+    const fetchUntil = range[0];
 
-    // If fetchUntil is earlier than the point to which we've fetched data, we need to first fetch
-    // data to that date prior to generating the PDF
+    // If fetchUntil is earlier than the point to which we've fetched data, we need to fetch more.
     if (fetchUntil < fetchedUntil) {
-      action('Fetching Data for PDF')(opts);
+      action('Fetching Data')(range);
       await sleep(2000);
     }
 
-    action('Generating PDF')(opts);
     await sleep(1000);
     setProcessing(false);
-    action('Open PDF')(opts);
+    action('Applying Dates')(range);
   };
 
   const mostRecentDatumDate = moment.utc().subtract(2, 'd').valueOf();
