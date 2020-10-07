@@ -1219,8 +1219,6 @@ export let PatientData = translate()(createReactClass({
 
     if (!this.state.mostRecentDatetimeLocation) state.mostRecentDatetimeLocation = opts.mostRecentDatetimeLocation;
 
-    console.log('chartTypeChanged, endpointsChanged, datetimeLocationChanged', chartTypeChanged, endpointsChanged, datetimeLocationChanged);
-
     const cb = (chartTypeChanged || endpointsChanged || datetimeLocationChanged)
       ? this.queryData.bind(this, opts.query, {
         showLoading: opts.showLoading,
