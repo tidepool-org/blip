@@ -10,8 +10,13 @@
  *
  * You may add as other modules to this list as well.
  */
-module.exports = {
+var packages = {
   // '@tidepool/viz': process.env.TIDEPOOL_DOCKER_VIZ_DIR || '../viz',
   // 'tideline': process.env.TIDEPOOL_DOCKER_TIDELINE_DIR || '../tideline',
   // 'tidepool-platform-client': process.env.TIDEPOOL_DOCKER_PLATFORM_CLIENT_DIR || '../platform-client',
 };
+
+module.exports = {
+  list: () => console.log(Object.keys(packages).join(',')),
+  packages: packages,
+}
