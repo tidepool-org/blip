@@ -18,7 +18,6 @@ const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
 
 const linkedPackages = (isDev || isTest) ? _.get(optional('./config/linked-packages'), 'packages', {}) : {};
-console.log('linkedPackages', linkedPackages);
 
 const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
