@@ -11,12 +11,13 @@ const fs = require('fs');
 const pkg = require('./package.json');
 const cp = require('child_process');
 const optional = require('optional');
+const _ = require('lodash');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
 
-const linkedPackages = (isDev || isTest) ? optional('./config/linked-packages').packages || {} : {};
+const linkedPackages = (isDev || isTest) ? _.get(optional('./config/linked-packages'), 'packages', {}) : {};
 console.log('linkedPackages', linkedPackages);
 
 const VERSION = pkg.version;
