@@ -10,10 +10,14 @@ const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
 const cp = require('child_process');
+const optional = require('optional');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
+
+const linkedPackages = isDev ? optional('./config/linked-packages').packages || {} : {};
+console.log('linkedPackages', linkedPackages);
 
 const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
@@ -212,6 +216,7 @@ const output = {
 
 const resolve = {
   alias: {
+    ...linkedPackages,
     'babel-core': path.resolve('node_modules/babel-core'),
     classnames: path.resolve('node_modules/classnames'),
     lodash: path.resolve('node_modules/lodash'),

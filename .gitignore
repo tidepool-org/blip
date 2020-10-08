@@ -23,6 +23,7 @@ deploy/
 dist/
 config/*
 !config/local.sh
+!config/linked-packages.example.js
 test/bin
 web/
 artifact_node.sh
