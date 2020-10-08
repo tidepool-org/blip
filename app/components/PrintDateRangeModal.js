@@ -18,6 +18,9 @@ import {
   DialogTitle,
 } from './elements/Dialog';
 import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
+import i18next from '../core/language';
+
+const t = i18next.t.bind(i18next);
 
 export const PrintDateRangeModal = (props) => {
   const {
@@ -97,7 +100,7 @@ export const PrintDateRangeModal = (props) => {
   };
 
   const validateDatesSet = dates => (!moment.isMoment(dates.startDate) || !moment.isMoment(dates.endDate)
-    ? 'Please select a date range'
+    ? t('Please select a date range')
     : false
   );
 
@@ -143,21 +146,21 @@ export const PrintDateRangeModal = (props) => {
   const panels = [
     {
       daysOptions: basicsDaysOptions,
-      header: 'Basics Chart',
+      header: t('Basics Chart'),
       key: 'basics',
     },
     {
       daysOptions: dailyDaysOptions,
-      header: 'Daily Charts',
+      header: t('Daily Charts'),
       key: 'daily',
     },
     {
       daysOptions: bgLogDaysOptions,
-      header: 'BG Log Chart',
+      header: t('BG Log Chart'),
       key: 'bgLog',
     },
     {
-      header: 'Device Settings',
+      header: t('Device Settings'),
       key: 'settings',
     },
   ];
@@ -208,7 +211,7 @@ export const PrintDateRangeModal = (props) => {
   return (
     <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
-        <MediumTitle>Print Report</MediumTitle>
+        <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} minWidth="400px" p={0}>
         {map(panels, panel => (
@@ -229,7 +232,7 @@ export const PrintDateRangeModal = (props) => {
               {enabled[panel.key] && panel.daysOptions && (
                 <Box>
                   <Box mb={5}>
-                    <Body1 mb={2}>Number of days (most recent)</Body1>
+                    <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
                     <Flex id={`days-${panel.key}`}>
                       {map(panel.daysOptions, (days, i) => (
                         <Button
@@ -248,7 +251,7 @@ export const PrintDateRangeModal = (props) => {
                     </Flex>
                   </Box>
                   <Box mb={3}>
-                    <Body1 mb={2}>Or select a custom date range</Body1>
+                    <Body1 mb={2}>{t('Or select a custom date range')}</Body1>
                     <DateRangePicker
                       startDate={dates[panel.key].startDate}
                       startDateId={`${[panel.key]}-start-date`}
@@ -280,10 +283,10 @@ export const PrintDateRangeModal = (props) => {
       </DialogContent>
       <DialogActions justifyContent="space-between" py={2}>
         <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button variant="textPrimary" className="print-submit" processing={processing} onClick={handleSubmit}>
-          Print
+          {t('Print')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -20,7 +20,6 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import i18next from '../../core/language';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -43,6 +42,7 @@ import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
+import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 
 import {
@@ -142,6 +142,9 @@ export let PatientData = translate()(createReactClass({
         },
         excludedDevices: [],
       },
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
       printDialogOpen: false,
       printDialogProcessing: false,
       printDialogPDFOpts: null,
@@ -175,6 +178,7 @@ export let PatientData = translate()(createReactClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
+    const datesDialog = this.renderDatesDialog();
     const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
@@ -182,6 +186,7 @@ export let PatientData = translate()(createReactClass({
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
+        {datesDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
@@ -285,6 +290,45 @@ export let PatientData = translate()(createReactClass({
 
   renderUploadOverlay: function() {
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+  },
+
+  renderDatesDialog: function() {
+    return (
+      <ChartDateRangeModal
+        id="chart-dates-dialog"
+        defaultDates={_.get(this.state, 'chartEndpoints.current')}
+        mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
+        open={this.state.datesDialogOpen}
+        onClose={this.closeDatesDialog}
+        onSubmit={dates => {
+          this.setState({ datesDialogProcessing: true });
+
+          // Determine the earliest startDate needed to fetch data to.
+          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          const updateOpts = {
+            showLoading: true,
+            updateChartEndpoints: true,
+          };
+
+          if (startDate < fetchedUntil) {
+            this.setState({ datesDialogFetchingData: true });
+
+            this.fetchEarlierData({
+              showLoading: true,
+              returnData: false
+            });
+          } else {
+            this.closeDatesDialog();
+          }
+          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+        }}
+        processing={this.state.datesDialogProcessing}
+        timePrefs={this.state.timePrefs}
+      />
+    );
   },
 
   renderPrintDialog: function() {
@@ -397,6 +441,7 @@ export let PatientData = translate()(createReactClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
@@ -520,6 +565,14 @@ export let PatientData = translate()(createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
+  },
+
+  closeDatesDialog: function() {
+    this.setState({
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
+    });
   },
 
   closePrintDialog: function() {
@@ -844,6 +897,17 @@ export let PatientData = translate()(createReactClass({
     this.setState({ printDialogOpen: true });
   },
 
+  handleClickChartDates: function() {
+    this.props.trackMetric('Clicked Chart Dates', {
+      fromChart: this.state.chartType
+    });
+
+    this.setState({
+      datesDialogOpen: true,
+      datesDialogProcessing: false,
+    });
+  },
+
   handleClickRefresh: function(e) {
     this.handleRefresh(e);
     this.props.trackMetric('Clicked Refresh');
@@ -935,7 +999,9 @@ export let PatientData = translate()(createReactClass({
 
     switch (chartType) {
       case 'basics':
-        start = findBasicsStart(datetimeLocation, timezoneName).valueOf();
+        start = extentSize
+          ? moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf()
+          : findBasicsStart(datetimeLocation, timezoneName).valueOf();
         break;
 
       case 'daily':
@@ -1277,9 +1343,15 @@ export let PatientData = translate()(createReactClass({
         // New data has been added. Let's query it to update the chart.
         this.queryData();
 
-        // If new date was fetched to support requested PDF dates, kick off pdf generation
+        // If new data was fetched to support requested PDF dates, kick off pdf generation.
         if (this.state.printDialogPDFOpts) {
           this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        }
+
+        // If new data was fetched to support new chart dates,
+        // close the and reset the chart date dialog.
+        if (this.state.datesDialogFetchingData) {
+          this.closeDatesDialog();
         }
       }
     }

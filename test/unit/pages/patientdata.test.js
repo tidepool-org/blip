@@ -954,6 +954,23 @@ describe('PatientData', function () {
         instance.setState({ chartEndpoints: { current: [1000, 2000] } });
       });
 
+      it('should render a chart date dialog on basics, with appropriate initial props', () => {
+        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
+        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics' });
+        wrapper.update();
+
+        const dialog = wrapper.find('#chart-dates-dialog');
+        expect(dialog.length).to.equal(1);
+        const dialogProps = dialog.props();
+
+        expect(dialogProps.defaultDates).to.eql([1000, 2000]);
+        expect(dialogProps.open).to.equal(false);
+        expect(dialogProps.processing).to.equal(false);
+        expect(dialogProps.maxDays).to.equal(90);
+        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
+        expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
+      });
+
       it('should render a print dialog, with appropriate initial props', () => {
         instance.setState({ timePrefs: { timezoneName: 'US/Pacific' } });
         wrapper.update();
@@ -2423,6 +2440,46 @@ describe('PatientData', function () {
             // Ensure generatePDF is called
             sinon.assert.calledWith(generatePDFSpy, sinon.match.object, sinon.match.object, pdfOpts);
           });
+
+          it('should not close the dates dialog if `datesDialogFetchingData` state is false', () => {
+            const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: false })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF not called
+            sinon.assert.notCalled(closeDatesDialogSpy);
+          });
+
+          it('should close the dates dialog if `datesDialogFetchingData` state is set', () => {
+            const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
+
+            // ensure query for initial data doesn't pollute test
+            wrapper.setState({ queryDataCount: 1, datesDialogFetchingData: true })
+
+            // Adding Data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: true, completed: false }
+            }));
+
+            // Completed adding data
+            wrapper.setProps(_.assign({}, props, {
+              addingData: { inProgress: false, completed: true }
+            }));
+
+            // Ensure generatePDF is called
+            sinon.assert.calledOnce(closeDatesDialogSpy);
+          });
         });
       });
     });
@@ -2727,6 +2784,27 @@ describe('PatientData', function () {
     });
   });
 
+  describe('closeDatesDialog', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should set the `printDialogOpen` state to false and `printDialogPDFOpts` to null', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.closeDatesDialog();
+
+      sinon.assert.calledWith(setStateSpy, {
+        datesDialogOpen: false,
+        datesDialogProcessing: false,
+        datesDialogFetchingData: false,
+      });
+    });
+  });
+
   describe('closePrintDialog', () => {
     let wrapper;
     let instance;
@@ -2782,6 +2860,39 @@ describe('PatientData', function () {
       defaultProps.removeGeneratedPDFS.resetHistory();
       instance.handleClickPrint();
       sinon.assert.calledOnce(defaultProps.removeGeneratedPDFS);
+    });
+  });
+
+  describe('handleClickChartDates', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    afterEach(() => {
+      defaultProps.trackMetric.reset();
+      defaultProps.removeGeneratedPDFS.reset();
+    });
+
+    it('should set the `datesDialogOpen` state true and `datesDialogProcessing` to false', () => {
+      const setStateSpy = sinon.spy(instance, 'setState');
+      instance.handleClickChartDates();
+
+      sinon.assert.calledWith(setStateSpy, {
+        datesDialogOpen: true,
+        datesDialogProcessing: false,
+      });
+    });
+
+    it('should track a metric', () => {
+      instance.handleClickChartDates();
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Chart Dates', {
+        fromChart: instance.state.chartType,
+      });
     });
   });
 

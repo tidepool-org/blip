@@ -66,7 +66,6 @@ export const PrintDateRangeModalStory = () => {
         Open Print Dialog
       </Button>
       <PrintDateRangeModal
-        fetchedUntil={fetchedUntil}
         mostRecentDatumDates={{
           basics: moment.utc().valueOf(),
           bgLog: moment.utc().subtract(2, 'd').valueOf(),

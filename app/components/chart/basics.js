@@ -62,6 +62,13 @@ class Basics extends Component {
     title: this.getTitle(),
   });
 
+  UNSAFE_componentWillReceiveProps = nextProps => {
+    const newEndpointsRecieved = _.get(this.props, 'data.data.current.endpoints.range') !== _.get(nextProps, 'data.data.current.endpoints.range');
+    if (newEndpointsRecieved) {
+      this.setState({ title: this.getTitle(nextProps, false) });
+    }
+  };
+
   render = () => {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
@@ -80,6 +87,7 @@ class Basics extends Component {
           inTransition={this.state.inTransition}
           title={this.state.title}
           onClickBasics={this.handleClickBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickOneDay={this.handleClickOneDay}
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
@@ -172,13 +180,13 @@ class Basics extends Component {
     );
   };
 
-  getTitle = () => {
-    const { t } = this.props;
-    if (this.isMissingBasics()) {
+  getTitle = (props = this.props, checkMissing = true) => {
+    const { t } = props;
+    if (checkMissing && this.isMissingBasics(props)) {
       return '';
     }
 
-    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const timePrefs = _.get(props, 'data.timePrefs', {});
     let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -188,12 +196,12 @@ class Basics extends Component {
     }
 
     const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
+    return sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
   }
 
-  isMissingBasics = () => {
-    const aggregationsByDate = _.get(this.props, 'data.data.aggregationsByDate', {});
+  isMissingBasics = (props = this.props) => {
+    const aggregationsByDate = _.get(props, 'data.data.aggregationsByDate', {});
     return isMissingBasicsData(aggregationsByDate);
   };
 
