@@ -1,5 +1,5 @@
 /**
- * Copy this file to `local/linked-packages.js` and uncomment any modules as desired to link them
+ * Copy this file to `config/linked-packages.js` and uncomment any modules as desired to link them
  * for local development.
  *
  * These will be resolved as aliases in the webpack config. Note that you will need to ensure that
