@@ -251,7 +251,7 @@ export const PrintDateRangeModal = (props) => {
                     </Flex>
                   </Box>
                   <Box mb={3}>
-                    <Body1 mb={2}>{t('Or select a custom date range')}</Body1>
+                    <Body1 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body1>
                     <DateRangePicker
                       startDate={dates[panel.key].startDate}
                       startDateId={`${[panel.key]}-start-date`}

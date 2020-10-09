@@ -50,7 +50,7 @@ import {
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
 export let PatientData = translate()(createReactClass({
@@ -94,6 +94,7 @@ export let PatientData = translate()(createReactClass({
       chartPrefs: {
         basics: {
           sections: {},
+          extentSize: 14,
         },
         daily: {
           extentSize: 1,
@@ -295,8 +296,9 @@ export let PatientData = translate()(createReactClass({
   renderDatesDialog: function() {
     return (
       <ChartDateRangeModal
-        id="chart-dates-dialog"
+        chartType={this.state.chartType}
         defaultDates={_.get(this.state, 'chartEndpoints.current')}
+        id="chart-dates-dialog"
         mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
@@ -327,6 +329,7 @@ export let PatientData = translate()(createReactClass({
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
       />
     );
   },
@@ -992,31 +995,11 @@ export let PatientData = translate()(createReactClass({
 
     const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
-    let start;
     const end = setEndToLocalCeiling
       ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
       : Date.parse(datetimeLocation);
 
-    switch (chartType) {
-      case 'basics':
-        start = extentSize
-          ? moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf()
-          : findBasicsStart(datetimeLocation, timezoneName).valueOf();
-        break;
-
-      case 'daily':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-    }
-
+    const start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
     return (start && end ? [start, end] : []);
   },
 
