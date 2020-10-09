@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import filter from 'lodash/filter';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import { Flex, Box } from 'rebass/styled-components';
@@ -21,6 +23,7 @@ const t = i18next.t.bind(i18next);
 
 export const ChartDateRangeModal = (props) => {
   const {
+    chartType,
     defaultDates: defaultDatesProp,
     maxDays,
     mostRecentDatumDate,
@@ -28,10 +31,11 @@ export const ChartDateRangeModal = (props) => {
     onSubmit,
     onDatesChange,
     open,
+    presetDaysOptions,
     processing,
     timePrefs: { timezoneName = 'UTC' },
     title,
-    presetDaysOptions,
+    trackMetric,
   } = props;
 
   const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
@@ -59,7 +63,7 @@ export const ChartDateRangeModal = (props) => {
       startDate: defaultDatesProp[0],
       endDate: defaultDatesProp[1] - 1,
     })
-    : getLastNDays(presetDaysOptions[0], 'basics');
+    : getLastNDays(presetDaysOptions[0]);
 
   const defaults = useMemo(() => ({
     datePickerOpen: false,
@@ -105,6 +109,22 @@ export const ChartDateRangeModal = (props) => {
     const validationErrors = validateDates(dates);
     if (!isEqual(validationErrors, defaults.errors)) return;
     if (datesMatchDefault()) return onClose();
+
+    const getDateRangeMetric = () => {
+      const matches = filter(
+        presetDaysOptions,
+        (days, i) => datesMatchPreset(dates, presetDateRanges[i])
+      );
+
+      return get(map(matches, days => `${days} days`), [0], 'custom');
+    };
+
+    const metrics = {
+      chartType,
+      dateRange: getDateRangeMetric(),
+    };
+
+    trackMetric('Set Custom Chart Dates', metrics);
     onSubmit(formatDateEndpoints(dates));
   };
 
@@ -194,26 +214,29 @@ export const ChartDateRangeModal = (props) => {
 };
 
 ChartDateRangeModal.propTypes = {
+  chartType: PropTypes.string.isRequired,
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDate: PropTypes.number.isRequired,
-  onClose: PropTypes.func,
-  onDatesChange: PropTypes.func,
-  onSubmit: PropTypes.func,
+  onClose: PropTypes.func.isRequired,
+  onDatesChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   open: PropTypes.bool,
   processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string.isRequired,
   }).isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 ChartDateRangeModal.defaultProps = {
   maxDays: 90,
-  onSubmit: noop,
   onClose: noop,
   onDatesChange: noop,
+  onSubmit: noop,
   presetDaysOptions: [14, 21, 30],
   title: t('Chart Date Range'),
+  trackMetric: noop,
 };
 
 export default ChartDateRangeModal;

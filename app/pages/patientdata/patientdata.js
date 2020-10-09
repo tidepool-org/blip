@@ -295,8 +295,9 @@ export let PatientData = translate()(createReactClass({
   renderDatesDialog: function() {
     return (
       <ChartDateRangeModal
-        id="chart-dates-dialog"
+        chartType={this.state.chartType}
         defaultDates={_.get(this.state, 'chartEndpoints.current')}
+        id="chart-dates-dialog"
         mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
@@ -327,6 +328,7 @@ export let PatientData = translate()(createReactClass({
         }}
         processing={this.state.datesDialogProcessing}
         timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
       />
     );
   },
