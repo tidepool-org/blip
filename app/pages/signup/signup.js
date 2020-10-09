@@ -71,13 +71,6 @@ export let Signup = translate()(class extends React.Component {
     const { t } = this.props;
     let inputs = [
       {
-        name: 'username',
-        label: t('Email'),
-        type: 'email',
-        placeholder: '',
-        disabled: !!this.props.inviteEmail,
-      },
-      {
         name: 'password',
         label: t('Password'),
         type: 'password',
@@ -94,10 +87,29 @@ export let Signup = translate()(class extends React.Component {
         name: 'fullName',
         label: t('Full name'),
         type: 'text',
+        autoFocus: true
+      },
+      {
+        name: 'username',
+        key: 'personal-username',
+        label: t('Email'),
+        type: 'email',
+        placeholder: '',
+        disabled: !!this.props.inviteEmail,
       });
     }
 
     if (this.state.selected === 'clinician') {
+      inputs.unshift({
+        name: 'username',
+        key: 'clinician-username',
+        label: t('Email'),
+        type: 'email',
+        placeholder: '',
+        disabled: !!this.props.inviteEmail,
+        autoFocus: true
+      });
+
       inputs.push({
         name: 'termsAccepted',
         label: this.renderAcceptTermsLabel(),

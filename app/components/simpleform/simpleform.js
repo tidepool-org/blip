@@ -84,6 +84,7 @@ class SimpleForm extends React.Component {
 
   renderInput = (input) => {
     var name = input.name;
+    var key = input.key || name;
     var type = input.type;
     var label = input.label;
     var items = input.items;
@@ -93,10 +94,11 @@ class SimpleForm extends React.Component {
     var error = this.props.validationErrors[name];
     var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
+    var autoFocus = input.autoFocus;
 
     return (
       <InputGroup
-        key={name}
+        key={key}
         name={name}
         label={label}
         items={items}
@@ -107,6 +109,7 @@ class SimpleForm extends React.Component {
         multi={multi}
         placeholder={placeholder}
         disabled={disabled}
+        autoFocus={autoFocus}
         onChange={this.handleChange}/>
     );
   };
