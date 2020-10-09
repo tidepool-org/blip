@@ -50,7 +50,7 @@ import {
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
 export let PatientData = translate()(createReactClass({
