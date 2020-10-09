@@ -94,6 +94,7 @@ export let PatientData = translate()(createReactClass({
       chartPrefs: {
         basics: {
           sections: {},
+          extentSize: 14,
         },
         daily: {
           extentSize: 1,
@@ -994,31 +995,11 @@ export let PatientData = translate()(createReactClass({
 
     const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
-    let start;
     const end = setEndToLocalCeiling
       ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
       : Date.parse(datetimeLocation);
 
-    switch (chartType) {
-      case 'basics':
-        start = extentSize
-          ? moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf()
-          : findBasicsStart(datetimeLocation, timezoneName).valueOf();
-        break;
-
-      case 'daily':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-    }
-
+    const start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
     return (start && end ? [start, end] : []);
   },
 
