@@ -367,6 +367,7 @@ export let PatientData = translate()(createReactClass({
         }}
         processing={this.state.printDialogProcessing}
         timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
       />
     );
   },

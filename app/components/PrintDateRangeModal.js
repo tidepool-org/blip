@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import { Flex, Box } from 'rebass/styled-components';
@@ -32,6 +33,7 @@ export const PrintDateRangeModal = (props) => {
     open,
     processing,
     timePrefs: { timezoneName = 'UTC' },
+    trackMetric,
   } = props;
 
   const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
@@ -183,6 +185,23 @@ export const PrintDateRangeModal = (props) => {
       settings: { disabled: !enabled.settings },
     };
 
+    const getDateRangeMetric = (presets, chartType) => {
+      const matches = filter(
+        presets,
+        (days, i) => datesMatchPreset(dates[chartType], presetDateRanges[chartType][i])
+      );
+
+      return get(map(matches, days => `${days} days`), [0], 'custom range');
+    };
+
+    const metrics = {
+      basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(basicsDaysOptions, 'basics'),
+      bgLog: printOpts.bgLog.disabled ? 'disabled' : getDateRangeMetric(bgLogDaysOptions, 'bgLog'),
+      daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(dailyDaysOptions, 'daily'),
+      settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
+    };
+
+    trackMetric('Submitted Print Options', metrics);
     onClickPrint(printOpts);
   };
 
@@ -300,15 +319,16 @@ PrintDateRangeModal.propTypes = {
     bgLog: PropTypes.number.isRequired,
     daily: PropTypes.number.isRequired,
   }),
-  onClickPrint: PropTypes.func,
-  onClose: PropTypes.func,
-  onDatesChange: PropTypes.func,
+  onClickPrint: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onDatesChange: PropTypes.func.isRequired,
   open: PropTypes.bool,
   processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string.isRequired,
   }).isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 PrintDateRangeModal.defaultProps = {
@@ -316,6 +336,7 @@ PrintDateRangeModal.defaultProps = {
   onClickPrint: noop,
   onClose: noop,
   onDatesChange: noop,
+  trackMetric: noop,
 };
 
 export default PrintDateRangeModal;
