@@ -175,7 +175,7 @@ export const ChartDateRangeModal = (props) => {
             </Flex>
           </Box>
           <Box mb={3}>
-            <Body1 mb={2}>{t('Or select a custom date range')}</Body1>
+            <Body1 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body1>
             <DateRangePicker
               startDate={dates.startDate}
               startDateId="chart-start-date"
@@ -190,7 +190,7 @@ export const ChartDateRangeModal = (props) => {
               onFocusChange={input => setDatePickerOpen(!!input)}
               themeProps={{
                 minWidth: '580px',
-                minHeight: datePickerOpen ? '300px' : undefined,
+                minHeight: datePickerOpen ? '320px' : undefined,
               }}
             />
           </Box>
