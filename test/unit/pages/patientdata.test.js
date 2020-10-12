@@ -1059,6 +1059,7 @@ describe('PatientData', function () {
       expect(wrapper.state().chartPrefs).to.eql({
         basics: {
           sections: {},
+          extentSize: 14,
         },
         daily: {
           extentSize: 1,
@@ -1406,21 +1407,27 @@ describe('PatientData', function () {
         });
       });
 
-      it('should return the valueOf `findBasicsStart` for the start value when timezone not set', () => {
+      it('should return the valueOf `chartPrefs.basics.extentSize` days prior to the endpoint', () => {
+        wrapper.setState({ chartPrefs: { basics: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T00:00:00.000Z'));
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+
+        wrapper.setState({ chartPrefs: { basics: { extentSize: 15 } } });
+        const result2 = instance.getChartEndpoints(datetimeLocation);
+        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
       });
 
-      it('should return the valueOf `findBasicsStart` for the start value when timezone is set', () => {
+      it('should return the valueOf `chartPrefs.basics.extentSize` days prior to the endpoint when timezone is set', () => {
         wrapper.setState({
           timePrefs: {
             timezoneAware: true,
             timezoneName: 'US/Eastern',
           },
+          chartPrefs: { basics: { extentSize: 14 } }
         });
 
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-11T05:00:00.000Z')); // GMT-5 for US/Eastern
+        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T05:00:00.000Z')); // GMT-5 for US/Eastern
       });
     });
 
