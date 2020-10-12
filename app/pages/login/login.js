@@ -49,7 +49,7 @@ export let Login = translate()(class extends React.Component {
     const { t } = this.props;
 
     return [
-      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail, autoFocus: true },
       { name: 'password', placeholder: t('Password'), type: 'password' },
       { name: 'remember', label: t('Remember me'), type: 'checkbox', defaultChecked: true }
     ];

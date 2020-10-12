@@ -24,6 +24,7 @@ class InputGroup extends React.Component {
     rows: PropTypes.number,
     disabled: PropTypes.bool,
     multi: PropTypes.bool,
+    autoFocus: PropTypes.bool,
     defaultChecked: PropTypes.bool,
     onChange: PropTypes.func
   };
@@ -106,6 +107,7 @@ class InputGroup extends React.Component {
         placeholder={this.props.placeholder}
         onChange={this.handleChange}
         disabled={this.props.disabled}
+        autoFocus={!!this.props.autoFocus}
         ref="control"/>
     );
   };
