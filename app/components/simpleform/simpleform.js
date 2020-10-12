@@ -93,6 +93,7 @@ class SimpleForm extends React.Component {
     var error = this.props.validationErrors[name];
     var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
+    var defaultChecked = input.defaultChecked;
 
     return (
       <InputGroup
@@ -107,6 +108,7 @@ class SimpleForm extends React.Component {
         multi={multi}
         placeholder={placeholder}
         disabled={disabled}
+        defaultChecked={defaultChecked}
         onChange={this.handleChange}/>
     );
   };
