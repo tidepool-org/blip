@@ -95,6 +95,7 @@ class SimpleForm extends React.Component {
     var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
     var autoFocus = input.autoFocus;
+    var defaultChecked = input.defaultChecked;
 
     return (
       <InputGroup
@@ -110,6 +111,7 @@ class SimpleForm extends React.Component {
         placeholder={placeholder}
         disabled={disabled}
         autoFocus={autoFocus}
+        defaultChecked={defaultChecked}
         onChange={this.handleChange}/>
     );
   };
