@@ -67,6 +67,7 @@ export const ChartDateRangeModalStory = () => {
         Open Chart Dates Dialog
       </Button>
       <ChartDateRangeModal
+        chartType="basics"
         defaultDates={defaultDates}
         mostRecentDatumDate={mostRecentDatumDate}
         open={open}
