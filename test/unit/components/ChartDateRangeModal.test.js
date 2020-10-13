@@ -16,6 +16,7 @@ const expect = chai.expect;
 
 describe('ChartDateRangeModal', function () {
   const props = {
+    chartType: 'basics',
     defaultDates: [
       moment.utc('2020-03-01T00:00:00.000Z').valueOf(),
       moment.utc('2020-03-10T00:00:00.000Z').valueOf() + 1,
@@ -28,6 +29,7 @@ describe('ChartDateRangeModal', function () {
     timePrefs: {
       timezoneName: 'UTC',
     },
+    trackMetric: sinon.stub(),
   };
 
   let wrapper;
@@ -38,6 +40,7 @@ describe('ChartDateRangeModal', function () {
   afterEach(() => {
     props.onClose.reset();
     props.onSubmit.reset();
+    props.trackMetric.reset();
   });
 
   it('should be visible when open prop is true', () => {
@@ -125,6 +128,26 @@ describe('ChartDateRangeModal', function () {
 
       expect(error()).to.have.lengthOf(1);
       expect(error().text()).to.equal('Please select a date range');
+    });
+
+    it('should send metric for print options', () => {
+      const datesRangeSelectedPreset = () => wrapper.find('#days-chart').find('.selected').hostNodes();
+
+      // Change range to 30 days
+      const datesRangePreset3 = wrapper.find('#days-chart').find('button').at(2).hostNodes();
+      datesRangePreset3.simulate('click');
+
+      expect(datesRangeSelectedPreset().prop('value')).to.equal(30);
+
+      sinon.assert.notCalled(props.trackMetric);
+
+      // Submit form
+      submitButton().simulate('click');
+
+      sinon.assert.calledWith(props.trackMetric, 'Set Custom Chart Dates', {
+        chartType: 'basics',
+        dateRange: '30 days',
+      });
     });
   });
 

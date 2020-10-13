@@ -28,6 +28,7 @@ describe('PrintDateRangeModal', function () {
     timePrefs: {
       timezoneName: 'UTC',
     },
+    trackMetric: sinon.stub(),
   };
 
   let wrapper;
@@ -38,6 +39,7 @@ describe('PrintDateRangeModal', function () {
   afterEach(() => {
     props.onClose.reset();
     props.onClickPrint.reset();
+    props.trackMetric.reset();
   });
 
   it('should be visible when open prop is true', () => {
@@ -246,6 +248,33 @@ describe('PrintDateRangeModal', function () {
 
       expect(basicsError()).to.have.lengthOf(1);
       expect(basicsError().text()).to.equal('Please select a date range');
+    });
+
+    it('should send metric for print options', () => {
+      // Disable bgLog chart
+      const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+      bgLogToggle().simulate('click');
+      expect(bgLogToggle().prop('aria-checked')).to.be.false;
+
+      // Change daily range from 14 days to 30
+      const dailyDatesRangeSelectedPreset = () => wrapper.find('#days-daily').find('.selected').hostNodes();
+      expect(dailyDatesRangeSelectedPreset().prop('value')).to.equal(14);
+      const dailyDatesRangePreset3 = wrapper.find('#days-daily').find('button').at(2).hostNodes();
+      dailyDatesRangePreset3.simulate('click');
+
+      expect(dailyDatesRangeSelectedPreset().prop('value')).to.equal(30);
+
+      sinon.assert.notCalled(props.trackMetric);
+
+      // Submit form
+      submitButton().simulate('click');
+
+      sinon.assert.calledWith(props.trackMetric, 'Submitted Print Options', {
+        basics: '14 days',
+        bgLog: 'disabled',
+        daily: '30 days',
+        settings: 'enabled'
+      });
     });
   });
 
