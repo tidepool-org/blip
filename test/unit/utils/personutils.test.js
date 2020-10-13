@@ -333,8 +333,8 @@ describe('personutils', () => {
   });
 
   describe('validateFormValues', () => {
-    var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
-    var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
+    var INVALID_DATE_TEXT = 'Please enter dates using MM/DD/YYYY format';
+    var OUT_OF_ORDER_TEXT = 'Please enter a diagnosis date that comes after the birthday';
 
     it('should return error message when name is required but is null', () => {
       var formValues = {
