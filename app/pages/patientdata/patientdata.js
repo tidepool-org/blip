@@ -95,7 +95,6 @@ export let PatientData = translate()(createReactClass({
         basics: {
           stats: {
             excludeDaysWithoutBolus: false,
-            excludedDays: [],
           },
           sections: {},
           extentSize: 14,
@@ -1396,7 +1395,7 @@ export let PatientData = translate()(createReactClass({
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
-      excludedDays: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludedDays']),
+      excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };
