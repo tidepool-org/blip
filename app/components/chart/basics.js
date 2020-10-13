@@ -4,6 +4,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
+import { Box, Flex } from 'rebass/styled-components';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -20,6 +21,7 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
 import DeviceSelection from './deviceSelection';
+import Checkbox from '../elements/Checkbox';
 
 class Basics extends Component {
   static propTypes = {
@@ -105,17 +107,29 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <ClipboardButton
-                  buttonTitle={t('For email or notes')}
-                  onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
-                />
-                <BgSourceToggle
-                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                  chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  onClickBgSourceToggle={this.toggleBgDataSource}
-                />
+                <Flex mb={2} alignItems="center" justifyContent="space-between">
+                  <ClipboardButton
+                    buttonTitle={t('For email or notes')}
+                    onSuccess={this.handleCopyBasicsClicked}
+                    getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                  />
+                  <BgSourceToggle
+                    bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                    chartPrefs={this.props.chartPrefs}
+                    chartType={this.chartType}
+                    onClickBgSourceToggle={this.toggleBgDataSource}
+                  />
+                </Flex>
+                <Box my={3}>
+                  <Checkbox
+                    checked={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+                    label={t('Exclude days with no boluses')}
+                    onChange={this.toggleDaysWithoutBoluses}
+                    themeProps={{
+                      color: 'stat.text',
+                    }}
+                  />
+                </Box>
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
@@ -218,6 +232,17 @@ class Basics extends Component {
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs, false, true);
   };
+
+  toggleDaysWithoutBoluses = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
+    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    this.props.updateChartPrefs(prefs, false, true, true);
+  }
 
   handleClickBasics = e => {
     if (e) {

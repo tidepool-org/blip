@@ -93,6 +93,10 @@ export let PatientData = translate()(createReactClass({
     var state = {
       chartPrefs: {
         basics: {
+          stats: {
+            excludeDaysWithoutBolus: false,
+            excludedDays: [],
+          },
           sections: {},
         },
         daily: {
@@ -957,7 +961,7 @@ export let PatientData = translate()(createReactClass({
     }
   },
 
-  updateChartPrefs: function(updates, queryData = true, queryStats = false) {
+  updateChartPrefs: function(updates, queryData = true, queryStats = false, queryAggregations = false) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
@@ -970,13 +974,14 @@ export let PatientData = translate()(createReactClass({
 
       if (queryData) {
         this.queryData(undefined, queryOpts);
-      } else if (queryStats) {
-        const statsQuery = {
+      } else if (queryStats || queryAggregations) {
+        const query = {
           endpoints: _.get(this.state, 'chartEndpoints.current'),
-          stats: this.getStatsByChartType(),
-        }
+          stats: queryStats ? this.getStatsByChartType() : undefined,
+          aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
+        };
 
-        this.queryData(statsQuery, queryOpts);
+        this.queryData(query, queryOpts);
       }
     });
   },
@@ -1046,6 +1051,22 @@ export let PatientData = translate()(createReactClass({
       this.props.patient,
       manufacturer
     );
+  },
+
+  getAggregationsByChartType: function(chartType = this.state.chartType) {
+    let aggregations;
+
+    switch (chartType) {
+      case 'basics':
+        aggregations = 'basals, boluses, fingersticks, siteChanges';
+        break;
+
+      default:
+        aggregations = undefined;
+        break;
+    }
+
+    return aggregations;
   },
 
   getStatsByChartType: function(chartType = this.state.chartType) {
@@ -1391,6 +1412,7 @@ export let PatientData = translate()(createReactClass({
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
+      excludedDays: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludedDays']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };

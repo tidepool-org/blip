@@ -24,6 +24,7 @@ import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
+import { Flex } from 'rebass/styled-components';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -304,12 +305,14 @@ class Daily extends Component {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <BgSourceToggle
-                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                onClickBgSourceToggle={this.toggleBgDataSource}
-              />
+              <Flex mb={2} alignItems="center" justifyContent="flex-end">
+                <BgSourceToggle
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
+              </Flex>
               <Stats
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
