@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
-import { Text, Flex } from 'rebass/styled-components';
+import { Text, Flex, FlexProps } from 'rebass/styled-components';
 
 import {
   usePopupState,
@@ -33,7 +33,7 @@ const PopoverLabel = props => {
 
   return (
     <React.Fragment>
-      <Flex color="text.primary" {...wrapperProps}>
+      <Flex color="text.primary" bg="white" {...wrapperProps}>
         {label && <Text mr={2}>{label}</Text>}
         <Icon
           label={iconLabel}
@@ -50,6 +50,7 @@ const PopoverLabel = props => {
 };
 
 PopoverLabel.propTypes = {
+  ...FlexProps,
   icon: PropTypes.elementType.isRequired,
   iconLabel: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
