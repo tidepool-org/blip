@@ -292,7 +292,7 @@
   "hour_timeago": "hour",
   "How do you describe their diabetes?": "How do you describe their diabetes?",
   "How do you describe your diabetes?": "How do you describe your diabetes?",
-  "html.basics-no-uploaded-data": "<0>The Basics view shows a summary of your recent system activity, but it looks like your system hasn't sent data yet.</0><1><1>Check</1> that your system is activated.</1><2>If you just checked it, try <1>refreshing</1>.</2>",
+  "html.basics-no-uploaded-data": "<0>Overview shows a summary of your recent system activity, but it looks like your system hasn't sent data yet.</0><1><1>Check</1> that your system is activated.</1><2>If you just checked it, try <1>refreshing</1>.</2>",
   "html.bg-log-no-uploaded-data": "<0>The BG Log view shows a history of your finger stick BG data, but it looks like your system has not sent data yet.</0><1><1>Check</1> your system is activated.</1><2>If you just checked it, try <1>refreshing</1>.</2>",
   "html.browser-warning-text": "<0>Copy and paste</0><1></1><2>into Chrome.</2>",
   "html.donate-form-explainer": "You own your data.",
