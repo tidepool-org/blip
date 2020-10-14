@@ -22,6 +22,7 @@
     "prebuild-dev": "rm -rf dist",
     "build-dev": "NODE_ENV=development webpack --progress",
     "server": "node server/server.js dist/static",
+    "local-server": "docker run -i -t --rm --name blip-nginx -v $PWD/dist/static:/usr/share/nginx/html:ro -p 3001:80 nginx:latest",
     "lint": "eslint app test",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' 'node_modules/@tidepool/viz/src/**/*.js' -c i18next-parser.config.json -o .",
@@ -32,6 +33,8 @@
     "npm": ">=6.x"
   },
   "dependencies": {
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/core": "^4.11.0",
     "@hot-loader/react-dom": "^16.11.0",
     "@tidepool/viz": "github:mdblp/viz#dblp.0.16.1",
     "async": "3.2.0",

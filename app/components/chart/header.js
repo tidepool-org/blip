@@ -19,12 +19,14 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
+import i18n from '../../core/language';
 import config from '../../config';
 
-import printPng from './img/print-icon-2x.png';
+import { Timeline, StayCurrentPortrait } from '@material-ui/icons';
 
-const TidelineHeader = translate()(class TidelineHeader extends React.Component {
+const t = i18n.t.bind(i18n);
+
+class TidelineHeader extends React.Component {
   static propTypes = {
     patient: PropTypes.object,
     title: PropTypes.node.isRequired,
@@ -51,7 +53,7 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
   };
 
   renderStandard = () => {
-    const { t, canPrint } = this.props;
+    const { canPrint } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, this.props.chartType);
@@ -130,20 +132,15 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
     let printLink = null;
     if (canPrint && showPrintLink) {
       const printLinkClass = cx({
-        'js-print-settings': this.props.chartType === 'settings',
         'printview-print-icon': true,
-        'patient-data-subnav-right': true,
-        'patient-data-subnav-right-label': true,
         'patient-data-subnav-active': true,
-        'patient-data-subnav-hidden': false,
-        'patient-data-subnav-disabled': false,
       });
 
       printLink = (
-        <a href="" className={printLinkClass} onClick={this.onClickPrint}>
-          {<img className="print-icon" src={printPng} alt={t('Print')} />}
+        <button className={printLinkClass} onClick={this.onClickPrint}>
+          <Timeline className="print-icon" />
           {t('Print')}
-      </a>
+      </button>
       );
     }
 
@@ -164,16 +161,19 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           {printLink}
+          <button className={settingsLinkClass} onClick={this.props.onClickSettings}>
+            <StayCurrentPortrait />
+            {t('Device settings')}
+          </button>
         </div>
       </div>
     );
   };
 
   printTitle = () => {
-    const { t } = this.props;
-    switch (this.props.chartType) {
+    const { chartType } = this.props;
+    switch (chartType) {
       case 'basics':
         return t('Basics');
       case 'daily':
@@ -208,7 +208,7 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
    * @param  {Function} clickAction
    * @param  {String} icon
    *
-   * @return {ReactElement}
+   * @return {JSX.Element}
    */
   renderNavButton = (buttonClass, clickAction, icon) => {
     const nullAction = function(e) {
@@ -224,12 +224,12 @@ const TidelineHeader = translate()(class TidelineHeader extends React.Component 
   };
 
   /**
-   * @param {React.MouseEvent<HTMLAnchorElement, MouseEvent>} event The DOM/React event
+   * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} event The DOM/React event
    */
   onClickPrint = (event) => {
     event.preventDefault();
     this.props.onClickPrint();
   }
-});
+}
 
 export default TidelineHeader;

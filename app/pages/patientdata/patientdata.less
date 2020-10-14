@@ -91,6 +91,34 @@
   font-weight: bold;
 }
 
+.patient-data-subnav button {
+  border-width: 0px;
+  background-color: transparent;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 10px;
+  margin-left: 10px;
+  padding-right: 0px;
+  padding-left: 0px;
+  outline-style: none;
+
+  &:hover {
+    color: @gray-darkest;
+  }
+  &:active, &:disabled {
+    color: @gray;
+  }
+  &.patient-data-subnav-hidden {
+    display: none;
+  }
+
+  svg {
+    margin-right: 5px;
+  }
+}
+
 .patient-data-subnav-center {
   display: flex;
   justify-content: space-between;
@@ -102,18 +130,10 @@
 }
 
 .patient-data-subnav-right {
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
-}
-
-.patient-data-subnav-right-label {
-  float: right;
-}
-
-.patient-data-subnav .printview-print-icon .print-icon {
-  padding-right: 5px;
-  height: 16px;
-  position: relative;
-  top: -2px;
+  display: flex;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 10px;
 }
 
 // Content
