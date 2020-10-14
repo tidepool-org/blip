@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
-import { Text } from 'rebass/styled-components';
-import { Label } from '@rebass/forms';
+import { Text, Flex } from 'rebass/styled-components';
 
 import {
   usePopupState,
@@ -23,7 +22,7 @@ const PopoverLabel = props => {
     popoverContent: PopoverContent,
     popoverWidth,
     triggerOnHover,
-    ...labelProps
+    ...wrapperProps
   } = props;
 
   const popupState = usePopupState({
@@ -34,14 +33,14 @@ const PopoverLabel = props => {
 
   return (
     <React.Fragment>
-      <Label color="text.primary" {...labelProps}>
+      <Flex color="text.primary" {...wrapperProps}>
         {label && <Text mr={2}>{label}</Text>}
         <Icon
           label={iconLabel}
           icon={icon}
           {...(triggerOnHover ? bindHover(popupState) : bindToggle(popupState))}
         />
-      </Label>
+      </Flex>
 
       <Popover width={popoverWidth} {...bindPopover(popupState)}>
         {React.cloneElement(PopoverContent, {})}
