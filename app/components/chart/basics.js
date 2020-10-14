@@ -22,6 +22,8 @@ import Header from './header';
 import Footer from './footer';
 import DeviceSelection from './deviceSelection';
 import Checkbox from '../elements/Checkbox';
+import PopoverLabel from '../elements/PopoverLabel';
+import { Paragraph2 } from '../elements/FontStyles';
 
 class Basics extends Component {
   static propTypes = {
@@ -75,6 +77,9 @@ class Basics extends Component {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
+    const activeDays = _.get(this.props, 'data.data.current.endpoints.activeDays');
+    const daysWithBoluses = _.keys(_.get(this.props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
+
     let renderedContent;
     if (dataQueryComplete) {
       renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
@@ -120,16 +125,34 @@ class Basics extends Component {
                     onClickBgSourceToggle={this.toggleBgDataSource}
                   />
                 </Flex>
-                <Box my={3}>
-                  <Checkbox
-                    checked={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
-                    label={t('Exclude days with no boluses')}
-                    onChange={this.toggleDaysWithoutBoluses}
-                    themeProps={{
-                      color: 'stat.text',
-                    }}
-                  />
-                </Box>
+                {(daysWithBoluses > 0 && daysWithBoluses < activeDays) && (
+                  <Box my={3}>
+                    <PopoverLabel
+                      id='exclude-bolus-info'
+                      label={(
+                        <Checkbox
+                          checked={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+                          label={t('Exclude days with no boluses')}
+                          onChange={this.toggleDaysWithoutBoluses}
+                          themeProps={{
+                            color: 'stat.text',
+                          }}
+                        />
+                      )}
+                      mb={2}
+                      popoverContent={(
+                        <Box p={3}>
+                          <Paragraph2>
+                            <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
+                          </Paragraph2>
+                          <Paragraph2>
+                            {t('If this input is checked, days without boluses will be excluded when determining the Bolusing "Avg per day" count and the "Avg Daily Insulin" stat.')}
+                          </Paragraph2>
+                        </Box>
+                      )}
+                    />
+                  </Box>
+                )}
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
