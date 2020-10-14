@@ -824,8 +824,9 @@ export let PatientData = translate()(createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
+    const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
