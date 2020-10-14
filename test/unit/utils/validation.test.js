@@ -463,7 +463,7 @@ describe('validation', () => {
         var response = validation.typeValidators.diagnosisDate('diagnosis date', diagnosis, { birthday : birthday });
 
         expect(response.valid).to.be.false;
-        expect(response.message).to.equal('Hmm, diagnosis date usually comes after birthday.');
+        expect(response.message).to.equal('Please enter a diagnosis date that comes after the birthday.');
       });
 
       it('should return valid object when fieldValue and prerequisite birthday are valid and in order', () => {
@@ -571,7 +571,7 @@ describe('validation', () => {
       expect(result).to.be.an('object');
       expect(Object.keys(result).length).to.equal(2);
       expect(result.fullName).to.equal('Full name is required.');
-      expect(result.diagnosisDate).to.equal('Hmm, diagnosis date usually comes after birthday.');
+      expect(result.diagnosisDate).to.equal('Please enter a diagnosis date that comes after the birthday.');
     });
   });
 });
