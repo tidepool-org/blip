@@ -3824,13 +3824,25 @@ describe('PatientData', function () {
       });
     });
 
-    it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
+    it('should set the `datetimeLocation` state to noon for the previous day of the provided iso string datetime', () => {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
 
       instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
+
+      // Should set to previous day because the provided datetime filter is exclusive
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+    });
+
+    it('should set the `datetimeLocation` state to noon for the previous day of the provided utc timestamp datetime', () => {
+      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const instance = wrapper.instance();
+
+      wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
+
+      instance.handleSwitchToDaily(Date.parse('2018-03-03T00:00:00.000Z'));
 
       // Should set to previous day because the provided datetime filter is exclusive
       expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
