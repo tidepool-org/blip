@@ -721,8 +721,6 @@ export let PatientData = translate()(createReactClass({
   },
 
   handleShowMessageThread: function(messageThread) {
-    var self = this;
-
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread);
@@ -1021,59 +1019,6 @@ export let PatientData = translate()(createReactClass({
     }
   },
 
-  deriveChartTypeFromLatestData: function(latestData, uploads) {
-    let chartType = 'basics'; // Default to 'basics'
-
-    if (latestData && uploads) {
-      // Ideally, we determine the default view based on the device type
-      // so that, for instance, if the latest data type is cgm, but comes from
-      // an insulin-pump, we still direct them to the basics view
-      const deviceMap = _.keyBy(uploads, 'deviceId');
-      const latestDataDevice = deviceMap[latestData.deviceId];
-
-      if (latestDataDevice) {
-        const tags = deviceMap[latestData.deviceId].deviceTags;
-
-        switch(true) {
-          case (_.includes(tags, 'insulin-pump')):
-            chartType = 'basics';
-            break;
-
-          case (_.includes(tags, 'cgm')):
-            chartType = 'trends';
-            break;
-
-          case (_.includes(tags, 'bgm')):
-            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
-            break;
-        }
-      }
-      else {
-        // If we were unable, for some reason, to get the device tags for the
-        // latest upload, we can fall back to setting the default view by the data type
-        const type = latestData.type;
-
-        switch(type) {
-          case 'bolus':
-          case 'basal':
-          case 'wizard':
-            chartType = 'basics';
-            break;
-
-          case 'cbg':
-            chartType = 'trends';
-            break;
-
-          case 'smbg':
-            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
-            break;
-        }
-      }
-    }
-
-    return chartType;
-  },
-
   setInitialChartType: function(processedData) {
     // Determine default chart type and date from latest data
     const uploads = _.get(processedData.grouped, 'upload', []);
@@ -1081,10 +1026,7 @@ export let PatientData = translate()(createReactClass({
 
     if (uploads && latestData) {
       // Allow overriding the default chart type via a query param (helps for development);
-      const chartType = _.get(
-        this.props, 'queryParams.chart',
-        this.deriveChartTypeFromLatestData(latestData, uploads)
-      );
+      const chartType = 'daily';
 
       const latestDataDateCeiling = getLocalizedCeiling(latestData.time, this.state.timePrefs);
       const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
@@ -1099,7 +1041,7 @@ export let PatientData = translate()(createReactClass({
           .tz(timezone)
           .toISOString());
 
-      let state = {
+      const state = {
         chartType,
         datetimeLocation,
         initialDatetimeLocation: datetimeLocation,
@@ -1108,9 +1050,7 @@ export let PatientData = translate()(createReactClass({
 
       this.dataUtil.chartPrefs = this.state.chartPrefs[chartType];
 
-      this.setState(state, () => {
-        this.props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
-      });
+      this.setState(state);
     }
   },
 
