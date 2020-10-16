@@ -82,7 +82,7 @@
   "Avg. Daily Insulin": "Moy. quotidienne insuline",
   "Avg. Daily Readings In Range": "Moy. des valeurs dans la cible",
   "Avg. Daily Time In Range": "Tps moy. quotidien dans la cible",
-  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode ON",
+  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode",
   "Avg. Daily Total Insulin": "Moy. quotidienne insuline totale",
   "Avg. Glucose ({{bgSourceLabel}})": "Glycémie moyenne ({{bgSourceLabel}})",
   "A_Label": "L",

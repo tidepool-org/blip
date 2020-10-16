@@ -82,7 +82,7 @@
   "Avg. Daily Insulin": "Durchschnittliche tägliche Insulinmengen",
   "Avg. Daily Readings In Range": "Ø tägl. Messwerte im Zielbereich",
   "Avg. Daily Time In Range": "Ø tägl. Zeit im Zielbereich",
-  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode ON",
+  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode",
   "Avg. Daily Total Insulin": "Ø tägl. Gesamtinsulin",
   "Avg. Glucose ({{bgSourceLabel}})": "Ø Glukose ({{bgSourceLabel}})",
   "A_Label": "L",

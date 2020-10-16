@@ -82,7 +82,7 @@
   "Avg. Daily Insulin": "crwdns35766:0crwdne35766:0",
   "Avg. Daily Readings In Range": "crwdns35768:0crwdne35768:0",
   "Avg. Daily Time In Range": "crwdns35772:0crwdne35772:0",
-  "Avg. Daily Time In {{automatedLabel}}": "crwdns43544:0crwdne43544:0",
+  "Avg. Daily Time In {{automatedLabel}}": "crwdns43564:0crwdne43564:0",
   "Avg. Daily Total Insulin": "crwdns35774:0crwdne35774:0",
   "Avg. Glucose ({{bgSourceLabel}})": "crwdns35776:0{{bgSourceLabel}}crwdne35776:0",
   "A_Label": "crwdns35690:0crwdne35690:0",

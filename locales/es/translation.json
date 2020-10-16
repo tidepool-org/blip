@@ -82,7 +82,7 @@
   "Avg. Daily Insulin": "Avg. Daily Insulin",
   "Avg. Daily Readings In Range": "Avg. Daily Readings In Range",
   "Avg. Daily Time In Range": "Avg. Daily Time In Range",
-  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode ON",
+  "Avg. Daily Time In {{automatedLabel}}": "Avg. Daily Time in loop mode",
   "Avg. Daily Total Insulin": "Avg. Daily Total Insulin",
   "Avg. Glucose ({{bgSourceLabel}})": "Avg. Glucose ({{bgSourceLabel}})",
   "A_Label": "L",
