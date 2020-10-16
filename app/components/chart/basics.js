@@ -4,7 +4,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
-import { Box, Flex } from 'rebass/styled-components';
+import { Flex } from 'rebass/styled-components';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -21,9 +21,6 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
 import DeviceSelection from './deviceSelection';
-import Checkbox from '../elements/Checkbox';
-import PopoverLabel from '../elements/PopoverLabel';
-import { Paragraph2 } from '../elements/FontStyles';
 
 class Basics extends Component {
   static propTypes = {
@@ -125,34 +122,6 @@ class Basics extends Component {
                     onClickBgSourceToggle={this.toggleBgDataSource}
                   />
                 </Flex>
-                {(daysWithBoluses > 0 && daysWithBoluses < activeDays) && (
-                  <Box my={3}>
-                    <PopoverLabel
-                      id='exclude-bolus-info'
-                      label={(
-                        <Checkbox
-                          checked={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
-                          label={t('Exclude days with no boluses')}
-                          onChange={this.toggleDaysWithoutBoluses}
-                          themeProps={{
-                            color: 'stat.text',
-                          }}
-                        />
-                      )}
-                      mb={2}
-                      popoverContent={(
-                        <Box p={3}>
-                          <Paragraph2>
-                            <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
-                          </Paragraph2>
-                          <Paragraph2>
-                            {t('If this input is checked, days without boluses will be excluded when determining the Bolusing "Avg per day" count and the "Avg Daily Insulin" stat.')}
-                          </Paragraph2>
-                        </Box>
-                      )}
-                    />
-                  </Box>
-                )}
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
@@ -256,17 +225,6 @@ class Basics extends Component {
     prefs.basics.bgSource = bgSource;
     this.props.updateChartPrefs(prefs, false, true);
   };
-
-  toggleDaysWithoutBoluses = e => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
-    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
-    this.props.updateChartPrefs(prefs, false, true, true);
-  }
 
   handleClickBasics = e => {
     if (e) {

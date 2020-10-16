@@ -45,6 +45,11 @@ import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 
+import { Box } from 'rebass/styled-components';
+import Checkbox from '../../components/elements/Checkbox';
+import PopoverLabel from '../../components/elements/PopoverLabel';
+import { Paragraph2 } from '../../components/elements/FontStyles';
+
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
@@ -547,6 +552,38 @@ export let PatientData = translate()(createReactClass({
     }
   },
 
+  renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
+    const { t } = props;
+
+    return (
+      <Box my={1}>
+        <PopoverLabel
+          id='exclude-bolus-info'
+          label={(
+            <Checkbox
+              checked={_.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+              label={t('Exclude days with no boluses')}
+              onChange={this.toggleDaysWithoutBoluses}
+              themeProps={{
+                color: 'stat.text',
+              }}
+            />
+          )}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
+              </Paragraph2>
+              <Paragraph2>
+                {t('If this option is checked, days without boluses will be excluded when calculating this stat and the "Avg per day" count in the "Bolusing" calendar summary.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+      </Box>
+    );
+  },
+
   renderMessagesContainer: function() {
     if (this.state.createMessageDatetime) {
       return (
@@ -572,6 +609,17 @@ export let PatientData = translate()(createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
+  },
+
+  toggleDaysWithoutBoluses: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const prefs = _.cloneDeep(this.state.chartPrefs);
+    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
+    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    this.updateChartPrefs(prefs, false, true, true);
   },
 
   closeDatesDialog: function() {
@@ -604,7 +652,8 @@ export let PatientData = translate()(createReactClass({
   generateStats: function (props = this.props, state = this.state) {
     const {
       bgPrefs = {},
-    } = this.state;
+      chartType
+    } = state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
     const bgSource = this.getMetaData('bgSources.current');
@@ -621,8 +670,13 @@ export let PatientData = translate()(createReactClass({
         manufacturer,
       });
 
-      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-        stat.onInputChange = props.onAverageDailyDoseInputChange;
+      if (_.includes(['averageDailyDose', 'totalInsulin'], statType) && chartType === 'basics') {
+        const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
+        const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
+
+        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+          stat.children = this.renderExcludeEmptyBolusDaysCheckbox(props, state);
+        }
       }
 
       stats.push(stat);
