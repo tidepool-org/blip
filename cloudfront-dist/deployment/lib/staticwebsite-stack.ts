@@ -8,6 +8,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as route53 from '@aws-cdk/aws-route53';
 import { WebStackProps } from './props/WebStackProps';
+import { Duration } from '@aws-cdk/core';
 
 export class StaticWebSiteStack extends core.Stack {
   constructor(scope: core.Construct, id: string, distDir: string, props?: WebStackProps) {
@@ -106,8 +107,7 @@ export class StaticWebSiteStack extends core.Stack {
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018
           },
 
-        },
-        loggingConfig: {}
+        }
       }
     );
 
@@ -115,7 +115,8 @@ export class StaticWebSiteStack extends core.Stack {
     new route53.CnameRecord(this, `${id}-websitealiasrecord`, {
       zone: zone,
       recordName: `${props?.domainName}`,
-      domainName: distribution.distributionDomainName
+      domainName: distribution.distributionDomainName,
+      ttl: Duration.minutes(5)
     });
 
     //  Publish the site content to the S3 bucket (with --delete and invalidation)
