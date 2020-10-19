@@ -40,6 +40,7 @@ import Stats from '../../components/chart/Stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import baseTheme from '../../themes/baseTheme';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
@@ -557,7 +558,10 @@ export let PatientData = translate()(createReactClass({
     const { t } = props;
 
     return (
-      <Box my={1}>
+      <Box p={2} sx={{
+        borderTop: '1px solid',
+        borderColor: 'grays.1',
+      }}>
         <PopoverLabel
           id='exclude-bolus-info'
           label={(
@@ -653,7 +657,7 @@ export let PatientData = translate()(createReactClass({
   generateStats: function (props = this.props, state = this.state) {
     const {
       bgPrefs = {},
-      chartType
+      chartType,
     } = state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
@@ -662,9 +666,6 @@ export let PatientData = translate()(createReactClass({
     const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
 
     const stats = [];
-
-    console.log('averageDailyDose', averageDailyDose);
-    console.log('statsData', statsData);
 
     _.forOwn(statsData, (data, statType) => {
       const stat = getStatDefinition(data, statType, {
@@ -675,7 +676,11 @@ export let PatientData = translate()(createReactClass({
       });
 
       if (statType === 'totalInsulin' && chartType === 'basics') {
-      // if (_.includes(['averageDailyDose', 'totalInsulin'], statType) && chartType === 'basics') {
+        // We nest the averageDailyDose stat within the totalInsulin stat
+        stat.title = props.t('Avg. Daily Insulin Ratios');
+        delete stat.dataFormat.title;
+        delete stat.data.dataPaths.title;
+
         const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
         const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
 
@@ -687,12 +692,30 @@ export let PatientData = translate()(createReactClass({
         });
 
         const averageDailyDoseComponent = (
-          <Box mt={1} mb={2}>
+          <Box
+            mt={1}
+            theme={baseTheme}
+            sx={{
+              '#Stat--averageDailyDose': {
+                marginBottom: 0,
+
+                '> div > div:first-child, > div > div:first-child > div': {
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  borderBottom: 'none',
+                  borderRadius: 0,
+                  borderColor: 'grays.1',
+                },
+              }
+            }}
+          >
             <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
           </Box>
         );
 
         if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+          // If any of the calendar dates within the range are missing boluses,
+          // present a checkbox to disable them from insulin stat calculations
           stat.children = (
             <React.Fragment>
               {averageDailyDoseComponent}
