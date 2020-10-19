@@ -1667,6 +1667,7 @@ describe('PatientData', function () {
           'carbs',
           'averageDailyDose',
           'glucoseManagementIndicator',
+          'coefficientOfVariation',
           'bgExtents',
         ]);
       });
@@ -1679,6 +1680,7 @@ describe('PatientData', function () {
           'totalInsulin',
           'carbs',
           'averageDailyDose',
+          'coefficientOfVariation',
           'bgExtents',
         ]);
       });
@@ -1693,6 +1695,7 @@ describe('PatientData', function () {
           'timeInAuto',
           'carbs',
           'averageDailyDose',
+          'coefficientOfVariation',
           'bgExtents',
         ]);
       });
