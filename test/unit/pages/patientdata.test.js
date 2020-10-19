@@ -1058,6 +1058,9 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
         basics: {
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
           sections: {},
           extentSize: 14,
         },
@@ -2623,6 +2626,7 @@ describe('PatientData', function () {
           chartType: 'trends',
           endpoints: [100,200],
           excludedDevices: [],
+          excludeDaysWithoutBolus: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
         });
