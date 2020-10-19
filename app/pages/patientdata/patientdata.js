@@ -36,6 +36,7 @@ import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
+import Stats from '../../components/chart/Stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
@@ -658,9 +659,12 @@ export let PatientData = translate()(createReactClass({
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
-    const statsData = this.getCurrentData('stats');
+    const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
 
     const stats = [];
+
+    console.log('averageDailyDose', averageDailyDose);
+    console.log('statsData', statsData);
 
     _.forOwn(statsData, (data, statType) => {
       const stat = getStatDefinition(data, statType, {
@@ -670,12 +674,33 @@ export let PatientData = translate()(createReactClass({
         manufacturer,
       });
 
-      if (_.includes(['averageDailyDose', 'totalInsulin'], statType) && chartType === 'basics') {
+      if (statType === 'totalInsulin' && chartType === 'basics') {
+      // if (_.includes(['averageDailyDose', 'totalInsulin'], statType) && chartType === 'basics') {
         const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
         const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
 
+        const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
+          bgSource,
+          days: endpoints.activeDays || endpoints.days,
+          bgPrefs,
+          manufacturer,
+        });
+
+        const averageDailyDoseComponent = (
+          <Box mt={1} mb={2}>
+            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+          </Box>
+        );
+
         if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
-          stat.children = this.renderExcludeEmptyBolusDaysCheckbox(props, state);
+          stat.children = (
+            <React.Fragment>
+              {averageDailyDoseComponent}
+              {this.renderExcludeEmptyBolusDaysCheckbox(props, state)}
+            </React.Fragment>
+          )
+        } else {
+          stat.children = averageDailyDoseComponent;
         }
       }
 
