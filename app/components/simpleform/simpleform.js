@@ -39,6 +39,7 @@ class SimpleForm extends React.Component {
     formValues: {},
     validationErrors: {},
     renderSubmit: true,
+    disabled: false,
   };
 
   constructor(props, context) {

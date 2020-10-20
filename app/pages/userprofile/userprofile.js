@@ -105,23 +105,17 @@ class UserProfile extends React.Component {
 
   formInputs() {
     const inputs = [];
-    const disabled = personUtils.isPatient(this.props.user);
     const firstName = { 
       name: 'firstName', 
       label: t('First name'), 
       type: 'text', 
-      disabled: disabled
     };
     const lastName = { 
       name: 'lastName', 
       label: t('Last name'), 
       type: 'text', 
-      disabled: disabled
     };
-    if (disabled) {
-      firstName.info = t('This field can only be modified from your handset');
-      lastName.info = t('This field can only be modified from your handset');
-    }
+    
     inputs.push(firstName);
     inputs.push(lastName);
 
@@ -224,8 +218,6 @@ class UserProfile extends React.Component {
   }
 
   renderForm() {
-    const disabled = this.isResettingUserData();
-
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -233,8 +225,7 @@ class UserProfile extends React.Component {
         validationErrors={this.state.validationErrors}
         submitButtonText={t('Save')}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}
-        disabled={disabled} />
+        notification={this.state.notification} />
     );
   }
 
@@ -266,10 +257,9 @@ class UserProfile extends React.Component {
   validateFormValues(formValues) {
 
     let form = [];
-    if (!personUtils.isPatient(this.props.user)) {
-      form.push({ type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName });
-      form.push({ type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName });
-    }
+    
+    form.push({ type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName });
+    form.push({ type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName });
 
     if (this.isUserAllowedToChangeEmail()) {
       form.push({ type: 'email', name: 'username', label: t('email'), value: formValues.username });
@@ -299,13 +289,12 @@ class UserProfile extends React.Component {
   prepareFormValuesForSubmit(formValues) {
     const result = {};
 
-    if (!personUtils.isPatient(this.props.user)) {
-      result.profile = {
-        firstName: formValues.firstName,
-        lastName: formValues.lastName,
-        fullName: `${formValues.firstName} ${formValues.lastName}`
-      };
-    }
+
+    result.profile = {
+      firstName: formValues.firstName,
+      lastName: formValues.lastName,
+      fullName: `${formValues.firstName} ${formValues.lastName}`
+    };
 
     if (this.isUserAllowedToChangeEmail()) {
       result.username = formValues.username;
