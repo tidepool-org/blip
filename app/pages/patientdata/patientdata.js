@@ -677,7 +677,7 @@ export let PatientData = translate()(createReactClass({
 
       if (statType === 'totalInsulin' && chartType === 'basics') {
         // We nest the averageDailyDose stat within the totalInsulin stat
-        stat.title = props.t('Avg. Daily Insulin Ratios');
+        stat.title = props.t('Avg. Daily Insulin Ratio');
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
@@ -761,6 +761,7 @@ export let PatientData = translate()(createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
+        excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
         ...commonQueries,
       };
     }
