@@ -45,9 +45,6 @@ server/matomo.js
 server/.npmrc
 cloudfront-dist/deployment/.env
 
-# Branding
-**/diabeloop/*.png
-
 # Lambda testing
 test/lambda/dist
 test/lambda/templates

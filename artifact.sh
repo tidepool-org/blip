@@ -7,12 +7,9 @@ export APP_VERSION="$(echo 'const c = require("./package.json"); console.log(c.v
 echo "Running artifacts for ${APP_NAME} v${APP_VERSION}"
 
 wget -q -O artifact_packaging.sh 'https://raw.githubusercontent.com/mdblp/tools/dblp/artifact/artifact_packaging.sh'
-wget -q -O artifact_images.sh 'https://raw.githubusercontent.com/mdblp/tools/dblp/artifact/artifact_images.sh'
 
 NO_DEFAULT_PACKAGING="true"
 source ./artifact_packaging.sh
-
-bash -eu artifact_images.sh
 
 declare -a languages
 languages=(en fr)

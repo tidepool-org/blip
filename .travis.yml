@@ -3,18 +3,14 @@ language: node_js
 os: linux
 dist: bionic
 
-node_js:
-  - 10.15.3
-  - lts/*
-
-matrix:
-  allow_failures:
-    - node_js: lts/*
-
 env:
   global:
     - SECURITY_SCAN=false
-    - nexus_token=$NEXUS_TOKEN
+    - NODE_OPTIONS='--max-old-space-size=4096'
+
+jobs:
+  include:
+    - node_js: lts/*
 
 cache: npm
 services:
@@ -25,31 +21,14 @@ addons:
 
 before_install:
   - npm install -g npm@latest
+  - npm cache verify
+  - rm -fv ~/.npm/_logs/*
 
 install:
   - npm install
-
-deploy:
-  # Control deployment by setting a value for `on`. Setting the `branch`
-  # option to `master` means Travis will only attempt a deployment on
-  # builds of your repo's master branch (e.g., after you merge a PR).
-  # Deploy SOUP list
-  - provider: s3
-    edge: true
-    on:
-      tags: true
-      node_js: 10.15.3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    region: $AWS_DEFAULT_REGION
-    bucket: com.diabeloop.yourloops.doc
-    skip_cleanup: true
-    local_dir: doc
-    upload_dir: soup/blip
-    cache_control: "max-age=21600"
 
 script:
   - npm run lint
   - npm run test
   - npm run security-checks
-  - bash artifact.sh
+  - bash build.sh

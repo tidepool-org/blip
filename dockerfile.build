@@ -1,0 +1,7 @@
+FROM node:12-alpine3.12
+RUN \
+  apk update && \
+  apk  upgrade && \
+  apk add bash git openssh-client wget chromium firefox-esr && \
+  npm install --global npm@latest
+ENV CHROME_BIN=/usr/bin/chromium-browser

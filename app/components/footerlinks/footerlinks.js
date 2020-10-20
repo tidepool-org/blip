@@ -31,7 +31,7 @@ const t = i18next.t.bind(i18next);
 function renderVersion() {
   return (
     <div className='footer-section'>
-      <div className="footer-version">{`v${config.VERSION}`}</div>
+      <div className="footer-version">{`${config.VERSION}`}</div>
     </div>
   );
 }
@@ -127,7 +127,7 @@ function diabeloopFooter(metricFnMkr) {
         </a>
       </div>
       <div className='footer-column footer-column-2 justify-space-around'>
-        {`${t('Yourloops')} v${config.VERSION}`}
+        {`${t('Yourloops')} ${config.VERSION}`}
       </div>
       <div className='footer-column footer-column-3 justify-space-around'>
         <a

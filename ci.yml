@@ -1,0 +1,10 @@
+module: blip
+type: nodejs
+runTests: false
+testCommand: npm test
+docker: true
+dockerPictime: true
+publishNpm: false
+publishS3: false
+publishSoup: true
+securityScan: false

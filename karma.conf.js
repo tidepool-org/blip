@@ -13,7 +13,6 @@ const browsers = ['CustomChromeHeadless'];
 if (!isWSL) {
   browsers.push('FirefoxHeadless');
 }
-
 const karmaConfig = {
   autoWatch: true,
   browserNoActivityTimeout: 60000,

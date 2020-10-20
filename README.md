@@ -185,7 +185,7 @@ Attach these 2 pods to a volume and use an init container to copy the app files 
 
 ### Deploy to aws cloud front
 To publish blip to CloudFront the simplest solution is to build the docker image provided under ./cloudfront-dist and use it.  
-1. From the root folder execute: `docker build -t blip-deploy -f cloudfront-dist/Dockerfile.deployment .` 
+1. From the root folder execute: `docker build -t blip-deploy .` 
 1. Prepare an environment file that contains the configuration for the environment you want to deploy to. You can use the template provided in ./cloudfront-dist/docker.template.env.  
 1. Execute the docker image built just above: `docker run --env-file ./cloudfront-dist/deployment/cf-blip.env blip-deploy`
 Et voila, the deployment starts. Of course you need credentials for the aws account you target ;)
