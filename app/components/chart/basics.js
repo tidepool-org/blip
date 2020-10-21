@@ -4,7 +4,6 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { translate, Trans } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -74,8 +73,6 @@ class Basics extends Component {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
-    const activeDays = _.get(this.props, 'data.data.current.endpoints.activeDays');
-    const daysWithBoluses = _.keys(_.get(this.props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
 
     let renderedContent;
     if (dataQueryComplete) {
@@ -109,19 +106,17 @@ class Basics extends Component {
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
               <div>
-                <Flex mb={2} alignItems="center" justifyContent="space-between">
-                  <ClipboardButton
-                    buttonTitle={t('For email or notes')}
-                    onSuccess={this.handleCopyBasicsClicked}
-                    getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
-                  />
-                  <BgSourceToggle
-                    bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                    chartPrefs={this.props.chartPrefs}
-                    chartType={this.chartType}
-                    onClickBgSourceToggle={this.toggleBgDataSource}
-                  />
-                </Flex>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBasicsClicked}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                />
+                <BgSourceToggle
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
                 <Stats
                   bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}

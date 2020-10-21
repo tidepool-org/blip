@@ -8,7 +8,6 @@ import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
-import { Flex } from 'rebass/styled-components';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -449,19 +448,17 @@ const Trends = translate()(class Trends extends PureComponent {
           </div>
           <div className="container-box-inner patient-data-sidebar">
             <div className="patient-data-sidebar-inner">
-              <Flex mb={2} alignItems="center" justifyContent="space-between">
-                <ClipboardButton
-                  buttonTitle={t('For email or notes')}
-                  onSuccess={this.handleCopyTrendsClicked}
-                  getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
-                />
-                <BgSourceToggle
-                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                  chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  onClickBgSourceToggle={this.toggleBgDataSource}
-                />
-              </Flex>
+              <ClipboardButton
+                buttonTitle={t('For email or notes')}
+                onSuccess={this.handleCopyTrendsClicked}
+                getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+              />
+              <BgSourceToggle
+                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                onClickBgSourceToggle={this.toggleBgDataSource}
+              />
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
