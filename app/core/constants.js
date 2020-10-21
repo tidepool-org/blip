@@ -49,6 +49,7 @@ export const DIABETES_TYPES = () => [
   { value: 'gestational', label: t('Gestational') },
   { value: 'prediabetes', label: t('Pre-diabetes') },
   { value: 'lada', label: t('LADA (Type 1.5)') },
+  { value: 'mody', label: t('MODY/Monogenic') },
   { value: 'other', label: t('Other') },
 ];
 

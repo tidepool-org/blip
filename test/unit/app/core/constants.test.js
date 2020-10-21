@@ -71,6 +71,7 @@ describe('constants', function() {
       'gestational',
       'prediabetes',
       'lada',
+      'mody',
       'other',
     ]);
   });
