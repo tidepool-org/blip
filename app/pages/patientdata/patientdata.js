@@ -365,7 +365,7 @@ export let PatientData = translate()(createReactClass({
             if (!this.printWindowRef || this.printWindowRef.closed) {
               const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
               this.printWindowRef = window.open();
-              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;">${waitMessage}</p>`);
+              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
             }
 
             this.setState({ printDialogPDFOpts: opts });
