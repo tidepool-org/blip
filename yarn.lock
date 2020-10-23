@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.16.0-web-993-disable-basic-dates.1":
-  version "1.16.0-web-993-disable-basic-dates.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.16.0-web-993-disable-basic-dates.1.tgz#4a6a112c891ac594cf983a746a3faece89c7d080"
-  integrity sha512-Kh6QuD9hlRl06OuVynRG4XTKnTayg4q+agT54Hh671MJaOUZi6jlIOzFJFWN0uwJgl/Ivgxde8em+gPAjqszhg==
+"@tidepool/viz@1.16.0-web-980-basics-print-cv-stat.1":
+  version "1.16.0-web-980-basics-print-cv-stat.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.16.0-web-980-basics-print-cv-stat.1.tgz#204a875df1543c517127aff0b7e5a7510a5be74e"
+  integrity sha512-QuC/g5fBopWuICJ8SFwl2V8z4MyAv/3YZ19yzfmAsG35BTyc8PJXh2KBT5DwO8zzejD1xsnCvPaT4tBJMO7Q3A==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
