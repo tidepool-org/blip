@@ -1058,6 +1058,9 @@ describe('PatientData', function () {
       const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
         basics: {
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
           sections: {},
           extentSize: 14,
         },
@@ -1311,6 +1314,7 @@ describe('PatientData', function () {
       instance = wrapper.instance();
       instance.queryData = sinon.stub();
       instance.getStatsByChartType = sinon.stub().returns('stats stub');
+      instance.getAggregationsByChartType = sinon.stub().returns('aggregations stub');
 
       wrapper.setState({
         chartPrefs: {
@@ -1356,6 +1360,32 @@ describe('PatientData', function () {
         sinon.match({
           endpoints: [100, 200],
           stats: 'stats stub',
+        }),
+        { showLoading: false }
+      );
+    });
+
+    it('should query aggreagations if enabled via arg, but not by default, nor if querying data', () => {
+      instance.setState({ chartEndpoints: { current: [100, 200] } });
+
+      // queryData and queryStats set to false and queryAggregations set undefined
+      instance.updateChartPrefs({ trends: 'bar'}, false, false);
+      sinon.assert.notCalled(instance.getAggregationsByChartType);
+      sinon.assert.notCalled(instance.queryData);
+
+      // queryData and queryStats set to true and queryAggregations set to false
+      instance.updateChartPrefs({ trends: 'bar' }, true, true, false);
+      sinon.assert.notCalled(instance.getAggregationsByChartType);
+      sinon.assert.calledWith(instance.queryData, undefined, { showLoading: false });
+
+      // queryData and queryStats set to false and queryAggregations set to true
+      instance.updateChartPrefs({ trends: 'bar'}, false, false, true);
+      sinon.assert.called(instance.getAggregationsByChartType);
+      sinon.assert.calledWith(
+        instance.queryData,
+        sinon.match({
+          endpoints: [100, 200],
+          aggregationsByDate: 'aggregations stub',
         }),
         { showLoading: false }
       );
@@ -1640,6 +1670,37 @@ describe('PatientData', function () {
         defaultProps.patient,
         'animas',
       );
+    });
+  });
+
+  describe('getAggregationsByChartType', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    context('basics', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: 'basics' });
+      });
+
+      it('should add appropriate aggregations query string', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'cbg' } } });
+        expect(instance.getAggregationsByChartType()).to.equal('basals, boluses, fingersticks, siteChanges');
+      });
+    });
+
+    context('chartType undefined', () => {
+      beforeEach(() => {
+        wrapper.setState({ chartType: undefined });
+      });
+
+      it('should return undefined', () => {
+        expect(instance.getAggregationsByChartType()).to.be.undefined;
+      });
     });
   });
 
@@ -2623,6 +2684,7 @@ describe('PatientData', function () {
           chartType: 'trends',
           endpoints: [100,200],
           excludedDevices: [],
+          excludeDaysWithoutBolus: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
         });
@@ -2789,6 +2851,39 @@ describe('PatientData', function () {
         });
       });
     });
+  });
+
+  describe('toggleDaysWithoutBoluses', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      instance = wrapper.instance();
+    });
+
+    it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
+      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
+      instance.toggleDaysWithoutBoluses();
+
+      sinon.assert.calledWith(updateChartPrefsSpy, {
+        ...instance.state.chartPrefs,
+        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: true } },
+      });
+
+      instance.toggleDaysWithoutBoluses();
+
+      sinon.assert.calledWith(updateChartPrefsSpy, {
+        ...instance.state.chartPrefs,
+        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: false } },
+      });
+    });
+
+    it('should track a metric when `excludeDaysWithoutBolus` set to true', () => {
+      instance.toggleDaysWithoutBoluses();
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
+    });
+
   });
 
   describe('closeDatesDialog', () => {
