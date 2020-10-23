@@ -2862,7 +2862,7 @@ describe('PatientData', function () {
       instance = wrapper.instance();
     });
 
-    it('should call `updateChartPrefs with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
+    it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
       const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
       instance.toggleDaysWithoutBoluses();
 
