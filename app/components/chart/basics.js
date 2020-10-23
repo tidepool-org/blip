@@ -73,6 +73,7 @@ class Basics extends Component {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
+
     let renderedContent;
     if (dataQueryComplete) {
       renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
@@ -149,6 +150,7 @@ class Basics extends Component {
           bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
           data={this.props.data}
+          excludeDaysWithoutBolus={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}

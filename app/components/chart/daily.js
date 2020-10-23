@@ -21,7 +21,6 @@ import _ from 'lodash';
 import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
-import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
