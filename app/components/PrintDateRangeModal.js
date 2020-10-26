@@ -79,6 +79,7 @@ export const PrintDateRangeModal = (props) => {
       basics: false,
       bgLog: false,
       daily: false,
+      general: false,
     },
     expandedPanel: 'basics',
     submitted: false,
@@ -108,14 +109,23 @@ export const PrintDateRangeModal = (props) => {
 
   const validateDates = ({ basics, bgLog, daily }) => {
     const validationErrors = {
-      basics: validateDatesSet(basics),
-      bgLog: validateDatesSet(bgLog),
-      daily: validateDatesSet(daily),
+      basics: enabled.basics && validateDatesSet(basics),
+      bgLog: enabled.bgLog && validateDatesSet(bgLog),
+      daily: enabled.daily && validateDatesSet(daily),
     };
 
-    setErrors(validationErrors);
     return validationErrors;
   };
+
+  const validateChartEnabled = () => {
+    const validationErrors = {
+      general: (!enabled.basics && !enabled.bgLog && !enabled.daily && !enabled.settings)
+        ? t('Please enable at least one chart to print')
+        : false,
+    };
+
+    return validationErrors;
+  }
 
   // Accordion Panels
   const handleAccordionChange = key => (event, isExpanded) => {
@@ -175,7 +185,14 @@ export const PrintDateRangeModal = (props) => {
   // Handlers
   const handleSubmit = () => {
     setSubmitted(true);
-    const validationErrors = validateDates(dates);
+
+    const validationErrors = {
+      ...validateDates(dates),
+      ...validateChartEnabled(),
+    };
+
+    setErrors(validationErrors);
+
     if (!isEqual(validationErrors, defaults.errors)) return;
 
     const printOpts = {
@@ -221,18 +238,22 @@ export const PrintDateRangeModal = (props) => {
     }
   }, [open]);
 
-  // Validate dates if submitted and call `onDatesChange` prop method when dates change
+  // Call `onDatesChange` prop method when dates change
   useEffect(() => {
-    if (submitted) validateDates(dates);
     onDatesChange(dates);
   }, [dates]);
+
+  // Validate dates and enabled statuses if submitted
+  useEffect(() => {
+    if (submitted) setErrors({ ...validateDates(dates), ...validateChartEnabled()});
+  }, [enabled, dates]);
 
   return (
     <Dialog id="printDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} minWidth="400px" p={0}>
+      <DialogContent divider={false} minWidth="644px" p={0}>
         {map(panels, panel => (
           <Accordion {...accordionProps(panel.key, panel.header)}>
             <Box width="100%">
@@ -284,7 +305,6 @@ export const PrintDateRangeModal = (props) => {
                       )}
                       onFocusChange={input => setDatePickerOpen(!!input)}
                       themeProps={{
-                        minWidth: '580px',
                         minHeight: datePickerOpen ? '300px' : undefined,
                       }}
                     />
@@ -299,12 +319,17 @@ export const PrintDateRangeModal = (props) => {
             )}
           </Accordion>
         ))}
+        {errors.general && (
+          <Caption mx={5} mt={2} color="feedback.danger" id="general-print-error">
+            {errors.general}
+          </Caption>
+        )}
       </DialogContent>
       <DialogActions justifyContent="space-between" py={2}>
         <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
-        <Button variant="textPrimary" className="print-submit" processing={processing} onClick={handleSubmit}>
+        <Button variant="textPrimary" className="print-submit" disabled={!isEqual(errors, defaults.errors)} processing={processing} onClick={handleSubmit}>
           {t('Print')}
         </Button>
       </DialogActions>
