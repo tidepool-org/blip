@@ -232,7 +232,7 @@ export const PrintDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} minWidth="400px" p={0}>
+      <DialogContent divider={false} minWidth="644px" p={0}>
         {map(panels, panel => (
           <Accordion {...accordionProps(panel.key, panel.header)}>
             <Box width="100%">
@@ -284,7 +284,6 @@ export const PrintDateRangeModal = (props) => {
                       )}
                       onFocusChange={input => setDatePickerOpen(!!input)}
                       themeProps={{
-                        minWidth: '580px',
                         minHeight: datePickerOpen ? '300px' : undefined,
                       }}
                     />
