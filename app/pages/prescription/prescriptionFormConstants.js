@@ -77,11 +77,16 @@ export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnits
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
   const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
-  let minBloodGlucoseTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
+  let minBloodGlucoseTarget, minWorkoutCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
+  let maxPremealCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180);
+  console.log('minPremealCorrectionTarget', maxPremealCorrectionTarget);
+  console.log('minWorkoutCorrectionTarget', minWorkoutCorrectionTarget);
 
   if (isNumber(bloodGlucoseSuspendThreshold)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
     ? bloodGlucoseSuspendThreshold
     : utils.roundBgTarget(utils.translateBg(bloodGlucoseSuspendThreshold, MGDL_UNITS), MGDL_UNITS);
+
+  // TODO: update the minWorkoutCorrectionTarget and maxPremealCorrectionTarget depending on... tbd
 
   const ranges = {
     basalRate: {
