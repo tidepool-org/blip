@@ -179,7 +179,7 @@ export const PrintDateRangeModal = (props) => {
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
-    moment.utc(dates.endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+    moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
   // Handlers
