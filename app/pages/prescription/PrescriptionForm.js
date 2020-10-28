@@ -9,6 +9,8 @@ import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import map from 'lodash/map';
+import max from 'lodash/max';
+import min from 'lodash/min';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import remove from 'lodash/remove';
@@ -51,6 +53,8 @@ const log = bows('PrescriptionForm');
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
+    const bloodGlucoseTargetSchedules = get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', []);
+
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
     const pump = find(props.devices.pumps, { id: pumpId });
     const ranges = pumpRanges(pump);
@@ -94,6 +98,20 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           low: '',
           start: 0,
         }]),
+        bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity', {
+          context: {
+            min: max(map(bloodGlucoseTargetSchedules, 'high')),
+          },
+          high: '',
+          low: '',
+        }),
+        bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial', {
+          context: {
+            max: min(map(bloodGlucoseTargetSchedules, 'low')),
+          },
+          high: '',
+          low: '',
+        }),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
           rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,

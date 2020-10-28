@@ -120,7 +120,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
           context: yup.object().shape({
-            min: yup.number().default(ranges.bloodGlucoseTarget.min),
+            min: yup.number().default(ranges.bloodGlucoseTargetSchedule.min),
           }),
           high: yup.number()
             .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
@@ -139,7 +139,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       ),
       bloodGlucoseTargetPhysicalActivity: yup.object().shape({
         context: yup.object().shape({
-          min: yup.number().default(ranges.bloodGlucoseTarget.min),
+          min: yup.number().default(ranges.bloodGlucoseTargetPhysicalActivity.min),
         }),
         high: yup.number()
           .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))

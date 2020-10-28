@@ -131,8 +131,8 @@ describe('prescriptionFormConstants', function() {
       ] } },
     };
 
-    const lowWarning = 'The value you have entered is lower than Tidepool typically recommends for most people.';
-    const highWarning = 'The value you have entered is higher than Tidepool typically recommends for most people.';
+    const lowWarning = 'The value you have chosen is lower than Tidepool generally recommends.';
+    const highWarning = 'The value you have chosen is higher than Tidepool generally recommends.';
     const basalRateMaximumWarning = 'Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of 0.1 U/hr.';
 
     it('should export the pump-specific warning thresholds with mg/dL as default bg unit if pump is provided', () => {
