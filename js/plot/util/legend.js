@@ -15,40 +15,64 @@
  * == BSD2 LICENSE ==
  */
 
-var i18next = require('i18next');
-var _ = require('lodash');
-var t = i18next.t.bind(i18next);
+const i18next = require('i18next');
+const _ = require('lodash');
 
-var legend = {
+const t = i18next.t.bind(i18next);
+
+const rectLoopMode = 7;
+
+const legend = {
   SHAPE_MARGIN: 3,
   SHAPE_WIDTH: 15.5,
   basal: [
     {
-      create: function(opts) {
-        const radius = 7;
-        opts.widths.push(2*radius + legend.SHAPE_MARGIN);
-        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode' });
-        g.append('circle').attr({
-          class: 'd3-basal-circle',
-          cx: -radius,
-          cy: -5,
-          r: radius,
+      create: (opts) => {
+        opts.widths.push(4 * rectLoopMode + legend.SHAPE_MARGIN);
+        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode-off' });
+        g.append('rect').attr({
+          class: 'd3-basal-background',
+          x: -rectLoopMode * 4,
+          y: -rectLoopMode,
+          width: rectLoopMode * 4,
+          height: rectLoopMode * 2,
+          rx: rectLoopMode / 2.0,
         });
         g.append('text').attr({
           class: 'd3-basal-label',
-          transform: `translate(${-radius}, -5)`
-        }).text(t('A_Label').charAt(0));
+          transform: `translate(${-rectLoopMode * 2}, ${-rectLoopMode / 2.0})`
+        }).text(t('M_Label'));
         return g;
       },
       type: 'group'
     },
     {
-      create: function(opts) {
+      create: (opts) => {
+        opts.widths.push(4 * rectLoopMode + legend.SHAPE_MARGIN);
+        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode' });
+        g.append('rect').attr({
+          class: 'd3-basal-background',
+          x: -rectLoopMode * 4,
+          y: -rectLoopMode,
+          width: rectLoopMode * 4,
+          height: rectLoopMode * 2,
+          rx: rectLoopMode / 2.0,
+        });
+        g.append('text').attr({
+          class: 'd3-basal-label',
+          transform: `translate(${-rectLoopMode * 2}, ${-rectLoopMode / 2.0})`
+        }).text(t('A_Label'));
+        return g;
+      },
+      type: 'group'
+    },
+    {
+      create: (opts) => {
         return opts.selection.append('text')
           .attr({
             class: 'd3-pool-legend'
           })
-          .text(t('Loop mode'))
+          .text(t('Loop mode status'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width + legend.SHAPE_MARGIN);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -56,38 +80,6 @@ var legend = {
       },
       type: 'text'
     },
-    {
-      create: function(opts) {
-        const radius = 7;
-        opts.widths.push(2*radius);
-        const g = opts.selection.append('g').attr({ class: 'd3-basal d3-basal-loop-mode-off' });
-        g.append('circle').attr({
-          class: 'd3-basal-circle',
-          cx: -radius,
-          cy: -5,
-          r: radius,
-        });
-        g.append('text').attr({
-          class: 'd3-basal-label',
-          transform: `translate(${-radius}, -5)`
-        }).text(t('M_Label').charAt(0));
-        return g;
-      },
-      type: 'group'
-    },
-    {
-      create: function(opts) {
-        return opts.selection.append('text')
-          .attr({
-            class: 'd3-pool-legend'
-          })
-          .text(t('Loop mode off'))
-          .each(function() {
-            opts.widths.push(this.getBoundingClientRect().width);
-          });
-      },
-      type: 'text'
-    }
   ],
   bg: [
     {
@@ -282,7 +274,7 @@ var legend = {
       SHAPE_WIDTH: this.SHAPE_WIDTH
     };
     var typeFns = this[type];
-    _.each(typeFns, _.bind(function(fn, i) {
+    _.forEach(typeFns, _.bind(function(fn, i) {
       var created = fn.create(opts), w;
       if (fn.type === 'text' || fn.type === 'group') {
         if (opts.widths[i - 1]) {

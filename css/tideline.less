@@ -65,7 +65,7 @@ svg {
     fill: @text;
     &.d3-day-label {
       dominant-baseline: hanging;
-      fill: @text-light;
+      fill: var(--stat--default, @text-light);
     }
 
     @media (max-width: @screen-sm-max) {
@@ -131,7 +131,7 @@ svg {
 .d3-pool-legend {
   font-size: @font-size-axes;
   text-anchor: end;
-  fill: @text-light;
+  fill: var(--stat--default, @text-light);
 
   @media (max-width: @screen-sm-max) {
     font-size: 10px;
@@ -429,26 +429,27 @@ svg {
 
   // only in legends
   &.d3-basal-loop-mode {
-    .d3-basal-circle {
+    .d3-basal-background {
       fill: @basal-automated;
     }
     .d3-basal-label {
-      fill: #4e4e4f;
+      fill: var(--text-on-basal-automated, black);
     }
   }
   &.d3-basal-loop-mode-off {
-    .d3-basal-circle {
+    .d3-basal-background {
       fill: @basal;
     }
     .d3-basal-label {
-      fill: #ffffff;
+      fill: var(--text-on-basal, black);
     }
   }
   .d3-basal-label {
     stroke-width: 0;
     font-size: 10px;
     text-anchor: middle;
-    dominant-baseline: central;
+    font-weight: normal;
+    dominant-baseline: middle;
   }
 }
 

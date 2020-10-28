@@ -15,24 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-var i18next = require('i18next');
+const i18next = require('i18next');
 const moment = require('moment-timezone');
-var d3 = require('d3');
-var _ = require('lodash');
+const d3 = require('d3');
+const _ = require('lodash');
 
 
-var { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = require('../data/util/constants');
-var format = require('../data/util/format');
-var BasalUtil = require('../data/basalutil');
+const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = require('../data/util/constants');
+const format = require('../data/util/format');
+const BasalUtil = require('../data/basalutil');
 
-var t = i18next.t.bind(i18next);
-var basalUtil = new BasalUtil();
+const t = i18next.t.bind(i18next);
+const basalUtil = new BasalUtil();
 
 module.exports = function(pool, opts) {
   opts = opts || {};
 
-  var defaults = {
-    opacity: 0.4,
+  const defaults = {
+    opacity: 0.6,
     opacityDelta: 0.2,
     pathStroke: 1.5,
     timezoneAware: false,
@@ -43,7 +43,7 @@ module.exports = function(pool, opts) {
 
   opts = _.defaults(opts, defaults);
 
-  var mainGroup = pool.parent();
+  const mainGroup = pool.parent();
 
   function getDeliverySuppressed(supp) {
     if (_.includes(['scheduled', 'automated'], supp.deliveryType)) {
@@ -58,12 +58,12 @@ module.exports = function(pool, opts) {
   }
 
   function getUndelivereds(data) {
-    var undelivereds = [];
+    const undelivereds = [];
 
-    for (var i = 0; i < data.length; ++i) {
-      var d = data[i];
+    for (let i = 0; i < data.length; ++i) {
+      const d = data[i];
       if (d.suppressed) {
-        var scheduled = getDeliverySuppressed(d.suppressed);
+        const scheduled = getDeliverySuppressed(d.suppressed);
         if (scheduled) {
           undelivereds.push(scheduled);
         }
@@ -77,38 +77,33 @@ module.exports = function(pool, opts) {
 
     selection.each(function(currentData) {
 
-      basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      basal.addAnnotations(_.filter(currentData, 'annotations'));
 
-      var basalSegments = d3.select(this)
+      const basalSegments = d3.select(this)
         .selectAll('.d3-basal-group')
         .data(currentData, function(d) {
           return d.id;
         });
 
-      var basalSegmentGroups = basalSegments.enter()
+      const basalSegmentGroups = basalSegments.enter()
         .append('g')
+        // @ts-ignore
         .attr({
           'class': 'd3-basal-group',
-          id: function(d) {
-            return 'basal_group_' + d.id;
-          }
+          id: (d) => `basal_group_${d.id}`,
         });
 
-      var nonZero = basalSegmentGroups.filter(function(d) {
-        return d.rate !== 0;
-      });
-
+      const nonZero = basalSegmentGroups.filter((d) => d.rate > 0);
       basal.addRectToPool(nonZero);
 
       // add invisible rects as hover targets for all basals
       basal.addRectToPool(basalSegmentGroups, true);
 
       // split data into groups when delivery type changes to generate unique path elements for each group
-      var basalPathGroups = basalUtil.getBasalPathGroups(currentData);
+      const basalPathGroups = basalUtil.getBasalPathGroups(currentData);
+      const renderGroupMarkers = basalPathGroups.length > 1;
 
-      var renderGroupMarkers = basalPathGroups.length > 1;
-
-      var basalPathsGroup = selection
+      const basalPathsGroup = selection
         .selectAll('.d3-basal-path-group')
         .data(['d3-basal-path-group']);
 
@@ -117,12 +112,11 @@ module.exports = function(pool, opts) {
         .append('g')
         .attr('class', 'd3-basal-path-group');
 
-      _.each(basalPathGroups, (data, index) => {
-        var id = data[0].id;
-        var pathType = basalUtil.getBasalPathGroupType(data[0]);
-        var isAutomated = pathType === 'automated';
+      _.forEach(basalPathGroups, (data /*, index */) => {
+        const id = data[0].id;
+        const pathType = basalUtil.getBasalPathGroupType(data[0]);
 
-        var paths = basalPathsGroup
+        const paths = basalPathsGroup
           .selectAll(`.d3-basal.d3-path-basal.d3-path-basal-${pathType}-${id}`)
           .data([`d3-basal d3-path-basal d3-path-basal-${pathType}-${id}`]);
 
@@ -130,65 +124,17 @@ module.exports = function(pool, opts) {
           .enter()
           .append('path')
           .attr({
-            'class': function(d) { return d; }
+            'class': (d) => d
           });
 
         paths.exit().remove();
 
         // d3.selects are OK here because `paths` is a chained selection
-        var path = d3.select(paths[0][0]);
+        const path = d3.select(paths[0][0]);
         basal.updatePath(path, data);
-
-        // Render the group markers
-        if (renderGroupMarkers && index > 0) {
-          var radius = 7;
-          var xPosition = basal.xPosition(data[0]);
-          var yPosition = radius + 2;
-
-          var markers = basalPathsGroup
-            .selectAll(`.d3-basal-marker-group.d3-basal-marker-group-${pathType}-${id}`)
-            .data([`d3-basal-marker-group d3-basal-marker-group-${pathType}-${id}`]);
-
-          var markersGroups = markers
-            .enter()
-            .append('g')
-            .attr('class', function(d) { return d; });
-
-          markersGroups
-            .append('line')
-            .attr({
-              x1: xPosition,
-              y1: yPosition,
-              x2: xPosition,
-              y2: pool.height(),
-              'class': 'd3-basal-group-line',
-            });
-
-          markersGroups
-            .append('circle')
-            .attr({
-              'class': 'd3-basal-group-circle',
-              cx: xPosition,
-              cy: yPosition,
-              r: radius,
-            });
-
-          markersGroups
-            .append('text')
-            .attr({
-              x: xPosition,
-              y: yPosition,
-              'class': 'd3-basal-group-label',
-            })
-            .text(function(d) {
-              return isAutomated ? t('A_Label').charAt(0) : t('M_Label').charAt(0);
-            });
-
-          markers.exit().remove();
-        }
       });
 
-      var undeliveredPaths = basalPathsGroup
+      const undeliveredPaths = basalPathsGroup
         .selectAll('.d3-basal.d3-path-basal.d3-path-basal-undelivered')
         .data(['d3-basal d3-path-basal d3-path-basal-undelivered']);
 
@@ -196,10 +142,10 @@ module.exports = function(pool, opts) {
         .enter()
         .append('path')
         .attr({
-          'class': function(d) { return d; }
+          'class': (d) => d
         });
 
-      var undeliveredPath = d3.select(undeliveredPaths[0][0]);
+        const undeliveredPath = d3.select(undeliveredPaths[0][0]);
       basal.updatePath(undeliveredPath, getUndelivereds(currentData), true);
 
       basalSegments.exit().remove();
@@ -207,17 +153,15 @@ module.exports = function(pool, opts) {
       // tooltips
       basalSegmentGroups.on('mouseover', function() {
         basal.addTooltip(d3.select(this).datum(), renderGroupMarkers);
-        d3.select(this).selectAll('.d3-basal.d3-rect-basal')
-          .attr('opacity', opts.opacity + opts.opacityDelta);
+        d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity + opts.opacityDelta);
       });
       basalSegmentGroups.on('mouseout', function() {
-        var id = d3.select(this).attr('id').replace('basal_group_', 'tooltip_');
-        mainGroup.select('#' + id).remove();
-        var datum = d3.select(this).datum();
+        const id = d3.select(this).attr('id').replace('basal_group_', 'tooltip_');
+        mainGroup.select(`#${id}`).remove();
+        const datum = d3.select(this).datum();
         if (datum.deliveryType === 'temp' && datum.rate > 0) {
           d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity - opts.opacityDelta);
-        }
-        else {
+        } else {
           d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity);
         }
       });
@@ -228,7 +172,6 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
 
     var heightFn = invisible ? basal.invisibleRectHeight : basal.height;
-
     var yPosFn = invisible ? basal.invisibleRectYPosition : basal.yPosition;
 
     selection.append('rect')
@@ -357,7 +300,7 @@ module.exports = function(pool, opts) {
         group.append('p')
           .append('span')
           .attr('class', 'secondary')
-          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+ t('scheduled'));
       }
       break;
     case 'suspend':
@@ -368,7 +311,7 @@ module.exports = function(pool, opts) {
         group.append('p')
           .append('span')
           .attr('class', 'secondary')
-          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+t('scheduled'));
+          .html(basal.rateString(getDeliverySuppressed(datum.suppressed), 'secondary') + ' '+ t('scheduled'));
       }
       break;
     case 'automated':
@@ -378,10 +321,12 @@ module.exports = function(pool, opts) {
           basal.rateString(datum, 'plain'));
       break;
     default:
-      const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
-      group.append('p')
-        .append('span')
-        .html(label + basal.rateString(datum, 'plain'));
+      {
+        const label = showSheduledLabel ? '<span class="plain muted">' + _.get(SCHEDULED_BASAL_LABELS, source, SCHEDULED_BASAL_LABELS.default) + ':</span> ' : '';
+        group.append('p')
+          .append('span')
+          .html(label + basal.rateString(datum, 'plain'));
+      }
     }
 
     let begin = '';

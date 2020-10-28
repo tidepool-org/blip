@@ -1,15 +1,19 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
-## 1.13.0 2020-09-23
+## 1.14.0 - 2020-10-28
+### Changed
+- YLP-173 Change Loop Mode labels (ON/OFF)
+
+## 1.13.0 - 2020-09-23
 ### Changed 
 - YLP-159 Upgrade blip, viz and tideline from react15 to react16
 
-## 1.12.1 2020-08-24
+## 1.12.1 - 2020-08-24
 ### Fixed
 - PT-1480 Deduplicate PAs based on inputTime
 
-## 1.12.0 2020-08-10
+## 1.12.0 - 2020-08-10
 ### Changed 
 - PT-1444 Deduplicate Physical Activity events containing the new EventId field
 
