@@ -32,6 +32,13 @@
         "Log in": "Einloggen"
       },
       "params": {}
+    },
+    "nl": {
+      "name": "Nederlands",
+      "main": {
+        "Log in": "Inloggen"
+      },
+      "params": {}
     }
   }
 }
