@@ -4,6 +4,8 @@ import { mount, shallow } from 'enzyme';
 import { Collapse } from 'react-collapse';
 import { SizeMe } from 'react-sizeme';
 import { VictoryBar, VictoryContainer } from 'victory';
+import chai from 'chai';
+import sinon from 'sinon';
 
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import Stat from '../../../../src/components/common/stat/Stat';
@@ -22,6 +24,8 @@ import {
   MS_IN_HOUR,
   MS_IN_MIN,
 } from '../../../../src/utils/constants';
+
+const { expect } = chai;
 
 /* eslint-disable max-len */
 
@@ -74,6 +78,7 @@ describe('Stat', () => {
       legend: false,
       muteOthersOnHover: true,
       type: statTypes.simple,
+      units: false,
     });
   });
 
@@ -285,7 +290,7 @@ describe('Stat', () => {
 
       wrapper.setProps(props({ units: 'U' }));
       wrapper.setState({ showFooter: false });
-      sinon.assert.callCount(renderStatUnitsSpy, 1);
+      expect(renderStatUnitsSpy.callCount).to.be.gt(0);
     });
 
     it('should render the chart collapse icon when the `isCollapsible` state is `true`', () => {
@@ -1695,11 +1700,11 @@ describe('Stat', () => {
         const dataComponent = shallow(result.labelComponent);
 
         expect(dataComponent.is('.HoverBarLabel')).to.be.true;
-        expect(dataComponent.props().children[0].props.barWidth).to.be.a('number');
-        expect(dataComponent.props().children[0].props.domain).to.eql(result.domain);
-        expect(dataComponent.props().children[0].props.isDisabled).to.be.a('function');
-        expect(dataComponent.props().children[2].props.text).to.be.a('function');
-        expect(dataComponent.props().children[0].props.tooltipText).to.be.a('function');
+        expect(result.labelComponent.props.barWidth).to.be.a('number');
+        expect(result.labelComponent.props.domain).to.eql(result.domain);
+        expect(result.labelComponent.props.isDisabled).to.be.a('function');
+        expect(result.labelComponent.props.text).to.be.a('function');
+        expect(result.labelComponent.props.tooltipText).to.be.a('function');
       });
 
       it('should set `renderer` to a `VictoryBar` component', () => {

@@ -100,12 +100,15 @@ export const HoverBarLabel = props => {
 };
 
 HoverBarLabel.propTypes = {
+  active: PropTypes.bool,
   datum: PropTypes.object,
   style: PropTypes.object,
   domain: PropTypes.object.isRequired,
   isDisabled: PropTypes.func.isRequired,
   text: PropTypes.func.isRequired,
+  tooltipText: PropTypes.func.isRequired,
   scale: PropTypes.object,
+  barWidth: PropTypes.number.isRequired,
   y: PropTypes.number,
 };
 

@@ -26,6 +26,7 @@ export const dailyDoseUnitOptions = [
 export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
+  wheel: 'wheel',
   input: 'input',
   simple: 'simple',
 };
@@ -83,8 +84,7 @@ export const getSum = data => _.sum(_.map(data, d => _.max([d.value, 0])));
 export const ensureNumeric = value => (_.isNil(value) || _.isNaN(value) ? -1 : parseFloat(value));
 
 export const getStatAnnotations = (data, type, opts = {}) => {
-  const { bgSource, days, manufacturer } = opts;
-  const vocabulary = getPumpVocabulary(manufacturer);
+  const { bgSource, days } = opts;
 
   const annotations = [];
 
@@ -141,11 +141,11 @@ export const getStatAnnotations = (data, type, opts = {}) => {
 
     case commonStats.timeInAuto:
       if (days > 1) {
-        annotations.push(t('**Time In {{automatedLabel}}:** Daily average of the time spent in automated basal delivery.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in {{automatedLabel}} divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in {{automatedLabel}}.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
+        annotations.push(t('**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.'));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in loop mode ON or OFF.'));
       } else {
-        annotations.push(t('**Time In {{automatedLabel}}:** Time spent in automated basal delivery.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
-        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in {{automatedLabel}} divided the total duration of basals for this time period.\n\n**(time)** is total duration of time in {{automatedLabel}}.', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }));
+        annotations.push(t('**Time In Loop Mode:** Time spent in automated basal delivery.'));
+        annotations.push(t('**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is total duration of time in loop mode ON or OFF.'));
       }
       break;
 
@@ -354,13 +354,13 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'basalManual',
           value: ensureNumeric(data.manual),
-          title: t('Time In {{scheduledLabel}}', { scheduledLabel: vocabulary[SCHEDULED_DELIVERY] }),
+          title: t('Time In Loop Mode OFF'),
           legendTitle: vocabulary[SCHEDULED_DELIVERY],
         },
         {
           id: 'basal',
           value: ensureNumeric(data.automated),
-          title: t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] }),
+          title: t('Time In Loop Mode ON'),
           legendTitle: vocabulary[AUTOMATED_DELIVERY],
         },
       ];
@@ -450,7 +450,6 @@ export const getStatData = (data, type, opts = {}) => {
 
 export const getStatTitle = (type, opts = {}) => {
   const { bgSource, days } = opts;
-  const vocabulary = getPumpVocabulary(opts.manufacturer);
 
   let title;
 
@@ -489,8 +488,8 @@ export const getStatTitle = (type, opts = {}) => {
 
     case commonStats.timeInAuto:
       title = (days > 1)
-        ? t('Avg. Daily Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] })
-        : t('Time In {{automatedLabel}}', { automatedLabel: vocabulary[AUTOMATED_DELIVERY] });
+        ? t('Avg. Daily Time In Loop Mode')
+        : t('Time In Loop Mode');
       break;
 
     case commonStats.timeInRange:
@@ -593,10 +592,10 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.alwaysShowTooltips = true;
       stat.dataFormat = {
         label: statFormats.percentage,
-        summary: statFormats.percentage,
-        tooltip: statFormats.duration,
+        summary: statFormats.duration,
       };
-      stat.legend = true;
+      stat.legend = false;
+      stat.type = statTypes.wheel;
       break;
 
     case commonStats.timeInRange:

@@ -146,7 +146,7 @@ export function getInfusionSiteHistory(basicsData, type) {
   const priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), date => date < allDays[0].date);
 
   let daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange)) / MS_IN_DAY - 1;
-  _.each(allDays, day => {
+  _.forEach(allDays, day => {
     if (day.type === 'future') {
       infusionSiteHistory[day.date] = { type: 'future' };
     } else {
@@ -258,7 +258,7 @@ function buildCrossfilterUtils(dataObj, type, bgPrefs) {
         const tags = classifier(v);
         if (!_.isEmpty(tags)) {
           ++p.total;
-          _.each(tags, tag => {
+          _.forEach(tags, tag => {
             if (p.subtotals[tag]) {
               p.subtotals[tag] += 1;
             } else {
@@ -283,7 +283,7 @@ function buildCrossfilterUtils(dataObj, type, bgPrefs) {
         const tags = classifier(v);
         if (!_.isEmpty(tags)) {
           --p.total;
-          _.each(tags, tag => {
+          _.forEach(tags, tag => {
             p.subtotals[tag] -= 1;
           });
         }
@@ -403,7 +403,7 @@ export function defineBasicsSections(bgPrefs, manufacturer, deviceModel) {
 
   const sections = {};
 
-  _.each(sectionNames, section => {
+  _.forEach(sectionNames, section => {
     let type = section;
     let dimensions;
     let title = '';
@@ -593,7 +593,7 @@ export function reduceByDay(data, bgPrefs) {
 
   const mostRecentDay = _.find(basicsData.days, { type: 'mostRecent' }).date;
 
-  _.each(basicsData.data, (value, type) => {
+  _.forEach(basicsData.data, (value, type) => {
     const typeObj = basicsData.data[type];
 
     if (_.includes(
@@ -604,8 +604,8 @@ export function reduceByDay(data, bgPrefs) {
     }
 
     if (type === 'basal') {
-      _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
-      _.each(typeObj.dataByDate, countDistinctSuspendsForDay);
+      _.forEach(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+      _.forEach(typeObj.dataByDate, countDistinctSuspendsForDay);
     }
 
     if (_.includes(['calibration', 'smbg'], type)) {
@@ -634,7 +634,7 @@ export function reduceByDay(data, bgPrefs) {
           ),
         };
 
-        _.each(tags, summarizeTagFn(typeObj, summary));
+        _.forEach(tags, summarizeTagFn(typeObj, summary));
         summary.avgPerDay = averageExcludingMostRecentDay(
           typeObj,
           summary.total,
@@ -655,7 +655,7 @@ export function reduceByDay(data, bgPrefs) {
 
     // calculate the total events for each type that participates in the fingerstick section
     // as well as an overall total
-    _.each(['calibration', 'smbg'], fsCategory => {
+    _.forEach(['calibration', 'smbg'], fsCategory => {
       fsSummary[fsCategory] = {
         total: _.reduce(
           _.keys(fingerstickData[fsCategory].dataByDate),
@@ -674,7 +674,7 @@ export function reduceByDay(data, bgPrefs) {
 
     const fsTags = _.map(_.filter(fsSection.dimensions, filterTags), row => row.key);
 
-    _.each(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
+    _.forEach(fsTags, summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
     const smbgSummary = fingerstickData.summary.smbg;
     smbgSummary.avgPerDay = averageExcludingMostRecentDay(
       fingerstickData.smbg,
@@ -775,7 +775,7 @@ export function disableEmptySections(data) {
     /* eslint-enable max-len */
   };
 
-  _.each(sections, (section, key) => {
+  _.forEach(sections, (section, key) => {
     const type = section.type;
     let disabled = false;
 

@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -17,9 +15,10 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-
 import React from 'react';
+import i18next from 'i18next';
 
 import { calculateBasalPath, getBasalSequencePaths } from '../../../modules/render/basal';
 import { getBasalSequences, getBasalPathGroups, getBasalPathGroupType } from '../../../utils/basal';
@@ -40,7 +39,7 @@ const Basal = (props) => {
 
   // Split delivered path into individual segments based on subType
   const deliveredPaths = [];
-  _.each(basalPathGroups, group => {
+  _.forEach(basalPathGroups, group => {
     deliveredPaths.push(_.assign({}, group[0], {
       d: calculateBasalPath(group, xScale, yScale, {
         endAtZero: false,
@@ -53,13 +52,13 @@ const Basal = (props) => {
 
   const pathsToRender = [];
 
-  _.each(pathSets, paths => {
-    _.each(paths, path => {
+  _.forEach(pathSets, paths => {
+    _.forEach(paths, path => {
       pathsToRender.push((<path className={styles[path.type]} d={path.d} key={path.key} />));
     });
   });
 
-  _.each(deliveredPaths, (basal, index) => {
+  _.forEach(deliveredPaths, (basal, index) => {
     const deliveryType = getBasalPathGroupType(basal);
 
     pathsToRender.push(
@@ -101,7 +100,7 @@ const Basal = (props) => {
             x={xPos}
             y={yPos}
           >
-            {deliveryType === 'automated' ? 'A' : 'R'}
+            {deliveryType === 'automated' ? i18next.t('A') : i18next.t('R')}
           </text>
         </g>
       );

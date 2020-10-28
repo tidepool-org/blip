@@ -50,7 +50,7 @@ class ReactTransitionGroupPlus extends React.Component {
     this.performLeave = this.performLeave.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.currentlyEnteringOrEnteredKeys = {};
     this.currentlyEnteringKeys = {};
     this.currentlyEnteringPromises = {};
@@ -62,9 +62,7 @@ class ReactTransitionGroupPlus extends React.Component {
     this.keysToEnter = [];
     this.keysToLeave = [];
     this.cancel = null;
-  }
 
-  componentDidMount() {
     const initialChildMapping = this.state.children;
 
     for (const key of _.keys(initialChildMapping)) {
@@ -74,7 +72,7 @@ class ReactTransitionGroupPlus extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const nextChildMapping = getChildMapping(
       nextProps.children,
     );

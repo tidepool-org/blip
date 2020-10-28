@@ -1,6 +1,5 @@
-/* global document */
 
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
@@ -22,6 +21,7 @@ import HoverBar from './HoverBar';
 import HoverBarLabel from './HoverBarLabel';
 import BgBar from './BgBar';
 import BgBarLabel from './BgBarLabel';
+import WheelPercent from './Wheel';
 import StatTooltip from '../tooltips/StatTooltip';
 import StatLegend from './StatLegend';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
@@ -44,7 +44,7 @@ const datumPropType = PropTypes.shape({
 
 const statFormatPropType = PropTypes.oneOf(_.values(statFormats));
 
-class Stat extends PureComponent {
+class Stat extends React.Component {
   static propTypes = {
     alwaysShowTooltips: PropTypes.bool,
     alwaysShowSummary: PropTypes.bool,
@@ -79,6 +79,7 @@ class Stat extends PureComponent {
     reverseLegendOrder: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
+    units: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   };
 
   static defaultProps = {
@@ -95,6 +96,7 @@ class Stat extends PureComponent {
     legend: false,
     muteOthersOnHover: true,
     type: statTypes.simple,
+    units: false,
   };
 
   static displayName = 'Stat';
@@ -155,7 +157,7 @@ class Stat extends PureComponent {
           >
             <img
               src={InfoIcon}
-              alt="Hover for more info"
+              alt={t('Hover for more info')}
               ref={this.setTooltipIconRef}
               onMouseOver={this.handleTooltipIconMouseOver}
               onMouseOut={this.handleTooltipIconMouseOut}
@@ -164,7 +166,7 @@ class Stat extends PureComponent {
         )}
       </div>
     );
-  };
+  }
 
   renderChartSummary = () => {
     const summaryData = this.getFormattedDataByKey('summary');
@@ -201,13 +203,15 @@ class Stat extends PureComponent {
         )}
       </div>
     );
-  };
+  }
 
-  renderStatUnits = () => (
-    <div className={styles.units}>
-      {this.props.units}
-    </div>
-  );
+  renderStatUnits() {
+    return (
+      <div className={styles.units}>
+        {this.props.units}
+      </div>
+    );
+  }
 
   renderStatHeader = () => (
     <div className={styles.statHeader}>
@@ -335,7 +339,7 @@ class Stat extends PureComponent {
     </div>
   );
 
-  render = () => {
+  render() {
     const statClasses = cx({
       [styles.Stat]: true,
       [styles.isOpen]: this.state.isOpened,
@@ -356,7 +360,7 @@ class Stat extends PureComponent {
         {this.state.showMessages && this.renderTooltip()}
       </div>
     );
-  };
+  }
 
   getStateByType = props => {
     const {
@@ -397,6 +401,12 @@ class Stat extends PureComponent {
         state.isOpened = isOpened;
         break;
 
+      case 'wheel':
+        state.isCollapsible = false;
+        state.isOpened = true;
+        state.showFooter = false;
+      break;
+
       case 'simple':
       default:
         state.isCollapsible = false;
@@ -435,6 +445,7 @@ class Stat extends PureComponent {
     let chartLabelWidth = labelFontSize * 2.75;
     let padding;
     let total;
+    let value;
 
     const chartProps = this.getDefaultChartProps(props);
 
@@ -635,12 +646,34 @@ class Stat extends PureComponent {
         });
         break;
 
+      case 'wheel':
+        total = _.get(data, 'total.value', 0);
+        value = _.get(data, 'data[1].value', 0);
+        chartProps.renderer = WheelPercent;
+        chartProps.className = styles.statWheelTimeInAuto;
+        chartProps.values = {
+          on: Math.round(100 * value / total),
+          off: 100 - Math.round(100 * value / total),
+        }
+        chartProps.rawValues = {
+          on: this.formatDatum(data.data[1], props.dataFormat.summary).value,
+          off: this.formatDatum(data.data[0], props.dataFormat.summary).value,
+        };
+        break;
+
+      case 'simple':
+      case 'input':
+        break;
+
       default:
+        this.log.error(`Invalid chart type ${type}`);
+        chartProps.height = 20;
+        chartProps.renderer = () => <div>{`Invalid chart type ${type}`}</div>;
         break;
     }
 
     return chartProps;
-  };
+  }
 
   setChartTitle = (datum = {}) => {
     let tooltipTitleData;
@@ -849,7 +882,7 @@ class Stat extends PureComponent {
       value,
       suffix,
     };
-  };
+  }
 
   handleCollapse = () => {
     this.setState(state => ({

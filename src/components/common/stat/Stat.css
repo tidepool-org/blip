@@ -11,7 +11,7 @@
 
 .Stat tspan {
   font-family: "Basis", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-weight: 500 !important;
+  font-weight: 500;
 }
 
 .statHeader {
@@ -179,4 +179,57 @@
 .StatTooltipWrapper {
   z-index: 1;
   position: relative;
+}
+
+svg.statWheelTimeInAuto {
+  width: 290px;
+  height: 80px;
+  height: auto;
+  margin-bottom: 0.25em;
+}
+svg.statWheelTimeInAuto g.onColor rect.legendBackground {
+  fill: var(--basal-automated, #12d3d8);
+}
+svg.statWheelTimeInAuto g.onColor text.legendLabelText {
+  fill: var(--text-on-basal-automated, black);
+}
+svg.statWheelTimeInAuto g.offColor rect.legendBackground {
+  fill: var(--basal, rgb(168, 200, 212));
+}
+svg.statWheelTimeInAuto g.offColor text.legendLabelText {
+  fill: var(--text-on-basal, black);
+}
+svg.statWheelTimeInAuto g.labelOnValueUnits tspan.legendLabelValue, svg.statWheelTimeInAuto g.labelOnValueUnits text.labelRawValue {
+  fill: var(--text-basal-automated, black);
+}
+svg.statWheelTimeInAuto g.labelOffValueUnits tspan.legendLabelValue, svg.statWheelTimeInAuto g.labelOffValueUnits text.labelRawValue {
+  fill: var(--text-basal, black);
+}
+svg.donutChart text.legendLabelText, svg.donutChart text.labelRawValue {
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
+}
+svg.donutChart text.labelValueUnits {
+  pointer-events: none;
+}
+svg.donutChart tspan.legendLabelValue {
+  font-size: 24px;
+	font-weight: 500;
+}
+svg.donutChart tspan.legendLabelUnits {
+  fill: rgb(114, 115, 117);
+	font-size: 12px;
+	letter-spacing: normal;
+}
+svg.donutChart tspan.legendLabelPercent {
+  font-size: 12px;
+  fill: var(--stat--default);
+  font-weight: normal;
+}
+svg.statWheelTimeInAuto .onEllipse {
+  fill: var(--basal-automated, #12d3d8);
+}
+svg.statWheelTimeInAuto .offEllipse {
+  fill: var(--basal, rgb(168, 200, 212));
 }

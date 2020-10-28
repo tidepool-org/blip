@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -16,7 +16,7 @@
     "lint": "eslint src/ test/ *.js --quiet",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
     "start": "NODE_ENV=development webpack --config package.config.js --watch",
-    "pretest": "npm run lint",
+    "pretest": "rm -rf coverage",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "test-watch": "TZ=UTC NODE_ENV=test karma start --no-single-run --reporters=mocha"
   },
@@ -61,7 +61,7 @@
     "moment-timezone": "0.5.31",
     "parse-svg-path": "0.1.2",
     "pdfkit": "0.11.0",
-    "prop-types": "15.6.2",
+    "prop-types": "15.7.2",
     "react": "^16.13.1",
     "react-clipboard.js": "2.0.16",
     "react-collapse": "5.0.1",

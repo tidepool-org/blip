@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2017, Tidepool Project
@@ -17,8 +15,8 @@ import _ from 'lodash';
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-
 import React from 'react';
 
 import { getBolusFromInsulinEvent, getCarbs, getMaxValue } from '../../../utils/bolus';

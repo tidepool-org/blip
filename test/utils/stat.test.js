@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import chai from 'chai';
 import * as stat from '../../src/utils/stat';
 import { MGDL_UNITS } from '../../src/utils/constants';
 
@@ -11,6 +12,8 @@ describe('stat', () => {
     statFormats,
     statTypes,
   } = stat;
+
+  const { expect } = chai;
 
   describe('dailyDoseUnitOptions', () => {
     it('should export the `dailyDoseUnitOptions`', () => {
@@ -33,6 +36,7 @@ describe('stat', () => {
       expect(stat.statTypes).to.eql({
         barHorizontal: 'barHorizontal',
         barBg: 'barBg',
+        wheel: 'wheel',
         input: 'input',
         simple: 'simple',
       });
@@ -283,15 +287,15 @@ describe('stat', () => {
     describe('timeInAuto', () => {
       it('should return annotations for `timeInAuto` stat when viewing a single day of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInAuto, singleDayOpts)).to.have.ordered.members([
-          '**Time In Auto Mode:** Time spent in automated basal delivery.',
-          '**How we calculate this:**\n\n**(%)** is the duration in Auto Mode divided the total duration of basals for this time period.\n\n**(time)** is total duration of time in Auto Mode.',
+          '**Time In Loop Mode:** Time spent in automated basal delivery.',
+          '**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is total duration of time in loop mode ON or OFF.',
         ]);
       });
 
       it('should return annotations for `timeInAuto` stat when viewing multiple days of data', () => {
         expect(stat.getStatAnnotations(data, commonStats.timeInAuto, multiDayOpts)).to.have.ordered.members([
-          '**Time In Auto Mode:** Daily average of the time spent in automated basal delivery.',
-          '**How we calculate this:**\n\n**(%)** is the duration in Auto Mode divided the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in Auto Mode.',
+          '**Time In Loop Mode:** Daily average of the time spent in automated basal delivery.',
+          '**How we calculate this:**\n\n**(%)** is the duration in loop mode ON or OFF divided by the total duration of basals for this time period.\n\n**(time)** is 24 hours multiplied by % in loop mode ON or OFF.',
         ]);
       });
     });
@@ -659,13 +663,13 @@ describe('stat', () => {
         {
           id: 'basalManual',
           value: 20000,
-          title: 'Time In Manual',
+          title: 'Time In Loop Mode OFF',
           legendTitle: 'Manual',
         },
         {
           id: 'basal',
           value: 100000,
-          title: 'Time In Auto Mode',
+          title: 'Time In Loop Mode ON',
           legendTitle: 'Auto Mode',
         },
       ]);
@@ -850,11 +854,11 @@ describe('stat', () => {
 
     describe('timeInAuto', () => {
       it('should return title for `timeInAuto` stat when viewing a single day of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInAuto, singleDayOpts)).to.equal('Time In Auto Mode');
+        expect(stat.getStatTitle(commonStats.timeInAuto, singleDayOpts)).to.equal('Time In Loop Mode');
       });
 
       it('should return title for `timeInAuto` stat when viewing multiple days of data', () => {
-        expect(stat.getStatTitle(commonStats.timeInAuto, multiDayOpts)).to.equal('Avg. Daily Time In Auto Mode');
+        expect(stat.getStatTitle(commonStats.timeInAuto, multiDayOpts)).to.equal('Avg. Daily Time In Loop Mode');
       });
     });
 
@@ -998,11 +1002,10 @@ describe('stat', () => {
       const def = stat.getStatDefinition(data, commonStats.timeInAuto, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.timeInAuto);
-      expect(def.type).to.equal(statTypes.barHorizontal);
+      expect(def.type).to.equal(statTypes.wheel);
       expect(def.dataFormat).to.eql({
         label: statFormats.percentage,
-        summary: statFormats.percentage,
-        tooltip: statFormats.duration,
+        summary: statFormats.duration,
       });
       expect(def.alwaysShowTooltips).to.be.true;
     });

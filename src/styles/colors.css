@@ -16,8 +16,13 @@
  */
 
 :root {
-  --basal: #19A0D7;
-  --basal-automated: #00D3E6;
+  --basal: #a4a4a4;
+  --basal-automated: #3a90a4;
+  --basal-over: #b1b1b1;
+  --text-on-basal: white;
+  --text-on-basal-automated: white;
+  --text-basal: #a4a4a4;
+  --text-basal-automated: #3a90a4;
   --bolus: #6fc3bb;
   --bolus--interrupted: #FF8B7C;
   --bolus--ride: #107EA8;
@@ -33,7 +38,7 @@
   --input--border: #75849f;
   --input--disabled: #75849f;
   --stat--border: #75849f;
-  --stat--default: #727375;
+  --stat--default: #444549;
   --stat-disabled: #e7e9ee;
   --stat--dark: #27385b;
   --axis-tick: #E7E7E7;
