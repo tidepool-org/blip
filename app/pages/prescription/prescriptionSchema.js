@@ -35,6 +35,10 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     basalRateMaximum: `Basal limit out of range. Please select a value between ${ranges.basalRateMaximum.min}-${ranges.basalRateMaximum.max}`,
     bloodGlucoseTargetMin: `Correction target out of range. Please select a value between ${ranges.bloodGlucoseTarget.min}-${ranges.bloodGlucoseTarget.max}`,
     bloodGlucoseTargetMax: `Correction target out of range. Please select a value below ${ranges.bloodGlucoseTarget.max}`,
+    bloodGlucoseTargetPhysicalActivityMin: `Correction target out of range. Please select a value between ${ranges.bloodGlucoseTargetPhysicalActivity.min}-${ranges.bloodGlucoseTargetPhysicalActivity.max}`,
+    bloodGlucoseTargetPhysicalActivityMax: `Correction target out of range. Please select a value below ${ranges.bloodGlucoseTargetPhysicalActivity.max}`,
+    bloodGlucoseTargetPreprandialMin: `Correction target out of range. Please select a value between ${ranges.bloodGlucoseTargetPreprandial.min}-${ranges.bloodGlucoseTargetPreprandial.max}`,
+    bloodGlucoseTargetPreprandialMax: `Correction target out of range. Please select a value below ${ranges.bloodGlucoseTargetPreprandial.max}`,
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
@@ -142,25 +146,25 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
           min: yup.number().default(ranges.bloodGlucoseTargetPhysicalActivity.min),
         }),
         high: yup.number()
-          .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-          .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+          .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetPhysicalActivityMin.replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeErrors.bloodGlucoseTargetPhysicalActivityMax)
           .required(t('High target is required')),
         low: yup.number()
-          .min(yup.ref('context.min') || ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-          .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+          .min(yup.ref('context.min') || ranges.bloodGlucoseTargetPhysicalActivity.min, rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeErrors.bloodGlucoseTargetMax)
           .required(t('Low target is required')),
       }),
       bloodGlucoseTargetPreprandial: yup.object().shape({
         context: yup.object().shape({
-          min: yup.number().default(ranges.bloodGlucoseTarget.min),
+          max: yup.number().default(ranges.bloodGlucoseTargetPreprandial.max),
         }),
         high: yup.number()
-          .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-          .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+          .min(yup.ref('low') || ranges.bloodGlucoseTargetPreprandial.min, rangeErrors.bloodGlucoseTargetPreprandialMin)
+          .max(yup.ref('context.max'), rangeErrors.bloodGlucoseTargetPreprandialMax.replace(ranges.bloodGlucoseTargetPreprandial.max, '${max}'))
           .required(t('High target is required')),
         low: yup.number()
-          .min(yup.ref('context.min') || ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-          .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+          .min(ranges.bloodGlucoseTargetPreprandial.min, rangeErrors.bloodGlucoseTargetPreprandialMin)
+          .max(yup.ref('context.max'), rangeErrors.bloodGlucoseTargetPreprandialMax.replace(ranges.bloodGlucoseTargetPreprandial.max, '${max}'))
           .required(t('Low target is required')),
       }),
       basalRateSchedule: yup.array().of(

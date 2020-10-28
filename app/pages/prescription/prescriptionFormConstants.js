@@ -91,13 +91,15 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
 
   // Determine min and max temporary correction range targets based on the patient's correction ranges
   if (!isEmpty(bloodGlucoseTargetSchedules)) {
+    const bloodGlucoseTargetSchedulesMax = max(map(bloodGlucoseTargetSchedules, 'high'));
+
     maxPreprandialCorrectionTarget = (bgUnits === MGDL_UNITS)
-      ? min(map(bloodGlucoseTargetSchedules, 'low'))
-      : utils.roundBgTarget(utils.translateBg(min(map(bloodGlucoseTargetSchedules, 'low')), MGDL_UNITS), MGDL_UNITS);
+      ? bloodGlucoseTargetSchedulesMax
+      : utils.roundBgTarget(utils.translateBg(bloodGlucoseTargetSchedulesMax, MGDL_UNITS), MGDL_UNITS);
 
     minWorkoutCorrectionTarget = (bgUnits === MGDL_UNITS)
-      ? max(map(bloodGlucoseTargetSchedules, 'high'))
-      : utils.roundBgTarget(utils.translateBg(max(map(bloodGlucoseTargetSchedules, 'high')), MGDL_UNITS), MGDL_UNITS);
+      ? bloodGlucoseTargetSchedulesMax
+      : utils.roundBgTarget(utils.translateBg(bloodGlucoseTargetSchedulesMax, MGDL_UNITS), MGDL_UNITS);
   }
 
   const ranges = {
