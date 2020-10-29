@@ -81,8 +81,9 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
   const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
   const bloodGlucoseTargetSchedules = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
 
-  let minBloodGlucoseTarget, minWorkoutCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
+  let minBloodGlucoseTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
   let maxPreprandialCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180);
+  let minWorkoutCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
 
   // Determine min correction range target based on the patient's suspend threshold
   if (isNumber(bloodGlucoseSuspendThreshold)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
@@ -92,6 +93,9 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
   // Determine min and max temporary correction range targets based on the patient's correction ranges
   if (!isEmpty(bloodGlucoseTargetSchedules)) {
     const bloodGlucoseTargetSchedulesMax = max(map(bloodGlucoseTargetSchedules, 'high'));
+
+    console.log('bloodGlucoseTargetSchedulesMax', bloodGlucoseTargetSchedulesMax);
+    console.log('bgUnits', bgUnits);
 
     maxPreprandialCorrectionTarget = (bgUnits === MGDL_UNITS)
       ? bloodGlucoseTargetSchedulesMax

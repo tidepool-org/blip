@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { FastField, Field } from 'formik';
-import { Box, Text, BoxProps } from 'rebass/styled-components';
+import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import get from 'lodash/get';
 
@@ -24,6 +24,7 @@ import {
 } from './prescriptionFormConstants';
 
 import {
+  inlineInputStyles,
   inputStyles,
   fieldsetStyles,
   wideFieldsetStyles,
@@ -133,7 +134,7 @@ export const GlucoseSettings = props => {
           error={getFieldError(meta.initialSettings.bloodGlucoseSuspendThreshold)}
           warning={getThresholdWarning(meta.initialSettings.bloodGlucoseSuspendThreshold.value, thresholds.bloodGlucoseSuspendThreshold)}
           {...ranges.bloodGlucoseSuspendThreshold}
-          {...{ ...inputStyles, themeProps: { mb: 3 }}}
+          {...{ ...inputStyles, themeProps: { mb: 4 }}}
         />
 
         <PopoverLabel
@@ -175,6 +176,88 @@ export const GlucoseSettings = props => {
             separator="-"
           />
         </Box>
+
+        <PopoverLabel
+          id='premeal-range'
+          label={t('Pre-meal Correction Range')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('The pre-meal correction range is the glucose range that you would like the app to correct your glucose to by adjusting insulin dosing when activated up to one hour before eating so that you begin a meal in a lower target range.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+
+        <Flex mb={5} alignItems="flex-start">
+          <FastField
+            as={TextInput}
+            label={t('Lower Target')}
+            type="number"
+            id="initialSettings.bloodGlucoseTargetPreprandial.low"
+            name="initialSettings.bloodGlucoseTargetPreprandial.low"
+            suffix={bgUnits}
+            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPreprandial.low)}
+            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.low.value, thresholds.bloodGlucoseTargetPreprandial)}
+            {...ranges.bloodGlucoseTargetPreprandial}
+            {...inlineInputStyles}
+          />
+          <Text ml={3} mr={1} mt="33px">-</Text>
+          <FastField
+            as={TextInput}
+            label={t('Upper Target')}
+            type="number"
+            id="initialSettings.bloodGlucoseTargetPreprandial.high"
+            name="initialSettings.bloodGlucoseTargetPreprandial.high"
+            suffix={bgUnits}
+            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPreprandial.high)}
+            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.high.value, thresholds.bloodGlucoseTargetPreprandial)}
+            {...ranges.bloodGlucoseTargetPreprandial}
+            {...inlineInputStyles}
+          />
+        </Flex>
+
+        <PopoverLabel
+          id='workout-range'
+          label={t('Workout Correction Range')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('The workout correction range is the glucose range that you would like the app to correct your glucose to by adjusting insulin dosing when activated before, during, or after physical activity to reduce the risk of low glucose events.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+
+        <Flex mb={3} alignItems="flex-start">
+          <FastField
+            as={TextInput}
+            label={t('Lower Target')}
+            type="number"
+            id="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
+            name="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
+            suffix={bgUnits}
+            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.low)}
+            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.low.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
+            {...ranges.bloodGlucoseTargetPhysicalActivity}
+            {...inlineInputStyles}
+          />
+          <Text ml={3} mr={1} mt="33px">-</Text>
+          <FastField
+            as={TextInput}
+            label={t('Upper Target')}
+            type="number"
+            id="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
+            name="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
+            suffix={bgUnits}
+            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.high)}
+            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.high.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
+            {...ranges.bloodGlucoseTargetPhysicalActivity}
+            {...inlineInputStyles}
+          />
+        </Flex>
       </Box>
     </Box>
   );

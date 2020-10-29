@@ -100,14 +100,14 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         }]),
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity', {
           context: {
-            min: max(map(bloodGlucoseTargetSchedules, 'high')),
+            min: max(map(bloodGlucoseTargetSchedules, 'high')) || ranges.bloodGlucoseTargetPhysicalActivity.min,
           },
           high: '',
           low: '',
         }),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial', {
           context: {
-            max: min(map(bloodGlucoseTargetSchedules, 'low')),
+            max: max(map(bloodGlucoseTargetSchedules, 'high') || ranges.bloodGlucoseTargetPreprandial.max),
           },
           high: '',
           low: '',
