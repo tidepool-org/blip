@@ -31,7 +31,11 @@ export let Login = translate()(class extends React.Component {
 
   constructor(props) {
     super(props);
-    var formValues = {};
+    var formValues = {
+      username : '',
+      password: '',
+      remember: true,
+    };
     var email = props.seedEmail;
 
     if (email) {
@@ -51,7 +55,7 @@ export let Login = translate()(class extends React.Component {
     return [
       { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail, autoFocus: true },
       { name: 'password', placeholder: t('Password'), type: 'password' },
-      { name: 'remember', label: t('Remember me'), type: 'checkbox', defaultChecked: true }
+      { name: 'remember', label: t('Remember me'), type: 'checkbox' }
     ];
   };
 

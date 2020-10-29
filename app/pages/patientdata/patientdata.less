@@ -44,7 +44,7 @@
 .patient-data-subnav-text {
   display: flex;
   align-items: center;
-  text-align: center;
+  justify-content: center;
 }
 
 .patient-data-subnav-dates-daily {
@@ -60,7 +60,7 @@
 }
 
 .patient-data-subnav a {
-  display: inline-block;
+  display: flex;
   padding: 0 @patient-data-subnav-horizontal-padding;
   &.patient-data-icon {
     padding: 0;
@@ -69,10 +69,16 @@
   color: #fff;
   text-decoration: none;
 
+  transition: all .2s ease-out;
+
   &:hover,
   &:focus {
     color: @gray-darkest;
     text-decoration: none;
+
+    .icon {
+      color: @gray-darkest;
+    }
   }
 
   &:active,
@@ -116,20 +122,6 @@
 
 .patient-data-subnav-right-label {
   float: right;
-}
-
-.patient-data-subnav .print-loading-spinner {
-  display: inline-block;
-  position: relative;
-  top: 2px;
-  margin-right: 5px;
-}
-
-.patient-data-subnav .printview-print-icon img {
-  padding-right: 5px;
-  height: 16px;
-  position: relative;
-  top: -2px;
 }
 
 // Content
