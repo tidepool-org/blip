@@ -88,9 +88,10 @@ describe('prescriptionFormConstants', function() {
   it('should export the default units', () => {
     expect(prescriptionFormConstants.defaultUnits).to.eql({
       basalRate: 'Units/hour',
+      bloodGlucose: 'mg/dL',
+      bloodGlucoseSuspendThreshold: MGDL_UNITS,
       bolusAmount: 'Units',
       insulinCarbRatio: 'g/U',
-      bloodGlucose: 'mg/dL',
     });
   });
 
@@ -153,7 +154,7 @@ describe('prescriptionFormConstants', function() {
             minimum: { units: 40, nanos: 0 },
             maximum: { units: 400, nanos: 0 },
           } },
-          suspendThreshold: { recommendedBounds: {
+          bloodGlucoseSuspendThreshold: { recommendedBounds: {
             minimum: { units: 50, nanos: 0 },
             maximum: { units: 500, nanos: 0 },
           } },
@@ -180,7 +181,7 @@ describe('prescriptionFormConstants', function() {
           low: { value: 40, message: lowWarning },
           high: { value: 400, message: highWarning },
         },
-        suspendThreshold: {
+        bloodGlucoseSuspendThreshold: {
           low: { value: 50, message: lowWarning },
           high: { value: 500, message: highWarning },
         },
@@ -208,7 +209,7 @@ describe('prescriptionFormConstants', function() {
           low: { value: 15, message: lowWarning },
           high: { value: 400, message: highWarning },
         },
-        suspendThreshold: {
+        bloodGlucoseSuspendThreshold: {
           low: { value: 70, message: lowWarning },
           high: { value: 120, message: highWarning },
         },
@@ -224,8 +225,8 @@ describe('prescriptionFormConstants', function() {
       expect(thresholds.insulinSensitivityFactor.low.value).to.equal(0.8);
       expect(thresholds.insulinSensitivityFactor.high.value).to.equal(22.2);
 
-      expect(thresholds.suspendThreshold.low.value).to.equal(3.9);
-      expect(thresholds.suspendThreshold.high.value).to.equal(6.7);
+      expect(thresholds.bloodGlucoseSuspendThreshold.low.value).to.equal(3.9);
+      expect(thresholds.bloodGlucoseSuspendThreshold.high.value).to.equal(6.7);
     });
   });
 
@@ -263,7 +264,7 @@ describe('prescriptionFormConstants', function() {
             maximum: { units: 600, nanos: 0 },
             increment: { units: 6, nanos: 0 },
           } },
-          suspendThreshold: { absoluteBounds: {
+          bloodGlucoseSuspendThreshold: { absoluteBounds: {
             minimum: { units: 70, nanos: 0 },
             maximum: { units: 700, nanos: 0 },
             increment: { units: 7, nanos: 0 },
@@ -278,7 +279,7 @@ describe('prescriptionFormConstants', function() {
         bolusAmountMaximum: { min: 40, max: 400, step: 4 },
         carbRatio: { min: 50, max: 500, step: 5 },
         insulinSensitivityFactor: { min: 60, max: 600, step: 6 },
-        suspendThreshold: { min: 70, max: 700, step: 7 },
+        bloodGlucoseSuspendThreshold: { min: 70, max: 700, step: 7 },
       });
     });
 
@@ -290,17 +291,15 @@ describe('prescriptionFormConstants', function() {
         bolusAmountMaximum: { min: 0, max: 30, step: 1 },
         carbRatio: { min: 1, max: 150, step: 1 },
         insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-        suspendThreshold: { min: 54, max: 180, step: 1 },
+        bloodGlucoseSuspendThreshold: { min: 54, max: 180, step: 1 },
       });
     });
 
-    it('should set the min bloodGlucoseTarget value to the set value of the suspendThreshold field', () => {
+    it('should set the min bloodGlucoseTarget value to the set value of the bloodGlucoseSuspendThreshold field', () => {
       const meta = {
         initialSettings: {
-          suspendThreshold: {
-            value: {
-              value: 78,
-            },
+          bloodGlucoseSuspendThreshold: {
+            value: 78,
           },
         },
       };
@@ -319,24 +318,24 @@ describe('prescriptionFormConstants', function() {
       expect(ranges.insulinSensitivityFactor.max).to.equal(27.8);
       expect(ranges.insulinSensitivityFactor.step).to.equal(0.1);
 
-      expect(ranges.suspendThreshold.min).to.equal(3);
-      expect(ranges.suspendThreshold.max).to.equal(10);
-      expect(ranges.suspendThreshold.step).to.equal(0.1);
+      expect(ranges.bloodGlucoseSuspendThreshold.min).to.equal(3);
+      expect(ranges.bloodGlucoseSuspendThreshold.max).to.equal(10);
+      expect(ranges.bloodGlucoseSuspendThreshold.step).to.equal(0.1);
     });
   });
 
-  // it('should export the list the prescription account type options', function() {
-  //   expect(prescriptionFormConstants.typeOptions).to.be.an('array');
-  //   expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
-  //     'patient',
-  //     'caregiver',
-  //   ]);
+  it('should export the list the prescription account type options', function() {
+    expect(prescriptionFormConstants.typeOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
+      'patient',
+      'caregiver',
+    ]);
 
-  //   _.each(prescriptionFormConstants.typeOptions, device => {
-  //     expect(device.value).to.be.a('string');
-  //     expect(device.label).to.be.a('string');
-  //   })
-  // });
+    _.each(prescriptionFormConstants.typeOptions, device => {
+      expect(device.value).to.be.a('string');
+      expect(device.label).to.be.a('string');
+    })
+  });
 
   it('should export the list the prescription patient sex options', function() {
     expect(prescriptionFormConstants.sexOptions).to.be.an('array');
@@ -365,18 +364,18 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  // it('should export the list the prescription insulin type options', function() {
-  //   expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
-  //   expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
-  //     'rapidAdult',
-  //     'rapidChild',
-  //   ]);
+  it('should export the list the prescription insulin type options', function() {
+    expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
+      'rapidAdult',
+      'rapidChild',
+    ]);
 
-  //   _.each(prescriptionFormConstants.insulinModelOptions, device => {
-  //     expect(device.value).to.be.a('string');
-  //     expect(device.label).to.be.a('string');
-  //   })
-  // });
+    _.each(prescriptionFormConstants.insulinModelOptions, device => {
+      expect(device.value).to.be.a('string');
+      expect(device.label).to.be.a('string');
+    })
+  });
 
   // it('should export the list of valid country codes', function() {
   //   expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);

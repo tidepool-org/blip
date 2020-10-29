@@ -20,7 +20,6 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import i18next from '../../core/language';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -43,13 +42,15 @@ import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
+import ChartDateRangeModal from '../../components/ChartDateRangeModal';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
 export let PatientData = translate()(createReactClass({
@@ -93,6 +94,7 @@ export let PatientData = translate()(createReactClass({
       chartPrefs: {
         basics: {
           sections: {},
+          extentSize: 14,
         },
         daily: {
           extentSize: 1,
@@ -141,12 +143,12 @@ export let PatientData = translate()(createReactClass({
         },
         excludedDevices: [],
       },
-      printOpts: {
-        numDays: {
-          daily: 15,
-          bgLog: 30,
-        },
-      },
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
+      printDialogOpen: false,
+      printDialogProcessing: false,
+      printDialogPDFOpts: null,
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -177,12 +179,16 @@ export let PatientData = translate()(createReactClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
+    const datesDialog = this.renderDatesDialog();
+    const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
+        {datesDialog}
+        {printDialog}
         <Loader show={showLoader} />
       </div>
     );
@@ -287,6 +293,93 @@ export let PatientData = translate()(createReactClass({
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
   },
 
+  renderDatesDialog: function() {
+    return (
+      <ChartDateRangeModal
+        chartType={this.state.chartType}
+        defaultDates={_.get(this.state, 'chartEndpoints.current')}
+        id="chart-dates-dialog"
+        mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
+        open={this.state.datesDialogOpen}
+        onClose={this.closeDatesDialog}
+        onSubmit={dates => {
+          this.setState({ datesDialogProcessing: true });
+
+          // Determine the earliest startDate needed to fetch data to.
+          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          const updateOpts = {
+            showLoading: true,
+            updateChartEndpoints: true,
+          };
+
+          if (startDate < fetchedUntil) {
+            this.setState({ datesDialogFetchingData: true });
+
+            this.fetchEarlierData({
+              showLoading: true,
+              returnData: false
+            });
+          } else {
+            this.closeDatesDialog();
+          }
+          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+        }}
+        processing={this.state.datesDialogProcessing}
+        timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  },
+
+  renderPrintDialog: function() {
+    return (
+      <PrintDateRangeModal
+        id="print-dialog"
+        mostRecentDatumDates={{
+          basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
+          bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
+          daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
+        }}
+        open={this.state.printDialogOpen}
+        onClose={this.closePrintDialog}
+        onClickPrint={opts => {
+          this.setState({ printDialogProcessing: true })
+
+          // Determine the earliest startDate needed to fetch data to.
+          const earliestPrintDate = _.min(_.at(opts, _.map(_.keys(opts), key => `${key}.endpoints.0`)));
+          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          if (startDate < fetchedUntil) {
+            this.fetchEarlierData({
+              returnData: false,
+              showLoading: false,
+              startDate,
+            });
+
+            // In cases where we need to fetch data via an async backend call, we need to pre-open
+            // the PDF tab ahead of time. Otherwise, it will be treated as a popup, and likely blocked.
+            if (!this.printWindowRef || this.printWindowRef.closed) {
+              const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
+              this.printWindowRef = window.open();
+              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
+            }
+
+            this.setState({ printDialogPDFOpts: opts });
+          } else {
+            this.generatePDF(this.props, this.state, opts);
+          }
+        }}
+        processing={this.state.printDialogProcessing}
+        timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  },
+
   isEmptyPatientData: function() {
     return (!_.get(this.props, 'patient.userid', false) || _.get(this.props.data, 'metaData.size', 0) <= 0);
   },
@@ -321,7 +414,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -361,12 +453,11 @@ export let PatientData = translate()(createReactClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
             stats={stats}
-            // updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -394,7 +485,6 @@ export let PatientData = translate()(createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -453,7 +543,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             queryDataCount={this.state.queryDataCount}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
@@ -488,6 +577,21 @@ export let PatientData = translate()(createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
+  },
+
+  closeDatesDialog: function() {
+    this.setState({
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
+    });
+  },
+
+  closePrintDialog: function() {
+    this.setState({
+      printDialogOpen: false,
+      printDialogPDFOpts: null,
+    });
   },
 
   closeMessageThread: function(){
@@ -533,7 +637,7 @@ export let PatientData = translate()(createReactClass({
     return stats;
   },
 
-  generatePDF: function (props = this.props, state = this.state) {
+  generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
@@ -542,6 +646,7 @@ export let PatientData = translate()(createReactClass({
 
     const opts = {
       patient: pdfPatient,
+      ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
     };
 
     const commonQueries = {
@@ -551,22 +656,32 @@ export let PatientData = translate()(createReactClass({
       excludedDevices: state.chartPrefs.excludedDevices,
     };
 
-    const queries = {
-      basics: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
-          { chartType: 'basics' }
-        ),
+    const queries = {};
+
+    if (!opts.basics.disabled) {
+      queries.basics = {
+        endpoints: pdfOpts.basics.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        stats: this.getStatsByChartType('basics'),
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        stats: this.getStatsByChartType('basics'),
         ...commonQueries,
-      },
-      daily: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
-          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
-        ),
+      };
+    }
+
+    if (!opts.bgLog.disabled) {
+      queries.bgLog = {
+        endpoints: pdfOpts.bgLog.endpoints,
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      };
+    }
+
+    if (!opts.daily.disabled) {
+      queries.daily = {
+        endpoints: pdfOpts.daily.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
         types: {
@@ -581,22 +696,14 @@ export let PatientData = translate()(createReactClass({
         },
         bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
         ...commonQueries,
-      },
-      bgLog: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
-        ),
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+      };
+    }
+
+    if (!opts.settings.disabled) {
+      queries.settings = {
         ...commonQueries,
-      },
-      settings: {
-        ...commonQueries,
-      },
-    };
+      };
+    }
 
     this.log('Generating PDF with', queries, opts);
 
@@ -793,16 +900,24 @@ export let PatientData = translate()(createReactClass({
     this.updateChart('settings');
   },
 
-  handleClickPrint: function(pdf = {}) {
+  handleClickPrint: function() {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
 
-    if (pdf.url) {
-      const printWindow = window.open(pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
+    this.props.removeGeneratedPDFS();
+    this.setState({ printDialogOpen: true });
+  },
+
+  handleClickChartDates: function() {
+    this.props.trackMetric('Clicked Chart Dates', {
+      fromChart: this.state.chartType
+    });
+
+    this.setState({
+      datesDialogOpen: true,
+      datesDialogProcessing: false,
+    });
   },
 
   handleClickRefresh: function(e) {
@@ -889,29 +1004,11 @@ export let PatientData = translate()(createReactClass({
 
     const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
-    let start;
     const end = setEndToLocalCeiling
       ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
       : Date.parse(datetimeLocation);
 
-    switch (chartType) {
-      case 'basics':
-        start = findBasicsStart(datetimeLocation, timezoneName).valueOf();
-        break;
-
-      case 'daily':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-    }
-
+    const start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
     return (start && end ? [start, end] : []);
   },
 
@@ -1237,20 +1334,46 @@ export let PatientData = translate()(createReactClass({
       if (newDataAdded) {
         // New data has been added. Let's query it to update the chart.
         this.queryData();
+
+        // If new data was fetched to support requested PDF dates, kick off pdf generation.
+        if (this.state.printDialogPDFOpts) {
+          this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        }
+
+        // If new data was fetched to support new chart dates,
+        // close the and reset the chart date dialog.
+        if (this.state.datesDialogFetchingData) {
+          this.closeDatesDialog();
+        }
       }
     }
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
-    // Ahead-Of-Time pdf generation for non-blocked print popup.
-    // Whenever patientData is processed or the chartType changes, such as after a refresh
-    // we check to see if we need to generate a new pdf to avoid stale data
-    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
-      this.generatePDF(nextProps, nextState);
+    if (nextState.printDialogProcessing && pdfGenerated) {
+      this.setState({ printDialogProcessing: false });
+
+      if (nextState.printDialogOpen && !pdfGenerationFailed) {
+        this.closePrintDialog();
+      }
+
+      if (nextProps.pdf.combined.url) {
+        if (this.printWindowRef && !this.printWindowRef.closed) {
+          // If we already have a ref to a PDF window, (re)use it
+          this.printWindowRef.location.href = nextProps.pdf.combined.url;
+        } else {
+          // Otherwise, we create and open a new PDF window ref.
+          this.printWindowRef = window.open(nextProps.pdf.combined.url);
+        }
+
+        setTimeout(() => {
+          this.printWindowRef.focus();
+          this.printWindowRef.print();
+        });
+      }
     }
   },
 
@@ -1441,36 +1564,27 @@ export let PatientData = translate()(createReactClass({
       return;
     };
 
-    _.defaults(options, {
-      showLoading: true,
-    })
-
-    this.log('fetching');
-
     const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
-    const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
-      end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
-    };
-
-    const count = this.state.fetchEarlierDataCount + 1;
-
-    this.setState({
-      loading: options.showLoading,
-      requestedPatientDataRange,
-      fetchEarlierDataCount: count,
-    });
-
     const fetchOpts = _.defaults(options, {
-      startDate: requestedPatientDataRange.start,
-      endDate: requestedPatientDataRange.end,
+      showLoading: true,
+      startDate: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
+      endDate: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
+
+    const count = this.state.fetchEarlierDataCount + 1;
+
+    this.setState({
+      loading: options.showLoading,
+      fetchEarlierDataCount: count,
+    });
+
+    this.log('fetching');
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 

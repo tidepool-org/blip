@@ -2,15 +2,15 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Loading from 'react-loading';
 import { translate } from 'react-i18next';
+import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 
-import printPng from './img/print-icon-2x.png';
+import Icon from '../elements/Icon';
 
 const Header = translate()(class Header extends Component {
   static propTypes = {
     patient: PropTypes.object,
-    printReady: PropTypes.bool,
     title: PropTypes.string.isRequired,
     chartType: PropTypes.string.isRequired,
     inTransition: PropTypes.bool.isRequired,
@@ -20,6 +20,7 @@ const Header = translate()(class Header extends Component {
     iconMostRecent: PropTypes.string,
     onClickBack: PropTypes.func,
     onClickBasics: PropTypes.func,
+    onClickChartDates: PropTypes.func,
     onClickTrends: PropTypes.func,
     onClickMostRecent: PropTypes.func,
     onClickNext: PropTypes.func,
@@ -30,7 +31,7 @@ const Header = translate()(class Header extends Component {
   };
 
   static defaultProps = {
-    printReady: true,
+    onClickChartDates: _.noop,
   };
 
   renderStandard = () => {
@@ -114,9 +115,8 @@ const Header = translate()(class Header extends Component {
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': showPrintLink,
+      'patient-data-subnav-active': false,
       'patient-data-subnav-hidden': !showPrintLink,
-      'patient-data-subnav-disabled': !this.props.printReady,
     });
 
     return (
@@ -131,17 +131,42 @@ const Header = translate()(class Header extends Component {
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
           <div className={dateLinkClass}>
             {this.props.title}
+            {this.props.chartType === 'basics' && (
+              <Icon
+                variant="default"
+                sx={{
+                  ml: 2,
+                  mt: -1,
+                  color: 'white',
+                  outline: 'none',
+                  '&:hover': { color: 'grays.6' },
+                }}
+                label="Choose custom date range"
+                icon={DateRangeRoundedIcon}
+                onClick={this.props.onClickChartDates}
+              />
+            )}
           </div>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
-            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
+            <Icon
+              className="icon"
+              variant="default"
+              sx={{
+                mr: 1,
+                mt: '-2px',
+                color: 'white',
+                outline: 'none',
+              }}
+              label="Print PDF report"
+              icon={PrintRoundedIcon}
+            />
             {t('Print')}
           </a>
+          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
         </div>
       </div>
     );

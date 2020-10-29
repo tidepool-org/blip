@@ -28,7 +28,6 @@ const Settings = translate()(createReactClass({
     onSwitchToBgLog: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     patient: PropTypes.object,
-    pdf: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
@@ -48,7 +47,6 @@ const Settings = translate()(createReactClass({
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}

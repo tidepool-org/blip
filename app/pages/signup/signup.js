@@ -1,18 +1,3 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -71,13 +56,6 @@ export let Signup = translate()(class extends React.Component {
     const { t } = this.props;
     let inputs = [
       {
-        name: 'username',
-        label: t('Email'),
-        type: 'email',
-        placeholder: '',
-        disabled: !!this.props.inviteEmail,
-      },
-      {
         name: 'password',
         label: t('Password'),
         type: 'password',
@@ -94,10 +72,29 @@ export let Signup = translate()(class extends React.Component {
         name: 'fullName',
         label: t('Full name'),
         type: 'text',
+        autoFocus: true
+      },
+      {
+        name: 'username',
+        key: 'personal-username',
+        label: t('Email'),
+        type: 'email',
+        placeholder: '',
+        disabled: !!this.props.inviteEmail,
       });
     }
 
     if (this.state.selected === 'clinician') {
+      inputs.unshift({
+        name: 'username',
+        key: 'clinician-username',
+        label: t('Email'),
+        type: 'email',
+        placeholder: '',
+        disabled: !!this.props.inviteEmail,
+        autoFocus: true
+      });
+
       inputs.push({
         name: 'termsAccepted',
         label: this.renderAcceptTermsLabel(),

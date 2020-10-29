@@ -37,6 +37,14 @@ const StyledDatePicker = styled(StyledDatePickerBase)`
     padding: 0;
     display: flex;
   }
+
+  .CalendarDay {
+    &.CalendarDay__blocked_out_of_range {
+      background-color: ${colors.lightestGrey};
+      color: ${colors.blueGreyLight};
+      border-radius: 0;
+    }
+  }
 `;
 
 export const DatePicker = props => {
@@ -54,6 +62,10 @@ export const DatePicker = props => {
 
   const [date, setDate] = useState(dateProp);
   const [focused, setFocused] = useState(focusedProp);
+
+  React.useEffect(() => {
+    setDate(dateProp);
+  }, [dateProp]);
 
   const inputClasses = cx({
     error,

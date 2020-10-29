@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms';
+import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
 import cx from 'classnames';
@@ -27,6 +27,7 @@ export const TextInput = (props) => {
     name,
     width = ['100%', '75%', '50%'],
     icon,
+    innerRef,
     prefix,
     suffix,
     themeProps,
@@ -57,6 +58,7 @@ export const TextInput = (props) => {
           name={name}
           placeholder={placeholder}
           className={inputClasses}
+          ref={innerRef}
           {...inputProps}
         />
         {icon && <Icon className="icon" icon={icon} label={label} />}
@@ -78,6 +80,10 @@ export const TextInput = (props) => {
 
 TextInput.propTypes = {
   ...InputProps,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,

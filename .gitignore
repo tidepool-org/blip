@@ -23,6 +23,7 @@ deploy/
 dist/
 config/*
 !config/local.sh
+!config/linked-packages.example.js
 test/bin
 web/
 artifact_node.sh
@@ -38,3 +39,6 @@ package-lock.json
 
 # Ignore old translation files
 locales/*/*_old.json
+
+# npm-link-up
+.nlu.json

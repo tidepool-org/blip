@@ -8,6 +8,7 @@ import map from 'lodash/map';
 import InputMask from 'react-input-mask';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
+import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
@@ -33,6 +34,8 @@ const log = bows('PrescriptionAccount');
 
 export const PatientPhone = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldValue,
@@ -41,9 +44,9 @@ export const PatientPhone = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s phone number?')}</Headline>
+      <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
-        as={() => (
+        as={({innerRef}) => (
           <InputMask
             mask="(999) 999-9999"
             alwaysShowMask
@@ -56,12 +59,14 @@ export const PatientPhone = translate()(props => {
             <TextInput
               name="phoneNumber.number"
               id="phoneNumber.number"
-              label={t('Patient Phone Number')}
+              label={t('Phone Number')}
               error={getFieldError(meta.phoneNumber.number)}
+              innerRef={innerRef}
               {...condensedInputStyles}
             />
           </InputMask>
         )}
+        innerRef={initialFocusedInputRef}
       />
       <Caption mt={5} mb={3}>
         {t('The patient\'s phone number may be used to provide direct assistance regarding their Tidepool account. Standard messaging rates may apply.')}
@@ -72,16 +77,19 @@ export const PatientPhone = translate()(props => {
 
 export const PatientMRN = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s Medical Record Number (MRN)?')}</Headline>
+      <Headline mb={4}>{t('What is {{patientName}}\'s Medical Record Number?', { patientName })}</Headline>
       <FastField
         as={TextInput}
         label={t('Medical Record Number')}
         id="mrn"
         name="mrn"
         error={getFieldError(meta.mrn)}
+        innerRef={initialFocusedInputRef}
         {...condensedInputStyles}
       />
     </Box>
@@ -90,10 +98,12 @@ export const PatientMRN = translate()(props => {
 
 export const PatientGender = translate()(props => {
   const { t, meta } = props;
+  const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('What is the patient\'s gender?')}</Headline>
+      <Headline mb={4}>{t('What is the {{patientName}}\'s gender?', { patientName })}</Headline>
       <FastField
         as={RadioGroup}
         variant="verticalBordered"
@@ -101,6 +111,7 @@ export const PatientGender = translate()(props => {
         name="sex"
         options={sexOptions}
         error={getFieldError(meta.sex)}
+        innerRef={initialFocusedInputRef}
       />
     </Box>
   );
@@ -108,6 +119,8 @@ export const PatientGender = translate()(props => {
 
 export const PatientDevices = translate()(props => {
   const { t, meta, devices } = props;
+  const patientName = meta.firstName.value;
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldValue,
@@ -115,7 +128,7 @@ export const PatientDevices = translate()(props => {
 
   return (
     <Box {...fieldsetStyles}>
-      <Headline mb={4}>{t('Does the patient have the necessary prescriptions for Tidepool Loop compatible devices?')}</Headline>
+      <Headline mb={4}>{t('Does {{patientName}} have the necessary prescriptions for Tidepool Loop compatible devices?', { patientName })}</Headline>
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>
@@ -130,6 +143,7 @@ export const PatientDevices = translate()(props => {
                 setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
               error={getFieldError(meta.initialSettings.pumpId)}
+              innerRef={initialFocusedInputRef}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>

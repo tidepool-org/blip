@@ -50,7 +50,7 @@ const StyledRadioLabel = styled(Text)`
 `;
 
 const Radio = (props) => {
-  const { error, label, ...radioProps } = props;
+  const { error, label, innerRef, ...radioProps } = props;
 
   const classNames = cx({
     checked: props.checked,
@@ -60,7 +60,7 @@ const Radio = (props) => {
 
   return (
     <Label width="auto" mb={2} alignItems="center">
-      <StyledRadio className={classNames} {...radioProps} />
+      <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
       <StyledRadioLabel className={classNames} as="span">
         {label}
       </StyledRadioLabel>
@@ -123,6 +123,7 @@ export const RadioGroup = (props) => {
             onChange={onChange}
             label={option.label}
             error={error}
+            innerRef={i === 0 ? props.innerRef : undefined}
           />
         ))}
       </Flex>
@@ -137,6 +138,10 @@ export const RadioGroup = (props) => {
 
 RadioGroup.propTypes = {
   id: PropTypes.string.isRequired,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   disabled: PropTypes.bool,

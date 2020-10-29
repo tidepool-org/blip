@@ -11,9 +11,9 @@ import {
   revisionStates,
   pumpDeviceOptions,
   cgmDeviceOptions,
-  // insulinModelOptions,
+  insulinModelOptions,
   pumpRanges,
-  // typeOptions,
+  typeOptions,
   sexOptions,
   trainingOptions,
   validCountryCodes,
@@ -38,19 +38,28 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
-    suspendThreshold: `Threshold out of range. Please select a value between ${ranges.suspendThreshold.min}-${ranges.suspendThreshold.max}`,
+    bloodGlucoseSuspendThreshold: `Threshold out of range. Please select a value between ${ranges.bloodGlucoseSuspendThreshold.min}-${ranges.bloodGlucoseSuspendThreshold.max}`,
   };
 
   return yup.object().shape({
     id: yup.string(),
     state: yup.string()
       .oneOf(revisionStates, t('Please select a valid option')),
-    // type: yup.string()
-    //   .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
-    //   .required(t('Account type is required')),
+    accountType: yup.string()
+      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
+      .required(t('Account type is required')),
     firstName: yup.string()
       .required(t('First name is required')),
-    lastName: yup.string().required(t('Last name is required')),
+    lastName: yup.string()
+      .required(t('Last name is required')),
+    caregiverFirstName: yup.string().when('accountType', {
+      is: 'caregiver',
+      then: yup.string().required(t('First name is required')),
+    }),
+    caregiverLastName: yup.string().when('accountType', {
+      is: 'caregiver',
+      then: yup.string().required(t('Last name is required')),
+    }),
     birthday: yup.string()
       .test('matchesDateFormat', t('Please enter a valid date in the requested format'), value => moment(value, dateFormat, true).isValid())
       .test('isPastDate', t('Please enter a date prior to today'), value => value < moment().format(dateFormat))
@@ -85,16 +94,13 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       cgmId: yup.string()
         .oneOf(map(deviceOptions.cgms, 'value'))
         .required(t('A cgm type must be specified')),
-      // insulinModel: yup.string()
-      //   .oneOf(map(insulinModelOptions, 'value'))
-      //   .required(t('An insulin model must be specified')),
-      suspendThreshold: yup.object().shape({
-        value: yup.number()
-          .min(ranges.suspendThreshold.min, rangeErrors.suspendThreshold)
-          .max(ranges.suspendThreshold.max, rangeErrors.suspendThreshold)
-          .required(t('Suspend threshold is required')),
-        units: yup.string().default(bgUnits),
-      }),
+      insulinModel: yup.string()
+        .oneOf(map(insulinModelOptions, 'value'))
+        .required(t('An insulin model must be specified')),
+      bloodGlucoseSuspendThreshold: yup.number()
+        .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
+        .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
+        .required(t('Suspend threshold is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
           .min(ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)
