@@ -39,11 +39,13 @@ import Trends from '../../components/chart/trends';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import Button from '../../components/elements/Button';
+
+import ToastContext from '../../providers/ToastProvider';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
@@ -53,7 +55,7 @@ const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = translate()(createReactClass({
+export let PatientData = createReactClass({
   displayName: 'PatientData',
 
   propTypes: {
@@ -1370,8 +1372,33 @@ export let PatientData = translate()(createReactClass({
         }
 
         setTimeout(() => {
-          this.printWindowRef.focus();
-          this.printWindowRef.print();
+          if (this.printWindowRef) {
+            this.printWindowRef.focus();
+            this.printWindowRef.print();
+          } else {
+            const { set: setToast } = this.context;
+
+            setToast({
+              message: this.props.t('A popup blocker is preventing your report from opening.'),
+              variant: 'warning',
+              autoHideDuration: null,
+              action: (
+                <Button
+                  p={0}
+                  lineHeight={1.5}
+                  fontSize={1}
+                  variant="textPrimary"
+                  onClick={() => {
+                    this.printWindowRef = window.open(nextProps.pdf.combined.url);
+                    this.printWindowRef.focus();
+                    this.printWindowRef.print();
+                  }}
+                >
+                  {this.props.t('Open it anyway')}
+                </Button>
+              ),
+            });
+          }
         });
       }
     }
@@ -1631,7 +1658,9 @@ export let PatientData = translate()(createReactClass({
       fetcher();
     });
   },
-}));
+});
+
+PatientData.contextType = ToastContext;
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -1760,4 +1789,4 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientData);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(translate()(PatientData));
