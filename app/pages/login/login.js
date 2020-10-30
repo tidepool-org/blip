@@ -13,7 +13,7 @@ import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 
 import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
 export let Login = translate()(class extends React.Component {
