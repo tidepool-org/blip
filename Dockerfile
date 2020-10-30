@@ -15,7 +15,8 @@ ENV \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
   I18N_ENABLED=$I18N_ENABLED \
   RX_ENABLED=$RX_ENABLED \
-  NODE_ENV=development
+  NODE_ENV=development \
+  TIDEPOOL_DOCKER_VIZ_DIR=/app/packageMounts/@tidepool/viz
 RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \

@@ -168,11 +168,9 @@ describe('Settings', function () {
 
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
-      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, 'printview-print-icon');
 
       expect(printLink).to.be.ok;
-      expect(printIcon).to.be.ok;
 
       expect(props.onClickPrint.callCount).to.equal(0);
       TestUtils.Simulate.click(printLink);

@@ -4,8 +4,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { translate } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 
-import printPng from './img/print-icon-2x.png';
 import Icon from '../elements/Icon';
 
 const Header = translate()(class Header extends Component {
@@ -115,7 +115,7 @@ const Header = translate()(class Header extends Component {
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': showPrintLink,
+      'patient-data-subnav-active': false,
       'patient-data-subnav-hidden': !showPrintLink,
     });
 
@@ -139,6 +139,7 @@ const Header = translate()(class Header extends Component {
                   mt: -1,
                   color: 'white',
                   outline: 'none',
+                  '&:hover': { color: 'grays.6' },
                 }}
                 label="Choose custom date range"
                 icon={DateRangeRoundedIcon}
@@ -151,7 +152,18 @@ const Header = translate()(class Header extends Component {
         </div>
         <div className="app-no-print patient-data-subnav-right">
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            <img className="print-icon" src={printPng} alt="Print" />
+            <Icon
+              className="icon"
+              variant="default"
+              sx={{
+                mr: 1,
+                mt: '-2px',
+                color: 'white',
+                outline: 'none',
+              }}
+              label="Print PDF report"
+              icon={PrintRoundedIcon}
+            />
             {t('Print')}
           </a>
           <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>

@@ -370,6 +370,14 @@ export let PatientData = translate()(createReactClass({
               startDate,
             });
 
+            // In cases where we need to fetch data via an async backend call, we need to pre-open
+            // the PDF tab ahead of time. Otherwise, it will be treated as a popup, and likely blocked.
+            if (!this.printWindowRef || this.printWindowRef.closed) {
+              const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
+              this.printWindowRef = window.open();
+              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
+            }
+
             this.setState({ printDialogPDFOpts: opts });
           } else {
             this.generatePDF(this.props, this.state, opts);
@@ -1478,9 +1486,18 @@ export let PatientData = translate()(createReactClass({
       }
 
       if (nextProps.pdf.combined.url) {
-        const printWindow = window.open(nextProps.pdf.combined.url);
-        printWindow.focus();
-        printWindow.print();
+        if (this.printWindowRef && !this.printWindowRef.closed) {
+          // If we already have a ref to a PDF window, (re)use it
+          this.printWindowRef.location.href = nextProps.pdf.combined.url;
+        } else {
+          // Otherwise, we create and open a new PDF window ref.
+          this.printWindowRef = window.open(nextProps.pdf.combined.url);
+        }
+
+        setTimeout(() => {
+          this.printWindowRef.focus();
+          this.printWindowRef.print();
+        });
       }
     }
   },
