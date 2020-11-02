@@ -55,7 +55,7 @@ const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = createReactClass({
+export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
 
   propTypes: {
@@ -1392,6 +1392,7 @@ export let PatientData = createReactClass({
                     this.printWindowRef = window.open(nextProps.pdf.combined.url);
                     this.printWindowRef.focus();
                     this.printWindowRef.print();
+                    setToast(null);
                   }}
                 >
                   {this.props.t('Open it anyway')}
@@ -1660,7 +1661,12 @@ export let PatientData = createReactClass({
   },
 });
 
-PatientData.contextType = ToastContext;
+PatientDataClass.contextType = ToastContext;
+
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const PatientData = translate()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -1789,4 +1795,4 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(translate()(PatientData));
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientData);
