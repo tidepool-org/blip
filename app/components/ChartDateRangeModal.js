@@ -214,9 +214,9 @@ export const ChartDateRangeModal = (props) => {
 };
 
 ChartDateRangeModal.propTypes = {
-  chartType: PropTypes.string.isRequired,
+  chartType: PropTypes.string,
   maxDays: PropTypes.number.isRequired,
-  mostRecentDatumDate: PropTypes.number.isRequired,
+  mostRecentDatumDate: PropTypes.number,
   onClose: PropTypes.func.isRequired,
   onDatesChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -224,8 +224,8 @@ ChartDateRangeModal.propTypes = {
   processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
-    timezoneName: PropTypes.string.isRequired,
-  }).isRequired,
+    timezoneName: PropTypes.string,
+  }),
   trackMetric: PropTypes.func.isRequired,
 };
 
