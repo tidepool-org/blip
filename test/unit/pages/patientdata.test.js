@@ -1678,7 +1678,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -2862,7 +2862,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -3936,7 +3936,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided utc timestamp datetime', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
