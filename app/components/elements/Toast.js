@@ -14,6 +14,7 @@ import baseTheme from '../../themes/baseTheme';
 
 export const Toast = props => {
   const {
+    action,
     message,
     onClose,
     open,
@@ -43,9 +44,10 @@ export const Toast = props => {
         theme={baseTheme}
         variant={`toasts.${variant}`}
       >
-        <Flex alignItems="center">
+        <Flex alignItems="center" pr={2}>
           <Icon className="feedback" label="feedback" icon={feedbackIcon[variant]} />
-          <Body1 pl={2} pr={4}>{message}</Body1>
+          <Body1 pl={2} pr={action ? 2 : 0}>{message}</Body1>
+          {action}
         </Flex>
         <Icon
           className="close"
@@ -70,6 +72,7 @@ Toast.propTypes = {
 };
 
 Toast.defaultProps = {
+  action: null,
   anchorOrigin: {
     horizontal: 'center',
     vertical: 'top',

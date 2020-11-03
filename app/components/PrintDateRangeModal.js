@@ -340,9 +340,9 @@ export const PrintDateRangeModal = (props) => {
 PrintDateRangeModal.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
-    basics: PropTypes.number.isRequired,
-    bgLog: PropTypes.number.isRequired,
-    daily: PropTypes.number.isRequired,
+    basics: PropTypes.number,
+    bgLog: PropTypes.number,
+    daily: PropTypes.number,
   }),
   onClickPrint: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -351,8 +351,8 @@ PrintDateRangeModal.propTypes = {
   processing: PropTypes.bool,
   timePrefs: PropTypes.shape({
     timezoneAware: PropTypes.bool,
-    timezoneName: PropTypes.string.isRequired,
-  }).isRequired,
+    timezoneName: PropTypes.string,
+  }),
   trackMetric: PropTypes.func.isRequired,
 };
 
