@@ -1,18 +1,3 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import _ from 'lodash';
 import sundial from 'sundial';
 
@@ -30,8 +15,8 @@ import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
 let personUtils = {};
 
-personUtils.INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');
-personUtils.OUT_OF_ORDER_TEXT = t('Hmm, diagnosis date usually comes after birthday');
+personUtils.INVALID_DATE_TEXT = t('Please enter dates using MM/DD/YYYY format');
+personUtils.OUT_OF_ORDER_TEXT = t('Please enter a diagnosis date that comes after the birthday');
 
 personUtils.fullName = (person) => {
   return utils.getIn(person, ['profile', 'fullName']);
