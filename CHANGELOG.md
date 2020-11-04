@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 Library for Tidepool's timeline-style diabetes data visualization(s) used in Blip and was forked from tidepool/tideline.
 
+## 1.14.1 - 2020-11-03
+### Fixed
+- YLP-262 Settings are not displayed in blip with updated pumpSettings uploads
+
 ## 1.14.0 - 2020-10-28
 ### Changed
 - YLP-173 Change Loop Mode labels (ON/OFF)
