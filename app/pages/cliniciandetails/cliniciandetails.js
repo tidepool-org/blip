@@ -38,7 +38,6 @@ class ClinicianDetails extends React.Component {
         firstName: this.getUserFirstName(),
         lastName: this.getUserLastName(),
         clinicalRole: '',
-        clinicName: '',
       },
       validationErrors: {},
     }
@@ -78,16 +77,6 @@ class ClinicianDetails extends React.Component {
         {value: 'physician_assistant', label: t('Physician Assistant')},
         {value: 'other', label: t('Other')}
       ]
-    },
-    {
-      name: 'clinicName',
-      label: t('Clinic Name'),
-      type: 'text'
-    },
-    {
-      name: 'clinicPhone',
-      label: t('Clinic Phone Number (optional)'),
-      type: 'text'
     }
   ]}
 
@@ -110,8 +99,7 @@ class ClinicianDetails extends React.Component {
     if (
       _.get(formValues,'firstName.length') &&
       _.get(formValues,'lastName.length') &&
-      _.get(formValues,'clinicalRole.length') &&
-      _.get(formValues,'clinicName.length')
+      _.get(formValues,'clinicalRole.length') 
     )
       {
         return true;
@@ -200,9 +188,7 @@ class ClinicianDetails extends React.Component {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
         clinic: {
-          role: formValues.clinicalRole,
-          name: formValues.clinicName,
-          telephone: formValues.clinicPhone
+          role: formValues.clinicalRole
         }
       }
     };
@@ -213,8 +199,6 @@ class ClinicianDetails extends React.Component {
     const form = [
       { type: 'name', name: 'firstName', label: 'first name', value: formValues.firstName },
       { type: 'name', name: 'lastName', label: 'last name', value: formValues.lastName },
-      { type: 'clinicName', name: 'clinicName', label: 'clinic name', value: formValues.clinicName },
-      { type: 'clinicPhone', name: 'clinicPhone', label: 'clinic phone', value: formValues.clinicPhone },
       { type: 'clinicalRole', name: 'clinicalRole', label: 'clinical role', value: formValues.clinicalRole }
     ];
     const validationErrors = validateForm(form, false);
