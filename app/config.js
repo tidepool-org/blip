@@ -17,7 +17,10 @@
 
 import _ from 'lodash';
 
-const defaultConfig  = {
+const DUMMY_DOMAIN = 'example.com';
+const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;
+
+const defaultConfig = {
   VERSION: '0.0.0',
   UPLOAD_API: 'https://tidepool.org/uploader',
   API_HOST: `${window.location.protocol}//${window.location.host}`,
@@ -30,11 +33,10 @@ const defaultConfig  = {
   ALLOW_PATIENT_CHANGE_EMAIL: true,
   ALLOW_PATIENT_CHANGE_PASSWORD: true,
   CAN_SEE_PWD_LOGIN: false,
-  SUPPORT_EMAIL_ADDRESS: 'support@example.com',
-  SUPPORT_WEB_ADDRESS: 'https://example.com',
-  REGULATORY_WEB_ADDRESS: 'https://example.com/',
+  SUPPORT_EMAIL_ADDRESS: `support@${DUMMY_DOMAIN}`,
+  SUPPORT_WEB_ADDRESS: DUMMY_URL,
   HELP_LINK: null,
-  ASSETS_URL: 'https://example.com/',
+  ASSETS_URL: DUMMY_URL,
   HIDE_DONATE: false,
   HIDE_DEXCOM_BANNER: false,
   HIDE_UPLOAD_LINK: false,
@@ -54,7 +56,8 @@ if (!_.isObjectLike(window.config)) {
   console.warn('Config not found, using default');
   window.config = defaultConfig;
 } else {
-  _.assign(defaultConfig,  window.config);
+  _.assign(defaultConfig, window.config);
 }
 
+export { DUMMY_URL };
 export default defaultConfig;

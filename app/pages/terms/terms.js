@@ -72,9 +72,9 @@ export class Terms extends React.Component {
     const branding = CONFIG[config.BRANDING];
     const {
       termsText: textTermsOfUse,
-      privacyText: textPrivacyPolicy,
-      terms: urlTermsOfUse,
-      privacy: urlPrivacyPolicy
+      dataPrivacyText: textPrivacyPolicy,
+      termsURL: urlTermsOfUse,
+      dataPrivacyURL: urlPrivacyPolicy
     } = branding;
 
     // TODO Reuse <Trans /> from react-i18next after update to v11.6.0+
@@ -92,11 +92,11 @@ export class Terms extends React.Component {
           <Trans parent="span" i18nKey="html.terms-of-use.updated" i18n={i18next}>
             I am 18 or older and I accept the terms of the
             &nbsp;
-            <a href={urlTermsOfUse} target='_blank' rel='noreferrer'>{textTermsOfUse}</a>
+            <a id="link-url-terms" href={urlTermsOfUse} target='_blank' rel='noreferrer'>{textTermsOfUse}</a>
             &nbsp;
             and the
             &nbsp;
-            <a href={urlPrivacyPolicy} target='_blank' rel='noreferrer'>{textPrivacyPolicy}</a>
+            <a id="link-url-privacy" href={urlPrivacyPolicy} target='_blank' rel='noreferrer'>{textPrivacyPolicy}</a>
           </Trans>
         </label>
       </p>

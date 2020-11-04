@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,8 +13,8 @@ import _ from 'lodash';
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -38,7 +36,7 @@ import TidepoolNotification from '../../components/notification';
 
 import FooterLinks from '../../components/footerlinks';
 
-import { DATA_DONATION_NONPROFITS, CONFIG } from '../../core/constants';
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 import config from '../../config';
 
@@ -46,7 +44,6 @@ import config from '../../config';
 require('tideline/css/tideline.less');
 require('../../style.less');
 
-document.title = CONFIG[config.BRANDING].name;
 export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: PropTypes.bool.isRequired,
@@ -77,7 +74,6 @@ export class AppComponent extends React.Component {
       api: PropTypes.object.isRequired,
       config: PropTypes.object.isRequired,
       log: PropTypes.func.isRequired,
-      personUtils: PropTypes.object.isRequired,
       trackMetric: PropTypes.func.isRequired,
     }).isRequired,
     showingDonateBanner: PropTypes.bool,

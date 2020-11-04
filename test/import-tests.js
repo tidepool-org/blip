@@ -1,3 +1,4 @@
+import './unit/bootstrap.test';
 import './unit/redux/actions/async.test.js';
 import './unit/redux/actions/sync.test.js';
 import './unit/redux/utils/trackingMiddleware.test.js';

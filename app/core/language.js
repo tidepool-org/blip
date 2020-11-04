@@ -1,3 +1,4 @@
+/* eslint-disable lodash/prefer-lodash-typecheck */
 // @ts-nocheck
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
@@ -77,4 +78,5 @@ i18n.on('languageChanged', (lng) => {
 
 i18n.init(i18nOptions);
 
+export { i18nOptions };
 export default i18n;

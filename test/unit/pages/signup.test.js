@@ -1,19 +1,14 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global before */
-/* global after */
-/* global it */
-
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import sundial from 'sundial';
+import sinon from 'sinon';
+import chai from 'chai';
+import _ from 'lodash';
 
 import config from '../../../app/config';
-import { Signup } from '../../../app/pages/signup';
-import { mapStateToProps } from '../../../app/pages/signup';
+import { Signup, mapStateToProps } from '../../../app/pages/signup';
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -231,6 +226,39 @@ describe('Signup', function () {
       });
 
       expect(submitButton.text()).to.equal('Creating Clinician Account...');
+    });
+  });
+
+  describe('Diabeloop', () => {
+    const props = {
+      location: { pathname: '/signup/clinician' },
+      acknowledgeNotification: _.noop,
+      api: {},
+      onSubmit: _.noop,
+      trackMetric: _.noop,
+      working: false,
+    };
+
+    before(() => {
+      config.BRANDING = 'diabeloop';
+    });
+    after(() => {
+      config.BRANDING = 'tidepool';
+    });
+
+    it('Should render the correct privacy links', () => {
+      const wrapper = mount(<Signup {...props} />);
+      let a = wrapper.find('#signup-terms-link');
+      expect(a.is('a')).to.be.true;
+      let aProps = a.props();
+      expect(aProps.href).to.be.equal('https://example.com/terms.en.pdf');
+      expect(aProps.children[0]).to.be.equal('Diabeloop Applications Terms of Use');
+
+      a = wrapper.find('#signup-privacy-link');
+      expect(a.is('a')).to.be.true;
+      aProps = a.props();
+      expect(aProps.href).to.be.equal('https://example.com/data-privacy.en.pdf');
+      expect(aProps.children[0]).to.be.equal('Privacy Policy');
     });
   });
 

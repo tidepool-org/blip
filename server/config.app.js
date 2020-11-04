@@ -73,7 +73,6 @@ const config = {
   CAN_SEE_PWD_LOGIN: booleanFromText(process.env.CAN_SEE_PWD_LOGIN, false),
   SUPPORT_EMAIL_ADDRESS: stringOption(process.env.SUPPORT_EMAIL_ADDRESS, 'support@example.com'),
   SUPPORT_WEB_ADDRESS: stringOption(process.env.SUPPORT_WEB_ADDRESS, 'https://example.com/'),
-  REGULATORY_WEB_ADDRESS: stringOption(process.env.REGULATORY_WEB_ADDRESS, 'https://example.com/'),
   HELP_LINK: stringOption(process.env.HELP_LINK, null),
   ASSETS_URL: stringOption(process.env.ASSETS_URL, 'https://example.com/'),
   HIDE_DONATE: booleanFromText(process.env.HIDE_DONATE, false),

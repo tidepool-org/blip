@@ -23,7 +23,7 @@ var createTidepoolClient = require('tidepool-platform-client');
 var tidepool;
 
 import config from '../config';
-var constants = require('./constants').CONFIG;
+import { CONFIG as constants } from './constants';
 
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');

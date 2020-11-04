@@ -25,7 +25,6 @@ import { CONFIG } from '../../core/constants';
 import './images/jdrf.png';
 import './images/jdrf_hover.png';
 
-const branding = config.BRANDING || 'tidepool';
 const t = i18next.t.bind(i18next);
 
 function renderVersion() {
@@ -37,8 +36,8 @@ function renderVersion() {
 }
 
 function tidepoolFooter(metricFnMkr) {
-  const urlSupport = CONFIG[branding].support;
-  const urlLegal = CONFIG[branding].legal;
+  const urlSupport = CONFIG.tidepool.support;
+  const urlLegal = CONFIG.tidepool.legal;
 
   return (
     <div className='footer-section-tidepool footer-section-top'>
@@ -103,27 +102,28 @@ function tidepoolFooter(metricFnMkr) {
 }
 
 function diabeloopFooter(metricFnMkr) {
-  const urlSupport = CONFIG[branding].support;
-  const urlLegal = CONFIG[branding].legal;
-  const urlPrivacy = CONFIG[branding].privacy;
-  const regulatoryWebAddress = config.REGULATORY_WEB_ADDRESS;
+  const brandConfig = CONFIG.diabeloop;
 
   return (
     <div className='footer-section-diabeloop'>
       <div className='footer-column footer-column-1'>
         <a
-          href={urlPrivacy}
+          href={brandConfig.dataPrivacyURL}
           className='footer-link'
           id='privacy-link'
           onClick={metricFnMkr('Privacy')}
-          target='_blank'>{t('Privacy Policy')}
+          target='_blank'
+          rel="noreferrer">
+            {brandConfig.dataPrivacyText}
         </a>
         <a
-          href={urlLegal}
+          href={brandConfig.termsURL}
           id='terms-link'
           className='footer-link'
           onClick={metricFnMkr('TermsOfUSe')}
-          target='_blank'>{t('Tidepool Applications Terms of Use')}
+          target='_blank'
+          rel="noreferrer">
+            {brandConfig.termsText}
         </a>
       </div>
       <div className='footer-column footer-column-2 justify-space-around'>
@@ -131,18 +131,22 @@ function diabeloopFooter(metricFnMkr) {
       </div>
       <div className='footer-column footer-column-3 justify-space-around'>
         <a
-          href={urlSupport}
+          href={brandConfig.supportURL}
           id='support-link'
           className='footer-link'
           onClick={metricFnMkr('CompanyInformation')}
-          target="_blank">{t('Diabeloop')}
+          target="_blank"
+          rel="noreferrer">
+            {brandConfig.supportText}
         </a>
         <a
-          href={regulatoryWebAddress}
+          href={brandConfig.intendedUseURL}
           id='regulatory-link'
           className='footer-link'
           onClick={metricFnMkr('RegulatoryInformation')}
-          target='_blank'>{t('Regulatory Information')}
+          target='_blank'
+          rel="noreferrer">
+            {brandConfig.intendedUseText}
         </a>
       </div>
     </div>
@@ -153,12 +157,12 @@ function FooterLinks(props) {
   const { shouldDisplayFooterLinks, trackMetric } = props;
   const metricFnMkr = (link) => {
     return () => trackMetric(`Clicked Footer ${link}`);
-  }
+  };
 
   let footerContent = null;
   let versionContent = null;
   if (shouldDisplayFooterLinks) {
-    if (branding === 'diabeloop') {
+    if (config.BRANDING === 'diabeloop') {
       footerContent = diabeloopFooter(metricFnMkr);
     } else {
       footerContent = tidepoolFooter(metricFnMkr);
@@ -178,7 +182,7 @@ function FooterLinks(props) {
       {versionContent}
     </div>
   );
-};
+}
 
 FooterLinks.propTypes = {
   trackMetric: PropTypes.func.isRequired,

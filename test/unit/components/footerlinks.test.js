@@ -1,14 +1,15 @@
-/* global afterEach, before, chai, describe, it, sinon */
-
 import React from 'react';
+import _ from 'lodash';
 import sinon from 'sinon';
+import chai from 'chai';
 import { shallow } from 'enzyme';
 
+import config from '../../../app/config';
 import FooterLinks from '../../../app/components/footerlinks/';
 
-const expect = chai.expect;
-
 describe('FooterLinks', () => {
+  const { expect } = chai;
+
   let wrapper;
   const props = {
     trackMetric: sinon.spy(),
@@ -16,11 +17,30 @@ describe('FooterLinks', () => {
   };
 
   before(() => {
+    try {
+      // FIXME should not protect this call
+      sinon.spy(console, 'error');
+    } catch (e) {
+      console.error = sinon.stub();
+    }
+  });
+
+  after(() => {
+    if (_.isFunction(_.get(console, 'error.restore'))) {
+      // @ts-ignore
+      console.error.restore();
+    }
+  });
+
+  beforeEach(() => {
     wrapper = shallow(<FooterLinks {...props} />);
   });
 
   afterEach(() => {
     props.trackMetric.resetHistory();
+    // @ts-ignore
+    console.error.resetHistory();
+    wrapper = null;
   });
 
   describe('render', () => {
@@ -29,10 +49,48 @@ describe('FooterLinks', () => {
     });
 
     it('should only render the version when requested', () => {
-      let fLinks = shallow(<FooterLinks trackMetric={() => {}} shouldDisplayFooterLinks={false} />);
+      let fLinks = shallow(<FooterLinks trackMetric={_.noop} shouldDisplayFooterLinks={false} />);
       expect(fLinks.find('a').length).to.equal(0);
       expect(fLinks.find('.footer-version').length).to.equal(1);
-    })
+    });
+  });
+
+  describe('diabeloop', () => {
+    before(() => {
+      config.BRANDING = 'diabeloop';
+    });
+    after(() => {
+      config.BRANDING = 'tidepool';
+    });
+
+    const links = [{
+      id: 'privacy-link',
+      text: 'Privacy Policy',
+      href: 'https://example.com/data-privacy.en.pdf',
+    }, {
+      id: 'terms-link',
+      text: 'Diabeloop Applications Terms of Use',
+      href: 'https://example.com/terms.en.pdf',
+    }, {
+      id: 'support-link',
+      text: 'Diabeloop',
+      href: 'https://www.diabeloop.com',
+    }, {
+      id: 'regulatory-link',
+      text: 'Regulatory Information',
+      href: 'https://example.com/intended-use.en.pdf',
+    }];
+
+    links.forEach((link) => {
+      it(`should render the correct ${link.id}`, () => {
+        const wa = wrapper.find(`#${link.id}`);
+        expect(wa.is('a')).to.be.true;
+        const aProps = wa.props();
+        expect(aProps.href).to.be.equal(link.href);
+        expect(aProps.children).to.be.equal(link.text);
+        expect(console.error.callCount).to.equal(0);
+      });
+    });
   });
 
   describe('interactions', () => {

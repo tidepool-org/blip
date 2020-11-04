@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import sinon from 'sinon';
@@ -28,6 +29,8 @@ describe('Terms', () => {
   });
 
   describe('render', () => {
+    let container = null;
+
     before(() => {
       try {
         // FIXME should not protect this call
@@ -36,21 +39,63 @@ describe('Terms', () => {
         console.error = sinon.stub();
       }
     });
+
     after(() => {
       // @ts-ignore
       if (_.isFunction(_.get(console, 'error.restore'))) {
         // @ts-ignore
         console.error.restore();
       }
+      config.BRANDING = 'tidepool';
     });
 
-    it('should not console.error when required props are set', () => {
-      const termsElem = <Terms {...props} />;
-      const elem = TestUtils.renderIntoDocument(termsElem);
+    beforeEach(() => {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+    });
+    afterEach(() => {
+      document.body.removeChild(container);
+      container = null;
+      console.error.resetHistory();
+    });
 
-      expect(elem).to.be.ok;
-      // @ts-ignore
-      expect(console.error.callCount).to.equal(0);
+    it('should not console.error when required props are set', (done) => {
+      ReactDOM.render(<Terms {...props} />, container, () => {
+        try {
+          const p = document.getElementById('checkbox-agreed-terms');
+          expect(p).to.be.not.null;
+          expect(console.error.callCount).to.equal(0);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+
+    it('terms links should be visible and sets', (done) => {
+      config.BRANDING = 'diabeloop';
+      ReactDOM.render(<Terms {...props} />, container, () => {
+        try {
+          let a = document.getElementById('link-url-terms');
+          expect(a).to.be.not.null;
+          expect(a.getAttribute('href')).to.be.a('string', 'href link-url-terms');
+          expect(a.getAttribute('href').length).to.be.above(1);
+          expect(a.firstChild).to.be.not.null;
+          expect(a.firstChild.textContent).to.be.equal('Diabeloop Applications Terms of Use');
+
+          a = document.getElementById('link-url-privacy');
+          expect(a).to.be.not.null;
+          expect(a.getAttribute('href')).to.be.a('string', 'href link-url-privacy');
+          expect(a.getAttribute('href').length).to.be.above(1);
+          expect(a.firstChild).to.be.not.null;
+          expect(a.firstChild.textContent).to.be.equal('Privacy Policy');
+
+          expect(console.error.callCount).to.equal(0);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
     });
   });
 

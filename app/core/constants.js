@@ -14,19 +14,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+/* eslint-disable no-underscore-dangle */
 
 import i18next from './language';
-import config from '../config'
+import config from '../config';
 
 const t = i18next.t.bind(i18next);
 
-export const URL_UPLOADER_CHROME_STORE = 'http://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb';
 export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/tidepool-mobile/id1026395200?mt=8';
-export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
-export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project';
 export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool';
-export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/'
+export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 // BRANDING
@@ -35,19 +33,27 @@ export const CONFIG = {
     name: 'Tidepool',
     support:'http://support.tidepool.org/',
     legal:'http://tidepool.org/legal/',
-    terms: URL_TERMS_OF_USE,
+    termsURL: 'https://tidepool.org/terms-of-use',
     get termsText() { return t('Tidepool Applications Terms of Use'); },
-    privacy: URL_PRIVACY_POLICY,
-    get privacyText() { return t('Privacy Policy'); }
+    dataPrivacyURL: 'https://tidepool.org/privacy-policy',
+    get dataPrivacyText() { return t('Privacy Policy'); }
   },
-  'diabeloop': {
+  diabeloop: {
     name: 'YourLoops',
-    support: 'https://www.diabeloop.com',
-    legal: config.ASSETS_URL + 'terms.pdf',
-    terms: config.ASSETS_URL + 'terms.pdf',
+    supportURL: 'https://www.diabeloop.com',
+    get supportText() { return t('Diabeloop'); },
+    _termsURL: `${config.ASSETS_URL}terms.pdf`,
+    get termsURL() { return this._termsURL; },
+    set termsURL(value) { this._termsURL = value; },
     get termsText() { return t('Diabeloop Applications Terms of Use'); },
-    privacy: config.ASSETS_URL + 'data-privacy.pdf',
-    get privacyText() { return t('Privacy Policy'); }
+    _dataPrivacyURL: `${config.ASSETS_URL}data-privacy.pdf`,
+    get dataPrivacyURL() { return this._dataPrivacyURL; },
+    set dataPrivacyURL(value) { this._dataPrivacyURL = value; },
+    get dataPrivacyText() { return t('Privacy Policy'); },
+    _intendedUseURL: `${config.ASSETS_URL}intendedUse.pdf`,
+    get intendedUseURL() { return this._intendedUseURL; },
+    set intendedUseURL(value) { this._intendedUseURL = value; },
+    get intendedUseText() { return t('Regulatory Information'); },
   }
 };
 

@@ -18,11 +18,9 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import onerror from './onerror';
-import app from './bootstrap';
-import AppRoot from './redux/containers/Root';
+import Bootstrap from './bootstrap';
 
-window.app = app;
+const app = new Bootstrap();
+
 window.onerror = onerror;
-// NOTE: `window.config` is bundled separately
-
-app.start(AppRoot);
+app.start();

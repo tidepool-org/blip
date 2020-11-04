@@ -33,6 +33,5 @@ export MATOMO_TRACKER_URL='disabled'
 export MATOMO_TRACKER_SITEID='0'
 export SUPPORT_EMAIL_ADDRESS='support@example.com'
 export SUPPORT_WEB_ADDRESS='https://example.com/'
-export REGULATORY_WEB_ADDRESS='https://example.com/'
 # Crowdin translation service (enabled / disabled):
 export CROWDIN='disabled'
