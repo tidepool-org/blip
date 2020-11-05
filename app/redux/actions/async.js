@@ -10,12 +10,12 @@ import { DIABETES_DATA_TYPES } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
+import config from '../../config';
 
 import { push } from 'connected-react-router';
 import { worker } from '.';
 
 import utils from '../../core/utils';
-import { loggedInUserId } from '../reducers/misc';
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -223,39 +223,59 @@ export function login(api, credentials, options, postLoginAction) {
         }
       } else {
         dispatch(fetchUser(api, (err, user) => {
-          const isClinic = personUtils.isClinic(user);
-
-          let redirectRoute = '/patients?justLoggedIn=true';
-          if (isClinic && !_.get(user, ['profile', 'clinic'], false)) {
-            redirectRoute = '/clinician-details';
-          }
-
           if (err) {
             dispatch(sync.loginFailure(
               createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
             ));
           } else {
-            if (_.get(user, ['profile', 'patient'])) {
-              dispatch(fetchPatient(api, user.userid, (err, patient) => {
+            const isClinic = personUtils.isClinic(user);
+
+            let redirectRoute = '/patients?justLoggedIn=true';
+            if (isClinic && !_.get(user, ['profile', 'clinic'], false)) {
+              redirectRoute = '/clinician-details';
+            }
+            if (isClinic && config.CLINICS_ENABLED) {
+              dispatch(sync.getClinicsRequest());
+              api.clinics.getAll({clinicianId:user.userid}, (err, clinics) => {
                 if (err) {
                   dispatch(sync.loginFailure(
-                    createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
+                    createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
                   ));
                 } else {
-                  user = update(user, { $merge: patient });
-                  dispatch(sync.loginSuccess(user));
-                  if (postLoginAction) {
-                    dispatch(postLoginAction());
+                  dispatch(sync.getClinicsSuccess(clinics, {clinicianId:user.userid}));
+                  if(_.isEmpty(clinics)) {
+                    redirectRoute = '/clinic-details';
                   }
-                  dispatch(push(redirectRoute));
+                  forward();
                 }
-              }));
+              });
             } else {
-              dispatch(sync.loginSuccess(user));
-              if (postLoginAction) {
-                dispatch(postLoginAction());
+              forward();
+            }
+
+            function forward() {
+              if (_.get(user, ['profile', 'patient'])) {
+                dispatch(fetchPatient(api, user.userid, (err, patient) => {
+                  if (err) {
+                    dispatch(sync.loginFailure(
+                      createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
+                    ));
+                  } else {
+                    user = update(user, { $merge: patient });
+                    dispatch(sync.loginSuccess(user));
+                    if (postLoginAction) {
+                      dispatch(postLoginAction());
+                    }
+                    dispatch(push(redirectRoute));
+                  }
+                }));
+              } else {
+                dispatch(sync.loginSuccess(user));
+                if (postLoginAction) {
+                  dispatch(postLoginAction());
+                }
+                dispatch(push(redirectRoute));
               }
-              dispatch(push(redirectRoute));
             }
           }
         }));

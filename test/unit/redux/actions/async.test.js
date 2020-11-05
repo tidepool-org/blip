@@ -692,6 +692,106 @@ describe('Actions', () => {
         expect(trackMetric.calledWith('Logged In')).to.be.true;
       });
 
+      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with no clinic profile to the clinician details form when new clinic interface is enabled', () => {
+        const config = {
+          CLINICS_ENABLED: true,
+        };
+
+        async.__Rewire__('config', config);
+
+        const creds = { username: 'bruce', password: 'wayne' };
+        const user = { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true };
+        const patient = { foo: 'bar' };
+        const clinics = [];
+
+        const api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          },
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, null, clinics)
+          },
+        };
+
+        const expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_REQUEST' },
+          { type: 'GET_CLINICS_SUCCESS', payload: { clinics, options: { clinicianId: user.userid } }},
+          { type: 'LOGIN_SUCCESS', payload: { user } },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore(initialState);
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
+
+      it('should trigger LOGIN_SUCCESS and it should redirect a clinician with a clinic profile to the patients view when new clinic interface is enabled', () => {
+        const config = {
+          CLINICS_ENABLED: true,
+        };
+
+        async.__Rewire__('config', config);
+        const creds = { username: 'bruce', password: 'wayne' };
+        const user = { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
+        const patient = { foo: 'bar' };
+        const clinics = [{_id: 'clinicId', name: 'Clinic Name' }];
+
+        const api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          },
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, null, clinics)
+          },
+        };
+
+        const expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+          { type: 'GET_CLINICS_REQUEST' },
+          { type: 'GET_CLINICS_SUCCESS', payload: { clinics, options: { clinicianId: user.userid } }},
+          { type: 'LOGIN_SUCCESS', payload: { user } },
+          { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore(initialState);
+
+        store.dispatch(async.login(api, creds));
+
+        const actions = store.getActions();
+
+        expect(actions).to.eql(expectedActions);
+        expect(api.user.login.calledWith(creds)).to.be.true;
+        expect(api.user.get.callCount).to.equal(1);
+        expect(trackMetric.calledWith('Logged In')).to.be.true;
+      });
+
       it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };

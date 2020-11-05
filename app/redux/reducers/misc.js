@@ -636,3 +636,50 @@ export const devices = (state = initialState.devices, action) => {
       return state;
   }
 };
+
+export const clinics = (state = initialState.clinics, action) => {
+  let clinic, clinician, clinics, clinicId;
+  switch (action.type) {
+    case types.CREATE_CLINIC_SUCCESS:
+      clinic = _.get(action.payload, 'clinic', {});
+      return update(state, {
+        [clinic.id]: { $set: { clinicians: {}, patients: {} } },
+      });
+    case types.ADD_CLINICIAN_TO_CLINIC_SUCCESS:
+      clinicId = _.get(action.payload, 'clinicId', {});
+      clinician = _.get(action.payload, 'clinician', {});
+      return update(state, {
+        [clinicId]: {
+          clinicians: {
+            [clinician.id]: { $set: clinician },
+          },
+        },
+      });
+    case types.GET_CLINICS_SUCCESS:
+      clinics = _.get(action.payload, 'clinics', []);
+      const options = _.get(action.payload, 'options', {});
+      const clinicians = {
+        clinicians: !_.isUndefined(options.clinicianId)
+          ? { [options.clinicianId]: {} }
+          : {},
+      };
+      const patients = {
+        patients: !_.isUndefined(options.patientId)
+          ? { [options.patientId]: {} }
+          : {},
+      };
+      const newClinics = _.reduce(
+        clinics,
+        (newSet, clinic) => {
+          newSet[clinic._id] = { ...clinicians, ...patients, ...clinic };
+          return newSet;
+        },
+        {}
+      );
+      return _.merge({}, state, newClinics);
+    case types.LOGOUT_REQUEST:
+      return initialState.clinics;
+    default:
+      return state;
+  }
+};

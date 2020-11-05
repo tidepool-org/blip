@@ -144,6 +144,7 @@ const initialState = {
   dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
+  clinics: {},
 };
 
 export default initialState;
