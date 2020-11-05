@@ -54,6 +54,9 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
+    case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
+    case types.ADD_PATIENT_TO_CLINIC_FAILURE:
+    case types.CREATE_CLINIC_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {

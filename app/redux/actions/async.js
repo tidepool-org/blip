@@ -1594,3 +1594,484 @@ export function disconnectDataSource(api, id, dataSourceFilter) {
     }
   };
 }
+
+/**
+ * Get All Clinics Action Creator
+ *
+ * @param {Object} options
+ * @param {String} [options.clinicianId] - Clinician ID
+ * @param {String} [options.patientId] - Patient ID
+ * @param {Number} [options.limit] - Query result limit
+ * @param {Number} [options.offset] - Query offset
+ * @param {String} [options.sortOrder] - Query sort order
+ * @param {Object} api - an instance of the API wrapper
+ */
+export function getAllClinics(api, options = {}, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.getClinicsRequest());
+
+    api.clinics.getAll(options, (err, clinics) => {
+      cb(err, clinics);
+      if (err) {
+        dispatch(sync.getClinicsFailure(
+          createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
+        ));
+      } else {
+        dispatch(sync.getClinicsSuccess(clinics, options));
+      }
+    });
+  };
+}
+
+/**
+ * Create Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {Object} clinic - New clinic
+ * @param {String} [clinic.name] - Clinic name
+ * @param {String} [clinic.address] - Clinic address
+ * @param {String} [clinic.city] - Clinic city
+ * @param {String} [clinic.postalCode] - Clinic Zip code
+ * @param {String} [clinic.state] - Clinic state
+ * @param {String} [clinic.country] - Clinic 2-character country code
+ * @param {Object[]} [clinic.phoneNumbers] - Array of phone number objects for the clinic
+ * @param {String} [clinic.phoneNumbers[].type] - Phone number description
+ * @param {String} [clinic.phoneNumbers[].number] - Phone number
+ * @param {String} [clinic.clinicType] - Clinic type
+ * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
+ * @param {Object} [clinic.metadata]
+ */
+export function createClinic(api, clinic) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+    dispatch(sync.createClinicRequest());
+
+    api.clinics.create(clinic, (err, clinic) => {
+      if (err) {
+        dispatch(sync.createClinicFailure(
+          createActionError(ErrorMessages.ERR_CREATING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.createClinicSuccess(clinic));
+        dispatch(sync.addClinicianToClinicRequest());
+        api.clinics.addClinicianToClinic(clinic.id, {clinicianId: loggedInUserId, clinicId: clinic.id, permissions: ['CLINIC_ADMIN']}, (err, clinician) => {
+          if(err) {
+            dispatch(sync.addClinicianToClinicFailure(
+              createActionError(ErrorMessages.ERR_ADDING_CLINICIAN_TO_CLINIC, err), err
+            ));
+          } else {
+            dispatch(sync.addClinicianToClinicSuccess(clinician, clinic.id));
+            console.log('redirect to clinic management interface');
+            // redirect to clinic management interface
+          }
+        })
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinic(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicRequest());
+
+    api.clinics.get(clinicId, (err, clinic) => {
+      if (err) {
+        dispatch(sync.fetchClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicSuccess(clinic));
+      }
+    });
+  };
+}
+
+/**
+ * Update Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} updates
+ * @param {String} [updates.name] - Clinic name
+ * @param {String} [updates.address] - Clinic address
+ * @param {String} [updates.city] - Clinic city
+ * @param {String} [updates.postalCode] - Clinic Zip code
+ * @param {String} [updates.state] - Clinic state
+ * @param {String} [updates.country] - Clinic 2-character country code
+ * @param {Object[]} [updates.phoneNumbers] - Array of phone number objects for the clinic
+ * @param {String} [updates.phoneNumbers[].type] - Phone number description
+ * @param {String} [updates.phoneNumbers[].number] - Phone number
+ * @param {String} [updates.clinicType] - Clinic type
+ * @param {Number} [updates.clinicSize] - Int Lower bound for clinic size
+ * @param {Object} [updates.metadata]
+ */
+export function updateClinic(api, clinicId, updates) {
+  return (dispatch) => {
+    dispatch(sync.updateClinicRequest());
+
+    api.clinics.update(clinicId, updates, (err) => {
+      if (err) {
+        dispatch(sync.updateClinicFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.updateClinicSuccess(clinicId, updates));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function deleteClinic(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicRequest());
+
+    api.clinics.delete(clinicId, (err) => {
+      if (err) {
+        dispatch(sync.deleteClinicFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicSuccess(clinicId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinician Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} clinicianId - Id of the clinician
+ */
+export function fetchClinician(api, clinicId, clinicianId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicianRequest());
+
+    api.clinics.getClinician(clinicId, clinicianId, (err, clinician) => {
+      if (err) {
+        dispatch(sync.fetchClinicianFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicianSuccess(clinician));
+      }
+    });
+  };
+}
+
+/**
+ * Update Clinician Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} clinicianId - Id of the clinician
+ * @param {Object} updates
+ * @param {String[]} updates.permissions - Array of string permissions
+ */
+export function updateClinician(api, clinicId, clinicianId, updates) {
+  return (dispatch) => {
+    dispatch(sync.updateClinicianRequest());
+
+    api.clinics.updateClinician(clinicId, clinicianId, updates, (err) => {
+      if (err) {
+        dispatch(sync.updateClinicianFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_CLINICIAN, err), err
+        ));
+      } else {
+        dispatch(sync.updateClinicianSuccess(clinicId, clinicianId, updates));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Clinician from Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} clinicianId - Id of the clinician
+ */
+export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicianFromClinicRequest());
+
+    api.clinics.deleteClinicianFromClinic(clinicId, clinicianId, (err) => {
+      if (err) {
+        dispatch(sync.deleteClinicianFromClinicFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINICIAN_FROM_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicianFromClinicSuccess(clinicId, clinicianId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patients for Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchPatientsForClinic(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientsForClinicRequest());
+
+    api.clinics.getPatientsForClinic(clinicId, (err, patients) => {
+      if (err) {
+        dispatch(sync.fetchPatientsForClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPatientsForClinicSuccess(patients));
+      }
+    });
+  };
+}
+
+/**
+ * Add Patient to Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} patient
+ * @param {String} [patient.id] - Id of this relationship
+ * @param {String} [patient.patientId] - user Id of the patient
+ * @param {String} [patient.clinicId] - Id of clinic
+ * @param {String[]} [patient.permissions] - Array of string permissions
+ */
+export function addPatientToClinic(api, clinicId, patient) {
+  return (dispatch) => {
+    dispatch(sync.addPatientToClinicRequest());
+
+    api.clinics.addPatientToClinic(clinicId, patient, (err, result) => {
+      if (err) {
+        dispatch(sync.addPatientToClinicFailure(
+          createActionError(ErrorMessages.ERR_ADDING_PATIENT_TO_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.addPatientToClinicSuccess(clinicId, patient, result.id));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patient from Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function fetchPatientFromClinic(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientFromClinicRequest());
+
+    api.clinics.getPatientFromClinic(clinicId, patientId, (err, patient) => {
+      if (err) {
+        dispatch(sync.fetchPatientFromClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_FROM_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchPatientFromClinicSuccess(patient));
+      }
+    });
+  };
+}
+
+/**
+ * Update Clinic Patient Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ * @param {Object} updates
+ * @param {String[]} updates.permissions - Array of string permissions
+ */
+export function updateClinicPatient(api, clinicId, patientId, updates) {
+  return (dispatch) => {
+    dispatch(sync.updateClinicPatientRequest());
+
+    api.clinics.updateClinicPatient(clinicId, patientId, updates, (err, patient) => {
+      if (err) {
+        dispatch(sync.updateClinicPatientFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_CLINIC_PATIENT, err), err
+        ));
+      } else {
+        dispatch(sync.updateClinicPatientSuccess(clinicId, patientId, updates));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Patient from Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the patient
+ */
+export function deletePatientFromClinic(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.deletePatientFromClinicRequest());
+
+    api.clinics.deletePatientFromClinic(clinicId, patientId, (err) => {
+      if (err) {
+        dispatch(sync.deletePatientFromClinicFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinicians from Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchCliniciansFromClinic(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchCliniciansFromClinicRequest());
+
+    api.clinics.getCliniciansFromClinic(clinicId, (err, clinicians) => {
+      if (err) {
+        dispatch(sync.fetchCliniciansFromClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICIANS_FROM_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchCliniciansFromClinicSuccess(clinicians));
+      }
+    });
+  };
+}
+
+/**
+ * Add Clinician to Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} clinician
+ * @param {String} [clinician.clinicianId] - Id of the clinician
+ * @param {String} [clinician.clinicId] - Id of the clinic
+ * @param {String[]} [clinician.permissions] - Array of string permissions
+ */
+export function addClinicianToClinic(api, clinicId, clinician) {
+  return (dispatch) => {
+    dispatch(sync.addClinicianToClinicRequest());
+
+    api.clinics.addClinicianToClinic(clinicId, clinician, (err, result) => {
+      if (err) {
+        dispatch(sync.addClinicianToClinicFailure(
+          createActionError(ErrorMessages.ERR_ADDING_CLINICIAN_TO_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.addClinicianToClinicSuccess(clinician, clinicId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinics Patient Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} patientId - Id of the patient
+ */
+export function fetchClinicsPatient(api, patientId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicsPatientRequest());
+
+    api.clinics.getClinicsPatient(patientId, (err, patient) => {
+      if (err) {
+        dispatch(sync.fetchClinicsPatientFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICS_PATIENT, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicsPatientSuccess(patient));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Clinics Patient Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} patientId - Id of the patient
+ */
+export function deleteClinicsPatient(api, patientId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicsPatientRequest());
+
+    api.clinics.deleteClinicsPatient(patientId, (err) => {
+      if (err) {
+        dispatch(sync.deleteClinicsPatientFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINICS_PATIENT, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicsPatientSuccess(patientId));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinics Clinician Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicianId - Id of the clinician
+ */
+export function fetchClinicsClinician(api, clinicianId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicsClinicianRequest());
+
+    api.clinics.getClinicsClinician(clinicianId, (err, clinician) => {
+      if (err) {
+        dispatch(sync.fetchClinicsClinicianFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICS_CLINICIAN, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicsClinicianSuccess(clinician));
+      }
+    });
+  };
+}
+
+/**
+ * Delete Clinics Clinician Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicianId - Id of the clinician
+ */
+export function deleteClinicsClinician(api, clinicianId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicsClinicianRequest());
+
+    api.clinics.deleteClinicsClinician(clinicianId, (err) => {
+      if (err) {
+        dispatch(sync.deleteClinicsClinicianFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINICS_CLINICIAN, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicsClinicianSuccess(clinicianId));
+      }
+    });
+  };
+}
