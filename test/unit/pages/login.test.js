@@ -1,27 +1,54 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from'react';
-import TestUtils from 'react-dom/test-utils';
+import ReactDOM from 'react-dom';
+import _ from 'lodash';
 import mutationTracker from 'object-invariant-test-helper';
+import chai from 'chai';
+import sinon from 'sinon';
 
-import { Login } from'../../../app/pages/login/login.js';
-import { mapStateToProps } from'../../../app/pages/login/login.js';
-
-let assert = chai.assert;
-let expect = chai.expect;
+import { Login, mapStateToProps } from'../../../app/pages/login/login.js';
+import config from '../../../app/config';
 
 describe('Login', function () {
+  const { assert, expect } = chai;
+
   it('should be exposed as a module and be of type function', function() {
     expect(Login).to.be.a('function');
   });
 
   describe('render', function() {
-    it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
-      var props = {
+    let container = null;
+
+    before(() => {
+      try {
+        // FIXME should not protect this call
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+        console.warn(e);
+      }
+    });
+
+    after(() => {
+      // @ts-ignore
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+      config.BRANDING = 'tidepool';
+    });
+
+    beforeEach(() => {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+    });
+    afterEach(() => {
+      document.body.removeChild(container);
+      container = null;
+      console.error.resetHistory();
+    });
+
+    it('should render without problems when required props are present', (done) => {
+      const props = {
         acknowledgeNotification: sinon.stub(),
         confirmSignup: sinon.stub(),
         fetchers: [],
@@ -30,10 +57,19 @@ describe('Login', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(Login, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(console.error.callCount).to.equal(0);
+      ReactDOM.render(<Login {...props} />, container, () => {
+        try {
+          const div = document.querySelector('.login-simpleform');
+          expect(div).to.be.not.null;
+          expect(console.error.callCount).to.equal(0);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
     });
+
+
   });
 
   describe('mapStateToProps', () => {

@@ -20,6 +20,12 @@ if (self.localStorage && self.localStorage.lang) {
   if (typeof window.zE === 'function') {
     window.zE('webWidget', 'setLocale', language);
   }
+} else if (language.indexOf('-') > 0) {
+  language = language.split('-')[0];
+}
+
+if (_.isEmpty(language) || !_.has(locales.resources, language)) {
+  language = locales.fallback;
 }
 
 const i18nOptions = {
@@ -43,7 +49,7 @@ const i18nOptions = {
   react: {
     wait: true,
     withRef: true,
-    defaultTransParent: 'div', // a valid react element - required before react 16
+    defaultTransParent: 'div', // a valid react element - required before react 16 - kept for now (used)
     transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
   },
   ns: locales.namespaces,

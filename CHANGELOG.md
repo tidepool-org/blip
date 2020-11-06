@@ -6,17 +6,18 @@ It is based on Tidepool Blip 1.27.
 ### Added
 - YLP-247 Add Dutch language
 ### Changed
-- YLP-289 block weight units
-- YLP-109 block units
-- YLP-265 Prevent the edition of patient name on clinical environment
 - YLP-59 Clean HCP profil setup form
+- YLP-103 Pick country and language when signing up
+- YLP-109 Block units
+- YLP-111 Display localized CGU and data privacy
 - YLP-173 Loop mode label
-- YLP-206 allow name edition for patient profile
 - YLP-203 Change menu item "System settings" to "DBL settings"
 - YLP-205 Change menu item "print"
+- YLP-206 Allow name edition for patient profile
 - YLP-229 Make "Daily" view the homepage of YourLoops instead of "Overview"
-- YLP-111 Display localized CGU and data privacy
+- YLP-265 Prevent the edition of patient name on clinical environment
 - YLP-272 Display data with correct units when user settings does not contain the bgTarget
+- YLP-289 Block weight units
 ### Fixed
 - YLP-262 Settings are not displayed in blip with updated pumpSettings uploads
 - YLP-290 Trends calendar button and text is white

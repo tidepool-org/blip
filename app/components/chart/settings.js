@@ -1,7 +1,3 @@
-
-import _ from 'lodash';
-import bows from 'bows';
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -18,25 +14,21 @@ import bows from 'bows';
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import PropTypes from 'prop-types';
 
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Trans, translate } from 'react-i18next';
 
 import utils from '../../core/utils';
-
 import * as viz from '@tidepool/viz';
-const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
 import Header from './header';
 import Footer from './footer';
 
-const tideline = {
-  log: bows('Settings')
-};
+const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
 
-const Settings = translate()(class extends React.Component {
+class Settings extends React.Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
@@ -56,13 +48,15 @@ const Settings = translate()(class extends React.Component {
     uploadUrl: PropTypes.string.isRequired
   };
 
-  state = {
-    atMostRecent: true,
-    inTransition: false,
-    title: ''
-  };
-  log = bows('Settings View');
-  chartType = 'settings';
+  constructor(props) {
+    super(props);
+    this.state = {
+      atMostRecent: true,
+      inTransition: false,
+      title: ''
+    };
+    this.chartType = 'settings';
+  }
 
   render() {
     return (
@@ -99,7 +93,7 @@ const Settings = translate()(class extends React.Component {
       );
   }
 
-  renderChart = () => {
+  renderChart() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
 
     const self = this;
@@ -119,14 +113,9 @@ const Settings = translate()(class extends React.Component {
         view='display'
       />
     );
-  };
+  }
 
-  renderMissingSettingsMessage = () => {
-    const self = this;
-    const handleClickUpload = function() {
-      self.props.trackMetric('Clicked Partial Data Upload, No Settings');
-    };
-
+  renderMissingSettingsMessage() {
     return (
       <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data">
         <p>
@@ -137,10 +126,9 @@ const Settings = translate()(class extends React.Component {
         </p>
       </Trans>
     );
+  }
 
-  };
-
-  isMissingSettings = () => {
+  isMissingSettings() {
     const data = this.props.patientData;
     const pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
     if (pumpSettings === false) {
@@ -153,7 +141,7 @@ const Settings = translate()(class extends React.Component {
     }
 
     return false;
-  };
+  }
 
   // handlers
   handleClickTrends = (e) => {
@@ -190,6 +178,6 @@ const Settings = translate()(class extends React.Component {
     }
     this.props.onSwitchToBgLog();
   };
-});
+}
 
-module.exports = Settings;
+export default translate()(Settings);

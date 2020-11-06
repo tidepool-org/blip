@@ -19,20 +19,21 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate } from 'react-i18next';
 import { Link } from 'react-router';
 import _ from 'lodash';
 
+import i18n from '../../core/language';
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
-import config from '../../config'
+import config from '../../config';
 
+const t = i18n.t.bind(i18n);
 
-export let Login = translate()(class extends React.Component {
+export class Login extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     confirmSignup: PropTypes.func.isRequired,
@@ -62,8 +63,6 @@ export let Login = translate()(class extends React.Component {
   }
 
   formInputs = () => {
-    const { t } = this.props;
-
     let pwdType = config.CAN_SEE_PWD_LOGIN ? 'passwordShowHide' : 'password';
 
     return [
@@ -91,7 +90,6 @@ export let Login = translate()(class extends React.Component {
   }
 
   render() {
-    const { t } = this.props;
     const form = this.renderForm();
     const inviteIntro = this.renderInviteIntroduction();
     const browserWarning = this.renderBrowserWarning();
@@ -115,7 +113,6 @@ export let Login = translate()(class extends React.Component {
   }
 
   renderInviteIntroduction = () => {
-    const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
     }
@@ -128,8 +125,6 @@ export let Login = translate()(class extends React.Component {
   };
 
   renderBrowserWarning = () => {
-    const { t } = this.props;
-
     if (!utils.isChrome()) {
       return (
         <div className='login-browserWarning'>
@@ -141,8 +136,6 @@ export let Login = translate()(class extends React.Component {
   };
 
   renderForm = () => {
-    const { t } = this.props;
-
     var submitButtonText = this.props.working ? t('Logging in...') : t('Login');
     var forgotPassword = this.renderForgotPassword();
 
@@ -165,13 +158,10 @@ export let Login = translate()(class extends React.Component {
   };
 
   renderForgotPassword = () => {
-    const { t } = this.props;
     return <Link to="/request-password-reset">{t('Forgot your password?')}</Link>;
   };
 
   handleSubmit = (formValues) => {
-    var self = this;
-
     if (this.props.working) {
       return;
     }
@@ -198,7 +188,6 @@ export let Login = translate()(class extends React.Component {
   };
 
   validateFormValues = (formValues) => {
-    const { t } = this.props;
     var form = [
       { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
       { type: 'email', name: 'username', label: t('this field'), value: formValues.username },
@@ -244,7 +233,7 @@ export let Login = translate()(class extends React.Component {
   UNSAFE_componentWillMount() {
     this.doFetching(this.props);
   }
-});
+}
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -258,7 +247,7 @@ let getFetchers = (dispatchProps, ownProps, other, api) => {
   }
 
   return [];
-}
+};
 
 export function mapStateToProps(state) {
   return {

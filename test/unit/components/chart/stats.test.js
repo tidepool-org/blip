@@ -110,6 +110,21 @@ describe('Stats', () => {
   });
 
   describe('render', () => {
+    before(() => {
+      try {
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+      }
+    });
+
+    after(() => {
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+    });
+
     context('basics', () => {
       beforeEach(() => {
         wrapper = shallow(<Stats {..._.assign({}, baseProps, {
@@ -118,8 +133,6 @@ describe('Stats', () => {
       });
 
       it('should render without errors when provided all required props', () => {
-        console.error = sinon.stub();
-
         expect(wrapper.find('.Stats')).to.have.length(1);
         expect(console.error.callCount).to.equal(0);
       });
@@ -192,8 +205,6 @@ describe('Stats', () => {
       });
 
       it('should render without errors when provided all required props', () => {
-        console.error = sinon.stub();
-
         expect(wrapper.find('.Stats')).to.have.length(1);
         expect(console.error.callCount).to.equal(0);
       });
@@ -264,8 +275,6 @@ describe('Stats', () => {
       });
 
       it('should render without errors when provided all required props', () => {
-        console.error = sinon.stub();
-
         expect(wrapper.find('.Stats')).to.have.length(1);
         expect(console.error.callCount).to.equal(0);
       });
@@ -294,8 +303,6 @@ describe('Stats', () => {
       });
 
       it('should render without errors when provided all required props', () => {
-        console.error = sinon.stub();
-
         expect(wrapper.find('.Stats')).to.have.length(1);
         expect(console.error.callCount).to.equal(0);
       });

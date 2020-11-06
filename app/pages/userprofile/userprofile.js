@@ -106,19 +106,19 @@ class UserProfile extends React.Component {
   formInputs() {
     const inputs = [];
     const nameDisabled = !this.isUserAllowedToChangeName();
-    const firstName = { 
-      name: 'firstName', 
-      label: t('First name'), 
-      type: 'text', 
+    const firstName = {
+      name: 'firstName',
+      label: t('First name'),
+      type: 'text',
       disabled: nameDisabled,
     };
-    const lastName = { 
-      name: 'lastName', 
-      label: t('Last name'), 
-      type: 'text', 
+    const lastName = {
+      name: 'lastName',
+      label: t('Last name'),
+      type: 'text',
       disabled: nameDisabled,
     };
-    
+
     inputs.push(firstName);
     inputs.push(lastName);
 
@@ -189,7 +189,7 @@ class UserProfile extends React.Component {
     };
 
     let organization = '';
-    if (user && _.get(user, 'profile.organization.name',false)) {
+    if (user && _.get(user, 'profile.organization.name', false)) {
       organization = user.profile.organization.name + ' / ';
     }
 
@@ -259,7 +259,7 @@ class UserProfile extends React.Component {
   validateFormValues(formValues) {
 
     let form = [];
-    if(this.isUserAllowedToChangeName()) {
+    if (this.isUserAllowedToChangeName()) {
       form.push({ type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName });
       form.push({ type: 'name', name: 'lastName', label: t('last name'), value: formValues.lastName });
     }
@@ -291,7 +291,7 @@ class UserProfile extends React.Component {
   prepareFormValuesForSubmit(formValues) {
     const result = {};
 
-    if(this.isUserAllowedToChangeName()) {
+    if (this.isUserAllowedToChangeName()) {
       result.profile = {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
@@ -337,8 +337,6 @@ class UserProfile extends React.Component {
     return !personUtils.isPatient(this.props.user) || config.ALLOW_PATIENT_CHANGE_NAME;
   }
 }
-
-
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

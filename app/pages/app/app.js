@@ -95,15 +95,7 @@ export class AppComponent extends React.Component {
     this.state = {
       dexcomShowBannerMetricTracked: false,
       donateShowBannerMetricTracked: false,
-    }
-  }
-
-  hideNavbarDropdown() {
-    var navbar = this.refs.navbar;
-
-    if (navbar) {
-      navbar.getWrappedInstance().hideDropdown();
-    }
+    };
   }
 
   /**
@@ -120,7 +112,7 @@ export class AppComponent extends React.Component {
 
   doFetching(nextProps) {
     if (!nextProps.fetchers) {
-      return
+      return;
     }
 
     nextProps.fetchers.forEach(fetcher => {
@@ -239,7 +231,10 @@ export class AppComponent extends React.Component {
       '/signup',
       '/signup/personal',
       '/signup/clinician',
-      '/terms'
+      '/terms',
+      // Be sure the user can't bypass this step
+      // even if he is logged-in.
+      '/clinician-details'
     ];
     if (!_.includes(LOGIN_NAV_ROUTES, this.props.location)) {
       if (this.props.authenticated ||
@@ -260,8 +255,7 @@ export class AppComponent extends React.Component {
             getUploadUrl={getUploadUrl}
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
-            permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-            ref="navbar"/>
+            permsOfLoggedInUser={this.props.permsOfLoggedInUser} />
           </div>
         );
       }
@@ -382,7 +376,7 @@ export class AppComponent extends React.Component {
     var footer = this.renderFooter();
 
     return (
-      <div className="app" onClick={this.hideNavbarDropdown.bind(this)}>
+      <div className="app">
         {overlay}
         {navbar}
         {notification}

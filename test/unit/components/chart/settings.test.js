@@ -1,22 +1,17 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global before */
-/* global after */
-
 import _ from 'lodash';
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-import { createRenderer } from 'react-test-renderer/shallow';
-var expect = chai.expect;
-
-const renderer = createRenderer();
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { mount } from 'enzyme';
+import sinon from 'sinon';
+import chai from 'chai';
 
 import Settings from '../../../../app/components/chart/settings';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 
 describe('Settings', function () {
+  const { expect } = chai;
+
   const bgPrefs = {
     bgClasses: {
       'very-low': {
@@ -38,35 +33,68 @@ describe('Settings', function () {
     bgUnits: MGDL_UNITS
   };
 
-  describe('render', function() {
+  describe('render', () => {
+    before(() => {
+      try {
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+      }
+    });
+
+    after(() => {
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+    });
+
+    let settingsElem = null;
+    afterEach(() => {
+      if (settingsElem) {
+        settingsElem.unmount();
+        settingsElem = null;
+      }
+    });
+
+    const fakeState = { viz: {}, blip: { currentPatientInViewId: null } };
+    const fakeStore = createStore((state = fakeState) => { return state; }, fakeState);
+
     it('should render without problems', function () {
-      var props = {
-        bgPrefs: {},
+      const props = {
+        bgPrefs,
         chartPrefs: {},
-        timePrefs: {},
-        patientData: {
-          grouped: { pumpSettings: [{ source: 'animas' }]}
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'UTC',
         },
-        onClickRefresh: function() {},
-        onClickNoDataRefresh: function() {},
-        onSwitchToBasics: function() {},
-        onSwitchToDaily: function() {},
-        onSwitchToTrends: function() {},
-        onSwitchToSettings: function() {},
-        onSwitchToBgLog: function() {},
-        trackMetric: function() {},
+        patientData: {
+          grouped: { pumpSettings: [{
+            source: 'diabeloop',
+            activeSchedule: ''
+          }] }
+        },
+        onClickRefresh: sinon.spy(),
+        onClickNoDataRefresh: sinon.spy(),
+        onSwitchToDaily: sinon.spy(),
+        onSwitchToSettings: sinon.spy(),
+        onSwitchToBgLog: sinon.spy(),
+        onSwitchToBasics: sinon.spy(),
+        onSwitchToTrends: sinon.spy(),
+        onClickPrint: sinon.spy(),
+        trackMetric: sinon.spy(),
         uploadUrl: '',
         canPrint: true,
       };
-      var settingsElem = React.createElement(Settings, props);
-      var elem = renderer.render(settingsElem);
-      var result = renderer.getRenderOutput();
-      expect(result).to.be.ok;
+
+      settingsElem = mount(<Provider store={fakeStore}><Settings {...props} /></Provider>);
+      expect(console.error.callCount, console.error.getCalls()).to.equal(0);
+      expect(settingsElem.find('#tidelineMain').exists()).to.be.true;
     });
 
     it('should render with missing data message when no pumpSettings data supplied', function () {
-      var props = {
-        bgPrefs: {},
+      const props = {
+        bgPrefs,
         chartPrefs: {},
         patientData: {
           grouped: { foo: 'bar' }
@@ -76,38 +104,34 @@ describe('Settings', function () {
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToBgLog: sinon.spy(),
+        onSwitchToBasics: sinon.spy(),
+        onSwitchToTrends: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
         canPrint: true,
       };
-      var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-      expect(elem).to.be.ok;
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-      expect(x).to.be.ok;
+      settingsElem = mount(<Settings {...props} />);
+      expect(settingsElem.find('.patient-data-message').exists()).to.be.true;
     });
 
     it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
-        bgPrefs: {},
+        bgPrefs,
         chartPrefs: {},
         patientData: {
         },
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
-        onSwitchToDaily: sinon.spy(),
-        onSwitchToSettings: sinon.spy(),
-        onSwitchToBgLog: sinon.spy(),
         trackMetric: sinon.spy(),
         uploadUrl: '',
         canPrint: true,
       };
-      var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'btn-refresh');
+
+      settingsElem = mount(<Settings {...props} />);
+      expect(settingsElem.find('.btn-refresh').exists()).to.be.true;
 
       expect(props.onClickRefresh.callCount).to.equal(0);
-      TestUtils.Simulate.click(refreshButton);
+      settingsElem.find('.btn-refresh').simulate('click');
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
@@ -119,15 +143,8 @@ describe('Settings', function () {
         canPrint: false,
       };
 
-      var dailyElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-
-      try {
-        TestUtils.findRenderedDOMComponentWithClass(elem, ['printview-print-icon']);
-        expect(true, 'Should not a a print link').to.be.false;
-      } catch (err) {
-        // No component found, we are happy
-      }
+      settingsElem = mount(<Settings {...props} />);
+      expect(settingsElem.find('.printview-print-icon').exists()).to.be.false;
     });
 
     it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
@@ -140,13 +157,13 @@ describe('Settings', function () {
         onClickPrint: sinon.spy(),
       };
 
-      var dailyElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
-      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
+      settingsElem = mount(<Settings {...props} />);
+      expect(settingsElem.find('.patient-data-subnav-active').exists()).to.be.true;
+      expect(settingsElem.find('.printview-print-icon').exists()).to.be.true;
+      expect(settingsElem.find('.print-icon').exists()).to.be.true;
 
       expect(props.onClickPrint.callCount).to.equal(0);
-      TestUtils.Simulate.click(printLink);
+      settingsElem.find('.printview-print-icon').simulate('click');
       expect(props.onClickPrint.callCount).to.equal(1);
     });
   });

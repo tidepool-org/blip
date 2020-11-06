@@ -24,6 +24,7 @@ var tidepool;
 
 import config from '../config';
 import { CONFIG as constants } from './constants';
+import i18n from './language';
 
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
@@ -148,7 +149,7 @@ api.user.signup = function(user, cb) {
      *
      * TODO: consider when refactoring platform client
      */
-    if(account.code && account.code === 409) {
+    if (account.code && account.code === 409) {
       api.metrics.track('Signup failed', account.reason);
       return cb({
         status: account.code,
@@ -156,10 +157,10 @@ api.user.signup = function(user, cb) {
       });
     }
 
-    var userId = account.userid;
+    const userId = account.userid;
 
-    tidepool.signupStart(userId, function(err, results){
-      if (err){
+    tidepool.signupStart(userId, i18n.language, (err) => {
+      if (err) {
         api.log('signup process error', err);
       }
       api.log('signup process started');
@@ -283,7 +284,7 @@ api.user.get = function(cb) {
           return cb(err);
         }
 
-        cb(err, patient)
+        cb(err, patient);
       });
     } else {
       cb(null, user);
@@ -342,12 +343,12 @@ function userFromAccountAndProfile(results) {
 
 api.user.resendEmailVerification = function(email, callback) {
   api.log('POST /confirm/resend/signup/' + email);
-  return tidepool.signupResend(email, callback);
+  return tidepool.signupResend(email, i18n.language, callback);
 };
 
 api.user.requestPasswordReset = function(email, callback) {
   api.log('POST /confirm/send/forgot/' + email);
-  return tidepool.requestPasswordReset(email, callback);
+  return tidepool.requestPasswordReset(email, true, i18n.language, callback);
 };
 
 api.user.confirmPasswordReset = function(payload, callback) {
@@ -577,7 +578,7 @@ api.metadata.preferences.get = function(patientId, cb) {
 api.metadata.preferences.put = function(patientId, preferences, cb) {
   api.log('PUT /metadata/' + patientId + '/preferences');
 
-  tidepool.addOrUpdatePreferences(patientId, preferences, function(err, payload) {
+  tidepool.addOrUpdatePreferences(patientId, preferences, function(err) {
     if (err) {
       return cb(err);
     }
@@ -607,12 +608,25 @@ api.metadata.settings.get = function(patientId, cb) {
 api.metadata.settings.put = function(patientId, settings, cb) {
   api.log('PUT /metadata/' + patientId + '/settings');
 
-  tidepool.addOrUpdateSettings(patientId, settings, function(err, payload) {
+  tidepool.addOrUpdateSettings(patientId, settings, function(err) {
     if (err) {
       return cb(err);
     }
 
     return cb(null, settings);
+  });
+};
+
+api.metadata.profile = {};
+api.metadata.profile.put = function(userId, profile, cb) {
+  api.log(`PUT /metadata/${userId}/profile`);
+
+  tidepool.addOrUpdateProfile(userId, profile, (err) => {
+    if (err) {
+      return cb(err);
+    }
+
+    return cb(null, profile);
   });
 };
 
@@ -741,7 +755,7 @@ api.invitation.dismiss = function(key, fromUserId, callback) {
 api.invitation.getSent = function(callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('GET /confirm/invite/'+loggedInUser);
-  return  tidepool.invitesSent(loggedInUser, callback);
+  return tidepool.invitesSent(loggedInUser, callback);
 };
 
 api.invitation.cancel = function(emailAddress, callback) {
