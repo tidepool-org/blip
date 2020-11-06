@@ -1,8 +1,3 @@
-
-var React = require('react');
-var IndexLink = require('react-router').IndexLink;
-var Link = require('react-router').Link;
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -18,20 +13,21 @@ var Link = require('react-router').Link;
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-
+import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import cx from 'classnames';
+import { Link, IndexLink } from 'react-router';
 
-import { translate } from 'react-i18next';
-
-var _ = require('lodash');
-var cx = require('classnames');
+import i18n from '../../core/language';
 var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/tidepool/logo.png');
 
+const t = i18n.t.bind(i18n);
 
-export default translate()(class extends React.Component {
+class NavBar extends React.Component {
   static propTypes = {
     currentPage: PropTypes.string,
     user: PropTypes.object,
@@ -44,9 +40,20 @@ export default translate()(class extends React.Component {
     permsOfLoggedInUser: PropTypes.object,
   };
 
-  state = {
-    showDropdown: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      showDropdown: false,
+    };
+  }
+
+  componentDidMount() {
+    document.querySelector('.app').addEventListener('click', this.hideDropdown);
+  }
+
+  componentWillUnmount() {
+    document.querySelector('.app').removeEventListener('click', this.hideDropdown);
+  }
 
   render() {
     return (
@@ -58,15 +65,15 @@ export default translate()(class extends React.Component {
     );
   }
 
-  renderLogoSection = () => {
+  renderLogoSection() {
     return (
       <div className="Navbar-logoSection">
         {this.renderLogo()}
       </div>
     );
-  };
+  }
 
-  renderLogo = () => {
+  renderLogo() {
     var self = this;
     var handleClick = function() {
       self.props.trackMetric('Clicked Navbar Logo');
@@ -80,17 +87,17 @@ export default translate()(class extends React.Component {
         <img src={logoSrc}/>
       </IndexLink>
     );
-  };
+  }
 
-  getPatientLink = (patient) => {
+  getPatientLink(patient) {
     if (!patient || !patient.userid) {
       return '';
     }
 
     return '/patients/' + patient.userid + '/data';
-  };
+  }
 
-  renderPatientSection = () => {
+  renderPatientSection() {
     var patient = this.props.patient;
 
     if (_.isEmpty(patient)) {
@@ -110,7 +117,7 @@ export default translate()(class extends React.Component {
           trackMetric={this.props.trackMetric} />
       </div>
     );
-  };
+  }
 
   toggleDropdown = (e) => {
     if (e) {
@@ -129,57 +136,52 @@ export default translate()(class extends React.Component {
     if (this.state.showDropdown) {
       this.setState({showDropdown: false});
     }
-  };
+  }
 
   renderMenuSection = () => {
-    var currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
-    const {user, t} = this.props;
+    const currentPage = (this.props.currentPage && this.props.currentPage[0] === '/') ? this.props.currentPage.slice(1) : this.props.currentPage;
+    const { user } = this.props;
 
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
     }
 
-    var displayName = this.getUserDisplayName();
-    var self = this;
-    var handleClickUser = function() {
-      self.props.trackMetric('Clicked Navbar Logged In User');
-      self.setState({showDropdown: false});
+    const displayName = this.getUserDisplayName();
+    const handleClickUser = () => {
+      this.props.trackMetric('Clicked Navbar Logged In User');
+      this.setState({showDropdown: false});
     };
 
-    var handleCareteam = function() {
-      self.props.trackMetric('Clicked Navbar CareTeam');
+    const handleCareteam = () => {
+      this.props.trackMetric('Clicked Navbar CareTeam');
     };
-    var patientsClasses = cx({
+    const patientsClasses = cx({
       'Navbar-button': true,
       'Navbar-selected': currentPage && currentPage === 'patients',
     });
 
-    var accountSettingsClasses = cx({
+    const accountSettingsClasses = cx({
       'Navbar-button': true,
       'Navbar-dropdownIcon-show': currentPage && currentPage === 'profile',
     });
 
-    var dropdownClasses = cx({
+    const dropdownClasses = cx({
       'Navbar-menuDropdown': true,
-      'Navbar-menuDropdown-hide': !self.state.showDropdown,
+      'Navbar-menuDropdown-hide': !this.state.showDropdown,
     });
 
-    var dropdownIconClasses = cx({
+    const dropdownIconClasses = cx({
       'Navbar-dropdownIcon': true,
-      'Navbar-dropdownIcon-show': self.state.showDropdown,
+      'Navbar-dropdownIcon-show': this.state.showDropdown,
       'Navbar-dropdownIcon-current': currentPage && currentPage === 'profile',
-    });
-
-    var dropdownIconIClasses = cx({
-      'Navbar-icon': true,
-      'icon-account--down': !self.state.showDropdown,
-      'icon-account--up': self.state.showDropdown,
     });
 
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <Link to="/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></Link>
+          <Link to="/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam">
+            <i className="Navbar-icon icon-careteam"></i>
+          </Link>
         </li>
         <li className={dropdownIconClasses}>
           <div onClick={this.toggleDropdown}>
@@ -210,24 +212,21 @@ export default translate()(class extends React.Component {
     );
   };
 
-  getUserDisplayName = () => {
+  getUserDisplayName() {
     return personUtils.fullName(this.props.user);
-  };
-
-  isSamePersonUserAndPatient = () => {
-    return personUtils.isSame(this.props.user, this.props.patient);
-  };
+  }
 
   handleLogout = (e) => {
-    this.setState({showDropdown: false});
-
     if (e) {
       e.preventDefault();
     }
-
-    var logout = this.props.onLogout;
-    if (logout) {
-      logout();
+    const { onLogout } = this.props;
+    if (onLogout) {
+      onLogout();
     }
+
+    this.setState({ showDropdown: false });
   };
-});
+}
+
+export default NavBar;

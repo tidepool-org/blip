@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.login-nav {
-  margin-top: @spacing-base;
+div.app div.login-nav {
+  margin-top: 10px;
   margin-bottom: @spacing-base;
 
   min-height: 40px;
@@ -24,6 +24,85 @@
   }
   @media(max-width: @screen-lg-min) {
     width: 100%;
+  }
+
+  display: flex;
+
+  div.lang-selector-dropdown {
+    margin-left: auto;
+    margin-right: 1em;
+    position: relative;
+    color: @popup-menu-text;
+
+    div.menu-hidden {
+      display: none !important;
+    }
+
+    div.lang-selector-menu {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      margin: 0.5em;
+      right: -1em;
+      border: 1px solid @popup-menu-border;
+      padding-top: 0.3em;
+      padding-bottom: 0.3em;
+      background-color: @popup-menu-background;
+
+      span {
+        cursor: pointer;
+        outline-style: none;
+        padding-left: 1em;
+        padding-right: 1em;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+
+        &:hover,
+        &:focus,
+        &:active {
+          color: @popup-menu-text-hover;
+        }
+      }
+    }
+
+    div.lang-selector-menu:after,
+    div.lang-selector-menu:before {
+      position: absolute;
+      top: -8px;
+      right: 14px;
+      display: inline-block;
+      border: solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 7px solid #eee;
+      border-left: 7px solid transparent;
+      border-bottom-color: white;
+      content: "";
+    }
+
+    div.lang-selector-menu:before {
+      top: -14px;
+      border-color: rgba(230, 230, 229, 0);
+      border-bottom-color: @popup-menu-border;
+      border-width: 7px;
+    }
+
+    div.lang-selector-nav {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      outline-style: none;
+
+      i.icon-arrow-down {
+        margin-left: 5px;
+        font-size: 5px;
+      }
+
+      &:hover,
+      &:focus,
+      &:active {
+        color: @popup-menu-text-hover;
+      }
+    }
   }
 }
 

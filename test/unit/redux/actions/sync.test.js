@@ -458,7 +458,7 @@ describe('Actions', () => {
         expect(action.payload).to.deep.equal({
           notification: {
             type: 'alert',
-            message: UserMessages.EMAIL_SENT
+            message: UserMessages.emailSent()
           }
         });
       });

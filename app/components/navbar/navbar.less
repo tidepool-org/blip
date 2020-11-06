@@ -65,7 +65,17 @@
   padding: 0 @spacing-small;
   margin: @spacing-small 0;
   display: flex;
-  // justify-content: flex-end;
+
+  li, a {
+    color: @popup-menu-text;
+    text-decoration: none;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @popup-menu-text-hover;
+    }
+  }
 }
 
 // Buttons, icons, labels
@@ -85,16 +95,7 @@
   font-size: 14px;
   line-height: @Navbar-buttonHeight;
   height: @Navbar-buttonHeight;
-
-  color: @gray-dark;
   text-decoration: none;
-
-  &:hover,
-  &:focus,
-  &:active {
-    color: @blue-green-light;
-    text-decoration: none;
-  }
 }
 
 .Navbar-button--withLeftLabelAndArrow {
@@ -109,81 +110,12 @@
   padding: 0px 5px;
 }
 
-.Navbar-label {
-  color: @gray-dark;
-
-  .Navbar-button--blueBg:hover &,
-  .Navbar-button--blueBg:focus &,
-  .Navbar-button--blueBg:active & {
-    background-color: @blue-green-light;
-  }
-}
-
 .Navbar-button--patient {
   display: block;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-.Navbar-label--left {
-  padding-left: 20px;
-  padding-right: 5px;
-}
-
-// http://cssarrowplease.com/
-.Navbar-label--left.Navbar-label--withArrow {
-  position: relative;
-  margin-right: @Navbar-buttonHeight / 2;
-
-  &:after {
-    left: 100%;
-    top: 50%;
-    border: solid transparent;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-left-color: @gray-dark;
-    border-width: @Navbar-buttonHeight / 2;
-    margin-top: -@Navbar-buttonHeight / 2;
-  }
-
-  .Navbar-button:hover &:after,
-  .Navbar-button:focus &:after,
-  .Navbar-button:active &:after {
-    background-color: @blue-green-light;
-  }
-
-  .Navbar-button--blueBg:hover &:after,
-  .Navbar-button--blueBg:focus &:after,
-  .Navbar-button--blueBg:active &:after {
-    border-left-color: @blue-green-light;
-  }
-}
-
-.Navbar-button--blueBg {
-  .Navbar-label {
-    background-color: @blue-green;
-  }
-  .Navbar-label--left.Navbar-label--withArrow {
-    &:after {
-      border-left-color: @blue-green;
-    }
-  }
-}
-
-.Navbar-button--blue {
-  color: @blue-green;
-  text-decoration: none;
-
-  &:hover,
-  &:focus,
-  &:active {
-    color: @blue-green-light;
-    text-decoration: none;
-  }
-}
 
 // Menu section
 // ====================================
@@ -211,14 +143,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 140px;
-}
-
-.Navbar-menuItem {
-  &:hover,
-  &:focus,
-  &:active {
-    color: @blue-green-light;
-  }
 }
 
 .Navbar-menuItem .Navbar-icon {
@@ -261,61 +185,15 @@
   margin-left: 5px;
 }
 
-.Navbar-selected {
-  > .Navbar-icon {
-    color: @blue-green;
-
-    &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green;
-    }
-  }
-
-  &:hover,
-  &:focus,
-  &:active {
-    color: @blue-green;
-  }
-
-  .Navbar-logged {
-    color: @blue-green;
-
-    &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green;
-    }
-  }
-}
-
-.patientcard-actions--highlight > .patientcard-icon {
-  color: @blue-green;
-}
-
-.patientcard-icon {
-  color: @gray-dark;
-  font-size: 14px;
-
-  &:hover,
-  &:focus,
-  &:active {
-    color: @gray-darkest;
-  }
-}
-
-.patientcard-icon--highlight:hover {
-  color: @blue-green-light;
-}
-
 .Navbar-menuDropdown {
-  border: 1px solid @gray-light;
+  border: 1px solid @popup-menu-border;
   cursor: default;
   position: absolute;
-  background: white;
+  color: @popup-menu-text;
+  background-color: @popup-menu-background;
   right: 0px;
   z-index: 100;
-  width: 200px;
+  min-width: 200px;
   top: 25px;
 
   > ul {
@@ -352,7 +230,7 @@
 .Navbar-menuDropdown:before {
   top: -14px;
   border-color: rgba(230, 230, 229, 0);
-  border-bottom-color: @gray-light;
+  border-bottom-color: @popup-menu-border;
   border-width: 7px;
   margin-left: -7px;
 }
@@ -374,21 +252,11 @@
 }
 
 .Navbar-dropdownIcon-show {
-  color: @blue-green-light;
+  color: @popup-menu-text-hover;
 }
 
 .Navbar-dropdownIcon {
   cursor: pointer;
-
-  &:hover,
-  &:focus,
-  &:active {
-    color: @blue-green-light;
-  }
-}
-
-.Navbar-dropdownIcon-current {
-  color: @blue-green;
 }
 
 .Navbar-icon-down {

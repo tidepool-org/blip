@@ -250,7 +250,7 @@ export function resendEmailVerificationSuccess() {
     payload: {
       notification: {
         type: 'alert',
-        message: UserMessages.EMAIL_SENT,
+        message: UserMessages.emailSent(),
       },
     },
   };
