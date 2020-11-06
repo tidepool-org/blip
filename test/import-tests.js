@@ -73,6 +73,7 @@ import './unit/components/export.test.js';
 import './unit/components/invitation.test.js';
 import './unit/components/inputgroup.test.js';
 import './unit/components/mailto.test.js';
+import './unit/pages/cliniciandetails.test.js';
 import './unit/pages/patientdata.test.js';
 import './unit/pages/emailverification.test.js';
 import './unit/pages/login.test.js';

@@ -23,7 +23,7 @@ var InputGroup = require('../inputgroup');
 // Simple form with validation errors, submit button, and notification message
 class SimpleForm extends React.Component {
   static propTypes = {
-    inputs: PropTypes.array,
+    inputs: PropTypes.array.isRequired,
     formValues: PropTypes.object,
     validationErrors: PropTypes.object,
     submitButtonText: PropTypes.string,

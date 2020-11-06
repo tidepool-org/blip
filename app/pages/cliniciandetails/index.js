@@ -12,5 +12,5 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-import ClinicianDetails from './cliniciandetails';
-export default ClinicianDetails;
+import ClinicianDetailsPage from './cliniciandetails';
+export default ClinicianDetailsPage;

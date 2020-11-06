@@ -71,6 +71,7 @@ const config = {
   ALLOW_PATIENT_CHANGE_EMAIL: booleanFromText(process.env.ALLOW_PATIENT_CHANGE_EMAIL, true),
   ALLOW_PATIENT_CHANGE_PASSWORD: booleanFromText(process.env.ALLOW_PATIENT_CHANGE_PASSWORD, true),
   ALLOW_PATIENT_CHANGE_NAME: booleanFromText(process.env.ALLOW_PATIENT_CHANGE_NAME, true),
+  ALLOW_SELECT_COUNTRY: booleanFromText(process.env.ALLOW_SELECT_COUNTRY, true),
   CAN_SEE_PWD_LOGIN: booleanFromText(process.env.CAN_SEE_PWD_LOGIN, false),
   SUPPORT_EMAIL_ADDRESS: stringOption(process.env.SUPPORT_EMAIL_ADDRESS, 'support@example.com'),
   SUPPORT_WEB_ADDRESS: stringOption(process.env.SUPPORT_WEB_ADDRESS, 'https://example.com/'),

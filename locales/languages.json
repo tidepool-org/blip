@@ -40,5 +40,16 @@
       },
       "params": {}
     }
+  },
+  "countries": {
+    "FR": {
+      "name": "France"
+    },
+    "DE": {
+      "name": "Germany"
+    },
+    "NL": {
+      "name": "Netherlands"
+    }
   }
 }

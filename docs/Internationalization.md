@@ -41,3 +41,25 @@ npm run update-translations
 It produces updated translations files such as `/locales/[language]/translation.json`. The previous versions of the translations are kept locally as `/locales/[language]/translation_old.json` files.
 
 __Important Note:__ you have first to copy the content of viz and tideline modules into your node_modules blip local folder otherwise some labels will be missed. 
+
+### Add a country
+
+Update the `locales/languages.json` file with the country information
+Example:
+```json
+{
+    "countries": {
+    "FR": {
+      "name": "France"
+    },
+    "DE": {
+      "name": "Germany"
+    },
+    "NL": {
+      "name": "Netherlands"
+    }
+  }
+}
+```
+
+Then update the `locales/en/translation.json` file with the new country name, to be sure it can have a translation.

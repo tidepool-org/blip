@@ -19,6 +19,17 @@
 
 @ClinicianDetails-contentWidth:               340px;
 
+.ClinicianDetails {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ClinicianDetails-contentOuter {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .ClinicianDetails-content {
   margin-left: auto;
   margin-right: auto;
@@ -41,6 +52,10 @@
   text-align: center;
   color: @purple-dark;
   margin-bottom: 24px;
+
+  .login-logo {
+    margin-bottom: 2em;
+  }
 }
 
 .ClinicianDetails-subTitle {
