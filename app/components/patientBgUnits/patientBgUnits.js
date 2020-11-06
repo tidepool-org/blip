@@ -83,16 +83,7 @@ export default class PatientBgUnits extends Component {
         name: 'bgUnits',
         type: 'radios',
         disabled: this.props.working,
-        items: [
-          {
-            label: MGDL_UNITS,
-            value: MGDL_UNITS,
-          },
-          {
-            label: MMOLL_UNITS,
-            value: MMOLL_UNITS,
-          },
-        ],
+        items: this.getBgPatientUnitUsed()
       },
     ];
   }
@@ -105,6 +96,16 @@ export default class PatientBgUnits extends Component {
     }
 
     return {};
+  }
+
+  getBgPatientUnitUsed = () => {
+    const unit = this.state.formValues.bgUnits;
+    return [
+      {
+        label: unit,
+        value: unit,
+      }
+    ];
   }
 
   handleChange = (attributes) => {

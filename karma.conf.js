@@ -14,6 +14,7 @@ if (!isWSL) {
   browsers.push('FirefoxHeadless');
 }
 const karmaConfig = {
+  port: '8080',
   autoWatch: true,
   browserNoActivityTimeout: 60000,
   browsers,

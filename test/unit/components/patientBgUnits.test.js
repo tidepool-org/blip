@@ -84,9 +84,8 @@ describe('PatientBgUnits', () => {
       const radios = wrapper.find('input.input-group-radio-control[type="radio"]');
 
       expect(group).to.have.length(1);
-      expect(radios).to.have.length(2);
+      expect(radios).to.have.length(1);
       expect(labels.first().text()).to.include(MGDL_UNITS);
-      expect(labels.last().text()).to.include(MMOLL_UNITS);
     });
 
     it('should render the BG units as text when editingAllowed prop is false', () => {

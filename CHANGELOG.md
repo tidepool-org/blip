@@ -6,6 +6,7 @@ It is based on Tidepool Blip 1.27.
 ### Added
 - YLP-247 Add Dutch language
 ### Changed
+- YLP-109 block units
 - YLP-265 Prevent the edition of patient name on clinical environment
 - YLP-59 Clean HCP profil setup form
 - YLP-173 Loop mode label

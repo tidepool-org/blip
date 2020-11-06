@@ -383,7 +383,7 @@ class PatientInfo extends React.Component {
             onUpdatePatientSettings={this.props.onUpdatePatientSettings}
             patient={this.props.patient}
             trackMetric={this.props.trackMetric}
-            working={this.props.updatingPatientBgUnits || false}
+            working={true}
           />
         </div>
       </div>
