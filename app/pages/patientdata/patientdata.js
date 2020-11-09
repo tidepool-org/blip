@@ -36,9 +36,12 @@ import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
+import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import baseTheme from '../../themes/baseTheme';
+
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
@@ -46,6 +49,11 @@ import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
+
+import { Box } from 'rebass/styled-components';
+import Checkbox from '../../components/elements/Checkbox';
+import PopoverLabel from '../../components/elements/PopoverLabel';
+import { Paragraph2 } from '../../components/elements/FontStyles';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
@@ -95,6 +103,9 @@ export const PatientDataClass = createReactClass({
     var state = {
       chartPrefs: {
         basics: {
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
           sections: {},
           extentSize: 14,
         },
@@ -554,6 +565,41 @@ export const PatientDataClass = createReactClass({
     }
   },
 
+  renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
+    const { t } = props;
+
+    return (
+      <Box p={2} sx={{
+        borderTop: '1px solid',
+        borderColor: 'grays.1',
+      }}>
+        <PopoverLabel
+          id='exclude-bolus-info'
+          label={(
+            <Checkbox
+              checked={_.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+              label={t('Exclude days with no boluses')}
+              onChange={this.toggleDaysWithoutBoluses}
+              themeProps={{
+                color: 'stat.text',
+              }}
+            />
+          )}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
+              </Paragraph2>
+              <Paragraph2>
+                {t('If this option is checked, days without boluses will be excluded when calculating this stat and the "Avg per day" count in the "Bolusing" calendar summary.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+      </Box>
+    );
+  },
+
   renderMessagesContainer: function() {
     if (this.state.createMessageDatetime) {
       return (
@@ -579,6 +625,17 @@ export const PatientDataClass = createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
+  },
+
+  toggleDaysWithoutBoluses: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const prefs = _.cloneDeep(this.state.chartPrefs);
+    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
+    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    this.updateChartPrefs(prefs, false, true, true);
   },
 
   closeDatesDialog: function() {
@@ -611,12 +668,13 @@ export const PatientDataClass = createReactClass({
   generateStats: function (props = this.props, state = this.state) {
     const {
       bgPrefs = {},
-    } = this.state;
+      chartType,
+    } = state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
-    const statsData = this.getCurrentData('stats');
+    const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
 
     const stats = [];
 
@@ -628,8 +686,56 @@ export const PatientDataClass = createReactClass({
         manufacturer,
       });
 
-      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-        stat.onInputChange = props.onAverageDailyDoseInputChange;
+      if (statType === 'totalInsulin' && chartType === 'basics') {
+        // We nest the averageDailyDose stat within the totalInsulin stat
+        stat.title = props.t('Avg. Daily Insulin Ratio');
+        delete stat.dataFormat.title;
+        delete stat.data.dataPaths.title;
+
+        const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
+        const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
+
+        const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
+          bgSource,
+          days: endpoints.activeDays || endpoints.days,
+          bgPrefs,
+          manufacturer,
+        });
+
+        const averageDailyDoseComponent = (
+          <Box
+            mt={1}
+            theme={baseTheme}
+            sx={{
+              '#Stat--averageDailyDose': {
+                marginBottom: 0,
+
+                '> div > div:first-child, > div > div:first-child > div': {
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  borderBottom: 'none',
+                  borderRadius: 0,
+                  borderColor: 'grays.1',
+                },
+              }
+            }}
+          >
+            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+          </Box>
+        );
+
+        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+          // If any of the calendar dates within the range are missing boluses,
+          // present a checkbox to disable them from insulin stat calculations
+          stat.children = (
+            <React.Fragment>
+              {averageDailyDoseComponent}
+              {this.renderExcludeEmptyBolusDaysCheckbox(props, state)}
+            </React.Fragment>
+          )
+        } else {
+          stat.children = averageDailyDoseComponent;
+        }
       }
 
       stats.push(stat);
@@ -666,6 +772,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
+        excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
         ...commonQueries,
       };
     }
@@ -834,8 +941,9 @@ export const PatientDataClass = createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
+    const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
@@ -971,7 +1079,7 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  updateChartPrefs: function(updates, queryData = true, queryStats = false) {
+  updateChartPrefs: function(updates, queryData = true, queryStats = false, queryAggregations = false) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
@@ -984,13 +1092,14 @@ export const PatientDataClass = createReactClass({
 
       if (queryData) {
         this.queryData(undefined, queryOpts);
-      } else if (queryStats) {
-        const statsQuery = {
+      } else if (queryStats || queryAggregations) {
+        const query = {
           endpoints: _.get(this.state, 'chartEndpoints.current'),
-          stats: this.getStatsByChartType(),
-        }
+          stats: queryStats ? this.getStatsByChartType() : undefined,
+          aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
+        };
 
-        this.queryData(statsQuery, queryOpts);
+        this.queryData(query, queryOpts);
       }
     });
   },
@@ -1042,6 +1151,22 @@ export const PatientDataClass = createReactClass({
     );
   },
 
+  getAggregationsByChartType: function(chartType = this.state.chartType) {
+    let aggregations;
+
+    switch (chartType) {
+      case 'basics':
+        aggregations = 'basals, boluses, fingersticks, siteChanges';
+        break;
+
+      default:
+        aggregations = undefined;
+        break;
+    }
+
+    return aggregations;
+  },
+
   getStatsByChartType: function(chartType = this.state.chartType) {
     const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
     const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
@@ -1060,6 +1185,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;
 
@@ -1420,6 +1546,7 @@ export const PatientDataClass = createReactClass({
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
+      excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };
