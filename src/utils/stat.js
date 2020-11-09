@@ -67,7 +67,7 @@ export const commonStats = {
 
 export const statFetchMethods = {
   [commonStats.averageGlucose]: 'getAverageGlucoseData',
-  [commonStats.averageDailyDose]: 'getTotalInsulinData',
+  [commonStats.averageDailyDose]: 'getTotalInsulinAndWeightData',
   [commonStats.carbs]: 'getCarbsData',
   [commonStats.coefficientOfVariation]: 'getCoefficientOfVariationData',
   [commonStats.glucoseManagementIndicator]: 'getGlucoseManagementIndicatorData',
@@ -214,13 +214,9 @@ export const getStatData = (data, type, opts = {}) => {
           input: {
             id: 'weight',
             label: t('Weight'),
-            suffix: {
-              id: 'units',
-              options: dailyDoseUnitOptions,
-              value: opts.suffixValue || dailyDoseUnitOptions[0],
-            },
+            suffix: _.get(data, 'weight.unit', 'kg'),
             type: 'number',
-            value: opts.inputValue ? ensureNumeric(opts.inputValue) : undefined,
+            value: ensureNumeric(_.get(data, 'weight.value')),
           },
           output: {
             label: t('Daily Dose ÷ Weight'),

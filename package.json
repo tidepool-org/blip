@@ -1,6 +1,6 @@
 {
   "name": "@tidepool/viz",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Tidepool data visualization for diabetes device data.",
   "keywords": [
     "data visualization"
@@ -57,7 +57,7 @@
     "gsap": "3.2.6",
     "i18next": "11.9.0",
     "immutability-helper": "^3.1.1",
-    "lodash": "4.17.15",
+    "lodash": "^4.17.20",
     "moment-timezone": "0.5.31",
     "parse-svg-path": "0.1.2",
     "pdfkit": "0.11.0",

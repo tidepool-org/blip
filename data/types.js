@@ -364,6 +364,30 @@ export class Food extends Common {
   }
 }
 
+export class PumpSettings extends Common {
+  constructor(opts = {}) {
+    super(opts);
+    this.type = 'pumpSettings';
+    this.payload = {
+      'device': {
+        'deviceId': 'Xperia XZ1 (AOSP)358321085116760',
+        'imei': '358321085116760',
+        'name': 'DBL4K',
+        'manufacturer': 'Diabeloop',
+        'swVersion': '1.1.1.18_DBL4K_CLINICAL'
+      },
+      'parameters':[
+        {
+            'name': 'WEIGHT',
+            'value': '60',
+            'unit': 'kg',
+            'level': 1
+          },
+        ]
+      }
+  }
+}
+
 export const types = {
   Basal,
   Bolus,
@@ -371,6 +395,7 @@ export const types = {
   DeviceEvent,
   Food,
   Message,
+  PumpSettings,
   Settings,
   SMBG,
   Upload,

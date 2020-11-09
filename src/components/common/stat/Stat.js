@@ -27,7 +27,6 @@ import StatLegend from './StatLegend';
 import CollapseIconOpen from './assets/expand-more-24-px.svg';
 import CollapseIconClose from './assets/chevron-right-24-px.svg';
 import InfoIcon from './assets/info-outline-24-px.svg';
-import InputGroup from '../controls/InputGroup';
 
 const t = i18next.t.bind(i18next);
 
@@ -75,7 +74,6 @@ class Stat extends React.Component {
     isOpened: PropTypes.bool,
     legend: PropTypes.bool,
     muteOthersOnHover: PropTypes.bool,
-    onInputChange: PropTypes.func,
     reverseLegendOrder: PropTypes.bool,
     title: PropTypes.string.isRequired,
     type: PropTypes.oneOf(_.keys(statTypes)),
@@ -260,18 +258,22 @@ class Stat extends React.Component {
     );
   };
 
-  renderInput = () => {
+  renderWeight = () => {
     const input = _.get(this.props.data, this.props.data.dataPaths.input);
 
     return (
       <div className={styles.inputWrapper}>
-        <InputGroup
-          {...input}
-          onChange={this.handleInputChange}
-          onSuffixChange={this.handleSuffixChange}
-          suffix={this.state.inputSuffix}
-          defaultValue={this.state.inputValue}
-        />
+        <div className={styles.inputlabel}>
+          {input.label}
+        </div>
+        <div>
+          <span className={styles.inputValue}>
+            {input.value}
+          </span>
+          <span className={styles.units}>
+            {input.suffix}
+          </span>
+        </div>
       </div>
     );
   };
@@ -354,7 +356,7 @@ class Stat extends React.Component {
               <SizeMe render={({ size }) => (this.renderChart(size))} />
             </div>
           )}
-          {this.props.type === statTypes.input && this.renderInput()}
+          {this.props.type === statTypes.input && this.renderWeight()}
           {this.state.showFooter && this.renderStatFooter()}
         </div>
         {this.state.showMessages && this.renderTooltip()}
@@ -413,7 +415,7 @@ class Stat extends React.Component {
         state.isOpened = false;
         state.showFooter = false;
         break;
-    }
+    } 
 
     return state;
   };
@@ -924,26 +926,6 @@ class Stat extends React.Component {
     });
   };
 
-  handleInputChange = event => {
-    event.persist();
-    this.setState(() => ({
-      inputValue: event.target.value,
-    }), this.propagateInputChange);
-  };
-
-  handleSuffixChange = value => {
-    this.setState((state) => ({
-      inputSuffix: _.assign({}, state.inputSuffix, {
-        value,
-      }),
-    }), this.propagateInputChange);
-  };
-
-  propagateInputChange = () => {
-    if (_.isFunction(this.props.onInputChange)) {
-      this.props.onInputChange(_.get(this.state, 'inputValue'), _.get(this.state, 'inputSuffix.value'));
-    }
-  };
 }
 
 export default Stat;

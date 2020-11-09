@@ -124,15 +124,27 @@
 }
 
 .inputWrapper {
-  padding: 0.5em 0.625em .5em;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--stat--default);
+  padding: 0.25em 0.625em .375em;
 }
 
-.inputWrapper label {
+.inputlabel {
   font-weight: 500;
+  color: var(--stat--default);
 }
 
-.inputWrapper input[type="number"] {
+.inputValue {
   width: 45px;
+  font-weight: 500;
+  color: var(--stat--default);
+  margin-right: .25em;
+  position: relative;
+  top: 1px;
 }
 
 .outputWrapper {

@@ -38,6 +38,13 @@ describe('Stat', () => {
       {
         value: 60,
         id: 'insulin',
+        input: {
+          id: 'weight',
+          label: 'Weight',
+          suffix: 'kg',
+          type: 'number',
+          value: 60,
+        },
       },
       {
         value: 120,
@@ -46,6 +53,7 @@ describe('Stat', () => {
     dataPaths: {
       summary: 'data.0',
       title: 'data.1',
+      input: 'data.0.input'
     },
   };
 
@@ -404,7 +412,6 @@ describe('Stat', () => {
     it('should call the `renderCalculatedOutput` method when the stat type is `input`', () => {
       const statProps = { ...defaultProps };
       statProps.type = statTypes.input;
-
       const statComp = shallow(<Stat {...statProps} />);
       const statInstance = statComp.instance();
 
@@ -523,121 +530,19 @@ describe('Stat', () => {
       expect(collapseWrapper.dive().html()).to.include('fake renderer');
     });
   });
-
-  describe('renderInput', () => {
-    let inputGroup;
-
-    beforeEach(() => {
-      wrapper.setState({ isOpened: true });
-
-      wrapper.setProps(props({
-        type: statTypes.input,
-      }));
-
-      inputGroup = () => wrapper.find(InputGroup);
-    });
-
-    it('should render an input group wrapper and component', () => {
-      expect(wrapper.find(formatClassesAsSelector(styles.inputWrapper))).to.have.length(1);
-      expect(inputGroup()).to.have.length(1);
-    });
-
-    it('should spread the input data as props to the InputGroup component', () => {
-      const inputData = {
-        input: {
-          id: 'weight',
-          label: 'Weight',
-          step: 1,
-          suffix: {
-            id: 'units',
-            options: ['kg', 'lb'],
-            value: 'kg',
-          },
-          type: 'number',
-        },
-      };
-
-      wrapper.setProps(props({
-        data: _.assign({}, defaultProps.data, {
-          data: [inputData],
-          dataPaths: {
-            input: 'data.0.input',
-          },
-        }),
-        type: statTypes.input,
-      }));
-
-      expect(inputGroup().props().id).to.equal('weight');
-      expect(inputGroup().props().label).to.equal('Weight');
-      expect(inputGroup().props().type).to.equal('number');
-      expect(inputGroup().props().step).to.equal(1);
-    });
-
-    it('should assign the `inputSuffix` state to the InputGroup component `suffix` prop', () => {
-      wrapper.setState({
-        inputSuffix: 'suffix',
-      });
-      // See explanation here: https://github.com/tidepool-org/viz/pull/186/files#r378534285
-      wrapper.setState({
-        inputSuffix: 'suffix',
-      });
-
-      expect(inputGroup().props().suffix).to.equal('suffix');
-    });
-
-    it('should assign the `inputValue` state to the InputGroup component `defaultValue` prop', () => {
-      wrapper.setState({
-        inputValue: 'value',
-      });
-      // See explanation here: https://github.com/tidepool-org/viz/pull/186/files#r378534285
-      wrapper.setState({
-        inputValue: 'value',
-      });
-
-      expect(inputGroup().props().defaultValue).to.equal('value');
-    });
-
-    it('should pass `onChange` and `onSuffixChange` handler function to the component', () => {
-      expect(inputGroup().props().onChange).to.be.a('function');
-      expect(inputGroup().props().onSuffixChange).to.be.a('function');
-    });
-
-    it('should set the initial input and suffix values as provided by the `data.data.input` prop', () => {
-      const inputData = {
-        input: {
-          id: 'weight',
-          label: 'Weight',
-          step: 1,
-          suffix: {
-            id: 'units',
-            options: ['kg', 'lb'],
-            value: 'lb',
-          },
-          type: 'number',
-          value: 450,
-        },
-      };
-
-      wrapper.setProps(props({
-        data: _.assign({}, defaultProps.data, {
-          data: [inputData],
-          dataPaths: {
-            input: 'data.0.input',
-          },
-        }),
-        type: statTypes.input,
-      }));
-
-      expect(inputGroup().props().value).to.equal(450);
-      expect(inputGroup().props().suffix.value).to.equal('lb');
-    });
-  });
-
+  
   describe('renderCalculatedOutput', () => {
     let outputWrapper;
 
     const outputData = {
       value: 60,
+      input: {
+        id: 'weight',
+        label: 'Weight',
+        suffix: 'kg',
+        type: 'number',
+        value: 70,
+      },
       output: {
         label: 'Output Label',
         type: 'divisor',
@@ -661,6 +566,7 @@ describe('Stat', () => {
           data: [outputData],
           dataPaths: {
             output: 'data.0.output',
+            input: 'data.0.input'
           },
         }),
         dataFormat: {
@@ -686,6 +592,13 @@ describe('Stat', () => {
         data: _.assign({}, defaultProps.data, {
           data: [{
             value: 60,
+            input: {
+              id: 'weight',
+              label: 'Weight',
+              suffix: 'kg',
+              type: 'number',
+              value: 70,
+            },
             output: {
               type: 'divisor',
               dataPaths: {
@@ -695,6 +608,7 @@ describe('Stat', () => {
           }],
           dataPaths: {
             output: 'data.0.output',
+            input: 'data.0.input'
           },
         }),
         type: statTypes.input,
@@ -749,6 +663,13 @@ describe('Stat', () => {
           data: _.assign({}, defaultProps.data, {
             data: [{
               value: 60,
+              input: {
+                id: 'weight',
+                label: 'Weight',
+                suffix: 'kg',
+                type: 'number',
+                value: 70,
+              },
               output: {
                 type: undefined,
                 dataPaths: {
@@ -758,6 +679,7 @@ describe('Stat', () => {
             }],
             dataPaths: {
               output: 'data.0.output',
+              input: 'data.0.input'
             },
           }),
           type: statTypes.input,
@@ -974,11 +896,7 @@ describe('Stat', () => {
           id: 'weight',
           label: 'Weight',
           step: 1,
-          suffix: {
-            id: 'units',
-            options: ['kg', 'lb'],
-            value: 'kg',
-          },
+          suffix: 'kg',
           type: 'number',
           value: 100,
         },
@@ -2627,93 +2545,4 @@ describe('Stat', () => {
     });
   });
 
-  describe('handleInputChange', () => {
-    it('should call `event.persist` and set the `event.target.value` to `inputValue` state', () => {
-      const eventStub = {
-        target: { value: 300 },
-        persist: sinon.stub(),
-      };
-
-      wrapper.setState({
-        inputValue: 200,
-      });
-
-      expect(wrapper.state().inputValue).to.equal(200);
-
-      instance.handleInputChange(eventStub);
-
-      sinon.assert.callCount(eventStub.persist, 1);
-      expect(wrapper.state().inputValue).to.equal(300);
-    });
-
-    it('should call `propagateInputChange` immediately after setting `inputValue` to state', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      const propagateInputChangeSpy = sinon.spy(instance, 'propagateInputChange');
-      const eventStub = {
-        target: { value: 300 },
-        persist: sinon.stub(),
-      };
-
-      wrapper.setState({
-        inputValue: 200,
-      });
-
-      expect(wrapper.state().inputValue).to.equal(200);
-
-      instance.handleInputChange(eventStub);
-
-      sinon.assert.called(setStateSpy);
-      sinon.assert.callCount(propagateInputChangeSpy, 1);
-      expect(propagateInputChangeSpy.calledImmediatelyAfter(setStateSpy)).to.be.true;
-    });
-  });
-
-  describe('handleSuffixChange', () => {
-    it('should set the `inputSuffix` value to state', () => {
-      wrapper.setState({
-        inputSuffix: { value: 300 },
-      });
-
-      expect(wrapper.state().inputSuffix.value).to.equal(300);
-
-      instance.handleSuffixChange(600);
-
-      expect(wrapper.state().inputSuffix.value).to.equal(600);
-    });
-
-    it('should call `propagateInputChange` immediately after setting `inputSuffix` to state', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      const propagateInputChangeSpy = sinon.spy(instance, 'propagateInputChange');
-
-      wrapper.setState({
-        inputSuffix: { value: 300 },
-      });
-
-      expect(wrapper.state().inputSuffix.value).to.equal(300);
-
-      instance.handleSuffixChange(600);
-
-      sinon.assert.called(setStateSpy);
-      sinon.assert.callCount(propagateInputChangeSpy, 1);
-      expect(propagateInputChangeSpy.calledImmediatelyAfter(setStateSpy)).to.be.true;
-    });
-  });
-
-  describe('propagateInputChange', () => {
-    it('should call the `onInputChange` prop with the input and suffix values when present', () => {
-      wrapper.setState({
-        inputSuffix: { value: 'suffix!' },
-        inputValue: 'value!',
-      });
-
-      wrapper.setProps(props({
-        onInputChange: sinon.stub(),
-      }));
-
-      instance.propagateInputChange();
-
-      sinon.assert.callCount(instance.props.onInputChange, 1);
-      sinon.assert.calledWithExactly(instance.props.onInputChange, 'value!', 'suffix!');
-    });
-  });
 });

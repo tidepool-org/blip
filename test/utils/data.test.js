@@ -244,6 +244,15 @@ describe('DataUtil', () => {
     }),
   ];
 
+  const pumpSettings = [
+    new Types.PumpSettings({
+      deviceTime: '2018-02-02T04:00:00'
+    }),
+    new Types.PumpSettings({
+      deviceTime: '2018-02-03T04:00:00'
+    })
+  ]
+
   const data = [
     ...basalData,
     ...bolusData,
@@ -1229,35 +1238,77 @@ describe('DataUtil', () => {
     });
   });
 
-  describe('getTotalInsulinData', () => {
-    it('should return the total basal and bolus insulin delivery when viewing 1 day', () => {
-      dataUtil.endpoints = dayEndpoints;
-      expect(dataUtil.getTotalInsulinData()).to.eql({
+  describe('getTotalInsulinAndWeightData', () => {
+    it('should return the total basal and bolus insulin delivery when viewing 1 day and weight', () => {
+      let du = new DataUtil(data, defaultOpts);
+      du.endpoints = dayEndpoints;
+      du.addData(pumpSettings);
+      // {name: 'WEIGHT', value: '60', unit: 'kg', level: 1}
+      expect(du.getTotalInsulinAndWeightData()).to.eql({
         totalInsulin: 16.5,
+        weight: {
+          name: 'WEIGHT',
+          value: '60',
+          unit: 'kg',
+          level: 1
+        }
       });
     });
 
-    it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day', () => {
-      dataUtil.endpoints = twoWeekEndpoints;
-      expect(dataUtil.getTotalInsulinData()).to.eql({
+    it('should return the avg daily total basal and bolus insulin delivery when viewing more than 1 day and weight', () => {
+      let du = new DataUtil(data, defaultOpts);
+      du.endpoints = twoWeekEndpoints;
+      du.addData(pumpSettings);
+      expect(du.getTotalInsulinAndWeightData()).to.eql({
         totalInsulin: 10.5, // 9.5 + 1
+        weight: {
+          name: 'WEIGHT',
+          value: '60',
+          unit: 'kg',
+          level: 1
+        }
+      });
+    });
+
+    it('should return null weight when no pump settings found', () => {
+      const du = new DataUtil(data, defaultOpts);
+      du.endpoints = dayEndpoints;
+      expect(du.getTotalInsulinAndWeightData()).to.eql({
+        totalInsulin: 16.5,
+        weight: null,
       });
     });
 
     context('basal delivery overlaps endpoints', () => {
       it('should include the portion of delivery of a basal datum that overlaps the start endpoint', () => {
-        dataUtil.endpoints = dayEndpoints;
-        dataUtil.addData([basalDatumOverlappingStart]);
-        expect(dataUtil.getTotalInsulinData()).to.eql({
+        let du = new DataUtil(data, defaultOpts);
+        du.endpoints = dayEndpoints;
+        du.addData([basalDatumOverlappingStart]);
+        du.addData(pumpSettings);
+        expect(du.getTotalInsulinAndWeightData()).to.eql({
           totalInsulin: 17,
+          weight: {
+            name: 'WEIGHT',
+            value: '60',
+            unit: 'kg',
+            level: 1
+          }
         });
       });
 
       it('should include the portion of delivery of a basal datum that overlaps the start endpoint', () => {
-        dataUtil.endpoints = dayEndpoints;
-        dataUtil.addData([basalDatumOverlappingEnd]);
-        expect(dataUtil.getTotalInsulinData()).to.eql({
+        let du = new DataUtil(data, defaultOpts);
+        du.endpoints = dayEndpoints;
+        du.addData([basalDatumOverlappingEnd]);
+        du.addData(pumpSettings);
+        expect(du.getTotalInsulinAndWeightData()).to.eql({
           totalInsulin: 17.5,
+          weight: {
+            name: 'WEIGHT',
+            value: '60',
+            unit: 'kg',
+            level: 1
+          }
         });
       });
     });

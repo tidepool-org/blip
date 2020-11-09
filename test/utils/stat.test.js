@@ -93,7 +93,7 @@ describe('stat', () => {
     it('should export the common `statFetchMethods`', () => {
       expect(stat.statFetchMethods).to.eql({
         averageGlucose: 'getAverageGlucoseData',
-        averageDailyDose: 'getTotalInsulinData',
+        averageDailyDose: 'getTotalInsulinAndWeightData',
         carbs: 'getCarbsData',
         coefficientOfVariation: 'getCoefficientOfVariationData',
         glucoseManagementIndicator: 'getGlucoseManagementIndicatorData',
@@ -396,6 +396,10 @@ describe('stat', () => {
     it('should format and return default `averageDailyDose` data', () => {
       const data = {
         totalInsulin: 80,
+        weight: {
+          value: 154,
+          unit: 'lb'
+        }
       };
 
       const statData = stat.getStatData(data, commonStats.averageDailyDose, opts);
@@ -406,13 +410,9 @@ describe('stat', () => {
           input: {
             id: 'weight',
             label: 'Weight',
-            suffix: {
-              id: 'units',
-              options: dailyDoseUnitOptions,
-              value: dailyDoseUnitOptions[0],
-            },
+            suffix: 'lb',
             type: 'number',
-            value: undefined,
+            value: 154,
           },
           output: {
             label: 'Daily Dose ÷ Weight',
@@ -429,6 +429,10 @@ describe('stat', () => {
     it('should format and return `averageDailyDose` data with provided input value', () => {
       const data = {
         totalInsulin: 80,
+        weight: {
+          value: 70,
+          unit: 'kg'
+        }
       };
 
       const valueOpts = _.assign({}, opts, {
@@ -443,13 +447,9 @@ describe('stat', () => {
           input: {
             id: 'weight',
             label: 'Weight',
-            suffix: {
-              id: 'units',
-              options: dailyDoseUnitOptions,
-              value: dailyDoseUnitOptions[0],
-            },
+            suffix: 'kg',
             type: 'number',
-            value: 300,
+            value: 70,
           },
           output: {
             label: 'Daily Dose ÷ Weight',
@@ -466,6 +466,10 @@ describe('stat', () => {
     it('should format and return `averageDailyDose` data with provided suffix value', () => {
       const data = {
         totalInsulin: 80,
+        weight: {
+          value: 70,
+          unit: 'kg'
+        }
       };
 
       const valueOpts = _.assign({}, opts, {
@@ -480,13 +484,9 @@ describe('stat', () => {
           input: {
             id: 'weight',
             label: 'Weight',
-            suffix: {
-              id: 'units',
-              options: dailyDoseUnitOptions,
-              value: dailyDoseUnitOptions[1],
-            },
+            suffix: 'kg',
             type: 'number',
-            value: undefined,
+            value: 70,
           },
           output: {
             label: 'Daily Dose ÷ Weight',
