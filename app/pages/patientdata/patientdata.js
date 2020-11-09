@@ -46,6 +46,9 @@ import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import Button from '../../components/elements/Button';
+
+import ToastContext from '../../providers/ToastProvider';
 
 import { Box } from 'rebass/styled-components';
 import Checkbox from '../../components/elements/Checkbox';
@@ -60,7 +63,7 @@ const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = translate()(createReactClass({
+export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
 
   propTypes: {
@@ -1495,8 +1498,34 @@ export let PatientData = translate()(createReactClass({
         }
 
         setTimeout(() => {
-          this.printWindowRef.focus();
-          this.printWindowRef.print();
+          if (this.printWindowRef) {
+            this.printWindowRef.focus();
+            this.printWindowRef.print();
+          } else {
+            const { set: setToast } = this.context;
+
+            setToast({
+              message: this.props.t('A popup blocker is preventing your report from opening.'),
+              variant: 'warning',
+              autoHideDuration: null,
+              action: (
+                <Button
+                  p={0}
+                  lineHeight={1.5}
+                  fontSize={1}
+                  variant="textPrimary"
+                  onClick={() => {
+                    this.printWindowRef = window.open(nextProps.pdf.combined.url);
+                    this.printWindowRef.focus();
+                    this.printWindowRef.print();
+                    setToast(null);
+                  }}
+                >
+                  {this.props.t('Open it anyway')}
+                </Button>
+              ),
+            });
+          }
         });
       }
     }
@@ -1757,7 +1786,14 @@ export let PatientData = translate()(createReactClass({
       fetcher();
     });
   },
-}));
+});
+
+PatientDataClass.contextType = ToastContext;
+
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const PatientData = translate()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
