@@ -1,18 +1,3 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -26,14 +11,11 @@ import _ from 'lodash';
 import config from '../../config';
 
 import utils from '../../core/utils';
-import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
-
-var formText = 'Welcome!';
 
 export let VerificationWithPassword = translate()(class extends React.Component {
   static propTypes = {
@@ -62,7 +44,6 @@ export let VerificationWithPassword = translate()(class extends React.Component 
   formInputs = () => {
     const { t } = this.props;
     return [
-      { name: 'explanation', type: 'explanation', text: formText },
       { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
       { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
       { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
@@ -95,19 +76,18 @@ export let VerificationWithPassword = translate()(class extends React.Component 
     if (this.props.working) {
       return t('Setting up...');
     }
-    return t('Ready!');
+    return t('Confirm');
   };
 
   render() {
+    const { t } = this.props;
+
     return (
       <div className="VerificationWithPassword">
-        <LoginNav
-          page="VerificationWithPassword"
-          trackMetric={this.props.trackMetric}
-          hideLinks={true} />
         <LoginLogo />
-        <div className="container-small-outer VerificationWithPassword-form">
+        <div className="container-small-outer VerificationWithPassword-form-container">
           <div className="container-small-inner VerificationWithPassword-form-box">
+            <div className="VerificationWithPassword-title">{t('Verify your account')}</div>
             <SimpleForm
               inputs={this.formInputs()}
               formValues={this.state.formValues}
