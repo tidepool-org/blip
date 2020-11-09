@@ -17,7 +17,7 @@ const chai = require('chai');
 var _ = require('lodash');
 var async = require('async');
 var superagent = require('superagent');
-
+const fetch = require('node-fetch');
 var storage = require('./../../lib/inMemoryStorage');
 
 var platform = require('../../index.js');
@@ -26,6 +26,8 @@ var pjson = require('../../package.json');
 const { expect } = chai;
 
 describe('platform client', function () {
+
+  global.fetch = fetch;
 
   /**
   * Timeout is used when running against the deployed services
@@ -599,7 +601,7 @@ describe('platform client', function () {
       });
     });
     it('so we can request the pw if forgotten - no info', function(done) {
-      pwResetClient.requestPasswordReset(a_Member.emails[0], function(err) {
+      pwResetClient.requestPasswordReset(a_Member.emails[0], true, 'en', function(err) {
         if (_.isEmpty(err)) {
           done();
         } else {
@@ -609,7 +611,7 @@ describe('platform client', function () {
       }, false);
     });
     it('so we can request the pw if forgotten - with info', function(done) {
-      pwResetClient.requestPasswordReset(a_Member.emails[0], function(err) {
+      pwResetClient.requestPasswordReset(a_Member.emails[0], true, 'en', function(err) {
         if (_.isEmpty(err)) {
           done();
         } else {
@@ -838,7 +840,7 @@ describe('platform client', function () {
       });
     });
     it('so we can signup a new user', function(done){
-      signupClient.signupStart(signUpUsr.id, function(err, signup) {
+      signupClient.signupStart(signUpUsr.id, 'en', function(err, signup) {
         console.log('## sent err ',err);
         signupConfirmation = signup;
         console.log('## sent ',signup);
@@ -847,7 +849,7 @@ describe('platform client', function () {
       });
     });
     it('the user can resend the signup', function(done){
-      signupClient.signupResend(signUpUsr.id, function(err, resent) {
+      signupClient.signupResend(signUpUsr.id, 'en', function(err, resent) {
         console.log('## resent err ',err);
         signupConfirmation = resent;
         console.log('## resent ',resent);

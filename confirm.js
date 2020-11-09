@@ -15,30 +15,42 @@
 
 'use strict';
 
-var async = require('async');
-var _ = require('lodash');
+const _ = require('lodash');
 
 module.exports = function (common, deps) {
 
-  var superagent = _.clone(deps.superagent);
-  /*jshint unused:false */
-  var findProfile = _.clone(deps.findProfile);
+  const superagent = _.clone(deps.superagent);
 
   return {
     /**
-     * Start signup
+     * Start signup, send an e-mail to the new user
      *
-     * @param {String} invitedId - id of the user that signup if for
-     * @param cb
-     * @returns {cb}  cb(err, response)
+     * @param {string} invitedId - id of the user that signup if for
+     * @param {string} lang - The language for the e-mail
+     * @param {(err: object) => void} cb callback
      */
-    signupStart: function (invitedId, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      common.doPostWithToken(
-        '/confirm/send/signup/'+invitedId,
-        { 201: function(res){ return res.body; }, 404: [] },
-        cb
-      );
+    signupStart: (invitedId, lang = 'en', cb = _.noop) => {
+      if (_.isEmpty(invitedId) || !_.isString(invitedId)) {
+        throw new Error('Invalid parameter invitedId');
+      }
+      /** @type {string} */
+      const url = common.makeAPIUrl(`/confirm/send/signup/${invitedId}`);
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'x-tidepool-session-token': common.getToken(),
+          'x-tidepool-trace-session': common.getSessionTrace(),
+          'x-tidepool-language': lang,
+        },
+        cache: 'no-cache',
+      }).then((response) => {
+        if (response.ok) {
+          return cb(null);
+        }
+        cb(new Error(`Invalid HTTP response ${response.status}`));
+      }).catch((reason) => {
+        cb(reason);
+      });
     },
     /**
      * Confirm a signup
@@ -92,23 +104,31 @@ module.exports = function (common, deps) {
     /**
      * Resend an existing invite
      *
-     * @param {String} email - email of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err)
+     * @param {string} email - email of the user requesting the password reset
+     * @param {string} lang - The language for the e-mail
+     * @param {(err: object) => void} cb callback
      */
-    signupResend: function (email, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      superagent
-       .post(common.makeAPIUrl('/confirm/resend/signup/' + email))
-       .end(function (err, res) {
-        if (err != null) {
-          err.message = (err.response && err.response.error) || '';
-          return cb(err);
+    signupResend: function (email, lang = 'en', cb = _.noop) {
+      if (_.isEmpty(email) || !_.isString(email)) {
+        throw new Error('Invalid parameter email');
+      }
+
+      const url = common.makeAPIUrl(`/confirm/resend/signup/${email}`);
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'x-tidepool-trace-session': common.getSessionTrace(),
+          'x-tidepool-language': lang,
+        },
+        cache: 'no-cache',
+      }).then(async (response) => {
+        if (response.ok) {
+          return cb(null);
         }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
+        cb({ status: response.status, message: await response.text() });
+      }).catch((reason) => {
+        cb(reason);
       });
     },
     /**
@@ -150,8 +170,6 @@ module.exports = function (common, deps) {
      */
     invitesReceived: function (inviteeId,cb) {
       common.assertArgumentsSize(arguments, 2);
-
-      var self = this;
 
       superagent
         .get(common.makeAPIUrl('/confirm/invitations/'+inviteeId))
@@ -250,26 +268,32 @@ module.exports = function (common, deps) {
     /**
      * Request a password reset
      *
-     * @param {String} email - email of the user requesting the password reset
-     * @param {Boolean} info - set the info parameter 
-     * @param cb
-     * @returns {cb}  cb(err)
+     * @param {string} email - email of the user requesting the password reset
+     * @param {boolean} info - set the info parameter
+     * @param {string} lang - The language for the e-mail
+     * @param {(err: object) => void} cb callback
      */
-    requestPasswordReset: function (email, cb, info = true) {
-      common.assertArgumentsSizes(arguments, 2, 3);
+    requestPasswordReset: function (email, info = true, lang = 'en', cb = _.noop) {
+      if (_.isEmpty(email) || !_.isString(email)) {
+        throw new Error('Invalid parameter email');
+      }
 
-      const path = (info) ? `/confirm/send/forgot/${email}?info=ok` : `/confirm/send/forgot/${email}`
-      superagent
-       .post(common.makeAPIUrl(path))
-       .end(function (err, res) {
-        if (err != null) {
-          err.message = (err.response && err.response.error) || '';
-          return cb(err);
+      const url = common.makeAPIUrl(`/confirm/send/forgot/${email}${info ? '?info=ok' : ''}`);
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'x-tidepool-trace-session': common.getSessionTrace(),
+          'x-tidepool-language': lang,
+        },
+        cache: 'no-cache',
+      }).then(async (response) => {
+        if (response.ok) {
+          return cb(null);
         }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
+        cb({ status: response.status, message: await response.text() });
+      }).catch((reason) => {
+        cb(reason);
       });
     },
     /**

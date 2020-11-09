@@ -1,6 +1,6 @@
 {
   "name": "tidepool-platform-client",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Client-side library to interact with the Tidepool platform",
   "main": "tidepool.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "async": "3.2.0",
-    "lodash": "4.17.15",
+    "lodash": "^4.17.20",
     "superagent": "5.2.2",
     "uuid": "8.1.0"
   },
@@ -22,6 +22,7 @@
     "grunt-cli": "1.3.2",
     "grunt-contrib-jshint": "2.1.0",
     "grunt-mocha-test": "0.13.3",
-    "mocha": "8.0.1"
+    "mocha": "^8.0.1",
+    "node-fetch": "^2.6.1"
   }
 }
