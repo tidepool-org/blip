@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.6.0 - 2020-11-10
 ### Added
 - YLP-247 Add Dutch language
 ### Changed
@@ -22,7 +22,6 @@ It is based on Tidepool Blip 1.27.
 - YLP-262 Settings are not displayed in blip with updated pumpSettings uploads
 - YLP-290 Trends calendar button and text is white
 - Be sure to use the fallback language if the navigator one is not supported (YLP-111 related)
-
 ### Engineering Use
 - YLP-221: move to Jenkins and automatically deploy our master branch (dblp) to cloudfront preview env.
 
