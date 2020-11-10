@@ -404,16 +404,6 @@ describe('Stats', () => {
 
         expect(_.map(stats, 'id')).to.include.members(expectedStats);
       });
-
-      it('should set `props.onAverageDailyDoseInputChange` to `onInputChange` for the `averageDailyDose` widget when provided', () => {
-        const stats = instance.getStatsByChartType({
-          ...instance.props,
-          onAverageDailyDoseInputChange: () => 'change!',
-        });
-
-        const averageDailyDoseStat = _.find(stats, { id: 'averageDailyDose' });
-        expect(averageDailyDoseStat.onInputChange()).to.equal('change!');
-      });
     });
 
     context('daily', () => {

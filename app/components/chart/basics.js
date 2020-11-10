@@ -117,7 +117,6 @@ class Basics extends Component {
                   chartType={this.chartType}
                   dataUtil={this.props.dataUtil}
                   endpoints={this.props.endpoints}
-                  onAverageDailyDoseInputChange={this.handleAverageDailyDoseInputChange}
                 />
               </div>
             </div>
@@ -217,15 +216,6 @@ class Basics extends Component {
 
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.basics.bgSource = bgSource;
-    this.props.updateChartPrefs(prefs);
-  };
-
-  handleAverageDailyDoseInputChange = (inputValue, suffixValue) => {
-    const prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.basics.averageDailyDose = {
-      inputValue,
-      suffixValue,
-    };
     this.props.updateChartPrefs(prefs);
   };
 

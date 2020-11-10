@@ -28,7 +28,6 @@ class Stats extends Component {
     chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
-    onAverageDailyDoseInputChange: PropTypes.func,
   };
 
   constructor(props) {
@@ -134,10 +133,6 @@ class Stats extends Component {
         ...chartStatOpts,
       });
 
-      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-        stat.onInputChange = props.onAverageDailyDoseInputChange;
-      }
-
       stats.push(stat);
     };
 
@@ -231,4 +226,4 @@ class Stats extends Component {
   };
 };
 
-export default Stats
+export default Stats;

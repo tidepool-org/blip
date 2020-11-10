@@ -1233,10 +1233,12 @@ export let PatientData = translate()(createReactClass({
           bgUnits: processedData.bgUnits
         };
 
-        this.dataUtil = new DataUtil(
-          processedData.data.concat(_.get(processedData, 'grouped.upload', [])),
-          { bgPrefs, timePrefs }
-        );
+        let dataUtilArray = processedData.data.concat(_.get(processedData, 'grouped.upload', []));
+        const pumpSettings = _.get(processedData, 'grouped.pumpSettings', []);
+        if (pumpSettings.length > 0) {
+          dataUtilArray = dataUtilArray.concat([_.last(pumpSettings)]);
+        }
+        this.dataUtil = new DataUtil(dataUtilArray, { bgPrefs, timePrefs });
 
         // Set default bgSource for basics based on whether there is any cbg data in the current view.
         const basicsChartPrefs = _.assign({}, this.state.chartPrefs.basics, {

@@ -288,19 +288,4 @@ describe('Basics', () => {
       });
     });
   });
-
-  describe('handleAverageDailyDoseInputChange', () => {
-    it('should call the `updateChartPrefs` handler to update the input and input suffix values', () => {
-      const instance = wrapper.instance();
-      instance.handleAverageDailyDoseInputChange('input!', 'suffix!');
-
-      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
-      sinon.assert.calledWith(baseProps.updateChartPrefs, {
-        basics: { averageDailyDose: {
-          inputValue: 'input!',
-          suffixValue: 'suffix!',
-        } },
-      });
-    });
-  });
 });
