@@ -122,6 +122,7 @@ class TidelineHeader extends React.Component {
     });
 
     const settingsLinkClass = cx({
+      'patient-data-subnav-button': true,
       'js-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
@@ -132,6 +133,7 @@ class TidelineHeader extends React.Component {
     let printLink = null;
     if (canPrint && showPrintLink) {
       const printLinkClass = cx({
+        'patient-data-subnav-button': true,
         'printview-print-icon': true,
         'patient-data-subnav-active': true,
       });

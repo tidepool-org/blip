@@ -19,6 +19,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-272 Display data with correct units when user settings does not contain the bgTarget
 ### Fixed
 - YLP-262 Settings are not displayed in blip with updated pumpSettings uploads
+- YLP-290 Trends calendar button and text is white
 - Be sure to use the fallback language if the navigator one is not supported (YLP-111 related)
 
 ### Engineering Use
