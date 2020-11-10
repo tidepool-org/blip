@@ -20,11 +20,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-import InputGroup from '../../components/inputgroup';
 import SimpleForm from '../../components/simpleform';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { DEFAULT_BG_SETTINGS } from '../../pages/patient/patientsettings';
+import { getSettings } from '../../core/utils';
 import { togglePatientBgUnits } from '../../core/personutils';
 
 export default class PatientBgUnits extends Component {
@@ -109,7 +108,7 @@ export default class PatientBgUnits extends Component {
   }
 
   handleChange = (attributes) => {
-    const patientSettings = _.defaultsDeep({}, _.get(this.props, 'patient.settings', {}), DEFAULT_BG_SETTINGS);
+    const patientSettings = getSettings(_.get(this.props, 'patient.settings', {}));
     const targetUnits = attributes.value;
     const unitsChanged = targetUnits !== patientSettings.units.bg;
 

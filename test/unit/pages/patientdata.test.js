@@ -10,6 +10,7 @@ import chai from 'chai';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import utils from '../../../app/core/utils';
+import { DEFAULT_BG_SETTINGS } from '../../../app/core/constants';
 import DataUtilStub from '../../helpers/DataUtil';
 import createReactClass from 'create-react-class';
 
@@ -2134,6 +2135,7 @@ describe('PatientData', function () {
         }),
         getTimezoneForDataProcessing: sinon.stub().returns('stubbed timezone'),
         getLatestPumpSettings: sinon.stub().returns({}),
+        getSettings: sinon.stub().returns(DEFAULT_BG_SETTINGS),
       };
 
       PD.__Rewire__('utils', utilsStubs);

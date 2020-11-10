@@ -97,3 +97,21 @@ export const DIABETES_DATA_TYPES = [
 export const MGDL_UNITS = 'mg/dL';
 export const MMOLL_UNITS = 'mmol/L';
 export const MGDL_PER_MMOLL = 18.01559;
+
+export const DEFAULT_BG_TARGETS = {
+  [MGDL_UNITS]: {
+    low: 70,
+    high: 180,
+  },
+  [MMOLL_UNITS]: {
+    low: 3.9,
+    high: 10.0,
+  },
+};
+
+export const DEFAULT_BG_SETTINGS = {
+  bgTarget: DEFAULT_BG_TARGETS[MGDL_UNITS],
+  units: {
+    bg: MGDL_UNITS,
+  },
+};

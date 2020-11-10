@@ -19,7 +19,7 @@ import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
-import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES } from './constants';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES, DEFAULT_BG_TARGETS, DEFAULT_BG_SETTINGS } from './constants';
 import config from '../config';
 
 var utils = {};
@@ -303,6 +303,19 @@ utils.roundBgTarget = (value, units) => {
   const nearest = units === MGDL_UNITS ? 5 : 0.1;
   const precision = units === MGDL_UNITS ? 0 : 1;
   return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
+}
+
+
+/**
+ * return settings which are well formed and consistant (same units for all bgTarget) even if input settings do not contain all the properties.
+ * 
+ */
+utils.getSettings = (sourceSettings) => {
+  const units = _.get(sourceSettings, 'units.bg', MGDL_UNITS);
+  return _.defaultsDeep({},
+    sourceSettings,
+    { bgTarget: DEFAULT_BG_TARGETS[units] },
+    DEFAULT_BG_SETTINGS);
 }
 
 utils.getTimezoneForDataProcessing = (data, queryParams) => {

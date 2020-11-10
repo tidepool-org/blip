@@ -42,8 +42,6 @@ import nurseShark from 'tideline/plugins/nurseshark/';
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 
-import { DEFAULT_BG_SETTINGS } from '../patient/patientsettings';
-
 import {
   MGDL_UNITS,
   MMOLL_UNITS,
@@ -1159,7 +1157,7 @@ export let PatientData = translate()(createReactClass({
 
       const patientNotes = _.get(props, ['patientNotesMap', patientID], []);
       let patientSettings = _.cloneDeep(_.get(props, ['patient', 'settings'], null));
-      _.defaultsDeep(patientSettings, DEFAULT_BG_SETTINGS);
+      patientSettings = utils.getSettings(patientSettings);
 
       // Determine how far back into the unprocessed patient data we want to process.
       const timezoneSettings = this.state.timePrefs.timezoneAware

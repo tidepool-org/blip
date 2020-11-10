@@ -24,21 +24,8 @@ import { translate, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
-
-import { roundBgTarget } from '../../core/utils';
-
-import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-
-const DEFAULT_BG_TARGETS = {
-  [MGDL_UNITS]: {
-    low: 70,
-    high: 180,
-  },
-  [MMOLL_UNITS]: {
-    low: 3.9,
-    high: 10.0,
-  },
-};
+import { roundBgTarget, getSettings } from '../../core/utils';
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_TARGETS, DEFAULT_BG_SETTINGS } from '../../core/constants';
 
 const BG_INCREMENT_STEPS = {
   [MGDL_UNITS]: 5,
@@ -65,13 +52,6 @@ const VALUES_MIN_MAX = {
       min: 4.4,
       max: 13.9,
     },
-  },
-};
-
-export const DEFAULT_BG_SETTINGS = {
-  bgTarget: DEFAULT_BG_TARGETS[MGDL_UNITS],
-  units: {
-    bg: MGDL_UNITS,
   },
 };
 
@@ -112,13 +92,7 @@ export default translate()(class PatientSettings extends Component {
       settings = DEFAULT_BG_SETTINGS;
     }
     else {
-      const patientBgUnits = _.get(patient, 'settings.units.bg');
-      if (patientBgUnits) {
-        settings = _.defaultsDeep({}, patient.settings, { bgTarget: DEFAULT_BG_TARGETS[patientBgUnits] });
-      }
-      else {
-        settings = _.defaultsDeep({}, patient.settings, DEFAULT_BG_SETTINGS);
-      }
+      settings = getSettings(patient.settings);
     }
 
     const lowNode = editingAllowed ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
@@ -215,11 +189,12 @@ export default translate()(class PatientSettings extends Component {
     let lowError = false;
     let highError = false;
 
+    const patientSettings = getSettings(this.props.patient.settings);
     let newSettings = _.defaultsDeep({}, {
       bgTarget: {
         [inputName]: value,
       },
-    }, this.props.patient.settings, DEFAULT_BG_SETTINGS);
+    }, patientSettings);
 
     // We never change the patient bg units here
     delete newSettings.units;
