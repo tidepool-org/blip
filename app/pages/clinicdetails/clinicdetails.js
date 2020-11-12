@@ -171,7 +171,7 @@ export const ClinicDetails = (props) => {
       >
         {({ errors, touched, setFieldTouched, setFieldValue, values }) => (
           <Form>
-            <Flex flexWrap={'wrap'} mb={2}>
+            <Flex flexWrap={'wrap'} mb={5}>
               <FastField
                 as={TextInput}
                 id="firstName"
@@ -209,17 +209,18 @@ export const ClinicDetails = (props) => {
                 {...inputStyles}
               />
             </Flex>
-            <Headline mb={2}>More about your clinic</Headline>
-            <Body1 mb={2}>
+            <Headline mb={4}>More about your clinic</Headline>
+            <Body1 mb={4}>
               The information below will be displayed along with your name when
               you invite patients to connect and share their data remotely.
               Please ensure you have the correct clinic information for their
               verification.
             </Body1>
-            <Body2 mt={2} mb={2}>
+            <Body2 mb={3}>
               {t('What is the type of organization you are a part of?')}
             </Body2>
             <FastField
+              mb={3}
               as={RadioGroup}
               variant="vertical"
               id="clinicType"
@@ -227,10 +228,11 @@ export const ClinicDetails = (props) => {
               options={clinicTypes}
               error={touched.clinicType && errors.clinicType}
             />
-            <Body2 mt={2} mb={2}>
+            <Body2 mb={3}>
               {t('How many patients does your clinic practice see?')}
             </Body2>
             <FastField
+              mb={3}
               as={RadioGroup}
               variant="vertical"
               id="clinicSize"
@@ -247,7 +249,7 @@ export const ClinicDetails = (props) => {
               options={selectCountries}
               {...inputStyles}
             />
-            <Flex flexWrap={'wrap'} mb={2}>
+            <Flex flexWrap={'wrap'} mb={5}>
               <FastField
                 as={TextInput}
                 id="orgName"
