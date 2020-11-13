@@ -1,20 +1,14 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
-/* global context */
-
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
+import chai from 'chai';
+import sinon from 'sinon';
 
 import InputGroup from '../../../app/components/inputgroup';
 
-const expect = chai.expect;
-
 describe('InputGroup', () => {
+  const { expect } = chai;
+
   const defaultProps = {
     onChange: sinon.stub(),
     trackMetric: sinon.stub(),
@@ -22,10 +16,25 @@ describe('InputGroup', () => {
     name: 'myText',
   };
 
+  const options = [
+    {
+      label: 'one',
+      value: '1',
+    },
+    {
+      label: 'two',
+      value: '2',
+    },
+    {
+      label: 'three',
+      value: '3',
+    },
+  ];
+
   const props = overrides => _.assign({}, defaultProps, overrides);
 
+  /** @type {import('enzyme').ReactWrapper<InputGroup>} */
   let wrapper;
-  let instance;
 
   beforeEach(() => {
     wrapper = mount(
@@ -44,30 +53,71 @@ describe('InputGroup', () => {
     expect(InputGroup).to.be.a('function');
   });
 
-  describe('renderSelect', () => {
-    const options = [
-      {
-        label: 'one',
-        value: '1',
-      },
-      {
-        label: 'two',
-        value: '2',
-      },
-      {
-        label: 'three',
-        value: '3',
-      },
-    ];
+  describe('render', () => {
+    before(() => {
+      try {
+        // FIXME should not protect this call
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+      }
+    });
 
+    after(() => {
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+    });
+
+    it('should render without errors when provided all required props', () => {
+      expect(wrapper.find('.input-group')).to.have.length(1);
+      expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should render the appropriate type of input based on the prop type', () => {
+      expect(wrapper.find('input').first().prop('type'), 'text').to.be.equal('text');
+
+      wrapper.setProps({ type: 'passwordShowHide' });
+      expect(wrapper.find('img.image').length, 'passwordShowHide').to.be.equal(1);
+
+      wrapper.setProps({ type: 'explanation' });
+      expect(wrapper.find('.input-group-explanation').length, 'explanation').to.be.equal(1);
+
+      wrapper.setProps({ type: 'textarea' });
+      expect(wrapper.find('textarea').length, 'textarea').to.be.equal(1);
+
+      wrapper.setProps({ type: 'checkbox' });
+      expect(wrapper.find('input').length, 'input').to.be.equal(1);
+      expect(wrapper.find('input').first().prop('type'), 'input checkbox').to.be.equal('checkbox');
+
+      wrapper.setProps({ type: 'radios', items: [{ name: 'a', value: 'a'}, { name: 'b', value: 'b'}] });
+      expect(wrapper.find('input').length, 'input').to.be.equal(2);
+      expect(wrapper.find('input').first().prop('type'), 'input radio').to.be.equal('radio');
+
+      wrapper.setProps({ type: 'select', items: [{ label: 'a', value: 'a'}, { label: 'b', value: 'b'}], value: 'a' });
+      // For some reason, this selector return 4 entries...
+      expect(wrapper.find('.Select').length, wrapper.html()).to.be.above(0);
+
+      wrapper.setProps({ type: 'datepicker' });
+      expect(wrapper.find('.DatePicker').length, 'datepicker').to.be.equal(1);
+    });
+  });
+
+  describe('renderSelect', () => {
     const selectProps = {
       type: 'select',
       items: options,
+      placeholder: 'Select...',
     };
 
+    /** @type {() => import('enzyme').ReactWrapper<React.AllHTMLAttributes>} */
     let select;
+    /** @type {() => import('enzyme').ReactWrapper<React.AllHTMLAttributes>} */
     let selectInput;
+    /** @type {() => import('enzyme').ReactWrapper<React.AllHTMLAttributes>} */
     let selectValues;
+    /** @type {() => import('enzyme').ReactWrapper<React.AllHTMLAttributes>} */
     let selectOptions;
 
     beforeEach(() => {
@@ -76,9 +126,6 @@ describe('InputGroup', () => {
       selectInput = () => select().find('input').first();
       selectValues = () => select().find('.Select__value-container').first();
       selectOptions = () => select().find('.Select__option');
-
-
-      instance = () => wrapper.instance();
     });
 
     it('should render a select with the provided options', () => {
@@ -92,31 +139,35 @@ describe('InputGroup', () => {
     });
 
     it('should select the appropriate option from the provided value', () => {
-      expect(selectValues()).to.have.length(1);
-      expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.false;
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+      let elem = selectValues();
+      expect(elem).to.have.length(1);
+      expect(elem.hasClass('Select__value-container--is-multi')).to.be.false;
+      expect(elem.hasClass('Select__value-container--has-value')).to.be.false;
 
       wrapper.setProps(props({
-        ...instance().props,
+        ...selectProps,
         value: '1',
       }));
 
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.true;
-      expect(selectValues().text()).to.equal('one');
+      elem = selectValues();
+      expect(elem.hasClass('Select__value-container--has-value'), `Having class: "${elem.prop('className')}"`).to.be.true;
+      expect(elem.text()).to.equal('one');
     });
 
     it('should ignore a provided value that does not have a corresponding option item', () => {
-      expect(selectValues()).to.have.length(1);
-      expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.false;
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+      let elem = selectValues();
+      expect(elem).to.have.length(1);
+      expect(elem.hasClass('Select__value-container--is-multi')).to.be.false;
+      expect(elem.hasClass('Select__value-container--has-value')).to.be.false;
 
       wrapper.setProps(props({
-        ...instance().props,
+        ...selectProps,
         value: '4',
       }));
 
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
-      expect(selectValues().text()).to.equal('Select...');
+      elem = selectValues();
+      expect(elem.hasClass('Select__value-container--has-value'), `Having class: "${elem.prop('className')}"`).to.be.false;
+      expect(elem.text()).to.equal('Select...');
     });
 
     context('multi-select', () => {
@@ -133,7 +184,7 @@ describe('InputGroup', () => {
         expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
 
         wrapper.setProps(props({
-          ...instance().props,
+          ...selectProps,
           value: '1,3',
         }));
 
@@ -147,7 +198,7 @@ describe('InputGroup', () => {
         expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
 
         wrapper.setProps(props({
-          ...instance().props,
+          ...selectProps,
           value: '0,2,3,4',
         }));
 
@@ -157,88 +208,36 @@ describe('InputGroup', () => {
     });
   });
 
-  describe('render', () => {
-    it('should render without errors when provided all required props', () => {
-      console.error = sinon.stub();
-
-      expect(wrapper.find('.input-group')).to.have.length(1);
-      expect(console.error.callCount).to.equal(0);
-    });
-
-    it('should render the appropriate type of input based on the prop type', () => {
-      const renderInput = sinon.spy(wrapper.instance(), 'renderInput');
-      const renderExplanation = sinon.spy(wrapper.instance(), 'renderExplanation');
-      const renderTextArea = sinon.spy(wrapper.instance(), 'renderTextArea');
-      const renderCheckbox = sinon.spy(wrapper.instance(), 'renderCheckbox');
-      const renderRadios = sinon.spy(wrapper.instance(), 'renderRadios');
-      const renderSelect = sinon.spy(wrapper.instance(), 'renderSelect');
-      const renderDatePicker = sinon.spy(wrapper.instance(), 'renderDatePicker');
-      wrapper.instance().forceUpdate();
-
-      sinon.assert.calledOnce(renderInput);
-      renderInput.resetHistory();
-
-      wrapper.setProps({ type: 'explanation' });
-      sinon.assert.calledOnce(renderExplanation);
-      renderExplanation.resetHistory();
-
-      wrapper.setProps({ type: 'textarea' });
-      sinon.assert.calledOnce(renderTextArea);
-      renderTextArea.resetHistory();
-
-      wrapper.setProps({ type: 'checkbox' });
-      sinon.assert.calledOnce(renderCheckbox);
-      renderCheckbox.resetHistory();
-
-      wrapper.setProps({ type: 'radios' });
-      sinon.assert.calledOnce(renderRadios);
-      renderRadios.resetHistory();
-
-      wrapper.setProps({ type: 'select' });
-      sinon.assert.calledOnce(renderSelect);
-      renderSelect.resetHistory();
-
-      wrapper.setProps({ type: 'datepicker' });
-      sinon.assert.calledOnce(renderDatePicker);
-      renderDatePicker.resetHistory();
-
-    });
-  });
-
   describe('handleChange', () => {
     it('should call the onChange handler prop with the provided values', () => {
-      const args = { name: 'myText', value: 'hello' };
-      wrapper.instance().handleChange({ target: args });
+      const args = { name: 'myText', value: 'hello world' };
+      wrapper.find('input').first().simulate('change', { target: { value: 'hello world'} });
 
       sinon.assert.calledOnce(defaultProps.onChange);
       sinon.assert.calledWith(defaultProps.onChange, args);
     });
 
     it('should call the onChange handler prop with transformed values for a checkbox', () => {
-      const args = { name: 'myCheckbox', checked: true };
-      const expectedTransformed = { name: 'myCheckbox', value: true };
+      wrapper.setProps({ type: 'checkbox', name: 'myCheckbox', value: false });
+      wrapper.find('input').first().simulate('change', { target: { checked: true } });
 
-      wrapper.setProps({ type: 'checkbox' });
-      wrapper.instance().handleChange({ target: args });
-
-      sinon.assert.calledWith(defaultProps.onChange, expectedTransformed);
+      sinon.assert.calledWith(defaultProps.onChange, { name: 'myCheckbox', value: true });
     });
 
     it('should call the onChange handler prop with transformed values for multiselect inputs', () => {
-      const args = 'val1, val2';
+      const args = '1, 2';
       const expectedTransformed = { name: 'myMultiSelect', value: args };
 
-      wrapper.setProps({ name: 'myMultiSelect', type: 'select', multi: true });
-      wrapper.instance().handleChange({ target: args });
-
+      wrapper.setProps({ name: 'myMultiSelect', type: 'select', multi: true, items: options, value: args });
+      wrapper.find('.Select').first().instance().onChange({ value: args });
       sinon.assert.calledWith(defaultProps.onChange, expectedTransformed);
     });
 
     it('should call the onChange handler prop without transforming values for a regular select inputs', () => {
       const args = { name: 'mySelect', value: 'mySelectedVal' };
 
-      wrapper.setProps({ name: 'mySelect', type: 'select', multi: false });
-      wrapper.instance().handleChange({ target: args });
+      wrapper.setProps({ name: 'mySelect', type: 'select', multi: false, items: [] });
+      wrapper.find('.Select').first().instance().onChange({ value: args.value });
 
       sinon.assert.calledWith(defaultProps.onChange, args);
     });

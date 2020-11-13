@@ -169,7 +169,7 @@ class DatePicker extends React.Component {
       <select
         className="DatePicker-control DatePicker-control--month"
         name="month"
-        value={value.month}
+        value={value.month || ''}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat}>
         {monthOptions}
@@ -180,7 +180,7 @@ class DatePicker extends React.Component {
       <input
         className="DatePicker-control DatePicker-control--day"
         name="day"
-        value={value.day}
+        value={value.day || ''}
         placeholder={t('Day')}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat} />
@@ -190,7 +190,7 @@ class DatePicker extends React.Component {
       <input
         className="DatePicker-control DatePicker-control--year"
         name="year"
-        value={value.year}
+        value={value.year || ''}
         placeholder={t('Year')}
         disabled={this.props.disabled}
         onChange={this.handleChangeFlat} />

@@ -1,5 +1,3 @@
-
-var PropTypes = require('prop-types');
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,101 +13,111 @@ var PropTypes = require('prop-types');
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import bows from 'bows';
 
-var InputGroup = require('../inputgroup');
+import i18n from '../../core/language';
+import InputGroup from '../inputgroup';
 
 // Simple form with validation errors, submit button, and notification message
 class SimpleForm extends React.Component {
-  static propTypes = {
-    inputs: PropTypes.array.isRequired,
-    formValues: PropTypes.object,
-    validationErrors: PropTypes.object,
-    submitButtonText: PropTypes.string,
-    submitDisabled: PropTypes.bool,
-    onSubmit: PropTypes.func,
-    onChange: PropTypes.func,
-    notification: PropTypes.object,
-    disabled: PropTypes.bool,
-    renderSubmit: PropTypes.bool,
-  };
+  constructor(props) {
+    super(props);
+    this.log = bows('SimpleForm');
+    const formValues = this.getInitialFormValues();
+    this.state = { formValues };
+  }
 
-  static defaultProps = {
-    formValues: {},
-    validationErrors: {},
-    renderSubmit: true,
-    disabled: false,
-  };
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(this.props, prevProps)) {
+      const { formValues: prevFormValues } = prevProps;
+      const { formValues: stateFormValues } = this.state;
+      const newFormValues = this.getInitialFormValues();
 
-  constructor(props, context) {
-    super(props, context);
-    var formValues =
-      this.getInitialFormValues(props.inputs, props.formValues);
+      const formValues = _.cloneDeep(stateFormValues);
+      let haveChanges = false;
+      // Check if prevProps & newProps are not equals
+      for (const name in newFormValues) {
+        let propChange = _.has(newFormValues, name);
+        propChange = propChange && (!_.has(prevFormValues, name) || prevFormValues[name] !== newFormValues[name]);
+        if (propChange) {
+          haveChanges = true;
+          formValues[name] = newFormValues[name];
+        }
+      }
 
-    this.state = {
-      formValues: formValues
-    };
+      if (haveChanges) {
+        this.log.info('Props updated => state to be changed');
+        this.setState({ formValues });
+      }
+    }
   }
 
   // Make sure all inputs have a defined form value (can be blank)
-  getInitialFormValues = (inputsProp, formValuesProp) => {
-    var formValues = {};
-    _.forEach(inputsProp, function(input) {
-      var name = input.name;
-      formValues[name] = formValuesProp[name];
+  getInitialFormValues() {
+    const { inputs, formValues } = this.props;
+    const initialFormValues = {};
+    _.forEach(inputs, (input) => {
+      const name = _.get(input, 'name', null);
+      if (_.isString(name) && _.has(formValues, name)) {
+        const value = _.get(formValues, name, null);
+        if (value !== null) {
+          initialFormValues[name] = value;
+        }
+      } else {
+        this.log.info('Missing name on input, or missing formValues.name', input, formValues);
+      }
     });
-    return formValues;
-  };
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    // Keep form values in sync with upstream changes
-    // (here `setState` will not trigger a double render)
-    var formValues =
-      this.getInitialFormValues(nextProps.inputs, nextProps.formValues);
-    this.setState({formValues: formValues});
+    return initialFormValues;
   }
 
   render() {
-    var inputs = this.renderInputs();
-    var submitButton = this.props.renderSubmit ? this.renderSubmitButton() : null;
-    var notification = this.renderNotification();
+    const { children, renderSubmit } = this.props;
+    const inputs = this.renderInputs();
+    const submitButton = renderSubmit ? this.renderSubmitButton() : null;
+    const notification = this.renderNotification();
 
     return (
-        <form className="simple-form">
-          <div className="simple-form-inputs" ref="inputs" key="inputs">
-            {inputs}
-          </div>
-            {this.props.children}
-          <div className="simple-form-action-group">
-            {submitButton}
-            {notification}
-          </div>
-        </form>
+      <form className="simple-form">
+        <div className="simple-form-inputs">
+          {inputs}
+        </div>
+        {children}
+        <div className="simple-form-action-group">
+          {submitButton}
+          {notification}
+        </div>
+      </form>
     );
   }
 
-  renderInputs = () => {
-    var self = this;
-    var inputs = this.props.inputs || [];
+  renderInputs() {
+    const { inputs } = this.props;
     if (inputs.length) {
-      return _.map(inputs, self.renderInput);
+      return _.map(inputs, this.renderInput);
     }
 
     return null;
-  };
+  }
 
   renderInput = (input) => {
-    var name = input.name;
-    var type = input.type;
-    var label = input.label;
-    var items = input.items;
-    var text = input.text;
-    var multi = input.multi || false;
-    var value = this.state.formValues[name];
-    var error = this.props.validationErrors[name];
-    var placeholder = input.placeholder;
-    var disabled = this.props.disabled || input.disabled;
+    const { validationErrors, disabled } = this.props;
+    const { formValues } = this.state;
+
+    const {
+      name,
+      type,
+      label,
+      items,
+      text,
+      info,
+      placeholder,
+    } = input;
+    const multi = _.get(input, 'multi', false);
+    const value = _.get(formValues, name, null);
+    const error = _.get(validationErrors, name, null);
 
     return (
       <InputGroup
@@ -123,72 +131,92 @@ class SimpleForm extends React.Component {
         type={type}
         multi={multi}
         placeholder={placeholder}
-        disabled={disabled}
+        disabled={disabled || input.disabled}
         onChange={this.handleChange}
-        info={input.info}
+        info={info}
       />
     );
   };
 
-  renderSubmitButton = () => {
-    var text = this.props.submitButtonText || 'Submit';
-    var disabled = this.props.disabled || this.props.submitDisabled;
+  renderSubmitButton() {
+    const { submitButtonText , disabled, submitDisabled } = this.props;
+    const text = _.isString(submitButtonText) ? submitButtonText : i18n.t('Submit');
 
     return (
       <button
         className="simple-form-submit btn btn-primary js-form-submit"
         onClick={this.handleSubmit}
-        disabled={disabled}
-        ref="submitButton">{text}</button>
+        disabled={disabled || submitDisabled}>
+          {text}
+      </button>
     );
-  };
+  }
 
-  renderNotification = () => {
-    var notification = this.props.notification;
+  renderNotification() {
+    const { notification } = this.props;
     if (notification && notification.message) {
-      var type = notification.type || 'alert';
-      var className = [
+      const type = notification.type || 'alert';
+      const className = [
         'simple-form-notification',
         'simple-form-notification-' + type,
         'js-form-notification'
       ].join(' ');
-      var message = notification.message;
+      const message = notification.message;
 
       return (
-        <div className={className} ref="notification">{message}</div>
+        <div className={className}>{message}</div>
       );
     }
     return null;
-  };
+  }
 
-  handleChange = (attributes) => {
-    var key = attributes.name;
-    var value = attributes.value;
+  handleChange = (/** @type{{name: string, value: string|number }} */ attributes) => {
+    const { name, value } = attributes;
+    const formValues = _.cloneDeep(this.state.formValues);
+    if (_.isString(name)) {
+      _.set(formValues, name, value);
+    }
 
-    if (this.props.onChange) {
+    this.setState({ formValues });
+
+    if (_.isFunction(this.props.onChange)) {
       this.props.onChange(attributes);
-    } else if (key) {
-      var formValues = _.clone(this.state.formValues);
-      formValues[key] = value;
-      this.setState({formValues: formValues});
     }
   };
 
   handleSubmit = (e) => {
-    if (e) {
-      e.preventDefault();
+    e.preventDefault();
+    const { onSubmit } = this.props;
+    if (_.isFunction(onSubmit)) {
+      const formValues = _.cloneDeep(this.state.formValues);
+      onSubmit(formValues);
     }
-
-    var submit = this.props.onSubmit;
-    if (submit) {
-      var formValues = _.clone(this.state.formValues);
-      submit(formValues);
-    }
-  };
-
-  getFormValues = () => {
-    return _.cloneDeep(this.state.formValues);
   };
 }
 
-module.exports = SimpleForm;
+SimpleForm.propTypes = {
+  inputs: PropTypes.array,
+  formValues: PropTypes.object,
+  validationErrors: PropTypes.object,
+  submitButtonText: PropTypes.string,
+  submitDisabled: PropTypes.bool,
+  onSubmit: PropTypes.func,
+  onChange: PropTypes.func,
+  notification: PropTypes.object,
+  disabled: PropTypes.bool,
+  renderSubmit: PropTypes.bool,
+  children: PropTypes.node,
+};
+
+SimpleForm.defaultProps = {
+  inputs: [],
+  formValues: {},
+  validationErrors: {},
+  renderSubmit: true,
+  disabled: false,
+  submitDisabled: false,
+  onChange: null,
+  submitButtonText: null,
+};
+
+export default SimpleForm;

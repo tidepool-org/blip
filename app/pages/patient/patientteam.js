@@ -16,13 +16,13 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import { translate } from 'react-i18next'
+import { translate } from 'react-i18next';
 import _ from 'lodash';
 import cx from 'classnames';
 import config from '../../config';
 
+import InputGroup from '../../components/inputgroup';
 var ModalOverlay = require('../../components/modaloverlay');
-var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 
@@ -558,7 +558,7 @@ var PatientTeam = translate()(class extends React.Component {
   }
 });
 
-module.exports = {
+export {
   PatientTeam,
   MemberInviteForm
 };

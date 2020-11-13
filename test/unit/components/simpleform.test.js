@@ -8,9 +8,9 @@ import _ from 'lodash';
 
 import SimpleForm from '../../../app/components/simpleform';
 
-const expect = chai.expect;
-
 describe('SimpleForm', () => {
+  const { expect } = chai;
+
   describe('render', () => {
     before(() => {
       try {
