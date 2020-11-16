@@ -23,6 +23,7 @@ import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './FoodTooltip.css';
 import i18next from 'i18next';
+import { PRESCRIPTOR_MODIFIED, PRESCRIPTOR_NONE} from '../../../utils/constants';
 
 class FoodTooltip extends React.Component {
   getCarbs(food) {
@@ -30,11 +31,15 @@ class FoodTooltip extends React.Component {
   }
 
   getPrescribedCarbs(food) {
-    return _.get(food, 'prescribedNutrition.carbohydrate.net', 0);
+    return _.get(food, 'prescribedNutrition.carbohydrate.net');
+  }
+
+  getPrescriptor(food) {
+    return _.get(food, 'prescriptor');
   }
 
   isPrescribed(food) {
-    const prescriptor = _.get(food, 'prescriptor');
+    const prescriptor = this.getPrescriptor(food);
     if (prescriptor) {
       return true;
     }
@@ -45,8 +50,9 @@ class FoodTooltip extends React.Component {
     const food = this.props.food;
     const actualValue = this.getCarbs(food);
     const rows = [];
-    if (this.isPrescribed(food)) {
-      const prescribedValue = this.getPrescribedCarbs(food);
+    const prescriptor = this.getPrescriptor(food);
+    if (this.isPrescribed(food) && (prescriptor !== PRESCRIPTOR_NONE) ) {      
+      const prescribedValue = (prescriptor === PRESCRIPTOR_MODIFIED) ? this.getPrescribedCarbs(food) : this.getCarbs(food);
       rows.push(
         <div key={'prescribed'} className={styles.prescribed}>
         <div className={styles.label}>{i18next.t('Recommended')}</div>

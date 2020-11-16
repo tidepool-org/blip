@@ -23,6 +23,7 @@ import { formatClassesAsSelector } from '../../helpers/cssmodules';
 
 import FoodTooltip from '../../../src/components/daily/foodtooltip/FoodTooltip';
 import styles from '../../../src/components/daily/foodtooltip/FoodTooltip.css';
+import { PRESCRIPTOR_AUTO, PRESCRIPTOR_MODIFIED} from '../../../src/utils/constants';
 
 const normal = {
   type: 'food',
@@ -54,7 +55,19 @@ const nonCarb = {
   },
 };
 
-const rescuecarbsWithReco = {
+const rescuecarbsAuto = {
+  type: 'food',
+  meal: 'rescuecarbs',
+  nutrition: {
+    carbohydrate: {
+      net: 20,
+      units: 'grams',
+    },
+  },
+  prescriptor: "auto"
+};
+
+const rescuecarbsModified = {
   type: 'food',
   meal: 'rescuecarbs',
   nutrition: {
@@ -69,7 +82,7 @@ const rescuecarbsWithReco = {
       units: "grams"
     }
   },
-  prescriptor: "auto"
+  prescriptor: "hybrid"
 };
 
 const props = {
@@ -89,7 +102,7 @@ describe('FoodTooltip', () => {
   });
 
   it('should render prescribed nutrition when provided', () => {
-    const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
+    const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsAuto} />);
     expect(wrapper.find(formatClassesAsSelector(styles.prescribed))).to.have.length(1);
   });
 
@@ -116,21 +129,39 @@ describe('FoodTooltip', () => {
   describe('getPrescribedCarbs', () => {
     // eslint-disable-next-line max-len
     const prescribedValue = `${formatClassesAsSelector(styles.prescribed)} ${formatClassesAsSelector(styles.value)}`;
-    it('should return 15 for a 15 gram net prescribed food value', () => {
-      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
-      expect(wrapper.instance().getPrescribedCarbs(rescuecarbsWithReco)).to.equal(15);
+    it('should return 20 for a 20 gram net prescribed food value', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsAuto} />);
+      expect(wrapper.instance().getPrescribedCarbs(rescuecarbsAuto)).to.be.undefined;
+      expect(wrapper.instance().getCarbs(rescuecarbsAuto)).to.equal(20);
+      expect(wrapper.find(prescribedValue).text()).to.equal('20');
+    });
+    it('should return 15 for a 20 gram net prescribed food value modified by user to 15', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsModified} />);
+      expect(wrapper.instance().getPrescribedCarbs(rescuecarbsModified)).to.equal(15);
       expect(wrapper.find(prescribedValue).text()).to.equal('15');
     });
+
   });
 
   describe('isPrescribed', () => {
     it('should return true when prescriptor is provided', () => {
-      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsWithReco} />);
-      expect(wrapper.instance().isPrescribed(rescuecarbsWithReco)).to.equal(true);
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsAuto} />);
+      expect(wrapper.instance().isPrescribed(rescuecarbsAuto)).to.equal(true);
     });
     it('should return false when prescriptor is not provided', () => {
       const wrapper = mount(<FoodTooltip {...props} food={normal} />);
       expect(wrapper.instance().isPrescribed(normal)).to.equal(false);
+    });
+  });
+
+  describe('getPrescriptor', () => {
+    it('should return auto when prescriptor is set to auto', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsAuto} />);
+      expect(wrapper.instance().getPrescriptor(rescuecarbsAuto)).to.equal(PRESCRIPTOR_AUTO);
+    });
+    it('should return false when prescriptor is set to modified', () => {
+      const wrapper = mount(<FoodTooltip {...props} food={rescuecarbsModified} />);
+      expect(wrapper.instance().getPrescriptor(rescuecarbsModified)).to.equal(PRESCRIPTOR_MODIFIED);
     });
   });
 

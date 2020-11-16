@@ -1,6 +1,10 @@
 # Yourloops data visualization for diabetes device data
 This node package is a dependency of Blip and was forked from tidepool/viz.
 
+## unreleased
+### Fixed 
+- YLP-289 RescueCarbs: recommendation is always set to 0 for automatic mode
+
 ## 0.18.0 - 2020-11-09
 ### Changed
 - YLP-109 block units depending on country
