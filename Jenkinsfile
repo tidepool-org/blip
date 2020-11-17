@@ -8,6 +8,22 @@ pipeline {
         node_version='12'
     }
     stages {
+        stage('Initialization') {
+            steps {
+                script {
+                    utils.initPipeline()
+                    docker.image('docker.ci.diabeloop.eu/ci-toolbox').inside() {
+                        env.version = sh (
+                            script: 'release-helper get-version',
+                            returnStdout: true
+                        ).trim().toUpperCase()
+                    }
+                    if (env.version == "UNRELEASED") {
+                        env.version = "master"
+                    }
+                }
+            }
+        }
         stage('Test') {
             agent {
                 dockerfile {
@@ -45,24 +61,14 @@ pipeline {
                 pack()
             }
         }
+        stage('Documentation') {
+            steps {
+                genDocumentation()
+            }
+        }
         stage('Publish') {
             when { branch "dblp" }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-jenkins', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PWD')]) {
-                        sh """echo "${NEXUS_PWD}" | docker login -u ${NEXUS_USER} --password-stdin docker.ci.diabeloop.eu"""
-                        sh "docker pull docker.ci.diabeloop.eu/ci-toolbox:latest"
-                }
-                script {
-                    docker.image('docker.ci.diabeloop.eu/ci-toolbox').inside() {
-                        env.version = sh (
-                            script: 'release-helper get-version',
-                            returnStdout: true
-                        ).trim().toUpperCase()
-                    }
-                    if (env.version == "UNRELEASED") {
-                        env.version = "master"
-                    }
-                }
                 withCredentials([string(credentialsId: 'DEV_AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'DEV_AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
                     string(credentialsId: 'AWS_ACCOUNT_ID', variable: 'AWS_ACCOUNT')]) {

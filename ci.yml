@@ -7,4 +7,6 @@ dockerPictime: true
 publishNpm: false
 publishS3: false
 publishSoup: true
+publishSoupBucket: com.diabeloop.yourloops.docs
 securityScan: false
+
