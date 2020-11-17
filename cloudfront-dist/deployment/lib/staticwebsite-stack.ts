@@ -57,6 +57,7 @@ export class StaticWebSiteStack extends core.Stack {
     const cert = new DnsValidatedCertificate(this, `${id}-certificate`, {
       hostedZone: zone,
       domainName: `${props?.domainName}`,
+      subjectAlternativeNames: [`${props?.altDomainName}`],
       region: 'us-east-1',
     });
 
@@ -100,7 +101,7 @@ export class StaticWebSiteStack extends core.Stack {
         ],
         viewerCertificate: 
         {
-          aliases: [`${props?.domainName}`],
+          aliases: [`${props?.domainName}`, `${props?.altDomainName}`],
           props: {
             acmCertificateArn: cert.certificateArn,
             sslSupportMethod: cloudfront.SSLMethod.SNI,

@@ -10,6 +10,7 @@ const AWS_DEFAULT_REGION = process.env.AWS_DEFAULT_REGION;
 const STACK_PREFIX_NAME = process.env.STACK_PREFIX_NAME;
 const STACK_VERSION = process.env.STACK_VERSION;
 const DOMAIN_NAME = process.env.DOMAIN_NAME;
+const ALT_DOMAIN_NAME = process.env.ALT_DOMAIN_NAME;
 const DNS_ZONE = process.env.DNS_ZONE;
 const BUCKET = process.env.BUCKET;
 
@@ -40,6 +41,7 @@ new StaticWebSiteStack(app, APP_STACK_NAME, distDir, {
       region: AWS_DEFAULT_REGION
     }, 
     domainName: DOMAIN_NAME,
+    altDomainName: ALT_DOMAIN_NAME,
     zone: DNS_ZONE,
     FrontAppName: FRONT_APP_NAME, 
     prefix: STACK_PREFIX_NAME, 
