@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import sundial from 'sundial';
-import moment from 'moment-timezone'
+import moment from 'moment-timezone';
 import i18next from '../../core/language';
 
 import { Element } from 'react-scroll';
@@ -379,11 +379,7 @@ class PatientInfo extends React.Component {
         <div className="PatientPage-sectionTitle">{t('The units I use are')}</div>
         <div className="PatientInfo-content">
           <PatientBgUnits
-            editingAllowed={this.isEditingAllowed(this.props.permsOfLoggedInUser)}
-            onUpdatePatientSettings={this.props.onUpdatePatientSettings}
             patient={this.props.patient}
-            trackMetric={this.props.trackMetric}
-            working={true}
           />
         </div>
       </div>
@@ -442,7 +438,7 @@ class PatientInfo extends React.Component {
           <Export api={this.props.api} patient={this.props.patient} />
         </div>
       </div>
-    )
+    );
   }
 
   isSamePersonUserAndPatient() {
@@ -495,7 +491,7 @@ class PatientInfo extends React.Component {
 
     if (diagnosisDate) {
       yearsAgo = to.diff(moment.utc(diagnosisDate), 'years');
-      
+
       if (yearsAgo === 0) {
         diagnosisDateText = t('this year');
       } else if (yearsAgo === 1) {
@@ -552,7 +548,7 @@ class PatientInfo extends React.Component {
     if (lastName) {
       formValues.lastName = lastName;
     }
-    
+
     if (patientInfo) {
       if (patientInfo.birthday) {
         formValues.birthday = sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, t(FORM_DATE_FORMAT));
@@ -570,7 +566,7 @@ class PatientInfo extends React.Component {
         formValues.about = patientInfo.about;
       }
     }
-    
+
     return formValues;
   }
 
@@ -661,7 +657,7 @@ PatientInfo.propTypes = {
   fetchingUser: PropTypes.bool.isRequired,
   onUpdateDataDonationAccounts: PropTypes.func,
   onUpdatePatient: PropTypes.func.isRequired,
-  onUpdatePatientSettings: PropTypes.func,
+  onUpdatePatientSettings: PropTypes.func.isRequired,
   permsOfLoggedInUser: PropTypes.object,
   patient: PropTypes.object,
   trackMetric: PropTypes.func.isRequired,

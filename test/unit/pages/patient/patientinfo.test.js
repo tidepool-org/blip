@@ -1,18 +1,18 @@
-/* global chai */
-/* global sinon */
-import _ from 'lodash'
+import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
-import PatientInfo from '../../../../app/pages/patient/patientinfo';
 import moment from 'moment-timezone';
-
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
-const { expect } = chai;
+import PatientInfo from '../../../../app/pages/patient/patientinfo';
+
 
 describe('PatientInfo', function () {
 
   let props = {
+    api: {},
     user: { userid: 5678 },
     patient: { userid: 1234 },
     fetchingPatient: false,
@@ -23,9 +23,27 @@ describe('PatientInfo', function () {
     fetchDataSources: sinon.stub(),
     connectDataSource: sinon.stub(),
     disconnectDataSource: sinon.stub(),
+    onUpdatePatientSettings: sinon.stub(),
   };
 
+  /** @type {import('enzyme').ReactWrapper<PatientInfo>} */
   let wrapper;
+
+  before(() => {
+    try {
+      sinon.spy(console, 'error');
+    } catch (e) {
+      console.error = sinon.spy();
+    }
+  });
+
+  after(() => {
+    if (_.isFunction(_.get(console, 'error.restore'))) {
+      // @ts-ignore
+      console.error.restore();
+    }
+  });
+
   beforeEach(() => {
     wrapper = mount(
       <PatientInfo
@@ -40,25 +58,16 @@ describe('PatientInfo', function () {
     props.fetchDataSources.reset();
     props.connectDataSource.reset();
     props.disconnectDataSource.reset();
+    // @ts-ignore
+    console.error.resetHistory();
   });
 
   describe('render', function() {
     it('should render without problems when required props are present', () => {
-      console.error = sinon.spy();
-      var props = {
-        fetchingPatient: false,
-        fetchingUser: false,
-        patient: {},
-        onUpdatePatient: sinon.stub(),
-        onUpdatePatientSettings: sinon.stub(),
-        permsOfLoggedInUser: {},
-        trackMetric: sinon.stub(),
-      };
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+      const pi = wrapper.find('.PatientInfo');
+      expect(pi.length, pi.html()).to.be.equal(1);
+      // @ts-ignore
+      expect(console.error.callCount, JSON.stringify(console.error.getCalls())).to.equal(0);
     });
   });
 
@@ -164,10 +173,10 @@ describe('PatientInfo', function () {
       //
       // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1,
       // the range for 0 spans between these values
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1983, 4, 20)))).to.equal('Born this year');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1983, 4, 19)))).to.equal('Born this year');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 20)))).to.equal('Born this year');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 19)))).to.equal('Born this year');
 
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1985, 4, 17)))).to.equal('Born this year');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1985, 4, 17)))).to.equal('Born this year');
     });
 
 
@@ -187,11 +196,11 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1980, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1981, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1982, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1983, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1983, 4, 18)))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1980, 4, 17)))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1981, 4, 17)))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1982, 4, 17)))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 17)))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 18)))).to.equal('Birthdate not known');
     });
 
     it('should return text representing years difference', function() {
@@ -209,12 +218,12 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1985, 4, 19)))).to.equal('1 year old');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1986, 4, 19)))).to.equal('2 years old');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1987, 4, 19)))).to.equal('3 years old');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1988, 4, 19)))).to.equal('4 years old');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(1999, 4, 19)))).to.equal('15 years old');
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(2015, 4, 19)))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1985, 4, 19)))).to.equal('1 year old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1986, 4, 19)))).to.equal('2 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1987, 4, 19)))).to.equal('3 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1988, 4, 19)))).to.equal('4 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1999, 4, 19)))).to.equal('15 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 19)))).to.equal('31 years old');
     });
 
     it('should handle return correct text representation for various birthdays', function() {
@@ -233,11 +242,11 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
       elem.props.patient.profile.patient.birthday = '1984-04-30';
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
       elem.props.patient.profile.patient.birthday = '1984-05-29';
-      expect(elem.getAgeText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('30 years old');
+      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('30 years old');
     });
   });
 
@@ -257,8 +266,8 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1983, 3, 20)))).to.equal('Diagnosis date not known');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1982, 4, 20)))).to.equal('Diagnosis date not known');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1983, 3, 20)))).to.equal('Diagnosis date not known');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1982, 4, 20)))).to.equal('Diagnosis date not known');
     });
 
     it('should not return unknown Dx date if less than 1 years old, or Dx date in future, and diagnosis type is set', function() {
@@ -277,8 +286,8 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1983, 3, 20)))).to.equal('Diagnosed as Type 1');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1982, 4, 20)))).to.equal('Diagnosed as Type 1');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1983, 3, 20)))).to.equal('Diagnosed as Type 1');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1982, 4, 20)))).to.equal('Diagnosed as Type 1');
     });
 
     it('should return text representing years difference', function() {
@@ -296,13 +305,13 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1984, 4, 18)))).to.equal('Diagnosed this year');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1985, 4, 19)))).to.equal('Diagnosed 1 year ago');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1986, 4, 19)))).to.equal('Diagnosed 2 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1987, 4, 19)))).to.equal('Diagnosed 3 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1988, 4, 19)))).to.equal('Diagnosed 4 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(1999, 4, 19)))).to.equal('Diagnosed 15 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 19)))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1984, 4, 18)))).to.equal('Diagnosed this year');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1985, 4, 19)))).to.equal('Diagnosed 1 year ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1986, 4, 19)))).to.equal('Diagnosed 2 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1987, 4, 19)))).to.equal('Diagnosed 3 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1988, 4, 19)))).to.equal('Diagnosed 4 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(1999, 4, 19)))).to.equal('Diagnosed 15 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 19)))).to.equal('Diagnosed 31 years ago');
     });
 
     it('should handle return correct text representation for various Dx dates', function() {
@@ -320,11 +329,11 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-04-30';
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-05-29';
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 30 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 30 years ago');
     });
 
     it('should handle return correct text representation when both diagnosis type and date are available', function() {
@@ -343,7 +352,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago as Type 1');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago as Type 1');
     });
 
     it('should handle return correct text representation when only diagnosis type is available', function() {
@@ -361,7 +370,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed as Type 1');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed as Type 1');
     });
 
     it('should handle return correct text representation when an invalid diagnosis type is provided, and no date is available', function() {
@@ -379,7 +388,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosis date not known');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosis date not known');
     });
 
     it('should handle return correct text representation when an invalid diagnosis type is provided, and a date is available', function() {
@@ -398,7 +407,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
     });
 
     it('should handle return correct text representation when only diagnosis date is available', function() {
@@ -416,7 +425,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, moment(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('Diagnosed 31 years ago');
     });
   });
 
@@ -902,16 +911,6 @@ describe('PatientInfo', function () {
       expect(bgUnitSettings).to.have.length(1);
       expect(bgUnitSettings.find('.bgUnits').text()).to.equal('mg/dL');
       expect(bgUnitSettings.find('.simple-form').length).to.equal(0);
-    });
-
-    it('should render the bg unit settings form if editing is allowed', function() {
-      wrapper.setProps({
-        permsOfLoggedInUser: { root: true },
-      });
-
-      const bgUnitSettings = wrapper.find('.PatientPage-bgUnitSettings').hostNodes();
-      expect(bgUnitSettings).to.have.length(1);
-      expect(bgUnitSettings.find('.simple-form').length).to.equal(1);
     });
   });
 
