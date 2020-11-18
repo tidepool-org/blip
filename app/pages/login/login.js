@@ -14,9 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import PropTypes from 'prop-types';
-
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router';
@@ -34,49 +33,20 @@ import config from '../../config';
 const t = i18n.t.bind(i18n);
 
 export class Login extends React.Component {
-  static propTypes = {
-    acknowledgeNotification: PropTypes.func.isRequired,
-    confirmSignup: PropTypes.func.isRequired,
-    fetchers: PropTypes.array.isRequired,
-    isInvite: PropTypes.bool.isRequired,
-    notification: PropTypes.object,
-    onSubmit: PropTypes.func.isRequired,
-    seedEmail: PropTypes.string,
-    trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
-  };
-
   constructor(props) {
     super(props);
-    var formValues = {};
-    var email = props.seedEmail;
-
-    if (email) {
-      formValues.username = email;
-    }
 
     this.state = {
-      formValues: formValues,
       validationErrors: {},
       notification: null
     };
   }
 
-  formInputs = () => {
-    let pwdType = config.CAN_SEE_PWD_LOGIN ? 'passwordShowHide' : 'password';
-
-    return [
-      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', placeholder: t('Password'), type: pwdType }
-    ];
-  };
-
   componentDidMount() {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('User Reached login page');
-    }
+    this.props.trackMetric('User Reached login page');
 
     if (config.HELP_LINK !== null) {
+      // @ts-ignore
       window.zESettings = {
         webWidget: {
           helpCenter: {
@@ -86,6 +56,18 @@ export class Login extends React.Component {
           }
         }
       };
+    }
+
+    this.doFetching();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.state.notification !== null && !_.isEqual(this.props, prevProps)) {
+      // When language change, reset errors message, since they can't be translated
+      this.setState({
+        validationErrors: {},
+        notification: null
+      });
     }
   }
 
@@ -105,7 +87,9 @@ export class Login extends React.Component {
         {browserWarning}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
-            <div className="login-simpleform">{form}</div>
+            <div className="login-simpleform">
+              {form}
+            </div>
           </div>
         </div>
       </div>
@@ -135,105 +119,106 @@ export class Login extends React.Component {
     }
   };
 
-  renderForm = () => {
-    var submitButtonText = this.props.working ? t('Logging in...') : t('Login');
-    var forgotPassword = this.renderForgotPassword();
+  renderForm() {
+    const { seedEmail, working, notification: propsNotification } = this.props;
+    const { validationErrors, notification: stateNotification } = this.state;
+    const submitButtonText = working ? t('Logging in...') : t('Login');
+    const forgotPassword = this.renderForgotPassword();
+
+    const formValues = {
+      username: seedEmail,
+      password: null,
+    };
 
     return (
       <SimpleForm
         inputs={this.formInputs()}
-        formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
+        formValues={formValues}
+        validationErrors={validationErrors}
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}>
-        {<div className="login-forgotpassword">{forgotPassword}</div>}
+        notification={stateNotification || propsNotification}>
+          <div className="login-forgotpassword">
+            {forgotPassword}
+          </div>
       </SimpleForm>
     );
-  };
+  }
 
-  logPasswordReset = () => {
-    this.props.trackMetric('Clicked Forgot Password');
-  };
+  formInputs() {
+    const pwdType = config.CAN_SEE_PWD_LOGIN ? 'passwordShowHide' : 'password';
 
-  renderForgotPassword = () => {
-    return <Link to="/request-password-reset">{t('Forgot your password?')}</Link>;
-  };
+    return [
+      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !_.isEmpty(this.props.seedEmail) },
+      { name: 'password', placeholder: t('Password'), type: pwdType }
+    ];
+  }
+
+  renderForgotPassword() {
+    const logPasswordReset = () => {
+      this.props.trackMetric('Clicked Forgot Password');
+    };
+    return <Link to="/request-password-reset" onClick={logPasswordReset}>{t('Forgot your password?')}</Link>;
+  }
 
   handleSubmit = (formValues) => {
     if (this.props.working) {
       return;
     }
 
-    this.resetFormStateBeforeSubmit(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
-    if (!_.isEmpty(validationErrors)) {
-      return;
-    }
-
-    const { user, options } = this.prepareFormValuesForSubmit(formValues);
-
-    this.props.onSubmit(user, options);
-  };
-
-  resetFormStateBeforeSubmit = (formValues) => {
-    this.props.acknowledgeNotification('loggingIn');
-    this.setState({
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
-    });
-  };
-
-  validateFormValues = (formValues) => {
-    var form = [
+    let notification = null;
+    const form = [
       { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
       { type: 'email', name: 'username', label: t('this field'), value: formValues.username },
     ];
-
-    var validationErrors = validateForm(form);
+    const validationErrors = validateForm(form, false);
 
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message: t('Some entries are invalid.')
-        }
-      });
+      notification = {
+        type: 'error',
+        message: t('Some entries are invalid.')
+      };
     }
 
-    return validationErrors;
-  };
-
-  prepareFormValuesForSubmit = (formValues) => {
-    return {
-      user: {
-        username: formValues.username,
-        password: formValues.password
+    this.setState({
+      validationErrors,
+      notification
+    }, () => {
+      if (_.isEmpty(validationErrors)) {
+        this.props.acknowledgeNotification('loggingIn');
+        this.props.onSubmit(formValues);
       }
-    };
-  };
-
-  doFetching = (nextProps) => {
-    if (!nextProps.fetchers) {
-      return;
-    }
-    nextProps.fetchers.forEach(fetcher => {
-      fetcher();
     });
   };
 
-  /**
-   * Before rendering for first time
-   * begin fetching any required data
-   */
-  UNSAFE_componentWillMount() {
-    this.doFetching(this.props);
+  doFetching() {
+    const { fetchers } = this.props;
+    if (_.isArray(fetchers)) {
+      fetchers.forEach(fetcher => {
+        if (_.isFunction(fetcher)) {
+          fetcher();
+        }
+      });
+    }
   }
 }
+
+Login.propTypes = {
+  acknowledgeNotification: PropTypes.func.isRequired,
+  confirmSignup: PropTypes.func.isRequired,
+  fetchers: PropTypes.array.isRequired,
+  isInvite: PropTypes.bool.isRequired,
+  notification: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+  seedEmail: PropTypes.string,
+  trackMetric: PropTypes.func.isRequired,
+  working: PropTypes.bool.isRequired
+};
+Login.defaultProps = {
+  seedEmail: null,
+  notification: null,
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -269,8 +254,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
-    isInvite: isInvite,
-    seedEmail: seedEmail,
+    isInvite,
+    seedEmail,
     trackMetric: ownProps.routes[0].trackMetric,
     onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
