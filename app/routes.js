@@ -19,7 +19,6 @@ import TermsPage from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
 
-
 import utils from './core/utils';
 import personUtils from './core/personutils';
 
@@ -42,7 +41,7 @@ export const requiresChrome = (utils, next) => (nextState, replace, cb) => {
   } else if (_.isFunction(next)) {
     next(nextState, replace, cb);
   }
-}
+};
 
 /**
  * This function redirects any requests that land on pages that should only be
@@ -214,7 +213,7 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
       checkIfVerified(user);
     }));
   }
-}
+};
 
 /**
  * This function redirects the /request-password-from-uploader route to the
@@ -232,7 +231,7 @@ export const onUploaderPasswordReset = (api) => (nextState, replace, cb) => {
   if (_.isFunction(cb)) {
     cb();
   }
-}
+};
 
 /**
  * This function exists for backward compatibility and maps hash
@@ -251,7 +250,7 @@ export const hashToUrl = (nextState, replace) => {
     replace(hash.substring(1));
     return true;
   }
-}
+};
 
 /**
  * onEnter handler for IndexRoute.
@@ -269,7 +268,7 @@ export const onIndexRouteEnter = (api) => (nextState, replace, cb) => {
   if (_.isFunction(cb)) {
     cb();
   }
-}
+};
 
 /**
  * onEnter handler for all non specified routes
@@ -286,7 +285,7 @@ export const onOtherRouteEnter = (api) => (nextState, replace, cb) => {
     replace('/login');
   }
   cb();
-}
+};
 
 const trackPage = (api, next) => (nextState, replace, cb) => {
   api.metrics.track('setCustomUrl', nextState.location.pathname, () => {
@@ -296,7 +295,7 @@ const trackPage = (api, next) => (nextState, replace, cb) => {
       cb();
     }
   });
-}
+};
 
 /**
  * Creates the route map with authentication associated with each route built in.
@@ -338,12 +337,11 @@ export const getRoutes = (appContext, store) => {
       <Route path='patients/:id/data' component={PatientData} onEnter={trackPage(api, requiresChrome(utils, requireAuth(api, store)))} />
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={trackPage(api, requireNoAuth(api))} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={trackPage(api, ensureNoAuth(api))} />
-      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={trackPage(api, onUploaderPasswordReset(api))} />
       <Route path='verification-with-password' component={VerificationWithPassword} onEnter={trackPage(api, requireNoAuth(api))} />
       <Route path='browser-warning' component={BrowserWarning} onEnter={trackPage(api, null)} />
       <Route path='*' onEnter={trackPage(api, onOtherRouteEnter(api))} />
     </Route>
   );
-}
+};
 
 export default getRoutes;

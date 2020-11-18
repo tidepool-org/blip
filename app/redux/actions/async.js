@@ -98,7 +98,7 @@ export function confirmSignup(api, signupKey, signupEmail) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
-    api.user.confirmSignUp(signupKey, function (err) {
+    api.user.confirmSignUp(signupKey, (err) => {
       if (err) {
         dispatch(sync.confirmSignupFailure(
           createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
@@ -215,16 +215,15 @@ let wrongCredCount = 0;
 /**
  * Login Async Action Creator
  *
- * @param  {Object} api an instance of the API wrapper
- * @param  {Object} accountDetails contains email and password
- * @param  {?Object} options optionalArgument that contains options like remember
+ * @param  {object} api an instance of the API wrapper
+ * @param  {{ username: string; password: string }} credentials contains email and password
+ * @param  {?object} options optionalArgument that contains options like remember
  * @param  {?Function} postLoginAction optionalArgument action to call after login success
  */
-export function login(api, credentials, options, postLoginAction) {
+export function login(api, credentials, options = {remember : true}, postLoginAction = null) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
-    options = options || { remember: true };
     api.user.login(credentials, options, (err) => {
       if (err) {
         let error = null;
@@ -261,29 +260,27 @@ export function login(api, credentials, options, postLoginAction) {
             dispatch(sync.loginFailure(
               createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
             ));
-          } else {
-            if (_.get(user, ['profile', 'patient'])) {
-              dispatch(fetchPatient(api, user.userid, (err, patient) => {
-                if (err) {
-                  dispatch(sync.loginFailure(
-                    createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
-                  ));
-                } else {
-                  user = update(user, { $merge: patient });
-                  dispatch(sync.loginSuccess(user));
-                  if (postLoginAction) {
-                    dispatch(postLoginAction());
-                  }
-                  dispatch(routeActions.push(redirectRoute));
+          } else if (_.get(user, 'profile.patient')) {
+            dispatch(fetchPatient(api, user.userid, (err, patient) => {
+              if (err) {
+                dispatch(sync.loginFailure(
+                  createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
+                ));
+              } else {
+                user = update(user, { $merge: patient });
+                dispatch(sync.loginSuccess(user));
+                if (postLoginAction) {
+                  dispatch(postLoginAction());
                 }
-              }));
-            } else {
-              dispatch(sync.loginSuccess(user));
-              if (postLoginAction) {
-                dispatch(postLoginAction());
+                dispatch(routeActions.push(redirectRoute));
               }
-              dispatch(routeActions.push(redirectRoute));
+            }));
+          } else {
+            dispatch(sync.loginSuccess(user));
+            if (postLoginAction) {
+              dispatch(postLoginAction());
             }
+            dispatch(routeActions.push(redirectRoute));
           }
         }));
       }

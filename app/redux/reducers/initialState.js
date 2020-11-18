@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
-
 import { MGDL_UNITS } from '../../core/constants';
 
 const working = {

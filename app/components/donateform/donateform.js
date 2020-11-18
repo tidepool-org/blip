@@ -175,7 +175,7 @@ export default translate()(class DonateForm extends Component {
       [attributes.name]: attributes.value,
     });
 
-    if (attributes.name === 'dataDonateDestination') {
+    if (attributes.name === 'dataDonateDestination' && !_.isEmpty(attributes.value)) {
       // Sort the values so that we can accurately check see if the form values have changed
       let sortedValue = attributes.value.map(value => value.value).sort().join(',');
       formValues[attributes.name] = sortedValue;

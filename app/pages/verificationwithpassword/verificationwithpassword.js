@@ -30,7 +30,7 @@ import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
 
-export let VerificationWithPassword = translate()(class extends React.Component {
+export let VerificationWithPassword = translate()(class VerificationWithPassword extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,
@@ -39,7 +39,8 @@ export let VerificationWithPassword = translate()(class extends React.Component 
     signupKey: PropTypes.string.isRequired,
     onSubmit: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
+    working: PropTypes.bool.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -48,7 +49,7 @@ export let VerificationWithPassword = translate()(class extends React.Component 
 
     this.state = {
       loading: true,
-      formValues: formValues,
+      formValues,
       validationErrors: {},
       notification: null
     };
@@ -119,8 +120,6 @@ export let VerificationWithPassword = translate()(class extends React.Component 
   }
 
   handleSubmit = (formValues) => {
-    var self = this;
-
     if (this.props.working) {
       return;
     }

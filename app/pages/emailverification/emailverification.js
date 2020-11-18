@@ -29,7 +29,7 @@ import SimpleForm from '../../components/simpleform';
 
 import utils from '../../core/utils';
 
-export var EmailVerification = translate()(class extends React.Component {
+export var EmailVerification = translate()(class EmailVerification extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     notification: PropTypes.object,
@@ -206,4 +206,3 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(EmailVerification);
-

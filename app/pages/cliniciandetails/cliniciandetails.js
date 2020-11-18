@@ -40,7 +40,7 @@ class ClinicianDetails extends React.Component {
       formValues: {
         firstName: this.getUserFirstName(),
         lastName: this.getUserLastName(),
-        clinicalRole: '',
+        clinicalRole: _.get(this.props, 'user.profile.clinic.role', ''),
         country: '',
       },
       validationErrors: {},

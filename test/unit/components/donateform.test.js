@@ -306,20 +306,6 @@ describe('DonateForm', () => {
       expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.true;
     });
 
-    it('should ensure that the dataDonate form value is true if recipients are added from the dropdown', () => {
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.be.empty;
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.false;
-
-      // Only way I could find of triggering change in React-Select element
-      // was to simulate a tab after changing the value
-      select.simulate('change', { target: { value: 'CWD' } });
-      select.simulate('keyDown', { keyCode: 9, key: 'Tab' });
-
-      sinon.assert.calledOnce(spy);
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.not.be.empty
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.true;
-    });
-
     it('should ensure that the dataDonate form value string is sorted alphabetically', () => {
       expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.be.empty;
 

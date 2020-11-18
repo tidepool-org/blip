@@ -39,7 +39,7 @@ var PermissionInputGroup = translate()(class PermissionInputGroup extends React.
   };
 
   state = {
-    name: 'permission' + parseInt(Math.random() * 10000)
+    name: 'permission' + (Math.random() * 10000).toString(10)
   };
 
   handleChange = (obj) => {

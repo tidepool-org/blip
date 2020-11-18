@@ -57,7 +57,7 @@ export function acknowledgeNotification(acknowledgedNotification) {
   return {
     type: ActionTypes.ACKNOWLEDGE_NOTIFICATION,
     payload: {
-      acknowledgedNotification: acknowledgedNotification,
+      acknowledgedNotification,
     },
   };
 }
