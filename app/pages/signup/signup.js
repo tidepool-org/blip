@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans} from 'react-i18next';
+import { translate, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { browserHistory } from 'react-router';
 import sundial from 'sundial';
@@ -36,7 +36,7 @@ import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
 
-export let Signup = translate()(class extends React.Component {
+export let Signup = translate()(class SignupPage extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,
@@ -48,19 +48,24 @@ export let Signup = translate()(class extends React.Component {
     trackMetric: PropTypes.func.isRequired,
     working: PropTypes.bool.isRequired,
     location: PropTypes.object.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
-  constructor(props, context) {
-    super(props, context);
-    var formValues = {};
+  constructor(props) {
+    super(props);
 
+    const formValues = {
+      username: '',
+      password: '',
+      passwordConfirm: '',
+      termsAccepted: false,
+    };
     if (props.inviteEmail) {
       formValues.username = props.inviteEmail;
     }
-
     this.state = _.assign({
+      formValues,
       loading: true,
-      formValues: formValues,
       validationErrors: {},
       notification: null,
       selected: 'clinician',
@@ -82,11 +87,13 @@ export let Signup = translate()(class extends React.Component {
         name: 'password',
         label: t('Password'),
         type: 'passwordShowHide',
+        placeholder: '',
       },
       {
         name: 'passwordConfirm',
         label: t('Confirm password'),
         type: 'passwordShowHide',
+        placeholder: '',
       },
     ];
 
@@ -110,18 +117,18 @@ export let Signup = translate()(class extends React.Component {
   };
 
   UNSAFE_componentWillMount() {
-    this.setState({loading: false});
+    this.setState({ loading: false });
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (!utils.isOnSamePage(this.props, nextProps)) {
-      const state = this.getFormStateFromPath(nextProps.location.pathname)
+      const state = this.getFormStateFromPath(nextProps.location.pathname);
       this.setState(state);
     }
   }
 
   getFormStateFromPath = (pathname) => {
-    let state = {}
+    let state = {};
 
     switch (utils.stripTrailingSlash(pathname)) {
       case '/signup':
@@ -149,7 +156,7 @@ export let Signup = translate()(class extends React.Component {
   };
 
   handleSelectionClick = (option) => {
-    this.setState({selected: option})
+    this.setState({ selected: option });
   };
 
   render() {
@@ -172,8 +179,7 @@ export let Signup = translate()(class extends React.Component {
     }
   }
 
-  renderInviteIntroduction = () => {
-    const { t } = this.props;
+  renderInviteIntroduction() {
     if (!this.props.inviteEmail) {
       return null;
     }
@@ -183,9 +189,9 @@ export let Signup = translate()(class extends React.Component {
         <p>You've been invited to Tidepool.</p><p>Sign up to view the invitation.</p>
       </Trans>
     );
-  };
+  }
 
-  renderFormIntroduction = () => {
+  renderFormIntroduction() {
     const { t } = this.props;
     const type = this.state.selected;
 
@@ -205,9 +211,9 @@ export let Signup = translate()(class extends React.Component {
         <div className="signup-subtitle">{subHeading[type]}</div>
       </div>
     );
-  };
+  }
 
-  renderFormTypeSwitch = () => {
+  renderFormTypeSwitch() {
     let content, href;
 
     switch (this.state.selected) {
@@ -221,7 +227,7 @@ export let Signup = translate()(class extends React.Component {
         );
         break;
 
-        case 'clinician':
+      case 'clinician':
         href = '/signup/personal';
 
         content = (
@@ -241,9 +247,9 @@ export let Signup = translate()(class extends React.Component {
         {content}
       </div>
     );
-  };
+  }
 
-  renderForm = () => {
+  renderForm() {
     const { t } = this.props;
     let submitButtonText;
     let submitButtonWorkingText;
@@ -254,7 +260,7 @@ export let Signup = translate()(class extends React.Component {
       if (!this.state.formValues[input.name]) {
         submitButtonDisabled = true;
       }
-    })
+    });
 
     switch (this.state.selected) {
       case 'personal':
@@ -272,7 +278,7 @@ export let Signup = translate()(class extends React.Component {
       submitButtonText = submitButtonWorkingText;
     }
 
-    if(!this.state.madeSelection){
+    if (!this.state.madeSelection) {
       return null;
     }
 
@@ -289,15 +295,15 @@ export let Signup = translate()(class extends React.Component {
             submitDisabled={this.props.working || submitButtonDisabled}
             onSubmit={this.handleSubmit}
             onChange={this.handleChange}
-            notification={this.state.notification || this.props.notification}/>
+            notification={this.state.notification || this.props.notification} />
 
           {this.renderFormTypeSwitch()}
         </div>
       </div>
     );
-  };
+  }
 
-  renderTypeSelection = () => {
+  renderTypeSelection() {
     const { t } = this.props;
     if (this.state.madeSelection) {
       return null;
@@ -341,17 +347,17 @@ export let Signup = translate()(class extends React.Component {
     return (
       <div className="signup-container container-small-outer">
         <div className="signup-title">{t('Sign Up for Tidepool')}</div>
-        { signUpSubtitle }
-        { signUpSelectionPersonal }
-        { signUpSelectionClinician }
+        { signUpSubtitle}
+        { signUpSelectionPersonal}
+        { signUpSelectionClinician}
         <div className="signup-continue">
           <button className="btn btn-primary" disabled={!this.state.selected} onClick={this.handleContinueClick}>{t('Continue')}</button>
         </div>
       </div>
     );
-  };
+  }
 
-  renderAcceptTermsLabel = () => {
+  renderAcceptTermsLabel() {
     const brandConfig = CONFIG[config.BRANDING];
     const urlTermsOfUse = brandConfig.termsURL;
     const textTermsOfUse = brandConfig.termsText;
@@ -364,25 +370,24 @@ export let Signup = translate()(class extends React.Component {
         I accept the terms of the <a id="signup-terms-link" href={urlTermsOfUse} target='_blank'>{textTermsOfUse}</a> and <a id="signup-privacy-link" href={urlPrivacyPolicy} target='_blank'>{textPrivacyPolicy}</a>
       </Trans>
     );
-  };
+  }
 
   handleContinueClick = (e) => {
-    this.setState({madeSelection: true});
+    this.setState({ madeSelection: true });
     browserHistory.push(`/signup/${this.state.selected}`);
   };
 
   handleTypeSwitchClick = (type, e) => {
     e.preventDefault();
-    this.setState({selected: type});
+    this.setState({ selected: type });
     browserHistory.push(`/signup/${type}`);
   };
 
   handleChange = (attributes) => {
-    let formValues = _.merge({}, this.state.formValues, {
+    const formValues = _.merge({}, this.state.formValues, {
       [attributes.name]: attributes.value,
     });
-
-    this.setState({formValues});
+    this.setState({ formValues });
   };
 
   handleSubmit = (formValues) => {
@@ -392,40 +397,37 @@ export let Signup = translate()(class extends React.Component {
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = _.clone(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
 
-    formValues = this.prepareFormValuesForSubmit(formValues);
-
-    this.props.onSubmit(this.props.api, formValues);
+    const preparedFormValues = this.prepareFormValuesForSubmit(formValues);
+    this.props.onSubmit(this.props.api, preparedFormValues);
   };
 
-  resetFormStateBeforeSubmit = (formValues) => {
+  resetFormStateBeforeSubmit(formValues) {
     this.props.acknowledgeNotification('signingUp');
     this.setState({
-      formValues: formValues,
+      formValues,
       validationErrors: {},
       notification: null
     });
-  };
+  }
 
-  validateFormValues = (formValues) => {
+  validateFormValues(formValues) {
     const { t } = this.props;
-    var form = [
+    const form = [
       { type: 'email', name: 'username', label: t('email address'), value: formValues.username },
       { type: 'password', name: 'password', label: t('password'), value: formValues.password },
       { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } },
     ];
 
-    var validationErrors = validateForm(form);
+    const validationErrors = validateForm(form, false);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        validationErrors: validationErrors,
+        validationErrors,
         notification: {
           type: 'error',
           message: t('Some entries are invalid.')
@@ -434,25 +436,25 @@ export let Signup = translate()(class extends React.Component {
     }
 
     return validationErrors;
-  };
+  }
 
-  prepareFormValuesForSubmit = (formValues) => {
-    let roles = this.props.roles ? this.props.roles : [];
+  prepareFormValuesForSubmit(formValues) {
+    const roles = this.props.roles ? this.props.roles : [];
 
-    let values = {
+    const values = {
       username: formValues.username,
       emails: [formValues.username],
       password: formValues.password,
-      roles: roles,
+      roles,
     };
 
-    if(this.state.selected === 'personal') {
+    if (this.state.selected === 'personal') {
       values.profile = {
         fullName: formValues.fullName,
       };
     }
 
-    if(this.state.selected === 'clinician') {
+    if (this.state.selected === 'clinician') {
       if (formValues.termsAccepted) {
         values.termsAccepted = sundial.utcDateString();
       }
@@ -463,7 +465,7 @@ export let Signup = translate()(class extends React.Component {
     }
 
     return values;
-  };
+  }
 });
 
 /**

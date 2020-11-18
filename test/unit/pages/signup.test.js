@@ -345,17 +345,25 @@ describe('Signup', function () {
         location: { pathname: '/signup/clinician' }
       };
 
+      const formValues = {
+        username: '',
+        password: '',
+        passwordConfirm: '',
+        termsAccepted: false,
+      };
+
       const wrapper = mount(
         <Signup {...props} />
       );
 
       const input = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       expect(input.length).to.equal(1);
-      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql({});
+      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql(formValues);
 
       input.simulate('change', { target: { name: 'username', value: username } });
 
-      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql({ username });
+      const changedFormValues = wrapper.instance().getWrappedInstance().state.formValues;
+      expect(changedFormValues, JSON.stringify([changedFormValues, { ...formValues, username }])).to.eql({ ...formValues, username });
     });
   });
 
@@ -364,7 +372,7 @@ describe('Signup', function () {
     let dateStub;
 
     before(function() {
-      dateStub = sinon.stub(sundial, 'utcDateString').returns(acceptedDate)
+      dateStub = sinon.stub(sundial, 'utcDateString').returns(acceptedDate);
     });
 
     after(function() {
