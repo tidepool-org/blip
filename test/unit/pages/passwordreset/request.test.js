@@ -1,52 +1,73 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
+import _ from 'lodash';
 import mutationTracker from 'object-invariant-test-helper';
+import sinon from 'sinon';
+import { assert, expect } from 'chai';
+import { mount } from 'enzyme';
 
-import { RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
-import { mapStateToProps } from '../../../../app/pages/passwordreset/request';
-
-var assert = chai.assert;
-var expect = chai.expect;
+import { mapStateToProps, RequestPasswordResetPage as RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
 
 describe('RequestPasswordReset', function () {
+  /** @type {import('enzyme').ReactWrapper<RequestPasswordReset>} */
+  let wrapper = null;
+
+  afterEach(() => {
+    if (wrapper !== null) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(RequestPasswordReset).to.be.a('function');
   });
 
   describe('render', function() {
+    before(() => {
+      try {
+        sinon.spy(console, 'error');
+      } catch (e) {
+        console.error = sinon.stub();
+      }
+    });
+
+    after(() => {
+      if (_.isFunction(_.get(console, 'error.restore'))) {
+        // @ts-ignore
+        console.error.restore();
+      }
+    });
+
+    beforeEach(() => {
+      // @ts-ignore
+      console.error.resetHistory();
+    });
+
     it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      wrapper = mount(<RequestPasswordReset {...props} />);
+      // @ts-ignore
       expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('formInputs', function() {
     it('should return array with one entry for email', function() {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var formInputs = render.formInputs();
+      wrapper = mount(<RequestPasswordReset {...props} />);
+      const formInputs = wrapper.instance().formInputs();
       expect(formInputs.length).to.equal(1);
       expect(formInputs[0].name).to.equal('email');
       expect(formInputs[0].label).to.equal('Email');
@@ -56,19 +77,16 @@ describe('RequestPasswordReset', function () {
 
   describe('Initial State', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(RequestPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getWrappedInstance().state;
+      wrapper = mount(<RequestPasswordReset {...props} />);
+      const initialState = wrapper.instance().state;
       expect(initialState.success).to.equal(false);
-      expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
     });

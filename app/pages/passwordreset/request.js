@@ -14,54 +14,39 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-
-import PropTypes from 'prop-types';
-
-
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-import * as actions from '../../redux/actions';
-
 import { Link } from 'react-router';
-import { translate } from 'react-i18next';
 import _ from 'lodash';
 
-import config from '../../config';
-
+import * as actions from '../../redux/actions';
+import i18n from '../../core/language';
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export let RequestPasswordReset = translate()(class extends React.Component {
-  static propTypes = {
-    acknowledgeNotification: PropTypes.func.isRequired,
-    api: PropTypes.object.isRequired,
-    notification: PropTypes.object,
-    onSubmit: PropTypes.func.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
-  };
+const t = i18n.t.bind(i18n);
+class RequestPasswordResetPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      success: false,
+      validationErrors: {},
+      notification: null
+    };
+  }
 
-  state = {
-    success: false,
-    formValues: {},
-    validationErrors: {},
-    notification: null
-  };
-
-  formInputs = () => {
-    const { t } = this.props;
+  formInputs() {
     return [
-      {name: 'email', label: t('Email'), type: 'email'}
+      { name: 'email', label: t('Email'), type: 'email' }
     ];
-  };
+  }
 
   render() {
-    const { t } = this.props;
-    var content;
+    let content;
     if (this.state.success) {
       content = (
         <div className="PasswordReset-intro">
@@ -71,8 +56,7 @@ export let RequestPasswordReset = translate()(class extends React.Component {
           </div>
         </div>
       );
-    }
-    else {
+    } else {
       content = (
         <div>
           <div className="PasswordReset-intro">
@@ -104,98 +88,99 @@ export let RequestPasswordReset = translate()(class extends React.Component {
     );
   }
 
-  renderForm = () => {
-    const { t } = this.props;
-    var submitButtonText = this.props.working ? t('Sending email...') : t('Send reset link');
+  renderForm() {
+    const submitButtonText = this.props.working ? t('Sending email...') : t('Send reset link');
 
     return (
       <SimpleForm
         inputs={this.formInputs()}
-        formValues={this.state.formValues}
+        formValues={{ email: '' }}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.state.notification || this.props.notification} />
     );
-  };
+  }
 
   handleSubmit = (formValues) => {
-    var self = this;
-
     if (this.props.working) {
       return;
     }
 
-    this.props.trackMetric('Request password reset', formValues.email);
+    this.resetFormStateBeforeSubmit();
 
-    this.resetFormStateBeforeSubmit(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
 
-    this.props.onSubmit(this.props.api, formValues.email);
+    this.props.trackMetric('Request password reset');
+    this.props.onSubmit(formValues.email);
     this.setState({
       success: true
-    })
-  };
-
-  resetFormStateBeforeSubmit = (formValues) => {
-    this.props.acknowledgeNotification('requestingPasswordReset');
-    this.setState({
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
     });
   };
 
-  validateFormValues = (formValues) => {
-    const { t } = this.props;
-    var validationErrors = {};
-    var IS_REQUIRED = t('This field is required.');
-    var INVALID_EMAIL = t('Invalid email address.');
+  resetFormStateBeforeSubmit() {
+    this.props.acknowledgeNotification('requestingPasswordReset');
+    this.setState({
+      validationErrors: {},
+      notification: null
+    });
+  }
 
+  validateFormValues(formValues) {
+    const validationErrors = {};
     if (!formValues.email) {
-      validationErrors.email = IS_REQUIRED;
+      validationErrors.email = t('This field is required.');
     }
 
     if (formValues.email && !utils.validateEmail(formValues.email)) {
-      validationErrors.email = INVALID_EMAIL;
+      validationErrors.email = t('Invalid email address.');
     }
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        validationErrors: validationErrors
+        validationErrors
       });
     }
 
     return validationErrors;
-  };
-});
+  }
+}
+
+RequestPasswordResetPage.propTypes = {
+  acknowledgeNotification: PropTypes.func.isRequired,
+  notification: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  working: PropTypes.bool.isRequired
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-export function mapStateToProps(state) {
+function mapStateToProps(state) {
   return {
     notification: state.blip.working.requestingPasswordReset.notification,
     working: state.blip.working.requestingPasswordReset.inProgress
   };
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
+const mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.requestPasswordReset,
   acknowledgeNotification: actions.sync.acknowledgeNotification
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
     trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api
+    onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(RequestPasswordReset);
+export { mapStateToProps, RequestPasswordResetPage };
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(RequestPasswordResetPage);
