@@ -31,7 +31,7 @@ describe('UserProfile', function () {
     },
   };
 
-  const patientProps = {...props, 
+  const patientProps = {...props,
     ...{
       user:{
         profile:{
@@ -76,9 +76,6 @@ describe('UserProfile', function () {
       const elem = shallow(<UserProfile {...props} />);
       const state = elem.state();
 
-      expect(state.formValues.username).to.equal('foo@bar.com');
-      expect(state.formValues.firstName).to.equal('Gordon');
-      expect(state.formValues.lastName).to.equal('Dent');
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
     });
@@ -107,7 +104,7 @@ describe('UserProfile', function () {
         passwordConfirmInput: container.querySelector('#passwordConfirm')
       };
     };
-    
+
     beforeEach(() => {
       config.ALLOW_PATIENT_CHANGE_EMAIL=true;
       config.ALLOW_PATIENT_CHANGE_PASSWORD=true;

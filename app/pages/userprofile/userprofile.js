@@ -57,7 +57,6 @@ class UserProfile extends React.Component {
     super(props);
 
     this.state = {
-      formValues: this.formValuesFromUser(props.user),
       validationErrors: {},
       notification: null
     };
@@ -75,13 +74,8 @@ class UserProfile extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const { updatingUser, user } = this.props;
-    if (!_.isEqual(this.props, prevProps)) {
-      // Keep form values in sync with upstream changes
-      this.setState({ formValues: this.formValuesFromUser(user) });
-    }
-
+  componentDidUpdate() {
+    const { updatingUser } = this.props;
     if (this.submitInProgress && !_.isEmpty(updatingUser) && !updatingUser.inProgress) {
       this.submitInProgress = false;
       this.clearTimeoutMessage();
@@ -169,6 +163,8 @@ class UserProfile extends React.Component {
       firstName: personUtils.firstName(user),
       lastName: personUtils.lastName(user),
       username: user.username,
+      password: '',
+      passwordConfirm: '',
       lang: _.get(user, 'preferences.displayLanguageCode')
     };
   }
@@ -220,10 +216,12 @@ class UserProfile extends React.Component {
   }
 
   renderForm() {
+    const { user } = this.props;
+    const formValues = this.formValuesFromUser(user);
     return (
       <SimpleForm
         inputs={this.formInputs()}
-        formValues={this.state.formValues}
+        formValues={formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={t('Save')}
         onSubmit={this.handleSubmit}
@@ -239,7 +237,7 @@ class UserProfile extends React.Component {
   }
 
   handleSubmit(formValues) {
-    this.resetFormStateBeforeSubmit(formValues);
+    this.resetFormStateBeforeSubmit();
     const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
@@ -248,16 +246,14 @@ class UserProfile extends React.Component {
     this.submitFormValues(values);
   }
 
-  resetFormStateBeforeSubmit(formValues) {
+  resetFormStateBeforeSubmit() {
     this.setState({
-      formValues: formValues,
       validationErrors: {},
       notification: null
     });
   }
 
   validateFormValues(formValues) {
-
     let form = [];
     if (this.isUserAllowedToChangeName()) {
       form.push({ type: 'name', name: 'firstName', label: t('first name'), value: formValues.firstName });
@@ -280,7 +276,7 @@ class UserProfile extends React.Component {
       ]);
     }
 
-    const validationErrors = validateForm(form);
+    const validationErrors = validateForm(form, false);
     if (!_.isEmpty(validationErrors)) {
       this.setState({ validationErrors });
     }
@@ -308,7 +304,7 @@ class UserProfile extends React.Component {
       _.set(result, 'preferences.displayLanguageCode', formValues.lang);
     }
 
-    if (this.isUserAllowedToChangePassword() && formValues.password) {
+    if (this.isUserAllowedToChangePassword() && !_.isEmpty(formValues.password)) {
       result.password = formValues.password;
     }
 
