@@ -10,7 +10,7 @@ import chai from 'chai';
 
 import isTSA from '../../../helpers/tidepoolStandardAction';
 import initialState from '../../../../app/redux/reducers/initialState';
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
+import ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
 import config from '../../../../app/config';

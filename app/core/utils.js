@@ -15,7 +15,7 @@
 
 // Various helper functions
 
-import _  from 'lodash';
+import _ from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
 import nurseShark from 'tideline/plugins/nurseshark';
@@ -31,8 +31,8 @@ var utils = {};
  * @return {String}
  */
 utils.capitalize = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 // Returns the value in a nested object,
 // where `props` is the sequence of properties to follow.
@@ -92,7 +92,7 @@ utils.isMobile = () => {
 
 utils.haveMobileApp = () => {
   return config.BRANDING === 'tidepool';
-}
+};
 
 utils.validateEmail = email => {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -126,7 +126,7 @@ utils.objectDifference = (destination, source) => {
  */
 utils.isOnSamePage = (oldProps, newProps) => {
   return oldProps.location === newProps.location;
-}
+};
 
 /**
  * Utility function to strip trailing slashes from a string
@@ -137,9 +137,9 @@ utils.isOnSamePage = (oldProps, newProps) => {
  */
 utils.stripTrailingSlash = (str) => {
   return str.replace(/\/$/, '');
-}
+};
 
-utils.buildExceptionDetails = () =>{
+utils.buildExceptionDetails = () => {
   return {
     href: window.location.href,
     stack: console.trace()
@@ -147,7 +147,7 @@ utils.buildExceptionDetails = () =>{
 };
 
 utils.stringifyErrorData = data => {
-  if(_.isEmpty(data)){
+  if (_.isEmpty(data)) {
     return '';
   }
 
@@ -159,7 +159,7 @@ utils.stringifyErrorData = data => {
   }
 };
 
-utils.getInviteEmail = function(location) {
+utils.getInviteEmail = function (location) {
   if (location && location.query) {
 
     let { inviteEmail } = location.query;
@@ -176,27 +176,27 @@ utils.getInviteEmail = function(location) {
     }
   }
   return null;
-}
+};
 
-utils.getDonationAccountCodeFromEmail = function(email) {
+utils.getDonationAccountCodeFromEmail = function (email) {
   let matches = email.match(/\+(.*)@/) || [];
   return matches[1] || null;
-}
+};
 
-utils.hasVerifiedEmail = function(user) {
+utils.hasVerifiedEmail = function (user) {
   return _.get(user, 'emailVerified', false);
-}
+};
 
-utils.getSignupKey = function(location) {
+utils.getSignupKey = function (location) {
   if (location && location.query) {
     let { signupKey } = location.query;
 
-    if(!_.isEmpty(signupKey)){
+    if (!_.isEmpty(signupKey)) {
       return signupKey;
     }
   }
   return false;
-}
+};
 
 utils.getSignupEmail = function (location) {
   if (location && location.query) {
@@ -215,33 +215,33 @@ utils.getSignupEmail = function (location) {
   return null;
 };
 
-utils.getInviteKey = function(location) {
+utils.getInviteKey = function (location) {
   if (location && location.query) {
     let { inviteKey } = location.query;
 
-    if(!_.isEmpty(inviteKey)){
+    if (!_.isEmpty(inviteKey)) {
       return inviteKey;
     }
   }
   return '';
-}
+};
 
-utils.getRoles = function(location) {
+utils.getRoles = function (location) {
   if (location && location.query) {
     let { roles } = location.query;
 
-    if(!_.isEmpty(roles)){
+    if (!_.isEmpty(roles)) {
       let rolesFiltered = _.reject(_.map(roles.split(','), _.trim), _.isEmpty);
 
-      if(!_.isEmpty(rolesFiltered)){
+      if (!_.isEmpty(rolesFiltered)) {
         return rolesFiltered;
       }
     }
   }
   return [];
-}
+};
 
-utils.getCarelink = function(location) {
+utils.getCarelink = function (location) {
   if (location && location.query) {
     let { carelink } = location.query;
 
@@ -250,9 +250,9 @@ utils.getCarelink = function(location) {
     }
   }
   return null;
-}
+};
 
-utils.getDexcom = function(location) {
+utils.getDexcom = function (location) {
   if (location && location.query) {
     let { dexcom } = location.query;
 
@@ -261,9 +261,9 @@ utils.getDexcom = function(location) {
     }
   }
   return null;
-}
+};
 
-utils.getMedtronic = function(location) {
+utils.getMedtronic = function (location) {
   if (location && location.query) {
     let { medtronic } = location.query;
 
@@ -272,7 +272,7 @@ utils.getMedtronic = function(location) {
     }
   }
   return null;
-}
+};
 
 /**
  * Translate a BG value to the desired target unit
@@ -287,7 +287,7 @@ utils.translateBg = (value, targetUnits) => {
     return parseInt(Math.round(value * MGDL_PER_MMOLL), 10);
   }
   return parseFloat((value / MGDL_PER_MMOLL).toFixed(1));
-}
+};
 
 /**
  * Round a target BG value as appropriate
@@ -303,12 +303,12 @@ utils.roundBgTarget = (value, units) => {
   const nearest = units === MGDL_UNITS ? 5 : 0.1;
   const precision = units === MGDL_UNITS ? 0 : 1;
   return parseFloat((nearest * Math.round(value / nearest)).toFixed(precision));
-}
+};
 
 
 /**
  * return settings which are well formed and consistant (same units for all bgTarget) even if input settings do not contain all the properties.
- * 
+ *
  */
 utils.getSettings = (sourceSettings) => {
   const units = _.get(sourceSettings, 'units.bg', MGDL_UNITS);
@@ -316,11 +316,11 @@ utils.getSettings = (sourceSettings) => {
     sourceSettings,
     { bgTarget: DEFAULT_BG_TARGETS[units] },
     DEFAULT_BG_SETTINGS);
-}
+};
 
 utils.getTimezoneForDataProcessing = (data, queryParams) => {
   var timePrefsForTideline;
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time)).reverse()[0];
+  var mostRecentUpload = _.sortBy(_.filter(data, { type: 'upload' }), (d) => Date.parse(d.time)).reverse()[0];
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   try {
@@ -336,7 +336,7 @@ utils.getTimezoneForDataProcessing = (data, queryParams) => {
         timezoneAware: true,
         timezoneName: timezoneName
       };
-    } catch(err) {
+    } catch (err) {
       if (browserTimezone) {
         console.log('Not a valid timezone! Defaulting to browser timezone display:', browserTimezone);
         timePrefsForTideline = {
@@ -379,7 +379,7 @@ utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
 
   // Allow overriding stored BG Unit preferences via query param
   const bgUnitsFormatted = bgUnits.replace('/', '').toLowerCase();
-  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes([ 'mgdl', 'mmoll' ], queryParams.units)) {
+  if (!_.isEmpty(queryParams.units) && queryParams.units !== bgUnitsFormatted && _.includes(['mgdl', 'mmoll'], queryParams.units)) {
     bgUnits = queryParams.units === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
     bgClasses.low.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.low, bgUnits), bgUnits);
     bgClasses.target.boundary = utils.roundBgTarget(utils.translateBg(settings.bgTarget.high, bgUnits), bgUnits);
@@ -390,11 +390,11 @@ utils.getBGPrefsForDataProcessing = (queryParams = {}, settings) => {
     bgUnits,
     bgClasses,
   };
-}
+};
 
 utils.filterPatientData = (data, bgUnits) => {
   return nurseShark.processData(data, bgUnits);
-}
+};
 
 utils.processPatientData = (data, queryParams, settings) => {
   if (!(data && data.length >= 0)) {
@@ -435,35 +435,35 @@ utils.processPatientData = (data, queryParams, settings) => {
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
-(function(console) {
+(function (console) {
 
-  console.save = function(data, filename){
+  console.save = function (data, filename) {
 
-    if(!data) {
+    if (!data) {
       console.error('Console.save: No data');
       return;
     }
 
-    if(!filename) filename = 'blip-output.json';
+    if (!filename) filename = 'blip-output.json';
 
-    if(typeof data === 'object'){
+    if (typeof data === 'object') {
       data = JSON.stringify(data, undefined, 4);
     }
 
-    var blob = new Blob([data], {type: 'text/json'});
+    var blob = new Blob([data], { type: 'text/json' });
     var e = document.createEvent('MouseEvents');
     var a = document.createElement('a');
 
     a.download = filename;
     a.href = window.URL.createObjectURL(blob);
-    a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':');
+    a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
     e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
     a.dispatchEvent(e);
   };
 })(console);
 
 utils.getLatestGithubRelease = (releases) => {
-  const latestRelease = _.filter(releases, {prerelease: false})[0];
+  const latestRelease = _.filter(releases, { prerelease: false })[0];
   let latestTag = latestRelease.tag_name;
   const urlBase = `https://github.com/tidepool-org/chrome-uploader/releases/download/${latestTag}`;
   latestTag = latestTag.substr(1);
@@ -473,7 +473,7 @@ utils.getLatestGithubRelease = (releases) => {
     latestWinRelease: latestWinRelease,
     latestMacRelease: latestMacRelease,
   };
-}
+};
 
 /**
  * Get the earliest and latest dates, span in days, and count of
@@ -495,7 +495,7 @@ utils.getDiabetesDataRange = (data) => {
     spanInDays,
     count,
   };
-}
+};
 
 /**
  * Get the latest pump settings data in a raw data set
@@ -513,7 +513,7 @@ utils.getLatestPumpSettings = (data) => {
   return {
     latestPumpSettings,
     uploadRecord,
-  }
-}
+  };
+};
 
 module.exports = utils;

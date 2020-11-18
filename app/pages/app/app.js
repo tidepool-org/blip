@@ -24,7 +24,7 @@ import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
 
-import * as ErrorMessages from '../../redux/constants/errorMessages';
+import ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
 
 // Components

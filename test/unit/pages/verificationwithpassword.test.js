@@ -1,19 +1,15 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
+import chai from 'chai';
+import sinon from 'sinon';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
-var assert = chai.assert;
-var expect = chai.expect;
-import * as errorMessages from '../../../app/redux/constants/errorMessages';
-
+import ErrorMessages from '../../../app/redux/constants/errorMessages';
 import { VerificationWithPassword, mapStateToProps } from '../../../app/pages/verificationwithpassword/verificationwithpassword';
 
 describe('VerificationWithPassword', () => {
+  const { assert, expect } = chai;
+
   it('should be a function', () => {
     assert.isFunction(VerificationWithPassword);
   });
@@ -68,7 +64,7 @@ describe('VerificationWithPassword', () => {
       let elem = React.createElement(VerificationWithPassword, props);
       let render = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(elem), VerificationWithPassword.WrappedComponent);
       // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
+      render.UNSAFE_componentWillReceiveProps({notification:{message: ErrorMessages.ERR_BIRTHDAY_MISMATCH}});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;

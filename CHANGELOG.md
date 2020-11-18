@@ -3,6 +3,8 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Fixed
+- YLP-292 Error messages not translated when creating an account
 ### Changed
 - YLP-280 Make France as default country for existing users
 ### Engineering Use

@@ -21,7 +21,7 @@ import async from 'async';
 import moment from 'moment';
 import { checkCacheValid } from 'redux-cache';
 
-import * as ErrorMessages from '../constants/errorMessages';
+import ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
@@ -55,7 +55,7 @@ function cacheByIdOptions(id) {
       return _.get(state.blip, [reducerKey, cacheKey], null);
     },
     cacheKey: `${id}_cacheUntil`,
-  }
+  };
 }
 
 /**
@@ -98,7 +98,7 @@ export function confirmSignup(api, signupKey, signupEmail) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
-    api.user.confirmSignUp(signupKey, function(err) {
+    api.user.confirmSignUp(signupKey, function (err) {
       if (err) {
         dispatch(sync.confirmSignupFailure(
           createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err, signupKey
@@ -107,9 +107,9 @@ export function confirmSignup(api, signupKey, signupEmail) {
           dispatch(routeActions.push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
         }
       } else {
-        dispatch(sync.confirmSignupSuccess())
+        dispatch(sync.confirmSignupSuccess());
       }
-    })
+    });
   };
 }
 
@@ -132,21 +132,22 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
 
     dispatch(sync.verifyCustodialRequest());
 
-    api.user.custodialConfirmSignUp(signupKey, birthday, password, function(err) {
+    api.user.custodialConfirmSignUp(signupKey, birthday, password, (err) => {
       if (err) {
         let errorMessage = ErrorMessages.ERR_CONFIRMING_SIGNUP;
 
-        if (err.error && ErrorMessages.VERIFY_CUSTODIAL_ERRORS[err.error]) {
-          errorMessage = ErrorMessages.VERIFY_CUSTODIAL_ERRORS[err.error];
+        const custodialError = ErrorMessages.verifyCustodialErrors(err.error);
+        if (err.error && _.isString(custodialError)) {
+          errorMessage = custodialError;
         }
 
         dispatch(sync.verifyCustodialFailure(
           createActionError(errorMessage, err), err, signupKey
         ));
       } else {
-        dispatch(login(api, {username: signupEmail, password: password}, null, sync.verifyCustodialSuccess));
+        dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
       }
-    })
+    });
   };
 }
 
@@ -160,15 +161,15 @@ export function resendEmailVerification(api, email) {
   return (dispatch) => {
     dispatch(sync.resendEmailVerificationRequest());
 
-    api.user.resendEmailVerification(email, function(err) {
+    api.user.resendEmailVerification(email, function (err) {
       if (err) {
         dispatch(sync.resendEmailVerificationFailure(
           createActionError(ErrorMessages.ERR_RESENDING_EMAIL_VERIFICATION, err), err
         ));
       } else {
-        dispatch(sync.resendEmailVerificationSuccess())
+        dispatch(sync.resendEmailVerificationSuccess());
       }
-    })
+    });
   };
 }
 
@@ -185,7 +186,7 @@ export function acceptTerms(api, acceptedDate, userId) {
     const { blip: { loggedInUserId } } = getState();
     dispatch(sync.acceptTermsRequest());
 
-    api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err, user) {
+    api.user.acceptTerms({ termsAccepted: acceptedDate }, function (err, user) {
       if (err) {
         dispatch(sync.acceptTermsFailure(
           createActionError(ErrorMessages.ERR_ACCEPTING_TERMS, err), err
@@ -206,7 +207,7 @@ export function acceptTerms(api, acceptedDate, userId) {
           dispatch(sync.acceptTermsSuccess(userId, acceptedDate));
         }
       }
-    })
+    });
   };
 }
 
@@ -223,27 +224,27 @@ export function login(api, credentials, options, postLoginAction) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
-    options = options || {remember : true};
+    options = options || { remember: true };
     api.user.login(credentials, options, (err) => {
       if (err) {
         let error = null;
 
         switch (err.status) {
-        case 401:
-          if (++wrongCredCount >= config.MAX_FAILED_LOGIN_ATTEMPTS) {
-            error = createActionError(ErrorMessages.errLoginLocked(), err);
-          } else {
-            error = createActionError(ErrorMessages.ERR_LOGIN_CREDS, err);
-          }
-          dispatch(sync.loginFailure(error, err));
-          break;
-        case 403:
-          dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
-          dispatch(routeActions.push('/email-verification'));
-          break;
-        default:
-          error = createActionError(ErrorMessages.ERR_LOGIN, err);
-          dispatch(sync.loginFailure(error, err));
+          case 401:
+            if (++wrongCredCount >= config.MAX_FAILED_LOGIN_ATTEMPTS) {
+              error = createActionError(ErrorMessages.ERR_LOGIN_LOCKED, err);
+            } else {
+              error = createActionError(ErrorMessages.ERR_LOGIN_CREDS, err);
+            }
+            dispatch(sync.loginFailure(error, err));
+            break;
+          case 403:
+            dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
+            dispatch(routeActions.push('/email-verification'));
+            break;
+          default:
+            error = createActionError(ErrorMessages.ERR_LOGIN, err);
+            dispatch(sync.loginFailure(error, err));
         }
 
       } else {
@@ -302,7 +303,7 @@ export function logout(api) {
       dispatch(sync.logoutSuccess());
       dispatch(routeActions.push('/'));
     });
-  }
+  };
 }
 
 /**
@@ -326,7 +327,7 @@ export function setupDataStorage(api, patient) {
         dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
-  }
+  };
 }
 
 /**
@@ -349,7 +350,7 @@ export function removeMembershipInOtherCareTeam(api, patientId) {
         dispatch(fetchAssociatedAccounts(api));
       }
     });
-  }
+  };
 }
 
 /**
@@ -375,7 +376,7 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = _.
         dispatch(fetchPatient(api, patientId));
       }
     });
-  }
+  };
 }
 
 /**
@@ -409,7 +410,7 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
         dispatch(sync.sendInviteSuccess(invite));
       }
     });
-  }
+  };
 }
 
 /**
@@ -433,7 +434,7 @@ export function cancelSentInvite(api, email, cb = _.noop) {
         dispatch(sync.cancelSentInviteSuccess(email));
       }
     });
-  }
+  };
 }
 
 /**
@@ -449,16 +450,16 @@ export function acceptReceivedInvite(api, invite) {
     api.invitation.accept(
       invite.key,
       invite.creator.userid, (err) => {
-      if (err) {
-        dispatch(sync.acceptReceivedInviteFailure(
-          createActionError(ErrorMessages.ERR_ACCEPTING_INVITE, err), err
-        ));
-      } else {
-        dispatch(sync.acceptReceivedInviteSuccess(invite));
-        dispatch(fetchPatient(api, invite.creator.userid));
-      }
-    });
-  }
+        if (err) {
+          dispatch(sync.acceptReceivedInviteFailure(
+            createActionError(ErrorMessages.ERR_ACCEPTING_INVITE, err), err
+          ));
+        } else {
+          dispatch(sync.acceptReceivedInviteSuccess(invite));
+          dispatch(fetchPatient(api, invite.creator.userid));
+        }
+      });
+  };
 }
 
 /**
@@ -474,14 +475,14 @@ export function rejectReceivedInvite(api, invite) {
     api.invitation.dismiss(
       invite.key,
       invite.creator.userid, (err) => {
-      if (err) {
-        dispatch(sync.rejectReceivedInviteFailure(
-          createActionError(ErrorMessages.ERR_REJECTING_INVITE, err), err
-        ));
-      } else {
-        dispatch(sync.rejectReceivedInviteSuccess(invite));
-      }
-    });
+        if (err) {
+          dispatch(sync.rejectReceivedInviteFailure(
+            createActionError(ErrorMessages.ERR_REJECTING_INVITE, err), err
+          ));
+        } else {
+          dispatch(sync.rejectReceivedInviteSuccess(invite));
+        }
+      });
   };
 }
 
@@ -504,16 +505,16 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
     api.access.setMemberPermissions(
       memberId,
       permissions, (err) => {
-      if (err) {
-        dispatch(sync.setMemberPermissionsFailure(
-          createActionError(ErrorMessages.ERR_CHANGING_PERMS, err), err
-        ));
-      } else {
-        dispatch(sync.setMemberPermissionsSuccess(memberId, permissions));
-        dispatch(fetchPatient(api, patientId));
-      }
-    });
-  }
+        if (err) {
+          dispatch(sync.setMemberPermissionsFailure(
+            createActionError(ErrorMessages.ERR_CHANGING_PERMS, err), err
+          ));
+        } else {
+          dispatch(sync.setMemberPermissionsSuccess(memberId, permissions));
+          dispatch(fetchPatient(api, patientId));
+        }
+      });
+  };
 }
 
 /**
@@ -617,7 +618,6 @@ export function updateSettings(api, patientId, settings) {
  * Update User Data Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
- * @param {userId} userId
  * @param  {Object} formValues
  */
 export function updateUser(api, formValues) {
@@ -636,7 +636,7 @@ export function updateUser(api, formValues) {
 
     dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
 
-    var userUpdates = _.cloneDeep(newUser);
+    let userUpdates = _.cloneDeep(newUser);
     if (userUpdates.username === loggedInUser.username) {
       userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
@@ -733,7 +733,7 @@ export function requestPasswordReset(api, email) {
   return (dispatch) => {
     dispatch(sync.requestPasswordResetRequest());
 
-    api.user.requestPasswordReset(email, function(err) {
+    api.user.requestPasswordReset(email, (err) => {
       if (err) {
         dispatch(sync.requestPasswordResetFailure(
           createActionError(ErrorMessages.ERR_REQUESTING_PASSWORD_RESET, err), err
@@ -755,13 +755,13 @@ export function confirmPasswordReset(api, formValues) {
   return (dispatch) => {
     dispatch(sync.confirmPasswordResetRequest());
 
-    api.user.confirmPasswordReset(formValues, function(err) {
+    api.user.confirmPasswordReset(formValues, (err) => {
       if (err) {
         dispatch(sync.confirmPasswordResetFailure(
           createActionError(ErrorMessages.ERR_CONFIRMING_PASSWORD_RESET, err), err
         ));
       } else {
-        dispatch(sync.confirmPasswordResetSuccess())
+        dispatch(sync.confirmPasswordResetSuccess());
       }
     });
   };
@@ -817,7 +817,7 @@ export function fetchUser(api, cb = _.noop) {
       }
 
       // Invoke callback if provided
-      cb(err,user);
+      cb(err, user);
     });
   };
 }
@@ -873,7 +873,7 @@ export function fetchPendingReceivedInvites(api) {
 export function fetchPatient(api, id, cb = _.noop) {
   return (dispatch, getState) => {
     // If we have a valid cache of the patient in our redux store, return without dispatching the fetch
-    if(checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
+    if (checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
       const patient = _.get(getState(), ['blip', 'allUsersMap', id]);
       // In cases where the patient was set via the results from getPatients, the settings will not
       // be present, and we need them for the data views, so we bypass the cache to ensure we get
@@ -903,7 +903,7 @@ export function fetchPatient(api, id, cb = _.noop) {
               text: UserMessages.YOUR_ACCOUNT_DATA_SETUP
             };
           } else {
-            errMsg = ErrorMessages.ERR_ACCOUNT_NOT_CONFIGURED
+            errMsg = ErrorMessages.ERR_ACCOUNT_NOT_CONFIGURED;
           }
         }
         dispatch(sync.fetchPatientFailure(
@@ -944,7 +944,7 @@ export function fetchMetrics(api, accounts) {
   return (dispatch) => {
     dispatch(sync.fetchMetricsRequest());
 
-    api.user.getPatientsMetrics(accounts, function(err, tirs) {
+    api.user.getPatientsMetrics(accounts, function (err, tirs) {
       if (err) {
         dispatch(sync.fetchMetricsFailure(
           createActionError(ErrorMessages.ERR_FETCHING_ASSOCIATED_ACCOUNTS, err), err
@@ -977,7 +977,7 @@ export function fetchPatientData(api, options, id) {
 
   return (dispatch, getState) => {
     // If we have a valid cache of the data in our redux store, return without dispatching the fetch
-    if(options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
+    if (options.useCache && checkCacheValid(getState, 'patientDataMap', cacheByIdOptions(id))) {
       return null;
     }
 
@@ -1055,8 +1055,8 @@ export function fetchPatientData(api, options, id) {
         // No data in first pull. Pull all data.
         refetchOptions.startDate = null;
         refetchRequired = true;
-        delete(fetched.patientData);
-        delete(fetched.teamNotes);
+        delete fetched.patientData;
+        delete fetched.teamNotes;
       } else if (range.spanInDays < minDays) {
         // Not enough data from first pull. Pull data from 30 days prior to latest data time.
         refetchOptions.startDate = moment
@@ -1066,8 +1066,8 @@ export function fetchPatientData(api, options, id) {
           .toISOString();
 
         refetchRequired = true;
-        delete(fetched.patientData);
-        delete(fetched.teamNotes);
+        delete fetched.patientData;
+        delete fetched.teamNotes;
       }
 
       if (!latestPumpSettings) {
@@ -1137,8 +1137,8 @@ export function fetchPatientData(api, options, id) {
       const runFetchers = _.omitBy(fetchers, (value, key) => !!fetched[key]);
 
       async.parallel(async.reflectAll(runFetchers), (err, results) => {
-        const resultsErr = _.mapValues(results, ({error}) => error);
-        const resultsVal = _.mapValues(results, ({value}) => value);
+        const resultsErr = _.mapValues(results, ({ error }) => error);
+        const resultsVal = _.mapValues(results, ({ value }) => value);
         const hasError = _.some(resultsErr, err => !_.isUndefined(err));
 
         if (hasError) {
@@ -1154,9 +1154,9 @@ export function fetchPatientData(api, options, id) {
           ];
 
           if (options.initial) {
-            handleInitialFetchResults(patientData, options)
+            handleInitialFetchResults(patientData, options);
           } else if (options.getLatestPumpSettings) {
-            handlePumpSettingsFetchResults(patientData, options)
+            handlePumpSettingsFetchResults(patientData, options);
           } else {
             // Dispatch the result if we're beyond the first data fetch and we've fetched the pumpsettings and upload records we need
             dispatch(sync.fetchPatientDataSuccess(id, patientData, fetched.teamNotes, options.startDate));
@@ -1164,7 +1164,7 @@ export function fetchPatientData(api, options, id) {
         }
       });
     };
-  }
+  };
 }
 
 /**
@@ -1173,7 +1173,7 @@ export function fetchPatientData(api, options, id) {
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
  */
-export function fetchMessageThread(api, id ) {
+export function fetchMessageThread(api, id) {
   return (dispatch) => {
     dispatch(sync.fetchMessageThreadRequest());
 
@@ -1207,7 +1207,7 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
       };
 
       dispatch(sendInvite(api, email, permissions, cb));
-    }
+    };
 
     const removeAccount = (account, cb) => {
       if (account.userid) {
@@ -1215,14 +1215,14 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
       } else {
         dispatch(cancelSentInvite(api, account.email, cb));
       }
-    }
+    };
 
     async.parallel(async.reflectAll({
-      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
-      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
+      addAccounts: cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)); },
+      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)); },
     }), (err, results) => {
-      const resultsErr = _.mapValues(results, ({error}) => error);
-      const resultsVal = _.mapValues(results, ({value}) => value);
+      const resultsErr = _.mapValues(results, ({ error }) => error);
+      const resultsVal = _.mapValues(results, ({ value }) => value);
       const error = resultsErr.addAccounts || resultsErr.removeAccounts;
       if (error) {
         dispatch(sync.updateDataDonationAccountsFailure(
@@ -1343,7 +1343,7 @@ export function connectDataSource(api, id, restrictedTokenCreate, dataSourceFilt
               dispatch(sync.connectDataSourceFailure(
                 createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
               ));
-              return
+              return;
             } else {
               dispatch(sync.connectDataSourceSuccess(id, url));
             }
@@ -1371,7 +1371,7 @@ export function disconnectDataSource(api, id, dataSourceFilter) {
         createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err
       ));
     } else {
-      api.user.deleteOAuthProviderAuthorization(dataSourceFilter.providerName, (err, restrictedToken) => {
+      api.user.deleteOAuthProviderAuthorization(dataSourceFilter.providerName, (err /*, restrictedToken */) => {
         if (err) {
           dispatch(sync.disconnectDataSourceFailure(
             createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err

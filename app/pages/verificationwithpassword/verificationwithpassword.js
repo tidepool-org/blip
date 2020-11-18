@@ -13,29 +13,22 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import PropTypes from 'prop-types';
 
+import _ from 'lodash';
 import React from 'react';
-import { Link } from 'react-router';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
-import * as errorMessages from '../../redux/constants/errorMessages';
-
-import _ from 'lodash';
-import config from '../../config';
+import ErrorMessages from '../../redux/constants/errorMessages';
 
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
-
-var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
-
-var formText = 'Welcome!';
 
 export let VerificationWithPassword = translate()(class extends React.Component {
   static propTypes = {
@@ -63,6 +56,7 @@ export let VerificationWithPassword = translate()(class extends React.Component 
 
   formInputs = () => {
     const { t } = this.props;
+    const formText = 'Welcome!';
     return [
       { name: 'explanation', type: 'explanation', text: formText },
       { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
@@ -83,8 +77,8 @@ export let VerificationWithPassword = translate()(class extends React.Component 
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (_.get(this.props, 'notification.message', null) === null &&
-        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
-      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
+      _.get(nextProps, 'notification.message') === ErrorMessages.ERR_BIRTHDAY_MISMATCH) {
+      this.props.trackMetric('VCA Home Verification - Birthday Mismatch');
     }
   }
 
@@ -155,7 +149,7 @@ export let VerificationWithPassword = translate()(class extends React.Component 
     const { t } = this.props;
     var form = [
       { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
-      { type: 'password', name: 'password', label: t('password'), value: formValues.password},
+      { type: 'password', name: 'password', label: t('password'), value: formValues.password },
       { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
     ];
     var validationErrors = validateForm(form, true);
@@ -182,16 +176,16 @@ export let VerificationWithPassword = translate()(class extends React.Component 
 
     var formValues = _.clone(this.state.formValues);
     formValues[key] = value;
-    this.setState({formValues: formValues});
+    this.setState({ formValues: formValues });
   };
 
   makeRawDateString = (dateObj) => {
 
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
-    mm = (mm.length === 1) ? '0'+ mm : mm;
-    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+    var mm = '' + (parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
+    mm = (mm.length === 1) ? '0' + mm : mm;
+    var dd = (dateObj.day.length === 1) ? '0' + dateObj.day : dateObj.day;
 
-    return dateObj.year+'-'+mm+'-'+dd;
+    return dateObj.year + '-' + mm + '-' + dd;
   };
 
   prepareFormValuesForSubmit = (formValues) => {

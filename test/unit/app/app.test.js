@@ -13,7 +13,7 @@ import {
 } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
 
-import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
+import ErrorMessages from '../../../app/redux/constants/errorMessages';
 
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');

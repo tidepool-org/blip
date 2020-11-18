@@ -13,12 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import _ from 'lodash';
-
 import sundial from 'sundial';
 
 import i18next from './language';
-import { capitalize, validateEmail } from './utils';
+import { validateEmail } from './utils';
 import * as errors from './validation/errors';
 
 import config from '../config';
@@ -28,7 +26,7 @@ const t = i18next.t.bind(i18next);
 // ensure config vars are defined
 export const ABOUT_MAX_LENGTH = config.ABOUT_MAX_LENGTH || 256;
 export const PASSWORD_MIN_LENGTH = config.PASSWORD_MIN_LENGTH || 8;
-export const PASSWORD_MAX_LENGTH = config.PASSWORD_MAX_LENGTH  || 72;
+export const PASSWORD_MAX_LENGTH = config.PASSWORD_MAX_LENGTH || 72;
 export const CLINICIAN_NAME_MAX_LENGTH = config.CLINICIAN_NAME_MAX_LENGTH || 140;
 export const CLINICIAN_PHONE_MAX_LENGTH = config.CLINICIAN_PHONE_MAX_LENGTH || 30;
 
@@ -60,10 +58,10 @@ export const invalid = (message) => ({
  *
  * @param  {String} fieldLabel
  * @param  {Object} fieldValue
- * @param  {Object} currentDateObj for testing purposes
+ * @param  {number} currentDateObj for testing purposes
  * @return {Object}
  */
-const dateValidator = (fieldLabel, fieldValue, currentDateObj) => {
+const dateValidator = (fieldLabel, fieldValue, currentDateObj = 0) => {
   let now = new Date();
   // dateMask will be used for date validation
   // it is static and does not depend on any locale here
@@ -106,7 +104,7 @@ const ageVerification = (fieldLabel, fieldValue, prerequisites, isOtherPerson) =
     }
   }
   return dateValidator(fieldLabel, fieldValue);
-}
+};
 
 /**
  * Map of type validators for use in validateField()
