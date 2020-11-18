@@ -33,6 +33,7 @@
     "body-parser": "1.18.3",
     "express": "4.16.3",
     "helmet": "3.23.3",
+    "i18n-iso-countries": "6.1.0",
     "rollbar": "2.19.3"
   },
   "devDependencies": {
@@ -164,7 +165,7 @@
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
     "tideline": "1.21.0",
-    "tidepool-platform-client": "0.44.0",
+    "tidepool-platform-client": "0.45.0-clinics.1",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",
     "webpack": "4.44.1",

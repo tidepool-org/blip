@@ -52,6 +52,7 @@ import {
   dataDonationAccounts,
   dataSources,
   authorizedDataSource,
+  clinics,
 } from './misc';
 
 export default combineReducers({
@@ -86,6 +87,7 @@ export default combineReducers({
   dataDonationAccounts,
   dataSources,
   authorizedDataSource,
+  clinics,
   pdf,
   data,
   working,

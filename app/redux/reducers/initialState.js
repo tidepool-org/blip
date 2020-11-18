@@ -113,6 +113,25 @@ const initialState = {
     updatingUser: Object.assign({}, working),
     verifyingCustodial: Object.assign({}, working),
     signingUp: Object.assign({}, working),
+    fetchingClinics: Object.assign({}, working),
+    creatingClinic: Object.assign({}, working),
+    fetchingClinic: Object.assign({}, working),
+    updatingClinic: Object.assign({}, working),
+    deletingClinic: Object.assign({}, working),
+    fetchingClinician: Object.assign({}, working),
+    updatingClinician: Object.assign({}, working),
+    deletingClinicianFromClinic: Object.assign({}, working),
+    fetchingPatientsForClinic: Object.assign({}, working),
+    addingPatientToClinic: Object.assign({}, working),
+    fetchingPatientFromClinic: Object.assign({}, working),
+    updatingClinicPatient: Object.assign({}, working),
+    deletingPatientFromClinic: Object.assign({}, working),
+    fetchingCliniciansFromClinic: Object.assign({}, working),
+    addingClinicianToClinic: Object.assign({}, working),
+    fetchingClinicsPatient: Object.assign({}, working),
+    deletingClinicsPatient: Object.assign({}, working),
+    fetchingClinicsClinician: Object.assign({}, working),
+    deletingClinicsClinician: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
@@ -125,6 +144,7 @@ const initialState = {
   dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
+  clinics: {},
 };
 
 export default initialState;

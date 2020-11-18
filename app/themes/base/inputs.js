@@ -80,6 +80,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     fontSize: fontSizes[1],
     fontWeight: fontWeights.medium,
     input: { width: 'auto' },
+    '>div': {
+      minWidth: 'unset',
+      alignSelf: 'flex-start',
+    },
   };
 
   const checkboxGroup = {
