@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
@@ -25,36 +24,28 @@ import _ from 'lodash';
 import * as actions from '../../redux/actions';
 
 import config from '../../config';
-
+import i18n from '../../core/language';
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export var ConfirmPasswordReset = translate()(class extends React.Component {
-  static propTypes = {
-    acknowledgeNotification: PropTypes.func.isRequired,
-    api: PropTypes.object.isRequired,
-    notification: PropTypes.object,
-    onSubmit: PropTypes.func.isRequired,
-    resetKey: PropTypes.string.isRequired,
-    success: PropTypes.bool.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
-  };
+const t = i18n.t.bind(i18n);
+class ConfirmPasswordResetPage extends React.Component {
+  constructor(props) {
+    super(props);
 
-  state = {
-    working: false,
-    success: false,
-    formValues: {},
-    validationErrors: {},
-    notification: null
-  };
+    this.state = {
+      working: false,
+      success: false,
+      validationErrors: {},
+      notification: null
+    };
+  }
 
-  formInputs = () => {
-    const { t } = this.props;
+  formInputs() {
     return [
-      {name: 'email', label: t('Email'), type: 'email'},
+      { name: 'email', label: t('Email'), type: 'email' },
       {
         name: 'password',
         label: t('New password'),
@@ -66,10 +57,9 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
         type: 'password'
       }
     ];
-  };
+  }
 
   render() {
-    const { t } = this.props;
     var content;
     if (this.props.success) {
       content = (
@@ -83,8 +73,7 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
           </div>
         </div>
       );
-    }
-    else {
+    } else {
       content = (
         <div>
           <div className="PasswordReset-intro">
@@ -113,25 +102,22 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
     );
   }
 
-  renderForm = () => {
-    const { t } = this.props;
-    var submitButtonText = this.state.working ? t('Saving...') : t('Save');
+  renderForm() {
+    const submitButtonText = this.state.working ? t('Saving...') : t('Save');
 
     return (
       <SimpleForm
         inputs={this.formInputs()}
-        formValues={this.state.formValues}
+        formValues={{ email: '', password: '', passwordConfirm: '' }}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
         submitDisabled={this.state.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification} />
     );
-  };
+  }
 
   handleSubmit = (formValues) => {
-    var self = this;
-
     if (this.state.working) {
       return;
     }
@@ -145,31 +131,28 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
 
     formValues = this.prepareFormValuesForSubmit(formValues);
 
-    this.props.onSubmit(this.props.api, formValues);
+    this.props.onSubmit(formValues);
   };
 
-  resetFormStateBeforeSubmit = (formValues) => {
+  resetFormStateBeforeSubmit(formValues) {
     this.props.acknowledgeNotification('confirmingPasswordReset');
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  };
+  }
 
-  validateFormValues = (formValues) => {
-    const { t } = this.props;
-    var validationErrors = {};
-    var IS_REQUIRED = t('This field is required.');
-    var INVALID_EMAIL = t('Invalid email address.');
-    var SHORT_PASSWORD = t('Password must be at least {{minLength}} characters long.', {minLength: config.PASSWORD_MIN_LENGTH});
+  validateFormValues(formValues) {
+    const validationErrors = {};
+    const IS_REQUIRED = t('This field is required.');
 
     if (!formValues.email) {
       validationErrors.email = IS_REQUIRED;
     }
 
     if (formValues.email && !utils.validateEmail(formValues.email)) {
-      validationErrors.email = INVALID_EMAIL;
+      validationErrors.email = t('Invalid email address.');
     }
 
     if (!formValues.password) {
@@ -177,7 +160,7 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
     }
 
     if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
-      validationErrors.password = SHORT_PASSWORD;
+      validationErrors.password = t('Password must be at least {{minLength}} characters long.', { minLength: config.PASSWORD_MIN_LENGTH });
     }
 
     if (formValues.password) {
@@ -196,22 +179,33 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
     }
 
     return validationErrors;
-  };
+  }
 
-  prepareFormValuesForSubmit = (formValues) => {
+  prepareFormValuesForSubmit(formValues) {
     return {
       key: this.props.resetKey,
       email: formValues.email,
       password: formValues.password
     };
-  };
-});
+  }
+}
+
+
+ConfirmPasswordResetPage.propTypes = {
+  acknowledgeNotification: PropTypes.func.isRequired,
+  notification: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+  resetKey: PropTypes.string.isRequired,
+  success: PropTypes.bool.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  working: PropTypes.bool.isRequired
+};
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-export function mapStateToProps(state) {
+function mapStateToProps(state) {
   return {
     notification: state.blip.working.confirmingPasswordReset.notification,
     working: state.blip.working.confirmingPasswordReset.inProgress,
@@ -225,11 +219,13 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
     resetKey: ownProps.location.query.resetKey,
     trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(ConfirmPasswordReset);
+export { mapStateToProps, ConfirmPasswordResetPage };
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(ConfirmPasswordResetPage);

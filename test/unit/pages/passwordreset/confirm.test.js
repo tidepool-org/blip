@@ -1,56 +1,78 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
+import _ from 'lodash';
+import sinon from 'sinon';
+import { assert, expect } from 'chai';
+import { mount } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 
-import { ConfirmPasswordReset } from '../../../../app/pages/passwordreset/confirm';
-import { mapStateToProps } from '../../../../app/pages/passwordreset/confirm';
-
-var assert = chai.assert;
-var expect = chai.expect;
+import {
+  mapStateToProps,
+  ConfirmPasswordResetPage as ConfirmPasswordReset
+} from '../../../../app/pages/passwordreset/confirm';
 
 describe('ConfirmPasswordReset', function () {
+  /** @type {import('enzyme').ReactWrapper<ConfirmPasswordReset>} */
+  let wrapper = null;
+
+  before(() => {
+    try {
+      sinon.spy(console, 'error');
+    } catch (e) {
+      console.error = sinon.stub();
+    }
+  });
+
+  after(() => {
+    if (_.isFunction(_.get(console, 'error.restore'))) {
+      // @ts-ignore
+      console.error.restore();
+    }
+  });
+
+  beforeEach(() => {
+    // @ts-ignore
+    console.error.resetHistory();
+  });
+
+  afterEach(() => {
+    if (wrapper !== null) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(ConfirmPasswordReset).to.be.a('function');
   });
 
   describe('render', function() {
     it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
-        api: {},
         onSubmit: sinon.stub(),
         resetKey: 'some-key',
         success: false,
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      wrapper = mount(<ConfirmPasswordReset {...props} />);
+      // @ts-ignore
       expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('formInputs', function() {
     it('should return array with one entry for email', function() {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
-        api: {},
         onSubmit: sinon.stub(),
         resetKey: 'some-key',
         success: false,
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var formInputs = render.formInputs();
+      wrapper = mount(<ConfirmPasswordReset {...props} />);
+      const formInputs = wrapper.instance().formInputs();
       expect(formInputs.length).to.equal(3);
       expect(formInputs[0].name).to.equal('email');
       expect(formInputs[0].label).to.equal('Email');
@@ -70,20 +92,16 @@ describe('ConfirmPasswordReset', function () {
 
   describe('initial state', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
-        api: {},
         onSubmit: sinon.stub(),
         resetKey: 'some-key',
         success: false,
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getWrappedInstance().state;
-      expect(Object.keys(initialState.formValues).length).to.equal(0);
+      wrapper = mount(<ConfirmPasswordReset {...props} />);
+      const initialState = wrapper.instance().state;
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
     });
@@ -91,23 +109,20 @@ describe('ConfirmPasswordReset', function () {
 
   describe('prepareFormValuesForSubmit', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.stub();
-      var props = {
+      const props = {
         acknowledgeNotification: sinon.stub(),
-        api: {},
         onSubmit: sinon.stub(),
         resetKey: 'some-key',
         success: false,
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var vals = {
+      wrapper = mount(<ConfirmPasswordReset {...props} />);
+      const vals = {
         email: 'foo@bar.com',
         password: 'woowoo'
       };
-      var formValues = render.prepareFormValuesForSubmit(vals);
+      const formValues = wrapper.instance().prepareFormValuesForSubmit(vals);
       expect(formValues.key).to.equal('some-key');
       expect(formValues.email).to.equal('foo@bar.com');
       expect(formValues.password).to.equal('woowoo');
