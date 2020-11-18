@@ -25,9 +25,9 @@ var tidepool;
 import config from '../config';
 import { CONFIG as constants } from './constants';
 import i18n from './language';
+import migrations from './lib/apimigrations';
 
 var personUtils = require('./personutils');
-var migrations = require('./lib/apimigrations');
 
 var api = {
   log: bows('Api')
@@ -82,7 +82,7 @@ api.user.setToken = function(token) {
   } else {
     tidepool.syncToken(null);
   }
-}
+};
 
 api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
@@ -212,44 +212,37 @@ api.user.logout = function(cb) {
   });
 };
 
-api.user.acceptTerms = function(termsData, cb){
-  api.log('PUT /user' );
+api.user.acceptTerms = function(termsData, cb) {
+  api.log('PUT /user');
   api.log('terms accepted on', termsData.termsAccepted);
-  return tidepool.updateCurrentUser(termsData,cb);
+  return tidepool.updateCurrentUser(termsData, cb);
 };
 
 api.user.destroySession = function() {
   tidepool.destroySession();
 };
 
-api.user.get = function(cb) {
+api.user.get = (cb) => {
   api.log('GET /user');
 
-  var userId = tidepool.getUserId();
+  const userId = tidepool.getUserId();
 
   // Fetch user account data (username, etc.)...
-  var getAccount = tidepool.getCurrentUser.bind(tidepool);
+  const getAccount = tidepool.getCurrentUser.bind(tidepool);
 
   // ...and user profile information (full name, etc.)
-  var getProfile = function(cb) {
-    tidepool.findProfile(userId, function(err, profile) {
+  const getProfile = (cb) => {
+    tidepool.findProfile(userId, (err, profile) => {
       // We don't want to fire an error if the patient has no profile saved yet,
       // so we check if the error status is not 404 first.
       if (err && err.status !== 404) {
         return cb(err);
       }
 
-      var updateProfileAfterMigration = false;
-      var migration;
-
-      migration = migrations.profileFullName;
+      const migration = migrations.profileFullName;
       if (migration.isRequired(profile)) {
-        api.log('Migrating and saving user [' + userId + '] profile to "fullName"');
+        api.log(`Migrating and saving user [${userId}] profile with "fullName"`);
         profile = migration.migrate(profile);
-        updateProfileAfterMigration = true;
-      }
-
-      if (updateProfileAfterMigration) {
         return tidepool.addOrUpdateProfile(userId, profile, cb);
       }
 
@@ -257,40 +250,43 @@ api.user.get = function(cb) {
     });
   };
 
-  var getPreferences = function(cb) {
+  const getPreferences = (cb) => {
     api.metadata.preferences.get(userId, cb);
+  };
+
+  const getSettings = (cb) => {
+    api.metadata.settings.get(userId, (err, settings) => {
+      if (!_.isEmpty(err) && err.status !== 404) {
+        return cb(err);
+      }
+      if (migrations.country.isRequired(settings)) {
+        api.log(`Migrating and saving user [${userId}] settings with default country`);
+        const updatedSettings = migrations.country.migrate(settings);
+        return api.metadata.settings.put(userId, updatedSettings, cb);
+      }
+      return cb(null, settings);
+    });
   };
 
   async.series({
     account: getAccount,
     profile: getProfile,
     preferences: getPreferences,
-  },
-  function(err, results) {
-    if (err) {
-      return cb(err);
-    }
+    settings: getSettings,
+  }, (err, results) => {
+      if (err) {
+        return cb(err);
+      }
 
-    var user = userFromAccountAndProfile(results);
-
-    // Set permissions for patient profiles
-    if (_.get(user, ['profile', 'patient'])) {
-      // The logged-in user's permissions are always root
-      user.permissions = { root: {} };
-
-      // Attach the logged-in user's patient settings
-      setPatientSettings(user, (err, patient) => {
-        if (err) {
-          return cb(err);
-        }
-
-        cb(err, patient);
-      });
-    } else {
+      const user = userFromAccountAndProfile(results);
+      // Set permissions for patient profiles
+      if (_.get(user, 'profile.patient')) {
+        // The logged-in user's permissions are always root
+        user.permissions = { root: {} };
+      }
+      api.log('api.user.get', user);
       cb(null, user);
-    }
-
-  });
+    });
 };
 
 api.user.put = function(user, cb) {
@@ -305,13 +301,13 @@ api.user.put = function(user, cb) {
     profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile),
     preferences: tidepool.addOrUpdatePreferences.bind(tidepool, user.userid, preferences)
   },
-  function(err, results) {
-    if (err) {
-      return cb(err);
-    }
+    function(err, results) {
+      if (err) {
+        return cb(err);
+      }
 
-    cb(null, userFromAccountAndProfile(results));
-  });
+      cb(null, userFromAccountAndProfile(results));
+    });
 };
 
 function accountFromUser(user) {
@@ -329,14 +325,11 @@ function preferencesFromUser(user) {
 
 function userFromAccountAndProfile(results) {
   // sometimes `account` isn't in the results after e.g., password update
-  var account = results.account || {};
-
+  const user = _.get(results, 'account', {});
   // sometimes `profile` isn't in the results after e.g., after account signup
-  var profile = results.profile || {};
-
-  var user = account;
-  user.profile = profile;
-  user.preferences = results.preferences;
+  user.profile = _.get(results, 'profile', {});
+  user.preferences = _.get(results, 'preferences', {});
+  user.settings = _.get(results, 'settings', {});
 
   return user;
 }
@@ -357,12 +350,12 @@ api.user.confirmPasswordReset = function(payload, callback) {
 };
 
 api.user.confirmSignUp = function(key, callback) {
-  api.log('PUT /confirm/accept/signup/'+key);
+  api.log('PUT /confirm/accept/signup/' + key);
   return tidepool.signupConfirm(key, callback);
 };
 
 api.user.custodialConfirmSignUp = function(key, birthday, password, callback) {
-  api.log('PUT /confirm/accept/signup/'+key, 'custodial');
+  api.log('PUT /confirm/accept/signup/' + key, 'custodial');
   return tidepool.custodialSignupConfirm(key, birthday, password, callback);
 };
 
@@ -376,15 +369,15 @@ api.user.createRestrictedToken = function(request, cb) {
   api.log('POST /v1/users/:userId/restricted_tokens');
 
   tidepool.createRestrictedTokenForUser(tidepool.getUserId(), request, cb);
-}
+};
 
 api.user.createOAuthProviderAuthorization = function(provider, restrictedToken, cb) {
   tidepool.createOAuthProviderAuthorization(provider, restrictedToken, cb);
-}
+};
 
 api.user.deleteOAuthProviderAuthorization = function(provider, cb) {
   tidepool.deleteOAuthProviderAuthorization(provider, cb);
-}
+};
 
 // Get all accounts associated with the current user
 api.user.getAssociatedAccounts = function(cb) {
@@ -400,7 +393,7 @@ api.user.getAssociatedAccounts = function(cb) {
     var dataDonationAccounts = [];
     var careTeam = [];
 
-    _.each(users, function(user) {
+    _.forEach(users, function(user) {
       if (personUtils.isDataDonationAccount(user)) {
         dataDonationAccounts.push({
           userid: user.userid,
@@ -410,14 +403,14 @@ api.user.getAssociatedAccounts = function(cb) {
       } else if (!_.isEmpty(user.trustorPermissions)) {
         // These are the accounts that have shared their data
         // with a given set of permissions.
-        user.permissions = user.trustorPermissions
-        delete user.trustorPermissions
+        user.permissions = user.trustorPermissions;
+        delete user.trustorPermissions;
         viewableUsers.push(user);
       } else if (!_.isEmpty(user.trusteePermissions)) {
         // These are accounts with which the user has shared access to their data, exluding the
         // data donation accounts
-        user.permissions = user.trusteePermissions
-        delete user.trusteePermissions
+        user.permissions = user.trusteePermissions;
+        delete user.trusteePermissions;
         careTeam.push(user);
       }
     });
@@ -438,16 +431,16 @@ api.user.getPatientsMetrics = function(accounts, cb) {
     if (err) {
       return cb(err);
     }
-    cb(null, {metrics: tirs});
+    cb(null, { metrics: tirs });
   });
-}
+};
 // ----- Patient -----
 
 api.patient = {};
 
 // Get a user's public info
 function getPerson(userId, cb) {
-  var person = {userid: userId};
+  var person = { userid: userId };
 
   tidepool.findProfile(userId, function(err, profile) {
     if (err) {
@@ -457,7 +450,7 @@ function getPerson(userId, cb) {
       // we can't callback an error for 404s.
       if (err.status === 404) {
         person.profile = null;
-        return cb(null, person)
+        return cb(null, person);
       }
       return cb(err);
     }
@@ -532,7 +525,7 @@ api.patient.get = function(patientId, cb) {
 
     if (!patient) {
       // No patient profile for this user yet, return "not found"
-      return cb({status: 404, response: 'Not found'});
+      return cb({ status: 404, response: 'Not found' });
     }
 
     return cb(null, patient);
@@ -542,7 +535,7 @@ api.patient.get = function(patientId, cb) {
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
   var userId = tidepool.getUserId();
-  patient = _.assign({}, patient, {userid: userId});
+  patient = _.assign({}, patient, { userid: userId });
 
   return updatePatient(patient, cb);
 };
@@ -589,26 +582,24 @@ api.metadata.preferences.put = function(patientId, preferences, cb) {
 
 api.metadata.settings = {};
 
-api.metadata.settings.get = function(patientId, cb) {
-  api.log('GET /metadata/' + patientId + '/settings');
+api.metadata.settings.get = function(userId, cb) {
+  api.log(`GET /metadata/${userId}/settings`);
 
   // We don't want to fire an error if the patient has no settings saved yet,
   // so we check if the error status is not 404 first.
-  tidepool.findSettings(patientId, function(err, payload) {
+  tidepool.findSettings(userId, (err, payload) => {
     if (err && err.status !== 404) {
       return cb(err);
     }
 
-    var settings = payload || {};
-
-    return cb(null, settings);
+    return cb(null, payload || {});
   });
 };
 
-api.metadata.settings.put = function(patientId, settings, cb) {
-  api.log('PUT /metadata/' + patientId + '/settings');
+api.metadata.settings.put = function(userId, settings, cb) {
+  api.log(`PUT /metadata/${userId}/settings`);
 
-  tidepool.addOrUpdateSettings(patientId, settings, function(err) {
+  tidepool.addOrUpdateSettings(userId, settings, (err) => {
     if (err) {
       return cb(err);
     }
@@ -634,11 +625,11 @@ api.metadata.profile.put = function(userId, profile, cb) {
 api.team = {};
 
 //Get all messages for the given thread
-api.team.getMessageThread = function(messageId,cb){
+api.team.getMessageThread = function(messageId, cb) {
   api.log('GET /message/thread/' + messageId);
 
-  tidepool.getMessageThread(messageId, function(error,messages){
-    if (error){
+  tidepool.getMessageThread(messageId, function(error, messages) {
+    if (error) {
       return cb(error);
     }
 
@@ -647,28 +638,28 @@ api.team.getMessageThread = function(messageId,cb){
       return _.isEmpty(message.parentmessage) || new Date(message.timestamp);
     });
 
-    return cb(null,messages);
+    return cb(null, messages);
   });
 };
 
 //Get all notes (parent messages) for the given team
-api.team.getNotes = function(userId, options = {}, cb){
+api.team.getNotes = function(userId, options = {}, cb) {
   api.log('GET /message/notes/' + userId);
 
-  tidepool.getNotesForUser(userId, options, function(error,messages){
-    if (error){
+  tidepool.getNotesForUser(userId, options, function(error, messages) {
+    if (error) {
       return cb(error);
     }
 
-    return cb(null,messages);
+    return cb(null, messages);
   });
 };
 
 //Add a comment
-api.team.replyToMessageThread = function(message,cb){
+api.team.replyToMessageThread = function(message, cb) {
   api.log('POST /message/reply/' + message.parentmessage);
 
-  tidepool.replyToMessageThread(message, function(error,replyId){
+  tidepool.replyToMessageThread(message, function(error, replyId) {
     if (error) {
       return cb(error);
     }
@@ -679,10 +670,10 @@ api.team.replyToMessageThread = function(message,cb){
 };
 
 //New message
-api.team.startMessageThread = function(message,cb){
+api.team.startMessageThread = function(message, cb) {
   api.log('POST /message/send/' + message.groupid);
 
-  tidepool.startMessageThread(message, function(error,messageId){
+  tidepool.startMessageThread(message, function(error, messageId) {
     if (error) {
       return cb(error);
     }
@@ -692,10 +683,10 @@ api.team.startMessageThread = function(message,cb){
   });
 };
 
-api.team.editMessage = function(message,cb){
+api.team.editMessage = function(message, cb) {
   api.log('PUT /message/edit/' + message.id);
 
-  tidepool.editMessage(message, function(error, details){
+  tidepool.editMessage(message, function(error, details) {
     if (error) {
       return cb(error);
     }
@@ -713,7 +704,7 @@ api.patientData.get = function(patientId, options, cb) {
   api.log('GET /data/' + patientId);
 
   var now = Date.now();
-  tidepool.getDeviceDataForUser(patientId, options, function (err, data) {
+  tidepool.getDeviceDataForUser(patientId, options, function(err, data) {
     if (err) {
       return cb(err);
     }
@@ -737,30 +728,30 @@ api.invitation.send = function(emailAddress, permissions, callback) {
 
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
-  return tidepool.invitesReceived(tidepool.getUserId(),callback);
+  return tidepool.invitesReceived(tidepool.getUserId(), callback);
 };
 
 api.invitation.accept = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
-  api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
+  api.log('POST /confirm/accept/invite/' + loggedInUser + '/' + fromUserId);
   return tidepool.acceptInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.dismiss = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
-  api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
+  api.log('POST /confirm/dismiss/invite/' + loggedInUser + '/' + fromUserId);
   return tidepool.dismissInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {
   var loggedInUser = tidepool.getUserId();
-  api.log('GET /confirm/invite/'+loggedInUser);
+  api.log('GET /confirm/invite/' + loggedInUser);
   return tidepool.invitesSent(loggedInUser, callback);
 };
 
 api.invitation.cancel = function(emailAddress, callback) {
-   var loggedInUser = tidepool.getUserId();
-  api.log('DELETE /confirm/' + loggedInUser+ '/invited/'+ emailAddress);
+  var loggedInUser = tidepool.getUserId();
+  api.log('DELETE /confirm/' + loggedInUser + '/invited/' + emailAddress);
   return tidepool.removeInvite(emailAddress, loggedInUser, callback);
 };
 

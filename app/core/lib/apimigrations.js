@@ -15,27 +15,37 @@
 
 // Tools to migrate to new API data models or endpoints
 
-var _ = require('lodash');
+import _ from 'lodash';
 
-var migrations = {};
-
-// Migrate from user profile `firstName`, `lastName` attributes to `fullName`
-migrations.profileFullName = {
-  isRequired: function(profile = {}) {
-    if (!profile.fullName) {
-      // We only want to require a migration if first and/or last name attributes exist
-      // so that we don't attempt to perform it in situations where `fullName` is
-      // expected to be empty, such as immediately after signup.
-      return !!(profile.firstName || profile.lastName);
+const migrations = {
+  // Migrate from user profile `firstName`, `lastName` attributes to `fullName`
+  profileFullName: {
+    isRequired: (profile = {}) => {
+      if (_.isEmpty(profile.fullName)) {
+        // We only want to require a migration if first and/or last name attributes exist
+        // so that we don't attempt to perform it in situations where `fullName` is
+        // expected to be empty, such as immediately after signup.
+        return !(_.isEmpty(profile.firstName) || _.isEmpty(profile.lastName));
+      }
+      return false;
+    },
+    migrate: (profile = {}) => {
+      const p = _.cloneDeep(profile);
+      p.fullName = `${p.firstName} ${p.lastName}`;
+      return p;
     }
-    return false;
   },
 
-  migrate: function(profile = {}) {
-    profile.fullName = profile.firstName + ' ' + profile.lastName;
-    profile = _.omit(profile, 'firstName', 'lastName');
-    return profile;
+  country: {
+    isRequired: (settings) => {
+      return _.isEmpty(settings) || (_.isObject(settings) && _.isEmpty(settings.country));
+    },
+    migrate: (settings = {}) => {
+      const s = _.cloneDeep(settings);
+      s.country = 'FR';
+      return s;
+    }
   }
 };
 
-module.exports = migrations;
+export default migrations;
