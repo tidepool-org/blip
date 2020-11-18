@@ -6,6 +6,7 @@ It is based on Tidepool Blip 1.27.
 ### Fixed
 - YLP-289 RescueCarbs: recommendation is always set to 0 for automatic mode
 - YLP-292 Error messages not translated when creating an account
+- YLP-306 Change the language on login page may prevent the login
 ### Changed
 - YLP-280 Make France as default country for existing users
 - YLP-273 Translate units in DBL settings table and display depending on patient profile
