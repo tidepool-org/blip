@@ -28,7 +28,7 @@ const t = i18next.t.bind(i18next);
 
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
-import PD, { PatientData, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
 
 describe('PatientData', function () {
@@ -113,7 +113,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -193,7 +193,7 @@ describe('PatientData', function () {
       var props = defaultProps;
 
       console.error = sinon.spy();
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      var elem = shallow(<PatientDataClass {...props} />);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
@@ -203,7 +203,7 @@ describe('PatientData', function () {
       let loader;
 
       beforeEach(() => {
-        wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+        wrapper = shallow(<PatientDataClass {...defaultProps} />);
         loader = () => wrapper.find(Loader);
       });
 
@@ -496,8 +496,8 @@ describe('PatientData', function () {
       });
 
       beforeEach(() => {
-        wrapper = mount(<PatientData {...props} />);
-        instance = wrapper.instance().getWrappedInstance();
+        wrapper = mount(<PatientDataClass {...props} />);
+        instance = wrapper.instance();
 
         sinon.spy(instance, 'deriveChartTypeFromLatestData');
 
@@ -941,8 +941,8 @@ describe('PatientData', function () {
       });
 
       beforeEach(() => {
-        wrapper = mount(<PatientData {...props} />);
-        instance = wrapper.instance().getWrappedInstance();
+        wrapper = mount(<PatientDataClass {...props} />);
+        instance = wrapper.instance();
 
         // Set data loaded and chart endpoints to hide loader and allow data views to render
         wrapper.setProps(_.assign({}, props, {
@@ -1055,7 +1055,7 @@ describe('PatientData', function () {
 
   describe('getInitialState', () => {
     it('should return the default `chartPrefs` state for each data view', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       expect(wrapper.state().chartPrefs).to.eql({
         basics: {
           stats: {
@@ -1120,7 +1120,7 @@ describe('PatientData', function () {
     };
 
     it('should clear patient data upon refresh', function() {
-      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.handleRefresh();
 
@@ -1128,15 +1128,15 @@ describe('PatientData', function () {
     });
 
     it('should clear generated pdfs upon refresh', function() {
-      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.removeGeneratedPDFS.callCount;
       elem.handleRefresh();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
 
     it('should reset patient data processing state', function() {
-      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       instance.DEFAULT_TITLE = 'defaultTitle';
@@ -1159,7 +1159,7 @@ describe('PatientData', function () {
         refreshChartType: 'currentChartType',
       });
 
-      PatientData.WrappedComponent.prototype.setState.restore();
+      PatientDataClass.prototype.setState.restore();
     });
   });
 
@@ -1170,7 +1170,7 @@ describe('PatientData', function () {
     })
 
     it('should call `updateBasicsSettings` from props, but only if `canUpdateSettings` arg is true', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       const settings = { siteChangeSource: 'prime' };
@@ -1186,7 +1186,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `updatedSiteChangeSource` to state if `siteChangeSource` differs from user settings', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       expect(wrapper.state('updatedSiteChangeSource')).to.be.undefined;
@@ -1199,7 +1199,7 @@ describe('PatientData', function () {
     });
 
     it('should not set the `updatedSiteChangeSource` to state if `siteChangeSource` is unchanged from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -1209,7 +1209,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
+      const wrapper = shallow(<PatientDataClass {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.resetHistory();
@@ -1222,11 +1222,11 @@ describe('PatientData', function () {
       let canUpdateSettings = false;
       instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
       sinon.assert.notCalled(setStateSpy);
-      PatientData.WrappedComponent.prototype.setState.restore();
+      PatientDataClass.prototype.setState.restore();
     });
 
     it('should callback with `props.removeGeneratedPDFS` if `siteChangeSource` is changed from user settings', () => {
-      const setStateSpy = sinon.spy(PatientData.WrappedComponent.prototype, 'setState');
+      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
 
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
@@ -1236,7 +1236,7 @@ describe('PatientData', function () {
         }),
       });
 
-      const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
+      const wrapper = shallow(<PatientDataClass {...settingsProps} />);
       const instance = wrapper.instance();
 
       setStateSpy.resetHistory();
@@ -1254,7 +1254,7 @@ describe('PatientData', function () {
         updatedSiteChangeSource: settings.siteChangeSource
       }, defaultProps.removeGeneratedPDFS);
 
-      PatientData.WrappedComponent.prototype.setState.restore();
+      PatientDataClass.prototype.setState.restore();
     });
 
     describe('pdf removal', () => {
@@ -1267,7 +1267,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
+        const wrapper = shallow(<PatientDataClass {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
@@ -1290,7 +1290,7 @@ describe('PatientData', function () {
           }),
         });
 
-        const wrapper = shallow(<PatientData.WrappedComponent {...settingsProps} />);
+        const wrapper = shallow(<PatientDataClass {...settingsProps} />);
         const instance = wrapper.instance();
 
         sinon.assert.callCount(defaultProps.removeGeneratedPDFS, 0);
@@ -1310,7 +1310,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
       instance.queryData = sinon.stub();
       instance.getStatsByChartType = sinon.stub().returns('stats stub');
@@ -1402,7 +1402,7 @@ describe('PatientData', function () {
     };
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       wrapper.setState({
@@ -1569,7 +1569,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       wrapper.setProps({
@@ -1607,7 +1607,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       wrapper.setProps({
@@ -1643,7 +1643,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PD.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -1678,7 +1678,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -1709,7 +1709,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -1863,7 +1863,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -1912,7 +1912,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       wrapper.setProps({
@@ -1967,7 +1967,7 @@ describe('PatientData', function () {
     const defaultOpts = { query: 'my query', updateChartEndpoints: true };
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       wrapper.setState({
@@ -2107,14 +2107,14 @@ describe('PatientData', function () {
     };
 
     it('should clear generated pdfs upon refresh', function() {
-    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.removeGeneratedPDFS.callCount;
       elem.componentWillUnmount();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
 
     it('should call `props.dataWorkerRemoveDataSuccess`', function() {
-    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+    const elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
       const callCount = props.dataWorkerRemoveDataSuccess.callCount;
       elem.componentWillUnmount();
       expect(props.dataWorkerRemoveDataSuccess.callCount).to.equal(callCount + 1);
@@ -2147,7 +2147,7 @@ describe('PatientData', function () {
           queryParams: { timezone: 'US/Pacific' },
         });
 
-        wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+        wrapper = shallow(<PatientDataClass {...props} />);
         instance = wrapper.instance();
 
         setStateSpy = sinon.spy(instance, 'setState');
@@ -2582,10 +2582,11 @@ describe('PatientData', function () {
             metaData: { size: 1 },
           },
           pdf: { combined: { url: 'pdfUrl' } },
+          t,
         };
 
-        const wrapper = mount(<PatientData {...props} />);
-        const instance = wrapper.instance().getWrappedInstance();
+        const wrapper = mount(<PatientDataClass {...props} />);
+        const instance = wrapper.instance();
         const setStateSpy = sinon.spy(instance, 'setState');
 
         instance.setState({ printDialogProcessing: true, printDialogOpen: true });
@@ -2609,7 +2610,7 @@ describe('PatientData', function () {
     beforeEach(() => {
       defaultProps.dataWorkerQueryDataRequest.reset();
 
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       instance.getDaysByType = sinon.stub().returns({ next: 'next stub', prev: 'prev stub' });
@@ -2861,7 +2862,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -2894,7 +2895,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -2915,7 +2916,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -2935,7 +2936,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -2973,7 +2974,7 @@ describe('PatientData', function () {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
     });
 
@@ -3028,7 +3029,7 @@ describe('PatientData', function () {
     ];
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       wrapper.setState({ bgPrefs, timePrefs });
       instance = wrapper.instance();
       defaultProps.generatePDFRequest.resetHistory();
@@ -3240,7 +3241,7 @@ describe('PatientData', function () {
     let dateTimeLocation = '2019-11-23T12:00:00.000Z';
 
     beforeEach(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       wrapper.setState({ chartEndpoints, mostRecentDatetimeLocation });
       instance = wrapper.instance();
 
@@ -3542,7 +3543,7 @@ describe('PatientData', function () {
     });
 
     it('should dispatch the track metric action', () => {
-      PatientData.WrappedComponent.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      PatientDataClass.prototype.handleMessageCreation.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Created New Message');
     });
@@ -3568,7 +3569,7 @@ describe('PatientData', function () {
     });
 
     it('should dispatch the track metric action', () => {
-      PatientData.WrappedComponent.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      PatientDataClass.prototype.handleEditMessage.call(new BaseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Edit To Message');
     });
@@ -3586,7 +3587,7 @@ describe('PatientData', function () {
       });
 
 
-      wrapper = shallow(<PatientData.WrappedComponent {...props} />);
+      wrapper = shallow(<PatientDataClass {...props} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
@@ -3772,7 +3773,7 @@ describe('PatientData', function () {
     let setTimeoutSpy;
 
     before(() => {
-      wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
 
       setStateSpy = sinon.spy(instance, 'setState');
@@ -3832,7 +3833,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBasics();
@@ -3841,7 +3842,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `basics`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({chartType: 'daily'});
 
@@ -3850,7 +3851,7 @@ describe('PatientData', function () {
     });
 
     it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
@@ -3887,7 +3888,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.renderIntoDocument(<PatientData.WrappedComponent {...props}/>);
+      var elem = TestUtils.renderIntoDocument(<PatientDataClass {...props}/>);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
@@ -3896,7 +3897,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `daily`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({chartType: 'basics'});
@@ -3906,7 +3907,7 @@ describe('PatientData', function () {
     });
 
     it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
@@ -3923,7 +3924,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided iso string datetime', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
@@ -3935,7 +3936,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided utc timestamp datetime', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
@@ -3947,7 +3948,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
@@ -3983,7 +3984,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -3992,7 +3993,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `trends`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({chartType: 'basics'});
@@ -4002,7 +4003,7 @@ describe('PatientData', function () {
     });
 
     it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
@@ -4019,7 +4020,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
@@ -4029,7 +4030,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
@@ -4039,7 +4040,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to the end of day for the latest applicable datum time if provided datetime is beyond it', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
@@ -4075,7 +4076,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
@@ -4084,7 +4085,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `bgLog`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({chartType: 'basics'});
@@ -4094,7 +4095,7 @@ describe('PatientData', function () {
     });
 
     it('should call `getMostRecentDatumTimeByChartType`, `getChartEndpoints`, and then call `updateChart` with appropriate args', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
@@ -4111,7 +4112,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided datetime', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T00:00:00.000Z'});
@@ -4123,7 +4124,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
@@ -4159,7 +4160,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientData.WrappedComponent);
+      var elem = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(<PatientData {...props} />), PatientDataClass);
 
       var callCount = props.trackMetric.callCount;
       elem.handleSwitchToSettings();
@@ -4168,7 +4169,7 @@ describe('PatientData', function () {
     });
 
     it('should set the `chartType` state to `settings`', () => {
-      const wrapper = shallow(<PatientData.WrappedComponent {...defaultProps} />);
+      const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({chartType: 'daily'});
