@@ -8,6 +8,7 @@ FROM node:12.18.3-alpine as deployment
 WORKDIR /cloudfront-dist
 COPY ./cloudfront-dist/deployment/bin ./deployment/bin
 COPY ./cloudfront-dist/deployment/lib ./deployment/lib
+COPY ./cloudfront-dist/assets ./assets
 COPY ./cloudfront-dist/deployment/package.json ./deployment/package.json
 COPY ./cloudfront-dist/deployment/package-lock.json ./deployment/package-lock.json
 COPY ./cloudfront-dist/deployment/.npmignore ./deployment/npmignore

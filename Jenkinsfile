@@ -18,9 +18,6 @@ pipeline {
                             returnStdout: true
                         ).trim().toUpperCase()
                     }
-                    if (env.version == "UNRELEASED") {
-                        env.version = "master"
-                    }
                 }
             }
         }
@@ -69,6 +66,11 @@ pipeline {
         stage('Publish') {
             when { branch "dblp" }
             steps {
+                script {
+                    if (env.version == "UNRELEASED") {
+                        env.version = "master"
+                    }
+                }
                 withCredentials([string(credentialsId: 'DEV_AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'DEV_AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
                     string(credentialsId: 'AWS_ACCOUNT_ID', variable: 'AWS_ACCOUNT')]) {

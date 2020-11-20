@@ -9,9 +9,10 @@ import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as route53 from '@aws-cdk/aws-route53';
 import { WebStackProps } from './props/WebStackProps';
 import { Duration } from '@aws-cdk/core';
+import * as path from 'path';
 
 export class StaticWebSiteStack extends core.Stack {
-  constructor(scope: core.Construct, id: string, distDir: string, props?: WebStackProps) {
+  constructor(scope: core.Construct, id: string, distDir: string, props?: WebStackProps, isUnderMaintenance=false) {
     super(scope, id, props);
 
     // Create the bucket
@@ -22,7 +23,7 @@ export class StaticWebSiteStack extends core.Stack {
     });
 
     // Retrieve the Lambda arn
-    const lambdaParameter = new rsc.AwsCustomResource(this, 'GetParameter', {
+    const lambdaParameter = new rsc.AwsCustomResource(this, `${id}-GetParameter`, {
       policy: rsc.AwsCustomResourcePolicy.fromStatements([
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -46,10 +47,10 @@ export class StaticWebSiteStack extends core.Stack {
         region: 'us-east-1',
         physicalResourceId: rsc.PhysicalResourceId.of(Date.now().toString()) // Update physical id to always fetch the latest version
       }
-    })
+    });
 
     // AWS variable are required here for getting dns zone 
-    const zone =  route53.HostedZone.fromLookup(this, 'domainName', {
+    const zone = route53.HostedZone.fromLookup(this, 'domainName', {
       domainName: `${props?.zone}`
     });
 
@@ -75,7 +76,8 @@ export class StaticWebSiteStack extends core.Stack {
             },
             behaviors: [
               {
-                isDefaultBehavior: true,
+                isDefaultBehavior: !isUnderMaintenance,
+                pathPattern: isUnderMaintenance ? '/disabled/*' : '*',
                 lambdaFunctionAssociations: [
                   {
                     eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
@@ -92,9 +94,8 @@ export class StaticWebSiteStack extends core.Stack {
             },
             behaviors: [
               {
-
-                isDefaultBehavior: false,
-                pathPattern: '/redirect.html',
+                isDefaultBehavior: isUnderMaintenance,
+                pathPattern: isUnderMaintenance ? '*' : '/maintenance/*',
               },
             ],
           },
@@ -108,7 +109,20 @@ export class StaticWebSiteStack extends core.Stack {
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2018
           },
 
-        }
+        }, 
+        errorConfigurations: [
+          {
+            errorCode: 403,
+            responseCode: 200,
+            responsePagePath: '/index.html'
+          },
+          {
+            errorCode: 404,
+            responseCode: 200,
+            responsePagePath: '/index.html'
+          }
+        ]
+
       }
     );
 
@@ -119,12 +133,27 @@ export class StaticWebSiteStack extends core.Stack {
       domainName: distribution.distributionDomainName,
       ttl: Duration.minutes(5)
     });
+    if (props?.altDomainName !== undefined) {
+      new route53.CnameRecord(this, `${id}-websitealiasrecord2`, {
+        zone: zone,
+        recordName: `${props?.altDomainName}`,
+        domainName: distribution.distributionDomainName,
+        ttl: Duration.minutes(5)
+      });
+    }
 
     //  Publish the site content to the S3 bucket (with --delete and invalidation)
     new s3deploy.BucketDeployment(this, `${id}-deploymentwithinvalidation`, {
       sources: [s3deploy.Source.asset(`${distDir}/static`)],
       destinationBucket: bucket,
       destinationKeyPrefix: `${props?.FrontAppName}/${props?.version}`,
+      distribution,
+      distributionPaths: ['/index.html']
+    });
+    new s3deploy.BucketDeployment(this, `${id}-maintenancepage`, {
+      sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../assets/maintenance'))],
+      destinationBucket: bucket,
+      destinationKeyPrefix: 'maintenance',
       distribution,
       distributionPaths: ['/index.html']
     });

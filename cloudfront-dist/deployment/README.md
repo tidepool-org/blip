@@ -60,9 +60,14 @@ export AWS_PROFILE=fso-dev
 now that the installation is complete, you could perform a deployment:
 
 ```sh
+source .env #or whatever your env file is called
 cdk synth # to test the deployment
 cdk deploy <STACK_PREFIX_NAME>-blip
 ```
+
+### Set the web site in maintenance mode
+To force the display of a maintenance page you need to set the env var `MAINTENANCE` to `true` and then execute a deployment as described above.  
+To revert from a maintenance state to a "normal" state make sure to reset the env var `MAINTENANCE` to `false` and then (re)execute a deployment.  
 
 *tips:*
 
