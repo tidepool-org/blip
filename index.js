@@ -274,6 +274,15 @@ module.exports = function (config, deps) {
       findMetadata(userId, 'settings', cb);
     },
     /**
+     * Find a user's consents
+     *
+     * @param {string} userId id of the user you are finding the consents of
+     * @param {(err, response) => void} cb
+     */
+    findConsents: (userId, cb) => {
+      findMetadata(userId, 'consents', cb);
+    },
+    /**
      * Get the users 'team'
      *
      * @param {String} userId id of the user
