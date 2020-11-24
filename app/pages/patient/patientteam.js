@@ -26,7 +26,7 @@ var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 
-var PermissionInputGroup = translate()(class extends React.Component {
+var PermissionInputGroup = translate()(class PermissionInputGroup extends React.Component {
   static propTypes = {
     value: PropTypes.bool,
     working: PropTypes.bool,
@@ -68,7 +68,7 @@ var PermissionInputGroup = translate()(class extends React.Component {
   }
 });
 
-var MemberInviteForm = translate()(class extends React.Component {
+var MemberInviteForm = translate()(class MemberInviteForm extends React.Component {
   static propTypes = {
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
@@ -175,13 +175,13 @@ var MemberInviteForm = translate()(class extends React.Component {
   };
 });
 
-var ConfirmDialog = translate()(class extends React.Component {
+var ConfirmDialog = translate()(class ConfirmDialog extends React.Component {
   static propTypes = {
     buttonText: PropTypes.string,
     dismissText: PropTypes.string,
     message: PropTypes.node,
     onCancel: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
   };
 
   render() {
@@ -226,7 +226,8 @@ var PatientTeam = translate()(class extends React.Component {
     pendingSentInvites: PropTypes.array.isRequired,
     removingMember: PropTypes.bool.isRequired,
     trackMetric: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired
+    user: PropTypes.object.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   state = {
@@ -250,7 +251,7 @@ var PatientTeam = translate()(class extends React.Component {
 
     return (
       <ConfirmDialog
-        buttonText={t('I\'m sure, remove them')}
+        buttonText={t("I'm sure, remove them")}
         message={t('Are you sure you want to remove this person? They will no longer be able to see or comment on your data.')}
         onCancel={handleCancel}
         onSubmit={handleSubmit} />
@@ -298,6 +299,7 @@ var PatientTeam = translate()(class extends React.Component {
       return null;
     }
 
+    const { t } = this.props;
     var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(member);
 
     return (
@@ -307,7 +309,7 @@ var PatientTeam = translate()(class extends React.Component {
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title={t('Remove member')} onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
               {upload}
             </div>

@@ -29,7 +29,7 @@ var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
-var PatientCard = translate()(class extends React.Component {
+var PatientCard = translate()(class PatientCard extends React.Component {
   static propTypes = {
     href: PropTypes.string.isRequired,
     currentPage: PropTypes.string,
@@ -40,6 +40,7 @@ var PatientCard = translate()(class extends React.Component {
     uploadUrl: PropTypes.string,
     patient: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   state = {
@@ -209,10 +210,10 @@ var PatientCard = translate()(class extends React.Component {
     const { t } = this.props;
     return (
       <div>
-        <div className="ModalOverlay-content">{t('Are you sure you want to leave this person\'s Care Team? You will no longer be able to view their data.')}</div>
+        <div className="ModalOverlay-content">{t("Are you sure you want to leave this person's Care Team? You will no longer be able to view their data.")}</div>
         <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.modalDismissHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{t('I\'m sure, remove me.')}</button>
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.modalDismissHandler}>{t('Cancel')}</button>
+          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{t("I'm sure, remove me.")}</button>
         </div>
       </div>
     );
@@ -228,7 +229,7 @@ var PatientCard = translate()(class extends React.Component {
   };
 
   renderUploadOverlay = () => {
-    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>
+    return <UploadLaunchOverlay modalDismissHandler={this.modalDismissHandler}/>;
   };
 
   handleRemovePatient = (patient) => {

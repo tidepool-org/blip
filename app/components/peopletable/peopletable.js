@@ -38,17 +38,17 @@ const TextCell = ({ rowIndex, data, col, title, track, fullDisplayMode, ...props
         {data[rowIndex][col]}
       </div>
       { fullDisplayMode ? (
-        <div 
+        <div
           role = "presentation"
           onClick={
             (e) => {
               track('Selected PWD in new tab');
               e.stopPropagation()}
-          } 
+          }
           className="peopletable-cell-content-svg">
-          <Link 
-            title={t(title, {patient: data[rowIndex][col]})} 
-            to={data[rowIndex].link}  
+          <Link
+            title={t(title, {patient: data[rowIndex][col]})}
+            to={data[rowIndex].link}
             target="_blank">
               <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 1H4a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V8h-1v5a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1h5V1z"/>
@@ -59,7 +59,7 @@ const TextCell = ({ rowIndex, data, col, title, track, fullDisplayMode, ...props
         </div>
         )
         :
-        <div width="100%">&nbsp;</div> 
+        <div width="100%">&nbsp;</div>
         }
     </div>
   </Cell>
@@ -207,8 +207,8 @@ class PeopleTable extends React.Component {
   formatDate(datetime, timezone) {
     if (datetime && datetime !== '0') {
       return sundial.formatInTimezone(
-        datetime, 
-        timezone, 
+        datetime,
+        timezone,
         t('MMM D, YYYY h:mm a'));
     }
     return t('No data in the last 24 hours');
@@ -249,7 +249,7 @@ class PeopleTable extends React.Component {
         case 'lastNameOrderable':
           metricMessage += 'lastName';
           break;
-        case 'tirLastTime': 
+        case 'tirLastTime':
         case 'tirVeryLow':
         case 'tirLow':
         case 'tirTarget':
@@ -287,7 +287,7 @@ class PeopleTable extends React.Component {
   }
 
   renderSearchBar() {
-    
+
     return (
       <div className="peopletable-search">
         <div className="peopletable-search-label">
@@ -328,7 +328,7 @@ class PeopleTable extends React.Component {
   }
 
   renderRemoveDialog(patient) {
-    
+
     return (
       <div className="patient-remove-dialog">
         <div className="ModalOverlay-content">
@@ -440,7 +440,7 @@ class PeopleTable extends React.Component {
   getTirsCol(list, cols, sortDirs, format, width = 40, flexGrow = 0){
     let res = [];
     cols.forEach(item => {
-      res.push(this.getTirCol(list, item, item, sortDirs, format, width, flexGrow));      
+      res.push(this.getTirCol(list, item, item, sortDirs, format, width, flexGrow));
     });
     return res;
   }
@@ -448,7 +448,7 @@ class PeopleTable extends React.Component {
   renderPeopleTable() {
     const { colSortDirs, dataList, tableWidth, tableHeight, fullDisplayMode } = this.state;
 
-    const title = t('I want to quit this patient\'s care team');
+    const title = t("I want to quit this patient's care team");
     const newTabTitle = t('open {{patient}} in a new tab');
     const labelLastName = t('LAST NAME');
     const labelFirstName = t('FIRST NAME');
@@ -509,11 +509,11 @@ class PeopleTable extends React.Component {
         {this.getTirCol(dataList, 'tirLastTime', 'tirLastTime', colSortDirs, this.formatDate, 40, 1)}
         {(fullDisplayMode) ?
           this.getTirsCol(
-            dataList, 
+            dataList,
             ['tirVeryLow', 'tirLow', 'tirTarget', 'tirHigh', 'tirVeryHigh'],
-            colSortDirs, 
+            colSortDirs,
             this.formatRate)
-          : 
+          :
           this.getTirCol(dataList, 'tirTarget', 'tirTarget', colSortDirs, this.formatRate)
           }
 

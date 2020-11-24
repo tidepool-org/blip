@@ -24,13 +24,14 @@ import { translate } from 'react-i18next';
 var personUtils = require('../../core/personutils');
 var PatientCard = require('../../components/patientcard');
 
-var PeopleList = translate()(class extends React.Component {
+var PeopleList = translate()(class PeopleList extends React.Component {
   static propTypes = {
     people: PropTypes.array,
     uploadUrl: PropTypes.string,
     onClickPerson: PropTypes.func,
     onRemovePatient: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -116,7 +117,6 @@ var PeopleList = translate()(class extends React.Component {
   };
 
   renderPeopleListItem = (person, index) => {
-    var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
     var self = this;
     var handleClick = function() {
