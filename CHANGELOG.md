@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-292 Error messages not translated when creating an account
 - YLP-306 Change the language on login page may prevent the login
 - YLP-320 Matomo tracker is no longer active
+- YLP-322 Units change after an update done in patient settings
 ### Changed
 - YLP-280 Make France as default country for existing users
 - YLP-273 Translate units in DBL settings table and display depending on patient profile

@@ -371,10 +371,10 @@ function userFromAccountAndProfile(results) {
     user.preferences = preferences;
   }
 
-  // const settings = _.get(results, 'settings', null);
-  // if (!_.isEmpty(settings)) {
-  //   user.settings = settings;
-  // }
+  const settings = _.get(results, 'settings', null);
+  if (!_.isEmpty(settings)) {
+    user.settings = settings;
+  }
 
   const consents = _.get(results, 'consents', null);
   if (!_.isEmpty(consents)) {

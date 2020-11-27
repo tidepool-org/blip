@@ -112,7 +112,7 @@ describe('api', () => {
         const cbArgs = cb.getCall(0).args;
         const expectArgs = [null, {
           ...user,
-          // settings,
+          settings,
           profile,
           preferences,
           consents,
@@ -211,7 +211,7 @@ describe('api', () => {
           permissions: { root: {} },
           preferences,
           profile,
-          // settings: { country: 'DE' },
+          settings: { country: 'DE' },
           userid: currentUserId,
         }];
         const cbArgs = cb.getCall(0).args;
@@ -238,7 +238,7 @@ describe('api', () => {
         sinon.assert.calledWith(cb, null, {
           // preferences: {},
           profile: { fullName: 'Doctor Jay' },
-          // settings: { country: 'FR' },
+          settings: { country: 'FR' },
           userid: currentUserId,
         });
       });
