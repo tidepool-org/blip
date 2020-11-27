@@ -1,0 +1,252 @@
+{
+  "type": "pumpSettings",
+  "activeSchedule": "Normal",
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    },
+    {
+      "name": "Sick",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    },
+    {
+      "name": "Sports",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.35
+        },
+        {
+          "start": 12600000,
+          "rate": 0.225
+        },
+        {
+          "start": 36000000,
+          "rate": 1.075
+        },
+        {
+          "start": 72000000,
+          "rate": 0.625
+        }
+      ]
+    }
+  ],
+  "units": {
+    "carbs": "grams",
+    "bg": "mmol/L"
+  },
+  "bgTargets": {
+    "Normal": [
+      {
+        "start": 0,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 12600000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 36000000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 72000000,
+        "target": 4.9956731919409805
+      }
+    ],
+    "Sick": [
+      {
+        "start": 0,
+        "target": 5.273210591493257
+      },
+      {
+        "start": 12600000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 36000000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 72000000,
+        "target": 4.9956731919409805
+      }
+    ],
+    "Sports": [
+      {
+        "start": 0,
+        "target": 5.273210591493257
+      },
+      {
+        "start": 12600000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 36000000,
+        "target": 4.9956731919409805
+      },
+      {
+        "start": 72000000,
+        "target": 4.9956731919409805
+      }
+    ]
+  },
+  "carbRatios": {
+    "Normal": [
+      {
+        "amount": 9,
+        "start": 0
+      },
+      {
+        "start": 12600000,
+        "amount": 10
+      },
+      {
+        "start": 36000000,
+        "amount": 10
+      },
+      {
+        "start": 72000000,
+        "amount": 9
+      }
+    ],
+    "Sick": [
+      {
+        "amount": 7,
+        "start": 0
+      },
+      {
+        "start": 12600000,
+        "amount": 10
+      },
+      {
+        "start": 36000000,
+        "amount": 10
+      },
+      {
+        "start": 72000000,
+        "amount": 9
+      }
+    ],
+    "Sports": [
+      {
+        "amount": 7,
+        "start": 0
+      },
+      {
+        "start": 12600000,
+        "amount": 10
+      },
+      {
+        "start": 36000000,
+        "amount": 10
+      },
+      {
+        "start": 72000000,
+        "amount": 9
+      }
+    ]
+  },
+  "insulinSensitivities": {
+    "Normal": [
+      {
+        "amount": 4.496105872746882,
+        "start": 0
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 12600000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 36000000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 72000000
+      }
+    ],
+    "Sick": [
+      {
+        "amount": 2.608851555791401,
+        "start": 0
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 12600000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 36000000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 72000000
+      }
+    ],
+    "Sports": [
+      {
+        "amount": 2.608851555791401,
+        "start": 0
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 12600000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 36000000
+      },
+      {
+        "amount": 4.496105872746882,
+        "start": 72000000
+      }
+    ]
+  },
+  "clockDriftOffset": 0,
+  "conversionOffset": 0,
+  "deviceId": "DevId0987654321",
+  "deviceTime": "2016-07-12T23:56:43",
+  "guid": "73fab33a-cd94-4dca-811d-795d519b795e",
+  "id": "5bd5bfa1f1364f53b848a9e00ef23c65",
+  "time": "2016-07-13T06:56:43.251Z",
+  "timezoneOffset": -420,
+  "source": "Tandem",
+  "deviceSerialNumber": "123-45-678",
+  "uploadId": "SampleUploadId"
+}

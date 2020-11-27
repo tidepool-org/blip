@@ -1,0 +1,8 @@
+.DS_Store
+coverage/
+dist/
+local/
+node_modules/
+web/
+*.log
+yarn.lock

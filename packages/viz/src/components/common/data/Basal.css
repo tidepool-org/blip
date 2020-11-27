@@ -1,0 +1,97 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+:root {
+  --stroke-width: 1.5;
+}
+
+.noFill {
+  fill: none;
+}
+
+.noStroke {
+  stroke: none;
+  stroke-width: 0;
+}
+
+.border--delivered--manual {
+  composes: noFill;
+  composes: basalScheduledPath from '../../../styles/diabetes.css';
+  stroke-width: var(--stroke-width);
+}
+
+.border--delivered--automated {
+  composes: noFill;
+  composes: basalAutomatedPath from '../../../styles/diabetes.css';
+  stroke-width: var(--stroke-width);
+}
+
+.border--undelivered {
+  composes: noFill;
+  composes: basalUndeliveredPath from '../../../styles/diabetes.css';
+}
+
+.border--undelivered--automated {
+  composes: noFill;
+  composes: basalUndeliveredPath from '../../../styles/diabetes.css';
+  stroke-width: 2;
+}
+
+.fill--scheduled {
+  composes: noStroke;
+  composes: basalScheduledFill from '../../../styles/diabetes.css';
+}
+
+.fill--automated {
+  composes: noStroke;
+  composes: basalAutomatedFill from '../../../styles/diabetes.css';
+}
+
+.fill--temp {
+  composes: basalTempFill from '../../../styles/diabetes.css';
+}
+
+.marker {
+  stroke-width: 2.5;
+}
+
+.marker--manual {
+  composes: marker;
+  fill: var(--basal);
+  stroke: var(--basal);
+}
+
+.marker--automated {
+  composes: marker;
+  fill: var(--basal-automated);
+  stroke: var(--basal-automated);
+}
+
+.markerText {
+  fill: var(--white);
+  stroke-width: 0;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.marker--automated .markerText {
+  fill: var(--gray-dark);
+}
+
+:export {
+  strokeWidth: 1.5;
+}

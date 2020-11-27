@@ -1,0 +1,25 @@
+language: node_js
+
+os: linux
+dist: bionic
+
+node_js:
+  - 10.15.3
+  - lts/*
+
+cache: npm
+addons:
+  chrome: stable
+  firefox: latest-esr
+
+before_install:
+  - npm install -g npm@6.14.7
+
+install:
+  - npm install
+
+script:
+  - npm run lint
+  - npm run test
+  - npm run security-checks
+  - bash ./build.sh

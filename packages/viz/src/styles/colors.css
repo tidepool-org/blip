@@ -1,0 +1,94 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+:root {
+  --basal: #a4a4a4;
+  --basal-automated: #3a90a4;
+  --basal-over: #b1b1b1;
+  --text-on-basal: white;
+  --text-on-basal-automated: white;
+  --text-basal: #a4a4a4;
+  --text-basal-automated: #3a90a4;
+  --bolus: #6fc3bb;
+  --bolus--interrupted: #FF8B7C;
+  --bolus--ride: #107EA8;
+  --bolus--undelivered: #BCECFA;
+  --carbs: #FFD382;
+  --collapsible--border: #EDEDED;
+  --table-stripe--light: #F7F7F7;
+  --table-stripe--dark: #ECECEC;
+  --trends--light: #D0D0D0;
+  --trends--light--faded: #F0F0F0;
+  --trends--dark: #BCBCBC;
+  --trends--dark--faded: #E3E3E3;
+  --input--border: #75849f;
+  --input--disabled: #75849f;
+  --stat--border: #75849f;
+  --stat--default: #444549;
+  --stat-disabled: #e7e9ee;
+  --stat--dark: #27385b;
+  --axis-tick: #E7E7E7;
+  --bkgrnd: #F8F8F8;
+  --bkgrnd-lines: #E7E7E7;
+  --bkgrnd-white: #FFFFFF;
+  --tooltip-title-bg: #EAEAEE;
+  --chrome: #989897;
+  --text-medium-contrast: #727375;
+  --text-high-contrast: #281946;
+  --text-black: #000000;
+  --bg-very-low: #FB5951;
+  --bg-low: #FF8B7C;
+  --bg-target: #76D3A6;
+  --bg-high: #BB9AE7;
+  --bg-very-high: #8c65d6;
+  --text-hover: #00D3D9;
+  --blue-green-light: #12D3D8;
+  --gray-medium: #989897;
+  --gray-dark: #4E4E4F;
+  --white: #FFFFFF;
+  --brand-purple: #627CFF;
+  --brand-purple-dark: #281946;
+  --bg-history-added-plain:rgba(118,211,166,1);
+  --bg-history-added-soft:rgba(118,211,166,0.1);
+  --bg-history-updated-plain:rgba(255,211,130,1);
+  --bg-history-updated-soft:rgba(255,211,130,0.1);
+  --bg-history-deleted-plain:rgba(251,89,81,1);
+  --bg-history-deleted-soft:rgba(251,89,81,0.1);
+  --activeValue: #45A39A;
+}
+
+
+:export {
+  bolus: #6fc3bb;
+  basal: #19A0D7;
+  basalManual: #a8c8d4;
+  statDark: #27385b;
+  statDefault: #727375;
+  statDisabled: #e7e9ee;
+  veryLow: #fb5951;
+  low: #FF8B7C;
+  target: #76D3A6;
+  high: #BB9AE7;
+  veryHigh: #8c65d6;
+  insulin: #0096d1;
+  white: #ffffff;
+  axis: #e7e9ee;
+  muted: #c1c9d6;
+  rescuecarbs: #fa9494;
+  deviceEvent: #727375;
+  physicalActivity: #00D3E6;
+}

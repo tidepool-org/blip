@@ -1,0 +1,140 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.copyButton {
+  composes: copyButton from './settings.css';
+}
+
+.copyText {
+  composes: copyText from './settings.css';
+}
+
+.settingsContainer {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+}
+
+.basalSettingsContainer {
+  flex-basis: 25%;
+}
+
+.bolusSettingsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 1;
+}
+
+.bolusSettingsInnerContainer {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+}
+
+.categoryTitle {
+  composes: mediumContrastText from '../../styles/typography.css';
+  width: 100%;
+  padding-bottom: 10px;
+}
+
+.categoryContainer {
+  padding-right: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  flex-basis: calc(100% / 3);
+}
+
+.bolusSettingsInnerContainer .categoryContainer:last-child {
+  padding-right: 0;
+}
+
+.basalTable {
+  composes: basalTable from './settings.css';
+}
+
+.basalTable td:first-child, .basalTable th:first-child {
+  padding-left: 28px;
+}
+
+.settingsTable {
+  composes: settingsTable from './settings.css';
+}
+
+.settingsTable td:first-child, .settingsTable th:first-child {
+  padding-left: 28px;
+}
+
+.singleLineBasalScheduleHeader {
+  composes: basalHeaderBackground settingsHeader from './settings.css';
+  justify-content: space-between;
+}
+
+.twoLineBasalScheduleHeader {
+  composes: basalHeaderBackground settingsHeaderDecoration settingsHeaderLayout settingsHeaderText from './settings.css';
+}
+
+.twoLineBasalScheduleHeader > div:first-child {
+  padding-left: 0;
+}
+
+.bolusSettingsHeader {
+  composes: bolusHeaderBackground settingsHeader from './settings.css';
+}
+
+.automatedBasalHeaderBackground {
+  composes: automatedBasalHeaderBackground from './settings.css';
+  text-align: left;
+  padding-left: 28px;
+}
+
+.automatedBasalHeaderBackground > span {
+  padding-left: 5px;
+}
+
+@media print {
+
+  .copyButton {
+    composes: copyButton from './settings.css';
+  }
+
+  .categoryContainer {
+    max-width: 280px;
+    min-width: 250px;
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 10px;
+  }
+
+  .settingsContainer {
+    display: block;
+  }
+
+  .basalSettingsContainer {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    page-break-after: auto;
+  }
+
+  .categoryTitle {
+    font-weight: normal;
+    font-size: 20px;
+    color: var(--text-black);
+    width: 100%;
+    padding-bottom: 10px;
+  }
+}

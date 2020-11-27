@@ -1,0 +1,90 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.header {
+  position: relative;
+  display: table;
+  padding-left: 0px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.header:hover {
+  color: var(--text-hover);
+}
+.headerOuter:nth-last-of-type(1) .headerInner{
+  transition-property: width;
+  transition-duration: .25s;
+  overflow: hidden;
+}
+.headerClosed .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 0px;
+}
+.headerExpanded .headerOuter:nth-last-of-type(1) .headerInner {
+  width: 100%;
+}
+.headerOuter {
+  composes: header;
+  display: inline-block;
+  font-weight: 300;
+  overflow: hidden;
+}
+.headerInner {
+  composes: header;
+  display: block;
+  margin: 5px 5px 5px 0;
+  white-space: nowrap;
+}
+.headerOuter:first-of-type {
+  cursor: pointer;
+  font-weight: 600;
+}
+.headerOuter:nth-last-of-type(2) {
+  padding-right: 10px;
+}
+.headerClosed .headerOuter:nth-last-of-type(2)::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 45%;
+  transform: translateY(-50%);
+}
+.headerExpanded .headerOuter:nth-last-of-type(2)::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 55%;
+  transform: rotate(180deg) translateY(50%);
+}
+
+@media print {
+
+  .headerOuter {
+    composes: lightText largeSize from '../../../styles/typography.css';
+    color: var(--text-black);
+  }
+
+  .headerOuter:first-of-type {
+    color: var(--text-black);
+    font-weight: normal;
+    font-size: 16px;
+  }
+
+}

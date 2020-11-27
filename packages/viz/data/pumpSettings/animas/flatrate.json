@@ -1,0 +1,67 @@
+{
+  "type": "pumpSettings",
+  "activeSchedule": "normal",
+  "basalSchedules": [
+    {
+      "name": "normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.85
+        }
+      ]
+    },
+    {
+      "name": "stress",
+      "value" : [
+        {
+          "start": 0,
+          "rate": 1.725
+        }
+      ]
+    },
+    {
+      "name": "Weekday",
+      "value" : [
+        {
+          "start": 0,
+          "rate": 0.325
+        }
+      ]
+    }
+  ],
+  "units": {
+    "carbs": "grams",
+    "bg": "mmol/L"
+  },
+  "bgTarget": [
+    {
+      "start": 0,
+      "target": 4.9956731919409805,
+      "range": 1.3876869977613833
+    }
+  ],
+  "carbRatio": [
+    {
+      "amount": 9,
+      "start": 0
+    }
+  ],
+  "insulinSensitivity": [
+    {
+      "amount": 2.9418964352541326,
+      "start": 0
+    }
+  ],
+  "clockDriftOffset": 0,
+  "conversionOffset": 0,
+  "deviceId": "DevId0987654321",
+  "deviceTime": "2016-08-22T13:31:55",
+  "guid": "5886768b-012e-453d-8e3e-2c5280995c47",
+  "id": "8372053933d14de3974c8d183c2a433d",
+  "time": "2016-08-22T01:31:55.605Z",
+  "timezoneOffset": 720,
+  "source": "Animas",
+  "deviceSerialNumber": "123-45-678",
+  "uploadId": "SampleUploadId"
+}

@@ -1,0 +1,16 @@
+**/*.sketch
+coverage/
+data/
+local/
+src/
+test/
+.babelrc
+.editorconfig
+.eslintrc
+.gitignore
+.travis.yml
+karma.conf.js
+loadtests.js
+package.config.js
+webpack.config.js
+.npmrc

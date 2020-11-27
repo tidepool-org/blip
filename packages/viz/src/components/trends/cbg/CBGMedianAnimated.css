@@ -1,0 +1,110 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+:export {
+  stroke: 2;
+}
+
+.thickStroke {
+  stroke-width: 2;
+}
+
+.median {
+  stroke: white;
+  composes: thickStroke;
+  pointer-events: none;
+}
+
+.transparent {
+  fill: transparent;
+}
+
+@keyframes fadein {
+  from {
+    fill-opacity: 0.0;
+  }
+  to {
+    fill-opacity: 1.0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    fill-opacity: 1.0;
+  }
+  to {
+    fill-opacity: 0.0;
+  }
+}
+
+.fadeinAnimation {
+  animation: fadein 0.25s forwards ease-in-out;
+}
+
+.fadeoutAnimation {
+  animation: fadeout 0.25s forwards ease-in-out;
+}
+
+.veryLowFadeIn {
+  composes: bgVeryLow from '../../../styles/diabetes.css';
+  composes: fadeinAnimation;
+}
+
+.veryLowFadeOut {
+  composes: bgVeryLow from '../../../styles/diabetes.css';
+  composes: fadeoutAnimation;
+}
+
+.lowFadeIn {
+  composes: bgLow from '../../../styles/diabetes.css';
+  composes: fadeinAnimation;
+}
+
+.lowFadeOut {
+  composes: bgLow from '../../../styles/diabetes.css';
+  composes: fadeoutAnimation;
+}
+
+.targetFadeIn {
+  composes: bgTarget from '../../../styles/diabetes.css';
+  composes: fadeinAnimation;
+}
+
+.targetFadeOut {
+  composes: bgTarget from '../../../styles/diabetes.css';
+  composes: fadeoutAnimation;
+}
+
+.highFadeIn {
+  composes: bgHigh from '../../../styles/diabetes.css';
+  composes: fadeinAnimation;
+}
+
+.highFadeOut {
+  composes: bgHigh from '../../../styles/diabetes.css';
+  composes: fadeoutAnimation;
+}
+
+.veryHighFadeIn {
+  composes: bgVeryHigh from '../../../styles/diabetes.css';
+  composes: fadeinAnimation;
+}
+
+.veryHighFadeOut {
+  composes: bgVeryHigh from '../../../styles/diabetes.css';
+  composes: fadeoutAnimation;
+}

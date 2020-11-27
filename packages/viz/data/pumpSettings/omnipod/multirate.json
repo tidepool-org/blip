@@ -1,0 +1,82 @@
+{
+  "type": "pumpSettings",
+  "activeSchedule": "Normal",
+  "basalSchedules": [
+    {
+      "name": "Normal",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.325
+        },
+        {
+          "start": 9000000,
+          "rate": 0.45
+        },
+        {
+          "start": 23400000,
+          "rate": 0.95
+        },
+        {
+          "start": 46800000,
+          "rate": 1.375
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "value": [
+        {
+          "start": 0,
+          "rate": 0.325
+        },
+        {
+          "start": 9000000,
+          "rate": 0.45
+        },
+        {
+          "start": 23400000,
+          "rate": 0.95
+        },
+        {
+          "start": 46800000,
+          "rate": 1.375
+        }
+      ]
+    }
+  ],
+  "units": {
+    "carbs": "grams",
+    "bg": "mmol/L"
+  },
+  "bgTarget": [
+    {
+      "start": 0,
+      "target": 6.1058227901500866,
+      "high": 6.938434988806917
+    }
+  ],
+  "carbRatio": [
+    {
+      "amount": 20,
+      "start": 0
+    }
+  ],
+  "insulinSensitivity": [
+    {
+      "amount": 3.774508633910963,
+      "start": 0
+    }
+  ],
+  "clockDriftOffset": 0,
+  "conversionOffset": 0,
+  "deviceId": "DevId0987654321",
+  "deviceTime": "2016-08-22T13:29:54",
+  "guid": "929bcfc1-b9fe-4b6d-9bf7-499d6b09c949",
+  "id": "897a76c611234fb6a540af93325b6e31",
+  "time": "2016-08-22T01:29:54.952Z",
+  "timezoneOffset": 720,
+  "source": "Insulet",
+  "deviceSerialNumber": "123-45-678",
+  "uploadId": "SampleUploadId"
+}

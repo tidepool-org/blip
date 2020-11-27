@@ -1,0 +1,190 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import '../../styles/colors.css';
+
+.copyButton {
+  composes: defaultSize from '../../styles/typography.css';
+  float: right;
+  line-height: 0px;
+  padding: 5px;
+  border-radius: 0px;
+  cursor: pointer;
+  color: var(--text-high-contrast);
+  background-color: #f7fafa;
+  border: solid 1px #dbdee0;
+  outline: none;
+}
+
+.copyButton:hover {
+  background-image: none;
+  color: var(--white);
+  background-color: #627cff;
+}
+
+.copyButton:active {
+  background-image: none;
+  color: var(--white);
+  background-color: #627cff;
+  opacity: 0.62;
+}
+
+.copyText {
+  position: absolute;
+  left: -5000px;
+  top: 10px;
+}
+
+.settingsTable {
+  composes: defaultSize mediumContrastText from '../../styles/typography.css';
+  width: 100%;
+  border-spacing: 1px 0px;
+  border-collapse: separate;
+}
+
+.settingsTable td, .settingsTable th {
+  padding: 10px;
+  text-align: right;
+}
+
+.settingsTable th:first-of-type, .settingsTable td:first-of-type {
+  text-align: left;
+}
+
+.settingsTable tbody tr:nth-child(odd) {
+  background-color: var(--table-stripe--dark);
+}
+
+.settingsTable tbody tr:nth-child(even), .settingsTable thead tr {
+  background-color: var(--table-stripe--light);
+}
+
+.basalTable {
+  composes: settingsTable;
+}
+
+.basalTable tbody tr:last-of-type {
+  font-weight: bold;
+}
+
+.basalHeaderBackground {
+  background-image: linear-gradient(to right, var(--basal) 0, var(--basal) 14px, #d7f1fb 14px, #d7f1fb 100%);
+}
+
+.automatedBasalHeaderBackground {
+  background-image: linear-gradient(to right, var(--basal-automated) 0, var(--basal-automated) 14px, #d7f1fb 14px, #d7f1fb 100%);
+}
+
+.bolusHeaderBackground {
+  background-image: linear-gradient(to right, var(--bolus) 0, var(--bolus) 14px, #d7f1fb 14px, #d7f1fb 100%);
+}
+
+.settingsHeaderDecoration {
+  border-bottom: 1px solid var(--table-stripe--dark);
+}
+
+.settingsHeaderHeight {
+  line-height: 1.4;
+  padding: 8px 0;
+}
+
+.settingsHeaderLayout {
+  min-width: 160px;
+  padding-left: 28px;
+  text-align: left;
+}
+
+.settingsHeaderText {
+  composes: defaultSize mediumContrastText boldText from '../../styles/typography.css';
+}
+
+.settingsHeader {
+  composes: settingsHeaderDecoration settingsHeaderHeight settingsHeaderLayout settingsHeaderText;
+}
+
+.secondaryLeftPadding {
+  padding-left: 8px;
+}
+
+.secondaryText {
+  composes: lightText from '../../styles/typography.css';
+  padding-left: 8px;
+}
+
+@media print {
+
+  .copyButton {
+    display: none;
+  }
+
+  .settingsTable {
+    composes: defaultSize mediumContrastText from '../../styles/typography.css';
+    min-width: 250px;
+    width: 100%;
+    border: solid 1px #000;
+    border-collapse: collapse;
+    padding-bottom: 0;
+  }
+
+  .settingsTable tbody tr,
+  .settingsTable tbody tr:nth-child(odd),
+  .settingsTable thead  {
+    background-color: var(--bkgrnd-white);
+    border-bottom: solid 1px #cbcbcb;
+    font-weight: bold;
+    color: var(--text-black);
+  }
+
+  .settingsTable tbody tr:last-of-type, .settingsTable thead tr:last-of-type {
+    border-bottom: none;
+  }
+
+  .settingsHeaderText {
+    composes: defaultSize mediumContrastText from '../../styles/typography.css';
+  }
+
+  .basalTable {
+    composes: settingsTable;
+  }
+
+  .basalTable tbody tr:last-of-type {
+    font-weight: normal;
+  }
+
+  .mainHeaderText {
+    color: var(--text-black);
+    font-weight: normal;
+    composes: largeSize from '../../styles/typography.css';
+  }
+
+  .basalHeaderBackground, .bolusHeaderBackground {
+    background-image: none;
+    color: var(--text-black);
+    font-weight: normal;
+    composes: mainHeaderText;
+    padding-left: 0px;
+  }
+
+  .secondaryText {
+    composes: lightText largeSize from '../../styles/typography.css';
+    color: var(--text-black);
+    padding-left: 8px;
+  }
+
+}
+
+

@@ -1,0 +1,83 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.label {
+  composes: mediumContrastText smallSize from '../../../styles/typography.css';
+  padding: 4px;
+}
+
+.active {
+  font-weight: bold;
+}
+
+.toggle {
+  display: inline-block;
+  position: relative;
+
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  user-select: none;
+}
+
+.disabled {
+  composes: toggle;
+  cursor: not-allowed;
+  opacity: 0.5;
+  transition: opacity 0.25s;
+}
+
+.track {
+  width: 50px;
+  height: 24px;
+
+  background-color: var(--chrome);
+  border-radius: 30px;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.thumb {
+  position: absolute;
+  top: 1px;
+
+  width: 22px;
+  height: 22px;
+
+  background-color: white;
+  border: 1px solid var(--chrome);
+  border-radius: 50%;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.leftThumb {
+  composes: thumb;
+  left: 1px;
+}
+
+.rightThumb {
+  composes: thumb;
+  left: 27px;
+}

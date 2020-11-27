@@ -1,0 +1,109 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+:root {
+  --bolus-stroke: 1;
+}
+
+.basalScheduledFill {
+  fill: var(--basal);
+  fill-opacity: 0.4;
+}
+
+.basalAutomatedFill {
+  fill: var(--basal-automated);
+  fill-opacity: 0.4;
+}
+
+.basalTempFill {
+  fill: var(--basal);
+  fill-opacity: 0.2;
+}
+
+.basalScheduledPath {
+  stroke: var(--basal);
+}
+
+.basalAutomatedPath {
+  stroke: var(--basal-automated);
+}
+
+.basalUndeliveredPath {
+  composes: basalScheduledPath;
+  stroke-dasharray: 1.5,3;
+}
+
+.bgVeryLow {
+  color: var(--bg-very-low);
+  fill: var(--bg-very-low);
+}
+
+.bgLow {
+  color: var(--bg-low);
+  fill: var(--bg-low);
+}
+
+.bgTarget {
+  color: var(--bg-target);
+  fill: var(--bg-target);
+}
+
+.bgHigh {
+  color: var(--bg-high);
+  fill: var(--bg-high);
+}
+
+.bgVeryHigh {
+  color: var(--bg-very-high);
+  fill: var(--bg-very-high);
+}
+
+.bolusDelivered {
+  color: var(--bolus);
+  fill: var(--bolus);
+}
+
+.bolusInterrupted {
+  color: var(--bolus--interrupted);
+  fill: var(--bolus--interrupted);
+}
+
+.bolusProgrammed {
+  fill: none;
+  stroke: var(--bolus);
+  stroke-dasharray: 3, 2;
+  stroke-width: var(--bolus-stroke);
+}
+
+.bolusRideTriangle {
+  fill: var(--bolus--ride);
+}
+
+.bolusUndelivered {
+  color: var(--bolus--undelivered);
+  fill: var(--bolus--undelivered);
+}
+
+.bolusUnderride {
+  color: var(--bolus--undelivered);
+  fill: var(--bolus--undelivered);
+}
+
+.carbs {
+  color: var(--carbs);
+  fill: var(--carbs);
+}

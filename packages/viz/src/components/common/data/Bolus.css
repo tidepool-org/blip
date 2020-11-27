@@ -1,0 +1,81 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2017, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.noStroke {
+  stroke: none;
+  stroke-width: 0;
+}
+
+.carbCircle {
+  composes: noStroke;
+  composes: carbs from '../../../styles/diabetes.css';
+}
+
+.carbText {
+  composes: mediumContrastText smallSize svgMiddleAnchored svgVerticalCentered from '../../../styles/typography.css';
+}
+
+.delivered {
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
+}
+
+.extendedExpectationPath {
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
+}
+
+.extendedInterrupted {
+  composes: bolusInterrupted from '../../../styles/diabetes.css';
+}
+
+.extendedPath {
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
+}
+
+.extendedTriangle {
+  composes: noStroke;
+  composes: bolusDelivered from '../../../styles/diabetes.css';
+}
+
+.extendedTriangleInterrupted {
+  composes: noStroke;
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
+}
+
+.interrupted {
+  composes: bolusInterrupted from '../../../styles/diabetes.css';
+}
+
+.programmed {
+  composes: bolusProgrammed from '../../../styles/diabetes.css';
+}
+
+.triangle {
+  composes: noStroke;
+  composes: bolusRideTriangle from '../../../styles/diabetes.css';
+}
+
+.undelivered {
+  composes: noStroke;
+  composes: bolusUndelivered from '../../../styles/diabetes.css';
+}
+
+.underride {
+  composes: noStroke;
+  composes: bolusUnderride from '../../../styles/diabetes.css';
+}

@@ -1,0 +1,149 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+@import '../../../styles/colors.css';
+
+.container {
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  margin: 2px 0;
+  max-width: 180px;
+}
+
+.row {
+  composes: smallSize from '../../../styles/typography.css';
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  line-height: 20px;
+}
+
+.label {
+  flex-grow: 1;
+}
+
+.value {
+  margin-left: 20px;
+}
+
+.em {
+  margin-left: 20px;
+  font-style: italic;
+}
+
+.units {
+  min-width: 0.7em;
+  margin-left: 10px;
+}
+
+.title {
+  composes: smallSize from '../../../styles/typography.css';
+  text-align: right;
+}
+
+.suggested {
+  composes: row;
+  font-weight: bold;
+}
+
+.delivered {
+  composes: row;
+  font-weight: bold;
+}
+
+.override {
+  composes: row;
+  color: var(--bolus--ride);
+  font-weight: bold;
+}
+
+.interrupted {
+  composes: row;
+  color: var(--bolus--interrupted);
+  font-weight: bold;
+}
+
+.normal {
+  color: var(--gray-medium);
+  composes: row;
+}
+
+.extended {
+  color: var(--gray-medium);
+  composes: row;
+}
+
+.programmed {
+  composes: row;
+}
+
+.carbs {
+  composes: row;
+}
+
+.bg {
+  composes: row;
+}
+
+.bolus {
+  composes: row;
+}
+
+.fat {
+  composes: row;
+}
+
+.input {
+  composes: row;
+}
+
+.iob {
+  composes: row;
+}
+
+.prescriptor {
+  composes: row;
+}
+
+.target {
+  composes: row;
+}
+
+.isf {
+  composes: row;
+}
+
+.carbRatio {
+  composes: row;
+}
+
+.annotation {
+  composes: row;
+}
+
+.dividerSmall {
+  background-color: var(--bolus);
+  height: 2px;
+  margin: 5px -10px;
+}
+
+.dividerLarge {
+  background-color: var(--bolus);
+  height: 4px;
+  margin: 5px -10px;
+}

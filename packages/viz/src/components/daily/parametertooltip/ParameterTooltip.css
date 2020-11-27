@@ -1,0 +1,63 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+@import '../../../styles/colors.css';
+
+.container {
+  opacity: 1;
+  min-width: 80px;
+  margin: 2px 0;
+  composes: smallSize from '../../../styles/typography.css';
+  line-height: 20px;
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  column-gap: .4em;
+  max-height: 480px;
+  overflow-y: hidden;
+}
+
+.date {
+  text-align: right;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.previous {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.value {
+  font-weight: bold;
+  color: var(--activeValue);
+  text-align: right;
+}
+
+.value-no-prev {
+  grid-column-start: 3;
+  grid-column-end: span 3;
+}
+
+.units {
+  min-width: 0.7em;
+}
+
+.title {
+  composes: smallSize from '../../../styles/typography.css';
+  text-align: right;
+}

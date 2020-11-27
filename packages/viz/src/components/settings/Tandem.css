@@ -1,0 +1,94 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import '../../styles/colors.css';
+
+.copyButton {
+  composes: copyButton from './settings.css';
+}
+
+.copyText {
+  composes: copyText from './settings.css';
+}
+
+.headerCommon {
+  line-height: 20px;
+}
+
+.basalScheduleHeader {
+  composes: basalHeaderBackground settingsHeaderText from './settings.css';
+  composes: headerCommon;
+}
+
+.bolusSettingsHeader {
+  composes: bolusHeaderBackground settingsHeaderText from './settings.css';
+  composes: headerCommon;
+}
+
+.collapsibleLabel {
+  border-top: 1px solid var(--collapsible--border);
+  justify-content: flex-start;
+  line-height: 40px;
+  margin-left: 20px;
+  padding-left: 1em;
+}
+
+.profileTable {
+  composes: basalTable from './settings.css';
+  padding-bottom: 1em;
+  margin-left: 40px;
+  width: 800px;
+}
+
+.profileTable td, .profileTable th {
+  font-size: 14px;
+  text-align: center;
+}
+
+.profileTable th:first-of-type {
+  font-weight: bold;
+}
+
+.title {
+  composes: boldText defaultSize mediumContrastText from '../../styles/typography.css';
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+@media print {
+
+  .copyButton {
+    composes: copyButton from './settings.css';
+  }
+
+  .title {
+    font-weight: normal;
+    font-size: 20px;
+    color: var(--text-black);
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+
+  .profileTable th {
+    font-weight: normal;
+    color: #000;
+  }
+
+  .profileTable th:first-of-type {
+    font-weight: normal;
+  }
+}

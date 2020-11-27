@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "moment-utc"
+  ],
+  "rules": {
+    "moment-utc/no-moment-without-utc": 2,
+    "require-jsdoc": "error"
+  }
+}

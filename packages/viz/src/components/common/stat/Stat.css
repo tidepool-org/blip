@@ -1,0 +1,247 @@
+.StatWrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.Stat {
+  background-color: var(--bkgrnd-white);
+  border-radius: 8px;
+  border: 1px solid var(--stat--border);
+}
+
+.Stat tspan {
+  font-family: "Basis", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-weight: 500;
+}
+
+.statHeader {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 1.5em;
+  margin: 0.25em 0.625em;
+  overflow: hidden;
+}
+
+.statMain {
+  padding: 0 0.625em;
+  overflow: hidden;
+}
+
+.statFooter {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--stat--border);
+  padding: 0.25em 0.625em .375em;
+  overflow: hidden;
+}
+
+.chartTitle {
+  composes: largeSize from '../../../styles/typography.css';
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  margin-top: .25em;
+  color: var(--stat--default);
+}
+
+.chartSummary {
+  line-height: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summaryData {
+  display: inline;
+  white-space: nowrap;
+}
+
+.summaryValue {
+  composes: extraLargeSize from '../../../styles/typography.css';
+  opacity: 1;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.summarySuffix {
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+  font-weight: normal;
+  position: relative;
+  bottom: 1px;
+  padding-left: 1px;
+}
+
+.units {
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+  font-weight: normal;
+  align-self: center;
+  line-height: 24px;
+  padding-left: .75em;
+}
+
+.chartTitleData {
+  composes: smallSize from '../../../styles/typography.css';
+  display: none;
+  padding-left: .25em;
+  align-items: center;
+  position: relative;
+  top: -1px;
+  color: var(--stat--default);
+}
+
+.chartTitleData span {
+  margin-top: 1px;
+}
+
+.chartTitleSuffix {
+  font-weight: normal;
+  padding-left: 1px;
+}
+
+.Stat.isOpen .chartTitleData {
+  display: inline-flex;
+}
+
+.chartCollapse {
+  margin-bottom: 0;
+  margin-right: -0.3em;
+  height: 24px;
+  line-height: 1;
+}
+
+.chartCollapse img {
+  position: relative;
+  cursor: pointer;
+}
+
+.chartWrapper {
+  padding-bottom: .125em;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--stat--default);
+  padding: 0.25em 0.625em .375em;
+}
+
+.inputlabel {
+  font-weight: 500;
+  color: var(--stat--default);
+}
+
+.inputValue {
+  width: 45px;
+  font-weight: 500;
+  color: var(--stat--default);
+  margin-right: .25em;
+  position: relative;
+  top: 1px;
+}
+
+.outputWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--stat--default);
+}
+
+.outputValue {
+  font-weight: 500;
+  color: var(--stat--default);
+  margin-right: .25em;
+  position: relative;
+  top: 1px;
+}
+
+.outputSuffix {
+  composes: smallSize from '../../../styles/typography.css';
+  color: var(--stat--default);
+}
+
+.outputValueDisabled {
+  color: var(--stat--default);
+}
+
+.outputLabel {
+  font-weight: 500;
+  color: var(--stat--default);
+}
+
+.tooltipIcon {
+  position: relative;
+  top: -0.3em;
+  margin-left: 0.1em;
+}
+
+.tooltipIcon > img {
+  width: 0.9em;
+}
+
+.StatTooltipWrapper {
+  z-index: 1;
+  position: relative;
+}
+
+svg.statWheelTimeInAuto {
+  width: 290px;
+  height: 80px;
+  height: auto;
+  margin-bottom: 0.25em;
+}
+svg.statWheelTimeInAuto g.onColor rect.legendBackground {
+  fill: var(--basal-automated, #12d3d8);
+}
+svg.statWheelTimeInAuto g.onColor text.legendLabelText {
+  fill: var(--text-on-basal-automated, black);
+}
+svg.statWheelTimeInAuto g.offColor rect.legendBackground {
+  fill: var(--basal, rgb(168, 200, 212));
+}
+svg.statWheelTimeInAuto g.offColor text.legendLabelText {
+  fill: var(--text-on-basal, black);
+}
+svg.statWheelTimeInAuto g.labelOnValueUnits tspan.legendLabelValue, svg.statWheelTimeInAuto g.labelOnValueUnits text.labelRawValue {
+  fill: var(--text-basal-automated, black);
+}
+svg.statWheelTimeInAuto g.labelOffValueUnits tspan.legendLabelValue, svg.statWheelTimeInAuto g.labelOffValueUnits text.labelRawValue {
+  fill: var(--text-basal, black);
+}
+svg.donutChart text.legendLabelText, svg.donutChart text.labelRawValue {
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
+}
+svg.donutChart text.labelValueUnits {
+  pointer-events: none;
+}
+svg.donutChart tspan.legendLabelValue {
+  font-size: 24px;
+	font-weight: 500;
+}
+svg.donutChart tspan.legendLabelUnits {
+  fill: rgb(114, 115, 117);
+	font-size: 12px;
+	letter-spacing: normal;
+}
+svg.donutChart tspan.legendLabelPercent {
+  font-size: 12px;
+  fill: var(--stat--default);
+  font-weight: normal;
+}
+svg.statWheelTimeInAuto .onEllipse {
+  fill: var(--basal-automated, #12d3d8);
+}
+svg.statWheelTimeInAuto .offEllipse {
+  fill: var(--basal, rgb(168, 200, 212));
+}

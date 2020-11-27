@@ -1,0 +1,83 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2016, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.collapsibleLabel {
+  composes: settingsHeaderDecoration settingsHeaderLayout settingsHeaderText from '../settings.css';
+}
+
+.labelContainer {
+  composes: defaultSize mediumContrastText from '../../../styles/typography.css';
+  cursor: pointer;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 66px;
+  min-width: 240px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.labelContainer:hover {
+  color: var(--text-hover);
+}
+
+.norgieLabelContainer {
+  composes: norgie from './norgie.css';
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.mainText {
+  composes: boldText from '../../../styles/typography.css';
+}
+
+.secondaryText {
+  composes: secondaryText from '../settings.css';
+}
+
+.secondaryLabel {
+  composes: lightText from '../../../styles/typography.css';
+}
+
+@media print {
+
+  .labelContainer {
+    composes: defaultSize mediumContrastText from '../../../styles/typography.css';
+    cursor: pointer;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row-reverse;
+    text-overflow: ellipsis;
+    max-width: 280px;
+    min-width: 200px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    height: auto;
+  }
+
+  .mainText{
+    composes: mainHeaderText from '../settings.css';
+  }
+
+  .secondaryText,
+  .secondaryLabel {
+    composes: secondaryText from '../settings.css';
+  }
+
+}

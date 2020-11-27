@@ -1,0 +1,80 @@
+{
+    "deviceId": "Xperia XZ1 (AOSP)358321085116760",
+    "payload":{
+      "device": {
+        "deviceId": "Xperia XZ1 (AOSP)358321085116760",
+        "imei": "358321085116760",
+        "name": "DBL4K",
+        "manufacturer": "Diabeloop",
+        "swVersion": "1.1.1.18_DBL4K_CLINICAL"
+      },
+      "parameters":[
+        {
+            "name": "TEST_PARAM_1",
+            "value": "120",
+            "unit": "%",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_2",
+            "value": "110",
+            "unit": "%",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_3",
+            "value": "100.0",
+            "unit": "mg/dL",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_4",
+            "value": "180.0",
+            "unit": "mg/dL",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_5",
+            "value": "70.0",
+            "unit": "mg/dL",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_6",
+            "value": "57.0",
+            "unit": "kg",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_7",
+            "value": "100",
+            "unit": "%",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_8",
+            "value": "100",
+            "unit": "%",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_9",
+            "value": "100",
+            "unit": "%",
+            "level": 1
+          },
+          {
+            "name": "TEST_PARAM_10",
+            "value": "0.0",
+            "unit": "",
+            "level": 3
+          },
+          {
+            "name": "TEST_PARAM_11",
+            "value": "1.5",
+            "unit": "",
+            "level": 3
+          }
+      ]
+    }
+}
