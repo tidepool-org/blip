@@ -1,0 +1,81 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.svg-tooltip-smbg {
+  stroke: @trends-smbg;
+}
+
+.d3-axis.d3-left {
+  text {
+    text-anchor: end;
+    dominant-baseline: central;
+  }
+}
+
+.solid {
+  opacity: 1.0;
+}
+
+.modalDay {
+  circle {
+    opacity: 0.75;
+    fill: @trends-smbg;
+  }
+  .smbgPath {
+    fill: none;
+    opacity: 0.75;
+    stroke: @trends-smbg;
+    stroke-dasharray: 4, 4;
+  }
+  rect {
+    fill: white;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  text {
+    text-anchor: middle;
+    fill: #727375;
+    font-size: 14px;
+    pointer-events: none;
+    &.smbgDayLabel {
+      text-anchor: start;
+      font-size: 16px;
+    }
+  }
+}
+.modalDay.highlight {
+  circle {
+    .solid;
+  }
+  .smbgPath {
+    .solid;
+    stroke-dasharray: none;
+  }
+}
+
+circle.meanCircle {
+  fill: @trends-mean;
+  stroke: none;
+}
+rect.rangeBox {
+  fill: @trends-range;
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

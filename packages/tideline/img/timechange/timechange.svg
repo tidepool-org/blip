@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 23 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>timechange</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="timechange" sketch:type="MSLayerGroup" transform="translate(1.5, 1.5)">
+            <circle id="Oval-14" stroke="#5C5D5A" stroke-width="2" sketch:type="MSShapeGroup" cx="10" cy="10" r="10"></circle>
+            <path d="M11,9.33333333 L11,4.66666667 L9,4.66666667 L9,11.3333333 L14.3333333,11.3333333 L14.3333333,9.33333333 L11,9.33333333" id="Imported-Layers" fill="#5C5D59" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

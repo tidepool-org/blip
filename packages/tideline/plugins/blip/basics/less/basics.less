@@ -1,0 +1,76 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2015, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import '../../../../css/tideline-colors.less';
+@import 'variables.less';
+
+@import 'misc/CollapsibleTitle.less';
+@import 'misc/NoDataContainer.less';
+@import 'misc/SummaryGroup.less';
+@import 'misc/Toggle.less';
+@import 'misc/UnknownStatistic.less';
+
+@import 'DashboardSection.less';
+@import 'CalendarContainer.less';
+
+@import 'chart/DailyCarbs.less';
+@import 'chart/SiteChange.less';
+
+@import 'sitechange/Change.less';
+@import 'sitechange/NoChange.less';
+@import 'sitechange/Selector.less';
+
+svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.Container--flex {
+  a {
+    color: @headline-color;
+  }
+  display: flex;
+
+  .Column {
+    box-sizing: border-box;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .Column--left {
+    width: 33%;
+
+    .DashboardSection h3 {
+      background-color: @left-column-background-color;
+      padding: 15px;
+    }
+    .DashboardSection-container {
+      border-bottom: 8px solid white;
+      background-color: @left-column-background-color;
+    }
+  }
+
+  .Column--right {
+    width: 67%;
+  }
+}

@@ -1,0 +1,200 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@margin-shift: 3px;
+@secondary-label-color: darken(@text-light, 15%);
+
+// mixins
+.bigText {
+  span {
+    .mainText;
+    font-size: @font-size-xlarge-tooltips;
+  }
+}
+.mainText {
+  color: @text;
+  font-size: @font-size-large-tooltips;
+  font-weight: bold;
+}
+.plainText {
+  font-weight: normal;
+}
+.mutedText {
+  color: @secondary-label-color;
+}
+.secondaryText {
+  font-size: @font-size-small;
+  font-weight: normal;
+}
+.interruptedText {
+  color: darken(@suspended, 30%);
+  text-transform: uppercase;
+}
+
+.newNoteText {
+  font-weight: bold;
+  font-size: @font-size-small;
+  fill: #1E9EB1;
+}
+
+.tooltip-div {
+  margin: 0;
+  padding: @margin-shift 0 0 0;
+  p {
+    span {
+      .mainText;
+      &.secondary {
+        .secondaryText;
+        .fromto {
+          .secondaryText;
+          .mutedText;
+        }
+      }
+      &.plain {
+        .plainText;
+      }
+      &.muted {
+        .mutedText;
+      }
+    }
+    margin-top: -@margin-shift;
+    margin-bottom: 0px;
+    padding: 0px 7.5px 2px 7.5px;
+    text-align: center;
+    &.value {
+      .bigText;
+    }
+
+    &.messageTooltip {
+      text-align: left;
+    }
+  }
+}
+
+// min & max labels on range overlay in trends view
+.smbgRangeInfo {
+  rect {
+    stroke-width: 1.5;
+    stroke-opacity: 0.4;
+    stroke: @trends-range;
+  }
+
+  text {
+    &.label {
+      text-anchor: start;
+      font-size: @font-size-medium;
+      fill: @secondary-label-color;
+      font-weight: normal;
+    }
+
+    &.value {
+      font-weight: bold;
+      text-anchor: end;
+    }
+  }
+}
+
+.bwiz {
+  padding: 1px;
+  margin: 0px auto;
+}
+// bolus & wizard tooltips
+.bolus-wizard {
+  color: @text;
+  font-size: @font-size-large-tooltips;
+  .title {
+    .bwiz;
+    align-items: baseline;
+    background-color: @title-background;
+    display: flex;
+    &.wider {
+      margin: 0;
+      min-width: 160px;
+    }
+    p {
+      flex-grow: 1;
+      margin: 0;
+      &.left {
+        padding-left: 4px;
+      }
+      &.right {
+        text-align: right;
+        padding-right: 4px;
+      }
+      &.interrupted {
+        .interruptedText;
+      }
+      &.plain {
+        .plainText;
+      }
+      &.timestamp {
+        .secondaryText;
+        color: darken(@text, 20%);
+      }
+    }
+  }
+  table {
+    margin: 5px auto;
+    min-width: 120px;
+    td {
+      &.right {
+        text-align: right;
+      }
+      &.label {
+        .bwiz;
+        padding-right: 10px;
+      }
+      &.del {
+        .bwiz;
+        font-weight: bold;
+        padding-bottom: 5px;
+      }
+      &.big {
+        .bwiz;
+        font-weight: bold;
+        font-size: @font-size-xlarge-tooltips;
+        text-align: right;
+      }
+      &.main {
+        padding: 0;
+        margin: 0;
+        font-weight: bold;
+        text-align: right;
+      }
+      &.secondary {
+        font-size: @font-size-small;
+        text-align: right;
+      }
+      &.dual {
+        &:first-letter {
+          text-transform: capitalize;
+        }
+        text-align: right;
+        font-size: @font-size-small;
+      }
+      &.em {
+        text-align: center;
+        font-size: @font-size-small;
+        font-style: italic;
+      }
+    }
+  }
+}
+span.interrupted {
+  text-transform: uppercase;
+  .interruptedText;
+}

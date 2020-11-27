@@ -1,0 +1,64 @@
+.SiteChangeSelector {
+  margin-bottom: 15px;
+
+  .SiteChangeSelector-message {
+    margin-top: 0;
+
+    &.SiteChangeSelector-message--disabled::before {
+      display: block;
+      width: 20px;
+      height: 25px;
+      margin-right: 5px;
+      float: left;
+      content: "";
+      background-color: transparent;
+      background-size: 20px;
+      background-repeat: no-repeat;
+      background-position: top left;
+    }
+
+    &.SiteChangeSelector-message--cannula::before {
+      background-image: url(../../components/sitechange/sitechange_cannula.png);
+    }
+
+    &.SiteChangeSelector-message--tubing::before {
+      background-image: url(../../components/sitechange/sitechange_tubing.png);
+    }
+  }
+
+  .SiteChangeSelector-option {
+    display: inline-block;
+    margin-right: 40px;
+    cursor: pointer;
+
+    input {
+      margin-right: 10px;
+    }
+
+    &::after {
+      display: block;
+      width: 20px;
+      height: 25px;
+      margin-left: 10px;
+      float: right;
+      content: "";
+      background-color: transparent;
+      background-size: 20px;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+    }
+
+    &.SiteChangeSelector-option--selected::after {
+      opacity: 1;
+    }
+
+    &.SiteChangeSelector-option--cannula::after {
+      background-image: url(../../components/sitechange/sitechange_cannula.png);
+    }
+
+    &.SiteChangeSelector-option--tubing::after {
+      background-image: url(../../components/sitechange/sitechange_tubing.png);
+    }
+  }
+}

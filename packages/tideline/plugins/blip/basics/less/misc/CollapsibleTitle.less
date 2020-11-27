@@ -1,0 +1,24 @@
+.CollapsibleTitle {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+
+  .content {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    flex-grow: 1;
+    padding-right: 15px;
+
+    span.value {
+      color: @text;
+      font-weight: bold;
+      font-size: @huge-numbers;
+    }
+  }
+
+  .icon-right:before, .icon-down:before {
+    margin-left: -15px;
+    margin-right: 0px;
+  }
+}

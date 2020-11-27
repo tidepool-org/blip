@@ -1,0 +1,120 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import '../../css/tideline-colors.less';
+
+@dark-text: #636363;
+
+#modalSubNav {
+  width: 980px;
+  margin: 0 auto;
+
+  background-color: white;
+  .modalSubNavContainer {
+    display: flex;
+    justify-content: space-between;
+
+    width: 910px;
+
+    margin: 0px 20px 0px 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    .flexed {
+      flex-grow: 2;
+    }
+  }
+
+  .visibleDays {
+    font-size: 12px;
+    color: @text;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  a.modalDomain {
+    color: @text;
+    line-height: 30px;
+    margin: 0 8px;
+    &.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+  }
+
+  .dayGroupsContainer {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .daysGroup {
+    border-radius: 5px;
+    border: @text-light 1px solid;
+    cursor: pointer;
+
+    padding: 3px;
+    margin: 3px;
+    &.active {
+      background-color: @text-light;
+      opacity: 0.8;
+    }
+    &.weekday {
+      padding-left: 13px;
+    }
+    &.weekend {
+      padding-right: 13px;
+    }
+  }
+
+  a.dayFilter {
+    line-height: 30px;
+    min-width: 30px;
+    margin: 0 3px;
+
+    background-color: white;
+    border-radius: 5px;
+    border: @background 1px solid;
+    color: @dark-text;
+    text-align: center;
+    &.active {
+      font-weight: bold;
+      opacity: 1.0;
+    }
+
+    &.monday.active {
+      background-color: #B7E66E;
+    }
+    &.tuesday.active {
+      background-color: #5ACA64;
+    }
+    &.wednesday.active {
+      background-color: #37BFB9;
+    }
+    &.thursday.active {
+      background-color: #1EA2DC;
+    }
+    &.friday.active {
+      background-color: #4E8ADB;
+    }
+    &.saturday.active {
+      background-color: #E5E200;
+    }
+    &.sunday.active {
+      background-color: #E5B20C;
+    }
+  }
+}

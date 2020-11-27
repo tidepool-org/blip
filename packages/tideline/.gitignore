@@ -1,0 +1,16 @@
+.DS_Store
+*.css
+*.idea
+*.iml
+*.log
+forks/
+node_modules/
+dev/demodata/indexed_segments.json
+dist/
+example/bundle.js
+example/data/blip-input.json
+example/data/blip-output.json
+tmp/
+web/
+wiki/
+coverage/

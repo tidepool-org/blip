@@ -1,0 +1,871 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+@import "tideline-breakpoints.less";
+@import "tideline-colors.less";
+@import "tideline-modalday.less";
+@import "tideline-svg.less";
+@import "tideline-tooltip.less";
+// typography
+// @font-family-base shared with blip, but sizes are specific to tideline
+@font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-size-xlarge: 16px;
+@font-size-large: 14px;
+@font-size-medium: 12px;
+@font-size-small: 11px;
+
+@font-size-labels: @font-size-large;
+@font-size-axes-linear: @font-size-medium;
+@font-size-axes: @font-size-large;
+@font-size-axes-days: 13px;
+@font-size-small: @font-size-medium;
+@font-size-small-tooltips: @font-size-small;
+@font-size-large-tooltips: @font-size-large;
+@font-size-xlarge-tooltips: @font-size-xlarge;
+@font-size-puddle-head: @font-size-large;
+@font-size-puddle-lead: @font-size-medium;
+@font-size-puddle-number: 24px;
+@font-size-settings: @font-size-large;
+@font-size-annotations: @font-size-medium;
+@font-size-tabular-basal-settings: @font-size-medium;
+
+svg {
+  display: block;
+  margin: 0 auto;
+  &.hidden {
+    display: none;
+  }
+}
+
+// axes
+.d3-axis {
+  shape-rendering: crispEdges;
+  path {
+    stroke: white;
+  }
+  line {
+    stroke: @ticks;
+  }
+  text {
+    font-size: @font-size-axes;
+    fill: @text;
+    &.d3-day-label {
+      dominant-baseline: hanging;
+      fill: var(--stat--default, @text-light);
+    }
+
+    @media (max-width: @screen-sm-max) {
+      font-size: 10px;
+    }
+  }
+}
+
+// y-axes
+.d3-axis.d3-y {
+  text {
+    fill: @text;
+    text-transform: lowercase;
+  }
+}
+
+// day axis in two-week view
+.d3-axis.d3-day-axis {
+  text {
+    font-size: @font-size-axes-days;
+    &.d3-weekend {
+      fill: @two-week-weekend;
+    }
+  }
+  line {
+    fill: @two-week-weekend;
+  }
+}
+
+// scrollbars
+.scroll {
+  line {
+    stroke: @scroll-gutter;
+    stroke-linecap: round;
+  }
+}
+.scrollThumb {
+  fill: @background;
+}
+#scrollNavInvisibleRect {
+  pointer-events: none;
+}
+
+// pool labels
+.d3-pool-label {
+  tspan {
+    font-size: @font-size-labels;
+    fill: @text;
+    &.main {
+      font-weight: 600;
+    }
+    &.light {
+      font-weight: 300;
+    }
+
+    @media (max-width: @screen-sm-max) {
+      font-size: 10px;
+    }
+  }
+}
+
+// pool legends
+.d3-pool-legend {
+  font-size: @font-size-axes;
+  text-anchor: end;
+  fill: var(--stat--default, @text-light);
+
+  @media (max-width: @screen-sm-max) {
+    font-size: 10px;
+  }
+}
+
+.d3-pool-weekend {
+  opacity: 0.7;
+}
+
+// pool background rectangles
+.d3-rect-fill {
+  &.d3-fill-darker {
+    fill: @fill-darker;
+  }
+  &.d3-fill-darkest {
+    fill: @fill-darkest;
+  }
+  &.d3-fill-dark {
+    fill: @fill-dark;
+  }
+  &.d3-fill-light {
+    fill: @fill-light;
+  }
+  &.d3-fill-lighter {
+    fill: @fill-lighter;
+  }
+  &.d3-fill-lightest {
+    fill: @fill-lightest;
+  }
+  &.d3-fill-trends {
+    fill: @fill-trends;
+  }
+  &.d3-fill-target {
+    fill: @fill-target;
+  }
+
+  &.d3-fill-midnight {
+    fill: white;
+  }
+}
+
+// guidelines
+.d3-line-guide {
+  stroke: white;
+  stroke-width: 2px;
+  &.d3-line-trends {
+    stroke-width: 1px;
+  }
+  &.d3-line-bg-threshold {
+    stroke-dasharray: 3, 5;
+  }
+  &.d3-line-bg-threshold-trends {
+    stroke-dasharray: 9, 9;
+  }
+}
+
+// messages, timechange
+.d3-rect-message,
+.d3-rect-timechange {
+  fill: white;
+  opacity: 0.5;
+  &.hidden {
+    display: none;
+  }
+}
+
+// carbs
+.d3-rect-carbs {
+  fill: @carbs;
+}
+.d3-rect-carbs-legend {
+  .d3-rect-carbs;
+  stroke: @carbs;
+  stroke-width: 1.5;
+}
+.d3-rect-rescuecarbs {
+  fill: @rescuecarbs;
+}
+.d3-rect-rescuecarbs-legend {
+  .d3-rect-rescuecarbs;
+  stroke: @rescuecarbs;
+  stroke-width: 1.5;
+}
+.d3-circle-carbs {
+  fill: @carbs;
+}
+.d3-carbs-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+.d3-circle-rescuecarbs {
+  fill: @rescuecarbs;
+}
+.d3-rescuecarbs-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+// deviceParameter
+.d3-param-carbs {
+  fill: @carbs;
+}
+.d3-param-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+.d3-circle-param {
+  fill: @parameter;
+}
+.d3-param-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
+
+.d3-pa {
+  &.d3-rect-picto {
+    fill: @physicalactivity;
+    opacity: 0.20;
+  }
+  &.d3-rect-pa {
+    fill: @physicalactivity;
+    opacity: 0.25;
+  }
+}
+// boluses
+.d3-bolus {
+  &.d3-rect-bolus {
+    fill: @bolus;
+  }
+  &.d3-rect-bolus-legend {
+    .d3-rect-bolus;
+    stroke: @bolus;
+    stroke-width: 1.5;
+  }
+  &.d3-path-bolus {
+    stroke: @bolus;
+    fill: none;
+  }
+  &.d3-path-extended {
+    stroke: @bolus;
+    &.d3-unknown-delivery-split {
+      stroke-dasharray: 3, 5;
+    }
+  }
+  &.d3-path-extended-triangle {
+    stroke: @bolus;
+    fill: @bolus;
+  }
+  &.d3-path-extended-triangle-suspended {
+    stroke: @undelivered;
+    fill: @undelivered;
+  }
+  &.d3-path-suspended {
+    stroke: @suspended;
+    fill: @suspended;
+  }
+  &.d3-rect-suspended-bolus {
+    stroke: @undelivered;
+    fill: @undelivered;
+  }
+  &.d3-path-extended-suspended {
+    stroke: @undelivered;
+    fill: @undelivered;
+  }
+  &.d3-path-suspended-triangle {
+    stroke: @suspended;
+    fill: none;
+  }
+  &.d3-rect-recommended {
+    fill: @undelivered;
+  }
+  &.d3-rect-recommended-legend {
+    .d3-rect-recommended;
+    stroke: @undelivered;
+    stroke-width: 1.5;
+  }
+  &.d3-rect-suspended {
+    fill: @suspended;
+  }
+  &.d3-rect-override {
+    fill: @override;
+  }
+  &.d3-polygon-override {
+    fill: @override;
+  }
+}
+
+// blood glucose
+// cbg
+.d3-cbg {
+  &.d3-circle-cbg {
+    &.d3-bg-very-low {
+      fill: @bg-very-low;
+    }
+    &.d3-bg-low {
+      fill: @bg-low;
+    }
+    &.d3-bg-target {
+      fill: @bg-target;
+    }
+    &.d3-bg-high {
+      fill: @bg-high;
+    }
+    &.d3-bg-very-high {
+      fill: @bg-very-high;
+    }
+    &.d3-bg-low-focus {
+      fill: @bg-low-focus;
+    }
+    &.d3-bg-target-focus {
+      fill: @bg-target-focus;
+    }
+    &.d3-bg-high-focus {
+      fill: @bg-high-focus;
+    }
+  }
+}
+
+// smbg
+.d3-circle-smbg {
+  stroke-width: 2;
+  &.d3-bg-very-low {
+    fill: @bg-very-low;
+    stroke: @bg-very-low;
+  }
+  &.d3-bg-low {
+    fill: @bg-low;
+    stroke: @bg-low;
+  }
+  &.d3-bg-target {
+    fill: @bg-target;
+    stroke: @bg-target;
+  }
+  &.d3-bg-high {
+    fill: @bg-high;
+    stroke: @bg-high;
+  }
+  &.d3-bg-very-high {
+    fill: @bg-very-high;
+    stroke: @bg-very-high;
+  }
+}
+
+// two-week view smbg
+.d3-smbg-numbers {
+  &.d3-rect-smbg {
+    pointer-events: none;
+    fill: @fill-lightest;
+    opacity: 0.5;
+  }
+  &.d3-text-smbg {
+    pointer-events: none;
+    fill: @text;
+    font-size: @font-size-small-tooltips;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+}
+
+// basal
+.d3-basal {
+  &.d3-rect-basal {
+    fill: @basal;
+    stroke: @basal;
+    stroke-opacity: 0.01;
+    &.d3-basal-automated {
+      fill: @basal-automated;
+      stroke: @basal-automated;
+    }
+  }
+  &.d3-basal-invisible {
+    fill: @basal;
+    opacity: 0;
+  }
+  &.d3-path-basal {
+    fill: none;
+    stroke: @basal;
+    stroke-width: 1.5;
+    &.d3-path-basal-undelivered {
+      stroke-dasharray: 1.5, 3;
+      stroke-linecap: round;
+    }
+    &[class*="d3-path-basal-automated-"] {
+      stroke: @basal-automated;
+    }
+  }
+
+  // only in legends
+  &.d3-basal-loop-mode {
+    .d3-basal-background {
+      fill: @basal-automated;
+    }
+    .d3-basal-label {
+      fill: var(--text-on-basal-automated, black);
+    }
+  }
+  &.d3-basal-loop-mode-off {
+    .d3-basal-background {
+      fill: @basal;
+    }
+    .d3-basal-label {
+      fill: var(--text-on-basal, black);
+    }
+  }
+  .d3-basal-label {
+    stroke-width: 0;
+    font-size: 10px;
+    text-anchor: middle;
+    font-weight: normal;
+    dominant-baseline: middle;
+  }
+}
+
+.d3-basal-marker-group {
+  fill: @basal;
+  stroke: @basal;
+  stroke-width: 2.5;
+
+  &[class*="d3-basal-marker-group-automated-"] {
+    fill: @basal-automated;
+    stroke: @basal-automated;
+
+    .d3-basal-group-label {
+      fill: #4e4e4f;
+    }
+  }
+
+  .d3-basal-group-label {
+    fill: #ffffff;
+    stroke-width: 0;
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+}
+
+// basal tabular settings
+div.d3-tabular-ui {
+  background-color: none;
+  p,
+  i {
+    color: @text-light;
+    cursor: pointer;
+    font-size: @font-size-axes;
+  }
+}
+
+text.d3-tabular-ui {
+  fill: @text-light;
+  cursor: pointer;
+  font-size: @font-size-axes;
+}
+
+.d3-cell-rect {
+  stroke-width: 0.5px;
+  stroke: @cell-dividers;
+  &.d3-unmatched {
+    fill: @unmatched;
+  }
+  &.d3-matched {
+    fill: @matched;
+    opacity: 0.3;
+  }
+}
+
+.d3-cell-label {
+  dominant-baseline: central;
+  font-size: @font-size-tabular-basal-settings;
+  pointer-events: none;
+  text-anchor: middle;
+  &.d3-unmatched {
+    fill: @text;
+  }
+  &.d3-matched {
+    fill: @matched-text;
+    font-weight: bold;
+  }
+}
+
+.d3-row-label {
+  dominant-baseline: central;
+  fill: @text;
+  font-size: @font-size-tabular-basal-settings;
+  text-anchor: end;
+}
+
+// annotations
+.d3-circle-data-annotation {
+  fill: @background;
+  opacity: 0.5;
+}
+
+.d3-text-data-annotation {
+  font-size: @font-size-small-tooltips;
+  font-weight: bold;
+  fill: white;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.d3-tooltip-data-annotation {
+  pointer-events: none;
+  body {
+    margin: 0px;
+    background-color: rgba(255, 255, 255, 0);
+  }
+}
+
+.d3-div-data-annotation {
+  margin: 0px;
+  padding: 10px;
+  color: @text;
+  p {
+    margin: 5px 0px;
+    font-size: @font-size-annotations;
+    &.d3-data-annotation-lead {
+      font-style: italic;
+    }
+  }
+}
+
+.d3-polygon-data-annotation {
+  fill: @fill-lighter;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+// tooltips
+.d3-tooltip {
+  pointer-events: none;
+  text.d3-tooltip-text {
+    fill: @text;
+    font-size: @font-size-small-tooltips;
+    text-anchor: middle;
+    dominant-baseline: central;
+    &.d3-bolus {
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+    }
+    &.d3-tooltip-timestamp {
+      text-transform: lowercase;
+    }
+    tspan {
+      font-weight: normal;
+      dominant-baseline: central;
+      &.d3-bolus {
+        font-size: @font-size-small-tooltips;
+      }
+    }
+  }
+  .d3-tooltip-rect {
+    fill: @fill-lightest;
+    opacity: 0.5;
+  }
+}
+
+// stats
+.d3-stats {
+  text {
+    text-anchor: start;
+    &.d3-stats-head {
+      dominant-baseline: hanging;
+      font-size: @font-size-puddle-head;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      fill: @stats-head;
+    }
+    &.d3-stats-lead {
+      font-size: @font-size-puddle-lead;
+      fill: @stats-lead;
+    }
+    tspan {
+      dominant-baseline: central;
+      font-weight: bold;
+      font-size: @font-size-puddle-number;
+      &.d3-stats-high {
+        fill: @bg-high;
+      }
+      &.d3-stats-target {
+        fill: @bg-target;
+      }
+      &.d3-stats-low {
+        fill: @bg-low;
+      }
+      &.d3-stats-percentage {
+        fill: @bg-target;
+      }
+      &.d3-stats-basal {
+        fill: @basal;
+      }
+      &.d3-stats-bolus {
+        fill: @bolus;
+      }
+      &.d3-stats-basalManualDuration {
+        fill: @basal;
+      }
+      &.d3-stats-basalAutomatedDuration {
+        fill: @basal-automated;
+      }
+    }
+  }
+  rect {
+    &.d3-stats-hover-capture {
+      visibility: hidden;
+    }
+  }
+  .d3-stats-pie {
+    path.d3-stats-slice {
+      &.d3-basal {
+        fill: @basal;
+      }
+      &.d3-bolus {
+        fill: @bolus;
+      }
+      &.d3-basalManualDuration {
+        fill: @basal;
+      }
+      &.d3-basalAutomatedDuration {
+        fill: @basal-automated;
+      }
+      &.d3-bg-low {
+        fill: @bg-low;
+      }
+      &.d3-bg-target {
+        fill: @bg-target;
+      }
+      &.d3-bg-high {
+        fill: @bg-high;
+      }
+    }
+  }
+  .d3-stats-rect {
+    &.rect-left {
+      fill: @fill-dark;
+    }
+    &.rect-right {
+      fill: @fill-darkest;
+    }
+  }
+  .d3-stats-circle {
+    &.hidden {
+      display: none;
+    }
+  }
+  &.d3-insufficient-data {
+    circle {
+      fill: white;
+      stroke-width: 3;
+      stroke-dasharray: 8, 5;
+      stroke: @stats-insufficient-data;
+    }
+    text,
+    tspan {
+      fill: @stats-insufficient-data !important;
+    }
+  }
+}
+
+// settings
+.d3-settings {
+  *,
+  *:before,
+  *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    max-width: 100%;
+    background-color: transparent;
+  }
+
+  th {
+    text-align: left;
+    font-weight: normal;
+  }
+
+  font-size: 14px;
+  color: @text;
+}
+
+.d3-settings-section,
+.d3-settings-col {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+  // worked properly as inherited in blip
+  // but not in tideline example
+  box-sizing: border-box;
+}
+
+.d3-settings-section-basal {
+  width: 2/9 * 100%;
+}
+
+.d3-settings-section-wizard {
+  width: 7/9 * 100%;
+}
+
+#carbRatioSettings,
+#insulinSensitivitySettings {
+  width: 2/7 * 100%;
+}
+
+#bgTargetSettings {
+  width: 3/7 * 100%;
+}
+
+.d3-settings-section-label {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 10px;
+  text-transform: uppercase;
+  color: @text;
+}
+
+.d3-settings-col {
+  padding: 5px 5px;
+}
+
+.d3-settings-col table {
+  background: @settings-table-fill;
+  width: 100%;
+  padding-bottom: 10px;
+  // worked properly as inherited in blip
+  // but not in tideline example
+  border-collapse: collapse;
+}
+
+.d3-settings-col-label {
+  padding: 5px 5px;
+  font-weight: bold;
+  color: #fff;
+  background: #ccc;
+}
+
+.d3-settings-basal-schedule .d3-settings-col-label {
+  cursor: pointer;
+  text-transform: capitalize;
+  background: @settings-label-fill-basal-schedule;
+  &.d3-settings-col-open + table {
+    display: table;
+  }
+  &.d3-settings-col-collapsed + table {
+    display: none;
+  }
+}
+
+#carbRatioSettings .d3-settings-col-label {
+  background: @settings-label-fill-carb-ratio;
+}
+
+#insulinSensitivitySettings .d3-settings-col-label {
+  background: @settings-label-fill-insulin-sensitivity;
+}
+
+#bgTargetSettings .d3-settings-col-label {
+  background: @settings-label-fill-bg-target;
+}
+
+.d3-settings-table-head {
+  padding: 10px 10px 5px 5px;
+  text-align: center;
+  font-weight: normal;
+  text-align: right;
+  // worked properly as inherited text color in blip
+  // but not in tideline example
+  color: @settings-table-head-text;
+}
+
+.d3-settings-start-time {
+  text-transform: lowercase;
+}
+
+.d3-settings-table-row-data td {
+  padding-right: 10px;
+  padding-left: 0;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  text-align: right;
+  color: @settings-table-value;
+}
+
+.d3-settings-table-footer {
+  height: 10px;
+}
+
+.d3-settings-col-label,
+.d3-settings-table-head,
+.d3-settings-table-row-data td {
+  font-size: @font-size-settings;
+}
+
+.d3-settings-col-label > i {
+  float: left;
+  padding-right: 4px;
+  padding-left: 2px;
+}
+
+.d3-wizard-group,
+.d3-pa-group,
+.d3-reservoir-group,
+.d3-param-group,
+.d3-bolus-group,
+.d3-carb-group {
+  cursor: default;
+}
+
+@media print {
+  .d3-settings-basal-schedule .d3-settings-col-label {
+    &.d3-settings-col-collapsed + table {
+      display: table;
+    }
+  }
+
+  .d3-settings-section,
+  .d3-settings-col {
+    display: inline;
+    width: auto;
+    .d3-settings-col-label,
+    table {
+      width: auto;
+    }
+  }
+}

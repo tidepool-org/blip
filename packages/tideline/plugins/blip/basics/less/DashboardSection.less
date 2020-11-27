@@ -1,0 +1,79 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2015, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+.DashboardSection {
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: hidden;
+
+  background-color: white;
+
+  .header {
+    color: @headline-color;
+    margin: 0;
+    i {
+      float: right;
+
+      &.icon--toggle {
+        margin-left: 15px;
+        float: none;
+        color: @light-gray-color;
+        cursor: pointer;
+
+        &:hover {
+          color: #737473;
+        }
+
+        &:active {
+          color: #6078ff;
+        }
+      }
+    }
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: bold;
+    .header;
+    padding: 15px 15px 15px 10px;
+
+    i:before {
+      margin-right: 0
+    }
+
+    &.selectable {
+      cursor: pointer;
+    }
+  }
+
+
+  .SectionHeader--nodata {
+    color: @text-light;
+    span:not(.UnknownStatistic-lead) {
+      color: @text-light;
+    }
+  }
+}
+
+.DashboardSection-container {
+
+  .DashboardSection-content {
+    box-sizing: border-box;
+    padding: 0px 0px 10px 10px;
+  }
+}

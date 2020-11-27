@@ -1,0 +1,113 @@
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+// scrollbar
+@scroll-gutter: @fill-light;
+
+// e.g., pool labels
+@text: #727375;
+@text-light: #CCCCCC;
+@text-medium: #979797;
+
+// header and footer, etc.
+@background: #989897;
+
+// stats
+@stats-head: #4E4E4F;
+@stats-lead: #676767;
+@stats-insufficient-data: @text-light;
+
+// axes
+@ticks: #B9C8D0;
+@two-week-weekend: #BAC9D1;
+
+// one-day view tideline background rectangle fill colors
+@fill-darker: #DCE4E7;
+@fill-darkest: #D3DBDD;
+@fill-dark: #E3EAED;
+@fill-lighter: #E9EFF1;
+@fill-light: #F2F4F6;
+@fill-lightest: #F8F9FA;
+
+@fill-trends: @fill-darkest;
+@fill-target: @fill-dark;
+
+// message color
+@message: #FBF39E;
+
+// blood glucose colors
+@bg-very-low: #fb5951;
+@bg-low: #FF8B7C;
+@bg-target: #76D3A6;
+@bg-high: #BB9AE7;
+@bg-very-high: #8c65d6;
+@bg-low-focus: #DB2E2C;
+@bg-target-focus: #159B41;
+@bg-high-focus: #744AC2;
+
+// basics
+@fingerstick: #6480FB;
+
+// carbs color
+@carbs: #FFD382;
+@rescuecarbs: #fa9494;
+@carbs-circle-fill: #ffd47c;
+@parameter: #d1d0cf;
+
+// physical activty colors
+@physicalactivity: #00D3E6;
+
+// bolus color
+@bolus: #6FC3BB;
+@undelivered: #BCECFA;
+@override: darken(@bolus, 35);
+@suspended: #FF8B7C;
+@bolus-ratio-label: #727375;
+
+// basal colors
+@basal: var(--basal, rgb(168, 200, 212));
+@basal-ratio-label: @bolus-ratio-label;
+@automated-ratio-label: @bolus-ratio-label;
+@manual-ratio-label: @bolus-ratio-label;
+@basal-automated: var(--basal-automated, #19A0D7);
+
+// basal tabular colors
+@cell-dividers: #E6E6E5;
+@unmatched: #F7F7F8;
+@matched: #0B9EB3;
+@matched-text: #727375;
+
+// settings
+@settings-table-fill: #F7F7F8;
+@settings-table-value: #1B6C9E;
+@settings-label-fill-basal-schedule: #9DD8E1;
+@settings-label-fill-carb-ratio: #0B9EB3;
+@settings-label-fill-insulin-sensitivity: #27707D;
+@settings-label-fill-bg-target: #5CB947;
+// this is inherited from some other text color setting in blip
+// but incorrect in tideline example
+@settings-table-head-text: @text;
+
+// tooltips
+@title-background: #EAEAEE;
+
+// modal day
+@trends-mean: #291A45;
+@trends-smbg: #617CFC;
+@trends-range: #B6C1E3;
+
+@error: #ff3631;

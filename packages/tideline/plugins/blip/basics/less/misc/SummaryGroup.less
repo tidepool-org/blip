@@ -1,0 +1,141 @@
+.SummaryGroup-container {
+  padding: 0;
+  margin: 0 0 1em;
+  font-size: 12px;
+  line-height: 21px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    flex-grow: 1;
+    padding-top: 5px;
+    cursor: pointer;
+    background-color: @day-color;
+
+    .SummaryGroup-option-label {
+      display: block;
+
+      &::first-letter {
+        text-transform: capitalize;
+      }
+    }
+
+    .SummaryGroup-option-count {
+      display: block;
+      font-weight: bold;
+    }
+
+    .SummaryGroup-option-percentage {
+      font-size: 11px;
+      text-align: right;
+      min-height: 15px;
+      padding-left: 5px;
+      font-weight: normal;
+    }
+
+    &.SummaryGroup-info--selected, &:hover {
+      color: white;
+    }
+
+    &.SummaryGroup-info--disabled,
+    &.SummaryGroup-info--disabled.SummaryGroup-info--selected,
+    &.SummaryGroup-info--disabled:hover {
+      background-color: @fill-lightest;
+      border-color: @stats-insufficient-data;
+      cursor: default;
+      color: @text-medium;
+    }
+
+    &.SummaryGroup-info-blank {
+      background-color: transparent;
+      cursor: default;
+      border: 0;
+    }
+
+    &.SummaryGroup-info-tall {
+      padding-top: 20px;
+    }
+  }
+
+  .SummaryGroup-info-others {
+    flex: 1 1 80%;
+    display: flex;
+    width: 100%;
+    flex-flow: row wrap;
+  }
+
+  .SummaryGroup-row {
+    display: flex;
+    margin: 3px 0 0;
+    width: 100%;
+
+    .SummaryGroup-info {
+      margin-right: 3px;
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 15px;
+      width: 100%;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+  }
+
+  .SummaryGroup-info-primary {
+    flex: 1 1 20%;
+    font-size: 14px;
+    text-align: center;
+    margin-right: 3px;
+    justify-content: space-evenly;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 67px;
+
+    &.SummaryGroup-info-primary--average {
+      padding-top: 3px;
+    }
+
+    .SummaryGroup-option-total {
+      font-size: 11px;
+      display: block;
+
+      span {
+        padding-right: 5px;
+      }
+    }
+  }
+}
+
+.Calendar-container-basal {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @basal;
+
+    &.SummaryGroup-info--selected, &:hover {
+      background-color: @basal;
+    }
+  }
+}
+
+.Calendar-container-bolus {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @bolus;
+
+    &.SummaryGroup-info--selected, &:hover {
+      background-color: @bolus;
+    }
+  }
+}
+
+.Calendar-container-fingerstick {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @fingerstick;
+
+    &.SummaryGroup-info--selected, &:hover {
+      background-color: @fingerstick;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+.Change {
+  display: block;
+
+  @font-size: 14px;
+  @line-height: 16px;
+
+  .Change-count-text {
+    display: block;
+    position: absolute;
+    font-size: 12px;
+    left: calc(@infusion-line-stop-size);
+    top: calc(40% - 8px);
+    color: @infusion-line-color;
+  }
+
+  .Change-daysSince-text {
+    display: block;
+    position: absolute;
+    font-size: @font-size;
+    line-height: @line-height;
+    color: @infusion-line-color;
+    text-align: center;
+    left: 0;
+    top: 0;
+    padding-top: calc(100% - 20px);
+    width: 100%;
+    height: 100%;
+    background-color: @infusion-day-color;
+  }
+
+  .Change-daysSince-count {
+    font-weight: bold;
+    padding-right: 5px;
+  }
+
+  .Change-line-end, .Change-line-start,
+  .Change-line-stop, .Change-line-mark {
+    display: block;
+    position: absolute;
+    background-color: @infusion-line-color;
+    padding: 0px;
+  }
+
+  .Change-line-end, .Change-line-start {
+    top: 40%;
+    height: @infusion-line-height;
+    width: calc(35% + 1em);
+    left: 75%;
+  }
+
+  .Change-line-end {
+    left: 0px;
+    width: 35%;
+    top: 40%;
+  }
+
+  .Change-line-start {
+    top: 40%;
+    height: @infusion-line-height;
+    width: calc(35% + 1em);
+    left: 75%;
+  }
+
+  .Change-line-stop {
+    height: calc(@infusion-line-stop-size + 5px);
+    width: @infusion-line-stop-size;
+    background-color: transparent;
+    background-image: url(../../components/sitechange/sitechange.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    top: calc(40% - (@infusion-line-stop-size / 2));
+    left: calc(35% - (@infusion-line-stop-size / 2));
+  }
+
+  &.Change--cannula .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_cannula.png);
+  }
+
+  &.Change--tubing .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_tubing.png);
+  }
+
+  &.Change--reservoir .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_omnipod.png);
+  }
+
+  &.Change--reservoir--diabeloop .Change-line-stop {
+    background-image: url(../../components/sitechange/sitechange_diabeloop.png);
+  }
+
+
+  .Change-line-mark {
+    top: calc(40% - (@infusion-line-mark-size / 2) + (@infusion-line-height / 2));
+    border-radius: (@infusion-line-mark-size / 2);
+    height: @infusion-line-mark-size;
+    width: @infusion-line-mark-size;
+    left: calc(75% - (@infusion-line-mark-size / 2));
+  }
+}
