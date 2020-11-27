@@ -1,0 +1,3 @@
+--recursive
+--timeout 0
+--reporter=tap
