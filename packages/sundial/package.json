@@ -1,0 +1,61 @@
+{
+  "name": "sundial",
+  "version": "0.2.0",
+  "description": "Tidepool's datetime wrapper",
+  "keywords": [
+    "datetime",
+    "date",
+    "time"
+  ],
+  "homepage": "https://github.com/mdblp/sundial",
+  "bugs": "https://github.com/tidepool-org/sundial/issues",
+  "license": "BSD-2-Clause",
+  "author": {
+    "name": "Eric Tschetter",
+    "url": "https://github.com/cheddar"
+  },
+  "contributors": [
+    {
+      "name": "Jamie Bate",
+      "email": "jamie@tidepool.org",
+      "url": "https://github.com/jh-bate"
+    },
+    {
+      "name": "Jana Beck",
+      "url": "https://github.com/jebeck"
+    },
+    {
+      "name": "Kent Quirk",
+      "email": "kent@tidepool.org",
+      "url": "https://github.com/kentquirk"
+    }
+  ],
+  "files": [
+    "sundial.js",
+    "lib"
+  ],
+  "main": "sundial.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdblp/sundial.git"
+  },
+  "scripts": {
+    "security-checks": "npm audit --production --registry=https://registry.npmjs.org/",
+    "test": "grunt test",
+    "browser-tests": "testem"
+  },
+  "dependencies": {
+    "moment-timezone": "0.5.31"
+  },
+  "devDependencies": {
+    "chai": "3.4.1",
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-jshint": "0.11.3",
+    "grunt-mocha-test": "0.12.7",
+    "json-loader": "0.5.4",
+    "mocha": "2.3.4",
+    "testem": "0.9.11",
+    "webpack": "1.12.8"
+  }
+}

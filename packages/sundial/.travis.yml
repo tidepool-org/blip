@@ -1,0 +1,18 @@
+language: node_js
+
+os: linux
+dist: bionic
+
+node_js:
+  - 10.15.3
+  - lts/*
+
+before_install:
+  - npm install -g npm@latest
+
+install:
+  - npm install
+
+script:
+  - npm run test
+  - npm run security-checks
