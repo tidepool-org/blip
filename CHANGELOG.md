@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.7.0-rc1
 ### Fixed
 - YLP-289 RescueCarbs: recommendation is always set to 0 for automatic mode
 - YLP-292 Error messages not translated when creating an account
