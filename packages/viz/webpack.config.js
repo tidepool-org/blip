@@ -13,29 +13,31 @@ const localIdentName = isTest
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
-const styleLoaderConfiguration = {
-  test: /\.css$/,
-  use: [
-    'style-loader',
-    {
-      loader: 'css-loader',
-      options: {
-        importLoaders: 1,
-        sourceMap: true,
-        modules: {
-          localIdentName,
+  const cssLoaderConfiguration = {
+    test: /\.css$/,
+    use: [
+      'style-loader',
+      {
+        loader: 'css-loader',
+        options: {
+          importLoaders: 1,
+          sourceMap: true,
+          modules: {
+            localIdentName,
+          }
         },
       },
-    },
-    {
-      loader: 'postcss-loader',
-      options: {
-        sourceMap: true,
-        ident: 'postcss',
-      },
-    },
-  ],
-};
+      {
+        loader: 'postcss-loader',
+        options: {
+          sourceMap: true,
+          postcssOptions: {
+            path: __dirname,
+          }
+        },
+      }
+    ],
+  };
 
 const babelLoaderConfiguration = {
   test: /\.js$/,
@@ -119,6 +121,9 @@ const output = {
 const resolve = {
   alias: {
     pdfkit: 'pdfkit/js/pdfkit.standalone.js',
+    // Theses aliases will be needed for webpack 5.x :
+    // path: require.resolve('path-browserify'),
+    // stream: require.resolve('stream-browserify'),
   },
   extensions: [
     '.js',
@@ -133,7 +138,7 @@ module.exports = {
     rules: [
       babelLoaderConfiguration,
       imageLoaderConfiguration,
-      styleLoaderConfiguration,
+      cssLoaderConfiguration,
       ...fontLoaderConfiguration,
     ],
   },

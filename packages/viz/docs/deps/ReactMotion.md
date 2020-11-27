@@ -1,4 +1,4 @@
-## @tidepool/viz's usage of React Motion
+## tidepool-viz's usage of React Motion
 
 The history of React and animation is not an untroubled one. Tools for even simple CSS3-based animations on mounting and unmounting components—a very common use case—didn't even exist (in the form of the `React(CSS)TransitionGroup` addons) until version [0.5.0](https://github.com/facebook/react/blob/master/CHANGELOG.md#react-with-addons-new 'React CHANGELOG') (released in October of 2013). And even the `ReactCSSTransitionGroup` and `ReactTransitionGroup` solutions are not *great*, as their requirements for successful usage are rather unintuitive.
 

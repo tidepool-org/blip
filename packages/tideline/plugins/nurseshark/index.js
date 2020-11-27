@@ -17,7 +17,6 @@
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter2');
-var util = require('util');
 var bows = require('bows');
 
 var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
@@ -186,7 +185,7 @@ var nurseshark = {
 
     function createUploadIDsMap() {
       var uploads = _.filter(data, {type: 'upload'});
-      _.each(uploads, function(upload) {
+      _.forEach(uploads, function(upload) {
         var source = 'Unknown';
         if (upload.hasOwnProperty('source')) {
           source = upload.source;
@@ -214,12 +213,10 @@ var nurseshark = {
 
     function addNoHandlerMessage(d) {
       d = cloneDeep(d);
-      var err = new Error(util.format('No nurseshark handler defined for type [%s]', d.type));
+      var err = new Error(`No nurseshark handler defined for type ${d.type}`);
       d.errorMessage = err.message;
       return d;
     }
-
-    var lastD, unannotatedRemoval = false;
 
     function process(d) {
       if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
@@ -262,7 +259,6 @@ var nurseshark = {
           typeGroups[d.type].push(d);
         }
       }
-      lastD = d;
     }
 
     timeIt(function() {

@@ -24,21 +24,17 @@ enzyme.configure({
   disableLifecycleMethods: true,
 });
 
-// DOM required
-// ====================================
 
-/* plugins/ */
-require('./chartbasicsfactory_test');
+localStorage.setItem('debug', 'true');
 
 // DOM not required
 // ====================================
 
-/* js/ */
-require('./tidelinedata_test');
 /* js/data/ */
+require('./datetime_test');
 require('./constants_test');
 require('./format_test');
-require('./datetime_test');
+require('./tidelinedata_test');
 require('./basalutil_test');
 require('./bgutil_test');
 require('./bolusutil_test');
@@ -49,11 +45,14 @@ require('./annotations_test');
 require('./commonbolus_test');
 require('./device_test');
 
+// DOM required
+// ====================================
+
 /* plugins/ */
+require('./chartbasicsfactory_test');
 require('./basics_classifiers_test');
 require('./basics_datamunger_test');
 require('./nurseshark_test');
-
 
 require('./blip/components/day/hover/InfusionHoverDisplay.test.js');
 require('./blip/components/logic/actions.test.js');

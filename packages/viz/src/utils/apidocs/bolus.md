@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
+> tidepool-viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
 > jsdoc2md "src/utils/bolus.js"
 
 ## Functions
@@ -262,4 +262,3 @@ isUnderride
 | Param | Type | Description |
 | --- | --- | --- |
 | insulinEvent | <code>Object</code> | a Tidepool bolus or wizard object |
-

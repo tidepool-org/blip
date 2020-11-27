@@ -34,7 +34,7 @@ import { BG_DATA_TYPES } from '../../core/constants';
 import tidelineBlip from 'tideline/plugins/blip';
 const chartDailyFactory = tidelineBlip.oneday;
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents } from 'tidepool-viz';
 const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;

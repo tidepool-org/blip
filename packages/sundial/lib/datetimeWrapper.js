@@ -18,9 +18,6 @@
 // DO NOT PASS GO, DO NOT COLLECT $200
 /* * * * */
 
-'use strict';
-var format = require('util').format;
-
 var datetimeWrapper = function(moment) {
   var DEFAULT_DISPLAY_MASK = 'MMMM D [at] h:mm a';
 
@@ -384,7 +381,7 @@ var datetimeWrapper = function(moment) {
           '-' + offsetInHours : '+' + Math.abs(offsetInHours);
 
         var timezone = {
-          label: format('%s (UTC%s)', tzNames[i], offsetAsString),
+          label: `${tzNames[i]} (UTC${offsetAsString})`,
           value: tzNames[i],
           offset: Number(offsetAsString)
         };

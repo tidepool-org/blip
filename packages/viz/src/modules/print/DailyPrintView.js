@@ -148,7 +148,7 @@ class DailyPrintView extends PrintView {
     const selectedDates = _.slice(dates, -Math.abs(numDays));
     this.chartsByDate = {};
     this.initialChartsByDate = {};
-    _.each(selectedDates, (date) => {
+    _.forEach(selectedDates, (date) => {
       const dateData = data.dataByDate[date];
       this.chartsByDate[date] = { ...dateData };
       this.initialChartsByDate[date] = { ...dateData };
@@ -169,7 +169,7 @@ class DailyPrintView extends PrintView {
     while (this.chartsPlaced < numDays) {
       this.placeChartsOnPage();
     }
-    _.each(this.chartsByDate, (dateChart) => {
+    _.forEach(this.chartsByDate, (dateChart) => {
       this.makeScales(dateChart);
     });
   }
@@ -345,7 +345,7 @@ class DailyPrintView extends PrintView {
   }
 
   render() {
-    _.each(this.chartsByDate, (dateChart) => {
+    _.forEach(this.chartsByDate, (dateChart) => {
       this.doc.switchToPage(dateChart.page);
       this.renderSummary(dateChart)
         .renderXAxes(dateChart)
@@ -640,7 +640,7 @@ class DailyPrintView extends PrintView {
     chart.bolusDetailWidths = Array(8);
 
     // render the vertical lines at three-hr intervals
-    _.each(threeHrLocs, (loc, i) => {
+    _.forEach(threeHrLocs, (loc, i) => {
       let xPos = xScale(loc);
       if (i === 0) {
         xPos = this.chartArea.leftEdge;
@@ -677,7 +677,7 @@ class DailyPrintView extends PrintView {
 
     const renderedBounds = _.pickBy(this.bgBounds, bound => (bound <= this.bgScaleYLimit));
 
-    _.each(renderedBounds, (bound, key) => {
+    _.forEach(renderedBounds, (bound, key) => {
       const bgTick = formatBgValue(bound, this.bgPrefs);
       const xPos = this.chartArea.leftEdge;
       const yPos = bgScale(bound);
@@ -709,7 +709,7 @@ class DailyPrintView extends PrintView {
   }
 
   renderCbgs({ bgScale, data: { cbg: cbgs }, xScale }) {
-    _.each(cbgs, (cbg) => {
+    _.forEach(cbgs, (cbg) => {
       this.doc.circle(xScale(cbg.utc), bgScale(cbg.value), 1)
         .fill(this.colors[classifyBgValue(this.bgBounds, cbg.value)]);
     });
@@ -718,7 +718,7 @@ class DailyPrintView extends PrintView {
   }
 
   renderSmbgs({ bgScale, data: { smbg: smbgs }, xScale }) {
-    _.each(smbgs, (smbg) => {
+    _.forEach(smbgs, (smbg) => {
       const xPos = xScale(smbg.utc);
       const yPos = bgScale(smbg.value);
       const smbgLabel = formatBgValue(smbg.value, this.bgPrefs, getOutOfRangeThreshold(smbg));
@@ -754,14 +754,14 @@ class DailyPrintView extends PrintView {
   }
 
   renderInsulinEvents({ bolusScale, data: { bolus: insulinEvents }, xScale }) {
-    _.each(insulinEvents, (insulinEvent) => {
+    _.forEach(insulinEvents, (insulinEvent) => {
       const paths = getBolusPaths(insulinEvent, xScale, bolusScale, {
         bolusWidth: this.bolusWidth,
         extendedLineThickness: this.extendedLineThickness,
         interruptedLineThickness: this.interruptedLineThickness,
         triangleHeight: this.triangleHeight,
       });
-      _.each(paths, (path) => {
+      _.forEach(paths, (path) => {
         this.renderEventPath(path);
       });
       const carbs = getCarbs(insulinEvent);
@@ -791,7 +791,7 @@ class DailyPrintView extends PrintView {
     const circleOffset = 1;
     const textOffset = 1.75;
 
-    _.each(food, foodEvent => {
+    _.forEach(food, foodEvent => {
       const carbs = _.get(foodEvent, 'nutrition.carbohydrate.net');
 
       if (carbs) {
@@ -831,7 +831,7 @@ class DailyPrintView extends PrintView {
       (d) => (d.threeHrBin / 3),
     );
 
-    _.each(grouped, (binOfBoluses, i) => {
+    _.forEach(grouped, (binOfBoluses, i) => {
       const groupWidth = bolusDetailWidths[i] - 2;
       const groupXPos = bolusDetailPositions[i];
       const yPos = (function (doc) { // eslint-disable-line func-names
@@ -844,7 +844,7 @@ class DailyPrintView extends PrintView {
           },
         };
       }(this.doc));
-      _.each(_.sortBy(binOfBoluses, 'utc'), (bolus) => {
+      _.forEach(_.sortBy(binOfBoluses, 'utc'), (bolus) => {
         const displayTime = formatLocalizedFromUTC(
           bolus.utc,
           this.timePrefs,
@@ -890,7 +890,7 @@ class DailyPrintView extends PrintView {
     };
 
     const labeledSchedules = [];
-    _.each(basal, datum => {
+    _.forEach(basal, datum => {
       if (datum.subType === 'scheduled' && datum.rate > 0 && datum.duration >= 60 * MS_IN_MIN) {
         const newRate = currentSchedule.rate !== datum.rate;
 
@@ -914,7 +914,7 @@ class DailyPrintView extends PrintView {
 
     this.setFill();
 
-    _.each(labeledSchedules, schedule => {
+    _.forEach(labeledSchedules, schedule => {
       const start = xScale(schedule.utc);
 
       this.doc.fontSize(this.extraSmallFontSize);
@@ -931,12 +931,12 @@ class DailyPrintView extends PrintView {
   }
 
   renderBasalPaths({ basalScale, data: { basal, basalSequences: sequences }, xScale }) {
-    _.each(sequences, (sequence) => {
+    _.forEach(sequences, (sequence) => {
       // Skip empty basal sequences -- otherwise getBasalSequencePaths throws error
       if (_.filter(sequence).length) {
         const paths = getBasalSequencePaths(sequence, xScale, basalScale);
 
-        _.each(paths, (path) => {
+        _.forEach(paths, (path) => {
           const opacity = _.includes(['scheduled', 'automated'], path.basalType) ? 0.4 : 0.2;
           const fillColor = path.basalType === 'automated'
             ? this.colors.basalAutomated
@@ -965,7 +965,7 @@ class DailyPrintView extends PrintView {
       const basalPathGroups = getBasalPathGroups(basal);
 
       // Split delivered path into individual segments based on subType
-      _.each(basalPathGroups, (group, index) => {
+      _.forEach(basalPathGroups, (group, index) => {
         const firstDatum = group[0];
         const isAutomated = getBasalPathGroupType(firstDatum) === 'automated';
         const color = isAutomated
@@ -1077,7 +1077,7 @@ class DailyPrintView extends PrintView {
       -1,
       -2.25,
     ];
-    _.each(_.map(range(0, 16, 2), (d) => ([d, d - 7])), (pair) => {
+    _.forEach(_.map(range(0, 16, 2), (d) => ([d, d - 7])), (pair) => {
       const [horizOffset, vertOffset] = pair;
       const adjustedVertOffset = vertOffset + vertOffsetAdjustments[horizOffset / 2];
       let fill;
@@ -1135,7 +1135,7 @@ class DailyPrintView extends PrintView {
       legendBolusYScale,
       bolusOpts
     );
-    _.each(normalPaths, (path) => {
+    _.forEach(normalPaths, (path) => {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth + legendItemLabelOffset;
@@ -1163,7 +1163,7 @@ class DailyPrintView extends PrintView {
       legendBolusYScale,
       bolusOpts
     );
-    _.each(overridePaths, (path) => {
+    _.forEach(overridePaths, (path) => {
       this.renderEventPath(path);
     });
     const underridePaths = getBolusPaths(
@@ -1183,7 +1183,7 @@ class DailyPrintView extends PrintView {
       legendBolusYScale,
       bolusOpts
     );
-    _.each(underridePaths, (path) => {
+    _.forEach(underridePaths, (path) => {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth * 3 + legendItemLabelOffset;
@@ -1204,7 +1204,7 @@ class DailyPrintView extends PrintView {
       legendBolusYScale,
       bolusOpts
     );
-    _.each(interruptedPaths, (path) => {
+    _.forEach(interruptedPaths, (path) => {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth + legendItemLabelOffset;
@@ -1226,7 +1226,7 @@ class DailyPrintView extends PrintView {
       legendBolusYScale,
       bolusOpts
     );
-    _.each(extendedPaths, (path) => {
+    _.forEach(extendedPaths, (path) => {
       this.renderEventPath(path);
     });
     cursor += this.bolusWidth / 2 + 10 + legendItemLabelOffset;

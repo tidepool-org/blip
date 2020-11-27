@@ -1,4 +1,4 @@
-## @tidepool/viz's usage of webpack
+## tidepool-viz's usage of webpack
 
 Our use of [webpack](https://webpack.github.io/ 'webpack module bundler') in this repository is a bit different from our use of it in blip or the Tidepool uploader, where we're using it to build applications. Here we're using webpack to bundle our JavaScript, CSS, and JSON[^a] into a bundle that can be published to the [node package manager](http://npmjs.com/ 'npm') and then included as a dependency in other projects like blip.
 

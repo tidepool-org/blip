@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.2-alpha apidocs /Users/clintbeacock/Sites/tidepool/viz
+> tidepool-viz@0.8.2-alpha apidocs /Users/clintbeacock/Sites/tidepool/viz
 > jsdoc2md "src/utils/datetime.js"
 
 ## Functions
@@ -142,4 +142,3 @@ getLocalizedCeiling
 | --- | --- | --- |
 | utc | <code>String</code> | Zulu timestamp (Integer hammertime also OK) |
 | timePrefs | <code>Object</code> | object containing timezoneAware Boolean and timezoneName String |
-

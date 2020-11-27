@@ -1,4 +1,4 @@
-## @tidepool/viz's usage of GSAP
+## tidepool-viz's usage of GSAP
 
 [GSAP (GreenSock Animation Platform)](https://greensock.com/ 'GreenSock.com: GSAP') is a powerful library for animating HTML5 documents with JavaScript (largely as an alternative to CSS3). GSAP as a product started with [a similar animation library](https://greensock.com/gsap-as 'GSAP ActionScript') for [Flash](https://en.wikipedia.org/wiki/Adobe_Flash 'Wikipedia: Adobe Flash')[^a]. The now more widely used JavaScript library has an extensive and yet still fairly intuitive API that allows for finely-grained control of animations, including an API for sequencing within complex animations that is far over and above what can be accomplished with CSS3's `@keyframes`. The library is available in several separate modules (TweenLite, TweenMax, TimelineLite, TimelineMax) to keep file sizes small (choose what you need), and even the combination of TweenMax + TimelineMax is less than 200KB minified (that's about the size of React + ReactDOM but much less than Angular 2[^b]).
 

@@ -50,11 +50,10 @@ ENV TARGET_ENVIRONMENT=
 ENV API_HOST=
 ENV DIST_DIR=/dist
 WORKDIR /dist
-COPY --from=lambda /server ./server
-COPY --from=deployment /cloudfront-dist ./cloudfront-dist
-COPY --from=deployment /cloudfront-dist/deploy.sh ./deploy.sh
-COPY --from=content /content/static-dist ./static
-COPY --from=content /content/templates ./templates
-RUN chown -R node:node /dist
+COPY --from=lambda --chown=node:node /server ./server
+COPY --from=deployment --chown=node:node /cloudfront-dist ./cloudfront-dist
+COPY --from=deployment --chown=node:node /cloudfront-dist/deploy.sh ./deploy.sh
+COPY --from=content --chown=node:node /content/static-dist ./static
+COPY --from=content --chown=node:node /content/templates ./templates
 ENTRYPOINT [ "/bin/sh" ]
 CMD [ "deploy.sh" ]

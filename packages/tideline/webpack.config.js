@@ -22,10 +22,9 @@ const babelLoaderConfiguration = {
     // Add every directory that needs to be compiled by babel during the build
     path.resolve(appDirectory, 'js'),
     path.resolve(appDirectory, 'plugins'),
-    path.resolve(appDirectory, 'example'),
     path.resolve(appDirectory, 'test'),
   ],
-  exclude: /(node_modules|bower_components)/,
+  exclude: /node_modules/,
   use: {
     loader: 'babel-loader',
     options: {
@@ -43,42 +42,44 @@ const localIdentName = isTest
   ? '[name]--[local]'
   : '[name]--[local]--[hash:base64:5]';
 
-  const lessLoaderConfiguration = {
-    test: /\.less$/,
-    use: [
-      'style-loader',
-      {
-        loader: 'css-loader',
-        options: {
-          importLoaders: 2,
-          sourceMap: true,
-          onlyLocals: false,
-          modules: {
-            auto: true,
-            exportGlobals: true,
-            localIdentName,
-          }
+const lessLoaderConfiguration = {
+  test: /\.less$/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        importLoaders: 2,
+        sourceMap: true,
+        modules: {
+          auto: true,
+          exportGlobals: true,
+          localIdentName,
+        }
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+        postcssOptions: {
+          path: __dirname,
+        }
+      },
+    },
+    {
+      loader: 'less-loader',
+      options: {
+        sourceMap: true,
+        lessOptions: {
+          strictUnits: true,
+          strictMath: true,
+          javascriptEnabled: true, // Deprecated
         },
       },
-      {
-        loader: 'postcss-loader',
-        options: {
-          sourceMap: true,
-        },
-      },
-      {
-        loader: 'less-loader',
-        options: {
-          sourceMap: true,
-          lessOptions: {
-            strictUnits: true,
-            strictMath: true,
-            javascriptEnabled: true, // Deprecated
-          },
-        },
-      },
-    ],
-  };
+    },
+  ],
+};
 
 // This is needed for webpack to import static images in JavaScript files
 const imageLoaderConfiguration = {
@@ -96,8 +97,7 @@ const fontLoaderConfiguration = [
     test: /\.eot$/,
     use: {
       loader: 'url-loader',
-      query: {
-        limit: 10000,
+      options: {
         mimetype: 'application/vnd.ms-fontobject',
       },
     },
@@ -106,8 +106,7 @@ const fontLoaderConfiguration = [
     test: /\.woff$/,
     use: {
       loader: 'url-loader',
-      query: {
-        limit: 10000,
+      options: {
         mimetype: 'application/font-woff',
       },
     },
@@ -116,17 +115,25 @@ const fontLoaderConfiguration = [
     test: /\.ttf$/,
     use: {
       loader: 'url-loader',
-      query: {
-        limit: 10000,
+      options: {
         mimetype: 'application/octet-stream',
       },
     },
   },
 ];
 
+const resolve = {
+  alias: {
+    // Theses aliases will be needed for webpack 5.x :
+    // crypto: require.resolve('crypto-browserify'),
+    // path: require.resolve('path-browserify'),
+    // stream: require.resolve('stream-browserify'),
+  },
+};
+
 module.exports = {
   devtool: 'sourcemap',
-  entry: './example/example.js',
+  entry: './js/index.js',
   output,
   mode: isDev || isTest ? 'development' : 'production',
   module: {
@@ -137,5 +144,7 @@ module.exports = {
       ...fontLoaderConfiguration,
     ]
   },
-  plugins
+  plugins,
+  resolve,
+  resolveLoader: resolve,
 };

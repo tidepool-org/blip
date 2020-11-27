@@ -15,7 +15,7 @@
   "ignorePatterns": [
     "**/dist/*",
     "**/node_modules/*",
-    "server/templates/cloudfront-lambda-blip-request-viewer.js"
+    "templates/cloudfront-lambda-blip-request-viewer.js"
   ],
   "rules": {
     "quotes": [

@@ -27,6 +27,15 @@ import SettingsPrintView from './SettingsPrintView';
 import { reshapeBgClassesToBgBounds } from '../../utils/bloodglucose';
 
 import * as constants from './utils/constants';
+import { arrayBufferToBase64 } from './utils/functions';
+
+// TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
+// branding should make use of artifact.sh to download specific branding artifacts such as images
+import logo from './images/diabeloop/ylp_logo_small.png';
+import siteChangeCannulaImage from './images/sitechange-cannula.png';
+import siteChangeReservoirImage from './images/sitechange-reservoir.png';
+import siteChangeTubingImage from './images/sitechange-tubing.png';
+import siteChangeReservoirDiabeloopImage from './images/diabeloop/sitechange-diabeloop.png';
 
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
   // Return key if no translation is present
@@ -46,6 +55,67 @@ export const utils = {
   BgLogPrintView,
   SettingsPrintView,
 };
+
+async function loadImages() {
+  const base64Flag = 'data:image/jpeg;base64,';
+  let imageStr = '';
+
+  if (constants.Images.logo === null) {
+    if (logo.startsWith(base64Flag)) {
+      imageStr = logo;
+    } else {
+      const response = await fetch(logo);
+      const buffer = await response.arrayBuffer();
+      imageStr = base64Flag + arrayBufferToBase64(buffer);
+
+    }
+    constants.Images.logo = imageStr;
+  }
+
+  if (constants.Images.siteChangeCannulaImage === null) {
+    if (siteChangeCannulaImage.startsWith(base64Flag)) {
+      imageStr = siteChangeCannulaImage;
+    } else {
+      const response = await fetch(siteChangeCannulaImage);
+      const buffer = await response.arrayBuffer();
+      imageStr = base64Flag + arrayBufferToBase64(buffer);
+    }
+    constants.Images.siteChangeCannulaImage = imageStr;
+  }
+
+  if (constants.Images.siteChangeReservoirImage === null) {
+    if (siteChangeReservoirImage.startsWith(base64Flag)) {
+      imageStr = siteChangeReservoirImage;
+    } else {
+      const response = await fetch(siteChangeReservoirImage);
+      const buffer = await response.arrayBuffer();
+      imageStr = base64Flag + arrayBufferToBase64(buffer);
+    }
+    constants.Images.siteChangeReservoirImage = imageStr;
+  }
+
+  if (constants.Images.siteChangeTubingImage === null) {
+    if (siteChangeTubingImage.startsWith(base64Flag)) {
+      imageStr = siteChangeTubingImage;
+    } else {
+      const response = await fetch(siteChangeTubingImage);
+      const buffer = await response.arrayBuffer();
+      imageStr = base64Flag + arrayBufferToBase64(buffer);
+    }
+    constants.Images.siteChangeTubingImage = imageStr;
+  }
+
+  if (constants.Images.siteChangeReservoirDiabeloopImage === null) {
+    if (siteChangeReservoirDiabeloopImage.startsWith(base64Flag)) {
+      imageStr = siteChangeReservoirDiabeloopImage;
+    } else {
+      const response = await fetch(siteChangeReservoirDiabeloopImage);
+      const buffer = await response.arrayBuffer();
+      imageStr = base64Flag + arrayBufferToBase64(buffer);
+    }
+    constants.Images.siteChangeReservoirDiabeloopImage = imageStr;
+  }
+}
 
 /**
  * createPrintView
@@ -186,4 +256,9 @@ export function createPrintPDFPackage(data, opts) {
   });
 }
 
-export default createPrintPDFPackage;
+async function doPrint(data, opts) {
+  await loadImages();
+  return createPrintPDFPackage(data, opts);
+}
+
+export default doPrint;

@@ -31,7 +31,6 @@ import {
 } from '../../utils/datetime';
 
 import { getPatientFullName } from '../../utils/misc';
-
 import {
   DPI,
   MARGINS,
@@ -43,13 +42,10 @@ import {
   HEADER_FONT_SIZE,
   LARGE_FONT_SIZE,
   SMALL_FONT_SIZE,
+  Images,
 } from './utils/constants';
 
 const t = i18next.t.bind(i18next);
-
-// TO_DO have a configuration variable to support specific branding or not like done e.g. in Blip
-// branding should make use of artifact.sh to download specific branding artifacts such as images
-const logo = require('./images/diabeloop/ylp_logo_small.png');
 
 class PrintView {
   constructor(doc, data = {}, opts) {
@@ -777,7 +773,7 @@ class PrintView {
     const xOffset = this.doc.page.width - this.logoWidth - this.margins.right;
     const yOffset = this.margins.top + 5;
 
-    this.doc.image(logo, xOffset, yOffset, { width: this.logoWidth });
+    this.doc.image(Images.logo, xOffset, yOffset, { width: this.logoWidth });
   }
 
   renderDebugGrid() {

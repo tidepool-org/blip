@@ -21,7 +21,7 @@ import React from 'react';
 import { Trans, translate } from 'react-i18next';
 
 import utils from '../../core/utils';
-import * as viz from '@tidepool/viz';
+import * as viz from 'tidepool-viz';
 
 import Header from './header';
 import Footer from './footer';

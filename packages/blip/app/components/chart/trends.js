@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
-import * as viz from '@tidepool/viz';
+import * as viz from 'tidepool-viz';
 
 import Header from './header';
 import SubNav from './trendssubnav';

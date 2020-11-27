@@ -1,0 +1,13 @@
+{
+  "version": "1.8.0",
+  "npmClient": "npm",
+  "command": {
+  },
+  "packages": [
+    "packages/sundial",
+    "packages/platform-client",
+    "packages/tideline",
+    "packages/viz",
+    "packages/blip"
+  ]
+}

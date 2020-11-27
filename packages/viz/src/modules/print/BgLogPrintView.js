@@ -91,7 +91,7 @@ class BgLogPrintView extends PrintView {
 
     const row = {};
 
-    _.each(this.bgChart.columns, ({ id }) => {
+    _.forEach(this.bgChart.columns, ({ id }) => {
       if (id === 'date') {
         row[id] = {
           text: dateMoment.format(t('ddd, MMM D')),
@@ -264,7 +264,7 @@ class BgLogPrintView extends PrintView {
             width: width - padding.left - padding.right,
           });
       } else if (smbg.length) {
-        _.each(smbg, datum => {
+        _.forEach(smbg, datum => {
           const xScale = scaleLinear()
             .domain([id, id + (MS_IN_HOUR * 3)])
             .range([pos.x, pos.x + width]);

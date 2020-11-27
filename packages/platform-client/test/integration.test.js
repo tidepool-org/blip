@@ -18,15 +18,16 @@ var _ = require('lodash');
 var async = require('async');
 var superagent = require('superagent');
 const fetch = require('node-fetch');
-var storage = require('./../../lib/inMemoryStorage');
+var storage = require('../lib/inMemoryStorage');
 
-var platform = require('../../index.js');
-var pjson = require('../../package.json');
+var platform = require('../index.js');
+var pjson = require('../package.json');
 
 const { expect } = chai;
 
 describe('platform client', function () {
 
+  // @ts-ignore
   global.fetch = fetch;
 
   /**
@@ -42,7 +43,7 @@ describe('platform client', function () {
   *
   * This will typically be a diabetic :)
   */
-  var a_PWD = {
+  var aPWD = {
     id: null,
     token: null,
     username: 'a_PWD@user.com',
@@ -66,7 +67,7 @@ describe('platform client', function () {
   * - parent of someone with diabeties
   * - dr or another health professional
   */
-  var a_Member = {
+  var aMember = {
     id: null,
     token: null,
     username: 'test+platform-client+integration@tidepool.org',
@@ -135,7 +136,7 @@ describe('platform client', function () {
     var noLoginOpts = {};
 
     async.parallel(
-      [createClientWithUser.bind(null, a_PWD,noLoginOpts,storage()), createClientWithUser.bind(null, a_Member,noLoginOpts,storage())],
+      [createClientWithUser.bind(null, aPWD,noLoginOpts,storage()), createClientWithUser.bind(null, aMember,noLoginOpts,storage())],
       function(err, clients) {
         expect(err).to.not.exist;
         pwdClient = clients[0];
@@ -190,7 +191,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is false the user does NOT stay logged in', function (done) {
 
-      createClientWithUser(a_PWD, {remember:false}, storage(),function(error,loggedIn){
+      createClientWithUser(aPWD, {remember:false}, storage(),function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -203,7 +204,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is not set the user does NOT stay logged in', function (done) {
 
-      createClientWithUser(a_PWD, {} , storage(), function(error,loggedIn){
+      createClientWithUser(aPWD, {} , storage(), function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -219,7 +220,7 @@ describe('platform client', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
 
-      createClientWithUser(a_PWD, defaulted, defaulted,function(error,loggedInApp){
+      createClientWithUser(aPWD, defaulted, defaulted,function(error,loggedInApp){
 
         expect(error).to.not.exist;
         loggedInApp.trackMetric('Platform Client Metrics Test',defaulted,done);
@@ -228,7 +229,7 @@ describe('platform client', function () {
     });
     it('log errors to tidepool', function (done) {
 
-      createClientWithUser(a_PWD, defaulted , defaulted, function(error,loggedInApp){
+      createClientWithUser(aPWD, defaulted , defaulted, function(error,loggedInApp){
 
         expect(error).to.not.exist;
         var appErrorToLog = new Error('Error From Platform Client Tests');
@@ -241,7 +242,7 @@ describe('platform client', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
       async.parallel(
-        [pwdClient.addOrUpdateProfile.bind(null, a_PWD.id, a_PWD.profile), memberClient.addOrUpdateProfile.bind(null, a_Member.id, a_Member.profile)],
+        [pwdClient.addOrUpdateProfile.bind(null, aPWD.id, aPWD.profile), memberClient.addOrUpdateProfile.bind(null, aMember.id, aMember.profile)],
         function(err, profiles) {
           expect(err).to.not.exist;
           done();
@@ -250,18 +251,18 @@ describe('platform client', function () {
     });
     it('get another users public profile', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
-      pwdClient.findProfile(a_Member.id, function (error, profile) {
+      pwdClient.findProfile(aMember.id, function (error, profile) {
         expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
     it('get the logged in users profile', function (done) {
       //logged in as a_Member you can get your profile
-      memberClient.findProfile(a_Member.id, function (error, profile) {
+      memberClient.findProfile(aMember.id, function (error, profile) {
         expect(error).to.not.exist;
 
         expect(profile).to.be.exist;
-        expect(profile.fullName).to.equal(a_Member.profile.fullName);
+        expect(profile.fullName).to.equal(aMember.profile.fullName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
         done();
@@ -272,7 +273,7 @@ describe('platform client', function () {
     it('so we can add or update the logged in user\'s preferences', function (done) {
     //add or update for both our users
       async.parallel(
-        [pwdClient.addOrUpdatePreferences.bind(null, a_PWD.id, a_PWD.preferences), memberClient.addOrUpdatePreferences.bind(null, a_Member.id, a_Member.preferences)],
+        [pwdClient.addOrUpdatePreferences.bind(null, aPWD.id, aPWD.preferences), memberClient.addOrUpdatePreferences.bind(null, aMember.id, aMember.preferences)],
         function(err, preferences) {
           expect(err).to.not.exist;
           done();
@@ -281,18 +282,18 @@ describe('platform client', function () {
     });
     it('get another user\'s public preferences', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
-      pwdClient.findPreferences(a_Member.id, function (error, settings) {
+      pwdClient.findPreferences(aMember.id, function (error, settings) {
         expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
     it('get the logged in user\'s preferences', function (done) {
       //logged in as a_Member you can get your profile
-      memberClient.findPreferences(a_Member.id, function (error, preferences) {
+      memberClient.findPreferences(aMember.id, function (error, preferences) {
         expect(error).to.not.exist;
 
         expect(preferences).to.be.exist;
-        expect(preferences.display).to.equal(a_Member.preferences.display);
+        expect(preferences.display).to.equal(aMember.preferences.display);
         done();
       });
     });
@@ -301,7 +302,7 @@ describe('platform client', function () {
     it('so we can add or update the logged in user\'s settings', function (done) {
     //add or update for both our users
       async.parallel(
-        [pwdClient.addOrUpdateSettings.bind(null, a_PWD.id, a_PWD.settings), memberClient.addOrUpdateSettings.bind(null, a_Member.id, a_Member.settings)],
+        [pwdClient.addOrUpdateSettings.bind(null, aPWD.id, aPWD.settings), memberClient.addOrUpdateSettings.bind(null, aMember.id, aMember.settings)],
         function(err, settings) {
           expect(err).to.not.exist;
           done();
@@ -310,18 +311,18 @@ describe('platform client', function () {
     });
     it('get another user\'s public settings', function (done) {
       //logged in as a_PWD you can get the profile for a_Member
-      pwdClient.findSettings(a_Member.id, function (error, settings) {
+      pwdClient.findSettings(aMember.id, function (error, settings) {
         expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
     it('get the logged in user\'s settings', function (done) {
       //logged in as a_Member you can get your profile
-      memberClient.findSettings(a_Member.id, function (error, settings) {
+      memberClient.findSettings(aMember.id, function (error, settings) {
         expect(error).to.not.exist;
 
         expect(settings).to.be.exist;
-        expect(settings.siteChangeSource).to.equal(a_Member.settings.siteChangeSource);
+        expect(settings.siteChangeSource).to.equal(aMember.settings.siteChangeSource);
         done();
       });
     });
@@ -335,7 +336,7 @@ describe('platform client', function () {
     * Give a_Memeber to a_PWD for these tests
     */
     before(function (done) {
-      pwdClient.setAccessPermissions(a_Member.id, {view: {}}, function(err, permissions) {
+      pwdClient.setAccessPermissions(aMember.id, {view: {}}, function(err, permissions) {
         expect(err).to.not.exist;
         expect(permissions).to.deep.equal({view: {}});
         done();
@@ -346,7 +347,7 @@ describe('platform client', function () {
     * Revoke a_Member permissons to a_PWD after these tests
     */
     after(function (done) {
-      pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
+      pwdClient.setAccessPermissions(aMember.id, null, function(err, permissions) {
         expect(err).to.not.exist;
         expect(permissions).to.not.exist;
         done();
@@ -356,8 +357,8 @@ describe('platform client', function () {
     it('so a_PWD can add a note that goes to the team also', function (done) {
 
       noteToAdd = {
-        userid: a_PWD.id,
-        groupid: a_PWD.id,
+        userid: aPWD.id,
+        groupid: aPWD.id,
         timestamp: new Date().toISOString(),
         messagetext: 'In three words I can sum up everything I have learned about life: it goes on.'
       };
@@ -374,8 +375,8 @@ describe('platform client', function () {
 
       //comment on the note
       commentOnNote = {
-        userid: a_Member.id,
-        groupid: a_PWD.id,
+        userid: aMember.id,
+        groupid: aPWD.id,
         parentmessage : noteToAddId,
         timestamp: new Date().toISOString(),
         messagetext: 'Good point bro!'
@@ -391,8 +392,8 @@ describe('platform client', function () {
 
       //comment on the note
       var noteFromAMember = {
-        userid: a_Member.id,
-        groupid: a_PWD.id,
+        userid: aMember.id,
+        groupid: aPWD.id,
         timestamp: new Date().toISOString(),
         messagetext: 'Just a note to say you should consider ....'
       };
@@ -429,7 +430,7 @@ describe('platform client', function () {
         end : new Date()
       };
 
-      memberClient.getAllMessagesForUser(a_PWD.id, dates, function (error, data) {
+      memberClient.getAllMessagesForUser(aPWD.id, dates, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -439,7 +440,7 @@ describe('platform client', function () {
     });
     it('a_PWD can get all notes (i.e. no comments)', function (done) {
 
-      pwdClient.getNotesForUser(a_PWD.id, null, function (error, data) {
+      pwdClient.getNotesForUser(aPWD.id, null, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -454,8 +455,8 @@ describe('platform client', function () {
     it('a user can edit the content of their note', function (done) {
 
       var noteToAdd = {
-        userid: a_PWD.id,
-        groupid: a_PWD.id,
+        userid: aPWD.id,
+        groupid: aPWD.id,
         timestamp: new Date().toISOString(),
         messagetext: 'we will update this'
       };
@@ -479,8 +480,8 @@ describe('platform client', function () {
     it('a user can edit the time of their note', function (done) {
 
       var noteToAdd = {
-        userid: a_PWD.id,
-        groupid: a_PWD.id,
+        userid: aPWD.id,
+        groupid: aPWD.id,
         timestamp: new Date().toISOString(),
         messagetext: 'a random note - we will update the time'
       };
@@ -517,7 +518,7 @@ describe('platform client', function () {
     var notesForThePatientpwd;
 
     it('so we can give a_Member permisson to view a_PWD', function(done){
-      pwdClient.setAccessPermissions(a_Member.id, {view: {}}, function(err, permissions) {
+      pwdClient.setAccessPermissions(aMember.id, {view: {}}, function(err, permissions) {
         expect(err).to.not.exist;
         expect(permissions).to.deep.equal({view: {}});
         done();
@@ -525,7 +526,7 @@ describe('platform client', function () {
     });
 
     it('so a_Member has a_PWD as a viewable user', function (done) {
-      memberClient.getViewableUsers(a_Member.id, function (error, viewableUsers) {
+      memberClient.getViewableUsers(aMember.id, function (error, viewableUsers) {
         expect(error).to.not.exist;
         expect(viewableUsers).to.exist;
         careTeamViewable = viewableUsers;
@@ -534,11 +535,11 @@ describe('platform client', function () {
     });
 
     it('and a_PWD has a_Member included in the team ', function (done) {
-      pwdClient.getTeamMembers(a_PWD.id, function (error, team) {
+      pwdClient.getTeamMembers(aPWD.id, function (error, team) {
         expect(error).to.not.exist;
         var expectation = {};
-        expectation[a_PWD.id] = {root: {}};
-        expectation[a_Member.id] = {view: {}};
+        expectation[aPWD.id] = {root: {}};
+        expectation[aMember.id] = {view: {}};
 
         expect(team).to.deep.equal(expectation);
         pwdsTeam = team;
@@ -547,14 +548,14 @@ describe('platform client', function () {
     });
 
     it('but a_Member cannot see the other team members for a_PWD', function (done) {
-      memberClient.getTeamMembers(a_PWD.id, function (error, patientsTeam) {
+      memberClient.getTeamMembers(aPWD.id, function (error, patientsTeam) {
         expect(error).to.include({ status: 401, body: 'Unauthorized' });
         done();
       });
     });
 
     it('a_Member can see the messages for a_PWD', function (done) {
-      pwdClient.getNotesForUser(a_PWD.id, null, function (error, patientsNotes) {
+      pwdClient.getNotesForUser(aPWD.id, null, function (error, patientsNotes) {
         expect(patientsNotes).to.exist;
         expect(patientsNotes).to.have.length.above(0);
         notesForThePatientpwd = patientsNotes;
@@ -563,7 +564,7 @@ describe('platform client', function () {
     });
 
     it('a_Member sees the messages as a_PWD sees them', function (done) {
-      memberClient.getNotesForUser(a_PWD.id, null, function (error, pwdTeamNotes) {
+      memberClient.getNotesForUser(aPWD.id, null, function (error, pwdTeamNotes) {
         expect(pwdTeamNotes).to.exist;
         expect(pwdTeamNotes).to.have.length.above(0);
         expect(pwdTeamNotes).that.deep.equals(notesForThePatientpwd);
@@ -572,7 +573,7 @@ describe('platform client', function () {
     });
 
     it('a_PWD can remove the permissions for a_Member', function(done) {
-      pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
+      pwdClient.setAccessPermissions(aMember.id, null, function(err, permissions) {
         expect(err).to.not.exist;
         expect(permissions).to.not.exist;
         done();
@@ -601,7 +602,7 @@ describe('platform client', function () {
       });
     });
     it('so we can request the pw if forgotten - no info', function(done) {
-      pwResetClient.requestPasswordReset(a_Member.emails[0], true, 'en', function(err) {
+      pwResetClient.requestPasswordReset(aMember.emails[0], true, 'en', function(err) {
         if (_.isEmpty(err)) {
           done();
         } else {
@@ -611,7 +612,7 @@ describe('platform client', function () {
       }, false);
     });
     it('so we can request the pw if forgotten - with info', function(done) {
-      pwResetClient.requestPasswordReset(a_Member.emails[0], true, 'en', function(err) {
+      pwResetClient.requestPasswordReset(aMember.emails[0], true, 'en', function(err) {
         if (_.isEmpty(err)) {
           done();
         } else {
@@ -688,7 +689,7 @@ describe('platform client', function () {
     };
     it('using a restricted token', function (done) {
       pwdClient.createRestrictedTokenForUser(
-        a_PWD.id,
+        aPWD.id,
         dataSourceFilter, function(error, restrictedToken){
           expect(error).to.not.exist;
           expect(restrictedToken).to.exist;
@@ -698,7 +699,7 @@ describe('platform client', function () {
 
     it('adding an OAuth provider authorization', function (done) {
       pwdClient.createRestrictedTokenForUser(
-        a_PWD.id,
+        aPWD.id,
         dataSourceFilter, function(error, restrictedToken){
           expect(error).to.not.exist;
           expect(restrictedToken).to.exist;
@@ -732,19 +733,19 @@ describe('platform client', function () {
       //get all that I have sent and remove them
       async.parallel(
       [function(callback){
-        memberClient.invitesSent(a_Member.id, function(err, sent) {
+        memberClient.invitesSent(aMember.id, function(err, sent) {
             _.forEach(sent, function(invite) {
               console.log('memberClient cleanup invite ',invite.email);
-              memberClient.removeInvite(invite.email, a_Member.id, function(err,resp){});
+              memberClient.removeInvite(invite.email, aMember.id, function(err,resp){});
             });
             callback();
           });
       },
       function(callback){
-        pwdClient.invitesSent(a_PWD.id, function(err, sent) {
+        pwdClient.invitesSent(aPWD.id, function(err, sent) {
           _.forEach(sent, function(invite) {
             console.log('pwdClient cleanup invite ',invite.email);
-            pwdClient.removeInvite(invite.email, a_PWD.id, function(err,resp){});
+            pwdClient.removeInvite(invite.email, aPWD.id, function(err,resp){});
           });
           callback();
         });
@@ -755,11 +756,11 @@ describe('platform client', function () {
     });
     //skipped as we require an email for sending of the invites for these integration tests.
     it('so we can invite a_Member to be on the team of a_PWD', function(done){
-      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
+      pwdClient.inviteUser(aMember.emails[0], {view: {}}, aPWD.id, function(err, invite) {
         //might be dup but just ensure we have an invite to accept
-        memberClient.invitesReceived(a_Member.id, function(err, received) {
+        memberClient.invitesReceived(aMember.id, function(err, received) {
           expect(received).to.have.length.above(0);
-          memberClient.acceptInvite(received[0].key, a_Member.id, a_PWD.id, function(err, accept) {
+          memberClient.acceptInvite(received[0].key, aMember.id, aPWD.id, function(err, accept) {
             expect(err).to.not.exist;
             done();
           });
@@ -767,11 +768,11 @@ describe('platform client', function () {
       });
     });
     it('a_Member can dismiss an the invite from a_PWD', function(done){
-      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
+      pwdClient.inviteUser(aMember.emails[0], {view: {}}, aPWD.id, function(err, invite) {
         //might be dup but just ensure we have an invite to dismiss
-        memberClient.invitesReceived(a_Member.id, function(err, received) {
+        memberClient.invitesReceived(aMember.id, function(err, received) {
           expect(received).to.have.length.above(0);
-          memberClient.dismissInvite(received[0].key, a_Member.id, a_PWD.id,function(err, dismiss) {
+          memberClient.dismissInvite(received[0].key, aMember.id, aPWD.id,function(err, dismiss) {
             expect(err).to.not.exist;
             done();
           });
@@ -779,7 +780,7 @@ describe('platform client', function () {
       });
     });
     it('a_Member can see the invites they have sent', function(done){
-      memberClient.invitesSent(a_Member.id, function(err, sent) {
+      memberClient.invitesSent(aMember.id, function(err, sent) {
         expect(err).to.not.exist;
         expect(sent).to.have.length.above(0);
         //test what we can see
@@ -789,8 +790,8 @@ describe('platform client', function () {
       });
     });
     it('a_Member can see the invites they have received', function(done){
-      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
-        memberClient.invitesReceived(a_Member.id, function(err, received) {
+      pwdClient.inviteUser(aMember.emails[0], {view: {}}, aPWD.id, function(err, invite) {
+        memberClient.invitesReceived(aMember.id, function(err, received) {
           expect(err).to.not.exist;
           expect(received).to.not.be.empty;
           //test what we can see
@@ -801,8 +802,8 @@ describe('platform client', function () {
       });
     });
     it('a_PWD can cancel an invite they sent to a_Member', function(done){
-      memberClient.inviteUser(a_PWD.emails[0], {view: {}}, a_Member.id, function(err, invite) {
-        pwdClient.removeInvite(a_Member.emails[0], a_PWD.id, function(err,resp){
+      memberClient.inviteUser(aPWD.emails[0], {view: {}}, aMember.id, function(err, invite) {
+        pwdClient.removeInvite(aMember.emails[0], aPWD.id, function(err,resp){
           expect(err).to.not.exist;
           done();
         });

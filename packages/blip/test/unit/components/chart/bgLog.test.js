@@ -29,7 +29,7 @@ import _ from 'lodash';
 import BgLog from '../../../../app/components/chart/bgLog';
 import { shallow, mount } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents } from 'tidepool-viz';
 import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
 

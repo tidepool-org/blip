@@ -33,7 +33,7 @@ import { BG_DATA_TYPES } from '../../core/constants';
 import tidelineBlip from 'tideline/plugins/blip';
 const chartBgLogFactory = tidelineBlip.twoweek;
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents } from 'tidepool-viz';
 const Loader = vizComponents.Loader;
 
 import Header from './header';

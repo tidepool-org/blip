@@ -14,7 +14,7 @@
 // == BSD2 LICENSE ==
 
 const chai = require('chai');
-var id = require('./../../lib/id');
+var id = require('../lib/id');
 
 const { expect } = chai;
 

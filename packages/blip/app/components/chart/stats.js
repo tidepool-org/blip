@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
-import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
+import { utils as vizUtils, components as vizComponents } from 'tidepool-viz';
 
 import { BG_DATA_TYPES } from '../../core/constants';
 

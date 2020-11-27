@@ -102,7 +102,7 @@ class SettingsPrintView extends PrintView {
       ['desc', 'asc']
     );
 
-    _.each(sortedSchedules, schedule => {
+    _.forEach(sortedSchedules, schedule => {
       const profile = tandemBasal(schedule, this.data, this.bgUnits);
 
       const heading = {
@@ -327,7 +327,7 @@ class SettingsPrintView extends PrintView {
 
     const automatedScheduleShowing = _.some(sortedSchedules, { isAutomated: true });
 
-    _.each(sortedSchedules, (schedule, index) => {
+    _.forEach(sortedSchedules, (schedule, index) => {
       const columnIndex = automatedScheduleShowing && index > 0 ? index - 1 : index;
       const activeColumn = columnIndex < this.layoutColumns.count
         ? columnIndex % this.layoutColumns.count

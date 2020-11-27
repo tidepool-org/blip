@@ -9,7 +9,7 @@ import { translate, Trans } from 'react-i18next';
 import tidelineBlip from 'tideline/plugins/blip';
 const BasicsChart = tidelineBlip.basics;
 
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
 const Loader = vizComponents.Loader;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 

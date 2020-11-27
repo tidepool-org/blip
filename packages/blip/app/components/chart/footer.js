@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { translate } from 'react-i18next';
 
-import { components } from '@tidepool/viz';
+import { components } from 'tidepool-viz';
 const RangeSelect = components.RangeSelect;
 
 var TidelineFooter = translate()(class extends React.Component {

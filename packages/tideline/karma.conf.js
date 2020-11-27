@@ -1,5 +1,4 @@
-
-const webpackConf = require('./webpack.config.js');
+const webpackConf = require('./webpack.config');
 
 webpackConf.externals = {
   cheerio: 'window',
@@ -10,9 +9,6 @@ webpackConf.externals = {
 
 webpackConf.devtool = 'inline-source-map';
 
-webpackConf.output = {
-  filename: '[name].js',
-};
 webpackConf.node = {
   fs: 'empty',
   module: 'empty'
@@ -24,45 +20,50 @@ if (!isWSL) {
   browsers.push('FirefoxHeadless');
 }
 
-module.exports = function karmaConfig(config) {
-  config.set({
-    autoWatch: true,
-    browserNoActivityTimeout: 60000,
-    browsers,
-    captureTimeout: 60000,
-    colors: true,
-    concurrency: 1,
-    coverageReporter: {
-      dir: 'coverage/',
-      reporters: [
-        { type: 'html' },
-        { type: 'text' },
+const karmaConfig = {
+  autoWatch: true,
+  browserNoActivityTimeout: 60000,
+  browsers,
+  captureTimeout: 60000,
+  colors: true,
+  concurrency: 1,
+  coverageReporter: {
+    dir: 'coverage/',
+    reporters: [
+      { type: 'html' },
+      { type: 'text' },
+    ],
+  },
+  customLaunchers: {
+    CustomChromeHeadless: {
+      base: 'ChromeHeadless',
+      flags: [
+        '--headless',
+        '--disable-gpu',
+        '--no-sandbox',
+        '--remote-debugging-port=9222',
       ],
     },
-    customLaunchers: {
-      CustomChromeHeadless: {
-        base: 'ChromeHeadless',
-        flags: [
-          '--headless',
-          '--disable-gpu',
-          '--no-sandbox',
-          '--remote-debugging-port=9222',
-        ],
-      },
-    },
-    files: [
-      'test/index.js',
-    ],
-    frameworks: ['mocha', 'chai', 'sinon'],
-    logLevel: config.LOG_INFO,
-    preprocessors: {
-      'test/index.js': ['webpack', 'sourcemap'],
-    },
-    reporters: ['mocha'],
-    singleRun: true,
-    webpack: webpackConf,
-    webpackMiddleware: {
-      noInfo: true
-    },
-  });
+  },
+  files: [
+    'test/index.js',
+  ],
+  frameworks: ['mocha', 'chai', 'sinon'],
+  logLevel: null,
+  preprocessors: {
+    'test/index.js': ['webpack', 'sourcemap'],
+  },
+  reporters: ['mocha'],
+  singleRun: true,
+  webpack: webpackConf,
+  webpackMiddleware: {
+    noInfo: true
+  },
 };
+
+function setKarmaConfig(config) {
+  karmaConfig.logLevel = config.LOG_INFO;
+  config.set(karmaConfig);
+}
+
+module.exports = setKarmaConfig;

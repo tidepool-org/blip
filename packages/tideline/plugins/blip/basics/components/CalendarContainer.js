@@ -26,7 +26,6 @@ var React = require('react');
 
 var createReactClass = require('create-react-class');
 
-var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
 var BasicsUtils = require('./BasicsUtils');
 
@@ -95,7 +94,7 @@ var CalendarContainer = createReactClass({
     return null;
   },
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     var self = this;
     var options = this.props.selectorOptions;
     var data = (this.props.type !== constants.SECTION_TYPE_UNDECLARED) ? this.props.data[this.props.type].summary : null;

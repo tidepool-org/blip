@@ -537,7 +537,7 @@ describe('TidelineData', function() {
     editedMessage.messageText = 'This is an edited note.';
 
     // Sometimes Travis VM can take longer than 2s to perform this test.
-    this.timeout(3000);
+    this.timeout(4000);
 
     it('should be a function', function() {
       assert.isFunction(td.editDatum);

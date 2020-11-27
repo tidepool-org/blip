@@ -24,7 +24,7 @@ pipeline {
         stage('Test') {
             agent {
                 dockerfile {
-                    filename 'dockerfile.build'
+                    filename 'Dockerfile.build'
                     reuseNode true
                 }
             }
@@ -33,6 +33,7 @@ pipeline {
                     sh 'npm install'
                     sh 'npm run lint'
                     sh 'npm run test'
+                    sh 'npm run test-lambda'
                     sh 'npm run security-checks'
                 }
             }
@@ -40,7 +41,7 @@ pipeline {
         stage('Build') {
             agent {
                 dockerfile {
-                    filename 'dockerfile.build'
+                    filename 'Dockerfile.build'
                     reuseNode true
                 }
             }

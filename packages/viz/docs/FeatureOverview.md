@@ -82,7 +82,7 @@ The device settings view is the simplest, showing just a relatively simple tabul
 
 Because Tandem pumps require a quite different visual representation (as well as a different structure to the data model) to capture the way the settings are programmed, the release of support for Tandem pumps was our forcing function for writing new code to display the Tandem settings, and so we also reimplemented the device settings display for all other Tidepool-supported pumps.
 
-A new feature added as part of the reimplementation is the preservation of open or collapsed basal schedules (or Tandem "timed profiles") even when the user navigates away from Device Settings to elsewhere in the app before coming back. Leveraging blip's Redux store to manage the state of each collapsible section made this feature-add quite easy. (See [@tidepool/viz's usage of Redux](./deps/Redux.md) for more information on managing visualization state through blip's redux store.)
+A new feature added as part of the reimplementation is the preservation of open or collapsed basal schedules (or Tandem "timed profiles") even when the user navigates away from Device Settings to elsewhere in the app before coming back. Leveraging blip's Redux store to manage the state of each collapsible section made this feature-add quite easy. (See [tidepool-viz's usage of Redux](./deps/Redux.md) for more information on managing visualization state through blip's redux store.)
 
 [💣 tech debt 💣] Only the most recent insulin pump settings are displayed, and a blip user cannot navigate along the datetime dimension at all to view older insulin pump settings.
 

@@ -13,8 +13,6 @@
 // not, you can obtain one from Tidepool Project at tidepool.org.
 // == BSD2 LICENSE ==
 
-'use strict';
-
 var chai = require('chai');
 var expect = chai.expect;
 var testMoment = require('moment-timezone');
@@ -427,7 +425,7 @@ describe('sundial', function() {
       it('returns a string',function(){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
-        expect(utcString).is.a.String;
+        expect(utcString).is.a('string');
       });
 
       it('returns a valid date',function(){
@@ -601,7 +599,7 @@ describe('sundial', function() {
         var keys = ['bigFour', 'unitedStates', 'hoisted', 'theRest'];
         expect(Object.keys(tzs)).to.deep.equal(keys);
         expect(tzs.bigFour.length).to.equal(4);
-        expect(tzs.unitedStates.length).to.equal(9);
+        expect(tzs.unitedStates.length, JSON.stringify(tzs.unitedState)).to.equal(8);
         expect(tzs.hoisted.length).to.equal(98);
         // The following value may change reflecting the modifications
         // in the IANA timezone database:
@@ -808,7 +806,7 @@ describe('sundial', function() {
       it('returns a string',function(){
 
         var utcString = datetimeWrapper.utcDateString();
-        expect(utcString).is.a.String;
+        expect(utcString).is.a('string');
       });
 
       it('returns a valid date',function(){

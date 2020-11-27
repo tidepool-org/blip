@@ -91,7 +91,7 @@ export function convertToMmolL(val) {
  * reshapeBgClassesToBgBounds
  * @param {Object} bgPrefs - bgPrefs object from blip containing tideline-style bgClasses
  *
- * @return {Object} bgBounds - @tidepool/viz-style bgBounds
+ * @return {Object} bgBounds - tidepool-viz-style bgBounds
  */
 export function reshapeBgClassesToBgBounds(bgPrefs) {
   const { bgClasses } = bgPrefs;

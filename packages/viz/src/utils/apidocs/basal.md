@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
+> tidepool-viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
 > jsdoc2md "src/utils/basal.js"
 
 ## Functions

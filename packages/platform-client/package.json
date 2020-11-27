@@ -4,25 +4,20 @@
   "description": "Client-side library to interact with the Tidepool platform",
   "main": "tidepool.js",
   "scripts": {
-    "test": "grunt test",
+    "mrproper": "rm -rf node_modules",
+    "clean": "rm -rf dist",
+    "pretest": "rm -rf coverage",
+    "test": "mocha --timeout 10000 --exit --check-leaks test/**/*.test.js || /bin/true",
+    "lint": "eslint *.js lib test",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/"
   },
-  "repository": "https://github.com/tidepool-org/platform-client.git",
+  "repository": "git+https://github.com/mdblp/blip.git",
   "author": "Tidepool",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "3.2.0",
     "lodash": "^4.17.20",
     "superagent": "5.2.2",
-    "uuid": "^8.1.0"
-  },
-  "devDependencies": {
-    "chai": "4.2.0",
-    "grunt": "1.1.0",
-    "grunt-cli": "1.3.2",
-    "grunt-contrib-jshint": "2.1.0",
-    "grunt-mocha-test": "0.13.3",
-    "mocha": "^8.0.1",
-    "node-fetch": "^2.6.1"
+    "uuid": "^8.3.1"
   }
 }

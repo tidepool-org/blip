@@ -7,7 +7,7 @@ import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import sinon from 'sinon';
 import chai from 'chai';
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents } from 'tidepool-viz';
 import i18next from '../../../app/core/language';
 import utils from '../../../app/core/utils';
 import { DEFAULT_BG_SETTINGS } from '../../../app/core/constants';

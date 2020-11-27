@@ -445,7 +445,7 @@ describe('Actions', () => {
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician if profile not set', () => {
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician if profile not set', (done) => {
         const acceptedDate = new Date();
         const loggedInUserId = 'abc';
         const termsData = { termsAccepted: new Date() };
@@ -484,11 +484,18 @@ describe('Actions', () => {
         const store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.acceptTerms.callCount).to.equal(1);
-        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
-        expect(api.user.get.callCount).to.equal(1);
+        setTimeout(() => {
+          try {
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.acceptTerms.callCount).to.equal(1);
+            expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        }, 500);
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to /patients for clinician if profile is set', () => {

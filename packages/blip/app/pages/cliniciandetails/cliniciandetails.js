@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import locales from '../../../locales/languages.json';
+import locales from '../../../../../locales/languages.json';
 import i18n from '../../core/language';
 import config from '../../config';
 import { validateForm } from '../../core/validation';

@@ -16,7 +16,6 @@
  */
 
 var _ = require('lodash');
-var util = require('util');
 var bows = require('bows');
 
 var schema = require('./validator/schematron');
@@ -42,9 +41,9 @@ var schemas = {
 module.exports = {
   validateOne: function(datum, result) {
     result = result || {valid: [], invalid: []};
-    var handler = schemas[datum.type];
-    if (handler == null) {
-      datum.errorMessage = util.format('No schema defined for data.type[%s]', datum.type);
+    const handler = schemas[datum.type];
+    if (!_.isFunction(handler)) {
+      datum.errorMessage = `No schema defined for data.type[${datum.type}]`;
       log(new Error(datum.errorMessage), datum);
       result.invalid.push(datum);
     } else {
@@ -53,8 +52,8 @@ module.exports = {
         result.valid.push(datum);
       }
       catch(e) {
-        log('Oh noes! This is wrong:\n', datum);
-        log(util.format('Error Message: %s%s', datum.type, e.message));
+        log('Oh noes! This is wrong:', datum);
+        log(`Error Message: [${datum.type}] ${e.message}`);
         datum.errorMessage = e.message;
         result.invalid.push(datum);
       }

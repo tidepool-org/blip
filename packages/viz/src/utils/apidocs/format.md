@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
+> tidepool-viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
 > jsdoc2md "src/utils/format.js"
 
 ## Functions
@@ -69,4 +69,3 @@ removeTrailingZeroes
 | Param | Type | Description |
 | --- | --- | --- |
 | val | <code>String</code> | formatted decimal value, may have trailing zeroes |
-

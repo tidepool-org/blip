@@ -10,7 +10,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
-import * as viz from '@tidepool/viz';
+import * as viz from 'tidepool-viz';
 const RangeSelect = viz.components.RangeSelect;
 
 var _ = require('lodash');

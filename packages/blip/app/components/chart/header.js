@@ -22,7 +22,8 @@ import cx from 'classnames';
 import i18n from '../../core/language';
 import config from '../../config';
 
-import { Timeline, StayCurrentPortrait } from '@material-ui/icons';
+import Timeline from '@material-ui/icons/Timeline';
+import StayCurrentPortrait from '@material-ui/icons/StayCurrentPortrait';
 
 const t = i18n.t.bind(i18n);
 

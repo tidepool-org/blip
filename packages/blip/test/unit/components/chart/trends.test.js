@@ -21,7 +21,7 @@ import chai from 'chai';
 import Trends from '../../../../app/components/chart/trends';
 import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents } from 'tidepool-viz';
 import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
 

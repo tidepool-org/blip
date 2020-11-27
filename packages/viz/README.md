@@ -1,6 +1,6 @@
 [![Build Status](https://img.shields.io/travis/com/tidepool-org/viz.svg)](https://travis-ci.com/tidepool-org/viz)
 
-# @tidepool/viz
+# tidepool-viz
 
 Tidepool data visualization for diabetes device data.
 
@@ -8,7 +8,7 @@ This README is focused on just the nuts & bolts of getting the code in this repo
 
 #### Table of contents
 
-- [@tidepool/viz](#tidepoolviz)
+- [tidepool-viz](#tidepoolviz)
       - [Table of contents](#table-of-contents)
   - [Getting started](#getting-started)
   - [Development](#development)
@@ -101,4 +101,4 @@ When a new feature(s) is/are complete (i.e., branch is synchronized with master,
 6. then log in as yourself with `$ npm login`
 7. publish the new version with `$ npm publish`; before the *actual* publish happens, the `yarn` install, linter, tests, and packaging webpack build will run since we have set those up through the `prepare` and `prepublishOnly` npm hooks in the package.json
 8. merge the approved pull request to master
-9. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `@tidepool/viz` as a dependency!
+9. remember to bump the version appropriately in the package.json for the app (e.g., blip) requiring `tidepool-viz` as a dependency!

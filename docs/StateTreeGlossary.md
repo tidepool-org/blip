@@ -2,7 +2,7 @@
 
 > **PWD**: Person With Diabetes (or, conveniently enough for us at Tidepool, Person With Data). Used as a shorthand for a user that has a Tidepool account *with* data storage, as opposed to a Tidepool user (such as a clinic worker, diabetes educator, endocrinologist etc.) whose account is not set up for data storage.
 
-blip's state tree forks into three branches from the outset: `routing` for routing-related state, `viz` for data visualization-related state, and `blip` for everything else. You shouldn't (need to) manipulate the `routing` branch of the state tree directly; this is handled by React Router and `react-router-redux`. Likewise, code manipulating the `viz` branch of the state tree is handled inside the `vizReducer` included in blip's redux store but imported from the [@tidepool/viz](https://www.npmjs.com/package/@tidepool/viz '@tidepool/viz on npm') dependency.
+blip's state tree forks into three branches from the outset: `routing` for routing-related state, `viz` for data visualization-related state, and `blip` for everything else. You shouldn't (need to) manipulate the `routing` branch of the state tree directly; this is handled by React Router and `react-router-redux`. Likewise, code manipulating the `viz` branch of the state tree is handled inside the `vizReducer` included in blip's redux store but imported from the [tidepool-viz](https://www.npmjs.com/package/tidepool-viz 'tidepool-viz on npm') dependency.
 
 The document gives more information on what you'll find in the `blip` branch of the state tree, in four sections:
 

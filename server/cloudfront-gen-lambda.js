@@ -72,7 +72,7 @@ let distribFiles = null;
 
 let distDir = null;
 let templateDir = null;
-const templateFilename = path.resolve(`${__dirname}/template.lambda-request-viewer.js`);
+const templateFilename = path.resolve(`${__dirname}/../templates/lambda-request-viewer.js`);
 
 function getHash(str) {
 	const hash = crypto.createHash('md5');
@@ -255,7 +255,6 @@ function getDistDir(defaultDir) {
   } else {
     dir = path.resolve(defaultDir);
   }
-  console.info(`Using dist directory: '${dir}'`);
   return dir;
 }
 
@@ -407,4 +406,3 @@ fs.readFile(templateFilename, { encoding: 'utf-8' }, withTemplate);
 indexHtml = indexHtml.replace(/(<!-- config -->)/, scriptConfigJs);
 indexHtml = indexHtml.replace(/<(script)/g, '<$1 nonce="${nonce}"');
 genOutputFile();
-

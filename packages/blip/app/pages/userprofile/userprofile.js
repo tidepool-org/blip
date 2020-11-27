@@ -23,7 +23,7 @@ import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
 import i18next from '../../core/language';
-import languages from '../../../locales/languages.json';
+import languages from '../../../../../locales/languages.json';
 import * as actions from '../../redux/actions';
 
 import { validateForm } from '../../core/validation';

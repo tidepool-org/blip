@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-'use strict';
-
 var crypto = require('crypto');
 
 /**
@@ -55,4 +53,3 @@ exports.generateId = function(fields) {
 
   return hasher.digest('base64');
 };
-

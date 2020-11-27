@@ -15,3 +15,10 @@ export const FOOTER_FONT_SIZE = 8;
 export const HEADER_FONT_SIZE = 14;
 export const SMALL_FONT_SIZE = 8;
 export const EXTRA_SMALL_FONT_SIZE = 6;
+export const Images = {
+  logo: null,
+  siteChangeCannulaImage: null,
+  siteChangeReservoirImage: null,
+  siteChangeTubingImage: null,
+  siteChangeReservoirDiabeloopImage: null,
+};

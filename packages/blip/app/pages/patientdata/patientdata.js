@@ -29,7 +29,7 @@ import launchCustomProtocol from 'custom-protocol-detection';
 import config from '../../config';
 
 import * as actions from '../../redux/actions';
-import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from '@tidepool/viz';
+import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
 import { getfetchedPatientDataRange } from '../../redux/selectors';
 
 import personUtils from '../../core/personutils';

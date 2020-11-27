@@ -15,7 +15,7 @@ Today with [React having the majority of use & interest](http://stateofjs.com/20
 
 #### As of November, 2016...
 
-Blip depends on @tidepool/viz for:
+Blip depends on tidepool-viz for:
 
 - Device Settings (new implementation)
 - Trends (CGM version as new implementation, BGM version a port of more-or-less equivalent functionality from tideline's code)

@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { utils } from '@tidepool/viz';
+import { utils } from 'tidepool-viz';
 import { translate, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';

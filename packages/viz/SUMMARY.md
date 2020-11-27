@@ -1,6 +1,6 @@
 # Summary
 
-+ [@tidepool/viz developer guide](docs/StartHere.md)
++ [tidepool-viz developer guide](docs/StartHere.md)
     + [background](docs/Background.md)
     + [overview of features](docs/FeatureOverview.md)
     + [planned architecture](docs/Architecture.md)

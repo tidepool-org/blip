@@ -452,7 +452,7 @@ module.exports = function (config, deps) {
       }
       common.assertArgumentsSize(arguments, 2);
 
-      var idList = _(patientIds).uniq().join(',');
+      var idList = _.uniq(patientIds).join(',');
 
       common.doGetWithToken(
         '/metadata/publicinfo?users=' + idList,
@@ -1084,6 +1084,7 @@ module.exports = function (config, deps) {
         if (err) {
           cb(err);
         }
+        // eslint-disable-next-line camelcase
         options.restricted_token = response.id;
         var URL = common.makeExportUrl(userId, options);
         cb(null, URL);

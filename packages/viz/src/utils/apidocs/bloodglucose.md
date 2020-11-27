@@ -1,5 +1,5 @@
 
-> @tidepool/viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
+> tidepool-viz@0.8.1 apidocs /Users/jebeck/Tidepool/viz
 > jsdoc2md "src/utils/bloodglucose.js"
 
 ## Functions
@@ -48,9 +48,8 @@ convertToMmolL
 reshapeBgClassesToBgBounds
 
 **Kind**: global function
-**Returns**: <code>Object</code> - bgBounds - @tidepool/viz-style bgBounds
+**Returns**: <code>Object</code> - bgBounds - tidepool-viz-style bgBounds
 
 | Param | Type | Description |
 | --- | --- | --- |
 | bgPrefs | <code>Object</code> | bgPrefs object from blip containing tideline-style bgClasses |
-

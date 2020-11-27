@@ -52,29 +52,27 @@ import {
   DIABELOOP,
 } from '../../utils/constants';
 
+import { Images } from './utils/constants';
+
 const t = i18next.t.bind(i18next);
-
-const siteChangeCannulaImage = require('./images/sitechange-cannula.png');
-const siteChangeReservoirImage = require('./images/sitechange-reservoir.png');
-const siteChangeTubingImage = require('./images/sitechange-tubing.png');
-const siteChangeReservoirDiabeloopImage = require('./images/diabeloop/sitechange-diabeloop.png');
-
-const siteChangeImages = {
-  [SITE_CHANGE_CANNULA]: siteChangeCannulaImage,
-  [SITE_CHANGE_RESERVOIR]: siteChangeReservoirImage,
-  [SITE_CHANGE_TUBING]: siteChangeTubingImage,
-};
 
 class BasicsPrintView extends PrintView {
   constructor(doc, data, opts) {
     super(doc, data, opts);
+
+
+    this.siteChangeImages = {
+      [SITE_CHANGE_CANNULA]: Images.siteChangeCannulaImage,
+      [SITE_CHANGE_RESERVOIR]: Images.siteChangeReservoirImage,
+      [SITE_CHANGE_TUBING]: Images.siteChangeTubingImage,
+    };
 
     const latestPumpUpload = getLatestPumpUpload(_.get(data, 'data.upload.data', []));
     this.source = _.get(latestPumpUpload, 'source', '').toLowerCase();
     this.manufacturer = this.source === 'carelink' ? 'medtronic' : this.source;
 
     if (this.source === DIABELOOP.toLowerCase()) {
-      siteChangeImages[SITE_CHANGE_RESERVOIR] = siteChangeReservoirDiabeloopImage;
+      this.siteChangeImages[SITE_CHANGE_RESERVOIR] = Images.siteChangeReservoirDiabeloopImage;
     }
     // Process basics data
     const { source: bgSource, cgmStatus } = determineBgDistributionSource(this.data);
@@ -574,7 +572,7 @@ class BasicsPrintView extends PrintView {
           .outerRadius(radius)(datum);
       };
 
-      _.each(arcData, (segment, index) => {
+      _.forEach(arcData, (segment, index) => {
         const path = generateArcPath(segment, index);
         const points = translate(parse(path), xPos, yPos);
         const adjustedPath = serialize(points);
@@ -716,7 +714,7 @@ class BasicsPrintView extends PrintView {
       const rows = _.map(chunkedDayMap, week => {
         const values = {};
 
-        _.each(week, day => {
+        _.forEach(week, day => {
           values[day.dayOfWeek] = day;
         });
 
@@ -815,7 +813,7 @@ class BasicsPrintView extends PrintView {
 
           this.setFill();
 
-          this.doc.image(siteChangeImages[siteChangeType], xPos + imagePadding, this.doc.y, {
+          this.doc.image(this.siteChangeImages[siteChangeType], xPos + imagePadding, this.doc.y, {
             width: imageWidth,
           });
 
@@ -895,10 +893,10 @@ class BasicsPrintView extends PrintView {
     };
 
     const renderRow = (row, rowIndex) => {
-      _.each(row, renderColumn(rowIndex));
+      _.forEach(row, renderColumn(rowIndex));
     };
 
-    _.each(chunkedGridValues, renderRow);
+    _.forEach(chunkedGridValues, renderRow);
   }
 
   renderCalendarSummary(opts) {
@@ -916,7 +914,7 @@ class BasicsPrintView extends PrintView {
       let primaryDimension;
       const rows = [];
 
-      _.each(dimensions, dimension => {
+      _.forEach(dimensions, dimension => {
         const valueObj = _.get(
           data,
           [dimension.path, dimension.key],
