@@ -30,6 +30,8 @@ export HELP_LINK='disabled'
 export ASSETS_URL='https://example.com/'
 # Metrics service to use (disabled, highwater, matomo)
 export METRICS_SERVICE='disabled'
+# True to not check for consents in seagull profile
+export METRICS_FORCED='false'
 # Metrics service Matomo URL (used only when METRICS_SERVICE='matomo'):
 export MATOMO_TRACKER_URL='disabled'
 export MATOMO_TRACKER_SITEID='0'

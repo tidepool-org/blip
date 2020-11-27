@@ -43,7 +43,7 @@ export class Login extends React.Component {
   }
 
   componentDidMount() {
-    this.props.trackMetric('User Reached login page');
+    this.props.trackMetric('Navigation', 'User Reached login page');
 
     if (config.HELP_LINK !== null) {
       // @ts-ignore

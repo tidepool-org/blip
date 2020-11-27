@@ -22,9 +22,6 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 describe('App', () => {
-
-  api.log = sinon.stub();
-
   var baseProps = {
     context: {
       DEBUG: false,
@@ -35,6 +32,14 @@ describe('App', () => {
       trackMetric: sinon.stub()
     },
   };
+
+  before(() => {
+    sinon.stub(api, 'log');
+  });
+
+  after(() => {
+    sinon.restore();
+  });
 
   describe('constructor', () => {
     var props = _.assign({}, baseProps, {

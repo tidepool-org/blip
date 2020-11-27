@@ -35,6 +35,12 @@ var api = {
 
 api.init = function(cb) {
   var tidepoolLog = bows('Tidepool');
+
+  // Metrics init
+  api.metrics.track('setDocumentTitle', constants[config.BRANDING].name);
+  api.metrics.track('trackPageView');
+  api.metrics.track('setConsentGiven');
+
   tidepool = createTidepoolClient({
     host: config.API_HOST,
     dataHost: config.API_HOST + '/dataservices',
@@ -53,9 +59,7 @@ api.init = function(cb) {
 
   tidepool.initialize(function() {
     api.log('Initialized');
-    if (typeof config.BRANDING === 'string') {
-      api.metrics.track('setDocumentTitle', constants[config.BRANDING].name, cb);
-    } else if (cb) {
+    if (_.isFunction(cb)) {
       cb();
     }
   });
@@ -99,7 +103,7 @@ api.user.login = function(user, options, cb) {
 
   tidepool.login(user, options, function(err, data) {
     if (err) {
-      api.metrics.track('Login failed');
+      api.metrics.track('api', 'Login failed');
       return cb(err);
     }
 
@@ -108,9 +112,7 @@ api.user.login = function(user, options, cb) {
       userProfile = 'clinical';
     }
 
-    api.metrics.track('setUserId', data.userid, () => {
-      api.metrics.track('Login succeed', userProfile, cb);
-    });
+    api.metrics.track('api', ['Login succeed', userProfile], cb);
   });
 };
 
@@ -119,10 +121,10 @@ api.user.oauthLogin = function(accessToken, cb) {
 
   tidepool.oauthLogin(accessToken, function(err, data) {
     if (err) {
-      api.metrics.track('OAuth login failed');
+      api.metrics.track('api', 'OAuth login failed');
       return cb(err);
     }
-    api.metrics.track('OAuth login succeed', null, () => {
+    api.metrics.track('api', 'OAuth login succeed', null, () => {
       cb(null, data);
     });
   });
@@ -137,7 +139,7 @@ api.user.signup = function(user, cb) {
   // First, create user account
   tidepool.signup(newAccount, function(err, account) {
     if (err) {
-      api.metrics.track('Signup failed');
+      api.metrics.track('api', 'Signup failed');
       return cb(err);
     }
 
@@ -150,7 +152,7 @@ api.user.signup = function(user, cb) {
      * TODO: consider when refactoring platform client
      */
     if (account.code && account.code === 409) {
-      api.metrics.track('Signup failed', account.reason);
+      api.metrics.track('api', ['Signup failed', account.reason]);
       return cb({
         status: account.code,
         error: account.reason
@@ -170,19 +172,19 @@ api.user.signup = function(user, cb) {
     if (newProfile) {
       tidepool.addOrUpdateProfile(userId, newProfile, function(err, results) {
         if (err) {
-          api.metrics.track('Signup failed');
+          api.metrics.track('api', 'Signup failed');
           return cb(err);
         }
 
         api.log('added profile info to signup', results);
-        api.metrics.track('Signup succeed');
+        api.metrics.track('api', 'Signup succeed');
         cb(null, userFromAccountAndProfile({
           account: account,
           profile: results
         }));
       });
     } else {
-      api.metrics.track('Signup succeed');
+      api.metrics.track('api', 'Signup succeed');
       cb(null, userFromAccountAndProfile({
         account: account,
       }));
@@ -193,10 +195,13 @@ api.user.signup = function(user, cb) {
 api.user.logout = function(cb) {
   api.log('POST /user/logout');
 
+  api.metrics.track('resetUserId');
+  api.metrics.track('setConsentGiven');
+
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
     tidepool.destroySession();
-    if (cb) {
+    if (_.isFunction(cb)) {
       cb();
     }
     return;
@@ -207,8 +212,9 @@ api.user.logout = function(cb) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
     }
-
-    api.metrics.track('resetUserId', null, cb);
+    if (_.isFunction(cb)) {
+      cb();
+    }
   });
 };
 
@@ -268,11 +274,16 @@ api.user.get = (cb) => {
     });
   };
 
+  const getConsents = (cb) => {
+    api.metadata.consents.get(userId, cb);
+  };
+
   async.series({
     account: getAccount,
     profile: getProfile,
     preferences: getPreferences,
     settings: getSettings,
+    consents: getConsents,
   }, (err, results) => {
       if (err) {
         return cb(err);
@@ -284,7 +295,16 @@ api.user.get = (cb) => {
         // The logged-in user's permissions are always root
         user.permissions = { root: {} };
       }
+
       api.log('api.user.get', user);
+
+      if (userAcceptMetrics(user)) {
+        api.metrics.track('setConsentGiven');
+        api.metrics.track('setUserId', userId);
+      } else {
+        api.metrics.track('forgetConsentGiven');
+      }
+
       cb(null, user);
     });
 };
@@ -306,9 +326,19 @@ api.user.put = function(user, cb) {
         return cb(err);
       }
 
-      cb(null, userFromAccountAndProfile(results));
+      const updatedUser = userFromAccountAndProfile(results);
+      api.log.debug('Updated user:', updatedUser);
+      cb(null, updatedUser);
     });
 };
+
+function userAcceptMetrics(/** @type{object} */ user) {
+  let accept = config.METRICS_FORCED;
+  accept = accept || personUtils.isClinic(user);
+  accept = accept || _.get(user, 'consents.yourLoopsData.value', false);
+  api.log.debug('User accept metrics:', accept);
+  return accept;
+}
 
 function accountFromUser(user) {
   var account = _.pick(user, 'username', 'password', 'emails', 'roles');
@@ -324,12 +354,32 @@ function preferencesFromUser(user) {
 }
 
 function userFromAccountAndProfile(results) {
-  // sometimes `account` isn't in the results after e.g., password update
+  // Missing information in the result will be kept
+  // if previously present
+  // See redux / reducer: app/redux/reducers/misc.js:241
+  // Event: UPDATE_USER_SUCCESS
+
   const user = _.get(results, 'account', {});
-  // sometimes `profile` isn't in the results after e.g., after account signup
-  user.profile = _.get(results, 'profile', {});
-  user.preferences = _.get(results, 'preferences', {});
-  user.settings = _.get(results, 'settings', {});
+
+  const profile = _.get(results, 'profile', null);
+  if (!_.isEmpty(profile)) {
+    user.profile = profile;
+  }
+
+  const preferences = _.get(results, 'preferences', null);
+  if (!_.isEmpty(preferences)) {
+    user.preferences = preferences;
+  }
+
+  // const settings = _.get(results, 'settings', null);
+  // if (!_.isEmpty(settings)) {
+  //   user.settings = settings;
+  // }
+
+  const consents = _.get(results, 'consents', null);
+  if (!_.isEmpty(consents)) {
+    user.consents = consents;
+  }
 
   return user;
 }
@@ -548,7 +598,21 @@ api.patient.put = function(patient, cb) {
 
 // ----- Metadata -----
 
-api.metadata = {};
+api.metadata = {
+  consents: {
+    get: (userId, cb) => {
+      api.log(`GET /metadata/${userId}/consents`);
+      tidepool.findConsents(userId, (err, payload) => {
+        // We don't want to fire an error if the patient has no preferences saved yet,
+        // so we check if the error status is not 404 first.
+        if (err && err.status !== 404) {
+          return cb(err);
+        }
+        cb(null, payload || {});
+      });
+    },
+  }
+};
 
 api.metadata.preferences = {};
 
@@ -785,45 +849,66 @@ api.getUploadUrl = function() {
 
 // ----- Metrics -----
 
-api.metrics = {};
+api.metrics = {
+  /**
+   * boolean used to avoid the metrics service still records the metrics
+   * and send the replay on logout
+   */
+  consentGiven: true,
+};
 
 api.metrics.track = function(eventName, properties, cb) {
-  const metricsService = _.get(config, 'METRICS_SERVICE', 'disabled');
+  if (eventName === 'setConsentGiven') {
+    api.metrics.consentGiven = true;
+  }
+
+  const metricsService = api.metrics.consentGiven ? config.METRICS_SERVICE : 'disabled';
+  const eventParam = _.isEmpty(properties) ? 'n/a' : JSON.stringify(properties);
+
+  if (eventName === 'forgetConsentGiven') {
+    api.metrics.consentGiven = false;
+  }
 
   switch (metricsService) {
   case 'matomo':
     if (typeof window._paq !== 'undefined') {
       // Using Matomo Tracker
-      api.log(`Matomo trackEvent ${eventName}:`, properties);
+      api.log.info('Matomo', `"${eventName}" => ${eventParam}`);
       if (eventName === 'setCustomUrl') {
         window._paq.push(['setCustomUrl', properties]);
+      } else if (eventName === 'setConsentGiven') {
+        window._paq.push(['setConsentGiven']);
+        // Do it another time, since only one time seems to not be always enough:
+        window._paq.push(['setConsentGiven']);
+      } else if (eventName === 'forgetConsentGiven') {
+        window._paq.push(['forgetConsentGiven']);
       } else if (eventName === 'setUserId') {
         window._paq.push(['setUserId', properties]);
       } else if (eventName === 'resetUserId') {
         window._paq.push(['resetUserId']);
       } else if (eventName === 'setDocumentTitle' && typeof properties === 'string') {
         window._paq.push(['setDocumentTitle', properties]);
-      } else if (typeof properties === 'undefined') {
-        window._paq.push(['trackEvent', eventName]);
       } else {
-        window._paq.push(['trackEvent', eventName, JSON.stringify(properties)]);
+        window._paq.push(['trackEvent', eventName, eventParam]);
       }
     } else {
       api.log.error('Matomo tracker is not well configured', eventName, properties);
     }
     break;
   case 'highwater':
-    api.log('GET /metrics/' + window.encodeURIComponent(eventName));
-    tidepool.trackMetric(eventName, properties);
+    api.log.info('Highwater', `"${eventName}" => ${eventParam}`);
+    if (api.metrics.consentGiven) {
+      tidepool.trackMetric(eventName, properties);
+    }
     break;
   case 'disabled':
-    api.log.debug('metric', eventName, properties);
+    api.log.info('Metrics', `"${eventName}" => ${eventParam}`);
     break;
   default:
-    api.log.error(`Unknown metrics service ${metricsService}`, eventName, properties);
+    api.log.error('Metrics', `"${eventName}" => ${eventParam}`);
   }
 
-  if (cb) {
+  if (_.isFunction(cb)) {
     cb();
   }
 };

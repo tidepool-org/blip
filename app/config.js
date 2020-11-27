@@ -44,6 +44,7 @@ const defaultConfig = {
   HIDE_UPLOAD_LINK: false,
   BRANDING: 'tidepool',
   METRICS_SERVICE: 'disabled',
+  METRICS_FORCED: false,
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
   DEV: true,

@@ -31,7 +31,7 @@ function LoginNav(props) {
     let icon = 'icon-add';
     let text = t('Sign up');
     let handleClick = () => {
-      trackMetric('Clicked Sign Up Link');
+      trackMetric('Loginnav', 'Clicked Sign Up Link');
     };
 
     if (page === 'signup') {
@@ -40,7 +40,7 @@ function LoginNav(props) {
       icon = 'icon-login';
       text = t('Log in');
       handleClick = () => {
-        trackMetric('Clicked Log In Link');
+        trackMetric('Loginnav', 'Clicked Log In Link');
       };
     }
 
@@ -59,6 +59,7 @@ function LoginNav(props) {
     if (Object.prototype.hasOwnProperty.call(i18nOptions.resources, lang)) {
       const language = i18nOptions.resources[lang].name;
       const handleClick = () => {
+        trackMetric('Loginnav', ['Change language', 'mouse', lang]);
         i18n.changeLanguage(lang);
       };
 
@@ -66,6 +67,7 @@ function LoginNav(props) {
         switch (e.key) {
         case 'Enter':
         case ' ':
+          trackMetric('Loginnav', ['Change language', 'keyboard', lang]);
           i18n.changeLanguage(lang);
           setLangMenuOpened(false);
           break;
