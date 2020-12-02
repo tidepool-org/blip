@@ -1,8 +1,3 @@
-FROM node:12.18.3-alpine AS base
-ENV AWS_CDK_VERSION=1.61.0
-WORKDIR /dist
-RUN npm install -g aws-cdk@${AWS_CDK_VERSION}
-
 # This part contains the deployment source code only
 FROM node:12.18.3-alpine as deployment
 WORKDIR /cloudfront-dist
@@ -29,7 +24,7 @@ WORKDIR /server
 COPY ./server .
 RUN npm install
 
-FROM base as final
+FROM node:12.18.3-alpine as final
 RUN apk --no-cache update && \
   apk --no-cache upgrade && \
   apk add --no-cache --virtual .user-deps shadow && \

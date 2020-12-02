@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "lerna bootstrap",
     "mrproper": "npm run clean && lerna run mrproper",
-    "postmrproper": "rm -rf node_modules cloudfront-dist/deployment/node_modules",
+    "postmrproper": "rm -rf node_modules cloudfront-dist/deployment/node_modules server/node_modules",
     "clean": "lerna exec -- rm -rf dist coverage deploy && lerna clean --yes",
     "postclean": "rm -rf doc dist",
     "info": "lerna info",
