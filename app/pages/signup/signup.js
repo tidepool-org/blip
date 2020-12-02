@@ -13,8 +13,7 @@ import { validateForm } from '../../core/validation';
 import { URL_TERMS_OF_USE, URL_PRIVACY_POLICY } from '../../core/constants';
 
 import utils from '../../core/utils';
-import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
@@ -155,10 +154,6 @@ export let Signup = translate()(class extends React.Component {
     if (!this.state.loading) {
       return (
         <div className="signup">
-          <LoginNav
-            page="signup"
-            hideLinks={Boolean(this.props.inviteEmail)}
-            trackMetric={this.props.trackMetric} />
           <LoginLogo />
           {inviteIntro}
           {typeSelection}

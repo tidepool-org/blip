@@ -250,6 +250,41 @@ describe('PrintDateRangeModal', function () {
       expect(basicsError().text()).to.equal('Please select a date range');
     });
 
+    it('should not call `onClickPrint` if there are no enabled charts and render error message', () => {
+      const basicsToggle = () => wrapper.find('button[name="enabled-basics"]').hostNodes();
+      expect(basicsToggle()).to.have.lengthOf(1);
+      expect(basicsToggle().prop('aria-checked')).to.be.true;
+
+      const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();
+      expect(bgLogToggle()).to.have.lengthOf(1);
+      expect(bgLogToggle().prop('aria-checked')).to.be.true;
+
+      const dailyToggle = () => wrapper.find('button[name="enabled-daily"]').hostNodes();
+      expect(dailyToggle()).to.have.lengthOf(1);
+      expect(dailyToggle().prop('aria-checked')).to.be.true;
+
+      const settingsToggle = () => wrapper.find('button[name="enabled-settings"]').hostNodes();
+      expect(settingsToggle()).to.have.lengthOf(1);
+      expect(settingsToggle().prop('aria-checked')).to.be.true;
+
+      basicsToggle().simulate('click');
+      bgLogToggle().simulate('click');
+      dailyToggle().simulate('click');
+      settingsToggle().simulate('click');
+
+      expect(basicsToggle().prop('aria-checked')).to.be.false;
+      expect(bgLogToggle().prop('aria-checked')).to.be.false;
+      expect(dailyToggle().prop('aria-checked')).to.be.false;
+      expect(settingsToggle().prop('aria-checked')).to.be.false;
+
+      submitButton().simulate('click');
+      sinon.assert.notCalled(props.onClickPrint);
+
+      const generalError = () => wrapper.find('#general-print-error').hostNodes();
+      expect(generalError()).to.have.lengthOf(1);
+      expect(generalError().text()).to.equal('Please enable at least one chart to print');
+    });
+
     it('should send metric for print options', () => {
       // Disable bgLog chart
       const bgLogToggle = () => wrapper.find('button[name="enabled-bgLog"]').hostNodes();

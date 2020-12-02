@@ -46,6 +46,9 @@ import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import Button from '../../components/elements/Button';
+
+import ToastContext from '../../providers/ToastProvider';
 
 import { Box } from 'rebass/styled-components';
 import Checkbox from '../../components/elements/Checkbox';
@@ -60,7 +63,7 @@ const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = translate()(createReactClass({
+export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
 
   propTypes: {
@@ -369,6 +372,14 @@ export let PatientData = translate()(createReactClass({
               showLoading: false,
               startDate,
             });
+
+            // In cases where we need to fetch data via an async backend call, we need to pre-open
+            // the PDF tab ahead of time. Otherwise, it will be treated as a popup, and likely blocked.
+            if (!this.printWindowRef || this.printWindowRef.closed) {
+              const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
+              this.printWindowRef = window.open();
+              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
+            }
 
             this.setState({ printDialogPDFOpts: opts });
           } else {
@@ -1174,6 +1185,7 @@ export let PatientData = translate()(createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;
 
@@ -1477,9 +1489,44 @@ export let PatientData = translate()(createReactClass({
       }
 
       if (nextProps.pdf.combined.url) {
-        const printWindow = window.open(nextProps.pdf.combined.url);
-        printWindow.focus();
-        printWindow.print();
+        if (this.printWindowRef && !this.printWindowRef.closed) {
+          // If we already have a ref to a PDF window, (re)use it
+          this.printWindowRef.location.href = nextProps.pdf.combined.url;
+        } else {
+          // Otherwise, we create and open a new PDF window ref.
+          this.printWindowRef = window.open(nextProps.pdf.combined.url);
+        }
+
+        setTimeout(() => {
+          if (this.printWindowRef) {
+            this.printWindowRef.focus();
+            this.printWindowRef.print();
+          } else {
+            const { set: setToast } = this.context;
+
+            setToast({
+              message: this.props.t('A popup blocker is preventing your report from opening.'),
+              variant: 'warning',
+              autoHideDuration: null,
+              action: (
+                <Button
+                  p={0}
+                  lineHeight={1.5}
+                  fontSize={1}
+                  variant="textPrimary"
+                  onClick={() => {
+                    this.printWindowRef = window.open(nextProps.pdf.combined.url);
+                    this.printWindowRef.focus();
+                    this.printWindowRef.print();
+                    setToast(null);
+                  }}
+                >
+                  {this.props.t('Open it anyway')}
+                </Button>
+              ),
+            });
+          }
+        });
       }
     }
   },
@@ -1739,7 +1786,14 @@ export let PatientData = translate()(createReactClass({
       fetcher();
     });
   },
-}));
+});
+
+PatientDataClass.contextType = ToastContext;
+
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const PatientData = translate()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
