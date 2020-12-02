@@ -14,9 +14,23 @@
     }
   },
   "resources": {
+    "de": {
+      "name": "Deutsch",
+      "main": {
+        "Log in": "Einloggen"
+      },
+      "params": {}
+    },
     "en": {
       "name": "English",
       "main": {},
+      "params": {}
+    },
+    "es": {
+      "name": "Español",
+      "main": {
+        "Log in": "Iniciar sesión"
+      },
       "params": {}
     },
     "fr": {
@@ -26,10 +40,10 @@
       },
       "params": {}
     },
-    "de": {
-      "name": "Deutsch",
+    "it": {
+      "name": "Italiano",
       "main": {
-        "Log in": "Einloggen"
+        "Log in": "Accedi"
       },
       "params": {}
     },
@@ -42,11 +56,11 @@
     }
   },
   "countries": {
-    "FR": {
-      "name": "France"
-    },
     "DE": {
       "name": "Germany"
+    },
+    "FR": {
+      "name": "France"
     },
     "NL": {
       "name": "Netherlands"
