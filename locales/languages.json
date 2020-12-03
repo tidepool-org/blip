@@ -64,6 +64,9 @@
     },
     "NL": {
       "name": "Netherlands"
+    },
+    "CH": {
+      "name": "Switzerland"
     }
   }
 }
