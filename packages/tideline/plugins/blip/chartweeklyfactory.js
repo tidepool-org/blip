@@ -99,7 +99,7 @@ function chartWeeklyFactory(el, options) {
 
     chart.setup();
     chart.legend({
-      main: t('Blood Glucose'),
+      main: t('Glucose'),
       light: ' ' + chart.options.bgUnits
     });
 

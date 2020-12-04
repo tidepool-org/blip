@@ -101,11 +101,11 @@ function chartDailyFactory(el, options) {
     poolBG = chart.newPool()
       .id('poolBG', chart.poolGroup())
       .label([{
-        'main': t('Blood Glucose'),
-        'light': ' ' + chart.options.bgUnits
+        'main': t('Glucose'),
+        'light': ` (${t(chart.options.bgUnits)})`
       },
       {
-        'main': ' & ' + t('Physical Activity')
+        'main': ` & ${t('Events')}`
       }])
       .labelBaseline(options.labelBaseline)
       .legend(['bg'])
@@ -118,11 +118,11 @@ function chartDailyFactory(el, options) {
       .id('poolBolus', chart.poolGroup())
       .label([{
         'main': t('Bolus'),
-        'light': ' U'
+        'light': ` (${t('U')})`
       },
       {
-        'main': ' & ' + t('Carbohydrates'),
-        'light': ' g'
+        'main': ` & ${t('Carbohydrates')}`,
+        'light': ` (${t('g')})`
       }])
       .labelBaseline(options.labelBaseline)
       .legend(['bolus', 'carbs', 'rescuecarbs'])
@@ -135,7 +135,7 @@ function chartDailyFactory(el, options) {
       .id('poolBasal', chart.poolGroup())
       .label([{
         main: t('Basal Rates'),
-        light: ' U/hr'
+        light: ` (${t('U')}/${t('hr')})`
       }])
       .labelBaseline(options.labelBaseline)
       .legend(['basal'])

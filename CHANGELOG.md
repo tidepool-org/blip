@@ -16,6 +16,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-280 Make France as default country for existing users
 - YLP-273 Translate units in DBL settings table and display depending on patient profile
 - YLP-299 Change "parameters" for "settings" in English
+- YLP-313 Create dedicated key for bolus graph title
 ### Engineering Use
 - YLP-211 Rework Cloudfront deployment services to use an alternate domain name
 - YLP-147 Merge blip dependencies
