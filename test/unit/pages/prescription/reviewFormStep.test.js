@@ -14,7 +14,7 @@ const expect = chai.expect;
 const meta = {
   training: { value: true },
   initialSettings: {
-    bloodGlucoseSuspendThreshold: { value: true },
+    glucoseSafetyLimit: { value: true },
     insulinModel: { value: true },
     basalRateMaximum: { value: { value: true } },
     bolusAmountMaximum: { value: { value: true } },

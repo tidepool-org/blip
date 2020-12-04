@@ -42,7 +42,7 @@ describe('prescriptionSchema', function() {
       'pumpId',
       'cgmId',
       'insulinModel',
-      'bloodGlucoseSuspendThreshold',
+      'glucoseSafetyLimit',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',

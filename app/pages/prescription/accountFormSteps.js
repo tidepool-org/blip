@@ -77,7 +77,7 @@ export const PatientInfo = translate()(props => {
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
             alwaysShowMask
-            defaultValue={meta.birthday.value.replace(dateFormatRegex, '$2/$3/$1')}
+            defaultValue={get(meta.birthday, 'value', '').replace(dateFormatRegex, '$2/$3/$1')}
             onBlur={e => {
               setFieldTouched('birthday');
               setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))

@@ -26,9 +26,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
   const pump = find(devices.pumps, { id: pumpId });
   const ranges = pumpRanges(pump);
 
-  console.log('ranges.bloodGlucoseTargetPhysicalActivity', ranges.bloodGlucoseTargetPhysicalActivity);
-  console.log('ranges.bloodGlucoseTargetPreprandial', ranges.bloodGlucoseTargetPreprandial);
-  console.log('ranges.bloodGlucoseTarget', ranges.bloodGlucoseTarget);
+  // console.log('ranges.bloodGlucoseTargetPhysicalActivity', ranges.bloodGlucoseTargetPhysicalActivity);
+  // console.log('ranges.bloodGlucoseTargetPreprandial', ranges.bloodGlucoseTargetPreprandial);
+  // console.log('ranges.bloodGlucoseTarget', ranges.bloodGlucoseTarget);
 
   const deviceOptions = {
     pumps: pumpDeviceOptions(devices),
@@ -47,10 +47,10 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
     carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
-    bloodGlucoseSuspendThreshold: `Threshold out of range. Please select a value between ${ranges.bloodGlucoseSuspendThreshold.min}-${ranges.bloodGlucoseSuspendThreshold.max}`,
+    glucoseSafetyLimit: `Threshold out of range. Please select a value between ${ranges.glucoseSafetyLimit.min}-${ranges.glucoseSafetyLimit.max}`,
   };
 
-  console.log('rangeErrors', rangeErrors);
+  // console.log('rangeErrors', rangeErrors);
 
   return yup.object().shape({
     id: yup.string(),
@@ -108,9 +108,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       insulinModel: yup.string()
         .oneOf(map(insulinModelOptions, 'value'))
         .required(t('An insulin model must be specified')),
-      bloodGlucoseSuspendThreshold: yup.number()
-        .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
-        .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
+      glucoseSafetyLimit: yup.number()
+        .min(ranges.glucoseSafetyLimit.min, rangeErrors.glucoseSafetyLimit)
+        .max(ranges.glucoseSafetyLimit.max, rangeErrors.glucoseSafetyLimit)
         .required(t('Suspend threshold is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()

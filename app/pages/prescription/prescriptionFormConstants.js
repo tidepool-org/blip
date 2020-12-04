@@ -70,7 +70,7 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
 export const defaultUnits = {
   basalRate: 'Units/hour',
   bloodGlucose: MGDL_UNITS,
-  bloodGlucoseSuspendThreshold: MGDL_UNITS,
+  glucoseSafetyLimit: MGDL_UNITS,
   bolusAmount: 'Units',
   insulinCarbRatio: 'g/U',
 };
@@ -78,7 +78,7 @@ export const defaultUnits = {
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
-  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
+  const glucoseSafetyLimit = get(meta, 'initialSettings.glucoseSafetyLimit.value');
   const bloodGlucoseTargetSchedules = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
 
   let minBloodGlucoseTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
@@ -86,9 +86,9 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
   let minWorkoutCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
 
   // Determine min correction range target based on the patient's suspend threshold
-  if (isNumber(bloodGlucoseSuspendThreshold)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
-    ? bloodGlucoseSuspendThreshold
-    : utils.roundBgTarget(utils.translateBg(bloodGlucoseSuspendThreshold, MGDL_UNITS), MGDL_UNITS);
+  if (isNumber(glucoseSafetyLimit)) minBloodGlucoseTarget = (bgUnits === MGDL_UNITS)
+    ? glucoseSafetyLimit
+    : utils.roundBgTarget(utils.translateBg(glucoseSafetyLimit, MGDL_UNITS), MGDL_UNITS);
 
   // Determine min and max temporary correction range targets based on the patient's correction ranges
   if (!isEmpty(bloodGlucoseTargetSchedules)) {
@@ -147,10 +147,10 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
       max: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500),
       step: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1),
     },
-    bloodGlucoseSuspendThreshold: {
-      min: getPumpGuardrail(pump, 'bloodGlucoseSuspendThreshold.absoluteBounds.minimum', 54),
-      max: getPumpGuardrail(pump, 'bloodGlucoseSuspendThreshold.absoluteBounds.maximum', 180),
-      step: getPumpGuardrail(pump, 'bloodGlucoseSuspendThreshold.absoluteBounds.increment', 1),
+    glucoseSafetyLimit: {
+      min: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 54),
+      max: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 180),
+      step: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1),
     },
   };
 
@@ -171,9 +171,9 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
     ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.step = 0.1;
 
-    ranges.bloodGlucoseSuspendThreshold.min = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseSuspendThreshold.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseSuspendThreshold.max = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseSuspendThreshold.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseSuspendThreshold.step = 0.1;
+    ranges.glucoseSafetyLimit.min = utils.roundBgTarget(utils.translateBg(ranges.glucoseSafetyLimit.min, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.glucoseSafetyLimit.max = utils.roundBgTarget(utils.translateBg(ranges.glucoseSafetyLimit.max, MMOLL_UNITS), MMOLL_UNITS);
+    ranges.glucoseSafetyLimit.step = 0.1;
   }
 
   return ranges;
@@ -277,13 +277,13 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, met
         message: highWarning,
       },
     },
-    bloodGlucoseSuspendThreshold: {
+    glucoseSafetyLimit: {
       low: {
-        value: getPumpGuardrail(pump, 'bloodGlucoseSuspendThreshold.recommendedBounds.minimum', 70),
+        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.minimum', 70),
         message: lowWarning,
       },
       high: {
-        value: getPumpGuardrail(pump, 'bloodGlucoseSuspendThreshold.recommendedBounds.maximum', 120),
+        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.maximum', 120),
         message: highWarning,
       },
     },
@@ -301,8 +301,8 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, met
     thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
     thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
 
-    thresholds.bloodGlucoseSuspendThreshold.low.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseSuspendThreshold.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.bloodGlucoseSuspendThreshold.high.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseSuspendThreshold.high.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.glucoseSafetyLimit.low.value = utils.roundBgTarget(utils.translateBg(thresholds.glucoseSafetyLimit.low.value, MMOLL_UNITS), MMOLL_UNITS);
+    thresholds.glucoseSafetyLimit.high.value = utils.roundBgTarget(utils.translateBg(thresholds.glucoseSafetyLimit.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
 
   return thresholds;
@@ -346,11 +346,13 @@ export const stepValidationFields = [
   [
     [
       'training',
-      'initialSettings.bloodGlucoseSuspendThreshold',
+      'initialSettings.glucoseSafetyLimit',
       'initialSettings.insulinModel',
       'initialSettings.basalRateMaximum.value',
       'initialSettings.bolusAmountMaximum.value',
       'initialSettings.bloodGlucoseTargetSchedule',
+      'initialSettings.bloodGlucoseTargetPhysicalActivity',
+      'initialSettings.bloodGlucoseTargetPreprandial',
       'initialSettings.basalRateSchedule',
       'initialSettings.carbohydrateRatioSchedule',
       'initialSettings.insulinSensitivitySchedule',

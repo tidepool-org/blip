@@ -11,7 +11,7 @@ const expect = chai.expect;
 const meta = {
   training: { valid: true },
   initialSettings: {
-    bloodGlucoseSuspendThreshold: { valid: true },
+    glucoseSafetyLimit: { valid: true },
     insulinModel: { valid: true },
     basalRateMaximum: { value: { valid: true } },
     bolusAmountMaximum: { value: { valid: true } },
@@ -42,7 +42,7 @@ describe('therapySettingsFormStep', function() {
   it('should disable the complete button for any invalid fields', () => {
     expect(therapySettingsFormStep(meta).disableComplete).to.be.false;
     expect(therapySettingsFormStep(invalidateMeta('training')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateMeta('initialSettings.bloodGlucoseSuspendThreshold')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(invalidateMeta('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.insulinModel')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.basalRateMaximum.value')).disableComplete).to.be.true;
     expect(therapySettingsFormStep(invalidateMeta('initialSettings.bolusAmountMaximum.value')).disableComplete).to.be.true;

@@ -10,7 +10,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
-import min from 'lodash/min';
+import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import remove from 'lodash/remove';
@@ -60,28 +60,28 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
     const ranges = pumpRanges(pump);
 
     return {
-      id: get(props, 'prescription.id', ''),
+      id: get(props, 'prescription.id'),
       state: get(props, 'prescription.latestRevision.attributes.state', 'draft'),
-      accountType: get(props, 'prescription.latestRevision.attributes.accountType', ''),
-      firstName: get(props, 'prescription.latestRevision.attributes.firstName', ''),
-      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName', ''),
-      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName', ''),
-      lastName: get(props, 'prescription.latestRevision.attributes.lastName', ''),
-      birthday: get(props, 'prescription.latestRevision.attributes.birthday', ''),
-      email: get(props, 'prescription.latestRevision.attributes.email', ''),
-      emailConfirm: get(props, 'prescription.latestRevision.attributes.email', ''),
+      accountType: get(props, 'prescription.latestRevision.attributes.accountType'),
+      firstName: get(props, 'prescription.latestRevision.attributes.firstName'),
+      caregiverFirstName: get(props, 'prescription.latestRevision.attributes.caregiverFirstName'),
+      caregiverLastName: get(props, 'prescription.latestRevision.attributes.caregiverLastName'),
+      lastName: get(props, 'prescription.latestRevision.attributes.lastName'),
+      birthday: get(props, 'prescription.latestRevision.attributes.birthday'),
+      email: get(props, 'prescription.latestRevision.attributes.email'),
+      emailConfirm: get(props, 'prescription.latestRevision.attributes.email'),
       phoneNumber: {
         countryCode: get(props, 'prescription.latestRevision.attributes.phoneNumber.countryCode', validCountryCodes[0]),
-        number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number', ''),
+        number: get(props, 'prescription.latestRevision.attributes.phoneNumber.number'),
       },
-      mrn: get(props, 'prescription.latestRevision.attributes.mrn', ''),
-      sex: get(props, 'prescription.latestRevision.attributes.sex', ''),
+      mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
+      sex: get(props, 'prescription.latestRevision.attributes.sex'),
       initialSettings: {
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
-        pumpId: selectedPumpId || '',
-        cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId', ''),
-        insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel', ''),
-        bloodGlucoseSuspendThreshold: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ''),
+        pumpId: selectedPumpId,
+        cgmId: get(props, 'prescription.latestRevision.attributes.initialSettings.cgmId'),
+        insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
+        glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
         basalRateMaximum: {
           value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
           units: defaultUnits.basalRate,
@@ -92,36 +92,28 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
           context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseSuspendThreshold', ranges.bloodGlucoseTarget.min),
+            min: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit', ranges.bloodGlucoseTarget.min),
           },
-          high: '',
-          low: '',
           start: 0,
         }]),
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity', {
           context: {
             min: max(map(bloodGlucoseTargetSchedules, 'high')) || ranges.bloodGlucoseTargetPhysicalActivity.min,
           },
-          high: '',
-          low: '',
         }),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial', {
           context: {
             max: max(map(bloodGlucoseTargetSchedules, 'high') || ranges.bloodGlucoseTargetPreprandial.max),
           },
-          high: '',
-          low: '',
         }),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
           rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-          amount: '',
           start: 0,
         }]),
         insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-          amount: '',
           start: 0,
         }]),
       },
@@ -272,14 +264,14 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
-  // Update minimum blood glucose target values when bloodGlucoseSuspendThreshold changes
-  const bloodGlucoseSuspendThreshold = get(meta, 'initialSettings.bloodGlucoseSuspendThreshold.value');
+  // Update minimum blood glucose target values when glucoseSafetyLimit changes
+  const glucoseSafetyLimit = get(meta, 'initialSettings.glucoseSafetyLimit.value');
   const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
   React.useEffect(() => {
     each(bloodGlucoseTargetSchedule, (schedule, i) => {
-      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, bloodGlucoseSuspendThreshold);
+      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, glucoseSafetyLimit);
     });
-  }, [bloodGlucoseSuspendThreshold]);
+  }, [glucoseSafetyLimit]);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
@@ -308,7 +300,13 @@ export const PrescriptionForm = props => {
     stepSubmit: () => {
       setStepAsyncState(asyncStates.pending);
       // Delete fields that we never want to send to the backend
-      const fieldsToDelete = ['emailConfirm', 'id', 'therapySettingsReviewed'];
+      const fieldsToDelete = [
+        'emailConfirm',
+        'id',
+        'therapySettingsReviewed',
+        'initialSettings.bloodGlucoseTargetPhysicalActivity.context',
+        'initialSettings.bloodGlucoseTargetPreprandial.context',
+      ];
 
       for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
         fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
@@ -323,12 +321,18 @@ export const PrescriptionForm = props => {
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
           fieldPath => {
             const value = get(values, fieldPath);
-            // Return schedule field arrays that are set to the default initial empty string values
-            if (isArray(value) && value.length === 1) {
-              return includes(_values(value[0]), '');
+            // Return schedule field arrays that are set to the initial values with only a start time
+            const scheduleArrays = [
+              'initialSettings.bloodGlucoseTargetSchedule',
+              'initialSettings.basalRateSchedule',
+              'initialSettings.carbohydrateRatioSchedule',
+              'initialSettings.insulinSensitivitySchedule',
+            ];
+            if (includes(scheduleArrays, fieldPath) && value.length === 1) {
+              return keys(value[0]).length = 1;
             }
-            // Return empty values for non-array fields
-            return isEmpty(value);
+            // Return empty values (with the dynamic 'context' properties omitted) for non-array fields
+            return isEmpty(omit(value, ['context']));
           }
         );
 
