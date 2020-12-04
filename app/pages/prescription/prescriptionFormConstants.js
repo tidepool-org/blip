@@ -148,8 +148,8 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
       step: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1),
     },
     glucoseSafetyLimit: {
-      min: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 54),
-      max: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 180),
+      min: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67),
+      max: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 110),
       step: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1),
     },
   };
@@ -279,11 +279,11 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, met
     },
     glucoseSafetyLimit: {
       low: {
-        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.minimum', 70),
+        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.minimum', 74),
         message: lowWarning,
       },
       high: {
-        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.maximum', 120),
+        value: getPumpGuardrail(pump, 'glucoseSafetyLimit.recommendedBounds.maximum', 80),
         message: highWarning,
       },
     },
