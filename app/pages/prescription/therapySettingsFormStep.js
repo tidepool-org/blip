@@ -114,8 +114,8 @@ export const GlucoseSettings = props => {
       <Title mb={3}>{t('Glucose Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
-          id='suspend-threshold'
-          label={t('Suspend Threshold')}
+          id='glucose-safety-limit'
+          label={t('Glucose Safety Limit')}
           mb={2}
           popoverContent={(
             <Box p={3}>

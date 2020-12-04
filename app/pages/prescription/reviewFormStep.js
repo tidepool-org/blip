@@ -105,8 +105,8 @@ const therapySettingsRows = (pump, meta) => {
       ),
     },
     {
-      id: 'suspend-threshold',
-      label: t('Suspend Threshold'),
+      id: 'glucose-safety-limit',
+      label: t('Glucose Safety Limit'),
       value: `${meta.initialSettings.glucoseSafetyLimit.value} ${bgUnits}`,
       warning: getThresholdWarning(meta.initialSettings.glucoseSafetyLimit.value, thresholds.glucoseSafetyLimit)
     },
