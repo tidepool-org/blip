@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, Field } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import get from 'lodash/get';
@@ -105,8 +105,9 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
   const { t, meta, pump, ...themeProps } = props;
+  const { values } = useFormikContext();
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const ranges = pumpRanges(pump, bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, values);
   const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (
@@ -267,8 +268,9 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
   const { t, meta, pump, ...themeProps } = props;
+  const { values } = useFormikContext();
   const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const ranges = pumpRanges(pump, bgUnits, meta);
+  const ranges = pumpRanges(pump, bgUnits, values);
   const thresholds = warningThresholds(pump, bgUnits, meta);
 
   return (

@@ -57,7 +57,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
 
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
     const pump = find(props.devices.pumps, { id: pumpId });
-    const ranges = pumpRanges(pump);
+    const ranges = pumpRanges(pump, bgUnits, get(props, 'prescription'));
 
     return {
       id: get(props, 'prescription.id'),
@@ -123,8 +123,9 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   },
   validationSchema: props => prescriptionSchema(
     props.devices,
-    get(props, 'prescription.initialSettings.pumpId'),
-    bgUnits
+    get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
+    bgUnits,
+    get(props, 'prescription.latestRevision.attributes')
   ),
   displayName: 'PrescriptionForm',
 });
@@ -186,7 +187,7 @@ export const PrescriptionForm = props => {
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
-  const meta = getFieldsMeta(prescriptionSchema(devices, pumpId, bgUnits), getFieldMeta);
+  const meta = getFieldsMeta(prescriptionSchema(devices, pumpId, bgUnits, values), getFieldMeta);
 
   const asyncStates = {
     initial: { pending: false, complete: false },

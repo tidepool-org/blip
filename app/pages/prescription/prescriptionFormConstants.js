@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'rebass/styled-components';
+import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
@@ -77,9 +78,12 @@ export const defaultUnits = {
 
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
 
-export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
-  const glucoseSafetyLimit = get(meta, 'initialSettings.glucoseSafetyLimit.value');
-  const bloodGlucoseTargetSchedules = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const glucoseSafetyLimit = get(values, 'initialSettings.glucoseSafetyLimit');
+  const bloodGlucoseTargetPhysicalActivityMin = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.low');
+  const bloodGlucoseTargetPreprandialMin = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low');
+  const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
+  let bloodGlucoseTargetSchedulesMin;
 
   let minBloodGlucoseTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60);
   let maxPreprandialCorrectionTarget = getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180);
@@ -93,9 +97,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
   // Determine min and max temporary correction range targets based on the patient's correction ranges
   if (!isEmpty(bloodGlucoseTargetSchedules)) {
     const bloodGlucoseTargetSchedulesMax = max(map(bloodGlucoseTargetSchedules, 'high'));
-
-    console.log('bloodGlucoseTargetSchedulesMax', bloodGlucoseTargetSchedulesMax);
-    console.log('bgUnits', bgUnits);
+    bloodGlucoseTargetSchedulesMin = min(map(bloodGlucoseTargetSchedules, 'low'));
 
     maxPreprandialCorrectionTarget = (bgUnits === MGDL_UNITS)
       ? bloodGlucoseTargetSchedulesMax
@@ -105,6 +107,13 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
       ? bloodGlucoseTargetSchedulesMax
       : utils.roundBgTarget(utils.translateBg(bloodGlucoseTargetSchedulesMax, MGDL_UNITS), MGDL_UNITS);
   }
+
+  const maxGlucoseSafetyLimit = min(compact([
+    getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 110),
+    bloodGlucoseTargetPhysicalActivityMin,
+    bloodGlucoseTargetPreprandialMin,
+    bloodGlucoseTargetSchedulesMin,
+  ]));
 
   const ranges = {
     basalRate: {
@@ -149,7 +158,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
     },
     glucoseSafetyLimit: {
       min: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67),
-      max: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 110),
+      max: maxGlucoseSafetyLimit,
       step: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1),
     },
   };

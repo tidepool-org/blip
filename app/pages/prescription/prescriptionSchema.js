@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import i18next from '../../core/language';
-import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import moment from 'moment';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
@@ -22,13 +21,9 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
+export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) => {
   const pump = find(devices.pumps, { id: pumpId });
-  const ranges = pumpRanges(pump);
-
-  // console.log('ranges.bloodGlucoseTargetPhysicalActivity', ranges.bloodGlucoseTargetPhysicalActivity);
-  // console.log('ranges.bloodGlucoseTargetPreprandial', ranges.bloodGlucoseTargetPreprandial);
-  // console.log('ranges.bloodGlucoseTarget', ranges.bloodGlucoseTarget);
+  const ranges = pumpRanges(pump, bgUnits, values);
 
   const deviceOptions = {
     pumps: pumpDeviceOptions(devices),
@@ -49,8 +44,6 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
     insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
     glucoseSafetyLimit: `Threshold out of range. Please select a value between ${ranges.glucoseSafetyLimit.min}-${ranges.glucoseSafetyLimit.max}`,
   };
-
-  // console.log('rangeErrors', rangeErrors);
 
   return yup.object().shape({
     id: yup.string(),
