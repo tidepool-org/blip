@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField } from 'formik';
+import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import find from 'lodash/find';
@@ -74,8 +74,9 @@ const patientRows = meta => ([
 ]);
 
 const therapySettingsRows = (pump, meta) => {
-  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
-  const thresholds = warningThresholds(pump, bgUnits, meta);
+  const { values } = useFormikContext();
+  const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const thresholds = warningThresholds(pump, bgUnits, values);
 
   return [
     {

@@ -188,16 +188,16 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
   return ranges;
 };
 
-export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, meta) => {
+export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const lowWarning = t('The value you have chosen is lower than Tidepool generally recommends.');
   const highWarning = t('The value you have chosen is higher than Tidepool generally recommends.');
 
-  const maxBasalRate = max(map(meta.initialSettings.basalRateSchedule.value, 'rate'));
+  const maxBasalRate = max(map(values.initialSettings.basalRateSchedule, 'rate'));
   const basalRateMaximumWarning = t('Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of {{value}} U/hr.', {
     value: maxBasalRate,
   });
 
-  const bloodGlucoseTargetSchedules = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
+  const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
   let bloodGlucoseTargetPhysicalActivityLow = undefined;
   let bloodGlucoseTargetPreprandialHigh = undefined;
 

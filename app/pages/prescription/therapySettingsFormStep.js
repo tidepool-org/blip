@@ -106,9 +106,9 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, meta, pump, ...themeProps } = props;
   const { values } = useFormikContext();
-  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
+  const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const ranges = pumpRanges(pump, bgUnits, values);
-  const thresholds = warningThresholds(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, values);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -269,9 +269,9 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 export const InsulinSettings = props => {
   const { t, meta, pump, ...themeProps } = props;
   const { values } = useFormikContext();
-  const bgUnits = meta.initialSettings.bloodGlucoseUnits.value;
+  const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const ranges = pumpRanges(pump, bgUnits, values);
-  const thresholds = warningThresholds(pump, bgUnits, meta);
+  const thresholds = warningThresholds(pump, bgUnits, values);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
