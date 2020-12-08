@@ -90,7 +90,7 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
-export const getValueRoundedToStep = (value, step = 1) => {
+export const roundValueToStep = (value, step = 1) => {
   const inverse = 1 / step;
   return Math.round(value * inverse) / inverse;
 };

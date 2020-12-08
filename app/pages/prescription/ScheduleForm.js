@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, Field } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
@@ -17,6 +17,7 @@ import Button from '../../components/elements/Button';
 import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
 import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
+import { roundValueToStep } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
 
@@ -30,6 +31,11 @@ const ScheduleForm = props => {
     t,
     ...boxProps
   } = props;
+
+  const {
+    setFieldTouched,
+    setFieldValue,
+  } = useFormikContext();
 
   const [refs, setRefs] = React.useState([]);
   const [focusedId, setFocusedId] = React.useState();
@@ -91,6 +97,10 @@ const ScheduleForm = props => {
                 suffix={field.suffix}
                 error={getFieldError(fieldArrayMeta, index, field.name)}
                 warning={getThresholdWarning(schedule[field.name], field.threshold)}
+                onBlur={e => {
+                  setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
+                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToStep(e.target.value, field.step))
+                }}
                 {...inlineInputStyles}
               />
               {(fieldIndex < fields.length - 1 ) && separator && (
