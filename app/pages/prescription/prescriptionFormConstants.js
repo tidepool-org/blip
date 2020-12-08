@@ -132,7 +132,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       step: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 1),
     },
     carbRatio: {
-      min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 1),
+      min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 2),
       max: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.maximum', 150),
       step: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 1),
     },
@@ -225,7 +225,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
     },
     carbRatio: {
       low: {
-        value: getPumpGuardrail(pump, 'carbohydrateRatio.recommendedBounds.minimum', 3),
+        value: getPumpGuardrail(pump, 'carbohydrateRatio.recommendedBounds.minimum', 4),
         message: lowWarning,
       },
       high: {
