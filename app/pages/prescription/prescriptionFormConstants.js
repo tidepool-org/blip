@@ -90,11 +90,16 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
+export const getValueRoundedToStep = (value, step = 1) => {
+  const inverse = 1 / step;
+  return Math.round(value * inverse) / inverse;
+};
+
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const ranges = {
     basalRate: {
-      min: getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0),
-      max: getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 35),
+      min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
+      max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
       step: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
     }, // will need to enforce step in case user types in invalid value
     basalRateMaximum: {
