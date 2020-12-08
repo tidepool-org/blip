@@ -81,7 +81,14 @@ export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnits
 export const getBgInTargetUnits = (bgValue, bgUnits, targetUnits) => {
   if (bgUnits === targetUnits || !isFinite(bgValue)) return bgValue;
   return utils.roundBgTarget(utils.translateBg(bgValue, targetUnits), targetUnits);
-}
+};
+
+export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
+  if (stepUnits === targetUnits || !isFinite(stepValue)) return stepValue;
+  return (stepUnits === MGDL_UNITS)
+    ? stepValue * 0.1
+    : stepValue * 10;
+};
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
@@ -107,24 +114,27 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     },
     bloodGlucoseTarget: {
       min: max(compact([
-        getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 87),
-        getBgInTargetUnits(get(values, 'initialSettings.glucoseSafetyLimit'), bgUnits, MGDL_UNITS),
+        getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 87), MGDL_UNITS, bgUnits),
+        get(values, 'initialSettings.glucoseSafetyLimit'),
       ])),
-      max: getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180),
-      step: getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1),
+      max: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180), MGDL_UNITS, bgUnits),
+      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bloodGlucoseTargetPhysicalActivity: {
       min: max(compact([
-        getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.minimum', 85),
-        getBgInTargetUnits(get(values, 'initialSettings.glucoseSafetyLimit'), bgUnits, MGDL_UNITS),
+        getBgInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.minimum', 85), MGDL_UNITS, bgUnits),
+        get(values, 'initialSettings.glucoseSafetyLimit'),
       ])),
-      max: getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.maximum', 250),
-      step: getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.increment', 1),
+      max: getBgInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.maximum', 250), MGDL_UNITS, bgUnits),
+      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bloodGlucoseTargetPreprandial: {
-      min: getPumpGuardrail(pump, 'correctionRange.absoluteBounds.minimum', 60),
-      max: maxPreprandialCorrectionTarget,
-      step: getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1),
+      min: max(compact([
+        getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),
+        get(values, 'initialSettings.glucoseSafetyLimit'),
+      ])),
+      max: getBgInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.maximum', 130), MGDL_UNITS, bgUnits),
+      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
       min: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0),
@@ -139,40 +149,23 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     insulinSensitivityFactor: {
       min: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.minimum', 10),
       max: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500),
-      step: getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1),
+      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     glucoseSafetyLimit: {
-      min: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67),
+      min: getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),
       max: min(compact([
-        getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 110),
+        getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.maximum', 110), MGDL_UNITS, bgUnits),
         get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.low'),
         get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low'),
         min(map(get(values, 'initialSettings.bloodGlucoseTargetSchedule'), 'low')),
       ])),
-      step: getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1),
+      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    ranges.bloodGlucoseTarget.min = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTarget.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTarget.max = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTarget.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTarget.step = 0.1;
-
-    ranges.bloodGlucoseTargetPhysicalActivity.min = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTargetPhysicalActivity.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTargetPhysicalActivity.max = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTargetPhysicalActivity.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTargetPhysicalActivity.step = 0.1;
-
-    ranges.bloodGlucoseTargetPreprandial.min = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTargetPreprandial.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTargetPreprandial.max = utils.roundBgTarget(utils.translateBg(ranges.bloodGlucoseTargetPreprandial.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.bloodGlucoseTargetPreprandial.step = 0.1;
-
     ranges.insulinSensitivityFactor.min = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.min, MMOLL_UNITS), MMOLL_UNITS);
     ranges.insulinSensitivityFactor.max = utils.roundBgTarget(utils.translateBg(ranges.insulinSensitivityFactor.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.insulinSensitivityFactor.step = 0.1;
-
-    ranges.glucoseSafetyLimit.min = utils.roundBgTarget(utils.translateBg(ranges.glucoseSafetyLimit.min, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.glucoseSafetyLimit.max = utils.roundBgTarget(utils.translateBg(ranges.glucoseSafetyLimit.max, MMOLL_UNITS), MMOLL_UNITS);
-    ranges.glucoseSafetyLimit.step = 0.1;
   }
 
   return ranges;
@@ -192,25 +185,12 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
   const bloodGlucoseTargetSchedulesMax = min(compact(map(bloodGlucoseTargetSchedules, 'high')));
 
   let bloodGlucoseTargetSchedulesExtentsText = (isFinite(bloodGlucoseTargetSchedulesMin) && isFinite(bloodGlucoseTargetSchedulesMax))
-    ? t(' ({{bloodGlucoseTargetSchedulesMin}}-{{bloodGlucoseTargetSchedulesMin}} {{bgUnits}})', {
+    ? t(' ({{bloodGlucoseTargetSchedulesMin}}-{{bloodGlucoseTargetSchedulesMax}} {{bgUnits}})', {
       bloodGlucoseTargetSchedulesMin,
-      bloodGlucoseTargetSchedulesMin,
+      bloodGlucoseTargetSchedulesMax,
       bgUnits,
     })
     : '';
-
-  let bloodGlucoseTargetPreprandialHigh = undefined;
-
-  // Determine temporary correction range warning thresholds based on the patient's correction ranges
-  if (!isEmpty(bloodGlucoseTargetSchedules)) {
-    bloodGlucoseTargetPreprandialHigh = {
-      value: bloodGlucoseTargetSchedulesMin,
-      message: t(
-        'Tidepool generally recommends a pre-meal range lower than your normal correction range{{bloodGlucoseTargetSchedulesExtentsText}}.',
-        { bloodGlucoseTargetSchedulesExtentsText }
-      ),
-    };
-  }
 
   const thresholds = {
     basalRateMaximum: {
@@ -230,7 +210,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
       low: isFinite(bloodGlucoseTargetSchedulesMax) ? {
         value: bloodGlucoseTargetSchedulesMax,
         message: t(
-          'Tidepool generally recommends a workout range lower than your normal correction range{{bloodGlucoseTargetSchedulesExtentsText}}.',
+          'Tidepool generally recommends a workout range higher than your normal correction range{{bloodGlucoseTargetSchedulesExtentsText}}.',
           { bloodGlucoseTargetSchedulesExtentsText }
         ),
       } : undefined,
@@ -240,11 +220,13 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
       }
     },
     bloodGlucoseTargetPreprandial: {
-      low: {
-        value: getPumpGuardrail(pump, 'correctionRange.recommendedBounds.minimum', 70),
-        message: lowWarning,
-      },
-      high: bloodGlucoseTargetPreprandialHigh,
+      high: isFinite(bloodGlucoseTargetSchedulesMin) ? {
+        value: bloodGlucoseTargetSchedulesMin,
+        message: t(
+          'Tidepool generally recommends a pre-meal range lower than your normal correction range{{bloodGlucoseTargetSchedulesExtentsText}}.',
+          { bloodGlucoseTargetSchedulesExtentsText }
+        ),
+      } : undefined,
     },
     bolusAmountMaximum: {
       low: {
@@ -289,9 +271,6 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
   };
 
   if (bgUnits === MMOLL_UNITS) {
-    thresholds.bloodGlucoseTargetPreprandial.low.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTargetPreprandial.low.value, MMOLL_UNITS), MMOLL_UNITS);
-    thresholds.bloodGlucoseTargetPreprandial.high.value = utils.roundBgTarget(utils.translateBg(thresholds.bloodGlucoseTargetPreprandial.high.value, MMOLL_UNITS), MMOLL_UNITS);
-
     thresholds.insulinSensitivityFactor.low.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.low.value, MMOLL_UNITS), MMOLL_UNITS);
     thresholds.insulinSensitivityFactor.high.value = utils.roundBgTarget(utils.translateBg(thresholds.insulinSensitivityFactor.high.value, MMOLL_UNITS), MMOLL_UNITS);
   }
