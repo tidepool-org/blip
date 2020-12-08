@@ -50,6 +50,8 @@ const { TextUtil } = vizUtils.text;
 const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionForm');
 
+let schema;
+
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
@@ -121,12 +123,16 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
     };
   },
-  validationSchema: props => prescriptionSchema(
-    props.devices,
-    get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
-    bgUnits,
-    get(props, 'prescription.latestRevision.attributes')
-  ),
+  validationSchema: props => {
+    if (!schema) schema = prescriptionSchema(
+      props.devices,
+      get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId'),
+      bgUnits,
+      get(props, 'prescription.latestRevision.attributes')
+    );
+
+    return schema;
+  },
   displayName: 'PrescriptionForm',
 });
 
@@ -187,7 +193,8 @@ export const PrescriptionForm = props => {
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
-  const meta = getFieldsMeta(prescriptionSchema(devices, pumpId, bgUnits, values), getFieldMeta);
+  schema = prescriptionSchema(devices, pumpId, bgUnits, values);
+  const meta = getFieldsMeta(schema, getFieldMeta);
 
   const asyncStates = {
     initial: { pending: false, complete: false },
