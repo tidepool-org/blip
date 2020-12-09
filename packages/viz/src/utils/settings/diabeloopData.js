@@ -30,20 +30,22 @@ export function getParametersByLevel(parameters) {
   const mapParams = new Map();
 
   // eslint-disable-next-line lodash/prefer-lodash-method
-  parameters.forEach((parameter) => {
-    if (!mapParams.has(parameter.level)) {
-      mapParams.set(parameter.level, []);
-    }
+  if (Array.isArray(parameters)) {
+    parameters.forEach((parameter) => {
+      if (!mapParams.has(parameter.level)) {
+        mapParams.set(parameter.level, []);
+      }
 
-    const value = formatParameterValue(parameter.value, parameter.unit);
-    const param = {
-      name: t(`params:::${parameter.name}`),
-      value,
-      unit: parameter.unit,
-      level: parameter.level,
-    };
-    mapParams.get(parameter.level).push(param);
-  });
+      const value = formatParameterValue(parameter.value, parameter.unit);
+      const param = {
+        name: t(`params:::${parameter.name}`),
+        value,
+        unit: parameter.unit,
+        level: parameter.level,
+      };
+      mapParams.get(parameter.level).push(param);
+    });
+  }
 
   return mapParams;
 }

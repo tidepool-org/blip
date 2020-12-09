@@ -23,6 +23,19 @@
   composes: settingsTable from './settings.css';
 }
 
+.deviceTable {
+  composes: settingsTable from './settings.css';
+}
+
+.pumpTable {
+  composes: settingsTable from './settings.css';
+}
+
+.cgmTable {
+  composes: settingsTable from './settings.css';
+}
+
+
 .secondaryLabelWithMain {
   composes: lightText from '../../styles/typography.css';
   composes: secondaryLeftPadding from './settings.css';
