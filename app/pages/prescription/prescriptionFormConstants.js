@@ -2,7 +2,6 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import { Link } from 'rebass/styled-components';
 import compact from 'lodash/compact';
-import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -138,8 +137,8 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
-      min: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0),
-      max: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30),
+      min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
+      max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
       step: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 1),
     },
     carbRatio: {
@@ -170,12 +169,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
 export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const lowWarning = t('The value you have chosen is lower than Tidepool generally recommends.');
   const highWarning = t('The value you have chosen is higher than Tidepool generally recommends.');
-
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
-  const basalRateMaximumWarning = t('Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of {{value}} U/hr.', {
-    value: maxBasalRate,
-  });
-
   const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
   const bloodGlucoseTargetSchedulesMin = min(compact(map(bloodGlucoseTargetSchedules, 'low')));
   const bloodGlucoseTargetSchedulesMax = max(compact(map(bloodGlucoseTargetSchedules, 'high')));
@@ -190,8 +184,18 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
 
   const thresholds = {
     basalRateMaximum: {
-      high: { value: (maxBasalRate * 6.4).toFixed(2), message: basalRateMaximumWarning },
-      low: { value: (maxBasalRate * 2.1).toFixed(2), message: basalRateMaximumWarning },
+      high: {
+        value: (maxBasalRate * 6.4).toFixed(2),
+        message: t('Tidepool recommends that your maximum basal rate does not exceed 6.4 times your highest scheduled basal rate of {{value}} U/hr.', {
+          value: maxBasalRate,
+        }),
+      },
+      low: {
+        value: (maxBasalRate * 2.1).toFixed(2),
+        message: t('Tidepool recommends that your maximum basal rate is at least 2.1 times your highest scheduled basal rate of {{value}} U/hr.', {
+          value: maxBasalRate,
+        }),
+      },
     },
     bloodGlucoseTarget: {
       low: {
@@ -227,13 +231,13 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
     },
     bolusAmountMaximum: {
       low: {
-        value: getPumpGuardrail(pump, 'bolusAmountMaximum.recommendedBounds.minimum', 0),
+        value: getPumpGuardrail(pump, 'bolusAmountMaximum.recommendedBounds.minimum', 0.05),
         message: lowWarning,
       },
-      high: {
-        value: getPumpGuardrail(pump, 'bolusAmountMaximum.recommendedBounds.maximum', 20),
+      high: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum') >= 20 ? {
+        value: getPumpGuardrail(pump, 'bolusAmountMaximum.recommendedBounds.maximum', 19.95),
         message: highWarning,
-      },
+      } : undefined,
     },
     carbRatio: {
       low: {
