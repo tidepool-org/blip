@@ -101,10 +101,16 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
       min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
       step: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
-    }, // will need to enforce step in case user types in invalid value
+    },
     basalRateMaximum: {
-      min: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
-      max: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 35),
+      min: max(compact([
+        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.minimum', 0),
+        max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate')),
+      ])),
+      max: min(compact([
+        getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
+        70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
+      ])),
       step: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.25),
     },
     bloodGlucoseTarget: {
@@ -165,14 +171,14 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
   const lowWarning = t('The value you have chosen is lower than Tidepool generally recommends.');
   const highWarning = t('The value you have chosen is higher than Tidepool generally recommends.');
 
-  const maxBasalRate = max(map(values.initialSettings.basalRateSchedule, 'rate'));
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const basalRateMaximumWarning = t('Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of {{value}} U/hr.', {
     value: maxBasalRate,
   });
 
   const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
   const bloodGlucoseTargetSchedulesMin = min(compact(map(bloodGlucoseTargetSchedules, 'low')));
-  const bloodGlucoseTargetSchedulesMax = min(compact(map(bloodGlucoseTargetSchedules, 'high')));
+  const bloodGlucoseTargetSchedulesMax = max(compact(map(bloodGlucoseTargetSchedules, 'high')));
 
   let bloodGlucoseTargetSchedulesExtentsText = (isFinite(bloodGlucoseTargetSchedulesMin) && isFinite(bloodGlucoseTargetSchedulesMax))
     ? t(' ({{bloodGlucoseTargetSchedulesMin}}-{{bloodGlucoseTargetSchedulesMax}} {{bgUnits}})', {
@@ -184,7 +190,8 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
 
   const thresholds = {
     basalRateMaximum: {
-      high: { value: maxBasalRate * 6 + 0.01, message: basalRateMaximumWarning }
+      high: { value: (maxBasalRate * 6.4).toFixed(2), message: basalRateMaximumWarning },
+      low: { value: (maxBasalRate * 2.1).toFixed(2), message: basalRateMaximumWarning },
     },
     bloodGlucoseTarget: {
       low: {
