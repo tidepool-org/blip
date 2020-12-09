@@ -250,6 +250,12 @@ function chartDailyFactory(el, options) {
       yScale: scaleHeightBG
     }), true, true);
 
+    poolBG.addPlotType('deviceEvent', tideline.plot.zenModeEvent(poolBG, {
+      yScale: scaleBG,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      data: tidelineData.zenEvents,
+    }), false, true);
+
     poolBG.addPlotType('physicalActivity', tideline.plot.physicalActivity(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,

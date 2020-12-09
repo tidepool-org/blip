@@ -35,7 +35,8 @@ var schemas = {
   reservoirChange: schema(),
   smbg: require('./bg'),
   upload: require('./upload'),
-  wizard: require('./wizard')
+  wizard: require('./wizard'),
+  zenMode: schema(),
 };
 
 module.exports = {

@@ -61,6 +61,7 @@ module.exports = {
     physicalActivity: require('./plot/physicalActivity'),
     reservoirChange: require('./plot/reservoir'),
     deviceParameterChange: require('./plot/deviceParameterChange'),
+    zenModeEvent: require('./plot/zenModeEvent'),
     stats: {
       puddle: require('./plot/stats/puddle'),
     },

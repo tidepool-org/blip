@@ -260,6 +260,12 @@ var DeviceEvent = function(opts) {
   this.timezoneOffset = this.makeTimezoneOffset();
 
   this.id = this.makeId();
+  if (opts.inputTime) {
+    this.inputTime = opts.inputTime;
+  }
+  if (opts.eventId) {
+    this.eventId = opts.eventId;
+  }
 };
 
 DeviceEvent.prototype = common;

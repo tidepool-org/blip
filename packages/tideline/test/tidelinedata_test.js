@@ -1009,4 +1009,57 @@ describe('TidelineData', function() {
     })
   });
 
+  describe('setEvents', function() {
+    var data = [
+      new types.DeviceEvent({
+        deviceTime: '2014-07-01T10:00:00',
+        eventId: 'Event1',
+        subType: 'zen',
+        inputTime: moment.utc().subtract(2, 'days').toISOString(),
+      }),
+      new types.DeviceEvent({
+        deviceTime: '2014-07-02T10:30:00',
+        inputTime: moment.utc().subtract(1, 'days').toISOString(),
+        eventId: 'Event2',
+        subType: 'zen',
+      }),
+      new types.DeviceEvent({
+        inputTime: moment.utc().subtract(4, 'hours').toISOString(),
+        eventId: 'Event3',
+        subType: 'zen',
+      }),
+      new types.DeviceEvent({
+        inputTime: moment.utc().subtract(3, 'hours').toISOString(),
+        eventId: 'Event3',
+        subType: 'zen',
+      }),
+    ];
+    var thisTd = new TidelineData(_.cloneDeep(data), {});
+
+    it('should be a function', function() {
+      assert.isFunction(thisTd.setEvents);
+    });
+
+    const Zen1 = _.filter(thisTd.zenEvents, { 'eventId': 'Event1' });
+    const Zen2 = _.filter(thisTd.zenEvents, { 'eventId': 'Event2' });
+    const Zen3 = _.filter(thisTd.zenEvents, { 'eventId': 'Event3' });
+
+    console.log(thisTd.zenEvents);
+    it('should deduplicate Events based on eventId', function() {
+      expect(thisTd.zenEvents.length).to.equal(3);
+      expect(Zen1.length).to.equal(1);
+      expect(Zen2.length).to.equal(1);
+      expect(Zen3.length).to.equal(1);
+    });
+
+    it('should have taken the most recent event by eventID', () => {
+      expect(Zen1[0].id).to.equal(data[0].id);
+      expect(Zen1[0].inputTime).to.equal(data[0].inputTime);
+      expect(Zen2[0].id).to.equal(data[1].id);
+      expect(Zen2[0].inputTime).to.equal(data[1].inputTime);
+      expect(Zen3[0].id).to.equal(data[3].id);
+      expect(Zen3[0].inputTime).to.equal(data[3].inputTime);
+    })
+  });
+
 });

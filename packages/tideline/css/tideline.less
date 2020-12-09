@@ -216,6 +216,15 @@ svg {
   stroke: @rescuecarbs;
   stroke-width: 1.5;
 }
+.d3-circle-zen {
+  fill: @zentext
+}
+.d3-zen-text {
+  fill: #FFFFFF;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
 .d3-circle-carbs {
   fill: @carbs;
 }
@@ -262,6 +271,12 @@ svg {
   &.d3-rect-pa {
     fill: @physicalactivity;
     opacity: 0.25;
+  }
+}
+.d3-zen {
+  &.d3-rect-zen {
+    fill: @zenmode;
+    opacity: 0.2;
   }
 }
 // boluses
@@ -846,6 +861,7 @@ text.d3-tabular-ui {
 .d3-wizard-group,
 .d3-pa-group,
 .d3-reservoir-group,
+.d3-event-group,
 .d3-param-group,
 .d3-bolus-group,
 .d3-carb-group {
