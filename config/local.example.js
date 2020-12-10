@@ -26,7 +26,6 @@ const featureFlags = {
 };
 
 const environments = {
-  local: 'http://localhost:3000',
   dev: 'https://dev1.dev.tidepool.org',
   qa1: 'https://qa1.development.tidepool.org',
   qa2: 'https://qa2.development.tidepool.org',
