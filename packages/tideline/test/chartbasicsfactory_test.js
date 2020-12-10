@@ -239,14 +239,6 @@ describe('BasicsChart', function() {
       // siteChanges gets disabled when no data
       expect(render.state.sections.siteChanges.active).to.be.false;
       expect(basicsState().sections.siteChanges.active).to.be.true;
-
-      // fingersticks gets disabled when no data
-      expect(render.state.sections.fingersticks.active).to.be.false;
-      expect(basicsState().sections.fingersticks.active).to.be.true;
-
-      // calibration selector in fingerstick section gets active: false added when no data
-      expect(render.state.sections.fingersticks.selectorOptions.rows[0][2].active).to.be.false;
-      expect(basicsState().sections.fingersticks.selectorOptions.rows[0][2].active).to.be.undefined;
     });
 
     it('should activate sections for which there is data present', function() {
@@ -286,10 +278,6 @@ describe('BasicsChart', function() {
       // boluses remain enabled when data present
       expect(render.state.sections.boluses.active).to.be.true;
       expect(basicsState().sections.boluses.active).to.be.true;
-
-      // fingersticks remain enabled when data present
-      expect(render.state.sections.fingersticks.active).to.be.true;
-      expect(basicsState().sections.fingersticks.active).to.be.true;
 
       // siteChanges remain enabled when data present
       expect(render.state.sections.siteChanges.active).to.be.true;

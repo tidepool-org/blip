@@ -79,29 +79,11 @@ class BasicsChart extends React.Component {
       var basalSection = _.find(basicsData.sections, {type: 'basal'});
 
       basalSection.selectorOptions.rows.forEach(function(row) {
-        _.each(row, function(option) {
+        _.forEach(row, function(option) {
           if (option.key === 'automatedStop') {
             option.active = false;
           }
         });
-      });
-    }
-
-    if (!this._hasSectionData('smbg') && !this._hasSectionData('calibration')) {
-      basicsData.sections.fingersticks.active = false;
-      basicsData.sections.fingersticks.message = noSMBGDataMessage;
-    }
-
-    if (_.isEmpty(basicsData.data.calibration.data)) {
-      var fingerstickSection = _.find(basicsData.sections, {type: 'fingerstick'});
-
-      fingerstickSection.selectorOptions.rows.forEach(function(row) {
-        var calibrationSelector = _.find(row, function(option) {
-          return option.key === 'calibration';
-        });
-        if (calibrationSelector) {
-          calibrationSelector.active = false;
-        }
       });
     }
   };
