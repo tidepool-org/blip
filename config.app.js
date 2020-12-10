@@ -27,7 +27,7 @@
 /* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
-  if (value === 'true') {
+  if (value === 'true' || value === true) {
     return true;
   }
 
