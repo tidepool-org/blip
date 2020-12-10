@@ -76,7 +76,7 @@ class PatientInfo extends React.Component {
       );
       ageNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block">
-          {this.getAgeText(patient)}
+          {this.getBirthdate(patient)}
         </a>
       );
       diagnosisNode = (
@@ -84,8 +84,7 @@ class PatientInfo extends React.Component {
           {this.getDiagnosisText(patient)}
         </a>
       );
-    }
-    else {
+    } else {
       nameNode = (
         <div className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(patient)}
@@ -93,7 +92,7 @@ class PatientInfo extends React.Component {
       );
       ageNode = (
         <div className="PatientInfo-block">
-          {this.getAgeText(patient)}
+          {this.getBirthdate(patient)}
         </div>
       );
       diagnosisNode = (
@@ -457,25 +456,27 @@ class PatientInfo extends React.Component {
     return personUtils.patientFullName(patient);
   }
 
-  getAgeText(patient,to=moment.utc()) {
-    const patientInfo = personUtils.patientInfo(patient) || {};
-    const birthday = patientInfo.birthday;
+  /**
+   *
+   * @param {object} patient The patient profile
+   * @returns {string} The formated date
+   */
+  getBirthdate(patient) {
+    const patientInfo = personUtils.patientInfo(patient);
+    console.info(patientInfo);
+    /** @type {string} */
+    const birthday = _.get(patientInfo, 'birthday', '');
 
-    if (!birthday) {
-      return null;
-    }
-
-    const yrsAgo = to.diff(moment.utc(birthday), 'years');
-
-    if (yrsAgo === 1) {
-      return t('1 year old');
-    } else if (yrsAgo > 1) {
-      return t('{{yrsAgo}} years old', {yrsAgo});
-    } else if (yrsAgo === 0) {
-      return t('Born this year');
-    } else {
+    if (_.isEmpty(birthday)) {
       return t('Birthdate not known');
     }
+
+    const m = moment.utc(birthday);
+    if (!m.isValid() || m.isAfter(moment.utc())) {
+      return t('Birthdate not known');
+    }
+
+    return m.format(t('MM/DD/YYYY'));
   }
 
   getDiagnosisText(patient,to=moment.utc()) {
@@ -613,7 +614,7 @@ class PatientInfo extends React.Component {
   }
 
   prepareFormValuesForSubmit(formValues) {
-    formValues.fullName = `${formValues.firstName} ${formValues.lastName}`
+    formValues.fullName = `${formValues.firstName} ${formValues.lastName}`;
 
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient)) {

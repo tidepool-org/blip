@@ -153,100 +153,28 @@ describe('PatientInfo', function () {
     });
   });
 
-  describe('getAgeText', function() {
-    it('should return text `Born this year` if birthday less than 1 year', function() {
-      var props = {
-        patient: {
-          userid: 1,
-          profile: {
-            patient: {
-              birthday: '1984-05-18'
-            }
+  describe('getBirthdate', function() {
+    it('should return `Birthdate not known` if missing or in the future', () => {
+      const future = moment.utc();
+      future.add(1, 'day');
+      expect(PatientInfo.prototype.getBirthdate({})).to.equal('Birthdate not known');
+      expect(PatientInfo.prototype.getBirthdate({
+        profile: {
+          patient: {
+            birthday: future.toISOString()
           }
         }
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      expect(elem).to.be.ok;
-      // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      //
-      // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1,
-      // the range for 0 spans between these values
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 20)))).to.equal('Born this year');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 19)))).to.equal('Born this year');
-
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1985, 4, 17)))).to.equal('Born this year');
+      })).to.equal('Birthdate not known');
     });
 
-
-    it('should return unknown birthday if birthdate is in future', function() {
-      var props = {
-        patient: {
-          userid: 1,
-          profile: {
-            patient: {
-              birthday: '1984-05-18'
-            }
+    it('should return the right birthdate', () => {
+      expect(PatientInfo.prototype.getBirthdate({
+        profile: {
+          patient: {
+            birthday: '2010-05-27'
           }
         }
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      expect(elem).to.be.ok;
-      // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1980, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1981, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1982, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 17)))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1983, 4, 18)))).to.equal('Birthdate not known');
-    });
-
-    it('should return text representing years difference', function() {
-      var props = {
-        patient: {
-          userid: 1,
-          profile: {
-            patient: {
-              birthday: '1984-05-18'
-            }
-          }
-        }
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1985, 4, 19)))).to.equal('1 year old');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1986, 4, 19)))).to.equal('2 years old');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1987, 4, 19)))).to.equal('3 years old');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1988, 4, 19)))).to.equal('4 years old');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(1999, 4, 19)))).to.equal('15 years old');
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 19)))).to.equal('31 years old');
-    });
-
-    it('should handle return correct text representation for various birthdays', function() {
-      var props = {
-        patient: {
-          userid: 1,
-          profile: {
-            patient: {
-              birthday: '1984-05-18'
-            }
-          }
-        },
-        trackMetric: _.noop
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
-      elem.props.patient.profile.patient.birthday = '1984-04-30';
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('31 years old');
-      elem.props.patient.profile.patient.birthday = '1984-05-29';
-      expect(elem.getAgeText(elem.props.patient, moment.utc(Date.UTC(2015, 4, 28)))).to.equal('30 years old');
+      })).to.equal('05/27/2010');
     });
   });
 

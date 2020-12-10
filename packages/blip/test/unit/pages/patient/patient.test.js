@@ -1,18 +1,11 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global before */
-/* global after */
-
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import createReactClass from 'create-react-class';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
 import Patient from '../../../../app/pages/patient/patient';
 import { PatientTeam } from '../../../../app/pages/patient/patientteam';
-
-const { expect } = chai;
 
 describe('Patient', function () {
   before(() => {
