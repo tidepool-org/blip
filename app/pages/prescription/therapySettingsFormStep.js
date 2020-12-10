@@ -311,41 +311,35 @@ export const InsulinSettings = props => {
       <Title mb={3}>{t('Insulin Settings')}</Title>
       <Box px={3}>
         <PopoverLabel
-          id='insulin-model'
-          label={t('Insulin Model')}
+          id='insulin-to-carb-ratios'
+          label={t('Insulin to carb ratios')}
           mb={2}
           popoverContent={(
             <Box p={3}>
               <Paragraph2>
-                {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
-              </Paragraph2>
-              <Paragraph2>
-                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
-              </Paragraph2>
-              <Paragraph2>
-                <OrderedList>
-                  <li>
-                    {t('Rapid-Acting - Adult Model')}<br />
-                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 75 })}
-                  </li>
-                  <li>
-                    {t('Rapid-Acting - Child Model')}<br />
-                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 65 })}
-                  </li>
-                </OrderedList>
+                {t('Your carb ratio is the number of grams of carbohydrate covered by one unit of insulin.')}
               </Paragraph2>
             </Box>
           )}
         />
-        <FastField
-          as={RadioGroup}
-          variant="horizontal"
-          id="initialSettings.insulinModel"
-          name="initialSettings.insulinModel"
-          options={insulinModelOptions}
-          error={getFieldError(meta.initialSettings.insulinModel)}
-          mb={4}
-        />
+
+        <Box {...scheduleGroupStyles}>
+          <ScheduleForm
+            addButtonText={t('Add an additional carb ratio')}
+            fieldArrayName='initialSettings.carbohydrateRatioSchedule'
+            fieldArrayMeta={meta.initialSettings.carbohydrateRatioSchedule}
+            fields={[
+              {
+                label: t('1 U of insulin covers (g/U)'),
+                name: 'amount',
+                suffix: t('g/U'),
+                threshold: thresholds.carbRatio,
+                type: 'number',
+                ...ranges.carbRatio,
+              },
+            ]}
+          />
+        </Box>
 
         <PopoverLabel
           id='basal-rates'
@@ -438,35 +432,41 @@ export const InsulinSettings = props => {
         />
 
         <PopoverLabel
-          id='insulin-to-carb-ratios'
-          label={t('Insulin to carb ratios')}
+          id='insulin-model'
+          label={t('Insulin Model')}
           mb={2}
           popoverContent={(
             <Box p={3}>
               <Paragraph2>
-                {t('Your carb ratio is the number of grams of carbohydrate covered by one unit of insulin.')}
+                {t('Tidepool Loop assumes that the insulin it has delivered is actively working to lower your glucose for 6 hours. This setting cannot be changed.')}
+              </Paragraph2>
+              <Paragraph2>
+                {t('You can choose how Tidepool Loop measures the insulin’s peak activity according to one of these two insulin models that you’ll select now.')}
+              </Paragraph2>
+              <Paragraph2>
+                <OrderedList>
+                  <li>
+                    {t('Rapid-Acting - Adult Model')}<br />
+                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 75 })}
+                  </li>
+                  <li>
+                    {t('Rapid-Acting - Child Model')}<br />
+                    {t('This model assumes peak insulin activity at {{minutes}} minutes.', { minutes: 65 })}
+                  </li>
+                </OrderedList>
               </Paragraph2>
             </Box>
           )}
         />
-
-        <Box {...scheduleGroupStyles}>
-          <ScheduleForm
-            addButtonText={t('Add an additional carb ratio')}
-            fieldArrayName='initialSettings.carbohydrateRatioSchedule'
-            fieldArrayMeta={meta.initialSettings.carbohydrateRatioSchedule}
-            fields={[
-              {
-                label: t('1 U of insulin covers (g/U)'),
-                name: 'amount',
-                suffix: t('g/U'),
-                threshold: thresholds.carbRatio,
-                type: 'number',
-                ...ranges.carbRatio,
-              },
-            ]}
-          />
-        </Box>
+        <FastField
+          as={RadioGroup}
+          variant="horizontal"
+          id="initialSettings.insulinModel"
+          name="initialSettings.insulinModel"
+          options={insulinModelOptions}
+          error={getFieldError(meta.initialSettings.insulinModel)}
+          mb={4}
+        />
 
         <PopoverLabel
           id='insulin-sensitivity-factors'
