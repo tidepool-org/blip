@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.7.0-rc2 - 2020-12-11
 ### Added
 - YLP-298 Enable Spanish and Italian languages
 - YLP-317 Add Switzerland in country list
