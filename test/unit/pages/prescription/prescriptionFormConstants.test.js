@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
-import { MGDL_UNITS } from '../../../../app/core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
 
 /* global chai */
+/* global context */
 /* global describe */
 /* global it */
 
@@ -121,19 +122,56 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  describe('warningThresholds', () => {
-    const minBasal = 0.05;
-    const maxBasal = 0.1;
-    const meta = {
-      initialSettings: { basalRateSchedule: { value: [
-        { rate: minBasal },
-        { rate: maxBasal },
-      ] } },
-    };
+  describe('getBgInTargetUnits', () => {
+    it('should return a bg value in target units', () => {
+      expect(prescriptionFormConstants.getBgInTargetUnits(120, MGDL_UNITS, MMOLL_UNITS)).to.equal(6.7);
+      expect(prescriptionFormConstants.getBgInTargetUnits(6.7, MMOLL_UNITS, MGDL_UNITS)).to.equal(120);
+    });
 
+    it('should return a bg value as provided if current units = target units', () => {
+      expect(prescriptionFormConstants.getBgInTargetUnits(120, MGDL_UNITS, MGDL_UNITS)).to.equal(120);
+      expect(prescriptionFormConstants.getBgInTargetUnits(6.7, MMOLL_UNITS, MMOLL_UNITS)).to.equal(6.7);
+    });
+
+    it('should return a bg value as provided if it not a finite number', () => {
+      expect(prescriptionFormConstants.getBgInTargetUnits(NaN, MGDL_UNITS, MGDL_UNITS)).to.be.NaN;
+      expect(prescriptionFormConstants.getBgInTargetUnits(Infinity, MGDL_UNITS, MGDL_UNITS)).to.equal(Infinity);
+      expect(prescriptionFormConstants.getBgInTargetUnits('foo', MGDL_UNITS, MGDL_UNITS)).to.equal('foo');
+    });
+  });
+
+  describe('getBgStepInTargetUnits', () => {
+    it('should return 1/10 of a mg/dL step value when targeting mmol/L units', () => {
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(5, MGDL_UNITS, MMOLL_UNITS)).to.equal(0.5);
+    });
+
+    it('should return 10 times a mmol/L step value when targeting mg/dL units', () => {
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(0.5, MMOLL_UNITS, MGDL_UNITS)).to.equal(5);
+    });
+
+    it('should return a bg value as provided if current units = target units', () => {
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(5, MGDL_UNITS, MGDL_UNITS)).to.equal(5);
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(0.5, MMOLL_UNITS, MMOLL_UNITS)).to.equal(0.5);
+    });
+
+    it('should return a bg value as provided if it not a finite number', () => {
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(NaN, MGDL_UNITS, MGDL_UNITS)).to.be.NaN;
+      expect(prescriptionFormConstants.getBgStepInTargetUnits(Infinity, MGDL_UNITS, MGDL_UNITS)).to.equal(Infinity);
+      expect(prescriptionFormConstants.getBgStepInTargetUnits('foo', MGDL_UNITS, MGDL_UNITS)).to.equal('foo');
+    });
+  });
+
+  describe('roundValueToIncrement', () => {
+    it('should round provided value to specified increment', () => {
+      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .01)).to.equal(1.36);
+      expect(prescriptionFormConstants.roundValueToIncrement(1.355, .1)).to.equal(1.4);
+      expect(prescriptionFormConstants.roundValueToIncrement(1.355, 1)).to.equal(1);
+    });
+  });
+
+  describe('warningThresholds', () => {
     const lowWarning = 'The value you have chosen is lower than Tidepool generally recommends.';
     const highWarning = 'The value you have chosen is higher than Tidepool generally recommends.';
-    const basalRateMaximumWarning = 'Tidepool recommends that your maximum basal rate does not exceed 6 times your highest scheduled basal rate of 0.1 U/hr.';
 
     it('should export the pump-specific warning thresholds with mg/dL as default bg unit if pump is provided', () => {
       const pump = {
@@ -142,10 +180,19 @@ describe('prescriptionFormConstants', function() {
             minimum: { units: 10, nanos: 0 },
             maximum: { units: 100, nanos: 0 },
           } },
-          bolusAmountMaximum: { recommendedBounds: {
-            minimum: { units: 20, nanos: 0 },
-            maximum: { units: 200, nanos: 0 },
+          workoutCorrectionRange: { recommendedBounds: {
+            minimum: { units: 11, nanos: 0 },
+            maximum: { units: 110, nanos: 0 },
           } },
+          bolusAmountMaximum: {
+            absoluteBounds: {
+              maximum: { units: 220, nanos: 0 },
+            },
+            recommendedBounds: {
+              minimum: { units: 20, nanos: 0 },
+              maximum: { units: 200, nanos: 0 },
+            }
+          },
           carbohydrateRatio: { recommendedBounds: {
             minimum: { units: 30, nanos: 0 },
             maximum: { units: 300, nanos: 0 },
@@ -161,13 +208,21 @@ describe('prescriptionFormConstants', function() {
         },
       };
 
-      expect(prescriptionFormConstants.warningThresholds(pump, null, meta)).to.eql({
+      expect(prescriptionFormConstants.warningThresholds(pump)).to.eql({
         basalRateMaximum: {
-          high: { value: maxBasal * 6 + 0.01, message: basalRateMaximumWarning },
+          high: undefined,
+          low: undefined,
         },
         bloodGlucoseTarget: {
           low: { value: 10, message: lowWarning },
           high: { value: 100, message: highWarning },
+        },
+        bloodGlucoseTargetPhysicalActivity: {
+          low: undefined,
+          high: { value: 110, message: highWarning },
+        },
+        bloodGlucoseTargetPreprandial: {
+          high: undefined,
         },
         bolusAmountMaximum: {
           low: { value: 20, message: lowWarning },
@@ -189,44 +244,115 @@ describe('prescriptionFormConstants', function() {
     });
 
     it('should export the default warning thresholds with mg/dL as default bg unit if pump is not provided', () => {
-      expect(prescriptionFormConstants.warningThresholds(undefined, null, meta)).to.eql({
+      expect(prescriptionFormConstants.warningThresholds()).to.eql({
         basalRateMaximum: {
-          high: { value: maxBasal * 6 + 0.01, message: basalRateMaximumWarning },
+          high: undefined,
+          low: undefined,
         },
         bloodGlucoseTarget: {
-          low: { value: 70, message: lowWarning },
-          high: { value: 120, message: highWarning },
+          low: { value: 101, message: lowWarning },
+          high: { value: 115, message: highWarning },
+        },
+        bloodGlucoseTargetPhysicalActivity: {
+          low: undefined,
+          high: { value: 180, message: highWarning },
+        },
+        bloodGlucoseTargetPreprandial: {
+          high: undefined,
         },
         bolusAmountMaximum: {
-          low: { value: 0, message: lowWarning },
-          high: { value: 20, message: highWarning },
+          low: { value: 0.05, message: lowWarning },
+          high: undefined,
         },
         carbRatio: {
-          low: { value: 3, message: lowWarning },
+          low: { value: 4, message: lowWarning },
           high: { value: 28, message: highWarning },
         },
         insulinSensitivityFactor: {
-          low: { value: 15, message: lowWarning },
-          high: { value: 400, message: highWarning },
+          low: { value: 16, message: lowWarning },
+          high: { value: 399, message: highWarning },
         },
         glucoseSafetyLimit: {
-          low: { value: 70, message: lowWarning },
-          high: { value: 120, message: highWarning },
+          low: { value: 74, message: lowWarning },
+          high: { value: 80, message: highWarning },
         },
       });
     });
 
     it('should export the default warning thresholds with mmoll/L as provided by bgUnits arg if pump is not provided', () => {
-      const thresholds = prescriptionFormConstants.warningThresholds(undefined, 'mmol/L', meta);
+      const thresholds = prescriptionFormConstants.warningThresholds(undefined, MMOLL_UNITS);
 
-      expect(thresholds.bloodGlucoseTarget.low.value).to.equal(3.9);
-      expect(thresholds.bloodGlucoseTarget.high.value).to.equal(6.7);
+      expect(thresholds.bloodGlucoseTarget.low.value).to.equal(5.6);
+      expect(thresholds.bloodGlucoseTarget.high.value).to.equal(6.4);
 
-      expect(thresholds.insulinSensitivityFactor.low.value).to.equal(0.8);
-      expect(thresholds.insulinSensitivityFactor.high.value).to.equal(22.2);
+      expect(thresholds.insulinSensitivityFactor.low.value).to.equal(0.9);
+      expect(thresholds.insulinSensitivityFactor.high.value).to.equal(22.1);
 
-      expect(thresholds.glucoseSafetyLimit.low.value).to.equal(3.9);
-      expect(thresholds.glucoseSafetyLimit.high.value).to.equal(6.7);
+      expect(thresholds.glucoseSafetyLimit.low.value).to.equal(4.1);
+      expect(thresholds.glucoseSafetyLimit.high.value).to.equal(4.4);
+    });
+
+    context('thresholds updated by other therapy settings values', () => {
+      describe('basalRateMaximum', () => {
+        it('should set high to the Highest Scheduled Basal Rate x 6.4', () => {
+          const result = prescriptionFormConstants.warningThresholds(undefined, MGDL_UNITS, {
+            initialSettings: { basalRateSchedule: [{ rate: 0.05 }, { rate: 0.1 }], }
+          }).basalRateMaximum;
+
+          expect(result.high.value).to.equal(0.64);
+          expect(result.high.message).to.equal('Tidepool recommends that your maximum basal rate does not exceed 6.4 times your highest scheduled basal rate of 0.1 U/hr.');
+        });
+
+        it('should set low to the Highest Scheduled Basal Rate x 2.1', () => {
+          const result = prescriptionFormConstants.warningThresholds(undefined, MGDL_UNITS, {
+            initialSettings: { basalRateSchedule: [{ rate: 0.05 }, { rate: 0.1 }], }
+          }).basalRateMaximum;
+
+          expect(result.low.value).to.equal(0.21);
+          expect(result.low.message).to.equal('Tidepool recommends that your maximum basal rate is at least 2.1 times your highest scheduled basal rate of 0.1 U/hr.');
+        });
+      });
+
+      describe('bloodGlucoseTargetPhysicalActivity', () => {
+        it('should set low to the Correction Range Upper Bound', () => {
+          const result = prescriptionFormConstants.warningThresholds(undefined, MGDL_UNITS, {
+            initialSettings: { bloodGlucoseTargetSchedule: [{ low: 30, high: 50 }, { low: 25, high: 45 }], }
+          }).bloodGlucoseTargetPhysicalActivity;
+
+          expect(result.low.value).to.equal(50);
+          expect(result.low.message).to.equal('Tidepool generally recommends a workout range higher than your normal correction range (25-50 mg/dL).');
+        });
+      });
+
+      describe('bloodGlucoseTargetPreprandial', () => {
+        it('should set high to the Correction Range Lower Bound', () => {
+          const result = prescriptionFormConstants.warningThresholds(undefined, MGDL_UNITS, {
+            initialSettings: { bloodGlucoseTargetSchedule: [{ low: 30, high: 50 }, { low: 25, high: 45 }], }
+          }).bloodGlucoseTargetPreprandial;
+
+          expect(result.high.value).to.equal(25);
+          expect(result.high.message).to.equal('Tidepool generally recommends a pre-meal range lower than your normal correction range (25-50 mg/dL).');
+        });
+      });
+
+      describe('bolusAmountMaximum', () => {
+        it('should set high to `undefined` if pump supported maximum < 20, else default to 19.95', () => {
+          const result = prescriptionFormConstants.warningThresholds({
+            guardRails: { bolusAmountMaximum: { absoluteBounds: {
+              maximum: { units: 20, nanos: 0 },
+            } } },
+          }).bolusAmountMaximum;
+
+          expect(result.high.value).to.equal(19.95);
+          expect(result.high.message).to.equal(highWarning);
+
+          expect(prescriptionFormConstants.warningThresholds({
+            guardRails: { bolusAmountMaximum: { absoluteBounds: {
+              maximum: { units: 19, nanos: 0 },
+            } } },
+          }).bolusAmountMaximum.high).to.be.undefined;
+        });
+      });
     });
   });
 
@@ -235,92 +361,209 @@ describe('prescriptionFormConstants', function() {
       const pump = {
         guardRails: {
           basalRates: { absoluteBounds: {
-            minimum: { units: 10, nanos: 0 },
-            maximum: { units: 100, nanos: 0 },
+            minimum: { units: 1, nanos: 0 },
+            maximum: { units: 11, nanos: 0 },
             increment: { units: 1, nanos: 0 },
           } },
           basalRateMaximum: { absoluteBounds: {
-            minimum: { units: 20, nanos: 0 },
-            maximum: { units: 200, nanos: 0 },
+            minimum: { units: 2, nanos: 0 },
+            maximum: { units: 12, nanos: 0 },
             increment: { units: 2, nanos: 0 },
           } },
           correctionRange: { absoluteBounds: {
-            minimum: { units: 30, nanos: 0 },
-            maximum: { units: 300, nanos: 0 },
+            minimum: { units: 3, nanos: 0 },
+            maximum: { units: 13, nanos: 0 },
             increment: { units: 3, nanos: 0 },
           } },
           bolusAmountMaximum: { absoluteBounds: {
-            minimum: { units: 40, nanos: 0 },
-            maximum: { units: 400, nanos: 0 },
+            minimum: { units: 4, nanos: 0 },
+            maximum: { units: 14, nanos: 0 },
             increment: { units: 4, nanos: 0 },
           } },
           carbohydrateRatio: { absoluteBounds: {
-            minimum: { units: 50, nanos: 0 },
-            maximum: { units: 500, nanos: 0 },
+            minimum: { units: 5, nanos: 0 },
+            maximum: { units: 15, nanos: 0 },
             increment: { units: 5, nanos: 0 },
+            inputStep: 1,
           } },
           insulinSensitivity: { absoluteBounds: {
-            minimum: { units: 60, nanos: 0 },
-            maximum: { units: 600, nanos: 0 },
+            minimum: { units: 6, nanos: 0 },
+            maximum: { units: 16, nanos: 0 },
             increment: { units: 6, nanos: 0 },
           } },
-          glucoseSafetyLimit: { absoluteBounds: {
-            minimum: { units: 70, nanos: 0 },
-            maximum: { units: 700, nanos: 0 },
+          preprandialCorrectionRange: { absoluteBounds: {
+            minimum: { units: 7, nanos: 0 },
+            maximum: { units: 17, nanos: 0 },
             increment: { units: 7, nanos: 0 },
+          } },
+          workoutCorrectionRange: { absoluteBounds: {
+            minimum: { units: 8, nanos: 0 },
+            maximum: { units: 18, nanos: 0 },
+            increment: { units: 8, nanos: 0 },
+          } },
+          glucoseSafetyLimit: { absoluteBounds: {
+            minimum: { units: 9, nanos: 0 },
+            maximum: { units: 19, nanos: 0 },
+            increment: { units: 9, nanos: 0 },
           } },
         },
       };
 
       expect(prescriptionFormConstants.pumpRanges(pump)).to.eql({
-        basalRate: { min: 10, max: 100, step: 1 },
-        basalRateMaximum: { min: 20, max: 200, step: 2 },
-        bloodGlucoseTarget: { min: 30, max: 300, step: 3 },
-        bolusAmountMaximum: { min: 40, max: 400, step: 4 },
-        carbRatio: { min: 50, max: 500, step: 5 },
-        insulinSensitivityFactor: { min: 60, max: 600, step: 6 },
-        glucoseSafetyLimit: { min: 70, max: 700, step: 7 },
+        basalRate: { min: 1, max: 11, increment: 1 },
+        basalRateMaximum: { min: 2, max: 12, increment: 2 },
+        bloodGlucoseTarget: { min: 3, max: 13, increment: 3 },
+        bolusAmountMaximum: { min: 4, max: 14, increment: 4 },
+        carbRatio: { min: 5, max: 15, increment: 5, inputStep: 1 },
+        insulinSensitivityFactor: { min: 6, max: 16, increment: 6 },
+        bloodGlucoseTargetPreprandial: { min: 9, max: 17, increment: 7 }, // Uses the glucoseSafetyLimit min since it's higher
+        bloodGlucoseTargetPhysicalActivity: { min: 8, max: 18, increment: 8 },
+        glucoseSafetyLimit: { min: 9, max: 19, increment: 9 },
       });
     });
 
     it('should export the default ranges with mg/dL as default bg unit if pump is not provided', () => {
       expect(prescriptionFormConstants.pumpRanges()).to.eql({
-        basalRate: { min: 0, max: 35, step: 0.05 },
-        basalRateMaximum: { min: 0, max: 35, step: 0.25 },
-        bloodGlucoseTarget: { min: 60, max: 180, step: 1 },
-        bolusAmountMaximum: { min: 0, max: 30, step: 1 },
-        carbRatio: { min: 1, max: 150, step: 1 },
-        insulinSensitivityFactor: { min: 10, max: 500, step: 1 },
-        glucoseSafetyLimit: { min: 54, max: 180, step: 1 },
+        basalRate: { min: 0.05, max: 30, increment: 0.05 },
+        basalRateMaximum: { min: 0, max: 30, increment: 0.05 },
+        bloodGlucoseTarget: { min: 87, max: 180, increment: 1 },
+        bolusAmountMaximum: { min: 0.05, max: 30, increment: 1 },
+        carbRatio: { min: 2, max: 150, increment: 0.01, inputStep: 1 },
+        insulinSensitivityFactor: { min: 10, max: 500, increment: 1 },
+        bloodGlucoseTargetPreprandial: { min: 67, max: 130, increment: 1 },
+        bloodGlucoseTargetPhysicalActivity: { min: 87, max: 250, increment: 1 },
+        glucoseSafetyLimit: { min: 67, max: 110, increment: 1 },
       });
     });
 
     it('should set the min bloodGlucoseTarget value to the set value of the glucoseSafetyLimit field', () => {
-      const meta = {
+      const values = {
         initialSettings: {
-          glucoseSafetyLimit: {
-            value: 78,
-          },
+          glucoseSafetyLimit: 90,
         },
       };
 
-      expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, meta).bloodGlucoseTarget.min).to.equal(78);
+      expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, values).bloodGlucoseTarget.min).to.equal(90);
     });
 
     it('should export the default ranges with mmoll/L as provided by bgUnits arg if pump is not provided', () => {
-      const ranges = prescriptionFormConstants.pumpRanges(undefined, 'mmol/L');
+      const ranges = prescriptionFormConstants.pumpRanges(undefined, MMOLL_UNITS);
 
-      expect(ranges.bloodGlucoseTarget.min).to.equal(3.3);
+      expect(ranges.bloodGlucoseTarget.min).to.equal(4.8);
       expect(ranges.bloodGlucoseTarget.max).to.equal(10);
-      expect(ranges.bloodGlucoseTarget.step).to.equal(0.1);
+      expect(ranges.bloodGlucoseTarget.increment).to.equal(0.1);
+
+      expect(ranges.bloodGlucoseTargetPhysicalActivity.min).to.equal(4.8);
+      expect(ranges.bloodGlucoseTargetPhysicalActivity.max).to.equal(13.9);
+      expect(ranges.bloodGlucoseTargetPhysicalActivity.increment).to.equal(0.1);
+
+      expect(ranges.bloodGlucoseTargetPreprandial.min).to.equal(3.7);
+      expect(ranges.bloodGlucoseTargetPreprandial.max).to.equal(7.2);
+      expect(ranges.bloodGlucoseTargetPreprandial.increment).to.equal(0.1);
 
       expect(ranges.insulinSensitivityFactor.min).to.equal(0.6);
       expect(ranges.insulinSensitivityFactor.max).to.equal(27.8);
-      expect(ranges.insulinSensitivityFactor.step).to.equal(0.1);
+      expect(ranges.insulinSensitivityFactor.increment).to.equal(0.1);
 
-      expect(ranges.glucoseSafetyLimit.min).to.equal(3);
-      expect(ranges.glucoseSafetyLimit.max).to.equal(10);
-      expect(ranges.glucoseSafetyLimit.step).to.equal(0.1);
+      expect(ranges.glucoseSafetyLimit.min).to.equal(3.7);
+      expect(ranges.glucoseSafetyLimit.max).to.equal(6.1);
+      expect(ranges.glucoseSafetyLimit.increment).to.equal(0.1);
+    });
+
+    context('guardrails updated by other therapy settings values', () => {
+      describe('basalRateMaximum', () => {
+        it('should set min to the higher of the default minimum guardrail (0) or Highest Scheduled Basal Rate', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { basalRateSchedule: [] }
+          }).basalRateMaximum.min).to.equal(0);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { basalRateSchedule: [ { rate: 1 }, { rate: 2 } ] }
+          }).basalRateMaximum.min).to.equal(2);
+        });
+
+        it('should set max to the lower of the default maximum guardrail (30) or 70 / Lowest Carb Ratio', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { carbohydrateRatioSchedule: [ { amount: 1 }, { rate: 2 } ] }
+          }).basalRateMaximum.max).to.equal(30);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { carbohydrateRatioSchedule: [ { amount: 5 } ] }
+          }).basalRateMaximum.max).to.equal(14);
+        });
+      });
+
+      describe('bloodGlucoseTarget', () => {
+        it('should set min to the higher of the default minimum guardrail (87) or Glucose Safety Limit', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: 80 }
+          }).bloodGlucoseTarget.min).to.equal(87);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: 90 }
+          }).bloodGlucoseTarget.min).to.equal(90);
+        });
+      });
+
+      describe('bloodGlucoseTargetPhysicalActivity', () => {
+        it('should set min to the higher of the default minimum guardrail (87) Glucose Safety Limit', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: 67 }
+          }).bloodGlucoseTargetPhysicalActivity.min).to.equal(87);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: 90 }
+          }).bloodGlucoseTargetPhysicalActivity.min).to.equal(90);
+        });
+      });
+
+      describe('bloodGlucoseTargetPreprandial', () => {
+        it('should set min to the higher of the default minimum glucose safety limit guardrail (67) or user-set Glucose Safety Limit', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: undefined }
+          }).bloodGlucoseTargetPreprandial.min).to.equal(67);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: { glucoseSafetyLimit: 90 }
+          }).bloodGlucoseTargetPreprandial.min).to.equal(90);
+        });
+      });
+
+      describe('glucoseSafetyLimit', () => {
+        it('should set max to the lower of the default minimum guardrail (110) or minimum Correction Range , Workout Correction Range, or Pre-Meal Correction Range', () => {
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: {
+              bloodGlucoseTargetPhysicalActivity: { low: 125},
+              bloodGlucoseTargetPreprandial: { low: 125},
+              bloodGlucoseTargetSchedule: [{ low: 125 }, { low: 115 }],
+            },
+          }).glucoseSafetyLimit.max).to.equal(110);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: {
+              bloodGlucoseTargetPhysicalActivity: { low: 100},
+              bloodGlucoseTargetPreprandial: { low: 125},
+              bloodGlucoseTargetSchedule: [{ low: 125 }, { low: 115 }],
+            },
+          }).glucoseSafetyLimit.max).to.equal(100);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: {
+              bloodGlucoseTargetPhysicalActivity: { low: 120},
+              bloodGlucoseTargetPreprandial: { low: 90},
+              bloodGlucoseTargetSchedule: [{ low: 125 }, { low: 115 }],
+            },
+          }).glucoseSafetyLimit.max).to.equal(90);
+
+          expect(prescriptionFormConstants.pumpRanges(undefined, MGDL_UNITS, {
+            initialSettings: {
+              bloodGlucoseTargetPhysicalActivity: { low: 120},
+              bloodGlucoseTargetPreprandial: { low: 120},
+              bloodGlucoseTargetSchedule: [{ low: 125 }, { low: 85 }],
+            },
+          }).glucoseSafetyLimit.max).to.equal(85);
+        });
+      });
     });
   });
 
