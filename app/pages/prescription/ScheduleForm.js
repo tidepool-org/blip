@@ -29,6 +29,7 @@ const ScheduleForm = props => {
     fields,
     separator,
     t,
+    useFastField,
     ...boxProps
   } = props;
 
@@ -53,6 +54,8 @@ const ScheduleForm = props => {
   React.useEffect(() => {
     isInteger(focusedId) && refs[focusedId].current.focus();
   }, [focusedId]);
+
+  const FieldElement = useFastField ? FastField : Field;
 
   return (
     <Box {...boxProps}>
@@ -85,7 +88,7 @@ const ScheduleForm = props => {
           />
           {map(fields, (field, fieldIndex) => (
             <React.Fragment key={fieldIndex}>
-              <FastField
+              <FieldElement
                 as={TextInput}
                 label={index === 0 ? field.label : null}
                 min={field.min}
@@ -166,11 +169,13 @@ ScheduleForm.propTypes = {
     type: PropTypes.string,
   })),
   separator: PropTypes.string,
+  useFastField: PropTypes.bool,
 }
 
 ScheduleForm.defaultProps = {
   addButtonText: t('Add another'),
   fields: [],
+  useFastField: false,
 }
 
 export default translate()(ScheduleForm);

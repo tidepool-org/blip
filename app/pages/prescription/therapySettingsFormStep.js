@@ -133,7 +133,7 @@ export const GlucoseSettings = props => {
             </Box>
           )}
         />
-        <FastField
+        <Field
           as={TextInput}
           type="number"
           id="initialSettings.glucoseSafetyLimit"
@@ -143,7 +143,7 @@ export const GlucoseSettings = props => {
           warning={getThresholdWarning(meta.initialSettings.glucoseSafetyLimit.value, thresholds.glucoseSafetyLimit)}
           onBlur={e => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
-            setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToStep(e.target.value, ranges.glucoseSafetyLimit.step))
+            setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToStep(e.target.value, ranges.glucoseSafetyLimit.step));
           }}
           {...ranges.glucoseSafetyLimit}
           {...{ ...inputStyles, themeProps: { mb: 4 }}}
@@ -203,7 +203,7 @@ export const GlucoseSettings = props => {
         />
 
         <Flex mb={5} alignItems="flex-start">
-          <FastField
+          <Field
             as={TextInput}
             label={t('Lower Target')}
             type="number"
@@ -220,7 +220,7 @@ export const GlucoseSettings = props => {
             {...inlineInputStyles}
           />
           <Text ml={3} mr={1} mt="33px">-</Text>
-          <FastField
+          <Field
             as={TextInput}
             label={t('Upper Target')}
             type="number"
@@ -252,7 +252,7 @@ export const GlucoseSettings = props => {
         />
 
         <Flex mb={3} alignItems="flex-start">
-          <FastField
+          <Field
             as={TextInput}
             label={t('Lower Target')}
             type="number"
@@ -269,7 +269,7 @@ export const GlucoseSettings = props => {
             {...inlineInputStyles}
           />
           <Text ml={3} mr={1} mt="33px">-</Text>
-          <FastField
+          <Field
             as={TextInput}
             label={t('Upper Target')}
             type="number"
@@ -499,6 +499,7 @@ export const InsulinSettings = props => {
                 ...ranges.insulinSensitivityFactor,
               },
             ]}
+            useFastField
           />
         </Box>
       </Box>
