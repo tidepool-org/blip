@@ -18,7 +18,7 @@ import ScheduleForm from './ScheduleForm';
 import {
   insulinModelOptions,
   pumpRanges,
-  roundValueToStep,
+  roundValueToIncrement,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -143,8 +143,9 @@ export const GlucoseSettings = props => {
           warning={getThresholdWarning(meta.initialSettings.glucoseSafetyLimit.value, thresholds.glucoseSafetyLimit)}
           onBlur={e => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
-            setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToStep(e.target.value, ranges.glucoseSafetyLimit.step));
+            setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToIncrement(e.target.value, ranges.glucoseSafetyLimit.increment));
           }}
+          step={ranges.glucoseSafetyLimit.increment}
           {...ranges.glucoseSafetyLimit}
           {...{ ...inputStyles, themeProps: { mb: 4 }}}
         />
@@ -214,8 +215,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.low.value, thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToStep(e.target.value, ranges.bloodGlucoseTargetPreprandial.step))
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment))
             }}
+            step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
             {...inlineInputStyles}
           />
@@ -231,8 +233,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.high.value, thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', roundValueToStep(e.target.value, ranges.bloodGlucoseTargetPreprandial.step))
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment))
             }}
+            step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
             {...inlineInputStyles}
           />
@@ -263,8 +266,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.low.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToStep(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.step))
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment))
             }}
+            step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
             {...inlineInputStyles}
           />
@@ -280,8 +284,9 @@ export const GlucoseSettings = props => {
             warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.high.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', roundValueToStep(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.step))
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment))
             }}
+            step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
             {...inlineInputStyles}
           />
@@ -397,8 +402,9 @@ export const InsulinSettings = props => {
           warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.basalRateMaximum.value');
-            setFieldValue('initialSettings.basalRateMaximum.value', roundValueToStep(e.target.value, ranges.basalRateMaximum.step))
+            setFieldValue('initialSettings.basalRateMaximum.value', roundValueToIncrement(e.target.value, ranges.basalRateMaximum.increment))
           }}
+          step={ranges.basalRateMaximum.increment}
           {...ranges.basalRateMaximum}
           {...inputStyles}
         />
@@ -425,8 +431,9 @@ export const InsulinSettings = props => {
           warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.bolusAmountMaximum.value');
-            setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToStep(e.target.value, ranges.bolusAmountMaximum.step))
+            setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToIncrement(e.target.value, ranges.bolusAmountMaximum.increment))
           }}
+          step={ranges.basalRateMaximum.bolusAmountMaximum}
           {...ranges.bolusAmountMaximum}
           {...inputStyles}
         />

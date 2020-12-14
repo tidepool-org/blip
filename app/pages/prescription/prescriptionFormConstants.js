@@ -89,8 +89,8 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
     : stepValue * 10;
 };
 
-export const roundValueToStep = (value, step = 1) => {
-  const inverse = 1 / step;
+export const roundValueToIncrement = (value, increment = 1) => {
+  const inverse = 1 / increment;
   return Math.round(value * inverse) / inverse;
 };
 
@@ -99,7 +99,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     basalRate: {
       min: max([getPumpGuardrail(pump, 'basalRates.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'basalRates.absoluteBounds.maximum', 30), 30]),
-      step: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
+      increment: getPumpGuardrail(pump, 'basalRates.absoluteBounds.increment', 0.05),
     },
     basalRateMaximum: {
       min: max(compact([
@@ -110,7 +110,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
         70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
       ])),
-      step: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.25),
+      increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.25),
     },
     bloodGlucoseTarget: {
       min: max(compact([
@@ -118,7 +118,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         get(values, 'initialSettings.glucoseSafetyLimit'),
       ])),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.maximum', 180), MGDL_UNITS, bgUnits),
-      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'correctionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bloodGlucoseTargetPhysicalActivity: {
       min: max(compact([
@@ -126,7 +126,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         get(values, 'initialSettings.glucoseSafetyLimit'),
       ])),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.maximum', 250), MGDL_UNITS, bgUnits),
-      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'workoutCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bloodGlucoseTargetPreprandial: {
       min: max(compact([
@@ -134,22 +134,23 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         get(values, 'initialSettings.glucoseSafetyLimit'),
       ])),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.maximum', 130), MGDL_UNITS, bgUnits),
-      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'preprandialCorrectionRange.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     bolusAmountMaximum: {
       min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
-      step: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 1),
+      increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 1),
     },
     carbRatio: {
       min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 2),
       max: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.maximum', 150),
-      step: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 1),
+      increment: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.increment', 0.01),
+      inputStep: 1,
     },
     insulinSensitivityFactor: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.minimum', 10), MGDL_UNITS, bgUnits),
       max: getBgInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.maximum', 500), MGDL_UNITS, bgUnits),
-      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'insulinSensitivity.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
     glucoseSafetyLimit: {
       min: getBgInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.minimum', 67), MGDL_UNITS, bgUnits),
@@ -159,7 +160,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low'),
         min(map(get(values, 'initialSettings.bloodGlucoseTargetSchedule'), 'low')),
       ])),
-      step: getBgStepInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
+      increment: getBgStepInTargetUnits(getPumpGuardrail(pump, 'glucoseSafetyLimit.absoluteBounds.increment', 1), MGDL_UNITS, bgUnits),
     },
   };
 

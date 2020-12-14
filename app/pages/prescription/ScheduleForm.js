@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
@@ -17,7 +18,7 @@ import Button from '../../components/elements/Button';
 import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
 import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
-import { roundValueToStep } from './prescriptionFormConstants';
+import { roundValueToIncrement } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
 
@@ -93,7 +94,7 @@ const ScheduleForm = props => {
                 label={index === 0 ? field.label : null}
                 min={field.min}
                 max={field.max}
-                step={field.step}
+                step={get(field, 'inputStep', field.increment)}
                 type={field.type}
                 id={`${fieldArrayName}.${index}.${field.name}`}
                 name={`${fieldArrayName}.${index}.${field.name}`}
@@ -102,7 +103,7 @@ const ScheduleForm = props => {
                 warning={getThresholdWarning(schedule[field.name], field.threshold)}
                 onBlur={e => {
                   setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
-                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToStep(e.target.value, field.step))
+                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToIncrement(e.target.value, field.increment))
                 }}
                 {...inlineInputStyles}
               />
@@ -164,7 +165,8 @@ ScheduleForm.propTypes = {
     name: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
-    step: PropTypes.number,
+    increment: PropTypes.number,
+    inputStep: PropTypes.number,
     suffix: PropTypes.string,
     type: PropTypes.string,
   })),
