@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Formik } from 'formik';
+import { Formik, Field, FastField } from 'formik';
 
 import ScheduleForm from '../../../../app/pages/prescription/ScheduleForm';
 
@@ -48,7 +48,7 @@ describe('ScheduleForm', () => {
               type: 'number',
               min: 0,
               max: 30,
-              step: 1,
+              increment: 1,
             },
           ]}
         />
@@ -226,5 +226,23 @@ describe('ScheduleForm', () => {
 
     expect(startTimeInput3().prop('value')).to.equal('02:00');
     expect(rateTimeInput3().prop('value')).to.equal(2);
+  });
+
+  it('should round the fields prop input to the provided increment on blur', () => {
+    // Rate Input
+    const rateInput = () => wrapper.find('[id="fooSchedule.0.rate"]').hostNodes();
+    expect(rateInput()).to.have.length(1);
+
+    expect(rateInput().prop('type')).to.equal('number');
+    expect(rateInput().prop('step')).to.equal(1);
+
+    // Update rate and blur to trigger value rounding to step
+    rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.0.rate', value: 25.4 } })
+    rateInput().at(0).simulate('blur');
+    expect(rateInput().prop('value')).to.equal(25);
+
+    rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.0.rate', value: 25.5 } })
+    rateInput().at(0).simulate('blur');
+    expect(rateInput().prop('value')).to.equal(26);
   });
 });
