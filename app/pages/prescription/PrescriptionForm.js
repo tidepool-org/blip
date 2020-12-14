@@ -55,11 +55,8 @@ let schema;
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
-    const bloodGlucoseTargetSchedules = get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', []);
-
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
     const pump = find(props.devices.pumps, { id: pumpId });
-    const ranges = pumpRanges(pump, bgUnits, get(props, 'prescription'));
 
     return {
       id: get(props, 'prescription.id'),
@@ -93,21 +90,10 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
-          context: {
-            min: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit', ranges.bloodGlucoseTarget.min),
-          },
           start: 0,
         }]),
-        bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity', {
-          context: {
-            min: max(map(bloodGlucoseTargetSchedules, 'high')) || ranges.bloodGlucoseTargetPhysicalActivity.min,
-          },
-        }),
-        bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial', {
-          context: {
-            max: max(map(bloodGlucoseTargetSchedules, 'high') || ranges.bloodGlucoseTargetPreprandial.max),
-          },
-        }),
+        bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
+        bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
           rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,
@@ -216,11 +202,6 @@ export const PrescriptionForm = props => {
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
 
-  // Revalidate form whenever values change
-  React.useEffect(() => {
-    validateForm();
-  }, [values]);
-
   // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
     if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
@@ -272,15 +253,6 @@ export const PrescriptionForm = props => {
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
-  // Update minimum blood glucose target values when glucoseSafetyLimit changes
-  const glucoseSafetyLimit = get(meta, 'initialSettings.glucoseSafetyLimit.value');
-  const bloodGlucoseTargetSchedule = get(meta, 'initialSettings.bloodGlucoseTargetSchedule.value');
-  React.useEffect(() => {
-    each(bloodGlucoseTargetSchedule, (schedule, i) => {
-      setFieldValue(`initialSettings.bloodGlucoseTargetSchedule.${i}.context.min`, glucoseSafetyLimit);
-    });
-  }, [glucoseSafetyLimit]);
-
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
       setActiveStep(step);
@@ -312,13 +284,7 @@ export const PrescriptionForm = props => {
         'emailConfirm',
         'id',
         'therapySettingsReviewed',
-        'initialSettings.bloodGlucoseTargetPhysicalActivity.context',
-        'initialSettings.bloodGlucoseTargetPreprandial.context',
       ];
-
-      for (let i = 0; i < values.initialSettings.bloodGlucoseTargetSchedule.length; i++) {
-        fieldsToDelete.push(`initialSettings.bloodGlucoseTargetSchedule.${i}.context`);
-      }
 
       // Also delete any fields from future form steps if empty
       // We can't simply delete all future steps, as the clinician may have returned to the current
@@ -339,8 +305,6 @@ export const PrescriptionForm = props => {
             if (includes(scheduleArrays, fieldPath) && value.length === 1) {
               return keys(value[0]).length = 1;
             }
-            // Return empty values (with the dynamic 'context' properties omitted) for non-array fields
-            return isEmpty(omit(value, ['context']));
           }
         );
 
