@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## 1.7.0-rc2 - 2020-12-11
+## Unreleased
 ### Added
 - YLP-298 Enable Spanish and Italian languages
 - YLP-317 Add Switzerland in country list
@@ -13,6 +13,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-306 Change the language on login page may prevent the login
 - YLP-320 Matomo tracker is no longer active
 - YLP-322 Units change after an update done in patient settings
+- YLP-318 Widget bolus / weight does not display result
 ### Changed
 - YLP-267 Delete BG readings calendar from overview
 - YLP-280 Make France as default country for existing users

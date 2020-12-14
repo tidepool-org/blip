@@ -641,10 +641,15 @@ describe('Stat', () => {
 
     context('output type is `divisor`', () => {
       it('should set the calculated value to `dividend / divisor`', () => {
-        expect(outputData.value).to.equal(60);
+        expect(outputData.value).to.equal(60); // dividend
 
+        // See explanation here: https://github.com/tidepool-org/viz/pull/186/files#r378534285
+        // on why we need to set state two times
         wrapper.setState({
           inputValue: 120,
+        });
+        wrapper.setState({
+          inputValue: 120, // // divisor
         });
 
         expect(outputWrapper().find(formatClassesAsSelector(styles.outputValue))).to.have.length(1);
@@ -690,7 +695,7 @@ describe('Stat', () => {
         });
 
         expect(outputWrapper().find(formatClassesAsSelector(styles.outputValue))).to.have.length(1);
-        expect(outputWrapper().find(formatClassesAsSelector(styles.outputValue)).text()).to.equal('120');
+        expect(outputWrapper().find(formatClassesAsSelector(styles.outputValue)).text()).to.equal('70');
 
         wrapper.setState({
           inputValue: 240,
@@ -938,14 +943,14 @@ describe('Stat', () => {
         expect(instance.getStateByType(instance.props).inputValue).to.eql(inputData.input.value);
       });
 
-      it('should not change the `inputValue` state if already set', () => {
+      it('should always build the `inputValue` state from input props', () => {
         wrapper.setState({
           inputValue: 'foo',
         });
         wrapper.setState({
           inputValue: 'foo',
         });
-        expect(instance.getStateByType(instance.props).inputValue).to.equal('foo');
+        expect(instance.getStateByType(instance.props).inputValue).to.equal(100);
       });
 
       it('should set the `isCollapsible` state to the `collapsible` prop', () => {

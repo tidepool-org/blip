@@ -383,7 +383,7 @@ class Stat extends React.Component {
         input = _.get(props.data, props.data.dataPaths.input, {});
         isOpened = _.get(this.state, 'isOpened', props.isOpened);
         state.inputSuffix = _.get(this.state, 'inputSuffix', input.suffix);
-        state.inputValue = _.get(this.state, 'inputValue', input.value);
+        state.inputValue = input.value;
         state.isCollapsible = props.collapsible;
         state.isOpened = isOpened;
         state.showFooter = isOpened;
