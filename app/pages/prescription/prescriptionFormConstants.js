@@ -110,7 +110,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
         getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.maximum', 30),
         70 / min(map(get(values, 'initialSettings.carbohydrateRatioSchedule'), 'amount')),
       ])),
-      increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.25),
+      increment: getPumpGuardrail(pump, 'basalRateMaximum.absoluteBounds.increment', 0.05),
     },
     bloodGlucoseTarget: {
       min: max(compact([
