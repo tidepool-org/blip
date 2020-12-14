@@ -168,19 +168,17 @@ describe('forms', function() {
       high: { value: 50, message: 'Too high!' },
     };
 
-    it('should return the low threshold message if provided value is <= the low threshold', () => {
+    it('should return the low threshold message if provided value is < the low threshold', () => {
       expect(formUtils.getThresholdWarning(9, threshold)).to.equal('Too low!');
-      expect(formUtils.getThresholdWarning(10, threshold)).to.equal('Too low!');
     });
 
-    it('should return the high threshold message if provided value is >= the high threshold', () => {
-      expect(formUtils.getThresholdWarning(50, threshold)).to.equal('Too high!');
+    it('should return the high threshold message if provided value is > the high threshold', () => {
       expect(formUtils.getThresholdWarning(51, threshold)).to.equal('Too high!');
     });
 
     it('should return `null` if provided value is not outside the thresholds', () => {
-      expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
-      expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning(10, threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning(50, threshold)).to.equal(null);
     });
 
     it('should return `null` if non-numeric value is passed in', () => {
