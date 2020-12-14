@@ -9,13 +9,11 @@ import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import map from 'lodash/map';
-import max from 'lodash/max';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
-import isEmpty from 'lodash/isEmpty';
 import flattenDeep from 'lodash/flattenDeep';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
@@ -41,7 +39,6 @@ import {
   defaultUnits,
   deviceIdMap,
   getPumpGuardrail,
-  pumpRanges,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
