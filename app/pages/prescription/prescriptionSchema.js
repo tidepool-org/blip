@@ -46,11 +46,11 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       .required(t('First name is required')),
     lastName: yup.string()
       .required(t('Last name is required')),
-    caregiverFirstName: yup.string().when('accountType', {
+    caregiverFirstName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
       then: yup.string().required(t('First name is required')),
     }),
-    caregiverLastName: yup.string().when('accountType', {
+    caregiverLastName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
       then: yup.string().required(t('Last name is required')),
     }),
