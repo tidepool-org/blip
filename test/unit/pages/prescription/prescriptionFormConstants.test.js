@@ -427,7 +427,7 @@ describe('prescriptionFormConstants', function() {
         basalRate: { min: 0.05, max: 30, increment: 0.05 },
         basalRateMaximum: { min: 0, max: 30, increment: 0.05 },
         bloodGlucoseTarget: { min: 87, max: 180, increment: 1 },
-        bolusAmountMaximum: { min: 0.05, max: 30, increment: 1 },
+        bolusAmountMaximum: { min: 0.05, max: 30, increment: 0.05 },
         carbRatio: { min: 2, max: 150, increment: 0.01, inputStep: 1 },
         insulinSensitivityFactor: { min: 10, max: 500, increment: 1 },
         bloodGlucoseTargetPreprandial: { min: 67, max: 130, increment: 1 },
