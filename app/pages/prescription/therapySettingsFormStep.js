@@ -433,7 +433,7 @@ export const InsulinSettings = props => {
             setFieldTouched('initialSettings.bolusAmountMaximum.value');
             setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToIncrement(e.target.value, ranges.bolusAmountMaximum.increment))
           }}
-          step={ranges.basalRateMaximum.bolusAmountMaximum}
+          step={ranges.bolusAmountMaximum.increment}
           {...ranges.bolusAmountMaximum}
           {...inputStyles}
         />

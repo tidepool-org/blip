@@ -138,7 +138,7 @@ export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) =>
     bolusAmountMaximum: {
       min: max([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.minimum', 0.05), 0.05]),
       max: min([getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.maximum', 30), 30]),
-      increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 1),
+      increment: getPumpGuardrail(pump, 'bolusAmountMaximum.absoluteBounds.increment', 0.05),
     },
     carbRatio: {
       min: getPumpGuardrail(pump, 'carbohydrateRatio.absoluteBounds.minimum', 2),
