@@ -3,7 +3,7 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import _ from 'lodash';
 import sinon from 'sinon';
 import chai from 'chai';
@@ -401,9 +401,9 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
-        const acceptedDate = new Date();
+        const acceptedDate = moment().format();
         const loggedInUserId = 'abc';
-        const termsData = { termsAccepted: new Date() };
+        const termsData = { termsAccepted: acceptedDate };
         const user = {
           emailVerified: true,
           username: 'john.doe@example.com',
@@ -446,9 +446,9 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician if profile not set', (done) => {
-        const acceptedDate = new Date();
+        const acceptedDate = moment().format();
         const loggedInUserId = 'abc';
-        const termsData = { termsAccepted: new Date() };
+        const termsData = { termsAccepted: acceptedDate };
         const user = {
           roles: ['clinic'],
           emailVerified: true,

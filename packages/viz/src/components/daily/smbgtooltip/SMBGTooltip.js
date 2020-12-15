@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import i18next from 'i18next';
 
 import {
   classifyBgValue,
@@ -26,7 +27,6 @@ import {
 } from '../../../utils/bloodglucose';
 import { formatBgValue } from '../../../utils/format';
 import {
-  getMedtronic600AnnotationMessages,
   getOutOfRangeAnnotationMessage,
 } from '../../../utils/annotations';
 import Tooltip from '../../common/tooltips/Tooltip';
@@ -39,32 +39,20 @@ class SMBGTooltip extends React.Component {
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(smbg);
     const rows = [
       <div key={'bg'} className={styles.bg}>
-        <div className={styles.label}>BG</div>
+        <div className={styles.label}>{i18next.t('BG')}</div>
         <div className={styles.value}>
           {`${formatBgValue(smbg.value, this.props.bgPrefs, getOutOfRangeThreshold(smbg))}`}
         </div>
       </div>,
     ];
 
-    const source = !_.isEmpty(smbg.subType) ? `${_.upperFirst(smbg.subType)}` : 'Meter';
+    const source = !_.isEmpty(smbg.subType) ? `${ i18next.t(_.upperFirst(smbg.subType))}` : i18next.t('Meter');
     rows.push(
       <div key={'source'} className={styles.source}>
-        <div className={styles.label}>Source</div>
+        <div className={styles.label}>{i18next.t('Source')}</div>
         <div className={styles.value}>{source}</div>
       </div>
     );
-
-    _.each(getMedtronic600AnnotationMessages(smbg), annotation => {
-      rows.push(
-        <div
-          key={annotation.message.label}
-          className={styles[_.camelCase(annotation.message.label)]}
-        >
-          <div className={styles.label}>{annotation.message.label}</div>
-          <div className={styles.value}>{annotation.message.value}</div>
-        </div>
-      );
-    });
 
     if (!_.isEmpty(outOfRangeMessage)) {
       const bgClass = classifyBgValue(

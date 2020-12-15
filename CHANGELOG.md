@@ -23,6 +23,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-305 Change patient age to birthdate in their profile
 - YLP-313 Create dedicated key for bolus graph title
 - YLP-324 Pump and CGM information in DBL settings
+- YLP-342 Add missing translation keys for CBG/SMBG tooltips
 ### Engineering Use
 - YLP-211 Rework Cloudfront deployment services to use an alternate domain name
 - YLP-147 Merge blip dependencies

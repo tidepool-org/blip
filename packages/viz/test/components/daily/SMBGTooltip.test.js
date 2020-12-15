@@ -18,8 +18,8 @@
 /* eslint-disable max-len */
 
 import React from 'react';
-
 import { mount } from 'enzyme';
+import { expect } from 'chai';
 
 import { formatClassesAsSelector } from '../../helpers/cssmodules';
 import colors from '../../../src/styles/colors.css';
@@ -240,71 +240,6 @@ describe('SMBGTooltip', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={linked} />);
     expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
     expect(wrapper.find(sourceValueSelector).text()).to.equal('Linked');
-  });
-
-  it('should render "Yes" for a confirmed medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600accepted} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('Yes');
-  });
-
-  it('should render "No" for a rejected medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600rejected} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('No');
-  });
-
-  it('should render "Timed Out" for a timed out medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600timeout} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('Timed Out');
-  });
-
-  it('should render "Yes" and "Manual" for a confirmed manual medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600acceptedManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('Yes');
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
-  });
-
-  it('should render "No" and "Linked" for a rejected linked medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600rejectedLinked} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('No');
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Linked');
-  });
-
-  it('should render "Timed Out" and "Manual" for a timed out manual medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600timeoutManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('Timed Out');
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
-  });
-
-  it('should render "Manual" for a manual medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600calibManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(0);
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
-  });
-
-  it('should render "Manual" for a non-calibration manual medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600noncalibManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(0);
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
-  });
-
-  it('should render "Yes" and "Manual" for an accepted non-calibration manual medtronic 600 series smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={medT600acceptedNoncalibManual} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.confirmBg))).to.have.length(1);
-    expect(wrapper.find(bgValueSelector).text()).to.equal('Yes');
-    expect(wrapper.find(formatClassesAsSelector(styles.calibration))).to.have.length(0);
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
   });
 
   it('should render "High" and an annotation for a "very-high" smbg', () => {

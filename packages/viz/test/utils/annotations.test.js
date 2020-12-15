@@ -17,23 +17,13 @@
 
  /* eslint-disable max-len */
 import _ from 'lodash';
+import { expect, assert } from 'chai';
 import * as annotations from '../../src/utils/annotations';
 
 const noAnnotations = {
   type: 'smbg',
   units: 'mg/dL',
   value: 100,
-};
-
-const medT600acceptedNoncalibManual = {
-  type: 'smbg',
-  units: 'mg/dL',
-  value: 100,
-  subType: 'manual',
-  annotations: [
-    { code: 'medtronic600/smbg/user-accepted-remote-bg' },
-    { code: 'medtronic600/smbg/user-rejected-sensor-calib' },
-  ],
 };
 
 const veryHigh = {
@@ -85,9 +75,6 @@ describe('annotation utilities', () => {
     it('should return annotations for annotated datum', () => {
       expect(annotations.getAnnotations(veryHigh)).to.deep.equal(veryHigh.annotations);
       expect(annotations.getAnnotations(veryLow)).to.deep.equal(veryLow.annotations);
-      expect(annotations.getAnnotations(medT600acceptedNoncalibManual)).to.deep.equal(
-        medT600acceptedNoncalibManual.annotations
-      );
       expect(annotations.getAnnotations(animasBolus)).to.deep.equal(animasBolus.annotations);
     });
   });
@@ -107,9 +94,6 @@ describe('annotation utilities', () => {
       );
       expect(annotations.getAnnotationCodes(veryLow)).to.deep.equal(
         _.map(veryLow.annotations, 'code')
-      );
-      expect(annotations.getAnnotationCodes(medT600acceptedNoncalibManual)).to.deep.equal(
-        _.map(medT600acceptedNoncalibManual.annotations, 'code')
       );
       expect(annotations.getAnnotationCodes(animasBolus)).to.deep.equal(
         _.map(animasBolus.annotations, 'code')
@@ -133,43 +117,9 @@ describe('annotation utilities', () => {
       expect(annotations.getAnnotationMessages(veryLow)[0].message.value).to.equal(
         '* This BG value was lower than your device could record. Your actual BG value is lower than it appears here.'
       );
-      expect(annotations.getAnnotationMessages(medT600acceptedNoncalibManual)).to.deep.equal([
-        {
-          code: 'medtronic600/smbg/user-accepted-remote-bg',
-          message: {
-            label: 'Confirm BG',
-            value: 'Yes',
-          },
-        },
-      ]);
       expect(annotations.getAnnotationMessages(animasBolus)[0].message.value).to.equal(
         "* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts."
       );
-    });
-  });
-
-  describe('getMedtronic600AnnotationMessages', () => {
-    it('should be a function', () => {
-      assert.isFunction(annotations.getMedtronic600AnnotationMessages);
-    });
-
-    it('should return empty aray for non-annotated or non-medT 600 series datum', () => {
-      expect(annotations.getMedtronic600AnnotationMessages(noAnnotations)).to.deep.equal([]);
-      expect(annotations.getMedtronic600AnnotationMessages(veryHigh)).to.deep.equal([]);
-    });
-
-    it('should return annotation messages for annotated datum', () => {
-      expect(
-        annotations.getMedtronic600AnnotationMessages(medT600acceptedNoncalibManual)
-      ).to.deep.equal([
-        {
-          code: 'medtronic600/smbg/user-accepted-remote-bg',
-          message: {
-            label: 'Confirm BG',
-            value: 'Yes',
-          },
-        },
-      ]);
     });
   });
 
@@ -180,9 +130,6 @@ describe('annotation utilities', () => {
 
     it('should return empty aray for non-annotated and in-range datum', () => {
       expect(annotations.getOutOfRangeAnnotationMessage(noAnnotations)).to.deep.equal([]);
-      expect(
-        annotations.getOutOfRangeAnnotationMessage(medT600acceptedNoncalibManual)
-      ).to.deep.equal([]);
     });
 
     it('should return annotation messages for annotated datum', () => {

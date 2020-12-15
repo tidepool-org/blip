@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import i18next from 'i18next';
 
 import {
   classifyBgValue,
@@ -36,7 +37,7 @@ class CBGTooltip extends React.Component {
     const outOfRangeMessage = getOutOfRangeAnnotationMessage(cbg);
     const rows = [
       <div key={'bg'} className={styles.bg}>
-        <div className={styles.label}>BG</div>
+        <div className={styles.label}>{i18next.t('BG')}</div>
         <div className={styles.value}>
           {`${formatBgValue(cbg.value, bgPrefs, getOutOfRangeThreshold(cbg))}`}
         </div>
@@ -119,6 +120,7 @@ CBGTooltip.propTypes = {
     type: PropTypes.string.isRequired,
     units: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
+    normalTime: PropTypes.string.isRequired,
   }).isRequired,
   timePrefs: PropTypes.object.isRequired,
   bgPrefs: PropTypes.shape({

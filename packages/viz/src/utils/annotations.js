@@ -77,31 +77,6 @@ export function getAnnotationCodes(datum) {
 }
 
 /**
- * getMedtronic600AnnotationMessages
- *
- * @export
- * @param {Object} datum - data object potentially containing annotations
- * @returns {Array} array of objects with string values and labels or empty array
- */
-export function getMedtronic600AnnotationMessages(datum) {
-  const annotations = getAnnotations(datum);
-  const annotationCodes = getAnnotationCodes(datum);
-  const messages = [];
-  const medtronic600BGMessage = _.intersection(_.keys(medtronic600BGMessages), annotationCodes);
-  if (medtronic600BGMessage.length > 0) {
-    messages.push(
-      _.assign({}, _.find(annotations, { code: medtronic600BGMessage[0] }), {
-        message: {
-          label: t('Confirm BG'),
-          value: medtronic600BGMessages[medtronic600BGMessage[0]],
-        },
-      })
-    );
-  }
-  return messages;
-}
-
-/**
  * getOutOfRangeAnnotationMessage
  *
  * @export
@@ -143,11 +118,10 @@ export function getAnnotationMessages(datum) {
   const annotations = getAnnotations(datum);
   let messages = [];
   messages = messages.concat(
-    getMedtronic600AnnotationMessages(datum),
     getOutOfRangeAnnotationMessage(datum)
   );
 
-  _.each(annotations, annotation => {
+  _.forEach(annotations, annotation => {
     const code = _.get(annotation, 'code');
     if (_.has(simpleAnnotationMessages, code)) {
       messages.push(
