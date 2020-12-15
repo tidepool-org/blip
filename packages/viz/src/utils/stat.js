@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import { generateBgRangeLabels } from './bloodglucose';
 import { AUTOMATED_DELIVERY, SCHEDULED_DELIVERY } from './constants';
 import { getPumpVocabulary } from './device';
+import { formatDecimalNumber } from './format';
 
 const t = i18next.t.bind(i18next);
 
@@ -26,6 +27,7 @@ export const dailyDoseUnitOptions = [
 export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
+  noBar: 'noBar',
   wheel: 'wheel',
   input: 'input',
   simple: 'simple',
@@ -418,17 +420,18 @@ export const getStatData = (data, type, opts = {}) => {
         {
           id: 'bolus',
           value: ensureNumeric(data.bolus),
-          title: t('Bolus Insulin'),
-          legendTitle: t('Bolus'),
+          valueString: formatDecimalNumber(ensureNumeric(data.bolus), 1),
+          units: t('U'),
+          title: t('Bolus'),
         },
         {
           id: 'basal',
           value: ensureNumeric(data.basal),
-          title: t('Basal Insulin'),
-          legendTitle: t('Basal'),
+          valueString: formatDecimalNumber(ensureNumeric(data.basal), 1),
+          units: t('U'),
+          title: t('Basal'),
         },
       ];
-
       statData.total = { id: 'insulin', value: getSum(statData.data) };
       statData.dataPaths = {
         summary: 'total',
@@ -616,6 +619,7 @@ export const getStatDefinition = (data, type, opts = {}) => {
         tooltip: statFormats.units,
       };
       stat.legend = true;
+      stat.type = statTypes.noBar;
       break;
 
     default:

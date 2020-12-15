@@ -6,7 +6,7 @@ import { Arc } from 'victory-core';
 import colors from '../../../styles/colors.css';
 import { classifyBgValue } from '../../../utils/bloodglucose';
 
-export const BgBar = props => {
+const BgBar = props => {
   const {
     barWidth,
     bgPrefs: { bgBounds } = {},

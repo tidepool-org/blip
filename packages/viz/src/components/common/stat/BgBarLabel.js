@@ -3,7 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 import { VictoryLabel } from 'victory';
 
-export const BgBarLabel = props => {
+const BgBarLabel = props => {
   const {
     barWidth,
     domain,

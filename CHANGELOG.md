@@ -20,6 +20,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-267 Delete BG readings calendar from overview
 - YLP-280 Make France as default country for existing users
 - YLP-273 Translate units in DBL settings table and display depending on patient profile
+- YLP-282 Simplify Basal/Bolus insulin ratio widget
 - YLP-299 Change "parameters" for "settings" in English
 - YLP-305 Change patient age to birthdate in their profile
 - YLP-313 Create dedicated key for bolus graph title

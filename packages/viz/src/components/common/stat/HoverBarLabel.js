@@ -5,7 +5,7 @@ import { VictoryLabel, VictoryTooltip, TextSize } from 'victory';
 
 import colors from '../../../styles/colors.css';
 
-export const HoverBarLabel = props => {
+const HoverBarLabel = props => {
   const {
     barWidth,
     isDisabled,

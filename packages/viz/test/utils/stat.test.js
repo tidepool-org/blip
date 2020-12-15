@@ -36,6 +36,7 @@ describe('stat', () => {
       expect(stat.statTypes).to.eql({
         barHorizontal: 'barHorizontal',
         barBg: 'barBg',
+        noBar: 'noBar',
         wheel: 'wheel',
         input: 'input',
         simple: 'simple',
@@ -734,28 +735,31 @@ describe('stat', () => {
 
     it('should format and return `totalInsulin` data', () => {
       const data = {
-        bolus: 9,
-        basal: 6,
+        bolus: 9.123,
+        basal: 6.892,
       };
 
       const statData = stat.getStatData(data, commonStats.totalInsulin, opts);
 
-      expect(statData.data).to.eql([
+      const expectStatDataData = [
         {
           id: 'bolus',
-          value: 9,
-          title: 'Bolus Insulin',
-          legendTitle: 'Bolus',
+          value: 9.123,
+          valueString: '9.1',
+          units: 'U',
+          title: 'Bolus',
         },
         {
           id: 'basal',
-          value: 6,
-          title: 'Basal Insulin',
-          legendTitle: 'Basal',
+          value: 6.892,
+          valueString: '6.9',
+          units: 'U',
+          title: 'Basal',
         },
-      ]);
+      ];
+      expect(statData.data, JSON.stringify({having: statData.data, expected: expectStatDataData})).to.eql(expectStatDataData);
 
-      expect(statData.total).to.eql({ id: 'insulin', value: 15 });
+      expect(statData.total).to.eql({ id: 'insulin', value: 16.015 });
 
       expect(statData.dataPaths).to.eql({
         summary: 'total',
@@ -1028,7 +1032,7 @@ describe('stat', () => {
       const def = stat.getStatDefinition(data, commonStats.totalInsulin, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.totalInsulin);
-      expect(def.type).to.equal(statTypes.barHorizontal);
+      expect(def.type).to.equal(statTypes.noBar);
       expect(def.dataFormat).to.eql({
         label: statFormats.percentage,
         summary: statFormats.units,

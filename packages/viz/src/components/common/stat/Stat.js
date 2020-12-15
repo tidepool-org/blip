@@ -21,6 +21,7 @@ import HoverBar from './HoverBar';
 import HoverBarLabel from './HoverBarLabel';
 import BgBar from './BgBar';
 import BgBarLabel from './BgBarLabel';
+import NoBar from './NoBar';
 import WheelPercent from './Wheel';
 import StatTooltip from '../tooltips/StatTooltip';
 import StatLegend from './StatLegend';
@@ -374,6 +375,9 @@ class Stat extends React.Component {
     let input;
 
     const state = {
+      showFooter: false,
+      isCollapsible: false,
+      isOpened: true,
       chartTitle: props.title,
       isDisabled: _.sum(_.map(data.data, d => _.get(d, 'deviation.value', d.value))) <= 0,
     };
@@ -403,19 +407,11 @@ class Stat extends React.Component {
         state.isOpened = isOpened;
         break;
 
-      case 'wheel':
-        state.isCollapsible = false;
-        state.isOpened = true;
-        state.showFooter = false;
-      break;
-
       case 'simple':
-      default:
-        state.isCollapsible = false;
         state.isOpened = false;
         state.showFooter = false;
         break;
-    } 
+    }
 
     return state;
   };
@@ -656,11 +652,18 @@ class Stat extends React.Component {
         chartProps.values = {
           on: Math.round(100 * value / total),
           off: 100 - Math.round(100 * value / total),
-        }
+        };
         chartProps.rawValues = {
           on: this.formatDatum(data.data[1], props.dataFormat.summary).value,
           off: this.formatDatum(data.data[0], props.dataFormat.summary).value,
         };
+        break;
+
+      case 'noBar':
+        chartProps.renderer = NoBar;
+        chartProps.data = data.data;
+        chartProps.id = props.id;
+        chartProps.animate = false;
         break;
 
       case 'simple':

@@ -245,3 +245,40 @@ svg.statWheelTimeInAuto .onEllipse {
 svg.statWheelTimeInAuto .offEllipse {
   fill: var(--basal, rgb(168, 200, 212));
 }
+
+.nobar {
+  display: grid;
+  row-gap: 4px;
+  margin-bottom: 0.5em;
+}
+.nobar .nobarRowTitle {
+  color: var(--text-medium-contrast);
+}
+.nobar .nobarRowValue {
+  border-width: 2px;
+  border-color: var(--stat-disabled);
+  border-style: solid;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 14px;
+}
+.nobar .nobarRowPercent {
+  text-align: right;
+}
+.nobar .nobarRowPercent .nobarPercentValue {
+  font-size: 24px;
+}
+.nobar .nobarRowPercent .nobarPercentUnits {
+	font-size: 12px;
+	font-weight: 500;
+  color: var(--text-medium-contrast);
+}
+.nobar-totalInsulin {
+  grid-template-columns: auto 3.5em 3.5em;
+}
+.nobar-totalInsulin-basal {
+  color: var(--basal);
+}
+.nobar-totalInsulin-bolus {
+  color: var(--bolus);
+}

@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import colors from '../../../styles/colors.css';
 
-export const HoverBar = props => {
+const HoverBar = props => {
   const {
     barSpacing,
     barWidth,
