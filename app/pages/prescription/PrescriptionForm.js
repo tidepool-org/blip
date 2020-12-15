@@ -8,6 +8,7 @@ import { PersistFormikValues } from 'formik-persist-values';
 import each from 'lodash/each';
 import find from 'lodash/find';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
@@ -292,6 +293,7 @@ export const PrescriptionForm = props => {
           flattenDeep(slice(stepValidationFields, activeStep + 1)),
           fieldPath => {
             const value = get(values, fieldPath);
+
             // Return schedule field arrays that are set to the initial values with only a start time
             const scheduleArrays = [
               'initialSettings.bloodGlucoseTargetSchedule',
@@ -299,9 +301,13 @@ export const PrescriptionForm = props => {
               'initialSettings.carbohydrateRatioSchedule',
               'initialSettings.insulinSensitivitySchedule',
             ];
+
             if (includes(scheduleArrays, fieldPath) && value.length === 1) {
               return keys(value[0]).length = 1;
             }
+
+            // Return empty values for non-array fields
+            return isEmpty(value);
           }
         );
 
