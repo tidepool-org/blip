@@ -7,6 +7,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-298 Enable Spanish and Italian languages
 - YLP-317 Add Switzerland in country list
 - YLP-236 Display Zen mode activation on Daily view
+- YLP-215 Display Confidential mode on Daily view
 ### Fixed
 - YLP-289 RescueCarbs: recommendation is always set to 0 for automatic mode
 - YLP-292 Error messages not translated when creating an account

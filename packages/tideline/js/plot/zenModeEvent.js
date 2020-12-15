@@ -15,127 +15,67 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
-var dt = require('../data/util/datetime');
+const d3 = require('d3');
+const _ = require('lodash');
+
+const utils = require('./util/utils');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
 
-  var defaults = {
-    width: 20,
+  const defaults = {
     r: 14,
   };
 
   _.defaults(opts, defaults);
 
-  var xPos = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
-  };
-  var calculateWidth = function(d) {
-    var s = Date.parse(d.normalTime);
-    var units = d.duration.units;
-    var msfactor = 1000;
-    switch (units) {
-      case 'minutes': 
-        msfactor = msfactor * 60;
-        break;
-      case 'hours':
-        msfactor = msfactor * 60 * 60;
-        break;
-    }
-    var e = Date.parse(dt.addDuration(s, d.duration.value * msfactor)); 
-    return opts.xScale(e) - opts.xScale(s);
-  };
-  var height = pool.height() - 20;
-  var offset = height / 5;
+  const xPos = (d) => utils.xPos(d, opts);
+  const calculateWidth = (d) => utils.calculateWidth(d, opts);
+
+  opts.xScale = pool.xScale().copy();
+  const height = pool.height();
+  const offset = height / 5 /2;
 
   function zenModeEvent(selection) {
-    opts.xScale = pool.xScale().copy();
-
     selection.each(function() {
-      var currentData = opts.data;
-      var zenModeEvent = d3.select(this)
+      const currentData = opts.data;
+      const zenModeEvent = d3.select(this)
         .selectAll('g.d3-event-group')
-        .data(currentData, function(d) {
-          return d.id;
-        });
+        .data(currentData, (d) => d.id);
 
-      var zenGroup = zenModeEvent.enter()
+      const zenGroup = zenModeEvent.enter()
         .append('g')
         .attr({
           'class': 'd3-event-group',
-          id: function(d) {
-            return 'event_group_' + d.id;
-          }
+          id: (d) => `event_group_${d.id}`,
         });
 
       zenGroup.append('rect')
       .attr({
-        x: function(d) {
-          return xPos(d);
-        },
-        y: function(d) {
-          return 0;
-        },
-        width: function(d) {
-          return calculateWidth(d);
-        }, 
-        height: function() {
-          return offset;
-        },
+        x: xPos,
+        y: 0,
+        width: calculateWidth, 
+        height,
         class: 'd3-rect-zen d3-zen',
-        id: function(d) {
-          return 'zen_' + d.id;
-        }
+        id: (d) => `zen_${d.id}`,
       });
       zenGroup.append('circle').attr({
-        cx: function(d) {
-          return xPos(d) + calculateWidth(d)/2;
-        },
-        cy: function(d) {
-          return (offset/2); 
-        },
-        r: function(d) {
-          return opts.r;
-        },
+        cx: (d) => xPos(d) + calculateWidth(d)/2,
+        cy: offset,
+        r: opts.r,
         'stroke-width': 0,
         class: 'd3-circle-zen',
-        id: function(d) {
-          return 'zen_' + d.id;
-        }
+        id: (d) => `zen_circle_${d.id}`,
       });
       zenGroup.append('text')
         .text('ZEN')
         .attr({
-          x: function(d) {
-            return xPos(d) + calculateWidth(d)/2;
-          },
-          y: function(d) {
-            return offset/2;
-          },
-          class: 'd3-zen-text'
+          x: (d) => xPos(d) + calculateWidth(d)/2,
+          y: offset,
+          class: 'd3-zen-text',
+          id: (d) => `zen_text_${d.id}`,
         });
-  
-      zenGroup.append('rect')
-        .attr({
-          x: function(d) {
-            return xPos(d);
-          },
-          y: function(d) {
-            return offset;
-          },
-          width: function(d) {
-            return calculateWidth(d);
-          }, 
-          height: function() {
-            return pool.height() - offset;
-          },
-          class: 'd3-rect-zen d3-zen',
-          id: function(d) {
-            return 'zen_' + d.id;
-          }
-        });      
+
         zenModeEvent.exit().remove();
     });
   };

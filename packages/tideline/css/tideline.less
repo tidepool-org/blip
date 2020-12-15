@@ -225,6 +225,13 @@ svg {
   dominant-baseline: central;
   text-anchor: middle;
 }
+.d3-confidential-text {
+  fill: @confidentialtext;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
+  text-align: center;
+}
 .d3-circle-carbs {
   fill: @carbs;
 }
@@ -277,6 +284,20 @@ svg {
   &.d3-rect-zen {
     fill: @zenmode;
     opacity: 0.2;
+  }
+}
+.d3-confidential {
+  &.d3-back-confidential {
+    fill: @confidentialmode;
+    opacity: 1;
+    stroke: @confidentialtext;
+    stroke-width: 1;
+  }
+  &.d3-rect-confidential {
+    fill: @confidentialmode;
+  }
+  &.d3-confidential-text {
+    font-size: @font-size-medium
   }
 }
 // boluses
@@ -862,6 +883,7 @@ text.d3-tabular-ui {
 .d3-pa-group,
 .d3-reservoir-group,
 .d3-event-group,
+.d3-confidential-group,
 .d3-param-group,
 .d3-bolus-group,
 .d3-carb-group {

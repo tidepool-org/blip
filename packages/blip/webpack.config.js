@@ -245,6 +245,7 @@ const resolve = {
   alias: {
     pdfkit: 'pdfkit/js/pdfkit.standalone.js',
     './images/tidepool/logo.png': path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo.png`),
+    'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
     // Theses aliases will be needed for webpack 5.x :
     // crypto: require.resolve('crypto-browserify'),
     // path: require.resolve('path-browserify'),

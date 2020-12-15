@@ -62,6 +62,7 @@ module.exports = {
     reservoirChange: require('./plot/reservoir'),
     deviceParameterChange: require('./plot/deviceParameterChange'),
     zenModeEvent: require('./plot/zenModeEvent'),
+    confidentialModeEvent: require('./plot/confidentialModeEvent'),
     stats: {
       puddle: require('./plot/stats/puddle'),
     },

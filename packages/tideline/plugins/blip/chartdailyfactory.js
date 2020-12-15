@@ -291,6 +291,14 @@ function chartDailyFactory(el, options) {
       data: tidelineData.deviceParameters,
     }), true, true);
 
+    // add confidential mode to BG pool
+    poolBG.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBG, {
+      yScale: scaleBG,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      data: tidelineData.confidentialEvents,
+      onConfidentialHover: options.onConfidentialHover,
+      onConfidentialOut: options.onConfidentialOut,
+    }), true, true);
 
     // add CBG data to BG pool
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
@@ -363,6 +371,15 @@ function chartDailyFactory(el, options) {
       onBolusOut: options.onBolusOut,
     }), true, true);
 
+    // add confidential mode to Bolus pool
+    poolBolus.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBolus, {
+      yScale: scaleBolus,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      data: tidelineData.confidentialEvents,
+      onConfidentialHover: options.onConfidentialHover,
+      onConfidentialOut: options.onConfidentialOut,
+    }), false, true);
+
     // basal pool
     var scaleBasal = scales.basal(tidelineData.grouped.basal, poolBasal);
     // set up y-axis
@@ -389,6 +406,15 @@ function chartDailyFactory(el, options) {
       data: tidelineData.grouped.deviceEvent,
       timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
+
+    // add confidential mode to Basal pool
+    poolBasal.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBasal, {
+      yScale: scaleBolus,
+      timezoneAware: chart.options.timePrefs.timezoneAware,
+      data: tidelineData.confidentialEvents,
+      onConfidentialHover: options.onConfidentialHover,
+      onConfidentialOut: options.onConfidentialOut,
+    }), false, true);
 
     // messages pool
     // add background fill rectangles to messages pool

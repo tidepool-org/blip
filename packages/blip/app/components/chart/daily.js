@@ -43,6 +43,7 @@ const FoodTooltip = vizComponents.FoodTooltip;
 const ReservoirTooltip = vizComponents.ReservoirTooltip;
 const PhysicalTooltip = vizComponents.PhysicalTooltip;
 const ParameterTooltip = vizComponents.ParameterTooltip;
+const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -78,6 +79,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     onPhysicalOut: PropTypes.func.isRequired,
     onParameterHover: PropTypes.func.isRequired,
     onParameterOut: PropTypes.func.isRequired,
+    onConfidentialHover: PropTypes.func.isRequired,
+    onConfidentialOut: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -103,6 +106,8 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onPhysicalOut',
       'onParameterHover',
       'onParameterOut',
+      'onConfidentialHover',
+      'onConfidentialOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -336,6 +341,8 @@ class Daily extends Component {
                 onPhysicalOut={this.handlePhysicalOut}
                 onParameterHover={this.handleParameterHover}
                 onParameterOut={this.handleParameterOut}
+                onConfidentialHover={this.handleConfidentialHover}
+                onConfidentialOut={this.handleConfidentialOut}
                 ref="chart" />
             </div>
           </div>
@@ -431,6 +438,15 @@ class Daily extends Component {
           side={this.state.hoveredParameter.side}
           parameter={this.state.hoveredParameter.data}
           bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredConfidential && <ConfidentialTooltip
+          position={{
+            top: this.state.hoveredConfidential.top,
+            left: this.state.hoveredConfidential.left
+          }}
+          side={this.state.hoveredConfidential.side}
+          confidential={this.state.hoveredConfidential.data}
           timePrefs={timePrefs}
         />}
 
@@ -690,6 +706,29 @@ class Daily extends Component {
   handleParameterOut = () => {
     this.setState({
       hoveredParameter: false
+    });
+  };
+
+  handleConfidentialHover = confidential => {
+    const { rect } = confidential;
+    // range here is -12 to 12
+    const hoursOffset = sundial.dateDifference(confidential.data.normalTime, this.state.datetimeLocation, 'h');
+    confidential.top = rect.top + (rect.height / 2)
+    if (hoursOffset > 5) {
+      confidential.side = 'left';
+      confidential.left = rect.left;
+    } else {
+      confidential.side = 'right';
+      confidential.left = rect.left + rect.width;
+    }
+    this.setState({
+      hoveredConfidential: confidential
+    });
+  }
+
+  handleConfidentialOut = () => {
+    this.setState({
+      hoveredConfidential: false
     });
   };
 

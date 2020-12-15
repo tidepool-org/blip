@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+const buildConfig = require('../../server/config.app');
 
 const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
@@ -124,6 +125,7 @@ const fontLoaderConfiguration = [
 
 const resolve = {
   alias: {
+    'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
     // Theses aliases will be needed for webpack 5.x :
     // crypto: require.resolve('crypto-browserify'),
     // path: require.resolve('path-browserify'),
