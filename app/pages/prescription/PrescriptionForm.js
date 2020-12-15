@@ -156,10 +156,10 @@ export const PrescriptionForm = props => {
     creatingPrescription,
     creatingPrescriptionRevision,
     devices,
+    history,
     location,
     prescription,
     trackMetric,
-    history,
   } = props;
 
   const {
@@ -167,7 +167,6 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
-    validateForm,
     values,
   } = useFormikContext();
 
@@ -191,6 +190,7 @@ export const PrescriptionForm = props => {
   const activeStepsParam = params().get(activeStepParamKey);
   const storageKey = 'prescriptionForm';
 
+  const [formPersistReady, setFormPersistReady] = React.useState(false);
   const [stepAsyncState, setStepAsyncState] = React.useState(asyncStates.initial);
   const [activeStep, setActiveStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[0], 10) : undefined);
   const [activeSubStep, setActiveSubStep] = React.useState(activeStepsParam ? parseInt(activeStepsParam.split(',')[1], 10) : undefined);
@@ -200,8 +200,8 @@ export const PrescriptionForm = props => {
   const isSingleStepEdit = !!pendingStep.length;
   let isLastStep = activeStep === stepValidationFields.length - 1;
 
-  // Determine the latest incomplete step, and default to starting there
   React.useEffect(() => {
+    // Determine the latest incomplete step, and default to starting there
     if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
       let firstInvalidStep;
       let firstInvalidSubStep;
@@ -225,6 +225,13 @@ export const PrescriptionForm = props => {
       setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
       setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
+
+    // When a user comes to this component initially, without the active step and subStep set by the
+    // Stepper component in the url, we delete any persisted state from localStorage.
+    // As well, when editing an existing prescription, we delete it so that the current prescription
+    // values replace whatever values were previously stored
+    if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
+    setFormPersistReady(true);
   }, []);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
@@ -408,17 +415,11 @@ export const PrescriptionForm = props => {
     },
   };
 
-  // When a user comes to this component initially, without the active step and subStep set by the
-  // Stepper component in the url, we delete any persisted state from localStorage.
-  // As well, when editing an existing prescription, we delete it so that the current prescription
-  // values replace whatever values were previously stored
-  if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
-
   return (
     <form id="prescription-form" onSubmit={handleSubmit}>
       <FastField type="hidden" name="id" />
       {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
-      <PersistFormikValues persistInvalid name={storageKey} />
+      {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
     </form>
   );
 };
