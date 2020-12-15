@@ -27,7 +27,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
-var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS,DEVICE_PARAMS_OFFSET } = require('./data/util/constants');
+var { MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, AUTOMATED_BASAL_LABELS, DEVICE_PARAMS_OFFSET } = require('./data/util/constants');
 
 var log = bows('TidelineData');
 var startTimer = _.get(window, 'config.DEV', false) ? function(name) { console.time(name); } : _.noop;
@@ -82,7 +82,7 @@ function TidelineData(data, opts) {
   this.opts = opts;
   var that = this;
 
-  var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
+  const MS_IN_DAY = 864e5;
 
   function genRandomId() {
     const array = new Uint8Array(16);
@@ -98,7 +98,7 @@ function TidelineData(data, opts) {
 
   function checkRequired() {
     startTimer('checkRequired');
-    _.each(REQUIRED_TYPES, function(type) {
+    _.forEach(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
         log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
@@ -118,15 +118,59 @@ function TidelineData(data, opts) {
     // Portal-api data are:
     //      - pumpSettings/upload type
     //      - deviceEvent type + deviceParameter subType
-    if(["UTC","Etc/GMT","GMT"].indexOf(datum.timezone) > -1 ) {
-      if (["pumpSettings","upload"].indexOf(datum.type) > -1) {
+    if (['UTC', 'Etc/GMT', 'GMT'].indexOf(datum.timezone) > -1) {
+      if (['pumpSettings', 'upload'].indexOf(datum.type) > -1) {
         return false;
       }
-      if (datum.type =="deviceEvent" && datum.subType === "deviceParameter") {
+      if (datum.type === 'deviceEvent' && datum.subType === 'deviceParameter') {
         return false;
       }
     }
     return true;
+  }
+
+  function sortPumpSettingsParameters(/** @type{{payload: { parameters: {name: string}[]}}[]} */ pumpSettings) {
+    const settingsOrder = [
+      'MEDIUM_MEAL_BREAKFAST',
+      'MEDIUM_MEAL_LUNCH',
+      'MEDIUM_MEAL_DINNER',
+      'TOTAL_INSULIN_FOR_24H',
+      'WEIGHT',
+      'PATIENT_GLY_HYPER_LIMIT',
+      'PATIENT_GLY_HYPO_LIMIT',
+      'PATIENT_GLYCEMIA_TARGET',
+      'PATIENT_BASAL_AGGRESSIVENESS_FACTOR_LEVEL_IN_EUGLYCAEMIA',
+      'BOLUS_AGGRESSIVENESS_FACTOR',
+      'MEAL_RATIO_BREAKFAST_FACTOR',
+      'MEAL_RATIO_LUNCH_FACTOR',
+      'MEAL_RATIO_DINNER_FACTOR',
+      'SMALL_MEAL_BREAKFAST',
+      'LARGE_MEAL_BREAKFAST',
+      'SMALL_MEAL_LUNCH',
+      'LARGE_MEAL_LUNCH',
+      'SMALL_MEAL_DINNER',
+      'LARGE_MEAL_DINNER',
+    ];
+    if (!Array.isArray(pumpSettings)) {
+      return;
+    }
+    startTimer('sortPumpSettingsParameters');
+    pumpSettings.forEach((ps) => {
+      /** @type {{name: string, value: string, level: number|string, unit: string}[]} */
+      const p = _.get(ps, 'payload.parameters', []);
+      p.sort((a, b) => {
+        const aIdx = settingsOrder.indexOf(a.name);
+        const bIdx = settingsOrder.indexOf(b.name);
+        if (aIdx < 0) {
+          return 1;
+        }
+        if (bIdx < 0) {
+          return -1;
+        }
+        return aIdx - bIdx;
+      });
+    });
+    endTimer('sortPumpSettingsParameters');
   }
 
   this.updateCrossFilters = function() {
@@ -147,7 +191,7 @@ function TidelineData(data, opts) {
 
   this.createCrossFilter = function(dim) {
     var newDim;
-    switch(dim) {
+    switch (dim) {
       case 'datetime':
         startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.normalTime; });
@@ -197,9 +241,9 @@ function TidelineData(data, opts) {
     });
   };
 
-  this.setDeviceParameters = function (data = []){
-    var parameters = _.filter( data,  {type: 'deviceEvent', subType: 'deviceParameter'});
-    var sortedParameters =_.orderBy(parameters,['normaltime'], ['desc']);
+  this.setDeviceParameters = function (data = []) {
+    var parameters = _.filter(data, { type: 'deviceEvent', subType: 'deviceParameter' });
+    var sortedParameters = _.orderBy(parameters, ['normaltime'], ['desc']);
 
     this.deviceParameters = [];
     if (sortedParameters.length > 0) {
@@ -208,7 +252,7 @@ function TidelineData(data, opts) {
         normalTime: first.normalTime,
         id: first.id,
         params: [first]
-      }
+      };
       if (sortedParameters.length > 1) {
         for (let i = 1; i < sortedParameters.length; ++i) {
           const item = sortedParameters[i];
@@ -221,7 +265,7 @@ function TidelineData(data, opts) {
               normalTime: item.normalTime,
               id: item.id,
               params: [item]
-            }
+            };
           }
         }
       }
@@ -231,7 +275,7 @@ function TidelineData(data, opts) {
 
   this.deduplicatePhysicalActivities = function (data = []) {
     // normalize eventId and inputTime
-    _.filter( data, {type: 'physicalActivity'}).forEach(
+    _.filter(data, { type: 'physicalActivity' }).forEach(
       pa => {
         if (!_.isString(pa.eventId) || _.isEmpty(pa.eventId)) {
           pa.eventId = pa.id;
@@ -242,21 +286,21 @@ function TidelineData(data, opts) {
         return pa;
       });
     // get all PAs grouped by eventID
-    var physicalActivity = _.groupBy(_.filter( data, {type: 'physicalActivity'}), 'eventId');
-    // For each eventID sort by inputTime 
+    var physicalActivity = _.groupBy(_.filter(data, { type: 'physicalActivity' }), 'eventId');
+    // For each eventID sort by inputTime
     _.forEach(physicalActivity, (value, key) => {
       physicalActivity[key] = _.orderBy(value, ['inputTime'], ['desc']);
-    })
+    });
     // For each eventID take the most recent item
     this.physicalActivities = _.map(physicalActivity, (value) => value[0]);
   };
 
   this.setEvents = function (data = [], filter = {}, order = ['inputTime']) {
-    const sourceEvents = _.groupBy(_.filter( data, filter ), 'eventId');
+    const sourceEvents = _.groupBy(_.filter(data, filter), 'eventId');
     const events = {};
     _.forEach(sourceEvents, function(value, key) {
-      events[key] = _.orderBy(value, order,['desc']);
-    })
+      events[key] = _.orderBy(value, order, ['desc']);
+    });
     const res = _.map(events, function(value) {
       return value[0];
     });
@@ -380,7 +424,7 @@ function TidelineData(data, opts) {
     opts.timePrefs.timezoneOffset = timezoneOffset;
     log('Number of datum source updated:', nUpdate);
     endTimer('checkTimezone');
-  }
+  };
 
   this.filterTempBasal = (data) => _.reject(data, (d) => (d.type === 'basal' && d.deliveryType === 'temp'));
 
@@ -403,7 +447,7 @@ function TidelineData(data, opts) {
   this.deduplicateDataArrays = function() {
     this.data = _.uniqBy(this.data, 'id');
     this.diabetesData = _.uniqBy(this.diabetesData, 'id');
-    _.each(this.grouped, (val, key) => {
+    _.forEach(this.grouped, (val, key) => {
       this.grouped[key] = _.uniqBy(val, 'id');
     });
     return this;
@@ -426,8 +470,8 @@ function TidelineData(data, opts) {
     }
 
     // Add all valid new datums to the top of appropriate collections in descending order
-    _.eachRight(_.sortBy(validatedData.valid, 'normalTime'), datum => {
-      if (! _.isArray(this.grouped[datum.type])) {
+    _.forEachRight(_.sortBy(validatedData.valid, 'normalTime'), datum => {
+      if (!_.isArray(this.grouped[datum.type])) {
         this.grouped[datum.type] = [];
       }
 
@@ -438,6 +482,8 @@ function TidelineData(data, opts) {
       this.grouped[datum.type].unshift(datum);
       this.data.unshift(datum);
     });
+
+    sortPumpSettingsParameters(this.grouped.pumpSettings);
 
     // Filter unwanted types from the data array
     this.filterDataArray();
@@ -456,12 +502,12 @@ function TidelineData(data, opts) {
 
     this.zenEvents = this.setEvents(
       this.data,
-      {type: 'deviceEvent', subType: 'zen'},
+      { type: 'deviceEvent', subType: 'zen' },
       ['inputTime']
     );
     this.confidentialEvents = this.setEvents(
       this.data,
-      {type: 'deviceEvent', subType: 'confidential'},
+      { type: 'deviceEvent', subType: 'confidential' },
       ['inputTime']
     );
 
@@ -536,14 +582,14 @@ function TidelineData(data, opts) {
       if (opts.fillOpts.classes[hoursClassifier] != null) {
         fillData.push({
           fillColor: opts.fillOpts.classes[hoursClassifier],
-          fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
+          fillDate: localTime ? localTime.slice(0, 10) : points[i].toISOString().slice(0, 10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
           normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
           startsAtMidnight: (hoursClassifier === 0),
           normalTime: point.toISOString(),
           type: 'fill',
           displayOffset: offset,
-          twoWeekX: hoursClassifier * MS_IN_DAY/24
+          twoWeekX: hoursClassifier * MS_IN_DAY / 24
         });
       }
     }
@@ -615,22 +661,22 @@ function TidelineData(data, opts) {
 
   this.setBGPrefs = function() {
     startTimer('setBGPrefs');
-      this.bgClasses = opts.bgClasses;
-      this.bgUnits = opts.bgUnits;
+    this.bgClasses = opts.bgClasses;
+    this.bgUnits = opts.bgUnits;
 
-      // mg/dL values are converted to mmol/L and rounded to 5 decimal places on platform.
-      // This can cause some discrepancies when converting back to mg/dL, and throw off the
-      // categorization.
-      // i.e. A 'target' value 180 gets stored as 9.99135, which gets converted back to 180.0000651465
-      // which causes it to be classified as 'high'
-      // Thus, we need to allow for our thresholds accordingly.
-      if (this.bgUnits === MGDL_UNITS) {
-        var roundingAllowance = 0.0001;
-        this.bgClasses['very-low'].boundary -= roundingAllowance;
-        this.bgClasses.low.boundary -= roundingAllowance;
-        this.bgClasses.target.boundary += roundingAllowance;
-        this.bgClasses.high.boundary += roundingAllowance;
-      }
+    // mg/dL values are converted to mmol/L and rounded to 5 decimal places on platform.
+    // This can cause some discrepancies when converting back to mg/dL, and throw off the
+    // categorization.
+    // i.e. A 'target' value 180 gets stored as 9.99135, which gets converted back to 180.0000651465
+    // which causes it to be classified as 'high'
+    // Thus, we need to allow for our thresholds accordingly.
+    if (this.bgUnits === MGDL_UNITS) {
+      var roundingAllowance = 0.0001;
+      this.bgClasses['very-low'].boundary -= roundingAllowance;
+      this.bgClasses.low.boundary -= roundingAllowance;
+      this.bgClasses.target.boundary += roundingAllowance;
+      this.bgClasses.high.boundary += roundingAllowance;
+    }
     endTimer('setBGPrefs');
   };
 
@@ -684,14 +730,14 @@ function TidelineData(data, opts) {
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
             if (_.isEmpty(d.deviceTime)) {
-               d.normalTime = d.time;
+              d.normalTime = d.time;
             }
             else {
-               d.normalTime = d.deviceTime + '.000Z';
+              d.normalTime = d.deviceTime + '.000Z';
             }
           }
           // displayOffset always 0 when not timezoneAware
-          d.displayOffset = 0 ;
+          d.displayOffset = 0;
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
             d.warning = 'Combining `time` and `timezoneOffset` does not yield `deviceTime`.';
           }
@@ -703,7 +749,7 @@ function TidelineData(data, opts) {
         if (d.type === 'smbg' || d.type === 'cbg') {
           var date = new Date(d.normalTime);
           d.localDayOfWeek = dt.getLocalDayOfWeek(date);
-          d.localDate = d.normalTime.slice(0,10);
+          d.localDate = d.normalTime.slice(0, 10);
           d.msPer24 = dt.getMsPer24(d.normalTime, opts.timePrefs.timezoneName);
         }
       };
@@ -768,8 +814,9 @@ function TidelineData(data, opts) {
 
   startTimer('sort groupings');
   _.forEach(this.grouped, function(group, key) {
-     that.grouped[key] = _.sortBy(group, 'normalTime');
+    that.grouped[key] = _.sortBy(group, 'normalTime');
   });
+  sortPumpSettingsParameters(this.grouped.pumpSettings);
   endTimer('sort groupings');
 
   startTimer('diabetesData');
@@ -794,12 +841,12 @@ function TidelineData(data, opts) {
 
   this.zenEvents = this.setEvents(
     data,
-    {type: 'deviceEvent', subType: 'zen'},
+    { type: 'deviceEvent', subType: 'zen' },
     ['inputTime']
   );
   this.confidentialEvents = this.setEvents(
     data,
-    {type: 'deviceEvent', subType: 'confidential'},
+    { type: 'deviceEvent', subType: 'confidential' },
     ['inputTime']
   );
 
@@ -893,7 +940,7 @@ function TidelineData(data, opts) {
           dt.findBasicsStart(last.normalTime, opts.timePrefs.timezoneName) :
           dt.findBasicsStart(last.normalTime)
       );
-      this.basicsData.days =  opts.timePrefs.timezoneAware ?
+      this.basicsData.days = opts.timePrefs.timezoneAware ?
         dt.findBasicsDays(this.basicsData.dateRange, opts.timePrefs.timezoneName) :
         dt.findBasicsDays(this.basicsData.dateRange);
       this.basicsData.data = {};
