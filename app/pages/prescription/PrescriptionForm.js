@@ -177,7 +177,7 @@ export const PrescriptionForm = props => {
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
   schema = prescriptionSchema(devices, pumpId, bgUnits, values);
-  const meta = getFieldsMeta(schema, getFieldMeta);
+  const meta = getFieldsMeta(schema, getFieldMeta, values);
 
   const asyncStates = {
     initial: { pending: false, complete: false },

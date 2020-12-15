@@ -12,23 +12,33 @@ import isArray from 'lodash/isArray';
  *
  * @param {Object} schema created by the yup validation library
  * @param {Function} getFieldMeta handler provided by the useFormikContext hook
+ * @param {Object} values form values provided by the useFormikContext hook
  * @returns {Object} keyed meta data from formik.getFieldMeta, plus valid state
  */
-export const getFieldsMeta = (schema, getFieldMeta) => {
+export const getFieldsMeta = (schema, getFieldMeta, values) => {
   const fieldKeys = keys(schema.fields);
 
   const reduceFields = (_fieldKeys, prefix = '') => reduce(_fieldKeys, (result, field) => {
     const fieldKey = `${prefix}${field}`;
     const nestedFields = get(schema.fields, `${fieldKey.split('.').join('.fields.')}.fields`);
+
     if (nestedFields) {
       // Recurse for nested field keys
       result[field] = reduceFields(keys(nestedFields), `${fieldKey}.`);
     } else {
       const fieldKey = `${prefix}${field}`;
       const fieldMeta = getFieldMeta(fieldKey);
+
+      let valid = true;
+      try {
+        schema.validateSyncAt(fieldKey, values);
+      } catch (e) {
+        valid = false
+      }
+
       result[field] = {
         ...fieldMeta,
-        valid: (isNumber(fieldMeta.value) || !isEmpty(fieldMeta.value) || fieldMeta.value === true || fieldMeta.touched) && !fieldMeta.error,
+        valid
       };
     }
 
