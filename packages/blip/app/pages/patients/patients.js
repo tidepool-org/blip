@@ -84,10 +84,8 @@ export let Patients = translate()(class extends React.Component {
       }
     }
 
-    var welcomeSetup = this.renderWelcomeSetup();
     var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
     var invites = this.renderInvitations();
-    var noPatientsSetupStorage = this.renderNoPatientsSetupStorageLink();
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
@@ -99,47 +97,13 @@ export let Patients = translate()(class extends React.Component {
       <div className="container-box-outer">
         <div className={backgroundClasses}>
           {welcomeTitle}
-          {welcomeSetup}
           {noPatientsOrInvites}
           {invites}
-          {noPatientsSetupStorage}
           {patients}
         </div>
       </div>
     );
   }
-
-  renderWelcomeSetup = () => {
-    const { t } = this.props;
-    if (!this.isShowingWelcomeSetup()) {
-      return null;
-    }
-
-    var self = this;
-    var handleClickYes = function(e) {
-      e.preventDefault();
-      self.props.onHideWelcomeSetup();
-      browserHistory.push('/patients/new');
-    };
-    var handleClickNo = function(e) {
-      e.preventDefault();
-      self.props.onHideWelcomeSetup();
-    };
-
-    return (
-      <div className="patients-message">
-        <div>
-          {t('Tidepool provides free, secure data storage for diabetes data.')}
-          <br />
-          {t('Would you like to set up data storage for someone’s diabetes data?')}
-        </div>
-        <div className="patients-welcomesetup-actions">
-          <button className="btn btn-tertiary" onClick={handleClickNo}>{t('No, not now')}</button>
-          <button className="btn btn-primary" onClick={handleClickYes}>{t('Yes, let\'s set it up')}</button>
-        </div>
-      </div>
-    );
-  };
 
   renderInvitation = (invitation, index) => {
     return (
@@ -167,7 +131,7 @@ export let Patients = translate()(class extends React.Component {
   };
 
   renderNoPatientsOrInvitationsMessage = () => {
-    if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
+    if (this.hasPatients() || this.hasInvites()) {
       return null;
     }
     return (
@@ -175,17 +139,6 @@ export let Patients = translate()(class extends React.Component {
         Looks like you don’t have access to any data yet.
         <br />
         Please ask someone to invite you to see their data.
-      </Trans>
-    );
-  };
-
-  renderNoPatientsSetupStorageLink = () => {
-    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
-      return null;
-    }
-    return (
-      <Trans className="patients-message" i18nKey="html.patients-setup-data-storage">
-        You can also <Link to="/patients/new">setup data storage</Link> for someone’s diabetes data.
       </Trans>
     );
   };
@@ -309,10 +262,6 @@ export let Patients = translate()(class extends React.Component {
 
   hasInvites = () => {
     return !_.isEmpty(this.props.invites);
-  };
-
-  isShowingWelcomeSetup = () => {
-    return this.props.showingWelcomeMessage && !this.hasInvites();
   };
 
   hasPatients = () => {
