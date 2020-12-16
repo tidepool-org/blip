@@ -167,6 +167,7 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
+    validateForm,
     values,
   } = useFormikContext();
 
@@ -233,6 +234,10 @@ export const PrescriptionForm = props => {
     if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
     setFormPersistReady(true);
   }, []);
+
+  React.useEffect(() => {
+    validateForm();
+  }, [formPersistReady])
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
