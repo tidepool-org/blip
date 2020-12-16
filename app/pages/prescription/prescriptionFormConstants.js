@@ -90,7 +90,7 @@ export const getBgStepInTargetUnits = (stepValue, stepUnits, targetUnits) => {
 
 export const roundValueToIncrement = (value, increment = 1) => {
   const inverse = 1 / increment;
-  return Math.round(value * inverse) / inverse;
+  return value ? Math.round(value * inverse) / inverse : value;
 };
 
 export const pumpRanges = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
