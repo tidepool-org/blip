@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Formik, Field, FastField } from 'formik';
+import { Formik } from 'formik';
 
 import ScheduleForm from '../../../../app/pages/prescription/ScheduleForm';
 
@@ -8,6 +8,9 @@ import ScheduleForm from '../../../../app/pages/prescription/ScheduleForm';
 /* global sinon */
 /* global describe */
 /* global it */
+/* global before */
+/* global after */
+/* global afterEach */
 /* global beforeEach */
 
 const expect = chai.expect;
@@ -15,27 +18,36 @@ const expect = chai.expect;
 describe('ScheduleForm', () => {
   let wrapper;
 
-  const meta = {
-    fooSchedule: {
-      valid: true,
-      touched: true,
-      error: [
-        { start: 'some start error!'}
-      ],
+  const formikContext = {
+    touched: {
+      fooSchedule: [{ start: true }],
     },
+    errors: {
+      fooSchedule: [{ start: 'some start error!' }],
+    },
+    values: {
+      fooSchedule: [{ rate: 9, start: 0 }],
+    },
+    setFieldTouched: sinon.stub(),
+    setFieldValue: sinon.stub(),
   };
+
+  beforeEach(() => {
+    ScheduleForm.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+  });
+
+  afterEach(() => {
+    ScheduleForm.__ResetDependency__('useFormikContext');
+  });
 
   beforeEach(() => {
     wrapper = mount((
       <Formik
-        initialValues={{
-          fooSchedule: [{ rate: 9, start: 0 }],
-        }}
+        initialValues={{ ...formikContext.values }}
       >
         <ScheduleForm
           addButtonText={'Add an additional foo'}
           fieldArrayName='fooSchedule'
-          fieldArrayMeta={meta.fooSchedule}
           fields={[
             {
               label: 'Foo rates values (in U/foo)',
@@ -144,6 +156,8 @@ describe('ScheduleForm', () => {
     expect(rateInput().prop('value')).to.equal(9);
 
     // Update rate to trigger high threshold
+    // Need this to actually set the field value, so can't use stub here
+    ScheduleForm.__ResetDependency__('useFormikContext');
     rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.1.rate', value: 25 } })
     expect(rateInput().prop('value')).to.equal(25);
 
@@ -237,6 +251,8 @@ describe('ScheduleForm', () => {
     expect(rateInput().prop('step')).to.equal(1);
 
     // Update rate and blur to trigger value rounding to step
+    // Need this to actually set the field value, so can't use stub here
+    ScheduleForm.__ResetDependency__('useFormikContext');
     rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.0.rate', value: 25.4 } })
     rateInput().at(0).simulate('blur');
     expect(rateInput().prop('value')).to.equal(25);

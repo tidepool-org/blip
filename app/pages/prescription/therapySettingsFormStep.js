@@ -38,26 +38,28 @@ const log = bows('PrescriptionTherapySettings');
 
 const fieldsetPropTypes = {
   ...BoxProps,
-  meta: PropTypes.object.isRequired,
   t: PropTypes.func.isRequired,
+  pump: PropTypes.object,
 };
 
 export const PatientInfo = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
 
   const {
-    firstName,
-    lastName,
-    birthday,
-    email,
-  } = meta;
+    values: {
+      firstName,
+      lastName,
+      birthday,
+      email,
+    }
+  } = useFormikContext();
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
       <Headline mb={2}>{t('Tidepool Loop Order Form and Treatment Plan')}</Headline>
-      <Text>{firstName.value} {lastName.value}</Text>
-      <Text>{t('Date of Birth:')} {birthday.value}</Text>
-      <Text>{t('Email:')} {email.value}</Text>
+      <Text>{firstName} {lastName}</Text>
+      <Text>{t('Date of Birth:')} {birthday}</Text>
+      <Text>{t('Email:')} {email}</Text>
     </Box>
   );
 };
@@ -65,7 +67,7 @@ export const PatientInfo = props => {
 PatientInfo.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
-  const { t, meta, pump, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -81,7 +83,7 @@ export const PatientTraining = props => {
         id="training"
         name="training"
         options={trainingOptions}
-        error={getFieldError(meta.training)}
+        error={getFieldError('training', useFormikContext())}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -91,7 +93,7 @@ export const PatientTraining = props => {
 PatientTraining.propTypes = fieldsetPropTypes;
 
 export const InModuleTrainingNotification = props => {
-  const { t, meta, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -105,7 +107,7 @@ export const InModuleTrainingNotification = props => {
 InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
-  const { t, meta, pump, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
 
   const {
     setFieldTouched,
@@ -139,8 +141,8 @@ export const GlucoseSettings = props => {
           id="initialSettings.glucoseSafetyLimit"
           name="initialSettings.glucoseSafetyLimit"
           suffix={bgUnits}
-          error={getFieldError(meta.initialSettings.glucoseSafetyLimit)}
-          warning={getThresholdWarning(meta.initialSettings.glucoseSafetyLimit.value, thresholds.glucoseSafetyLimit)}
+          error={getFieldError('initialSettings.glucoseSafetyLimit', useFormikContext())}
+          warning={getThresholdWarning(get(values,'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit)}
           onBlur={e => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
             setFieldValue('initialSettings.glucoseSafetyLimit', roundValueToIncrement(e.target.value, ranges.glucoseSafetyLimit.increment));
@@ -167,7 +169,6 @@ export const GlucoseSettings = props => {
           <ScheduleForm
             addButtonText={t('Add an additional correction range')}
             fieldArrayName='initialSettings.bloodGlucoseTargetSchedule'
-            fieldArrayMeta={meta.initialSettings.bloodGlucoseTargetSchedule}
             fields={[
               {
                 label: t('Lower Target'),
@@ -211,11 +212,11 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPreprandial.low"
             name="initialSettings.bloodGlucoseTargetPreprandial.low"
             suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPreprandial.low)}
-            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.low.value, thresholds.bloodGlucoseTargetPreprandial)}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', useFormikContext())}
+            warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.low'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment))
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
             }}
             step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
@@ -229,11 +230,11 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPreprandial.high"
             name="initialSettings.bloodGlucoseTargetPreprandial.high"
             suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPreprandial.high)}
-            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPreprandial.high.value, thresholds.bloodGlucoseTargetPreprandial)}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', useFormikContext())}
+            warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.high'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment))
+              setFieldValue('initialSettings.bloodGlucoseTargetPreprandial.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPreprandial.increment));
             }}
             step={ranges.bloodGlucoseTargetPreprandial.increment}
             {...ranges.bloodGlucoseTargetPreprandial}
@@ -262,11 +263,11 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
             name="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
             suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.low)}
-            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.low.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', useFormikContext())}
+            warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.low'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.low');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment))
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.low', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
             }}
             step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
@@ -280,11 +281,11 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
             name="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
             suffix={bgUnits}
-            error={getFieldError(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.high)}
-            warning={getThresholdWarning(meta.initialSettings.bloodGlucoseTargetPhysicalActivity.high.value, thresholds.bloodGlucoseTargetPhysicalActivity)}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', useFormikContext())}
+            warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.high'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.high');
-              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment))
+              setFieldValue('initialSettings.bloodGlucoseTargetPhysicalActivity.high', roundValueToIncrement(e.target.value, ranges.bloodGlucoseTargetPhysicalActivity.increment));
             }}
             step={ranges.bloodGlucoseTargetPhysicalActivity.increment}
             {...ranges.bloodGlucoseTargetPhysicalActivity}
@@ -299,7 +300,7 @@ export const GlucoseSettings = props => {
 GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
-  const { t, meta, pump, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
 
   const {
     setFieldTouched,
@@ -332,7 +333,6 @@ export const InsulinSettings = props => {
           <ScheduleForm
             addButtonText={t('Add an additional carb ratio')}
             fieldArrayName='initialSettings.carbohydrateRatioSchedule'
-            fieldArrayMeta={meta.initialSettings.carbohydrateRatioSchedule}
             fields={[
               {
                 label: t('1 U of insulin covers (g/U)'),
@@ -363,7 +363,6 @@ export const InsulinSettings = props => {
           <ScheduleForm
             addButtonText={t('Add an additional basal rate')}
             fieldArrayName='initialSettings.basalRateSchedule'
-            fieldArrayMeta={meta.initialSettings.basalRateSchedule}
             fields={[
               {
                 label: t('Basal rates values (in U/hr)'),
@@ -398,11 +397,11 @@ export const InsulinSettings = props => {
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
-          error={getFieldError(meta.initialSettings.basalRateMaximum.value)}
-          warning={getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum)}
+          error={getFieldError('initialSettings.basalRateMaximum.value', useFormikContext())}
+          warning={getThresholdWarning(get(values,'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.basalRateMaximum.value');
-            setFieldValue('initialSettings.basalRateMaximum.value', roundValueToIncrement(e.target.value, ranges.basalRateMaximum.increment))
+            setFieldValue('initialSettings.basalRateMaximum.value', roundValueToIncrement(e.target.value, ranges.basalRateMaximum.increment));
           }}
           step={ranges.basalRateMaximum.increment}
           {...ranges.basalRateMaximum}
@@ -427,11 +426,11 @@ export const InsulinSettings = props => {
           id="initialSettings.bolusAmountMaximum.value"
           name="initialSettings.bolusAmountMaximum.value"
           suffix={t('U')}
-          error={getFieldError(meta.initialSettings.bolusAmountMaximum.value)}
-          warning={getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum)}
+          error={getFieldError('initialSettings.bolusAmountMaximum.value', useFormikContext())}
+          warning={getThresholdWarning(get(values,'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.bolusAmountMaximum.value');
-            setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToIncrement(e.target.value, ranges.bolusAmountMaximum.increment))
+            setFieldValue('initialSettings.bolusAmountMaximum.value', roundValueToIncrement(e.target.value, ranges.bolusAmountMaximum.increment));
           }}
           step={ranges.bolusAmountMaximum.increment}
           {...ranges.bolusAmountMaximum}
@@ -471,7 +470,7 @@ export const InsulinSettings = props => {
           id="initialSettings.insulinModel"
           name="initialSettings.insulinModel"
           options={insulinModelOptions}
-          error={getFieldError(meta.initialSettings.insulinModel)}
+          error={getFieldError('initialSettings.insulinModel', useFormikContext())}
           mb={4}
         />
 
@@ -495,7 +494,6 @@ export const InsulinSettings = props => {
           <ScheduleForm
             addButtonText={t('Add an additional insulin sensitivity factor')}
             fieldArrayName='initialSettings.insulinSensitivitySchedule'
-            fieldArrayMeta={meta.initialSettings.insulinSensitivitySchedule}
             fields={[
               {
                 label: t('1 U of insulin decreases BG by'),
@@ -516,20 +514,24 @@ export const InsulinSettings = props => {
 
 InsulinSettings.propTypes = fieldsetPropTypes;
 
-export const TherapySettings = translate()(props => (
-  <Box>
-    <PatientInfo mb={4} {...props} />
-    <PatientTraining mt={0} mb={4} {...props} />
-    {props.meta.training.value === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
-    <GlucoseSettings mt={0} mb={4} {...props} />
-    <InsulinSettings mt={0} {...props} />
-  </Box>
-));
+export const TherapySettings = translate()(props => {
+  const { values } = useFormikContext();
 
-const therapySettingsFormStep = (meta, pump) => ({
+  return (
+    <Box>
+      <PatientInfo mb={4} {...props} />
+      <PatientTraining mt={0} mb={4} {...props} />
+      {values.training === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
+      <GlucoseSettings mt={0} mb={4} {...props} />
+      <InsulinSettings mt={0} {...props} />
+    </Box>
+  );
+});
+
+const therapySettingsFormStep = (schema, pump, values) => ({
   label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid(stepValidationFields[2][0], meta),
-  panelContent: <TherapySettings meta={meta} pump={pump} />
+  disableComplete: !fieldsAreValid(stepValidationFields[2][0], schema, values),
+  panelContent: <TherapySettings pump={pump} />
 });
 
 export default therapySettingsFormStep;

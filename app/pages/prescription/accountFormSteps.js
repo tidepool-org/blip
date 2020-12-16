@@ -19,7 +19,7 @@ const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
 
 export const AccountType = translate()(props => {
-  const { t, meta } = props;
+  const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -31,7 +31,7 @@ export const AccountType = translate()(props => {
         id="accountType"
         name="accountType"
         options={typeOptions}
-        error={getFieldError(meta.accountType)}
+        error={getFieldError('accountType', useFormikContext())}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -39,11 +39,12 @@ export const AccountType = translate()(props => {
 });
 
 export const PatientInfo = translate()(props => {
-  const { t, meta, initialFocusedInput = 'firstName' } = props;
+  const { t, initialFocusedInput = 'firstName' } = props;
 
   const {
     setFieldValue,
     setFieldTouched,
+    values,
   } = useFormikContext();
 
   const initialFocusedInputRef = useInitialFocusedInput();
@@ -59,7 +60,7 @@ export const PatientInfo = translate()(props => {
         label={t('First Name')}
         id="firstName"
         name="firstName"
-        error={getFieldError(meta.firstName)}
+        error={getFieldError('firstName', useFormikContext())}
         innerRef={initialFocusedInput === 'firstName' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
@@ -68,7 +69,7 @@ export const PatientInfo = translate()(props => {
         label={t('Last Name')}
         id="lastName"
         name="lastName"
-        error={getFieldError(meta.lastName)}
+        error={getFieldError('lastName', useFormikContext())}
         {...condensedInputStyles}
       />
       <FastField
@@ -77,7 +78,7 @@ export const PatientInfo = translate()(props => {
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
             alwaysShowMask
-            defaultValue={get(meta.birthday, 'value', '').replace(dateFormatRegex, '$2/$3/$1')}
+            defaultValue={get(values, 'birthday', '').replace(dateFormatRegex, '$2/$3/$1')}
             onBlur={e => {
               setFieldTouched('birthday');
               setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))
@@ -87,7 +88,7 @@ export const PatientInfo = translate()(props => {
               name="birthday"
               id="birthday"
               label={t('Birthdate')}
-              error={getFieldError(meta.birthday)}
+              error={getFieldError('birthday', useFormikContext())}
               innerRef={innerRef}
               {...condensedInputStyles}
             />
@@ -100,16 +101,17 @@ export const PatientInfo = translate()(props => {
 });
 
 export const PatientEmail = translate()(props => {
-  const { t, meta } = props;
+  const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
 
   const {
     setFieldTouched,
     setFieldValue,
+    values,
   } = useFormikContext();
 
-  const patientName = meta.firstName.value;
-  const isCaregiverAccount = meta.accountType.value === 'caregiver';
+  const patientName = get(values, 'firstName');
+  const isCaregiverAccount = get(values, 'accountType') === 'caregiver';
 
   const initialFocusedInput = get(props, 'initialFocusedInput', isCaregiverAccount
     ? 'caregiverFirstName'
@@ -140,7 +142,7 @@ export const PatientEmail = translate()(props => {
           label={t('First Name')}
           id="caregiverFirstName"
           name="caregiverFirstName"
-          error={getFieldError(meta.caregiverFirstName)}
+          error={getFieldError('caregiverFirstName', useFormikContext())}
           innerRef={initialFocusedInput === 'caregiverFirstName' ? initialFocusedInputRef : undefined}
           {...condensedInputStyles}
         />
@@ -151,7 +153,7 @@ export const PatientEmail = translate()(props => {
           label={t('Last Name')}
           id="caregiverLastName"
           name="caregiverLastName"
-          error={getFieldError(meta.caregiverLastName)}
+          error={getFieldError('caregiverLastName', useFormikContext())}
           {...condensedInputStyles}
         />
       )}
@@ -160,7 +162,7 @@ export const PatientEmail = translate()(props => {
         label={t('Email Address')}
         id="email"
         name="email"
-        error={getFieldError(meta.email)}
+        error={getFieldError('email', useFormikContext())}
         innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
@@ -169,7 +171,7 @@ export const PatientEmail = translate()(props => {
         label={t('Confirm Email Address')}
         id="emailConfirm"
         name="emailConfirm"
-        error={getFieldError(meta.emailConfirm)}
+        error={getFieldError('emailConfirm', useFormikContext())}
         {...condensedInputStyles}
       />
       <Caption mt={5} mb={3}>
@@ -179,24 +181,24 @@ export const PatientEmail = translate()(props => {
   );
 });
 
-const accountFormSteps = (meta, initialFocusedInput) => ({
+const accountFormSteps = (schema, initialFocusedInput, values) => ({
   label: t('Create Patient Account'),
   subSteps: [
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][0], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][0], schema, values),
       hideBack: true,
       onComplete: () => log('Account Type Complete'),
-      panelContent: <AccountType meta={meta} />,
+      panelContent: <AccountType />,
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][1], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][1], schema, values),
       onComplete: () => log('Patient Info Complete'),
-      panelContent: <PatientInfo meta={meta} initialFocusedInput={initialFocusedInput} />,
+      panelContent: <PatientInfo initialFocusedInput={initialFocusedInput} />,
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[0][2], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[0][2], schema, values),
       onComplete: () => log('Patient Email Complete'),
-      panelContent: <PatientEmail meta={meta} />,
+      panelContent: <PatientEmail />,
     },
   ],
 });

@@ -26,7 +26,6 @@ const ScheduleForm = props => {
   const {
     addButtonText,
     fieldArrayName,
-    fieldArrayMeta,
     fields,
     separator,
     t,
@@ -37,6 +36,7 @@ const ScheduleForm = props => {
   const {
     setFieldTouched,
     setFieldValue,
+    values,
   } = useFormikContext();
 
   const [refs, setRefs] = React.useState([]);
@@ -84,7 +84,7 @@ const ScheduleForm = props => {
             innerRef={refs[index]}
             id={`${fieldArrayName}.${index}.start`}
             name={`${fieldArrayName}.${index}.start`}
-            error={getFieldError(fieldArrayMeta, index, 'start')}
+            error={getFieldError(`${fieldArrayName}.${index}.start`, useFormikContext())}
             {...inlineInputStyles}
           />
           {map(fields, (field, fieldIndex) => (
@@ -99,8 +99,8 @@ const ScheduleForm = props => {
                 id={`${fieldArrayName}.${index}.${field.name}`}
                 name={`${fieldArrayName}.${index}.${field.name}`}
                 suffix={field.suffix}
-                error={getFieldError(fieldArrayMeta, index, field.name)}
-                warning={getThresholdWarning(schedule[field.name], field.threshold)}
+                error={getFieldError(`${fieldArrayName}.${index}.${field.name}`, useFormikContext())}
+                warning={getThresholdWarning(get(values,`${fieldArrayName}.${index}.${field.name}`), field.threshold)}
                 onBlur={e => {
                   setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
                   setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToIncrement(e.target.value, field.increment))
@@ -159,7 +159,6 @@ ScheduleForm.propTypes = {
   ...BoxProps,
   addButtonText: PropTypes.string,
   fieldArrayName: PropTypes.string,
-  fieldArrayMeta: PropTypes.object,
   fields: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     name: PropTypes.string,

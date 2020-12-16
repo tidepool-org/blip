@@ -24,7 +24,7 @@ import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
 
-import { fieldsAreValid, getFieldsMeta } from '../../core/forms';
+import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
@@ -178,7 +178,6 @@ export const PrescriptionForm = props => {
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
   schema = prescriptionSchema(devices, pumpId, bgUnits, values);
-  const meta = getFieldsMeta(schema, getFieldMeta, values);
 
   const asyncStates = {
     initial: { pending: false, complete: false },
@@ -211,7 +210,7 @@ export const PrescriptionForm = props => {
 
       while (isUndefined(firstInvalidStep) && currentStep < stepValidationFields.length) {
         while (currentSubStep < stepValidationFields[currentStep].length) {
-          if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], meta)) {
+          if (!fieldsAreValid(stepValidationFields[currentStep][currentSubStep], schema, values)) {
             firstInvalidStep = currentStep;
             firstInvalidSubStep = currentSubStep;
             break;
@@ -343,10 +342,10 @@ export const PrescriptionForm = props => {
     },
   };
 
-  const accountFormStepsProps = accountFormSteps(meta, initialFocusedInput);
-  const profileFormStepsProps = profileFormSteps(meta, devices);
-  const therapySettingsFormStepProps = therapySettingsFormStep(meta, pump);
-  const reviewFormStepProps = reviewFormStep(meta, pump, handlers);
+  const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
+  const profileFormStepsProps = profileFormSteps(schema, devices, values);
+  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 
   const stepProps = step => ({
     ...step,

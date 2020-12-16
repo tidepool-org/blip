@@ -5,6 +5,7 @@ import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
 import find from 'lodash/find';
+import flattenDeep from 'lodash/flattenDeep';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
@@ -35,45 +36,45 @@ const log = bows('PrescriptionReview');
 
 const fieldsetPropTypes = {
   ...BoxProps,
-  meta: PropTypes.object.isRequired,
+  pump: PropTypes.object,
   t: PropTypes.func.isRequired,
 };
 
-const patientRows = meta => ([
+const patientRows = values => ([
   {
     label: t('Email'),
-    value: meta.email.value,
+    value: get(values, 'email'),
     step: [0, 2],
   },
   {
     label: t('Mobile Number'),
-    value: meta.phoneNumber.number.value,
+    value: get(values, 'phoneNumber.number'),
     step: [1, 0],
   },
   {
     label: t('Type of Account'),
-    value: capitalize(meta.accountType.value),
+    value: capitalize(get(values, 'accountType', '')),
     step: [0, 0],
   },
   {
     label: t('Birthdate'),
-    value: meta.birthday.value,
+    value: get(values, 'birthday'),
     step: [0, 1],
     initialFocusedInput: 'birthday',
   },
   {
     label: t('Gender'),
-    value: capitalize(meta.sex.value),
+    value: capitalize(get(values, 'sex', '')),
     step: [1, 2],
   },
   {
     label: t('MRN'),
-    value: meta.mrn.value,
+    value: get(values, 'mrn'),
     step: [1, 1],
   },
 ]);
 
-const therapySettingsRows = (pump, meta) => {
+const therapySettingsRows = (pump) => {
   const { values } = useFormikContext();
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const thresholds = warningThresholds(pump, bgUnits, values);
@@ -82,17 +83,17 @@ const therapySettingsRows = (pump, meta) => {
     {
       id: 'cpt-training',
       label: t('CPT Training Required'),
-      value: meta.training.value === 'inModule' ? t('Not required') : t('Required'),
+      value: values.training === 'inModule' ? t('Not required') : t('Required'),
     },
     {
       id: 'correction-range',
       label: t('Correction Range'),
       value: map(
-        meta.initialSettings.bloodGlucoseTargetSchedule.value,
+        values.initialSettings.bloodGlucoseTargetSchedule,
         ({ high, low, start }) => `${convertMsPer24ToTimeString(start)}: ${low} - ${high} ${bgUnits}`
       ),
       warning: map(
-        meta.initialSettings.bloodGlucoseTargetSchedule.value,
+        values.initialSettings.bloodGlucoseTargetSchedule,
         (val) => {
           const warnings = [];
           const lowWarning = getThresholdWarning(val.low, thresholds.bloodGlucoseTarget);
@@ -108,23 +109,23 @@ const therapySettingsRows = (pump, meta) => {
     {
       id: 'glucose-safety-limit',
       label: t('Glucose Safety Limit'),
-      value: `${meta.initialSettings.glucoseSafetyLimit.value} ${bgUnits}`,
-      warning: getThresholdWarning(meta.initialSettings.glucoseSafetyLimit.value, thresholds.glucoseSafetyLimit)
+      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
+      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit)
     },
     {
       id: 'insulin-model',
       label: t('Insulin Model'),
-      value: get(find(insulinModelOptions, { value: meta.initialSettings.insulinModel.value }), 'label', ''),
+      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
     },
     {
       id: 'basal-schedule',
       label: t('Basal Rates'),
       value: map(
-        meta.initialSettings.basalRateSchedule.value,
+        values.initialSettings.basalRateSchedule,
         ({ rate, start }) => `${convertMsPer24ToTimeString(start)}: ${rate} U/hr`
       ),
       warning: map(
-        meta.initialSettings.basalRateSchedule.value,
+        values.initialSettings.basalRateSchedule,
         (val) => getThresholdWarning(val.rate, thresholds.basalRate)
       ),
     },
@@ -132,23 +133,23 @@ const therapySettingsRows = (pump, meta) => {
       id: 'delivery-limits',
       label: t('Delivery Limits'),
       value: [
-        t('Max Basal: {{value}}', { value: `${meta.initialSettings.basalRateMaximum.value.value} U/hr` }),
-        t('Max Bolus: {{value}}', { value: `${meta.initialSettings.bolusAmountMaximum.value.value} U` }),
+        t('Max Basal: {{value}}', { value: `${values.initialSettings.basalRateMaximum.value} U/hr` }),
+        t('Max Bolus: {{value}}', { value: `${values.initialSettings.bolusAmountMaximum.value} U` }),
       ],
       warning: [
-        getThresholdWarning(meta.initialSettings.basalRateMaximum.value.value, thresholds.basalRateMaximum),
-        getThresholdWarning(meta.initialSettings.bolusAmountMaximum.value.value, thresholds.bolusAmountMaximum),
+        getThresholdWarning(values.initialSettings.basalRateMaximum.value, thresholds.basalRateMaximum),
+        getThresholdWarning(values.initialSettings.bolusAmountMaximum.value, thresholds.bolusAmountMaximum),
       ],
     },
     {
       id: 'isf-schedule',
       label: t('Insulin Sensitivity Factor'),
       value: map(
-        meta.initialSettings.insulinSensitivitySchedule.value,
+        values.initialSettings.insulinSensitivitySchedule,
         ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} ${bgUnits}`
       ),
       warning: map(
-        meta.initialSettings.insulinSensitivitySchedule.value,
+        values.initialSettings.insulinSensitivitySchedule,
         (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
       ),
     },
@@ -156,11 +157,11 @@ const therapySettingsRows = (pump, meta) => {
       id: 'carb-ratio-schedule',
       label: t('Insulin to Carbohydrate Ratios'),
       value: map(
-        meta.initialSettings.carbohydrateRatioSchedule.value,
+        values.initialSettings.carbohydrateRatioSchedule,
         ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
       ),
       warning: map(
-        meta.initialSettings.carbohydrateRatioSchedule.value,
+        values.initialSettings.carbohydrateRatioSchedule,
         (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
       ),
     },
@@ -171,7 +172,6 @@ export const PatientInfo = props => {
   const {
     t,
     handlers: { activeStepUpdate },
-    meta,
     ...themeProps
   } = props;
 
@@ -180,13 +180,15 @@ export const PatientInfo = props => {
   const nameStep = [0, 1];
   const currentStep = [3, 0];
 
+  const { values } = useFormikContext();
+
   const {
     firstName,
     lastName,
-  } = meta;
+  } = values;
 
-  const patientName = `${firstName.value} ${lastName.value}`;
-  const rows = patientRows(meta);
+  const patientName = `${firstName} ${lastName}`;
+  const rows = patientRows(values);
 
   const Row = ({ label, value, step, initialFocusedInput }) => (
     <Flex mb={4} justifyContent="space-between" alignItems="center">
@@ -230,7 +232,6 @@ export const TherapySettings = props => {
   const {
     t,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
-    meta,
     pump,
     ...themeProps
   } = props;
@@ -238,14 +239,16 @@ export const TherapySettings = props => {
   const therapySettingsStep = [2, 0];
   const currentStep = [3, 0];
 
+  const { values } = useFormikContext();
+
   const {
     firstName,
     lastName,
-  } = meta;
+  } = values;
 
-  const patientName = `${firstName.value} ${lastName.value}`;
+  const patientName = `${firstName} ${lastName}`;
 
-  const rows = therapySettingsRows(pump, meta);
+  const rows = therapySettingsRows(pump, values);
 
   const Row = ({ label, value, warning, id, index }) => {
     const values = isArray(value) ? value : [value];
@@ -338,8 +341,8 @@ export const TherapySettings = props => {
                 label: t('Name'),
                 value: patientName,
               },
-              ...patientRows(meta),
-            ], therapySettingsRows(pump, meta))}
+              ...patientRows(values),
+            ], therapySettingsRows(pump, values))}
           />
         </Box>
       </Flex>
@@ -355,7 +358,7 @@ export const TherapySettings = props => {
           as={Checkbox}
           id="therapySettingsReviewed"
           name="therapySettingsReviewed"
-          checked={!!meta.therapySettingsReviewed.value}
+          checked={!!values.therapySettingsReviewed}
           required
           label={t('I have confirmed the therapy settings order for this patient')}
           {...checkboxStyles}
@@ -399,11 +402,11 @@ export const PrescriptionReview = translate()(props => (
   </Flex>
 ));
 
-const reviewFormStep = (meta, pump, handlers) => ({
+const reviewFormStep = (schema, pump, handlers, values) => ({
   label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
-  disableComplete: !fieldsAreValid(stepValidationFields[3][0], meta),
-  panelContent: <PrescriptionReview meta={meta} pump={pump} handlers={handlers} />
+  disableComplete: !fieldsAreValid(flattenDeep(stepValidationFields), schema, values),
+  panelContent: <PrescriptionReview pump={pump} handlers={handlers} />
 });
 
 export default reviewFormStep;
