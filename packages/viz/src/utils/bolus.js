@@ -39,11 +39,35 @@ function fixFloatingPoint(n) {
  * @return {Object} a Tidepool bolus object
  */
 export function getBolusFromInsulinEvent(insulinEvent) {
-  let bolus = insulinEvent;
-  if (insulinEvent.bolus) {
-    bolus = insulinEvent.bolus;
+  if (_.isObject(insulinEvent.bolus)) {
+    return insulinEvent.bolus;
   }
-  return bolus;
+  return insulinEvent;
+}
+
+// From packages/tideline/js/plot/util/drawbolus.js
+export const BolusTypes = {
+  meal: 1,
+  micro: 2,
+  manual: 3,
+};
+
+/**
+ *
+ * @param {object} b bolus or wizard
+ */
+export function getBolusType(b) {
+  if (b.type === 'wizard') {
+    return BolusTypes.meal;
+  }
+  const bolus = getBolusFromInsulinEvent(b);
+  if (bolus.subType === 'pen' || bolus.prescriptor === 'manual') {
+    return BolusTypes.manual;
+  }
+  if (bolus.subType === 'biphasic') {
+    return BolusTypes.meal;
+  }
+  return BolusTypes.micro;
 }
 
 /**
@@ -51,11 +75,11 @@ export function getBolusFromInsulinEvent(insulinEvent) {
  * @param {Object} insulinEvent - a Tidepool wizard or bolus object
  *
  * @return {Number} grams of carbs input into bolus calculator
- *                  NaN if bolus calculator not used; null if no carbInput
+ *                  Number.NaN if bolus calculator not used; null if no carbInput
  */
 export function getCarbs(insulinEvent) {
   if (insulinEvent.type !== 'wizard') {
-    return NaN;
+    return Number.NaN;
   }
   return _.get(insulinEvent, 'carbInput', null);
 }
@@ -64,14 +88,14 @@ export function getCarbs(insulinEvent) {
  * getProgrammed
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
- * @return {Number} value of insulin programmed for delivery in the given insulinEvent
+ * @return {number} value of insulin programmed for delivery in the given insulinEvent
  */
 export function getProgrammed(insulinEvent) {
   let bolus = insulinEvent;
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
-    if (!_.inRange(bolus.normal, Infinity) && !_.inRange(bolus.extended, Infinity)) {
-      return NaN;
+    if (!(_.isFinite(bolus.normal) || _.isFinite(bolus.extended))) {
+      return Number.NaN;
     }
   }
   if (bolus.extended != null && bolus.expectedExtended != null) {
@@ -94,7 +118,7 @@ export function getProgrammed(insulinEvent) {
     }
     return bolus.extended;
   }
-  return bolus.expectedNormal || bolus.normal;
+  return Number.isFinite(bolus.expectedNormal) ? bolus.expectedNormal : bolus.normal;
 }
 
 /**
@@ -105,16 +129,16 @@ export function getProgrammed(insulinEvent) {
  */
 export function getRecommended(insulinEvent) {
   // a simple manual/"quick" bolus won't have a `recommended` field
-  if (!insulinEvent.recommended) {
-    return NaN;
+  if (_.isEmpty(insulinEvent.recommended)) {
+    return Number.NaN;
   }
-  const netRecommendation = _.get(insulinEvent, ['recommended', 'net'], null);
+  const netRecommendation = _.get(insulinEvent, 'recommended.net', null);
   if (netRecommendation !== null) {
     return netRecommendation;
   }
   let rec = 0;
-  rec += _.get(insulinEvent, ['recommended', 'carb'], 0);
-  rec += _.get(insulinEvent, ['recommended', 'correction'], 0);
+  rec += _.get(insulinEvent, 'recommended.carb', 0);
+  rec += _.get(insulinEvent, 'recommended.correction', 0);
 
   return fixFloatingPoint(rec);
 }
@@ -130,11 +154,11 @@ export function getDelivered(insulinEvent) {
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
     if (!_.inRange(bolus.normal, Infinity) && !_.inRange(bolus.extended, Infinity)) {
-      return NaN;
+      return Number.NaN;
     }
   }
-  if (bolus.extended != null) {
-    if (bolus.normal != null) {
+  if (Number.isFinite(bolus.extended)) {
+    if (Number.isFinite(bolus.normal)) {
       return fixFloatingPoint(bolus.extended + bolus.normal);
     }
     return bolus.extended;
@@ -156,7 +180,7 @@ export function getDuration(insulinEvent) {
   // don't want truthiness here because want to return duration
   // from a bolus interrupted immediately (duration = 0)
   if (!_.inRange(bolus.duration, Infinity)) {
-    return NaN;
+    return Number.NaN;
   }
   return bolus.duration;
 }
@@ -173,7 +197,7 @@ export function getExtended(insulinEvent) {
   // don't want truthiness here because want to return expectedExtended
   // from a bolus interrupted immediately (extended = 0)
   if (!_.inRange(bolus.extended, Infinity)) {
-    return NaN;
+    return Number.NaN;
   }
 
   return bolus.extended;
@@ -183,7 +207,7 @@ export function getExtended(insulinEvent) {
  * getExtendedPercentage
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
- * @return {String} percentage of combo bolus delivered later
+ * @return {string|number} percentage of combo bolus delivered later
  */
 export function getExtendedPercentage(insulinEvent) {
   let bolus = insulinEvent;
@@ -191,7 +215,7 @@ export function getExtendedPercentage(insulinEvent) {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   if (!bolus.normal || !(bolus.extended || bolus.expectedExtended)) {
-    return NaN;
+    return Number.NaN;
   }
   const extended = bolus.expectedExtended || bolus.extended;
   const programmed = getProgrammed(bolus);
@@ -212,7 +236,7 @@ export function getMaxDuration(insulinEvent) {
   // don't want truthiness here because want to return expectedDuration
   // from a bolus interrupted immediately (duration = 0)
   if (!_.inRange(bolus.duration, Infinity)) {
-    return NaN;
+    return Number.NaN;
   }
   return bolus.expectedDuration || bolus.duration;
 }
@@ -228,7 +252,7 @@ export function getMaxValue(insulinEvent) {
   if (_.get(insulinEvent, 'type') === 'wizard') {
     bolus = getBolusFromInsulinEvent(insulinEvent);
     if (!bolus.normal && !bolus.extended) {
-      return NaN;
+      return Number.NaN;
     }
   }
   const programmed = getProgrammed(bolus);
@@ -240,7 +264,7 @@ export function getMaxValue(insulinEvent) {
  * getNormalPercentage
  * @param {Object} insulinEvent - a Tidepool bolus or wizard object
  *
- * @return {String} percentage of combo bolus delivered immediately
+ * @return {string|number} percentage of combo bolus delivered immediately
  */
 export function getNormalPercentage(insulinEvent) {
   let bolus = insulinEvent;
@@ -248,7 +272,7 @@ export function getNormalPercentage(insulinEvent) {
     bolus = getBolusFromInsulinEvent(insulinEvent);
   }
   if (!(bolus.normal || bolus.expectedNormal) || !(bolus.extended || bolus.expectedExtended)) {
-    return NaN;
+    return Number.NaN;
   }
   const normal = bolus.expectedNormal || bolus.normal;
   const programmed = getProgrammed(bolus);

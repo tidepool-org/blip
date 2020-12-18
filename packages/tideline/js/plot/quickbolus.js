@@ -15,88 +15,82 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+const d3 = require('d3');
+const _ = require('lodash');
 
-var log = require('bows')('Bolus');
-
-var commonbolus = require('./util/commonbolus');
-var drawbolus = require('./util/drawbolus');
-var format = require('../data/util/format');
+const commonbolus = require('./util/commonbolus');
+const drawbolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
 
-  var defaults = {
+  const defaults = {
     width: 12
   };
 
   _.defaults(opts, defaults);
 
-  var drawBolus = drawbolus(pool, opts);
-  var mainGroup = pool.parent();
+  const drawBolus = drawbolus(pool, opts);
 
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();
-    selection.each(function(currentData) {
+    selection.each(function(data) {
       // filter out boluses with wizard
-      currentData = _.filter(currentData, function(d) { if(!d.wizard) { return d; }});
+      const currentData = _.filter(data, (d) => _.isEmpty(d.wizard));
+      drawBolus.annotations(_.filter(currentData, 'annotations'));
 
-      drawBolus.annotations(_.filter(currentData, function(d) { return d.annotations; }));
-
-      var boluses = d3.select(this)
+      const boluses = d3.select(this)
         .selectAll('g.d3-bolus-group')
-        .data(currentData, function(d) {
-          return d.id;
-        });
+        .data(currentData, (d) => d.id);
 
-      var bolusGroups = boluses.enter()
+      const bolusGroups = boluses.enter()
         .append('g')
         .attr({
           'class': 'd3-bolus-group',
-          id: function(d) { return 'bolus_group_' + d.id; }
+          id: (d) => `bolus_group_${d.id}`
+        })
+        .sort((a, b) => {
+          // sort by size so smaller boluses are drawn last
+          return d3.descending(commonbolus.getMaxValue(a), commonbolus.getMaxValue(b));
         });
 
-      // sort by size so smaller boluses are drawn last
-      bolusGroups = bolusGroups.sort(function(a,b){
-        return d3.descending(commonbolus.getMaxValue(a), commonbolus.getMaxValue(b));
+      const normal = bolusGroups.filter((bolus) => {
+        const d = commonbolus.getDelivered(bolus);
+        return Number.isFinite(d) && d > 0;
       });
-
-      drawBolus.bolus(bolusGroups.filter(function(d) {
-        return commonbolus.getDelivered(d) || commonbolus.getProgrammed(d);
-      }));
-
-      var extended = boluses.filter(function(d) {
-        return d.extended || d.expectedExtended;
-      });
-
-      drawBolus.extended(extended);
+      drawBolus.bolus(normal);
 
       // boluses where programmed differs from delivered
-      var suspended = boluses.filter(function(d) {
-        return commonbolus.getDelivered(d) !== commonbolus.getProgrammed(d);
+      const undelivered = bolusGroups.filter((bolus) => {
+        const d = commonbolus.getDelivered(bolus);
+        const p = commonbolus.getProgrammed(bolus);
+        return Number.isFinite(d) && Number.isFinite(p) && p > d;
       });
+      drawBolus.undelivered(undelivered);
 
-      drawBolus.suspended(suspended);
+      // Not currently in use:
+      // const extended = bolusGroups.filter(function(d) {
+      //   return Number.isFinite(d.extended) || Number.isFinite(d.expectedExtended);
+      // });
+      // drawBolus.extended(extended);
 
-      var extendedSuspended = boluses.filter(function(d) {
-        if (d.expectedExtended) {
-          return d.extended !== d.expectedExtended;
-        }
-        return false;
-      });
-
-      drawBolus.extendedSuspended(extendedSuspended);
+      // const extendedSuspended = bolusGroups.filter((bolus) => {
+      //   if (Number.isFinite(bolus.expectedExtended) && Number.isFinite(bolus.extended)) {
+      //     return Math.abs(bolus.expectedExtended - bolus.extended) > Number.EPSILON;
+      //   }
+      //   return false;
+      // });
+      // drawBolus.extendedSuspended(extendedSuspended);
 
       boluses.exit().remove();
 
-      var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
+      const highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
 
       // tooltips
       selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {
         highlight.on(d3.select(this));
-        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-        var container = this.getBoundingClientRect();
+        const parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
+        const container = this.getBoundingClientRect();
         container.y = container.top - parentContainer.top;
 
         drawBolus.tooltip.add(d, container);

@@ -63,9 +63,8 @@
 @fingerstick: #6480FB;
 
 // carbs color
-@carbs: #FFD382;
-@rescuecarbs: #fa9494;
-@carbs-circle-fill: #ffd47c;
+@carbs: var(--carbs, #FFD382);
+@rescuecarbs: var(--rescuecarbs, #fa9494);
 @parameter: #d1d0cf;
 
 // physical activty colors
@@ -80,17 +79,20 @@
 @confidentialtext: #5D5D5D;
 
 // bolus color
-@bolus: #6FC3BB;
-@undelivered: #BCECFA;
-@override: darken(@bolus, 35);
-@suspended: #FF8B7C;
-@bolus-ratio-label: #727375;
+@bolus: var(--bolus, #6FC3BB);
+@bolus-meal: var(--bolus-meal, #6FC3BB);
+@bolus-micro: var(--bolus-micro, #6FC3BB);
+@bolus-manual: var(--bolus-manual, #6FC3BB);
+@bolus-undelivered: var(--bolus-undelivered, red);
+@bolus-underride: var(--bolus-underride, grey);
+@bolus-ride: var(--bolus-ride, #E7E7E7);
+// @bolus-interrupted: var(--bolus-interrupted, #FF8B7C);
 
 // basal colors
 @basal: var(--basal, rgb(168, 200, 212));
-@basal-ratio-label: @bolus-ratio-label;
-@automated-ratio-label: @bolus-ratio-label;
-@manual-ratio-label: @bolus-ratio-label;
+@basal-ratio-label: var(--text-medium-contrast);
+@automated-ratio-label: var(--text-medium-contrast);
+@manual-ratio-label: var(--text-medium-contrast);
 @basal-automated: var(--basal-automated, #19A0D7);
 
 // basal tabular colors

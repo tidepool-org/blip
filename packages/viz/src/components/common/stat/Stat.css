@@ -277,7 +277,7 @@ svg.statWheelTimeInAuto .offEllipse {
   grid-template-columns: auto 3.5em 3.5em;
 }
 .nobar-totalInsulin-basal {
-  color: var(--basal);
+  color: var(--basal-automated);
 }
 .nobar-totalInsulin-bolus {
   color: var(--bolus);

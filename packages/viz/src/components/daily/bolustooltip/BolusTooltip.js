@@ -19,9 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import * as bolusUtils from '../../../utils/bolus';
-import { formatDuration } from '../../../utils/datetime';
-import { formatInsulin, formatBgValue, formatInputTime } from '../../../utils/format';
-import { getAnnotationMessages } from '../../../utils/annotations';
+import { formatInsulin, formatInputTime } from '../../../utils/format';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './BolusTooltip.css';
@@ -30,356 +28,198 @@ import i18next from 'i18next';
 const t = i18next.t.bind(i18next);
 
 class BolusTooltip extends React.Component {
-  formatBgValue(val) {
-    return formatBgValue(val, this.props.bgPrefs);
-  }
-
-  isAnimasExtended() {
-    const annotations = bolusUtils.getAnnotations(this.props.bolus);
-    const isAnimasExtended =
-      _.findIndex(annotations, { code: 'animas/bolus/extended-equal-split' }) !== -1;
-    return isAnimasExtended;
-  }
-
-  animasExtendedAnnotationMessage() {
-    let content = null;
-    if (this.isAnimasExtended()) {
-      const messages = getAnnotationMessages(bolusUtils.getBolusFromInsulinEvent(this.props.bolus));
-      content = (
-        <div className={styles.annotation}>
-          {_.find(messages, { code: 'animas/bolus/extended-equal-split' }).message.value}
-        </div>
-      );
-    }
-    return content;
-  }
-
-  getTarget() {
-    const wizardTarget = _.get(this.props.bolus, 'bgTarget');
-    const target = _.get(wizardTarget, 'target', null);
-    const targetLow = _.get(wizardTarget, 'low', null);
-    const targetHigh = _.get(wizardTarget, 'high', null);
-    const targetRange = _.get(wizardTarget, 'range', null);
-    const isAutomatedTarget = _.findIndex(_.get(this.props.bolus, 'annotations', []), {
-      code: 'wizard/target-automated',
-    }) !== -1;
-    if (isAutomatedTarget) {
-      return (
-        <div className={styles.target}>
-          <div className={styles.label}>{t('Target')}</div>
-          <div className={styles.value}>{t('Auto')}</div>
-          <div className={styles.units} />
-        </div>
-      );
-    }
-    if (targetLow) {
-      // medtronic
-      let value;
-      if (targetLow === targetHigh) {
-        value = `${this.formatBgValue(targetLow)}`;
-      } else {
-        value = `${this.formatBgValue(targetLow)}-${this.formatBgValue(targetHigh)}`;
-      }
-      return (
-        <div className={styles.target}>
-          <div className={styles.label}>{t('Target')}</div>
-          <div className={styles.value}>{value}</div>
-          <div className={styles.units} />
-        </div>
-      );
-    }
-    if (targetRange) {
-      // animas
-      return [
-        <div className={styles.target} key={'target'}>
-          <div className={styles.label}>{t('Target')}</div>
-          <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
-          <div className={styles.units} />
-        </div>,
-        <div className={styles.target} key={'range'}>
-          <div className={styles.label}>{t('Range')}</div>
-          <div className={styles.value}>{`${this.formatBgValue(targetRange)}`}</div>
-          <div className={styles.units} />
-        </div>,
-      ];
-    }
-    if (targetHigh) {
-      // insulet
-      return [
-        <div className={styles.target} key={'target'}>
-          <div className={styles.label}>{t('Target')}</div>
-          <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
-          <div className={styles.units} />
-        </div>,
-        <div className={styles.target} key={'high'}>
-          <div className={styles.label}>{t('High')}</div>
-          <div className={styles.value}>{`${this.formatBgValue(targetHigh)}`}</div>
-          <div className={styles.units} />
-        </div>,
-      ];
-    }
-    // tandem
-    return (
-      <div className={styles.target}>
-        <div className={styles.label}>{t('Target')}</div>
-        <div className={styles.value}>{`${this.formatBgValue(target)}`}</div>
-        <div className={styles.units} />
-      </div>
-    );
-  }
-
-  getExtended() {
-    const bolus = bolusUtils.getBolusFromInsulinEvent(this.props.bolus);
-    const hasExtended = bolusUtils.hasExtended(bolus);
-    const normalPercentage = bolusUtils.getNormalPercentage(bolus);
-    const normal = _.get(bolus, 'normal', NaN);
-    const isAnimasExtended = this.isAnimasExtended();
-    const extendedPercentage = _.isNaN(bolusUtils.getExtendedPercentage(bolus))
-      ? ''
-      : `(${bolusUtils.getExtendedPercentage(bolus)})`;
-    let extendedLine = null;
-    if (hasExtended) {
-      if (isAnimasExtended) {
-        extendedLine = (
-          <div className={styles.extended}>
-            <div className={styles.label}>Extended Over*</div>
-            <div className={styles.value}>{formatDuration(bolusUtils.getDuration(bolus))}</div>
-          </div>
-        );
-      } else {
-        extendedLine = [
-          !!normal && (
-            <div className={styles.normal} key={'normal'}>
-              <div className={styles.label}>
-                {t('Up Front ({{normalPercentage}})', { normalPercentage })}
-              </div>
-              <div className={styles.value}>{`${formatInsulin(normal)}`}</div>
-              <div className={styles.units}>U</div>
-            </div>
-          ),
-          <div className={styles.extended} key={'extended'}>
-            <div className={styles.label}>
-              {`Over ${formatDuration(bolusUtils.getDuration(bolus))} ${extendedPercentage}`}
-            </div>
-            <div className={styles.value}>
-              {`${formatInsulin(bolusUtils.getExtended(bolus))}`}
-            </div>
-            <div className={styles.units}>U</div>
-          </div>,
-        ];
-      }
-    }
-    return extendedLine;
-  }
-
   getBolusTypeLine(bolusType) {
-    return bolusType && (
-      <div className={styles.bolus}>
-        <div className={styles.label}>{t('bolus_type')}</div>
-        <div className={styles.value}>{t(`bolus_${bolusType}`)}</div>
-      </div>
-    );
+    if (bolusType !== null) {
+      return (
+        <div className={styles.bolus} id="bolus-tooltip-line-type">
+          <div className={styles.label} id="bolus-tooltip-line-type-label">{t('bolus_type')}</div>
+          <div className={styles.value} id="bolus-tooltip-line-type-value">{t(`bolus_${bolusType}`)}</div>
+        </div>
+      );
+    }
+    return null;
   }
 
   getIobLine(iob) {
-    return !!iob && (
-      <div className={styles.iob}>
-        <div className={styles.label}>{t('IOB')}</div>
-        <div className={styles.value}>{formatInsulin(iob)}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
+    if (iob !== null) {
+      return (
+        <div className={styles.iob} id="bolus-tooltip-line-iob">
+          <div className={styles.label} id="bolus-tooltip-line-iob-label">{t('IOB')}</div>
+          <div className={styles.value} id="bolus-tooltip-line-iob-value">{formatInsulin(iob)}</div>
+          <div className={styles.units} id="bolus-tooltip-line-iob-units">{t('U')}</div>
+        </div>
+      );
+    }
+    return null;
   }
 
   getPrescriptorLine(prescriptor) {
-    return prescriptor && prescriptor !== 'manual' && (      
-      <div className={styles.prescriptor}>
-        <div className={styles.label}>{t('Prescribed by Loop Mode')}</div>
-      </div>
+    if (_.isString(prescriptor) && prescriptor !== 'manual') {
+      return (
+        <div className={styles.prescriptor} id="bolus-tooltip-line-prescriptor">
+          <div className={styles.label} id="bolus-tooltip-line-prescriptor-label">{t('Prescribed by Loop Mode')}</div>
+        </div>
       );
+    }
+    return null;
+  }
+
+  getDeliveredLine(delivered) {
+    if (_.isFinite(delivered)) {
+      return (
+        <div className={styles.delivered} id="bolus-tooltip-line-delivered">
+          <div className={styles.label} id="bolus-tooltip-line-delivered-label">{t('Delivered')}</div>
+          <div className={styles.value} id="bolus-tooltip-line-delivered-value">{`${formatInsulin(delivered)}`}</div>
+          <div className={styles.units} id="bolus-tooltip-line-delivered-units">{t('U')}</div>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  getUndeliveredLine(/** @type{number} */ undelivered) {
+    const value = undelivered > 0 ? `-${formatInsulin(undelivered)}` : `+${(-undelivered).toFixed(2)}`;
+    return (
+      <div className={styles.undelivered} id="bolus-tooltip-line-undelivered">
+        <div className={styles.label} id="bolus-tooltip-line-undelivered-label">{t('Undelivered')}</div>
+        <div className={styles.value} id="bolus-tooltip-line-undelivered-value">{value}</div>
+        <div className={styles.units} id="bolus-tooltip-line-undelivered-units">{t('U')}</div>
+      </div>
+    );
+  }
+
+  getRecommendedLine(recommended) {
+    return (
+      <div className={styles.suggested} id="bolus-tooltip-line-recommended">
+        <div className={styles.label} id="bolus-tooltip-line-recommended-label">{t('Recommended')}</div>
+        <div className={styles.value} id="bolus-tooltip-line-recommended-value">{formatInsulin(recommended)}</div>
+        <div className={styles.units} id="bolus-tooltip-line-recommended-units">{t('U')}</div>
+      </div>
+    );
+  }
+
+  getOverrideLine(programmed, recommended) {
+    let overrideLine = null;
+    if (Number.isFinite(programmed) && Number.isFinite(recommended) && programmed !== recommended) {
+      let value = formatInsulin(Math.abs(programmed - recommended));
+      value = programmed > recommended ? `+${value}` : `-${value}`;
+      overrideLine = (
+        <div className={styles.override} id="bolus-tooltip-line-override">
+          <div className={styles.label} id="bolus-tooltip-line-override-label">{t('Override')}</div>
+          <div className={styles.value} id="bolus-tooltip-line-override-value">{value}</div>
+          <div className={styles.units} id="bolus-tooltip-line-override-units">{t('U')}</div>
+        </div>
+      );
+    }
+    return overrideLine;
+  }
+
+  getCarbsLine(carbs) {
+    if (carbs !== null) {
+      return (
+        <div className={styles.carbs} id="bolus-tooltip-line-carbs">
+          <div className={styles.label} id="bolus-tooltip-line-carbs-label">{t('Carbs')}</div>
+          <div className={styles.value} id="bolus-tooltip-line-carbs-value">{carbs}</div>
+          <div className={styles.units} id="bolus-tooltip-line-carbs-units">{t('g')}</div>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  getMealLine(fatMeal) {
+    if (fatMeal === 'yes') {
+      return (
+        <div className={styles.fat} id="bolus-tooltip-line-fat">
+          <div className={styles.label} id="bolus-tooltip-line-fat-label">{t('High fat meal')}</div>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  getInputTimeLine(inputTime, timePrefs) {
+    if (inputTime !== null) {
+      return (
+        <div className={styles.input} id="bolus-tooltip-line-input">
+          <div className={styles.label} id="bolus-tooltip-line-input-label">
+            {t('Entered at')} {formatInputTime(inputTime, timePrefs)}
+          </div>
+        </div>
+      );
+    }
+    return null;
   }
 
   renderWizard() {
-    const { bolus, timePrefs } = this.props;
-    // to be renamed
-    const wizard = bolus;
+    const { bolus: wizard, timePrefs } = this.props;
+
     const recommended = bolusUtils.getRecommended(wizard);
     const suggested = _.isFinite(recommended) ? recommended : null;
     const prescriptor = _.get(wizard, 'bolus.prescriptor', null);
-    const inputTime  = _.get(wizard, 'inputTime', null);
+    const inputTime = _.get(wizard, 'inputTime', null);
     const bolusType = _.get(wizard, 'bolus.subType', null);
-    const fatMeal = _.get(wizard, 'inputMeal.fat', null);
-    const bg = _.get(wizard, 'bgInput', null);
+    const fatMeal = _.get(wizard, 'inputMeal.fat', 'no');
     const iob = _.get(wizard, 'insulinOnBoard', null);
     const carbs = bolusUtils.getCarbs(wizard);
-    const carbsInput = _.isFinite(carbs) && carbs > 0;
-    const carbRatio = _.get(wizard, 'insulinCarbRatio', null);
-    const isf = _.get(wizard, 'insulinSensitivity', null);
     const delivered = bolusUtils.getDelivered(wizard);
     const isInterrupted = bolusUtils.isInterruptedBolus(wizard);
     const programmed = bolusUtils.getProgrammed(wizard);
-    const hasExtended = bolusUtils.hasExtended(wizard);
-    const isAnimasExtended = this.isAnimasExtended();
 
-    let overrideLine = null;
-    if (bolusUtils.isOverride(wizard)) {
-      overrideLine = (
-        <div className={styles.override}>
-          <div className={styles.label}>{t('Override')}</div>
-          <div className={styles.value}>{`+${formatInsulin(programmed - recommended)}`}</div>
-          <div className={styles.units}>U</div>
-        </div>
-      );
-    }
-    if (bolusUtils.isUnderride(wizard)) {
-      overrideLine = (
-        <div className={styles.override}>
-          <div className={styles.label}>{t('Underride')}</div>
-          <div className={styles.value}>{`-${formatInsulin(recommended - programmed)}`}</div>
-          <div className={styles.units}>U</div>
-        </div>
-      );
-    }
-    const deliveredLine = _.isFinite(delivered) && (
-      <div className={styles.delivered}>
-        <div className={styles.label}>{t('Delivered')}</div>
-        <div className={styles.value}>{`${formatInsulin(delivered)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const suggestedLine = (isInterrupted || overrideLine) &&
-      suggested !== null && (
-      <div className={styles.suggested}>
-        <div className={styles.label}>{t('Recommended')}</div>
-        <div className={styles.value}>{formatInsulin(suggested)}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const bgLine = !!bg && (
-      <div className={styles.bg}>
-        <div className={styles.label}>{t('BG')}</div>
-        <div className={styles.value}>{this.formatBgValue(bg)}</div>
-        <div className={styles.units} />
-      </div>
-    );
-    const carbsLine = !!carbs && (
-      <div className={styles.carbs}>
-        <div className={styles.label}>{t('Carbs')}</div>
-        <div className={styles.value}>{carbs}</div>
-        <div className={styles.units}>g</div>
-      </div>
-    );
+    const overrideLine = this.getOverrideLine(programmed, recommended);
+    const deliveredLine = this.getDeliveredLine(delivered);
+    const undeliveredLine = isInterrupted ? this.getUndeliveredLine(programmed - delivered) : null;
+    const recommendedLine = (isInterrupted || overrideLine !== null) && suggested !== null ? this.getRecommendedLine(suggested) : null;
+    const carbsLine = this.getCarbsLine(carbs);
+
     const iobLine = this.getIobLine(iob);
-    const interruptedLine = isInterrupted && (
-      <div className={styles.interrupted}>
-        <div className={styles.label}>{t('Interrupted')}</div>
-        <div className={styles.value}>{`-${formatInsulin(programmed - delivered)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const icRatioLine = !!carbsInput &&
-      !!carbRatio && (
-      <div className={styles.carbRatio}>
-        <div className={styles.label}>{t('I:C Ratio')}</div>
-        <div className={styles.value}>{`1:${carbRatio}`}</div>
-        <div className={styles.units} />
-      </div>
-    );
-    const isfLine = !!isf &&
-      !!bg && (
-      <div className={styles.isf}>
-        <div className={styles.label}>{t('ISF')}</div>
-        <div className={styles.value}>{`${this.formatBgValue(isf)}`}</div>
-        <div className={styles.units} />
-      </div>
-    );
     const bolusTypeLine = this.getBolusTypeLine(bolusType);
     const prescriptorLine = this.getPrescriptorLine(prescriptor);
 
-    const mealLine = fatMeal && (      
-      <div className={styles.fat}>
-        <div className={styles.label}>{t('High fat meal')}</div>
-      </div>
-    );
-    const inputLine = inputTime && (
-      <div className={styles.input}>
-        <div className={styles.label}>{t('Entered at')} {formatInputTime(bolus.inputTime, timePrefs)}</div>
-      </div>
-    );
-      return (
+    const mealLine = this.getMealLine(fatMeal);
+    const inputLine = this.getInputTimeLine(inputTime, timePrefs);
+
+    return (
       <div className={styles.container}>
-        {bgLine}
         {carbsLine}
         {mealLine}
         {inputLine}
         {iobLine}
-        {(prescriptorLine || bolusTypeLine || suggestedLine) && <div className={styles.dividerSmall} />}
+        {(prescriptorLine || bolusTypeLine) && <div className={styles.dividerSmall} />}
         {prescriptorLine}
         {bolusTypeLine}
-        {suggestedLine}
-        {this.getExtended()}
-        {(overrideLine) && <div className={styles.dividerSmall} />}
+        {(overrideLine || recommendedLine) && <div className={styles.dividerSmall} />}
+        {recommendedLine}
         {overrideLine}
-        {interruptedLine}
+        {undeliveredLine}
         {deliveredLine}
-        {(icRatioLine || isfLine || bg || isAnimasExtended) && (
-          <div className={styles.dividerLarge} />
-        )}
-        {icRatioLine}
-        {isfLine}
-        {!!bg && this.getTarget()}
-        {this.animasExtendedAnnotationMessage()}
       </div>
     );
   }
 
   renderNormal() {
-    const bolus = this.props.bolus;
+    const { bolus } = this.props;
+
     const prescriptor = _.get(bolus, 'prescriptor', null);
     const bolusType = _.get(bolus, 'subType', null);
     const iob = _.get(bolus, 'insulinOnBoard', null);
     const delivered = bolusUtils.getDelivered(bolus);
     const isInterrupted = bolusUtils.isInterruptedBolus(bolus);
     const programmed = bolusUtils.getProgrammed(bolus);
-    const isAnimasExtended = this.isAnimasExtended();
 
-    const deliveredLine = _.isFinite(delivered) && (
-      <div className={styles.delivered}>
-        <div className={styles.label}>{t('Delivered')}</div>
-        <div className={styles.value}>{`${formatInsulin(delivered)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const interruptedLine = isInterrupted && (
-      <div className={styles.interrupted}>
-        <div className={styles.label}>{t('Interrupted')}</div>
-        <div className={styles.value}>{`-${formatInsulin(programmed - delivered)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const programmedLine = isInterrupted &&
-      !!programmed && (
-      <div className={styles.programmed}>
-        <div className={styles.label}>{t('Programmed')}</div>
-        <div className={styles.value}>{`${formatInsulin(programmed)}`}</div>
-        <div className={styles.units}>U</div>
-      </div>
-    );
-    const bolusTypeLine = this.getBolusTypeLine(bolusType);
     const iobLine = this.getIobLine(iob);
     const prescriptorLine = this.getPrescriptorLine(prescriptor);
+    const bolusTypeLine = this.getBolusTypeLine(bolusType);
+    const undeliveredLine = isInterrupted ? this.getUndeliveredLine(programmed - delivered) : null;
+    const deliveredLine = this.getDeliveredLine(delivered);
 
     return (
-      <div className={styles.container}>
-        {programmedLine}
-        {interruptedLine}
-        {bolusTypeLine}
+      <div className={styles.container} id="bolus-tooltip-content">
         {iobLine}
         {prescriptorLine}
+        {bolusTypeLine}
+        {undeliveredLine}
         {deliveredLine}
-        {this.getExtended()}
-        {isAnimasExtended && <div className={styles.dividerLarge} />}
-        {this.animasExtendedAnnotationMessage()}
       </div>
     );
   }
@@ -404,11 +244,32 @@ class BolusTooltip extends React.Component {
       timePrefs,
     };
 
+    let tailColor = this.props.tailColor;
+    let borderColor = this.props.borderColor;
+    const bolusType = bolusUtils.getBolusType(bolus);
+
+    switch (bolusType) {
+    case bolusUtils.BolusTypes.meal:
+      tailColor = colors.bolusMeal;
+      borderColor = colors.bolusMeal;
+      break;
+    case bolusUtils.BolusTypes.manual:
+      tailColor = colors.bolusManual;
+      borderColor = colors.bolusManual;
+      break;
+    case bolusUtils.BolusTypes.micro:
+      tailColor = colors.bolusMicro;
+      borderColor = colors.bolusMicro;
+      break;
+    }
+
     return (
       <Tooltip
         {...this.props}
         dateTitle={dateTitle}
         content={this.renderBolus()}
+        tailColor={tailColor}
+        borderColor={borderColor}
       />
     );
   }
@@ -426,14 +287,15 @@ BolusTooltip.propTypes = {
   }),
   tail: PropTypes.bool.isRequired,
   side: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
-  tailColor: PropTypes.string.isRequired,
+  tailColor: PropTypes.string,
   tailWidth: PropTypes.number.isRequired,
   tailHeight: PropTypes.number.isRequired,
   backgroundColor: PropTypes.string,
-  borderColor: PropTypes.string.isRequired,
+  borderColor: PropTypes.string,
   borderWidth: PropTypes.number.isRequired,
   bolus: PropTypes.shape({
     type: PropTypes.string.isRequired,
+    normalTime: PropTypes.string.isRequired,
     inputTime: PropTypes.string,
   }).isRequired,
   bgPrefs: PropTypes.object.isRequired,

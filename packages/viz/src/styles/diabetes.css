@@ -78,8 +78,8 @@
 }
 
 .bolusInterrupted {
-  color: var(--bolus--interrupted);
-  fill: var(--bolus--interrupted);
+  color: var(--bolus-interrupted);
+  fill: var(--bolus-interrupted);
 }
 
 .bolusProgrammed {
@@ -90,17 +90,17 @@
 }
 
 .bolusRideTriangle {
-  fill: var(--bolus--ride);
+  fill: var(--bolus-override);
 }
 
 .bolusUndelivered {
-  color: var(--bolus--undelivered);
-  fill: var(--bolus--undelivered);
+  color: var(--bolus-undelivered);
+  fill: var(--bolus-undelivered);
 }
 
 .bolusUnderride {
-  color: var(--bolus--undelivered);
-  fill: var(--bolus--undelivered);
+  color: var(--bolus-undelivered);
+  fill: var(--bolus-undelivered);
 }
 
 .carbs {

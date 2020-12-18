@@ -74,43 +74,40 @@ describe('basics classifiers', function() {
 
     it('should return `wizard` and `correction` tags for a correction-only bolus from wizard', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 1.0, carb: 0, net: 1.0}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 0, net: 1.0}},
         normal: 1.0
       })).to.deep.equal(['wizard', 'correction']);
     });
 
     it('should return `wizard` and `override` for an underridden bolus', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 1.0, carb: 2.0, net: 3.0}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 2.0, net: 3.0}},
         normal: 1.5
       })).to.deep.equal(['wizard', 'underride']);
     });
 
     it('should return `manual`, `extended`, and `interrupted` for an interrupted non-wizard extended bolus', function() {
       expect(classifier({
+        type: 'bolus',
         extended: 5.0,
         expectedExtended: 5.5
       })).to.deep.equal(['manual', 'interrupted', 'extended']);
     });
 
-    it('is possible to get all tags but `manual` on a single bolus', function() {
-      expect(classifier({
-        extended: 1.2,
-        expectedExtended: 2.0,
-        wizard: {recommended: {correction: 2.5, carb: 0, net: 2.5}}
-      })).to.deep.equal(['wizard', 'underride', 'correction', 'interrupted', 'extended']);
-    });
-
     it('net recommendation is what counts for determining override', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 2.5, carb: 0, net: 2.2}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 2.5, carb: 0, net: 2.2}},
         normal: 2.5
       })).to.deep.equal(['wizard', 'override', 'correction']);
     });
 
     it('corner case: interrupted correction zero bolus', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 1.0, carb: 0, net: 1.0}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 1.0, carb: 0, net: 1.0}},
         normal: 0.0,
         expectedNormal: 1.0
       })).to.deep.equal(['wizard', 'correction', 'interrupted']);
@@ -118,7 +115,8 @@ describe('basics classifiers', function() {
 
     it('corner case: interrupt an override to recommended amount', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 3.0, carb: 5.0, net: 7.5}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 3.0, carb: 5.0, net: 7.5}},
         normal: 7.5,
         expectedNormal: 8.5
       })).to.deep.equal(['wizard', 'override', 'interrupted']);
@@ -126,7 +124,8 @@ describe('basics classifiers', function() {
 
     it('corner case: good intentions count! (interrupted bolus does not automatically = override)', function() {
       expect(classifier({
-        wizard: {recommended: {correction: 2.5, carb: 0, net: 2.2}},
+        type: 'bolus',
+        wizard: {type: 'wizard', recommended: {correction: 2.5, carb: 0, net: 2.2}},
         normal: 1.0,
         expectedNormal: 2.2
       })).to.deep.equal(['wizard', 'correction', 'interrupted']);

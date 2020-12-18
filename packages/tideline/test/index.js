@@ -25,7 +25,7 @@ enzyme.configure({
 });
 
 
-localStorage.setItem('debug', 'true');
+// localStorage.setItem('debug', 'true');
 
 // DOM not required
 // ====================================

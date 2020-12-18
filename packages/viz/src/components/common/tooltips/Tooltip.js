@@ -170,16 +170,14 @@ class Tooltip extends React.PureComponent {
       let titleNode = null;
       if (dateTitle.source === 'Diabeloop') {
         // For diabeloop device, use the timezone of the object
-        const { timezoneName, timezoneOffset } = dateTitle.timePrefs;
+        const { timezoneName } = dateTitle.timePrefs;
         const mNormalTime = moment.tz(dateTitle.normalTime, dateTitle.timezone);
+        const mNormalTimeGlobalTimezone = moment.tz(dateTitle.normalTime, timezoneName);
         // const timelineTimezone = getTimezoneFromTimePrefs(dateTitle.timePrefs);
         let displayOffset = null;
-        if (timezoneName !== dateTitle.timezone) {
-          // Not the same timezone than the timePrefs, so make it visible
-          displayOffset = ` UTC${mNormalTime.format('Z')}`;
-        } else if (timezoneOffset !== mNormalTime.utcOffset()) {
+        if (mNormalTimeGlobalTimezone.utcOffset() !== mNormalTime.utcOffset()) {
           // Not the same offset than the current one
-          displayOffset = ` UTC${mNormalTime.format('Z z')}`;
+          displayOffset = ` UTC${mNormalTime.format('Z')}`;
         }
         titleNode = (
           <div className={styles.title}>

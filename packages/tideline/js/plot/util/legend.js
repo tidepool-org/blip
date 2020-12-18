@@ -161,36 +161,53 @@ const legend = {
     },
   ],
   bolus: [
+    // Bolus Text
     {
-      create: function(opts) {
-        opts.widths.push(opts.SHAPE_WIDTH);
-        return opts.selection.append('rect')
-          .attr({
-            'class': 'd3-bolus d3-rect-bolus-legend'
-          });
-      },
-      type: 'rect'
-    },
-    {
-      create: function(opts) {
+      create: (opts) => {
         return opts.selection.append('text')
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text(t('delivered'))
+          .text(t('Bolus Legend'))
           .each(function() {
-            opts.widths.push(this.getBoundingClientRect().width);
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
             opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
     },
+    // Meal Bolus
     {
       create: function(opts) {
-        opts.widths.push(opts.SHAPE_WIDTH);
+        opts.widths.push(opts.SHAPE_WIDTH * 1.5);
         return opts.selection.append('rect')
           .attr({
-            'class': 'd3-bolus d3-rect-recommended-legend'
+            'class': 'd3-bolus d3-rect-bolus-legend d3-bolus-meal'
+          });
+      },
+      type: 'rect'
+    },
+    {
+      create: (opts) => {
+        return opts.selection.append('text')
+          .attr({
+            'class': 'd3-pool-legend'
+          })
+          .text(t('Meal Bolus'))
+          .each(function() {
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
+            opts.textHeight = this.getBoundingClientRect().height;
+          });
+      },
+      type: 'text'
+    },
+    // Micro Bolus
+    {
+      create: function(opts) {
+        opts.widths.push(opts.SHAPE_WIDTH * 1.5);
+        return opts.selection.append('rect')
+          .attr({
+            'class': 'd3-bolus d3-rect-bolus-legend d3-bolus-micro'
           });
       },
       type: 'rect'
@@ -201,25 +218,115 @@ const legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text(t('undelivered'))
+          .text(t('Micro Bolus'))
           .each(function() {
-            opts.widths.push(this.getBoundingClientRect().width);
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
+            opts.textHeight = this.getBoundingClientRect().height;
+          });
+      },
+      type: 'text'
+    },
+    // Manual Bolus
+    {
+      create: function(opts) {
+        opts.widths.push(opts.SHAPE_WIDTH * 1.5);
+        return opts.selection.append('rect')
+          .attr({
+            'class': 'd3-bolus d3-rect-bolus-legend d3-bolus-manual'
+          });
+      },
+      type: 'rect'
+    },
+    {
+      create: function(opts) {
+        return opts.selection.append('text')
+          .attr({
+            'class': 'd3-pool-legend'
+          })
+          .text(t('Manual Bolus'))
+          .each(function() {
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
+            opts.textHeight = this.getBoundingClientRect().height;
+          });
+      },
+      type: 'text'
+    },
+    // Undelivered
+    {
+      create: function(opts) {
+        opts.widths.push(opts.SHAPE_WIDTH * 1.5);
+        return opts.selection.append('rect')
+          .attr({
+            'class': 'd3-bolus d3-rect-bolus-legend d3-bolus-undelivered'
+          });
+      },
+      type: 'rect'
+    },
+    {
+      create: function(opts) {
+        return opts.selection.append('text')
+          .attr({
+            'class': 'd3-pool-legend'
+          })
+          .text(t('Undelivered'))
+          .each(function() {
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
+            opts.textHeight = this.getBoundingClientRect().height;
+          });
+      },
+      type: 'text'
+    },
+    // Override (technically an Underride)
+    {
+      create: function(opts) {
+        opts.widths.push(25);
+        const g = opts.selection.append('g').attr({'class': 'd3-bolus d3-rect-bolus-legend'});
+        g.append('rect')
+          .attr({
+            'class': 'd3-bolus-underride',
+            transform: 'translate(-5, -5) rotate(45) translate(-10,10)',
+            width: 10,
+            height: 10,
+          });
+        g.append('rect')
+          .attr({
+            width: 14.5,
+            height: 1,
+            fill: 'var(--bkgrnd,white)',
+            stroke: 'transparent',
+            x: -19,
+            y: -5.875,
+            transform: 'translate(0,4.9)',
+          });
+        return g;
+      },
+      type: 'group'
+    },
+    {
+      create: function(opts) {
+        return opts.selection.append('text')
+          .attr({
+            'class': 'd3-pool-legend'
+          })
+          .text(t('Override'))
+          .each(function() {
+            opts.widths.push(this.getBoundingClientRect().width - legend.SHAPE_MARGIN);
             opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
     }
-  ],
+  ].reverse(),
   carbs: [
     {
       create: function(opts) {
         opts.widths.push(opts.SHAPE_WIDTH);
-        return opts.selection.append('rect')
+        return opts.selection.append('circle')
           .attr({
-            'class': 'd3-rect-carbs-legend'
+            'class': 'd3-circle-carbs-legend'
           });
       },
-      type: 'rect'
+      type: 'circle'
     },
     {
       create: function(opts) {
@@ -227,7 +334,7 @@ const legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text(t('carbs'))
+          .text(t('Carbs'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -235,17 +342,17 @@ const legend = {
       },
       type: 'text'
     }
-  ],
+  ].reverse(),
   rescuecarbs: [
     {
       create: function(opts) {
         opts.widths.push(opts.SHAPE_WIDTH);
-        return opts.selection.append('rect')
+        return opts.selection.append('circle')
           .attr({
-            'class': 'd3-rect-rescuecarbs-legend'
+            'class': 'd3-circle-rescuecarbs-legend'
           });
       },
-      type: 'rect'
+      type: 'circle'
     },
     {
       create: function(opts) {
@@ -253,7 +360,7 @@ const legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text(t('rescuecarbs'))
+          .text(t('Rescuecarbs'))
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -261,37 +368,36 @@ const legend = {
       },
       type: 'text'
     }
-  ],
+  ].reverse(),
   cumWidth: function(a, i) {
     var b = a.slice();
     b.splice(i);
     return _.reduce(b, function(sum, num) { return sum + num; });
   },
   draw: function(selection, type) {
-    var opts = {
+    const opts = {
       selection: selection,
       widths: [],
       SHAPE_WIDTH: this.SHAPE_WIDTH
     };
-    var typeFns = this[type];
+    const typeFns = this[type];
     _.forEach(typeFns, _.bind(function(fn, i) {
-      var created = fn.create(opts), w;
+      const created = fn.create(opts);
       if (fn.type === 'text' || fn.type === 'group') {
         if (opts.widths[i - 1]) {
-          w = this.cumWidth(opts.widths, i);
+          const w = this.cumWidth(opts.widths, i);
           if ((i === typeFns.length - 1) && (i !== 1)) {
-            var s = this.SHAPE_WIDTH - this.SHAPE_MARGIN*2;
+            const s = this.SHAPE_WIDTH - this.SHAPE_MARGIN*2;
             created.attr('transform', 'translate(' + (-(w + s/2)) + ',0)');
-          }
-          else {
+          } else {
             created.attr('transform', 'translate(' + (-w) + ',0)');
           }
         }
       }
       else if (fn.type === 'circle') {
         if (opts.widths[i - 1]) {
-          w = this.cumWidth(opts.widths, i);
-          var r = (this.SHAPE_WIDTH - this.SHAPE_MARGIN*2)/2;
+          const w = this.cumWidth(opts.widths, i);
+          const r = (this.SHAPE_WIDTH - this.SHAPE_MARGIN*2)/2;
           created.attr({
             'cx': -(w + 2*r),
             'cy': -opts.textHeight/4,
@@ -300,13 +406,13 @@ const legend = {
         }
       }
       else if (fn.type === 'rect') {
-        var side = this.SHAPE_WIDTH - this.SHAPE_MARGIN*2;
+        const side = this.SHAPE_WIDTH - this.SHAPE_MARGIN*2;
         created.attr({
           'width': side,
           'height': side
         });
         if (opts.widths[i - 1]) {
-          w = this.cumWidth(opts.widths, i);
+          const w = this.cumWidth(opts.widths, i);
           created.attr({
             'x': -w - this.SHAPE_WIDTH
           });

@@ -39,16 +39,14 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       if (d.wizard && !_.isEmpty(d.wizard)) {
         var recommended = commonbolus.getRecommended(d.wizard);
         tags.push('wizard');
-        if (!isNaN(recommended)) {
+        if (!Number.isNaN(recommended)) {
           if (recommended > Math.max(delivered, programmed)) {
             tags.push('underride');
-          }
-          else if (Math.max(delivered, programmed) > recommended) {
+          } else if (Math.max(delivered, programmed) > recommended) {
             tags.push('override');
           }
 
-          if (d.wizard.recommended.correction > 0 &&
-              d.wizard.recommended.carb === 0) {
+          if (d.wizard.recommended.correction > 0 && d.wizard.recommended.carb === 0) {
             tags.push('correction');
           }
         }

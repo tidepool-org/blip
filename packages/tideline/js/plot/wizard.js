@@ -18,8 +18,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var log = require('bows')('Wizard');
-
 var commonbolus = require('./util/commonbolus');
 var drawbolus = require('./util/drawbolus');
 
@@ -33,7 +31,6 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var drawBolus = drawbolus(pool, opts);
-  var mainGroup = pool.parent();
 
   return function(selection) {
     opts.xScale = pool.xScale().copy();
@@ -80,47 +77,46 @@ module.exports = function(pool, opts) {
 
       drawBolus.carb(carbs);
 
-      var boluses = wizardGroups.filter(function(d) {
-        return d.bolus != null;
+      const boluses = wizardGroups.filter(function(d) {
+        return _.isObject(d.bolus);
       });
-
       drawBolus.bolus(boluses);
 
-      var extended = boluses.filter(function(d) {
-        return d.bolus.extended || d.bolus.expectedExtended;
+      // boluses where programmed differs from delivered
+      const undelivered = boluses.filter((bolus) => {
+        const d = commonbolus.getDelivered(bolus);
+        const p = commonbolus.getProgrammed(bolus);
+        return Number.isFinite(d) && Number.isFinite(p) && p > d;
       });
-
-      drawBolus.extended(extended);
+      drawBolus.undelivered(undelivered);
 
       // boluses where recommended > delivered
-      var underride = boluses.filter(function(d) {
-        return commonbolus.getRecommended(d) > commonbolus.getDelivered(d);
+      const underride = boluses.filter((d) => {
+        const r = commonbolus.getRecommended(d);
+        const p = commonbolus.getProgrammed(d);
+        return Number.isFinite(r) && Number.isFinite(p) && p < r;
       });
-
       drawBolus.underride(underride);
 
       // boluses where delivered > recommended
-      var override = boluses.filter(function(d) {
-        return commonbolus.getDelivered(d) > commonbolus.getRecommended(d);
+      const override = boluses.filter((d) => {
+        const r = commonbolus.getRecommended(d);
+        const p = commonbolus.getProgrammed(d);
+        return Number.isFinite(r) && Number.isFinite(p) && p > r;
       });
-
       drawBolus.override(override);
 
-      // boluses where programmed differs from delivered
-      var suspended = boluses.filter(function(d) {
-        return commonbolus.getDelivered(d) !== commonbolus.getProgrammed(d);
-      });
-
-      drawBolus.suspended(suspended);
-
-      var extendedSuspended = boluses.filter(function(d) {
-        if (d.bolus.expectedExtended) {
-          return d.bolus.extended !== d.bolus.expectedExtended;
-        }
-        return false;
-      });
-
-      drawBolus.extendedSuspended(extendedSuspended);
+      // var extended = boluses.filter(function(d) {
+      //   return d.bolus.extended || d.bolus.expectedExtended;
+      // });
+      // drawBolus.extended(extended);
+      // var extendedSuspended = boluses.filter(function(d) {
+      //   if (d.bolus.expectedExtended) {
+      //     return d.bolus.extended !== d.bolus.expectedExtended;
+      //   }
+      //   return false;
+      // });
+      // drawBolus.extendedSuspended(extendedSuspended);
 
       wizards.exit().remove();
 

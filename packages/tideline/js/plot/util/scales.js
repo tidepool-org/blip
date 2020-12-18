@@ -114,24 +114,22 @@ var scales = function(opts) {
       });
       return defaultTicks;
     },
-    carbs: function(data, pool) {
-      var scale = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d.carbInput ? d.carbInput : 0; })])
-        .range([opts.carbRadius, opts.carbRadius + ((1 - opts.bolusRatio) * pool.height())/4]);
-      return scale;
-    },
-    bolus: function(data, pool) {
-      var scale = d3.scale.linear()
-        // for boluses the recommended can exceed the value
-        .domain([0, d3.max(data, function(d) {
-          return commonbolus.getMaxValue(d);
-        })])
-        .range([pool.height(), opts.bolusRatio * pool.height()]);
-      return scale;
+    bolus: function(/**@type{object[]} */ data, /** @type{object} */ pool) {
+      const poolHeight = pool.height();
+      // for boluses the recommended can exceed the value
+      /** @type {number} */
+      const maxValue = data.reduce((/** @type{number} */ p, /** @type{object} */ c) => {
+        /** @type{number} */
+        const v = commonbolus.getProgrammed(c);
+        return Math.max(p, (Number.isFinite(v) ? v : 0));
+      }, 0);
+      const bolusDomain = [0, maxValue];
+      const bolusRange = [poolHeight, opts.bolusRatio * poolHeight];
+      return d3.scale.sqrt().domain(bolusDomain).range(bolusRange);
     },
     basal: function(data, pool) {
       var scale = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) {
+        .domain([0, d3.max(data, (d) => {
           return d.rate;
         }) * 1.1])
         .rangeRound([pool.height(), 0]);

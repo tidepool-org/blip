@@ -1,6 +1,4 @@
 const webpackConf = require('./webpack.config.js');
-const optional = require('optional');
-const mochaConf = optional('./local/mocha.opts.json') || {};
 
 webpackConf.externals = {
   cheerio: 'window',
@@ -27,11 +25,8 @@ module.exports = function karmaConfig(config) {
     browserNoActivityTimeout: 60000,
     browsers,
     captureTimeout: 60000,
-    client: {
-      mocha: mochaConf,
-    },
     colors: true,
-    concurrency: Infinity,
+    concurrency: 1,
     coverageReporter: {
       dir: 'coverage/',
       reporters: [

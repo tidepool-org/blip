@@ -203,16 +203,16 @@ svg {
 .d3-rect-carbs {
   fill: @carbs;
 }
-.d3-rect-carbs-legend {
-  .d3-rect-carbs;
+.d3-circle-carbs-legend {
+  fill: @carbs;
   stroke: @carbs;
   stroke-width: 1.5;
 }
 .d3-rect-rescuecarbs {
   fill: @rescuecarbs;
 }
-.d3-rect-rescuecarbs-legend {
-  .d3-rect-rescuecarbs;
+.d3-circle-rescuecarbs-legend {
+  fill: @rescuecarbs;
   stroke: @rescuecarbs;
   stroke-width: 1.5;
 }
@@ -236,7 +236,7 @@ svg {
   fill: @carbs;
 }
 .d3-carbs-text {
-  fill: @text;
+  fill: var(--carbs-text, @text);
   font-size: @font-size-small;
   dominant-baseline: central;
   text-anchor: middle;
@@ -302,65 +302,66 @@ svg {
 }
 // boluses
 .d3-bolus {
-  &.d3-rect-bolus {
-    fill: @bolus;
+  &.d3-bolus-meal {
+    fill: @bolus-meal !important;
+  }
+  &.d3-bolus-micro {
+    fill: @bolus-micro !important;
+    opacity: 0.6;
+  }
+  &.d3-bolus-manual {
+    fill: @bolus-manual !important;
+  }
+  &.d3-bolus-undelivered {
+    fill: @bolus-undelivered !important;
+  }
+  rect.d3-bolus-underride {
+    fill: @bolus-underride;
+  }
+  &.d3-rect-undelivered {
+    fill: @bolus-undelivered;
+  }
+  &.d3-rect-ride {
+    fill: @bolus-ride;
+    stroke: transparent;
+  }
+  &.d3-polygon-ride {
+    stroke: @bolus-ride;
+    fill: @bolus-ride;
   }
   &.d3-rect-bolus-legend {
-    .d3-rect-bolus;
-    stroke: @bolus;
     stroke-width: 1.5;
   }
   &.d3-path-bolus {
     stroke: @bolus;
     fill: none;
   }
-  &.d3-path-extended {
-    stroke: @bolus;
-    &.d3-unknown-delivery-split {
-      stroke-dasharray: 3, 5;
-    }
-  }
-  &.d3-path-extended-triangle {
-    stroke: @bolus;
-    fill: @bolus;
-  }
-  &.d3-path-extended-triangle-suspended {
-    stroke: @undelivered;
-    fill: @undelivered;
-  }
-  &.d3-path-suspended {
-    stroke: @suspended;
-    fill: @suspended;
-  }
-  &.d3-rect-suspended-bolus {
-    stroke: @undelivered;
-    fill: @undelivered;
-  }
-  &.d3-path-extended-suspended {
-    stroke: @undelivered;
-    fill: @undelivered;
-  }
-  &.d3-path-suspended-triangle {
-    stroke: @suspended;
-    fill: none;
-  }
-  &.d3-rect-recommended {
-    fill: @undelivered;
-  }
-  &.d3-rect-recommended-legend {
-    .d3-rect-recommended;
-    stroke: @undelivered;
-    stroke-width: 1.5;
-  }
-  &.d3-rect-suspended {
-    fill: @suspended;
-  }
-  &.d3-rect-override {
-    fill: @override;
-  }
-  &.d3-polygon-override {
-    fill: @override;
-  }
+  // &.d3-path-extended {
+  //   stroke: @bolus;
+  //   &.d3-unknown-delivery-split {
+  //     stroke-dasharray: 3, 5;
+  //   }
+  // }
+  // &.d3-path-extended-triangle {
+  //   stroke: @bolus;
+  //   fill: @bolus;
+  // }
+  // &.d3-path-extended-triangle-suspended {
+  //   stroke: @bolus-undelivered;
+  //   fill: @bolus-undelivered;
+  // }
+  // &.d3-path-suspended {
+  //   stroke: @bolus-interrupted;
+  //   fill: @bolus-interrupted;
+  // }
+  // &.d3-path-extended-suspended {
+  //   stroke: @bolus-undelivered;
+  //   fill: @bolus-undelivered;
+  // }
+  // &.d3-path-suspended-triangle {
+  //   stroke: @bolus-interrupted;
+  //   fill: none;
+  // }
 }
 
 // blood glucose

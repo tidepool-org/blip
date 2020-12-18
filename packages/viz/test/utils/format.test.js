@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import { assert, expect } from 'chai';
 import { BG_HIGH, BG_LOW, MGDL_UNITS, MMOLL_UNITS } from '../../src/utils/constants';
 
 import * as format from '../../src/utils/format';
@@ -128,8 +129,8 @@ describe('format', () => {
     });
 
     it('should include thousandths for insulin with thousandths precision', () => {
-      expect(format.formatInsulin(0.375)).to.equal('0.375');
-      expect(format.formatInsulin(3.825)).to.equal('3.825');
+      expect(format.formatInsulin(0.375)).to.equal('0.38');
+      expect(format.formatInsulin(3.820003)).to.equal('3.82');
     });
   });
 

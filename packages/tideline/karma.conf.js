@@ -53,7 +53,7 @@ const karmaConfig = {
   preprocessors: {
     'test/index.js': ['webpack', 'sourcemap'],
   },
-  reporters: ['mocha'],
+  reporters: ['mocha', 'coverage'],
   singleRun: true,
   webpack: webpackConf,
   webpackMiddleware: {

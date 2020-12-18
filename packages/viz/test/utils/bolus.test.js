@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 import _ from 'lodash';
+import { assert, expect } from 'chai';
 
 import * as bolusUtils from '../../src/utils/bolus';
 
@@ -211,10 +212,8 @@ describe('bolus utilities', () => {
     });
 
     it('should return the embedded `bolus` if it exists', () => {
-      const obj = { bolus: 2 };
+      const obj = { type: 'wizard', bolus: { type: 'bolus', normal: 5 } };
       expect(bolusUtils.getBolusFromInsulinEvent(obj)).to.equal(obj.bolus);
-      const obj2 = { bolus: { type: 'bolus', normal: 5 } };
-      expect(bolusUtils.getBolusFromInsulinEvent(obj2)).to.equal(obj2.bolus);
     });
   });
 

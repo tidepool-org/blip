@@ -1,28 +1,24 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var d3 = require('d3');
-var _ = require('lodash');
-
-var log = require('bows')('Fill');
+const d3 = require('d3');
+const _ = require('lodash');
 
 module.exports = function(pool, opts) {
-
-  var fills = [],
-  defaults = {
+  const defaults = {
     classes: {
         0: 'darkest',
         3: 'dark',
@@ -51,7 +47,7 @@ module.exports = function(pool, opts) {
     }
 
     if (opts.guidelines) {
-      fill.drawGuidelines(selection);
+      fill.drawGuidelines();
     }
 
     selection.each(function(currentData) {
@@ -74,12 +70,6 @@ module.exports = function(pool, opts) {
               if (i === currentData.length - 1) {
                 return fill.xPosition(d) - opts.dataGutter;
               }
-              else {
-                return fill.xPosition(d);
-              }
-            }
-            else {
-              return fill.xPosition(d);
             }
             return fill.xPosition(d);
           },
@@ -95,15 +85,9 @@ module.exports = function(pool, opts) {
             // dataGutter is the extra space on the right & left edges
             // of each "pool" in weekly view
             if (opts.dataGutter) {
-              if ((i === 0) || (i === currentData.length  - 1)) {
+              if ((i === 0) || (i === currentData.length - 1)) {
                 return fill.width(d) + opts.dataGutter;
               }
-              else {
-                return fill.width(d);
-              }
-            }
-            else {
-              return fill.width(d);
             }
             return fill.width(d);
           },
@@ -164,9 +148,7 @@ module.exports = function(pool, opts) {
           id: function(d) {
             return d.id;
           },
-          'class': function(d) {
-            return 'd3-fill d3-rect-fill d3-fill-midnight';
-          }
+          'class': 'd3-fill d3-rect-fill d3-fill-midnight',
         });
       }
     });
@@ -181,7 +163,7 @@ module.exports = function(pool, opts) {
     return opts.xScale(e) - opts.xScale(s);
   };
 
-  fill.drawGuidelines = function(selection) {
+  fill.drawGuidelines = function() {
     var linesGroup = pool.group().selectAll('#' + pool.id() + '_guidelines').data([opts.guidelines]);
     linesGroup.enter().append('g').attr('id', pool.id() + '_guidelines');
     linesGroup.selectAll('line')
@@ -195,7 +177,6 @@ module.exports = function(pool, opts) {
         y1: function(d) { return opts.yScale(d.height); },
         y2: function(d) { return opts.yScale(d.height); }
       });
-
   };
 
   return fill;

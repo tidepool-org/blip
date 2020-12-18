@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -19,7 +19,6 @@ var _ = require('lodash');
 var d3 = require('d3');
 
 var shapes = require('./shapes');
-var shapeutil = require('../shapeutil');
 
 function Tooltips(container, tooltipsGroup) {
 
@@ -38,7 +37,7 @@ function Tooltips(container, tooltipsGroup) {
         id: shape.id + '_' + cssClass,
         viewBox: shape.viewBox
       });
-    _.each(shape.els, function(el) {
+    _.forEach(shape.els, function(el) {
       shapeGroup.append(el.el)
         .attr(el.attrs);
     });
@@ -152,7 +151,7 @@ function Tooltips(container, tooltipsGroup) {
     var atRightEdge = opts.edge === 'right';
     var atLeftEdge = opts.edge === 'left';
     var tooltipGroup = d3.select(selection.node().parentNode);
-    _.each(shapes[shape].els, function(el) {
+    _.forEach(shapes[shape].els, (el) => {
       var attrs = _.clone(el.attrs);
       for (var prop in attrs) {
         // polygons have a pointsFn to generate the proper size polygon given the input dimensions
@@ -204,7 +203,6 @@ function Tooltips(container, tooltipsGroup) {
     }
     var atRightEdge = opts.edge === 'right';
     var atLeftEdge = opts.edge === 'left';
-    var thisOrientation = !(atLeftEdge || atRightEdge) ? 'default' : atLeftEdge ? 'leftEdge' : 'rightEdge';
     // isDefaultNormal catches low and target smbg tooltips
     // (but not high, which default to down orientations)
     var isDefaultNormal = opts.orientation && opts.orientation['default'] === 'normal';
@@ -317,7 +315,7 @@ function Tooltips(container, tooltipsGroup) {
       .attr('transform', poolGroup.attr('transform'));
     pool.tooltips(this);
     if (shapes[shape].fixed) {
-      _.each(opts.classes, function(cl) {
+      _.forEach(opts.classes, function(cl) {
         if (shapes[shape]) {
           defineShape(shapes[shape], cl);
           defs[type + '_' + cl] = true;

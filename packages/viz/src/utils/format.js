@@ -105,7 +105,7 @@ export function formatInsulin(val) {
   const qtyString = val.toString();
   if (qtyString.indexOf('.') !== -1) {
     const length = qtyString.split('.')[1].length;
-    decimalLength = _.min([length, 3]);
+    decimalLength = _.min([length, 2]);
   }
   return formatDecimalNumber(val, decimalLength);
 }

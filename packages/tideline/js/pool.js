@@ -37,7 +37,6 @@ function Pool (container) {
     tooltips;
 
   this.render = function(selection, poolData) {
-    var pool = this;
     plotTypes.forEach(function(plotType) {
       if (container.dataFill[plotType.type]) {
         plotType.data = _.filter(poolData, {'type': plotType.type});
@@ -72,7 +71,7 @@ function Pool (container) {
 
   this.clear = function() {
     plotTypes.forEach(function(plotType) {
-      if (container.dataFill[plotType.type])  {
+      if (container.dataFill[plotType.type]) {
         group.select('#' + id + '_' + plotType.type).remove();
       }
     });
@@ -113,7 +112,6 @@ function Pool (container) {
   this.drawLabel = _.once(function() {
     label = label || [];
 
-    var htmlString = '';
     if (label.length > 0) {
       var labelGroup = mainSVG.select('#tidelineLabels').append('text')
         .attr({
@@ -121,7 +119,7 @@ function Pool (container) {
           'class': 'd3-pool-label',
           'transform': 'translate(' + container.axisGutter() + ',' + (yPosition-labelBaseline) + ')'
         });
-      _.each(label, function(l) {
+      _.forEach(label, function(l) {
         labelGroup.append('tspan')
           .attr('class', 'main')
           .text(l.main);
@@ -139,7 +137,7 @@ function Pool (container) {
       return;
     }
     var w = this.width() + container.axisGutter();
-    _.each(legends, function(l) {
+    _.forEach(legends, function(l) {
       var legendGroup = mainSVG.select('#tidelineLabels')
         .append('g')
         .attr({

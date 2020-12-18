@@ -16,18 +16,24 @@
  */
 
 :root {
-  --basal: #006C71;
+  --basal: #a4a4a4;
   --basal-automated: #3a90a4;
   --basal-over: #b1b1b1;
   --text-on-basal: white;
   --text-on-basal-automated: white;
   --text-basal: #a4a4a4;
   --text-basal-automated: #3a90a4;
-  --bolus: #6fc3bb;
-  --bolus--interrupted: #FF8B7C;
-  --bolus--ride: #107EA8;
-  --bolus--undelivered: #BCECFA;
-  --carbs: #FFD382;
+  --bolus: #6FC3BB;
+  --bolus-ride: #7E7E7E;
+  --bolus-override: #7E7E7E;
+  --bolus-underride: #7E7E7E;
+  --bolus-undelivered: #E98D7C;
+  --bolus-meal: #6FC3BB;
+  --bolus-micro: #9A78BD;
+  --bolus-manual: #8C65D6;
+  --carbs: #6FC3BB;
+  --carbs-text: black;
+  --rescuecarbs: #E98D7C;
   --collapsible--border: #EDEDED;
   --table-stripe--light: #F7F7F7;
   --table-stripe--dark: #ECECEC;
@@ -73,7 +79,10 @@
 
 
 :export {
-  bolus: #6fc3bb;
+  bolus: var(--bolus);
+  bolusMeal: var(--bolus-meal);
+  bolusMicro: var(--bolus-micro);
+  bolusManual: var(--bolus-manual);
   basal: #19A0D7;
   basalManual: #a8c8d4;
   statDark: #27385b;

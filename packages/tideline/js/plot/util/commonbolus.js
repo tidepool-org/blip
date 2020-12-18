@@ -1,133 +1,95 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
+const _ = require('lodash');
 
-var format = require('../../data/util/format');
+const format = require('../../data/util/format');
 
-module.exports = {
-  getRecommended: function(d) {
-    if (!d.recommended) {
-      return NaN;
+const commonBolus = {
+  getBolus: (b) => {
+    if (b.type === 'wizard' && !_.isEmpty(b.bolus)) {
+      return b.bolus;
+    } else if (b.type === 'bolus') {
+      return b;
     }
-    if (d.recommended.net != null) {
+    return null;
+  },
+  getRecommended: function(d) {
+    if (d.type !== 'wizard' || _.isEmpty(d.recommended)) {
+      return Number.NaN;
+    }
+    if (Number.isFinite(d.recommended.net)) {
       return d.recommended.net;
     }
-    var rec = 0;
-    if (d.recommended.carb) {
+    let rec = 0;
+    if (Number.isFinite(d.recommended.carb)) {
       rec += d.recommended.carb;
     }
-    if (d.recommended.correction) {
+    if (Number.isFinite(d.recommended.correction)) {
       rec += d.recommended.correction;
     }
     return format.fixFloatingPoint(rec);
   },
   getMaxValue: function(d) {
-    var wiz;
+    let programmed = this.getProgrammed(d);
+    if (Number.isNaN(programmed)) {
+      return Number.NaN;
+    }
+    let rec = 0;
     if (d.type === 'wizard') {
-      if (d.bolus) {
-        wiz = _.clone(d);
-        d = d.bolus;
-      }
-      else {
-        return NaN;
+      rec = this.getRecommended(d);
+      if (Number.isNaN(rec)) {
+        rec = 0;
       }
     }
-    var programmedTotal = this.getProgrammed(d);
-    var rec = 0;
-    if (wiz) {
-      rec = this.getRecommended(wiz); 
-    }
-    return rec > programmedTotal ? rec : programmedTotal;
+    return Math.max(rec, programmed);
   },
   getDelivered: function(d) {
-    if (d.type === 'wizard') {
-      if (d.bolus) {
-        d = d.bolus;
-      }
-      else {
-        return NaN;
-      }
+    const bolus = commonBolus.getBolus(d);
+    if (bolus !== null && Number.isFinite(bolus.normal)) {
+      return bolus.normal;
     }
-    if (d.extended != null) {
-      if (d.normal != null) {
-        return format.fixFloatingPoint(d.extended + d.normal);
-      }
-      else {
-        return d.extended;
-      }
-    }
-    else {
-      return d.normal;
-    }
+    return Number.NaN;
   },
   getProgrammed: function(d) {
-    if (d.type === 'wizard') {
-      if (d.bolus) {
-        d = d.bolus;
-      }
-      else {
-        return NaN;
-      }
+    const bolus = commonBolus.getBolus(d);
+    if (bolus === null) {
+      return Number.NaN;
     }
-    if (d.extended != null && d.expectedExtended != null) {
-      if (d.normal != null) {
-        if (d.expectedNormal != null) {
-          return format.fixFloatingPoint(d.expectedNormal + d.expectedExtended);
-        }
-        else {
-          return format.fixFloatingPoint(d.normal + d.expectedExtended);
-        }
-      }
-      else {
-        return d.expectedExtended;
-      }
-    }
-    else if (d.extended != null) {
-      if (d.normal != null) {
-        if (d.expectedNormal != null) {
-          return format.fixFloatingPoint(d.expectedNormal + d.extended);
-        }
-        else {
-          return format.fixFloatingPoint(d.normal + d.extended);
-        }
-      }
-      else {
-        return d.extended;
-      }
-    }
-    else {
-      return d.expectedNormal || d.normal;
-    }
+
+    const expectedNormal = Number.isFinite(bolus.expectedNormal) ? bolus.expectedNormal : 0;
+    const normal = Number.isFinite(bolus.normal) ? bolus.normal : 0;
+
+    return Math.max(expectedNormal, normal);
   },
   getMaxDuration: function(d) {
-    if (d.type === 'wizard') {
-      if (d.bolus) {
-        d = d.bolus;
-      }
-      else {
-        return NaN;
-      }
+    const bolus = commonBolus.getBolus(d);
+    if (bolus === null) {
+      return Number.NaN;
     }
+
     // don't want truthiness here because want to return expectedDuration
     // from a bolus interrupted immediately (duration = 0)
-    if (d.duration == null) {
-      return NaN;
+    if (!Number.isFinite(bolus.duration)) {
+      return Number.NaN;
     }
-    return d.expectedDuration || d.duration;
+    const expectedDuration = Number.isFinite(bolus.expectedDuration) ? bolus.expectedDuration : 0;
+    return Math.max(expectedDuration, bolus.duration);
   }
 };
+
+module.exports = commonBolus;
