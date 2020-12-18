@@ -78,12 +78,22 @@ const therapySettingsRows = (pump) => {
   const { values } = useFormikContext();
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const thresholds = warningThresholds(pump, bgUnits, values);
+  const emptyValueText = t('Not specified');
 
   return [
     {
       id: 'cpt-training',
       label: t('CPT Training Required'),
-      value: values.training === 'inModule' ? t('Not required') : t('Required'),
+      value: (() => {
+        if (!values.training) return emptyValueText;
+        return values.training === 'inModule' ? t('Not required') : t('Required');
+      })(),
+    },
+    {
+      id: 'glucose-safety-limit',
+      label: t('Glucose Safety Limit'),
+      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
+      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit)
     },
     {
       id: 'correction-range',
@@ -112,9 +122,7 @@ const therapySettingsRows = (pump) => {
       value: (() => {
         const lowValue = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low');
         const highValue = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.high');
-        return (lowValue && highValue)
-          ? `${lowValue} - ${highValue} ${bgUnits}`
-          : t('Not Specified');
+        return (lowValue && highValue) ? `${lowValue} - ${highValue} ${bgUnits}` : emptyValueText;
       })(),
       warning: (() => {
         const warnings = [];
@@ -133,9 +141,7 @@ const therapySettingsRows = (pump) => {
       value: (() => {
         const lowValue = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.low');
         const highValue = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.high');
-        return (lowValue && highValue)
-          ? `${lowValue} - ${highValue} ${bgUnits}`
-          : t('Not Specified');
+        return (lowValue && highValue) ? `${lowValue} - ${highValue} ${bgUnits}` : emptyValueText;
       })(),
       warning: (() => {
         const warnings = [];
@@ -149,15 +155,16 @@ const therapySettingsRows = (pump) => {
       })(),
     },
     {
-      id: 'glucose-safety-limit',
-      label: t('Glucose Safety Limit'),
-      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
-      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit)
-    },
-    {
-      id: 'insulin-model',
-      label: t('Insulin Model'),
-      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
+      id: 'carb-ratio-schedule',
+      label: t('Insulin to Carbohydrate Ratios'),
+      value: map(
+        values.initialSettings.carbohydrateRatioSchedule,
+        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
+      ),
+      warning: map(
+        values.initialSettings.carbohydrateRatioSchedule,
+        (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
+      ),
     },
     {
       id: 'basal-schedule',
@@ -184,6 +191,11 @@ const therapySettingsRows = (pump) => {
       ],
     },
     {
+      id: 'insulin-model',
+      label: t('Insulin Model'),
+      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
+    },
+    {
       id: 'isf-schedule',
       label: t('Insulin Sensitivity Factor'),
       value: map(
@@ -193,18 +205,6 @@ const therapySettingsRows = (pump) => {
       warning: map(
         values.initialSettings.insulinSensitivitySchedule,
         (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
-      ),
-    },
-    {
-      id: 'carb-ratio-schedule',
-      label: t('Insulin to Carbohydrate Ratios'),
-      value: map(
-        values.initialSettings.carbohydrateRatioSchedule,
-        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
-      ),
-      warning: map(
-        values.initialSettings.carbohydrateRatioSchedule,
-        (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
       ),
     },
   ];
