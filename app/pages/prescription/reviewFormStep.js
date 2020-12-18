@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import compact from 'lodash/compact';
 import find from 'lodash/find';
 import flattenDeep from 'lodash/flattenDeep';
 import get from 'lodash/get';
@@ -15,7 +16,7 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
-import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
+import { fieldsAreValid, getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
@@ -78,7 +79,8 @@ const patientRows = values => ([
 ]);
 
 const therapySettingsRows = (pump) => {
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
   const thresholds = warningThresholds(pump, bgUnits, values);
 
@@ -90,6 +92,7 @@ const therapySettingsRows = (pump) => {
         if (!values.training) return emptyValueText;
         return values.training === 'inModule' ? t('Not required') : t('Required');
       })(),
+      error: getFieldError('training', formikContext),
     },
     {
       id: 'glucose-safety-limit',
@@ -98,7 +101,8 @@ const therapySettingsRows = (pump) => {
         if (!get(values, 'initialSettings.glucoseSafetyLimit')) return emptyValueText;
         return `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`;
       })(),
-      warning: getThresholdWarning(get(values, 'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit)
+      warning: getThresholdWarning(get(values, 'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit),
+      error: getFieldError('initialSettings.glucoseSafetyLimit', formikContext),
     },
     {
       id: 'correction-range',
@@ -120,6 +124,19 @@ const therapySettingsRows = (pump) => {
           return warnings.length ? warnings : null;
         }
       ),
+      error: map(
+        get(values, 'initialSettings.bloodGlucoseTargetSchedule'),
+        (val, index) => {
+          const errors = [];
+          const lowError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.low`, formikContext);
+          const highError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.high`, formikContext);
+
+          if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
+          if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+
+          return errors.length ? errors : null;
+        }
+      ),
     },
     {
       id: 'premeal-range',
@@ -138,6 +155,16 @@ const therapySettingsRows = (pump) => {
         if (highWarning) warnings.push(t('Upper Target: {{highWarning}}', { highWarning }));
 
         return warnings.length ? warnings : null;
+      })(),
+      error: (() => {
+        const errors = [];
+        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', formikContext);
+        const highError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', formikContext);
+
+        if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
+        if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+
+        return errors.length ? errors : null;
       })(),
     },
     {
@@ -158,6 +185,16 @@ const therapySettingsRows = (pump) => {
 
         return warnings.length ? warnings : null;
       })(),
+      error: (() => {
+        const errors = [];
+        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', formikContext);
+        const highError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', formikContext);
+
+        if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
+        if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+
+        return errors.length ? errors : null;
+      })(),
     },
     {
       id: 'carb-ratio-schedule',
@@ -170,6 +207,10 @@ const therapySettingsRows = (pump) => {
         get(values, 'initialSettings.carbohydrateRatioSchedule'),
         (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
       ),
+      error: map(
+        get(values, 'initialSettings.carbohydrateRatioSchedule'),
+        (val, index) => getFieldError(`initialSettings.carbohydrateRatioSchedule.${index}.amount`, formikContext)
+      ),
     },
     {
       id: 'basal-schedule',
@@ -181,6 +222,10 @@ const therapySettingsRows = (pump) => {
       warning: map(
         get(values, 'initialSettings.basalRateSchedule'),
         (val) => getThresholdWarning(val.rate, thresholds.basalRate)
+      ),
+      error: map(
+        get(values, 'initialSettings.basalRateSchedule'),
+        (val, index) => getFieldError(`initialSettings.basalRateSchedule.${index}.rate`, formikContext)
       ),
     },
     {
@@ -202,6 +247,10 @@ const therapySettingsRows = (pump) => {
         getThresholdWarning(get(values, 'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum),
         getThresholdWarning(get(values, 'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum),
       ],
+      error: [
+        getFieldError('initialSettings.basalRateMaximum.value', formikContext),
+        getFieldError('initialSettings.bolusAmountMaximum.value', formikContext),
+      ],
     },
     {
       id: 'insulin-model',
@@ -210,6 +259,7 @@ const therapySettingsRows = (pump) => {
         if (!get(values, 'initialSettings.insulinModel')) return emptyValueText;
         return get(find(insulinModelOptions, { value: get(values, 'initialSettings.insulinModel') }), 'label', '');
       })(),
+      error: getFieldError('initialSettings.insulinModel', formikContext),
     },
     {
       id: 'isf-schedule',
@@ -221,6 +271,10 @@ const therapySettingsRows = (pump) => {
       warning: map(
         get(values, 'initialSettings.insulinSensitivitySchedule'),
         (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
+      ),
+      error: map(
+        get(values, 'initialSettings.insulinSensitivitySchedule'),
+        (val, index) => getFieldError(`initialSettings.insulinSensitivitySchedule.${index}.amount`, formikContext)
       ),
     },
   ];
@@ -308,11 +362,17 @@ export const TherapySettings = props => {
 
   const rows = therapySettingsRows(pump);
 
-  const Row = ({ label, value, warning, id, index }) => {
+  const Row = ({ label, value, warning, id, index, error }) => {
     let rowValues = isArray(value) ? value : [value];
     if (isEmpty(rowValues)) rowValues = [emptyValueText];
-    const warnings = isArray(warning) ? warning: [warning];
-    const colors = map(warnings, message => message ? 'feedback.warning' : 'text.primary');
+
+    const warnings = compact(isArray(warning) ? warning : [warning]);
+    const errors = compact(isArray(error) ? error : [error]);
+
+    let valueColor = 'text.primary';
+    if (errors.length || warnings.length) valueColor = errors.length ? 'feedback.danger' : 'feedback.warning';
+
+    console.log(label, errors);
 
     return (
       <Flex
@@ -327,8 +387,19 @@ export const TherapySettings = props => {
         <Box flex="1">
           {map(rowValues, (val, i) => (
             <Flex key={i}>
-              <Body1 color={colors[i]} key={i} flexGrow={1}>{val}</Body1>
-              {warnings[i] && (
+              <Body1 color={valueColor} key={i} flexGrow={1}>{val}</Body1>
+              {errors[i] && (
+                <PopoverLabel
+                  id={`${id}-${i}`}
+                  width="auto"
+                  popoverContent={(
+                    <Box p={3}>
+                      <Paragraph1>{errors[i]}</Paragraph1>
+                    </Box>
+                  )}
+                />
+              )}
+              {!errors[i] && warnings[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
                   width="auto"
