@@ -107,6 +107,48 @@ const therapySettingsRows = (pump) => {
       ),
     },
     {
+      id: 'premeal-range',
+      label: t('Pre-meal Correction Range'),
+      value: (() => {
+        const lowValue = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low');
+        const highValue = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.high');
+        return (lowValue && highValue)
+          ? `${lowValue} - ${highValue} ${bgUnits}`
+          : t('Not Specified');
+      })(),
+      warning: (() => {
+        const warnings = [];
+        const lowWarning = getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.low'), thresholds.bloodGlucoseTargetPreprandial);
+        const highWarning = getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.high'), thresholds.bloodGlucoseTargetPreprandial);
+
+        if (lowWarning) warnings.push(t('Lower Target: {{lowWarning}}', { lowWarning }));
+        if (highWarning) warnings.push(t('Upper Target: {{highWarning}}', { highWarning }));
+
+        return warnings.length ? warnings : null;
+      })(),
+    },
+    {
+      id: 'workout-range',
+      label: t('Workout Correction Range'),
+      value: (() => {
+        const lowValue = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.low');
+        const highValue = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.high');
+        return (lowValue && highValue)
+          ? `${lowValue} - ${highValue} ${bgUnits}`
+          : t('Not Specified');
+      })(),
+      warning: (() => {
+        const warnings = [];
+        const lowWarning = getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.low'), thresholds.bloodGlucoseTargetPhysicalActivity);
+        const highWarning = getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.high'), thresholds.bloodGlucoseTargetPhysicalActivity);
+
+        if (lowWarning) warnings.push(t('Lower Target: {{lowWarning}}', { lowWarning }));
+        if (highWarning) warnings.push(t('Upper Target: {{highWarning}}', { highWarning }));
+
+        return warnings.length ? warnings : null;
+      })(),
+    },
+    {
       id: 'glucose-safety-limit',
       label: t('Glucose Safety Limit'),
       value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
