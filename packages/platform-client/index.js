@@ -44,6 +44,10 @@ module.exports = function (config, deps) {
   // this way, the first dash in the eventname will be the separator for the source
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
+  if (!_.isBoolean(config.zendeskSSOEnabled)) {
+    config.zendeskSSOEnabled = false;
+  }
+
   var common = require('./lib/common.js')(config, deps);
   var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
   var user = require('./user.js')( common, config, deps);

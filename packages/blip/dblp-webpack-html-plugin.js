@@ -12,23 +12,23 @@ class DblpHtmlWebpackPlugin {
         'DblpHtmlWebpackPlugin', // <-- Set a meaningful name here for stacktraces
         (data, cb) => {
           // Manipulate the content
-          if (typeof process.env.HELP_LINK === 'string') {
-            if (process.env.HELP_LINK === 'disabled') {
+          if (typeof process.env.HELP_SCRIPT_URL === 'string') {
+            if (process.env.HELP_SCRIPT_URL === 'disabled') {
               console.log('\nRemoving zendesk javascript link...');
               data.html = data.html.replace(/(<script id="ze-snippet".*<\/script>)/, '');
             } else {
               console.log('\nSetting up zendesk javascript link...');
               data.html = data.html.replace(/(<script id="ze-snippet" src="([^"]+)">)/, (match, p1, p2) => {
-                return p1.replace(p2, process.env.HELP_LINK);
+                return p1.replace(p2, process.env.HELP_SCRIPT_URL);
               });
             }
           }
           // Tell webpack to move on
           cb(null, data);
         }
-      )
-    })
+      );
+    });
   }
 }
 
-module.exports = DblpHtmlWebpackPlugin
+module.exports = DblpHtmlWebpackPlugin;

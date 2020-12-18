@@ -78,6 +78,7 @@ export class AppComponent extends React.Component {
     }).isRequired,
     showingDonateBanner: PropTypes.bool,
     showingDexcomConnectBanner: PropTypes.bool,
+    onClickDexcomConnectBanner: PropTypes.func.isRequired,
     showBanner: PropTypes.func.isRequired,
     hideBanner: PropTypes.func.isRequired,
     termsAccepted: PropTypes.string,
@@ -86,6 +87,7 @@ export class AppComponent extends React.Component {
     userIsCurrentPatient: PropTypes.bool.isRequired,
     userIsDonor: PropTypes.bool.isRequired,
     userIsSupportingNonprofit: PropTypes.bool.isRequired,
+    userHasConnectedDataSources: PropTypes.bool.isRequired,
     permsOfLoggedInUser: PropTypes.object,
   };
 
@@ -182,24 +184,37 @@ export class AppComponent extends React.Component {
         this.props.hideBanner('dexcom');
       }
     }
-    if (config.HELP_LINK !== null && typeof window.zE === 'function') {
-      if (this.props.authenticated) {
-        let name = this.props.user.profile.fullName;
-        let email = this.props.user.emails[0];
+    if (_.isFunction(window.zE)) {
+      this.setupZendeskWidget();
+    }
+  }
 
+  setupZendeskWidget() {
+    const { authenticated, user } = this.props;
+    if (authenticated) {
+      const name = _.get(user, 'profile.fullName', null);
+      const email = _.get(user, 'emails[0]', null);
+      if (_.isString(name) && _.isString(email)) {
         window.zE('webWidget', 'prefill', {
           name: { value: name, readOnly: true },
           email: { value: email, readOnly: true },
         });
-      } else {
-        // Put all of them to be sure
-        window.zE('webWidget', 'close');
-        window.zE('webWidget', 'logout');
-        window.zE('webWidget', 'clear');
-        window.zE('webWidget', 'reset');
+      } else if (_.isString(email)) {
+        window.zE('webWidget', 'prefill', {
+          email: { value: email, readOnly: true },
+        });
+      } else if (_.isString(name)) {
+        window.zE('webWidget', 'prefill', {
+          name: { value: name, readOnly: true },
+        });
       }
+    } else {
+      // Put all of them to be sure
+      window.zE('webWidget', 'close');
+      window.zE('webWidget', 'logout');
+      window.zE('webWidget', 'clear');
+      window.zE('webWidget', 'reset');
     }
-
   }
 
   /**

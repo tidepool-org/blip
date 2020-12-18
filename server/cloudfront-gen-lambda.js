@@ -72,6 +72,7 @@ let distribFiles = null;
 
 let distDir = null;
 let templateDir = null;
+let zendeskEnabled = false;
 const templateFilename = path.resolve(`${__dirname}/../templates/lambda-request-viewer.js`);
 
 function getHash(str) {
@@ -113,15 +114,15 @@ function afterGenOutputFile(err) {
  * @returns {string} The CSP for the template.
  */
 function genContentSecurityPolicy() {
-  if (typeof blipConfig.HELP_LINK === 'string' && reUrl.test(blipConfig.HELP_LINK)) {
+  if (zendeskEnabled) {
     // Assume Zendesk
     console.log('Zendesk is enabled');
-    const helpUrl = blipConfig.HELP_LINK.replace(reUrl, '$1');
+    const helpUrl = blipConfig.HELP_SCRIPT_URL.replace(reUrl, '$1');
     contentSecurityPolicy.scriptSrc.push(helpUrl);
     contentSecurityPolicy.connectSrc.push(helpUrl);
     contentSecurityPolicy.imgSrc.push(helpUrl);
     contentSecurityPolicy.connectSrc.push('https://ekr.zdassets.com');
-    contentSecurityPolicy.connectSrc.push('https://diabeloop.zendesk.com');
+    contentSecurityPolicy.connectSrc.push(blipConfig.HELP_PAGE_URL);
   }
 
   const metricsUrl = process.env.MATOMO_TRACKER_URL;
@@ -204,7 +205,6 @@ function genOutputFile() {
       fs.writeFile(outputFilename, lambdaFile, { encoding: 'utf-8' }, afterGenOutputFile);
     }
   });
-
 }
 
 /**
@@ -292,14 +292,28 @@ if (typeof process.env.BRANDING === 'string') {
 }
 
 // *** ZenDesk ***
+zendeskEnabled = typeof blipConfig.HELP_SCRIPT_URL === 'string' && reUrl.test(blipConfig.HELP_SCRIPT_URL);
+zendeskEnabled = zendeskEnabled && typeof blipConfig.HELP_PAGE_URL === 'string' && reUrl.test(blipConfig.HELP_PAGE_URL);
+
 let helpLink = '<!-- Zendesk disabled -->';
 if (!reZendesk.test(indexHtml)) {
   console.error(`/!\\ Can't find help pattern in index.html: ${reZendesk.source} /!\\`);
   process.exit(1);
 }
-if (typeof process.env.HELP_LINK === 'string' && process.env.HELP_LINK.startsWith('https://')) {
-  console.info('- Using HELP_LINK:', process.env.HELP_LINK);
-  helpLink = `<script id="ze-snippet" type="text/javascript" defer src="${process.env.HELP_LINK}"></script>`;
+if (zendeskEnabled) {
+  console.info('- Using HELP_SCRIPT_URL:', process.env.HELP_SCRIPT_URL);
+  console.info('- Using HELP_PAGE_URL:', process.env.HELP_PAGE_URL);
+  let zdkJs = fs.readFileSync(`${templateDir}/zendesk.js`, 'utf8');
+
+  let fileHash = getHash(zdkJs);
+  let integrity = getIntegrity(zdkJs);
+  let fileName = `zdk.${fileHash}.js`;
+  fs.writeFileSync(`${distDir}/static/${fileName}`, zdkJs);
+
+  helpLink = `\
+  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>\n\
+  <script id="ze-snippet" type="text/javascript" defer src="${process.env.HELP_SCRIPT_URL}"></script>`;
+
 } else {
   console.info('- Help link is disabled');
 }

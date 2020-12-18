@@ -44,20 +44,6 @@ export class Login extends React.Component {
 
   componentDidMount() {
     this.props.trackMetric('Navigation', 'User Reached login page');
-
-    if (config.HELP_LINK !== null) {
-      // @ts-ignore
-      window.zESettings = {
-        webWidget: {
-          helpCenter: {
-            filter: {
-              category: '360001386093'
-            }
-          }
-        }
-      };
-    }
-
     this.doFetching();
   }
 

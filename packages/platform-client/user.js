@@ -42,16 +42,16 @@ module.exports = function (common, config, deps) {
   // This is a 'version' counter for the number of times we've logged in.
   // It is used to invalidate stale attempts at refreshing a token
   var loginVersion = 0;
-  var TOKEN_LOCAL_KEY = 'authToken';
+  const TOKEN_LOCAL_KEY = 'authToken';
 
   /*jshint unused:false */
-  var log = requireDep(deps,'log');
+  var log = requireDep(deps, 'log');
   var store = requireDep(deps, 'localStore');
   var superagent = requireDep(deps, 'superagent');
 
   //config
   config = _.clone(config);
-  defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
+  defaultProperty(config, 'tokenRefreshInterval', 60 * 60 * 1000); // 1 hour
 
   /**
    * Initialize client for user
@@ -68,7 +68,7 @@ module.exports = function (common, config, deps) {
       return cb();
     }
 
-    refreshUserToken(myToken, function(err, data) {
+    refreshUserToken(myToken, function (err, data) {
       var hasNewSession = data && data.userid && data.token;
 
       if (err || !hasNewSession) {
@@ -78,8 +78,8 @@ module.exports = function (common, config, deps) {
       }
 
       log.info('Loaded local session');
-      saveSession(data.userid, data.token, {remember:true});
-      cb(null, {userid: data.userid, token: data.token});
+      saveSession(data.userid, data.token, { remember: true });
+      cb(null, { userid: data.userid, token: data.token });
     });
   }
 
@@ -87,17 +87,17 @@ module.exports = function (common, config, deps) {
     superagent.get(common.makeAPIUrl('/auth/login'))
       .set(common.SESSION_TOKEN_HEADER, token)
       .end(
-      function (err, res) {
-        if (err) {
-          err.body = (err.response && err.response.body) || '';
-          return cb(err, null);
-        }
-        if (res.status !== 200) {
-          return common.handleHttpError(res, cb);
-        }
+        function (err, res) {
+          if (err) {
+            err.body = (err.response && err.response.body) || '';
+            return cb(err, null);
+          }
+          if (res.status !== 200) {
+            return common.handleHttpError(res, cb);
+          }
 
-        return cb(null, {userid: res.body.userid, token: res.headers[common.SESSION_TOKEN_HEADER]});
-      });
+          return cb(null, { userid: res.body.userid, token: res.headers[common.SESSION_TOKEN_HEADER] });
+        });
   }
   /**
    * Save user session (in-memory and stored in browser)
@@ -125,14 +125,14 @@ module.exports = function (common, config, deps) {
       log.info('Saved session locally');
     }
 
-    var refreshSession = function() {
+    var refreshSession = function () {
       if (myToken == null || currVersion !== loginVersion) {
         log.info('Stopping session token refresh for version', currVersion);
         return;
       }
 
       log.info('Refreshing session token');
-      refreshUserToken(myToken, function(err, data) {
+      refreshUserToken(myToken, function (err, data) {
         var hasNewSession = data && data.userid && data.token;
         if (err || !hasNewSession) {
           log.warn('Failed refreshing session token', err);
@@ -172,7 +172,7 @@ module.exports = function (common, config, deps) {
    *
    * @returns {String} users token
    */
-  function getUserToken(){
+  function getUserToken() {
     return myToken;
   }
   /**
@@ -186,33 +186,32 @@ module.exports = function (common, config, deps) {
 
     superagent
       .post(common.makeAPIUrl('/auth/oauthlogin'))
-      .set('Authorization', 'bearer '+oauthToken)
+      .set('Authorization', 'bearer ' + oauthToken)
       .end(
-      function (err, res) {
+        function (err, res) {
 
-        if (err != null) {
-          err.body = (err.response && err.response.body) || '';
-          return cb(err, null);
-        }
+          if (err != null) {
+            err.body = (err.response && err.response.body) || '';
+            return cb(err, null);
+          }
 
-        if (res.status !== 200) {
-          return common.handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return common.handleHttpError(res, cb);
+          }
 
-        var oauthUserId = res.body.oauthUser.userid;
-        var theToken = res.headers[common.SESSION_TOKEN_HEADER];
-        //save the session and remember by default
-        saveSession(oauthUserId, theToken, {remember:true});
-        return cb(null,{userid: oauthUserId, user: res.body.oauthUser, target: res.body.oauthTarget});
-      });
+          var oauthUserId = res.body.oauthUser.userid;
+          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
+          //save the session and remember by default
+          saveSession(oauthUserId, theToken, { remember: true });
+          return cb(null, { userid: oauthUserId, user: res.body.oauthUser, target: res.body.oauthTarget });
+        });
   }
   /**
    * Login user to the Tidepool platform
    *
-   * @param user object with a username and password to login
-   * @param options (optional) object with `remember` boolean attribute
-   * @param cb
-   * @returns {cb}  cb(err, response)
+   * @param {{username: string, password: string}} user object with a username and password to login
+   * @param {object?} options (optional) object with `remember` boolean attribute
+   * @param {(err: object|null, data: {userid: string, user: object}) => void} cb The callback
    */
   function login(user, options, cb) {
     options = options || {};
@@ -222,32 +221,31 @@ module.exports = function (common, config, deps) {
     }
 
     if (user.username == null) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
     }
     if (user.password == null) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
     }
 
     superagent
       .post(common.makeAPIUrl('/auth/login', user.longtermkey))
       .auth(user.username, user.password)
       .end(
-      function (err, res) {
-        if (err != null) {
-          err.body = (err.response && err.response.body) || '';
-          return cb(err, null);
-        }
+        (err, res) => {
+          if (err != null) {
+            err.body = (err.response && err.response.body) || '';
+            return cb(err, null);
+          }
 
-        if (res.status !== 200) {
-          return common.handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return common.handleHttpError(res, cb);
+          }
 
-        var theUserId = res.body.userid;
-        var theToken = res.headers[common.SESSION_TOKEN_HEADER];
-
-        saveSession(theUserId, theToken, options);
-        return cb(null,{userid: theUserId, user: res.body});
-      });
+          const userId = res.body.userid;
+          const token = res.headers[common.SESSION_TOKEN_HEADER];
+          saveSession(userId, token, options);
+          cb(null, {userid: userId, user: res.body});
+        });
   }
   /**
    * Logout user
@@ -258,18 +256,18 @@ module.exports = function (common, config, deps) {
     common.assertArgumentsSize(arguments, 1);
 
     if (isLoggedIn() === false) {
-      setTimeout(function(){ cb(null, {}); }, 0);
+      setTimeout(function () { cb(null, {}); }, 0);
     }
 
-    var onSuccess=function(res){
-      saveSession(null, null);
+    var onSuccess = function (res) {
+      destroySession();
       return res.status;
     };
 
     common.doPostWithToken(
       '/auth/logout',
       {},
-      {200: onSuccess},
+      { 200: onSuccess },
       cb
     );
   }
@@ -289,10 +287,10 @@ module.exports = function (common, config, deps) {
     }
 
     if (user.username == null) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
     }
     if (user.password == null) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
     }
 
     var newUser = _.pick(user, 'username', 'password', 'emails', 'roles');
@@ -301,17 +299,17 @@ module.exports = function (common, config, deps) {
       .post(common.makeAPIUrl('/auth/user'))
       .send(newUser)
       .end(
-      function (err, res) {
-        if (err != null) {
-          err.body = (err.response && err.response.body) || '';
-          return cb(err);
-        }
-        var theUserId = res.body.userid;
-        var theToken = res.headers[common.SESSION_TOKEN_HEADER];
+        function (err, res) {
+          if (err != null) {
+            err.body = (err.response && err.response.body) || '';
+            return cb(err);
+          }
+          var theUserId = res.body.userid;
+          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
 
-        saveSession(theUserId, theToken, options);
-        return cb(null,res.body);
-      });
+          saveSession(theUserId, theToken, options);
+          return cb(null, res.body);
+        });
   }
   /**
    * Create a custodial account for the logged in user
@@ -323,39 +321,39 @@ module.exports = function (common, config, deps) {
   function createCustodialAccount(profile, cb) {
 
     if (_.isEmpty(profile.fullName)) {
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
     }
 
     var custodialUser = {};
     // create an custodial account to attach to ours
-    function createAccount(next){
+    function createAccount(next) {
       var body = {};
-      if(!_.isEmpty(profile.emails)){
+      if (!_.isEmpty(profile.emails)) {
         body.emails = profile.emails;
         body.username = profile.emails[0];
       }
       superagent
-       .post(common.makeAPIUrl('/auth/user/' + getUserId() + '/user'))
-       .set(common.SESSION_TOKEN_HEADER, getUserToken())
-       .send(body)
-       .end(
-       function (err, res) {
-        if (err != null) {
-          err.body = (err.response && err.response.body) || '';
-          err.message = (err.response && err.response.error) || '';
-          return next(err);
-        }
-        if(res.status === 201){
-          custodialUser.id = res.body.userid;
-          return next(null,{userid:res.body.userid});
-        }
-        return next({status:res.status,message:res.error});
-      });
+        .post(common.makeAPIUrl('/auth/user/' + getUserId() + '/user'))
+        .set(common.SESSION_TOKEN_HEADER, getUserToken())
+        .send(body)
+        .end(
+          function (err, res) {
+            if (err != null) {
+              err.body = (err.response && err.response.body) || '';
+              err.message = (err.response && err.response.error) || '';
+              return next(err);
+            }
+            if (res.status === 201) {
+              custodialUser.id = res.body.userid;
+              return next(null, { userid: res.body.userid });
+            }
+            return next({ status: res.status, message: res.error });
+          });
     }
     //add a profile name to the child account
-    function createProfile(next){
+    function createProfile(next) {
       superagent
-        .put(common.makeAPIUrl('/metadata/'+ custodialUser.id + '/profile'))
+        .put(common.makeAPIUrl('/metadata/' + custodialUser.id + '/profile'))
         .send(profile)
         .set(common.SESSION_TOKEN_HEADER, getUserToken())
         .end(
@@ -365,19 +363,19 @@ module.exports = function (common, config, deps) {
               err.message = (err.response && err.response.error) || '';
               return next(err);
             }
-            if(res.status === 200){
-              return next(null,res.body);
+            if (res.status === 200) {
+              return next(null, res.body);
             }
-            return next({status:res.status,message:res.error});
+            return next({ status: res.status, message: res.error });
           });
     }
     // optionally send a confirmation email if email was provided
-    function sendEmailConfirmation(next){
-      if(_.isEmpty(profile.emails)){
+    function sendEmailConfirmation(next) {
+      if (_.isEmpty(profile.emails)) {
         return next(null);
       }
       superagent
-        .post(common.makeAPIUrl('/confirm/send/signup/'+custodialUser.id))
+        .post(common.makeAPIUrl('/confirm/send/signup/' + custodialUser.id))
         .set(common.SESSION_TOKEN_HEADER, getUserToken())
         .send({})
         .end(
@@ -387,10 +385,10 @@ module.exports = function (common, config, deps) {
               err.message = (err.response && err.response.error) || '';
               return next(err);
             }
-            if(res.status === 200){
-              return next(null,res.body);
+            if (res.status === 200) {
+              return next(null, res.body);
             }
-            return next({status:res.status,message:res.error});
+            return next({ status: res.status, message: res.error });
           });
     }
 
@@ -398,13 +396,13 @@ module.exports = function (common, config, deps) {
       createAccount,
       createProfile,
       sendEmailConfirmation
-    ], function(err, results) {
-      if(_.isEmpty(err)){
+    ], function (err, results) {
+      if (_.isEmpty(err)) {
         var acct = {
           userid: results[0].userid,
           profile: results[1]
         };
-        return cb(null,acct);
+        return cb(null, acct);
       }
       return cb(err);
     });
@@ -450,8 +448,8 @@ module.exports = function (common, config, deps) {
   function acceptTerms(user, cb) {
     common.assertArgumentsSize(arguments, 2);
 
-    if(_.isEmpty(user.terms)){
-      return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a terms field' });
+    if (_.isEmpty(user.terms)) {
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a terms field' });
     }
 
     var updateUserTerms = {
@@ -484,7 +482,7 @@ module.exports = function (common, config, deps) {
     common.doPostWithToken(
       '/v1/users/' + userId + '/restricted_tokens',
       restrictedTokenRequest,
-      { 201: function(res) { return res.body; } },
+      { 201: function (res) { return res.body; } },
       cb
     );
   }
@@ -518,33 +516,33 @@ module.exports = function (common, config, deps) {
       .del(common.makeAPIUrl('/v1/oauth/' + provider + '/authorize'))
       .set(common.SESSION_TOKEN_HEADER, getUserToken())
       .end(
-      function(err, res) {
-        if (err != null) {
-          err.body = (err.response && err.response.body) || '';
-          err.message = (err.response && err.response.error) || '';
-          return cb(err);
-        }
-        if (res.status === 200) {
-          return cb(null, res.body);
-        }
-        return cb({ status: res.status, message: res.error });
-      });
+        function (err, res) {
+          if (err != null) {
+            err.body = (err.response && err.response.body) || '';
+            err.message = (err.response && err.response.error) || '';
+            return cb(err);
+          }
+          if (res.status === 200) {
+            return cb(null, res.body);
+          }
+          return cb({ status: res.status, message: res.error });
+        });
   }
 
   return {
-    acceptTerms : acceptTerms,
-    createCustodialAccount : createCustodialAccount,
+    acceptTerms: acceptTerms,
+    createCustodialAccount: createCustodialAccount,
     destroySession: destroySession,
-    getCurrentUser : getCurrentUser,
-    getUserId : getUserId,
-    getUserToken : getUserToken,
+    getCurrentUser: getCurrentUser,
+    getUserId: getUserId,
+    getUserToken: getUserToken,
     isLoggedIn: isLoggedIn,
-    login : login,
-    oauthLogin : oauthLogin,
-    logout : logout,
-    signup : signup,
-    initialize : initialize,
-    updateCurrentUser : updateCurrentUser,
+    login: login,
+    oauthLogin: oauthLogin,
+    logout: logout,
+    signup: signup,
+    initialize: initialize,
+    updateCurrentUser: updateCurrentUser,
     updateCustodialUser: updateCustodialUser,
     createRestrictedTokenForUser: createRestrictedTokenForUser,
     createOAuthProviderAuthorization: createOAuthProviderAuthorization,

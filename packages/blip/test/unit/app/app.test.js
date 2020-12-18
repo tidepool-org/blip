@@ -72,6 +72,99 @@ describe('App', () => {
 
   });
 
+  describe('zendesk', () => {
+    before(() => {
+      window.zE = sinon.spy();
+    });
+    after(() => {
+      delete window.zE;
+    });
+    beforeEach(() => {
+      window.zE.resetHistory();
+    });
+
+    it('should close/logout/clear/reset the zendesk widget if not authenticated', () => {
+      const obj = {
+        props: {
+          authenticated: false,
+          user: null,
+        },
+        setupZendeskWidget: App.prototype.setupZendeskWidget,
+      };
+      obj.setupZendeskWidget();
+      /** @type {sinon.SinonSpy} */
+      const zE = window.zE;
+      expect(zE.callCount).to.be.equal(4);
+      expect(zE.getCall(0).args).to.be.deep.equals(['webWidget', 'close']);
+      expect(zE.getCall(1).args).to.be.deep.equals(['webWidget', 'logout']);
+      expect(zE.getCall(2).args).to.be.deep.equals(['webWidget', 'clear']);
+      expect(zE.getCall(3).args).to.be.deep.equals(['webWidget', 'reset']);
+    });
+
+    it('should call the prefill function with available name/email if authenticated', () => {
+      const obj = {
+        props: {
+          authenticated: true,
+          user: {
+            profile: {
+              fullName: 'John Doe'
+            },
+            emails: [ 'john.doe@example.com' ],
+          },
+        },
+        setupZendeskWidget: App.prototype.setupZendeskWidget,
+      };
+      obj.setupZendeskWidget();
+      /** @type {sinon.SinonSpy} */
+      const zE = window.zE;
+      expect(zE.callCount).to.be.equal(1);
+      expect(zE.getCall(0).args).to.be.deep.equals(['webWidget', 'prefill', {
+        name: { value: obj.props.user.profile.fullName, readOnly: true },
+        email: { value: obj.props.user.emails[0], readOnly: true },
+      }]);
+    });
+
+    it('should call the prefill function with available email (missing name) if authenticated', () => {
+      const obj = {
+        props: {
+          authenticated: true,
+          user: {
+            emails: [ 'john.doe@example.com' ],
+          },
+        },
+        setupZendeskWidget: App.prototype.setupZendeskWidget,
+      };
+      obj.setupZendeskWidget();
+      /** @type {sinon.SinonSpy} */
+      const zE = window.zE;
+      expect(zE.callCount).to.be.equal(1);
+      expect(zE.getCall(0).args).to.be.deep.equals(['webWidget', 'prefill', {
+        email: { value: obj.props.user.emails[0], readOnly: true },
+      }]);
+    });
+
+    it('should call the prefill function with available name (missing email) if authenticated', () => {
+      const obj = {
+        props: {
+          authenticated: true,
+          user: {
+            profile: {
+              fullName: 'John Doe'
+            },
+          },
+        },
+        setupZendeskWidget: App.prototype.setupZendeskWidget,
+      };
+      obj.setupZendeskWidget();
+      /** @type {sinon.SinonSpy} */
+      const zE = window.zE;
+      expect(zE.callCount).to.be.equal(1);
+      expect(zE.getCall(0).args).to.be.deep.equals(['webWidget', 'prefill', {
+        name: { value: obj.props.user.profile.fullName, readOnly: true },
+      }]);
+    });
+  });
+
   describe('render', () => {
     before(() => {
       try {

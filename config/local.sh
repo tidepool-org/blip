@@ -24,7 +24,8 @@ export LATEST_TERMS='1970-01-01'
 
 # External services:
 # URL to HELP system
-export HELP_LINK='disabled'
+export HELP_SCRIPT_URL='https://static.zdassets.com/ekr/snippet.js?key=803ccad8-73e6-4b21-90e5-aaa4aeb13d9a'
+export HELP_PAGE_URL='https://testnewbranddbl.zendesk.com'
 # url to web server hosting the asset files
 # such as terms of use, data privacy, etc.
 export ASSETS_URL='https://example.com/'

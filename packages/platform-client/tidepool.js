@@ -34,27 +34,27 @@ module.exports = function(options) {
   }
 
   var log = options.log;
-  if (log == null) {
+  if (_.isEmpty(log)) {
     log = {
-      warn: function(){},
-      info: function(){},
-      debug: function(){}
+      warn: _.noop,
+      info: _.noop,
+      debug: _.noop,
     };
   }
 
   var localStore = options.localStore;
   if (localStore == null) {
     localStore = {
-      getItem: function() {},
-      setItem: function() {},
-      removeItem: function() {}
+      getItem: _.noop,
+      setItem: _.noop,
+      removeItem: _.noop,
     };
   }
 
   return makeClient(_.omit(options, 'log', 'superagent', 'localStore'), {
-    log: log,
-    superagent: superagent,
-    localStore: localStore
+    log,
+    superagent,
+    localStore,
   });
 };
 

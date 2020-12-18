@@ -199,7 +199,7 @@ if (isProduction) {
 
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
-  if (process.env.WEBPACK_DEV_SERVER === 'true' && typeof process.env.HELP_LINK === 'string') {
+  if (process.env.WEBPACK_DEV_SERVER === 'true' && typeof process.env.HELP_SCRIPT_URL === 'string') {
     plugins.push(new DblpHtmlWebpackPlugin());
   }
 }
