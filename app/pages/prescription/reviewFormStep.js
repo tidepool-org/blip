@@ -7,6 +7,7 @@ import bows from 'bows';
 import find from 'lodash/find';
 import flattenDeep from 'lodash/flattenDeep';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import capitalize from 'lodash/capitalize';
 import isArray from 'lodash/isArray';
@@ -40,45 +41,46 @@ const fieldsetPropTypes = {
   t: PropTypes.func.isRequired,
 };
 
+const emptyValueText = t('Not specified');
+
 const patientRows = values => ([
   {
     label: t('Email'),
-    value: get(values, 'email'),
+    value: get(values, 'email', emptyValueText),
     step: [0, 2],
   },
   {
     label: t('Mobile Number'),
-    value: get(values, 'phoneNumber.number'),
+    value: get(values, 'phoneNumber.number', emptyValueText),
     step: [1, 0],
   },
   {
     label: t('Type of Account'),
-    value: capitalize(get(values, 'accountType', '')),
+    value: get(values, 'accountType') ? capitalize(values.accountType) : emptyValueText,
     step: [0, 0],
   },
   {
     label: t('Birthdate'),
-    value: get(values, 'birthday'),
+    value: get(values, 'birthday', emptyValueText),
     step: [0, 1],
     initialFocusedInput: 'birthday',
   },
   {
     label: t('Gender'),
-    value: capitalize(get(values, 'sex', '')),
+    value: get(values, 'sex') ? capitalize(values.sex) : emptyValueText,
     step: [1, 2],
   },
   {
     label: t('MRN'),
-    value: get(values, 'mrn'),
+    value: get(values, 'mrn', emptyValueText),
     step: [1, 1],
   },
 ]);
 
 const therapySettingsRows = (pump) => {
   const { values } = useFormikContext();
-  const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits');
   const thresholds = warningThresholds(pump, bgUnits, values);
-  const emptyValueText = t('Not specified');
 
   return [
     {
@@ -92,18 +94,21 @@ const therapySettingsRows = (pump) => {
     {
       id: 'glucose-safety-limit',
       label: t('Glucose Safety Limit'),
-      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
-      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit)
+      value: (() => {
+        if (!get(values, 'initialSettings.glucoseSafetyLimit')) return emptyValueText;
+        return `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`;
+      })(),
+      warning: getThresholdWarning(get(values, 'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit)
     },
     {
       id: 'correction-range',
       label: t('Correction Range'),
       value: map(
-        values.initialSettings.bloodGlucoseTargetSchedule,
+        get(values, 'initialSettings.bloodGlucoseTargetSchedule'),
         ({ high, low, start }) => `${convertMsPer24ToTimeString(start)}: ${low} - ${high} ${bgUnits}`
       ),
       warning: map(
-        values.initialSettings.bloodGlucoseTargetSchedule,
+        get(values, 'initialSettings.bloodGlucoseTargetSchedule'),
         (val) => {
           const warnings = [];
           const lowWarning = getThresholdWarning(val.low, thresholds.bloodGlucoseTarget);
@@ -158,11 +163,11 @@ const therapySettingsRows = (pump) => {
       id: 'carb-ratio-schedule',
       label: t('Insulin to Carbohydrate Ratios'),
       value: map(
-        values.initialSettings.carbohydrateRatioSchedule,
+        get(values, 'initialSettings.carbohydrateRatioSchedule'),
         ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
       ),
       warning: map(
-        values.initialSettings.carbohydrateRatioSchedule,
+        get(values, 'initialSettings.carbohydrateRatioSchedule'),
         (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
       ),
     },
@@ -170,40 +175,51 @@ const therapySettingsRows = (pump) => {
       id: 'basal-schedule',
       label: t('Basal Rates'),
       value: map(
-        values.initialSettings.basalRateSchedule,
+        get(values, 'initialSettings.basalRateSchedule'),
         ({ rate, start }) => `${convertMsPer24ToTimeString(start)}: ${rate} U/hr`
       ),
       warning: map(
-        values.initialSettings.basalRateSchedule,
+        get(values, 'initialSettings.basalRateSchedule'),
         (val) => getThresholdWarning(val.rate, thresholds.basalRate)
       ),
     },
     {
       id: 'delivery-limits',
       label: t('Delivery Limits'),
-      value: [
-        t('Max Basal: {{value}}', { value: `${values.initialSettings.basalRateMaximum.value} U/hr` }),
-        t('Max Bolus: {{value}}', { value: `${values.initialSettings.bolusAmountMaximum.value} U` }),
-      ],
+      value: (() => {
+        const deliveryLimits = [];
+
+        if (get(values, 'initialSettings.basalRateMaximum.value')) {
+          deliveryLimits.push(t('Max Basal: {{value}}', { value: `${values.initialSettings.basalRateMaximum.value} U/hr` }));
+        }
+
+        if (get(values, 'initialSettings.bolusAmountMaximum.value')) {
+          deliveryLimits.push(t('Max Bolus: {{value}}', { value: `${values.initialSettings.bolusAmountMaximum.value} U` }));
+        }
+        return deliveryLimits;
+      })(),
       warning: [
-        getThresholdWarning(values.initialSettings.basalRateMaximum.value, thresholds.basalRateMaximum),
-        getThresholdWarning(values.initialSettings.bolusAmountMaximum.value, thresholds.bolusAmountMaximum),
+        getThresholdWarning(get(values, 'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum),
+        getThresholdWarning(get(values, 'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum),
       ],
     },
     {
       id: 'insulin-model',
       label: t('Insulin Model'),
-      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
+      value: (() => {
+        if (!get(values, 'initialSettings.insulinModel')) return emptyValueText;
+        return get(find(insulinModelOptions, { value: get(values, 'initialSettings.insulinModel') }), 'label', '');
+      })(),
     },
     {
       id: 'isf-schedule',
       label: t('Insulin Sensitivity Factor'),
       value: map(
-        values.initialSettings.insulinSensitivitySchedule,
+        get(values, 'initialSettings.insulinSensitivitySchedule'),
         ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} ${bgUnits}`
       ),
       warning: map(
-        values.initialSettings.insulinSensitivitySchedule,
+        get(values, 'initialSettings.insulinSensitivitySchedule'),
         (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
       ),
     },
@@ -229,7 +245,7 @@ export const PatientInfo = props => {
     lastName,
   } = values;
 
-  const patientName = `${firstName} ${lastName}`;
+  const patientName = [firstName, lastName].join(' ');
   const rows = patientRows(values);
 
   const Row = ({ label, value, step, initialFocusedInput }) => (
@@ -290,10 +306,11 @@ export const TherapySettings = props => {
 
   const patientName = `${firstName} ${lastName}`;
 
-  const rows = therapySettingsRows(pump, values);
+  const rows = therapySettingsRows(pump);
 
   const Row = ({ label, value, warning, id, index }) => {
-    const values = isArray(value) ? value : [value];
+    let rowValues = isArray(value) ? value : [value];
+    if (isEmpty(rowValues)) rowValues = [emptyValueText];
     const warnings = isArray(warning) ? warning: [warning];
     const colors = map(warnings, message => message ? 'feedback.warning' : 'text.primary');
 
@@ -308,7 +325,7 @@ export const TherapySettings = props => {
       >
         <Body1 flex="1">{label}</Body1>
         <Box flex="1">
-          {map(values, (val, i) => (
+          {map(rowValues, (val, i) => (
             <Flex key={i}>
               <Body1 color={colors[i]} key={i} flexGrow={1}>{val}</Body1>
               {warnings[i] && (
