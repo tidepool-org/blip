@@ -14,7 +14,7 @@ import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import FileCopyRoundedIcon from '@material-ui/icons/FileCopyRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
-import { fieldsAreValid, getThresholdWarning } from '../../core/forms';
+import { fieldsAreValid, getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
@@ -75,7 +75,8 @@ const patientRows = values => ([
 ]);
 
 const therapySettingsRows = (pump) => {
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const thresholds = warningThresholds(pump, bgUnits, values);
 
@@ -84,6 +85,14 @@ const therapySettingsRows = (pump) => {
       id: 'cpt-training',
       label: t('CPT Training Required'),
       value: values.training === 'inModule' ? t('Not required') : t('Required'),
+      error: getFieldError('training', formikContext),
+    },
+    {
+      id: 'glucose-safety-limit',
+      label: t('Glucose Safety Limit'),
+      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
+      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit),
+      error: getFieldError('initialSettings.glucoseSafetyLimit', formikContext),
     },
     {
       id: 'correction-range',
@@ -105,17 +114,35 @@ const therapySettingsRows = (pump) => {
           return warnings.length ? warnings : null;
         }
       ),
+      error: map(
+        values.initialSettings.bloodGlucoseTargetSchedule,
+        (val, index) => {
+          const errors = [];
+          const lowError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.low`, formikContext);
+          const highError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.high`, formikContext);
+
+          if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
+          if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+
+          return errors.length ? errors : null;
+        }
+      ),
     },
     {
-      id: 'glucose-safety-limit',
-      label: t('Glucose Safety Limit'),
-      value: `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`,
-      warning: getThresholdWarning(values.initialSettings.glucoseSafetyLimit, thresholds.glucoseSafetyLimit)
-    },
-    {
-      id: 'insulin-model',
-      label: t('Insulin Model'),
-      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
+      id: 'carb-ratio-schedule',
+      label: t('Insulin to Carbohydrate Ratios'),
+      value: map(
+        values.initialSettings.carbohydrateRatioSchedule,
+        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
+      ),
+      warning: map(
+        values.initialSettings.carbohydrateRatioSchedule,
+        (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
+      ),
+      error: map(
+        values.initialSettings.carbohydrateRatioSchedule,
+        (val, index) => getFieldError(`initialSettings.carbohydrateRatioSchedule.${index}.amount`, formikContext)
+      ),
     },
     {
       id: 'basal-schedule',
@@ -127,6 +154,10 @@ const therapySettingsRows = (pump) => {
       warning: map(
         values.initialSettings.basalRateSchedule,
         (val) => getThresholdWarning(val.rate, thresholds.basalRate)
+      ),
+      error: map(
+        values.initialSettings.basalRateSchedule,
+        (val, index) => getFieldError(`initialSettings.basalRateSchedule.${index}.rate`, formikContext)
       ),
     },
     {
@@ -140,6 +171,16 @@ const therapySettingsRows = (pump) => {
         getThresholdWarning(values.initialSettings.basalRateMaximum.value, thresholds.basalRateMaximum),
         getThresholdWarning(values.initialSettings.bolusAmountMaximum.value, thresholds.bolusAmountMaximum),
       ],
+      error: [
+        getFieldError('initialSettings.basalRateMaximum.value', formikContext),
+        getFieldError('initialSettings.bolusAmountMaximum.value', formikContext),
+      ],
+    },
+    {
+      id: 'insulin-model',
+      label: t('Insulin Model'),
+      value: get(find(insulinModelOptions, { value: values.initialSettings.insulinModel }), 'label', ''),
+      error: getFieldError('initialSettings.insulinModel', formikContext),
     },
     {
       id: 'isf-schedule',
@@ -152,17 +193,9 @@ const therapySettingsRows = (pump) => {
         values.initialSettings.insulinSensitivitySchedule,
         (val) => getThresholdWarning(val.amount, thresholds.insulinSensitivityFactor)
       ),
-    },
-    {
-      id: 'carb-ratio-schedule',
-      label: t('Insulin to Carbohydrate Ratios'),
-      value: map(
-        values.initialSettings.carbohydrateRatioSchedule,
-        ({ amount, start }) => `${convertMsPer24ToTimeString(start)}: ${amount} g/U`
-      ),
-      warning: map(
-        values.initialSettings.carbohydrateRatioSchedule,
-        (val) => getThresholdWarning(val.amount, thresholds.carbRatio)
+      error: map(
+        values.initialSettings.insulinSensitivitySchedule,
+        (val, index) => getFieldError(`initialSettings.insulinSensitivitySchedule.${index}.amount`, formikContext)
       ),
     },
   ];
@@ -250,10 +283,12 @@ export const TherapySettings = props => {
 
   const rows = therapySettingsRows(pump, values);
 
-  const Row = ({ label, value, warning, id, index }) => {
+  const Row = ({ label, value, warning, id, index, error }) => {
     const values = isArray(value) ? value : [value];
     const warnings = isArray(warning) ? warning: [warning];
-    const colors = map(warnings, message => message ? 'feedback.warning' : 'text.primary');
+
+    let valueColor = 'text.primary';
+    if (error || warning) valueColor = error ? 'feedback.danger' : 'feedback.warning';
 
     return (
       <Flex
@@ -268,8 +303,19 @@ export const TherapySettings = props => {
         <Box flex="1">
           {map(values, (val, i) => (
             <Flex key={i}>
-              <Body1 color={colors[i]} key={i} flexGrow={1}>{val}</Body1>
-              {warnings[i] && (
+              <Body1 color={valueColor} key={i} flexGrow={1}>{val}</Body1>
+              {error && (
+                <PopoverLabel
+                  id={`${id}-${i}`}
+                  width="auto"
+                  popoverContent={(
+                    <Box p={3}>
+                      <Paragraph1>{error}</Paragraph1>
+                    </Box>
+                  )}
+                />
+              )}
+              {!error && warnings[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
                   width="auto"
