@@ -52,16 +52,45 @@ const defaultConfig = {
   TEST: false,
 };
 
-const buildConfig = JSON.parse(BUILD_CONFIG);
+/** @type {defaultConfig} */
+// @ts-ignore
+const appConfig = {};
 
-_.assign(defaultConfig, buildConfig);
-
-if (!_.isObjectLike(window.config)) {
-  console.warn('Config not found, using default');
-  window.config = defaultConfig;
-} else {
-  _.assign(defaultConfig, window.config);
+/**
+ *
+ * @param {defaultConfig} newConfig
+ * @returns {defaultConfig}
+ */
+function updateConfig(newConfig) {
+  _.assign(appConfig, newConfig);
+  _.set(window, 'config', appConfig);
+  return appConfig;
 }
 
-export { DUMMY_URL };
-export default defaultConfig;
+function initConfig() {
+  _.assign(appConfig, defaultConfig);
+  if (_.has(window, 'config') && _.isObjectLike(_.get(window, 'config', null))) {
+    const runConfig = _.get(window, 'config', null);
+    _.assign(appConfig, runConfig);
+  } else {
+    console.warn('Config not found, using build configuration');
+
+    /** @type {defaultConfig} */
+    // @ts-ignore
+    const buildConfig = JSON.parse(BUILD_CONFIG);
+    _.assign(appConfig, buildConfig);
+  }
+
+  _.defaults(appConfig, defaultConfig);
+
+  if (!_.isString(appConfig.API_HOST)) {
+    appConfig.API_HOST = defaultConfig.API_HOST;
+  }
+
+  _.set(window, 'config', appConfig);
+}
+
+initConfig();
+
+export { DUMMY_URL, updateConfig };
+export default appConfig;

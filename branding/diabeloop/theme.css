@@ -1,0 +1,14 @@
+/* Diabeloop / Yourloops theme */
+
+:root {
+  --mdc-theme-primary: #109182;
+  --mdc-theme-secondary: #575756;
+  --mdc-theme-error: #de514b;
+  --mdc-theme-text-button-on-surface: #006c71;
+  --mdc-theme-text-button-hover-on-surface: #6fc3bb;
+}
+
+body {
+	height: 100vh;
+	margin: 0px;
+}

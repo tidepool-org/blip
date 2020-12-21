@@ -503,4 +503,15 @@ utils.getLatestPumpSettings = (data) => {
   };
 };
 
+/**
+ * setTimeout() as promised
+ * @param {number} timeout in milliseconds
+ * @returns Promise<void>
+ */
+utils.waitTimeout = (timeout) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+};
+
 module.exports = utils;

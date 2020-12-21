@@ -22,6 +22,9 @@
     "node": ">=10.x",
     "npm": ">=6.x"
   },
+  "browser": "app-patient-data/index.js",
+  "main": "app-patient-data/index.js",
+  "types": "app-patient-data/index.d.ts",
   "dependencies": {
     "@material-ui/icons": "^4.9.1",
     "@material-ui/core": "^4.11.0",

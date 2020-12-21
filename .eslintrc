@@ -18,17 +18,7 @@
     "templates/cloudfront-lambda-blip-request-viewer.js"
   ],
   "rules": {
-    "quotes": [
-      1,
-      "single",
-      {
-        "avoidEscape": true
-      }
-    ],
-    "strict": [
-      1,
-      "never"
-    ],
+    "quotes": "off",
     "eol-last": 1,
     "camelcase": ["error", { "allow": ["UNSAFE_componentWillReceiveProps", "UNSAFE_componentWillMount"] }],
     "eqeqeq": 1,

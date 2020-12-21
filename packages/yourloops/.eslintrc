@@ -1,0 +1,69 @@
+{
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "globals": {
+    "globalThis": true,
+    "AppConfig": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "moment-utc",
+    "react"
+  ],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "rules": {
+    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+    "complexity": "error",
+    "comma-dangle": ["warn", "always-multiline"],
+    "consistent-return": "error",
+    "default-param-last": "error",
+    "func-names": ["error", "as-needed"],
+    "guard-for-in": "warn",
+    "keyword-spacing": ["error", {
+      "before": true,
+      "after": true,
+      "overrides": {
+        "function": {
+          "before": true,
+          "after": false
+        }
+      }
+    }],
+    "max-lines": ["error", {"max": 1000, "skipComments": true, "skipBlankLines": true}],
+    "no-implied-eval": "error",
+    "no-eq-null": "error",
+    "no-else-return": "error",
+    "no-fallthrough": ["warn", {"commentPattern": ".*[Ff]allthrough.*"}],
+    "no-loop-func": "error",
+    "no-magic-numbers": ["warn", { "ignore":[0, 1] }],
+    "no-multi-spaces": "error",
+    "no-return-assign": "error",
+    "no-return-await": "error",
+    "no-undefined": "error",
+    "object-curly-spacing": ["error", "always"],
+    "prefer-promise-reject-errors": "error",
+    "radix": "warn",
+    "space-before-blocks": ["error", "always"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "semi": "error"
+  },
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "16.13.1"
+    }
+  }
+}

@@ -8,5 +8,6 @@ source ./artifact-lang.sh
 export NODE_OPTIONS='--max-old-space-size=4096'
 retrieveLanguageParameters
 npm run clean
+npm install
 npm run build
 npm run gen-lambda

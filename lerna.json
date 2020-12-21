@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0",
+  "version": "2.0.0",
   "npmClient": "npm",
   "command": {
   },
@@ -8,6 +8,7 @@
     "packages/platform-client",
     "packages/tideline",
     "packages/viz",
-    "packages/blip"
+    "packages/blip",
+    "packages/yourloops"
   ]
 }
