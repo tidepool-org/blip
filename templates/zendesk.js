@@ -3,7 +3,7 @@ window.zESettings = {
     authenticate: {
       jwtFn: (/** @type{(token: string) => void} */ callback) => {
         /** @type {string} */
-        const url = `${config.API_HOST}/auth/sso/zendesk`;
+        const url = `${config.API_HOST}/auth/ext-token/zendesk`;
         const token = window.sessionStorage.getItem('authToken');
         fetch(url, {
           method: 'POST',
@@ -18,10 +18,8 @@ window.zESettings = {
             return callback(zendeskToken);
           }
           console.warn('Zendesk callback SSO token: Missing token');
-          // else?
         }).catch((reason) => {
           console.warn(`Error while requesting sso token: ${reason}`);
-          callback('invalid.token');
         });
       }
     }
