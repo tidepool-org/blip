@@ -82,6 +82,10 @@ describe('forms', function() {
       expect(formUtils.getFieldError('notTouchedAndError', formikContext)).to.be.null;
     });
 
+    it('should return an error when field has not been touched and is in an error state, and the forceTouched argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.equal('error!');
+    });
+
     it('should return `null` when field has been touched and is not in an error state', () => {
       expect(formUtils.getFieldError('touchedAndNoError', formikContext)).to.be.null;
     });
