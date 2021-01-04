@@ -44,39 +44,49 @@ const fieldsetPropTypes = {
 
 const emptyValueText = t('Not specified');
 
-const patientRows = values => ([
-  {
-    label: t('Email'),
-    value: get(values, 'email', emptyValueText),
-    step: [0, 2],
-  },
-  {
-    label: t('Mobile Number'),
-    value: get(values, 'phoneNumber.number', emptyValueText),
-    step: [1, 0],
-  },
-  {
-    label: t('Type of Account'),
-    value: get(values, 'accountType') ? capitalize(values.accountType) : emptyValueText,
-    step: [0, 0],
-  },
-  {
-    label: t('Birthdate'),
-    value: get(values, 'birthday', emptyValueText),
-    step: [0, 1],
-    initialFocusedInput: 'birthday',
-  },
-  {
-    label: t('Gender'),
-    value: get(values, 'sex') ? capitalize(values.sex) : emptyValueText,
-    step: [1, 2],
-  },
-  {
-    label: t('MRN'),
-    value: get(values, 'mrn', emptyValueText),
-    step: [1, 1],
-  },
-]);
+const patientRows = values => {
+  const formikContext = useFormikContext();
+
+  return [
+    {
+      label: t('Email'),
+      value: get(values, 'email', emptyValueText),
+      error: getFieldError('email', formikContext, true),
+      step: [0, 2],
+    },
+    {
+      label: t('Mobile Number'),
+      value: get(values, 'phoneNumber.number', emptyValueText),
+      error: getFieldError('phoneNumber.number', formikContext, true),
+      step: [1, 0],
+    },
+    {
+      label: t('Type of Account'),
+      value: get(values, 'accountType') ? capitalize(values.accountType) : emptyValueText,
+      error: getFieldError('accountType', formikContext, true),
+      step: [0, 0],
+    },
+    {
+      label: t('Birthdate'),
+      value: get(values, 'birthday', emptyValueText),
+      error: getFieldError('birthday', formikContext, true),
+      step: [0, 1],
+      initialFocusedInput: 'birthday',
+    },
+    {
+      label: t('Gender'),
+      value: get(values, 'sex') ? capitalize(values.sex) : emptyValueText,
+      error: getFieldError('sex', formikContext, true),
+      step: [1, 2],
+    },
+    {
+      label: t('MRN'),
+      value: get(values, 'mrn', emptyValueText),
+      error: getFieldError('mrn', formikContext, true),
+      step: [1, 1],
+    },
+  ];
+};
 
 const therapySettingsRows = (pump) => {
   const formikContext = useFormikContext();
@@ -92,7 +102,7 @@ const therapySettingsRows = (pump) => {
         if (!values.training) return emptyValueText;
         return values.training === 'inModule' ? t('Not required') : t('Required');
       })(),
-      error: getFieldError('training', formikContext),
+      error: getFieldError('training', formikContext, true),
     },
     {
       id: 'glucose-safety-limit',
@@ -102,7 +112,7 @@ const therapySettingsRows = (pump) => {
         return `${values.initialSettings.glucoseSafetyLimit} ${bgUnits}`;
       })(),
       warning: getThresholdWarning(get(values, 'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit),
-      error: getFieldError('initialSettings.glucoseSafetyLimit', formikContext),
+      error: getFieldError('initialSettings.glucoseSafetyLimit', formikContext, true),
     },
     {
       id: 'correction-range',
@@ -128,11 +138,11 @@ const therapySettingsRows = (pump) => {
         get(values, 'initialSettings.bloodGlucoseTargetSchedule'),
         (val, index) => {
           const errors = [];
-          const lowError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.low`, formikContext);
-          const highError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.high`, formikContext);
+          const lowError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.low`, formikContext, true);
+          const highError = getFieldError(`initialSettings.bloodGlucoseTargetSchedule.${index}.high`, formikContext, true);
 
-          if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
-          if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+          if (lowError) errors.push(lowError);
+          if (highError) errors.push(highError);
 
           return errors.length ? errors : null;
         }
@@ -158,11 +168,11 @@ const therapySettingsRows = (pump) => {
       })(),
       error: (() => {
         const errors = [];
-        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', formikContext);
-        const highError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', formikContext);
+        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', formikContext, true);
+        const highError = getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', formikContext, true);
 
-        if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
-        if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+        if (lowError) errors.push(lowError);
+        if (highError) errors.push(highError);
 
         return errors.length ? errors : null;
       })(),
@@ -187,11 +197,11 @@ const therapySettingsRows = (pump) => {
       })(),
       error: (() => {
         const errors = [];
-        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', formikContext);
-        const highError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', formikContext);
+        const lowError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', formikContext, true);
+        const highError = getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', formikContext, true);
 
-        if (lowError) errors.push(t('Lower Target: {{lowError}}', { lowError }));
-        if (highError) errors.push(t('Upper Target: {{highError}}', { highError }));
+        if (lowError) errors.push(lowError);
+        if (highError) errors.push(highError);
 
         return errors.length ? errors : null;
       })(),
@@ -209,7 +219,7 @@ const therapySettingsRows = (pump) => {
       ),
       error: map(
         get(values, 'initialSettings.carbohydrateRatioSchedule'),
-        (val, index) => getFieldError(`initialSettings.carbohydrateRatioSchedule.${index}.amount`, formikContext)
+        (val, index) => getFieldError(`initialSettings.carbohydrateRatioSchedule.${index}.amount`, formikContext, true)
       ),
     },
     {
@@ -225,7 +235,7 @@ const therapySettingsRows = (pump) => {
       ),
       error: map(
         get(values, 'initialSettings.basalRateSchedule'),
-        (val, index) => getFieldError(`initialSettings.basalRateSchedule.${index}.rate`, formikContext)
+        (val, index) => getFieldError(`initialSettings.basalRateSchedule.${index}.rate`, formikContext, true)
       ),
     },
     {
@@ -248,8 +258,8 @@ const therapySettingsRows = (pump) => {
         getThresholdWarning(get(values, 'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum),
       ],
       error: [
-        getFieldError('initialSettings.basalRateMaximum.value', formikContext),
-        getFieldError('initialSettings.bolusAmountMaximum.value', formikContext),
+        getFieldError('initialSettings.basalRateMaximum.value', formikContext, true),
+        getFieldError('initialSettings.bolusAmountMaximum.value', formikContext, true),
       ],
     },
     {
@@ -259,7 +269,7 @@ const therapySettingsRows = (pump) => {
         if (!get(values, 'initialSettings.insulinModel')) return emptyValueText;
         return get(find(insulinModelOptions, { value: get(values, 'initialSettings.insulinModel') }), 'label', '');
       })(),
-      error: getFieldError('initialSettings.insulinModel', formikContext),
+      error: getFieldError('initialSettings.insulinModel', formikContext, true),
     },
     {
       id: 'isf-schedule',
@@ -274,7 +284,7 @@ const therapySettingsRows = (pump) => {
       ),
       error: map(
         get(values, 'initialSettings.insulinSensitivitySchedule'),
-        (val, index) => getFieldError(`initialSettings.insulinSensitivitySchedule.${index}.amount`, formikContext)
+        (val, index) => getFieldError(`initialSettings.insulinSensitivitySchedule.${index}.amount`, formikContext, true)
       ),
     },
   ];
@@ -302,12 +312,12 @@ export const PatientInfo = props => {
   const patientName = [firstName, lastName].join(' ');
   const rows = patientRows(values);
 
-  const Row = ({ label, value, step, initialFocusedInput }) => (
+  const Row = ({ label, value, step, initialFocusedInput, error }) => (
     <Flex mb={4} justifyContent="space-between" alignItems="center">
       <Body1>{label}</Body1>
       <Box>
         <Flex alignItems="center">
-          <Body1 mr={3}>{value}</Body1>
+          <Body1 mr={3} color={error ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
           <Icon
             variant="button"
             icon={EditRoundedIcon}
@@ -323,7 +333,7 @@ export const PatientInfo = props => {
   return (
     <Box {...themeProps}>
       <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Headline mr={2}>{patientName}</Headline>
+        <Headline color={(firstName && lastName) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
         <Icon
             variant="button"
             icon={EditRoundedIcon}
@@ -358,7 +368,7 @@ export const TherapySettings = props => {
     lastName,
   } = values;
 
-  const patientName = `${firstName} ${lastName}`;
+  const patientName = [firstName, lastName].join(' ');
 
   const rows = therapySettingsRows(pump);
 
@@ -371,8 +381,6 @@ export const TherapySettings = props => {
 
     let valueColor = 'text.primary';
     if (errors.length || warnings.length) valueColor = errors.length ? 'feedback.danger' : 'feedback.warning';
-
-    console.log(label, errors);
 
     return (
       <Flex
@@ -394,7 +402,7 @@ export const TherapySettings = props => {
                   width="auto"
                   popoverContent={(
                     <Box p={3}>
-                      <Paragraph1>{errors[i]}</Paragraph1>
+                      {map(isArray(errors[i]) ? errors[i] : errors, (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
                     </Box>
                   )}
                 />
@@ -405,10 +413,7 @@ export const TherapySettings = props => {
                   width="auto"
                   popoverContent={(
                     <Box p={3}>
-                      {isArray(warnings[i])
-                        ? map(warnings[i], (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)
-                        : <Paragraph1>{warnings[i]}</Paragraph1>
-                      }
+                      {map(isArray(warnings[i]) ? warnings[i] : warnings, (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
                     </Box>
                   )}
                 />
@@ -500,37 +505,47 @@ export const TherapySettings = props => {
 
 TherapySettings.propTypes = fieldsetPropTypes;
 
-export const PrescriptionReview = translate()(props => (
-  <Flex
-    flexWrap="wrap"
-    margin="auto"
-    maxWidth="1280px"
-  >
-    <PatientInfo
-      {...fieldsetStyles}
-      flex="0 0 auto"
-      alignSelf="flex-start"
-      mb={4}
-      px={4}
-      py={3}
-      width={[1, 1, 0.45, 0.35]}
-      sx={{
-        border: 'default',
-      }}
-      {...props}
-    />
-    <TherapySettings
-      {...fieldsetStyles}
-      flex="0 0 auto"
-      mb={4}
-      pr={[4, 4, 0, 0]}
-      pl={[4, 4, 5, 7]}
-      py={3}
-      width={[1, 1, 0.55, 0.65]}
-      {...props}
-    />
-  </Flex>
-));
+export const PrescriptionReview = translate()(props => {
+  const { validateForm, values } = useFormikContext();
+
+  // We consider the form fields to be ready for submission, so we validate the entire form when
+  // values load to ensure that any error states can be shown to the user.
+  React.useEffect(() => {
+    validateForm();
+  }, [values]);
+
+  return (
+    <Flex
+      flexWrap="wrap"
+      margin="auto"
+      maxWidth="1280px"
+    >
+      <PatientInfo
+        {...fieldsetStyles}
+        flex="0 0 auto"
+        alignSelf="flex-start"
+        mb={4}
+        px={4}
+        py={3}
+        width={[1, 1, 0.45, 0.35]}
+        sx={{
+          border: 'default',
+        }}
+        {...props}
+      />
+      <TherapySettings
+        {...fieldsetStyles}
+        flex="0 0 auto"
+        mb={4}
+        pr={[4, 4, 0, 0]}
+        pl={[4, 4, 5, 7]}
+        py={3}
+        width={[1, 1, 0.55, 0.65]}
+        {...props}
+      />
+    </Flex>
+  );
+});
 
 const reviewFormStep = (schema, pump, handlers, values) => ({
   label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
