@@ -11,7 +11,7 @@ function retrieveLanguageParameters() {
   REPO=translations
   # GIT_BRANCH can be a branch or a tag
   # GIT_BRANCH=master
-  GIT_BRANCH=dblp.0.3.0
+  GIT_BRANCH=dblp.0.4.0
 
   if [ -n "${GIT_TOKEN:-}" ]; then
     echo "Having GIT_TOKEN, fetching parameters translation"
