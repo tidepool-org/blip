@@ -46,11 +46,9 @@ class SMBGTooltip extends React.Component {
       </div>,
     ];
 
-    const source = !_.isEmpty(smbg.subType) ? `${ i18next.t(_.upperFirst(smbg.subType))}` : i18next.t('Meter');
     rows.push(
       <div key={'source'} className={styles.source}>
-        <div className={styles.label}>{i18next.t('Source')}</div>
-        <div className={styles.value}>{source}</div>
+        <div className={styles.label}>{i18next.t('Calibration')}</div>
       </div>
     );
 

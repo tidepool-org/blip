@@ -190,8 +190,7 @@ const props = {
   bgPrefs,
 };
 
-const bgValueSelector = `${formatClassesAsSelector(styles.confirmBg)} ${formatClassesAsSelector(styles.value)}`;
-const sourceValueSelector = `${formatClassesAsSelector(styles.source)} ${formatClassesAsSelector(styles.value)}`;
+const sourceLabelSelector = `${formatClassesAsSelector(styles.source)} ${formatClassesAsSelector(styles.label)}`;
 const glucoseValueSelector = `${formatClassesAsSelector(styles.bg)} ${formatClassesAsSelector(styles.value)}`;
 
 describe('SMBGTooltip', () => {
@@ -230,16 +229,10 @@ describe('SMBGTooltip', () => {
     expect(wrapper.find('Tooltip').instance().props.borderColor).to.equal(colors.veryLow);
   });
 
-  it('should render "manual" for a manual smbg', () => {
+  it('should render "Calibration" for a manual smbg', () => {
     const wrapper = mount(<SMBGTooltip {...props} smbg={manual} />);
     expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Manual');
-  });
-
-  it('should render "linked" for a linked smbg', () => {
-    const wrapper = mount(<SMBGTooltip {...props} smbg={linked} />);
-    expect(wrapper.find(formatClassesAsSelector(styles.source))).to.have.length(1);
-    expect(wrapper.find(sourceValueSelector).text()).to.equal('Linked');
+    expect(wrapper.find(sourceLabelSelector).text()).to.equal('Calibration');
   });
 
   it('should render "High" and an annotation for a "very-high" smbg', () => {
