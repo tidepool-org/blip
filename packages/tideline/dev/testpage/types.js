@@ -213,6 +213,9 @@ var Settings = function(opts) {
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();
+  if (opts.payload) {
+    this.payload = opts.payload;
+  }
 };
 
 Settings.prototype = common;
