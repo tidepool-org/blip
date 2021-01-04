@@ -163,7 +163,6 @@ export const PrescriptionForm = props => {
   } = props;
 
   const {
-    getFieldMeta,
     handleSubmit,
     resetForm,
     setFieldValue,
