@@ -7,7 +7,6 @@
 import _ from 'lodash';
 import utils from '../../../app/core/utils';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
-import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
 describe('utils', () => {
@@ -528,15 +527,6 @@ describe('utils', () => {
     it('should strip a trailing forward slash from a string', function() {
       const url = '/my-path/sub-path/';
       expect(utils.stripTrailingSlash(url)).to.equal('/my-path/sub-path');
-    });
-  });
-
-  describe('getLatestGithubRelease', function() {
-    it('should return the latest github release from a list of releases', function() {
-      expect(utils.getLatestGithubRelease(releases)).to.deep.equal({
-        latestWinRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-setup-2.0.2.exe',
-        latestMacRelease: 'https://github.com/tidepool-org/chrome-uploader/releases/download/v2.0.2/tidepool-uploader-2.0.2.dmg',
-      });
     });
   });
 

@@ -59,14 +59,6 @@ describe('UploadLaunchOverlay', function () {
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
-    it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
-      });
-      expect(wrapper.find('a.disabled')).to.have.length(2);
-    });
-
     it('should have active buttons if URLs have been set', () => {
       wrapper.instance().getWrappedInstance().setState({
         latestMacRelease: 'test',

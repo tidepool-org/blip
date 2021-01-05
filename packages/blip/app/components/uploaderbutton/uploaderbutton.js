@@ -15,19 +15,14 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
-import GitHub from 'github-api';
-import _ from 'lodash';
 import cx from 'classnames';
-import utils from '../../core/utils';
 import { translate } from 'react-i18next';
 
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 
 import logoSrc from './images/T-logo-dark-512x512.png';
 
-const github = new GitHub();
 
 export default translate()(class UploaderButton extends Component {
   constructor(props) {
@@ -45,14 +40,11 @@ export default translate()(class UploaderButton extends Component {
   };
 
   UNSAFE_componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/chrome-uploader');
-    uploaderRepo.listReleases((err, releases, request) => {
-      if(err){
-        this.setState({error: true});
-      }
-      this.setState(utils.getLatestGithubRelease(releases));
+    this.setState({
+      latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-Setup-2.34.0.exe',
+      latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-2.34.0.dmg',
     });
-  }
+  };
 
   renderErrorText = () => {
     const { t } = this.props;
@@ -62,13 +54,13 @@ export default translate()(class UploaderButton extends Component {
         href={URL_UPLOADER_DOWNLOAD_PAGE}
         target="_blank"
         onClick={this.props.onClick}>
-          <div className="uploader-logo">
-            <img src={logoSrc} alt={t('Tidepool Uploader')} />
-          </div>
-          {this.props.buttonText}
-        </a>
-    )
-  }
+        <div className="uploader-logo">
+          <img src={logoSrc} alt={t('Tidepool Uploader')} />
+        </div>
+        {this.props.buttonText}
+      </a>
+    );
+  };
 
   render = () => {
     const { t } = this.props;
@@ -84,7 +76,7 @@ export default translate()(class UploaderButton extends Component {
     });
 
     let content;
-    if(this.state.error) {
+    if (this.state.error) {
       content = this.renderErrorText();
     } else {
       content = [
@@ -104,7 +96,7 @@ export default translate()(class UploaderButton extends Component {
           onClick={this.props.onClick}>
           {t('Download for Mac')}
         </a>
-      ]
+      ];
     }
 
     return (
@@ -112,5 +104,5 @@ export default translate()(class UploaderButton extends Component {
         {content}
       </div>
     );
-  }
+  };
 });

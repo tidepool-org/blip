@@ -5,7 +5,7 @@
 /* global beforeEach */
 
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
 import UploaderButton from '../../../app/components/uploaderbutton';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
@@ -38,14 +38,6 @@ describe('UploaderButton', function () {
 
     it('should have a pair of download links', function () {
       expect(wrapper.find('a.btn-uploader')).to.have.length(2);
-    });
-
-    it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
-      });
-      expect(wrapper.find('a.disabled')).to.have.length(2);
     });
 
     it('should have active buttons if URLs have been set', () => {

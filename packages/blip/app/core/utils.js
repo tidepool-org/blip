@@ -462,19 +462,6 @@ utils.processPatientData = (data, queryParams, settings) => {
   };
 })(console);
 
-utils.getLatestGithubRelease = (releases) => {
-  const latestRelease = _.filter(releases, { prerelease: false })[0];
-  let latestTag = latestRelease.tag_name;
-  const urlBase = `https://github.com/tidepool-org/chrome-uploader/releases/download/${latestTag}`;
-  latestTag = latestTag.substr(1);
-  const latestWinRelease = `${urlBase}/tidepool-uploader-setup-${latestTag}.exe`;
-  const latestMacRelease = `${urlBase}/tidepool-uploader-${latestTag}.dmg`;
-  return {
-    latestWinRelease: latestWinRelease,
-    latestMacRelease: latestMacRelease,
-  };
-};
-
 /**
  * Get the earliest and latest dates, span in days, and count of
  * diabetes data in a raw data set

@@ -21,7 +21,7 @@
   "dependencies": {
     "bows": "1.7.2",
     "classnames": "2.2.6",
-    "create-react-class": "^15.6.3",
+    "create-react-class": "^15.7.0",
     "crossfilter2": "1.4.8",
     "d3": "3.5.17",
     "d3.chart": "0.3.0",
