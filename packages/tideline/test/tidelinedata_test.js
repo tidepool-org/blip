@@ -536,8 +536,8 @@ describe('TidelineData', function() {
     editedMessage.time = d.toISOString();
     editedMessage.messageText = 'This is an edited note.';
 
-    // Sometimes Travis VM can take longer than 2s to perform this test.
-    this.timeout(4000);
+    // Sometimes we have a timeout on theses tests, so use a long one.
+    this.timeout(10000);
 
     it('should be a function', function() {
       assert.isFunction(td.editDatum);
@@ -1116,7 +1116,7 @@ describe('TidelineData', function() {
     // add the unknown parameter at the end of the array
     orderedUnknownParameters.parameters.push({ name: 'UNKNOWN'});
 
-    const unknownData = [      
+    const unknownData = [
       new types.Settings({
         source: 'Diabeloop',
         payload: { ...unorderedUnknownParameters },
@@ -1134,7 +1134,7 @@ describe('TidelineData', function() {
 
     it('should work if no parameters', function() {
       expect(noParamsTd.grouped.pumpSettings.length).to.equal(1);
-    });    
+    });
 
     it('should work and sort parameters', function() {
       expect(thisTd.grouped.pumpSettings.length).to.equal(2);
