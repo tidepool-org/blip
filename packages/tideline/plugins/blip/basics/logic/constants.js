@@ -9,12 +9,12 @@ const INFUSION_SITE_CHANGE = {
   picto: require('infusion.png'),
 };
 const CARTRIDGE_CHANGE = {
-  label: 'Reservoir Change',
+  label: 'Reservoir changes',
   class: 'Change--reservoir',
   picto: require('cartridge.png'),
 };
 const CARTRIDGE_VICENTRA_CHANGE = {
-  label: 'Reservoir Change',
+  label: 'Reservoir changes',
   class: 'Change--reservoir--vicentra',
   picto: require('cartridge-vicentra.png'),
 };

@@ -135,7 +135,7 @@ var basicsState = function (source, manufacturer) {
         togglable: togglableState.off,
         selector: SiteChangeSelector,
         selectorOptions: {
-          primary: { key: SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
+          primary: { key: SITE_CHANGE_RESERVOIR, label: t('Reservoir changes') },
           rows: [
             [
               { key: SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
