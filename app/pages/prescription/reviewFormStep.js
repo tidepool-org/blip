@@ -505,47 +505,37 @@ export const TherapySettings = props => {
 
 TherapySettings.propTypes = fieldsetPropTypes;
 
-export const PrescriptionReview = translate()(props => {
-  const { validateForm, values } = useFormikContext();
-
-  // We consider the form fields to be ready for submission, so we validate the entire form when
-  // values load to ensure that any error states can be shown to the user.
-  React.useEffect(() => {
-    validateForm();
-  }, [values]);
-
-  return (
-    <Flex
-      flexWrap="wrap"
-      margin="auto"
-      maxWidth="1280px"
-    >
-      <PatientInfo
-        {...fieldsetStyles}
-        flex="0 0 auto"
-        alignSelf="flex-start"
-        mb={4}
-        px={4}
-        py={3}
-        width={[1, 1, 0.45, 0.35]}
-        sx={{
-          border: 'default',
-        }}
-        {...props}
-      />
-      <TherapySettings
-        {...fieldsetStyles}
-        flex="0 0 auto"
-        mb={4}
-        pr={[4, 4, 0, 0]}
-        pl={[4, 4, 5, 7]}
-        py={3}
-        width={[1, 1, 0.55, 0.65]}
-        {...props}
-      />
-    </Flex>
-  );
-});
+export const PrescriptionReview = translate()(props => (
+  <Flex
+    flexWrap="wrap"
+    margin="auto"
+    maxWidth="1280px"
+  >
+    <PatientInfo
+      {...fieldsetStyles}
+      flex="0 0 auto"
+      alignSelf="flex-start"
+      mb={4}
+      px={4}
+      py={3}
+      width={[1, 1, 0.45, 0.35]}
+      sx={{
+        border: 'default',
+      }}
+      {...props}
+    />
+    <TherapySettings
+      {...fieldsetStyles}
+      flex="0 0 auto"
+      mb={4}
+      pr={[4, 4, 0, 0]}
+      pl={[4, 4, 5, 7]}
+      py={3}
+      width={[1, 1, 0.55, 0.65]}
+      {...props}
+    />
+  </Flex>
+));
 
 const reviewFormStep = (schema, pump, handlers, values) => ({
   label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
