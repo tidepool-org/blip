@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 1.7.0-rc4 2021-01-04
 ### Added
 - YLP-215 Display Confidential mode on Daily view
 - YLP-236 Display Zen mode activation on Daily view
@@ -30,6 +30,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-324 Pump and CGM information in DBL settings
 - YLP-337 Update settings labels
 - YLP-342 Add missing translation keys for CBG/SMBG tooltips
+- YLP-415 Change "infusion site changes" calendar for "cartridge changes"
 ### Engineering Use
 - YLP-147 Merge blip dependencies
 - YLP-211 Rework Cloudfront deployment services to use an alternate domain name

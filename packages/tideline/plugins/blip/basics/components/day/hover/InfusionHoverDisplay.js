@@ -30,7 +30,7 @@ class InfusionHoverDisplay extends React.Component {
   render() {
     var times = this.props.data.dataByDate[this.props.date].data;
     var timesList = times.slice(0,3).map(function(time) {
-      return (<li key={time.guid}>{format.timestamp(time.normalTime, time.displayOffset)}</li>);
+      return (<li key={time.id}>{format.timestamp(time.normalTime, time.displayOffset)}</li>);
     });
 
     this.props.trackMetric('Hovered over Infusion Site');

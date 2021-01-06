@@ -39,13 +39,14 @@ var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
-var constants = require('./constants');
+const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER, SITE_CHANGE_RESERVOIR, SITE_CHANGE_CANNULA, SITE_CHANGE_TUBING } = require('./constants');
 var { AUTOMATED_BASAL_LABELS } = require('../../../../js/data/util/constants');
 var togglableState = require('../TogglableState');
 
-var basicsState = function (manufacturer) {
-  var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, manufacturer, AUTOMATED_BASAL_LABELS.default));
-
+var basicsState = function (source, manufacturer) {
+  var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default));
+  const siteChangesTitle = _.get(_.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]), 'label');
+  
   return {
     sections: {
       basals: {
@@ -61,7 +62,7 @@ var basicsState = function (manufacturer) {
         selectorOptions: {
           primary: { key: 'total', label: t('Basal Events') },
           rows:
-            (manufacturer === 'Diabeloop' ?
+            (source === 'Diabeloop' ?
               [
                 [
                   // { key: 'temp', label: t('Temp Basals') },
@@ -95,7 +96,7 @@ var basicsState = function (manufacturer) {
         selectorOptions: {
           primary: { key: 'total', label: t('Avg per day'), average: true },
           rows:
-            (manufacturer === 'Diabeloop' ?
+            (source === 'Diabeloop' ?
               [
                 [
                   { key: 'wizard', label: t('Calculator'), percentage: true },
@@ -130,21 +131,21 @@ var basicsState = function (manufacturer) {
         hoverDisplay: InfusionHoverDisplay,
         id: 'siteChanges',
         index: 3,
-        noDataMessage: (manufacturer === 'Diabeloop') ? '' : t('Infusion site changes are not yet available for all pumps. Coming soon!'),
+        noDataMessage: (source === 'Diabeloop') ? '' : t('Infusion site changes are not yet available for all pumps. Coming soon!'),
         togglable: togglableState.off,
         selector: SiteChangeSelector,
         selectorOptions: {
-          primary: { key: constants.SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
+          primary: { key: SITE_CHANGE_RESERVOIR, label: t('Reservoir Changes') },
           rows: [
             [
-              { key: constants.SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
-              { key: constants.SITE_CHANGE_TUBING, label: t('Tube Primes') },
+              { key: SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
+              { key: SITE_CHANGE_TUBING, label: t('Tube Primes') },
             ]
           ]
         },
         settingsTogglable: togglableState.closed,
-        title: t('Infusion site changes'),
-        type: constants.SITE_CHANGE_RESERVOIR
+        title: t(siteChangesTitle),
+        type: SITE_CHANGE_RESERVOIR
       },
     },
   };

@@ -20,61 +20,47 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } = require('../../plugins/blip/basics/logic/constants');
+
 module.exports = function(pool, opts) {
-  var defaults = {
-    r: 14,
-    carbPadding: 4
-  };
+  const height = pool.height() / 5 ;
+  const width = 40;
 
-  _.defaults(opts, defaults);
-
-  var picto = require('../../img/sitechange-diabeloop.png');
-  var height = pool.height();
-  var offset = height / 5 ;
-  var width = 40;
-  var xPos = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - (width / 2) ;
-  };
+  const xPos = (d) => opts.xScale(Date.parse(d.normalTime));
+  const getPicto = (d) => {
+    const change = _.get(SITE_CHANGE_BY_MANUFACTURER, _.get(d, 'pump.manufacturer', DEFAULT_MANUFACTURER), SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
+    return change.picto;
+  }
 
   function reservoir(selection) {
-    var yPos = opts.r + opts.carbPadding;
     opts.xScale = pool.xScale().copy();
+
     selection.each(function(currentData) {
-      // console.log("reservoir");
       var filteredData = _.filter(currentData, {
           subType: 'reservoirChange'
         });
-      // console.log(filteredData);
+
       var allReservoirs = d3
         .select(this)
         .selectAll('circle.d3-reservoir-only')
-        .data(filteredData, function(d) {
-          return d.id;
-        });
+        .data(filteredData, (d) => d.id);
+
       var reservoirGroup = allReservoirs.enter()
         .append('g')
         .attr({
           'class': 'd3-reservoir-group',
-          id: function(d) {
-            return 'reservoir_group_' + d.id;
-          }
+          id: (d) => 'reservoir_group_' + d.id,
         });
-        
-      reservoirGroup.append('image')
+      reservoirGroup
+        .append('image')
         .attr({
-          x: function(d) {
-            return xPos(d);
-          },
-          y: function(d) {
-            return 0;
-          },
-          width: width, 
-          height: function() {
-            return offset;
-          },
-          'xlink:href': picto,
+          x: (d) => xPos(d) - (width / 2) ,
+          y: 0,
+          width, 
+          height,
+          'xlink:href': (d) => getPicto(d),
         });
-
+  
       allReservoirs.exit().remove();
 
       // tooltips

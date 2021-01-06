@@ -75,7 +75,8 @@ function TidelineData(data, opts) {
       timezoneAware: false,
       timezoneName: 'UTC',
       timezoneOffset: 0,
-    }
+    },
+    latestPumpManufacturer: 'default',
   };
 
   _.defaultsDeep(opts, defaults);
@@ -307,6 +308,22 @@ function TidelineData(data, opts) {
     return res;
   };
 
+  this.addManufacturer = function(grouped = {}) {
+    // get latest pump manufacturer
+    const lastPump = _.maxBy(grouped.pumpSettings, 'normalTime');
+    const defaultPumpManufacturer = {
+      payload: { pump: { manufacturer: 'default' } }
+    };
+    const pump = _.get(_.merge({}, defaultPumpManufacturer, lastPump), 'payload.pump');
+    // make sure to use the correct format
+    _.update(pump, 'manufacturer', (o) => _.capitalize(o));
+    // inject the manufacturer in the deviceEvents
+    _.forEach(grouped.deviceEvent, (val, key) => {
+      _.assign(grouped.deviceEvent[key], { pump });
+    });
+    return pump.manufacturer;
+  };
+
   this.checkTimezone = function() {
     if (!Array.isArray(this.grouped.upload)) {
       return;
@@ -520,6 +537,8 @@ function TidelineData(data, opts) {
     startTimer('setUtilities');
     this.setUtilities();
     endTimer('setUtilities');
+
+    this.latestPumpManufacturer = this.addManufacturer(this.grouped);
 
     // Update the crossfilters
     this.updateCrossFilters();
@@ -862,6 +881,8 @@ function TidelineData(data, opts) {
   if (this.activeScheduleIsAutomated()) {
     this.setLastManualBasalSchedule();
   }
+
+  this.latestPumpManufacturer = this.addManufacturer(this.grouped);
 
   startTimer('setUtilities');
   this.setUtilities();

@@ -30,6 +30,8 @@ var types = require('../dev/testpage/types');
 
 var { MGDL_UNITS } = require('../js/data/util/constants');
 
+const { CARTRIDGE_CHANGE, INFUSION_SITE_CHANGE } = require('../plugins/blip/basics/logic/constants');
+
 describe('BasicsChart', function() {
   before(() => {
     sinon.stub(console, 'error');
@@ -282,6 +284,86 @@ describe('BasicsChart', function() {
       // siteChanges remain enabled when data present
       expect(render.state.sections.siteChanges.active).to.be.true;
       expect(basicsState().sections.siteChanges.active).to.be.true;
+    });
+
+    it('should use Cartridge title for some manufacturers', function() {
+      const pumpManufacturer = { pump: { manufacturer: 'Roche'} };
+  
+      const td = new TidelineData([
+        new types.CBG(),
+        new types.Bolus(),
+        new types.Basal(),
+        new types.DeviceEvent({ subType: 'reservoirChange' }),
+        new types.Settings({source: 'Diabeloop', payload: { ...pumpManufacturer }}),
+      ]);
+
+      const props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patient: {
+          profile: {},
+        },
+        permsOfLoggedInUser: { root: true },
+        patientData: _.assign({}, td, {
+          grouped: {
+            upload: [new types.Upload({ deviceTags: ['insulin-pump'], source: 'Diabeloop' })],
+          },
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
+      };
+
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      // siteChanges remain enabled when data present
+      expect(render.state.sections.siteChanges.active).to.be.true;
+      const basics = basicsState(td, td.latestPumpManufacturer);
+      expect(basics.sections.siteChanges.active).to.be.true;
+      expect(basics.sections.siteChanges.title).to.eql(CARTRIDGE_CHANGE.label);
+    });
+
+    it('should use Infusion Sites title for any other manufacturers', function() {
+      const pumpManufacturer = { pump: { manufacturer: 'any'} };
+  
+      const td = new TidelineData([
+        new types.CBG(),
+        new types.Bolus(),
+        new types.Basal(),
+        new types.DeviceEvent({ subType: 'reservoirChange' }),
+        new types.Settings({source: 'Diabeloop', payload: { ...pumpManufacturer }}),
+      ]);
+
+      const props = {
+        bgUnits: 'mg/dL',
+        bgClasses: td.bgClasses,
+        onSelectDay: sinon.stub(),
+        patient: {
+          profile: {},
+        },
+        permsOfLoggedInUser: { root: true },
+        patientData: _.assign({}, td, {
+          grouped: {
+            upload: [new types.Upload({ deviceTags: ['insulin-pump'], source: 'Diabeloop' })],
+          },
+        }),
+        timePrefs: {},
+        updateBasicsData: sinon.stub(),
+        trackMetric: sinon.stub(),
+        size: { width: 1000 }
+      };
+
+      var elem = React.createElement(BasicsChart, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      // siteChanges remain enabled when data present
+      expect(render.state.sections.siteChanges.active).to.be.true;
+      const basics = basicsState(td, td.latestPumpManufacturer);
+      expect(basics.sections.siteChanges.active).to.be.true;
+      expect(basics.sections.siteChanges.title).to.eql(INFUSION_SITE_CHANGE.label);
     });
   });
 

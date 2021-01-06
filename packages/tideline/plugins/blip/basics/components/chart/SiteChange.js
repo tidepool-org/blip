@@ -19,7 +19,7 @@ var _ = require('lodash');
 var PropTypes = require('prop-types');
 var React = require('react');
 
-var constants = require('../../logic/constants');
+const { SITE_CHANGE_RESERVOIR, DEFAULT_MANUFACTURER, SITE_CHANGE} = require('../../logic/constants');
 var Change = require('../sitechange/Change');
 var NoChange = require('../sitechange/NoChange');
 
@@ -31,12 +31,14 @@ class SiteChange extends React.Component {
   };
 
   render() {
-    var type = this.props.subtotalType || constants.SITE_CHANGE_RESERVOIR;
+    var type = this.props.subtotalType || SITE_CHANGE_RESERVOIR;
     var value = this.getValue();
+    const manufacturer = _.get(_.last(value.data), 'pump.manufacturer', DEFAULT_MANUFACTURER);
     value.count = value.count || 1; //default value
+    // Reservoir Change
     var siteChangeComponent = 
-      ( value.type === constants.SITE_CHANGE) ?
-        <Change daysSince={value.daysSince} count={value.count} type={type} /> :
+      ( value.type === SITE_CHANGE) ?
+        <Change daysSince={value.daysSince} count={value.count} type={type} manufacturer={manufacturer} /> :
         <NoChange />;
     return (
       <div className='SiteChange'>

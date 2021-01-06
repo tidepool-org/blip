@@ -23,12 +23,15 @@ import _ from 'lodash';
 import Tooltip from '../../common/tooltips/Tooltip';
 import colors from '../../../styles/colors.css';
 import styles from './ReservoirTooltip.css';
+import { SITE_CHANGE_BY_MANUFACTURER, RESERVOIR_CHANGE, DEFAULT_MANUFACTURER } from '../../../utils/constants';
 
 class ReservoirTooltip extends React.Component {
-  renderReservoir() {
+  renderReservoir(typeOfChange) {
+    const label = (typeOfChange === RESERVOIR_CHANGE) ? 'Reservoir Change' : 'Infusion site change';
+
     const rows = [
       <div key={'title'} className={styles.pa}>
-        <div className={styles.label}>{i18next.t('Reservoir Change')}</div>
+        <div className={styles.label}>{i18next.t(label)}</div>
       </div>,
     ];
 
@@ -47,13 +50,14 @@ class ReservoirTooltip extends React.Component {
         timePrefs,
       };
     }
+    const typeOfChange = _.get(SITE_CHANGE_BY_MANUFACTURER, reservoir.pump.manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
 
     return (
       <Tooltip
         {...this.props}
         title={title}
         dateTitle={dateTitle}
-        content={this.renderReservoir()}
+        content={this.renderReservoir(typeOfChange)}
       />
     );
   }

@@ -135,7 +135,7 @@ class BasicsChart extends React.Component {
     if (basicsData.sections == null) {
       var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
       var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
-      basicsData = _.assign({}, basicsData, basicsState(latestPump));
+      basicsData = _.assign({}, basicsData, basicsState(latestPump, this.props.patientData.latestPumpManufacturer));
 
       dataMunger.reduceByDay(basicsData);
 

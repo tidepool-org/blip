@@ -80,14 +80,23 @@
     background-image: url(../../components/sitechange/sitechange_tubing.png);
   }
 
+  &.Change--site .Change-line-stop {
+    background-image: url(~infusion.png);
+    background-size: 40px 40px;
+    background-position: center;
+  }
+
   &.Change--reservoir .Change-line-stop {
-    background-image: url(../../components/sitechange/sitechange_omnipod.png);
+    background-image: url(~cartridge.png);
+    background-size: 40px 40px;
+    background-position: center;
   }
 
-  &.Change--reservoir--diabeloop .Change-line-stop {
-    background-image: url(../../components/sitechange/sitechange_diabeloop.png);
+  &.Change--reservoir--vicentra .Change-line-stop {
+    background-image: url(~cartridge-vicentra.png);
+    background-size: 40px 40px;
+    background-position: center;
   }
-
 
   .Change-line-mark {
     top: calc(40% - (@infusion-line-mark-size / 2) + (@infusion-line-height / 2));

@@ -1151,4 +1151,77 @@ describe('TidelineData', function() {
     });
 
   });
+  
+  describe('addManufacturer', function() {
+    const pumpManufacturer = { pump: { manufacturer: 'unknown'} };
+    const oldpumpManufacturer = { pump: { manufacturer: 'too-old'} };
+    const defaultpumpManufacturer = { pump: { manufacturer: 'default'} };
+
+    const data = [
+      new types.DeviceEvent({
+        deviceTime: '2014-07-01T10:00:00',
+        subType: 'reservoirChange',
+        inputTime: moment.utc().subtract(2, 'days').toISOString(),
+      }),
+      new types.DeviceEvent({
+        deviceTime: '2014-07-02T10:30:00',
+        inputTime: moment.utc().subtract(1, 'days').toISOString(),
+        eventId: 'Event2',
+        subType: 'reservoirChange',
+      }),
+      new types.DeviceEvent({
+        inputTime: moment.utc().subtract(4, 'hours').toISOString(),
+        eventId: 'Event3',
+        subType: 'reservoirChange',
+      }),
+      new types.DeviceEvent({
+        inputTime: moment.utc().subtract(3, 'hours').toISOString(),
+        eventId: 'Event3',
+        subType: 'reservoirChange',        
+      }),
+      new types.Settings({
+        source: 'Diabeloop',
+        payload: { ...pumpManufacturer },
+        deviceTime: '2020-12-02T10:30:00',
+      }),
+      new types.Settings({
+        source: 'Diabeloop',
+        payload: { ...oldpumpManufacturer },
+        deviceTime: '2019-12-02T10:30:00',
+      }),
+    ];
+    const expectedPumpManufacturer = _.update(pumpManufacturer, 'pump.manufacturer', (o) => {return _.capitalize(o)});
+    const expectedDefaultPumpManufacturer = _.update(defaultpumpManufacturer, 'pump.manufacturer', (o) => {return _.capitalize(o)});
+
+    const thisTd = new TidelineData(_.cloneDeep(data), {});
+
+    it('should be a function', function() {
+      assert.isFunction(thisTd.addManufacturer);
+    });
+
+    it('should retrieve the last pump manufacturer', function() {
+      expect(thisTd.latestPumpManufacturer).to.deep.equal(expectedPumpManufacturer.pump.manufacturer);
+    });
+
+    it('deviceEvent should contain the manufacturer property when set in pumpSettings', function() {
+      expect(thisTd.grouped.deviceEvent.length).to.equal(4);
+      _.forEach(thisTd.grouped.deviceEvent, 
+        (d) => expect(d.pump).to.deep.equal(expectedPumpManufacturer.pump)
+        )
+    });
+
+    const data2 = _.cloneDeep(data);
+    data2.push(new types.Settings({
+      source: 'Diabeloop',
+      deviceTime: '2020-12-05T10:30:00',
+    }));
+    const thisTd2 = new TidelineData(_.cloneDeep(data2), {});
+
+    it('deviceEvent should contain the default manufacturer property when not set in last pumpSettings', function() {
+      expect(thisTd2.grouped.deviceEvent.length).to.equal(4);
+      _.forEach(thisTd2.grouped.deviceEvent, 
+        (d) => expect(d.pump).to.deep.equal(expectedDefaultPumpManufacturer.pump)
+        )
+    });
+  });
 });
