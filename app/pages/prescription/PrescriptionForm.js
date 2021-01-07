@@ -166,7 +166,6 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
-    validateForm,
     values,
   } = useFormikContext();
 
@@ -176,7 +175,11 @@ export const PrescriptionForm = props => {
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
-  schema = prescriptionSchema(devices, pumpId, bgUnits, values);
+
+  React.useEffect(() => {
+    // Schema needs to be recreated to account for conditional mins and maxes as values update
+    schema = prescriptionSchema(devices, pumpId, bgUnits, values);
+  }, [values]);
 
   const asyncStates = {
     initial: { pending: false, complete: false },
@@ -232,10 +235,6 @@ export const PrescriptionForm = props => {
     if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
     setFormPersistReady(true);
   }, []);
-
-  React.useEffect(() => {
-    validateForm();
-  }, [formPersistReady])
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
