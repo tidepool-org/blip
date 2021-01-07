@@ -67,6 +67,12 @@
     },
     "CH": {
       "name": "Switzerland"
+    },
+    "ES": {
+      "name": "Spain"
+    },
+    "IT": {
+      "name": "Italy"
     }
   }
 }
