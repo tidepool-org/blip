@@ -73,7 +73,7 @@ export const PatientInfo = translate()(props => {
         {...condensedInputStyles}
       />
       <FastField
-        as={({innerRef}) => (
+        as={({ innerRef }) => (
           <InputMask
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
@@ -94,6 +94,7 @@ export const PatientInfo = translate()(props => {
             />
           </InputMask>
         )}
+        tabIndex={-1}
         innerRef={initialFocusedInput === 'birthday' ? initialFocusedInputRef : undefined}
       />
     </Box>

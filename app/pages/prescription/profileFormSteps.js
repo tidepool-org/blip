@@ -48,7 +48,7 @@ export const PatientPhone = translate()(props => {
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
-        as={({innerRef}) => (
+        as={({ innerRef }) => (
           <InputMask
             mask="(999) 999-9999"
             alwaysShowMask
@@ -68,6 +68,7 @@ export const PatientPhone = translate()(props => {
             />
           </InputMask>
         )}
+        tabIndex={-1}
         innerRef={initialFocusedInputRef}
       />
       <Caption mt={5} mb={3}>
