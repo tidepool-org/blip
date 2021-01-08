@@ -648,7 +648,7 @@
   "To get one number that gives you a rough idea of your glucose level we add together all of the CGM glucose readings you have and then divide them by the number of glucose readings. We will only show a number if there is enough data - readings for at least 75% of the day in the one day view, and readings for at least 75% of the day for at least half of the days shown in the two week view.": "To get one number that gives you a rough idea of your glucose level we add together all of the CGM glucose readings you have and then divide them by the number of glucose readings. We will only show a number if there is enough data - at least 75% of the day in the one day view and 75% of the day for half of the days shown in the two week view.",
   "to": "to",
   "Total basal events": "Total basal events",
-  "Total BG Readings": "Total BG Readings",
+  "Total BG Readings": "Total Readings",
   "Total Carbs": "Total Carbs",
   "Total Insulin": "Total Insulin",
   "Trends": "Trends",
