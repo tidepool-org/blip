@@ -27,7 +27,7 @@
 /* global __VERSION__ */
 
 function booleanFromText(value, defaultValue) {
-  if (value === 'true' || value === true) {
+  if (value === 'true') {
     return true;
   }
 
@@ -35,7 +35,7 @@ function booleanFromText(value, defaultValue) {
     return false;
   }
 
-  return defaultValue || false;
+  return (typeof value === 'boolean') ? value : defaultValue || false;
 }
 
 function integerFromText(value, defaultValue) {
