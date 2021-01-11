@@ -209,7 +209,7 @@
   "ddd, MMM D": "ddd D MMM",
   "ddd, MMM D, Y": "ddd, MMM D, Y",
   "ddd, MMM D, YYYY": "ddd, MMM D, YYYY",
-  "dddd, MMMM D": "dddd, MMMM D",
+  "dddd, MMMM D": "dddd D MMMM",
   "December": "Dezember",
   "Delete my account": "Mein Konto löschen",
   "Delivered": "Geliefert",

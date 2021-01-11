@@ -209,7 +209,7 @@
   "ddd, MMM D": "ddd, MMM D",
   "ddd, MMM D, Y": "ddd, MMM D, Y",
   "ddd, MMM D, YYYY": "ddd, MMM D, YYYY",
-  "dddd, MMMM D": "dddd, MMMM D",
+  "dddd, MMMM D": "dddd D MMMM",
   "December": "Dicembre",
   "Delete my account": "Elimina il mio account",
   "Delivered": "Qtà erogata",
