@@ -182,9 +182,10 @@ export const PrescriptionForm = props => {
   }, [values]);
 
   const asyncStates = {
-    initial: { pending: false, complete: false },
-    pending: { pending: true, complete: false },
+    initial: { pending: false, complete: null },
+    pending: { pending: true, complete: null },
     completed: { pending: false, complete: true },
+    failed: { pending: false, complete: false },
   };
 
   const params = () => new URLSearchParams(location.search);
@@ -240,7 +241,7 @@ export const PrescriptionForm = props => {
   React.useEffect(() => {
     const isRevision = !!get(values, 'id');
     const isDraft = get(values, 'state') === 'draft';
-    const { inProgress, completed, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
+    const { inProgress, completed, notification, prescriptionId } = isRevision ? creatingPrescriptionRevision : creatingPrescription;
 
     if (prescriptionId) setFieldValue('id', prescriptionId);
 
@@ -258,7 +259,25 @@ export const PrescriptionForm = props => {
         history.push('/prescriptions');
       }
     }
+
+    if (!inProgress && completed === false) {
+      setToast({
+        message: get(notification, 'message'),
+        variant: 'danger',
+      });
+
+      setStepAsyncState(asyncStates.failed);
+    }
   }, [creatingPrescription, creatingPrescriptionRevision]);
+
+  React.useEffect(() => {
+    if (stepAsyncState.complete === false) {
+      // Allow resubmission of form after a second
+      setTimeout(() => {
+        setStepAsyncState(asyncStates.initial);
+      }, 1000);
+    }
+  }, [stepAsyncState.complete]);
 
   const handlers = {
     activeStepUpdate: ([step, subStep], fromStep = [], initialFocusedInput) => {
