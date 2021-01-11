@@ -50,11 +50,12 @@ describe('BgSourceToggle', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    sinon.spy(console, 'error');
 
     expect(wrapper.find('.toggle-container')).to.have.length(1);
     expect(wrapper.find('.toggle-container').children()).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
+    console.error.restore();
   });
 
   it('should render toggle if either cbg or smbg sources are available', () => {

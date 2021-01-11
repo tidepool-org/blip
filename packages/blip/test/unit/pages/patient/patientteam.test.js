@@ -35,7 +35,7 @@ describe('PatientTeam', function () {
   beforeEach(() => {
     props.trackMetric.reset();
     wrapper = mount(
-      <PatientTeam.WrappedComponent
+      <PatientTeam
         {...props}
       />
     );
@@ -60,14 +60,14 @@ describe('PatientTeam', function () {
   describe('metric', function() {
     it('should be tracked when allowUpload is updated to true for existing member', function() {
       expect(props.trackMetric.callCount).to.equal(0);
-      const handlePermissionChangeFunc =  wrapper.instance().handlePermissionChange({ userid: 123 , profile: { fullName: 'testing 123' }});
+      const handlePermissionChangeFunc = wrapper.instance().handlePermissionChange({ userid: 123 , profile: { fullName: 'testing 123' }});
       handlePermissionChangeFunc(true);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('upload permission turned on')).to.be.true;
     });
     it('should be tracked when allowUpload is updated to false for existing member', function() {
       expect(props.trackMetric.callCount).to.equal(0);
-      const handlePermissionChangeFunc =  wrapper.instance().handlePermissionChange({ userid: 999 , profile: { fullName: 'testing 999' }});
+      const handlePermissionChangeFunc = wrapper.instance().handlePermissionChange({ userid: 999 , profile: { fullName: 'testing 999' }});
       handlePermissionChangeFunc(false);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('upload permission turned off')).to.be.true;
@@ -88,7 +88,7 @@ describe('MemberInviteForm', function () {
   beforeEach(() => {
     props.trackMetric.reset();
     wrapper = mount(
-      <MemberInviteForm.WrappedComponent
+      <MemberInviteForm
         {...props}
       />
     );

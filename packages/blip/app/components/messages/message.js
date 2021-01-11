@@ -1,4 +1,3 @@
-var PropTypes = require('prop-types');
 /*
 == BSD2 LICENSE ==
 Copyright (c) 2014, Tidepool Project
@@ -15,12 +14,11 @@ You should have received a copy of the License along with this program; if
 not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
-/* jshint unused: false */
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var createReactClass = require('create-react-class');
 var _ = require('lodash');
-var sundial = require('sundial');
 
 var MessageForm = require('./messageform');
 var MessageMixins = require('./messagemixins');
@@ -110,26 +108,26 @@ var Message = createReactClass({
 
   renderTitle: function() {
     var edit = this.renderEditLink();
-    
+
     return (
       <div>
         {edit}
         <span className='message-author'>{this.state.author}</span>
       </div>
     );
-    
+
   },
 
   renderEditLink: function() {
     if (this.state.editing === false && this.props.onSaveEdit) {
       return (
-        
+
         <a
           className='message-edit'
           href=''
           onClick={this.handleAllowEdit}
           ref='editNote'>Edit</a>
-        
+
       );
     }
   },
@@ -146,13 +144,13 @@ var Message = createReactClass({
       imageSource = profileSmallSrc;
     }
 
-    
+
     return (
       <img className={'message-picture message-picture-' + imageSize}
         src={imageSource}
         alt='Profile picture'/>
     );
-    
+
   },
 
   renderNoteEdit: function() {
@@ -194,7 +192,7 @@ var Message = createReactClass({
           </div>
         </div>
       );
-      
+
     }
   },
 
@@ -214,7 +212,7 @@ var Message = createReactClass({
             <div ref='messageText'>{this.state.note}</div>
           </div>
         </div>
-        
+
       );
     }
   },
@@ -227,11 +225,11 @@ var Message = createReactClass({
     }
 
     return (
-      
+
       <div className={noteClasses} >
         {note}
       </div>
-      
+
     );
   },
 });

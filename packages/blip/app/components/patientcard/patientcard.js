@@ -17,19 +17,21 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import { translate } from 'react-i18next';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import cx from 'classnames';
 import launchCustomProtocol from 'custom-protocol-detection';
 
 import config from '../../config';
+import i18n from '../../core/language';
+import UploadLaunchOverlay from '../uploadlaunchoverlay';
+
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
-var UploadLaunchOverlay = require('../uploadlaunchoverlay');
+const t = i18n.t.bind(i18n);
 
-var PatientCard = translate()(class PatientCard extends React.Component {
+class PatientCard extends React.Component {
   static propTypes = {
     href: PropTypes.string.isRequired,
     currentPage: PropTypes.string,
@@ -40,7 +42,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
     uploadUrl: PropTypes.string,
     patient: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
-    t: PropTypes.func.isRequired,
   };
 
   state = {
@@ -94,7 +95,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
   }
 
   renderView = () => {
-    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
       'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i),
@@ -154,7 +154,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
   };
 
   renderUpload = (patient) => {
-    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
       'patientcard-actions--highlight': this.state.highlight === 'upload',
@@ -181,7 +180,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
   };
 
   renderShare = (patient) => {
-    const { t } = this.props;
     var shareUrl = '';
     if (!_.isEmpty(patient.link)) {
       shareUrl = patient.link.slice(0,-5) + '/share';
@@ -207,7 +205,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
   };
 
   renderRemoveDialog = (patient) => {
-    const { t } = this.props;
     return (
       <div>
         <div className="ModalOverlay-content">{t("Are you sure you want to leave this person's Care Team? You will no longer be able to view their data.")}</div>
@@ -294,6 +291,6 @@ var PatientCard = translate()(class PatientCard extends React.Component {
   handleViewClick = () => {
     this.props.trackMetric('Clicked VDF View Data');
   };
-});
+}
 
-module.exports = PatientCard;
+export default PatientCard;

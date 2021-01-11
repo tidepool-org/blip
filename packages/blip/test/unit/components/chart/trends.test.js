@@ -103,7 +103,7 @@ describe('Trends', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
+    wrapper = shallow(<Trends {...baseProps} />);
   });
 
   afterEach(() => {
@@ -142,7 +142,7 @@ describe('Trends', () => {
     let instance;
 
     beforeEach(() => {
-      wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
+      wrapper = shallow(<Trends {...baseProps} />);
       instance = wrapper.instance();
     });
 
@@ -194,7 +194,7 @@ describe('Trends', () => {
         }
       };
 
-      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      wrapper = shallow(<Trends { ...timezoneAwareProps } />);
       instance = wrapper.instance();
 
       let title = instance.getTitle();
@@ -224,7 +224,7 @@ describe('Trends', () => {
         }
       };
 
-      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
+      wrapper = shallow(<Trends { ...timezoneAwareProps } />);
       instance = wrapper.instance();
 
       let title = instance.getTitle();

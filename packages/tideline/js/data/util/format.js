@@ -15,14 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import i18next from 'i18next';
+import moment from 'moment-timezone';
 
 var d3 = require('d3');
 var Duration = require('duration-js');
-var moment = require('moment-timezone');
 var { MGDL_UNITS, DDDD_MMMM_D_FORMAT, HOUR_FORMAT, MMMM_D_FORMAT } = require('./constants');
 
-const i18next = require('i18next');
 const t = i18next.t.bind(i18next);
 
 var format = {

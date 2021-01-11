@@ -19,28 +19,31 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
+
+import i18n from '../../core/language';
+import PatientCard from '../../components/patientcard';
 
 var personUtils = require('../../core/personutils');
-var PatientCard = require('../../components/patientcard');
 
-var PeopleList = translate()(class PeopleList extends React.Component {
+class PeopleList extends React.Component {
   static propTypes = {
     people: PropTypes.array,
     uploadUrl: PropTypes.string,
     onClickPerson: PropTypes.func,
     onRemovePatient: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
-    t: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
-    onClickPerson: function() {}
+    onClickPerson: _.noop,
   };
 
-  state = {
-    editing: false
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      editing: false
+    };
+  }
 
   render() {
     var peopleNodes = [];
@@ -95,7 +98,7 @@ var PeopleList = translate()(class PeopleList extends React.Component {
   };
 
   renderRemoveControls = () => {
-    const { t } = this.props;
+    const t = i18n.t.bind(i18n);
     var key = 'edit';
     var text = t('Remove People');
     if (this.state.editing) {
@@ -117,8 +120,6 @@ var PeopleList = translate()(class PeopleList extends React.Component {
   };
 
   renderPeopleListItem = (person, index) => {
-    var displayName = this.getPersonDisplayName(person);
-    var self = this;
     var handleClick = function() {
       self.props.onClickPerson(person);
     };
@@ -136,18 +137,6 @@ var PeopleList = translate()(class PeopleList extends React.Component {
       </li>
     );
   };
+}
 
-  getPersonDisplayName = (person) => {
-    const { t } = this.props;
-    var fullName;
-    fullName = personUtils.patientFullName(person);
-
-    if (!fullName) {
-      return t('Anonymous user');
-    }
-
-    return fullName;
-  };
-});
-
-module.exports = PeopleList;
+export default PeopleList;

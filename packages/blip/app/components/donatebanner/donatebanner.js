@@ -19,8 +19,8 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { browserHistory } from 'react-router';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO } from '../../core/constants';
 
 const DonateBanner = (props) => {
@@ -31,8 +31,9 @@ const DonateBanner = (props) => {
     processingDonation,
     trackMetric,
     userIsDonor,
-    t
   } = props;
+
+  const t = i18n.t.bind(i18n);
 
   const getMessageText = () => {
     if (userIsDonor) {
@@ -131,4 +132,4 @@ DonateBanner.propTypes = {
   userIsDonor: PropTypes.bool.isRequired,
 };
 
-export default translate()(DonateBanner);
+export default DonateBanner;

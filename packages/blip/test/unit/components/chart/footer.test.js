@@ -21,7 +21,7 @@ import Footer from '../../../../app/components/chart/footer';
 describe('Footer', function () {
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
+      sinon.stub(console, 'error');
       var props = {
         chartType: 'Awesome',
         onClickBoxOverlay: sinon.stub(),
@@ -41,6 +41,7 @@ describe('Footer', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should trigger onClickBoxOverlay when trends, showingSmbg and overlayCheckbox changed', function () {

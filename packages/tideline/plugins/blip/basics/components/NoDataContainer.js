@@ -1,7 +1,9 @@
+
+import i18next from 'i18next';
+
 var _ = require('lodash');
 var PropTypes = require('prop-types');
 var React = require('react');
-var i18next = require('i18next');
 var t = i18next.t.bind(i18next);
 
 class NoDataContainer extends React.Component {

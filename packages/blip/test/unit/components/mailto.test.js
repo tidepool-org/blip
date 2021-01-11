@@ -16,7 +16,7 @@ describe('MailTo', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         linkTitle: 'some string',
         emailAddress: 'gordonmdent@gmail.com',
@@ -26,6 +26,7 @@ describe('MailTo', function () {
       var elem = React.createElement(MailTo, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 });

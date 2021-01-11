@@ -82,12 +82,13 @@ describe('Stats', () => {
 
   let wrapper;
   let instance;
-  beforeEach(() => {
-    wrapper = shallow(<Stats {...baseProps} />);
-    instance = wrapper.instance();
-  });
 
   describe('constructor', () => {
+    beforeEach(() => {
+      wrapper = shallow(<Stats {...baseProps} />);
+      instance = wrapper.instance();
+    });
+
     it('should set initial required properties', () => {
       expect(instance.bgPrefs).to.have.keys([
         'bgUnits',
@@ -111,25 +112,16 @@ describe('Stats', () => {
 
   describe('render', () => {
     before(() => {
-      try {
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-      }
+      sinon.spy(console, 'error');
     });
 
     after(() => {
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
     });
 
     context('basics', () => {
       beforeEach(() => {
-        wrapper = shallow(<Stats {..._.assign({}, baseProps, {
-          chartType: 'basics',
-        })} />);
+        wrapper = shallow(<Stats {...baseProps} />);
       });
 
       it('should render without errors when provided all required props', () => {
@@ -550,6 +542,7 @@ describe('Stats', () => {
 
       sinon.assert.callCount(setStateSpy, 1);
       sinon.assert.calledWith(setStateSpy, { stats: sinon.match.array });
+      setStateSpy.restore();
     });
 
     it('should call `updateDataUtilEndpoints` and `updateStatData` if endpoints change', () => {
@@ -572,6 +565,7 @@ describe('Stats', () => {
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);
+      updateStatDataSpy.restore();
     });
 
     it('should call `updateStatData` if activeDays changes', () => {
@@ -588,6 +582,7 @@ describe('Stats', () => {
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);
+      updateStatDataSpy.restore();
     });
   });
 
@@ -605,6 +600,7 @@ describe('Stats', () => {
       sinon.assert.callCount(updatesRequiredSpy, 1);
       sinon.assert.calledWith(updatesRequiredSpy, nextProps);
       expect(result).to.eql(instance.updatesRequired(nextProps));
+      updatesRequiredSpy.restore();
     });
   });
 

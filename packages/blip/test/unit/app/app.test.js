@@ -167,19 +167,10 @@ describe('App', () => {
 
   describe('render', () => {
     before(() => {
-      try {
-        // FIXME should not protect this call
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-      }
+      sinon.spy(console, 'error');
     });
     after(() => {
-      // @ts-ignore
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
     });
 
     it('should render without problems or warnings when required props provided', () => {

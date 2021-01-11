@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import SimpleForm from '../../components/simpleform';
 
@@ -29,7 +29,7 @@ import {
 
 import { getDonationAccountCodeFromEmail } from '../../core/utils';
 
-export default translate()(class DonateForm extends Component {
+export class DonateForm extends Component {
   static propTypes = {
     dataDonationAccounts: PropTypes.array.isRequired,
     dataDonationAccountsFetched: PropTypes.bool.isRequired,
@@ -239,4 +239,6 @@ export default translate()(class DonateForm extends Component {
       });
     }
   }
-});
+}
+
+export default withTranslation()(DonateForm);

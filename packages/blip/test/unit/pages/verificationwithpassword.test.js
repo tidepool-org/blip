@@ -1,6 +1,7 @@
 import React from 'react';
-import chai from 'chai';
+import { assert, expect } from 'chai';
 import sinon from 'sinon';
+import { mount, shallow } from 'enzyme';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 
@@ -8,16 +9,20 @@ import ErrorMessages from '../../../app/redux/constants/errorMessages';
 import { VerificationWithPassword, mapStateToProps } from '../../../app/pages/verificationwithpassword/verificationwithpassword';
 
 describe('VerificationWithPassword', () => {
-  const { assert, expect } = chai;
+  before(() => {
+    sinon.spy(console, 'error');
+  });
+
+  after(() => {
+    console.error.restore();
+  });
 
   it('should be a function', () => {
     assert.isFunction(VerificationWithPassword);
   });
 
-  describe('render', function() {
+  describe('render', function () {
     it('should render without warnings when all required props provided', function () {
-      console.error = sinon.stub();
-
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -27,12 +32,11 @@ describe('VerificationWithPassword', () => {
         trackMetric: sinon.stub(),
         working: false
       };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      shallow(<VerificationWithPassword {...props} />);
       expect(console.error.callCount).to.equal(0);
     });
 
-    it('should fire metric when mounted/rendered', function() {
+    it('should fire metric when mounted/rendered', function () {
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -43,15 +47,14 @@ describe('VerificationWithPassword', () => {
         working: false
       };
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem);
+      TestUtils.renderIntoDocument(elem);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
     });
   });
 
-  describe('componentWillReceiveProps', function() {
+  describe('componentWillReceiveProps', function () {
     it('should fire a metric for birthday mismatch', () => {
-      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -61,20 +64,18 @@ describe('VerificationWithPassword', () => {
         trackMetric: sinon.stub(),
         working: false
       };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.findRenderedComponentWithType(TestUtils.renderIntoDocument(elem), VerificationWithPassword.WrappedComponent);
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps({notification:{message: ErrorMessages.ERR_BIRTHDAY_MISMATCH}});
+      const wrapper = mount(<VerificationWithPassword {...props} />);
+      wrapper.setProps({ ...props, notification: { message: ErrorMessages.ERR_BIRTHDAY_MISMATCH }});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
       expect(props.trackMetric.calledWith('VCA Home Verification - Birthday Mismatch')).to.be.true;
+      wrapper.unmount();
     });
   });
 
   describe('initial state', () => {
     it('should return an Object that matches expectedInitialState', () => {
-      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -83,7 +84,7 @@ describe('VerificationWithPassword', () => {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
-      }
+      };
       let expectedInitialState = {
         loading: false,
         formValues: {},
@@ -92,7 +93,7 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
       expect(render.state).to.eql(expectedInitialState);
     });
@@ -101,7 +102,6 @@ describe('VerificationWithPassword', () => {
 
   describe('handleInputChange', () => {
     it('should update formValues in state with changed value', () => {
-      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -110,7 +110,7 @@ describe('VerificationWithPassword', () => {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
-      }
+      };
       let expectedInitialState = {
         loading: false,
         formValues: {},
@@ -119,11 +119,11 @@ describe('VerificationWithPassword', () => {
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = TestUtils.renderIntoDocument(elem);
 
       expect(render.state).to.eql(expectedInitialState);
 
-      render.handleInputChange({name: 'password', value: 'foo'});
+      render.handleInputChange({ name: 'password', value: 'foo' });
 
       expect(render.state.formValues.password).to.equal('foo');
     });
@@ -131,7 +131,6 @@ describe('VerificationWithPassword', () => {
 
   describe('resetFormStateBeforeSubmit', () => {
     it('should update state ith supplied formValues and empty validation errors and notification', () => {
-      console.error = sinon.stub();
       let props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -141,18 +140,10 @@ describe('VerificationWithPassword', () => {
         trackMetric: sinon.stub(),
         working: false,
         inviteEmail: 'bill@ted.com'
-      }
-      let expectedInitialState = {
-        loading: true,
-        formValues: {
-          username: props.inviteEmail
-        },
-        validationErrors: {},
-        notification: null
       };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = TestUtils.renderIntoDocument(elem);
 
       let intermediateState = {
         validationErrors: {
@@ -214,10 +205,10 @@ describe('VerificationWithPassword', () => {
         trackMetric: sinon.stub(),
         working: false,
         fetchingUser: true
-      }
+      };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = TestUtils.renderIntoDocument(elem);
 
       expect(render.isFormDisabled()).to.be.true;
     });
@@ -231,10 +222,10 @@ describe('VerificationWithPassword', () => {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
-      }
+      };
 
       let elem = React.createElement(VerificationWithPassword, props);
-      let render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      let render = TestUtils.renderIntoDocument(elem);
 
       expect(render.isFormDisabled()).to.be.undefined;
     });

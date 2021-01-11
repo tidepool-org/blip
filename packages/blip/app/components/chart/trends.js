@@ -21,9 +21,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
 import * as viz from 'tidepool-viz';
 
+import i18n from '../../core/language';
 import Header from './header';
 import SubNav from './trendssubnav';
 import Stats from './stats';
@@ -32,6 +32,7 @@ import Footer from './footer';
 import { RangeDatePicker } from '../datepicker';
 import { BG_DATA_TYPES } from '../../core/constants';
 
+const t = i18n.t.bind(i18n);
 const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
@@ -110,7 +111,6 @@ class Trends extends React.PureComponent {
   }
 
   formatDate(datetime) {
-    const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
 
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
@@ -132,7 +132,7 @@ class Trends extends React.PureComponent {
   }
 
   getTitle() {
-    const { t, timePrefs, endpoints } = this.props;
+    const { timePrefs, endpoints } = this.props;
     const { displayCalendar } = this.state;
 
     if (endpoints.length !== 2) {
@@ -165,7 +165,7 @@ class Trends extends React.PureComponent {
 
     const handleCancel = () => {
       this.setState({ displayCalendar: false });
-    }
+    };
 
     let calendar = null;
     let divClass = 'chart-title-clickable';
@@ -178,7 +178,7 @@ class Trends extends React.PureComponent {
           max={moment().add(1, 'days').utc().startOf('day')}
           minDuration={1}
           maxDuration={90}
-          aboveMaxDurationMessage={t('The period must be less than {{days}} days', {days: 90})}
+          aboveMaxDurationMessage={t('The period must be less than {{days}} days', { days: 90 })}
           allowSelectDateOutsideDuration={true}
           onChange={handleChange}
           onCancel={handleCancel}
@@ -319,7 +319,7 @@ class Trends extends React.PureComponent {
 
   toggleDay(day) {
     const self = this;
-    return function(e) {
+    return function (e) {
       e.stopPropagation();
       const prefs = _.cloneDeep(self.props.chartPrefs);
       prefs.trends.activeDays[day] = prefs.trends.activeDays[day] ? false : true;
@@ -407,20 +407,20 @@ class Trends extends React.PureComponent {
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickBoxOverlay={this.toggleBoxOverlay}
-         onClickGroup={this.toggleGrouping}
-         onClickLines={this.toggleLines}
-         onClickRefresh={this.props.onClickRefresh}
-         boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
-         grouped={this.props.chartPrefs.trends.smbgGrouped}
-         showingLines={this.props.chartPrefs.trends.smbgLines}
-         showingCbg={this.props.chartPrefs.trends.showingCbg}
-         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
-         displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
-         currentPatientInViewId={currentPatientInViewId}
-         ref="footer" />
-         <WindowSizeListener onResize={this.handleWindowResize} />
+          chartType={this.chartType}
+          onClickBoxOverlay={this.toggleBoxOverlay}
+          onClickGroup={this.toggleGrouping}
+          onClickLines={this.toggleLines}
+          onClickRefresh={this.props.onClickRefresh}
+          boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
+          grouped={this.props.chartPrefs.trends.smbgGrouped}
+          showingLines={this.props.chartPrefs.trends.smbgLines}
+          showingCbg={this.props.chartPrefs.trends.showingCbg}
+          showingSmbg={this.props.chartPrefs.trends.showingSmbg}
+          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
+          currentPatientInViewId={currentPatientInViewId}
+          ref="footer" />
+        <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
   }
@@ -445,25 +445,25 @@ class Trends extends React.PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
-      ref="header" />
+        ref="header" />
     );
   }
 
   renderSubNav() {
     return (
       <SubNav
-       activeDays={this.props.chartPrefs.trends.activeDays}
-       extentSize={this.props.chartPrefs.trends.extentSize}
-       domainClickHandlers={{
-        '1 week': (e) => this.handleClickPresetWeeks(e, 7),
-        '2 weeks': (e) => this.handleClickPresetWeeks(e, 14),
-        '4 weeks': (e) => this.handleClickPresetWeeks(e, 28),
-        '3 months': (e) => this.handleClickPresetWeeks(e, 90),
-       }}
-       onClickDay={this.toggleDay}
-       toggleWeekdays={this.toggleWeekdays}
-       toggleWeekends={this.toggleWeekends}
-      ref="subnav" />
+        activeDays={this.props.chartPrefs.trends.activeDays}
+        extentSize={this.props.chartPrefs.trends.extentSize}
+        domainClickHandlers={{
+          '1 week': (e) => this.handleClickPresetWeeks(e, 7),
+          '2 weeks': (e) => this.handleClickPresetWeeks(e, 14),
+          '4 weeks': (e) => this.handleClickPresetWeeks(e, 28),
+          '3 months': (e) => this.handleClickPresetWeeks(e, 90),
+        }}
+        onClickDay={this.toggleDay}
+        toggleWeekdays={this.toggleWeekdays}
+        toggleWeekends={this.toggleWeekends}
+        ref="subnav" />
     );
   }
 
@@ -550,4 +550,4 @@ class Trends extends React.PureComponent {
   }
 }
 
-export default translate()(Trends);
+export default Trends;

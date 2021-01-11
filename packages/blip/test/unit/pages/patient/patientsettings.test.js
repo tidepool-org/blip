@@ -1,46 +1,46 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
-
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
-import PatientSettings from '../../../../app/pages/patient/patientsettings';
+import { PatientSettings } from '../../../../app/pages/patient/patientsettings';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
 
-const { expect } = chai;
-
 describe('PatientSettings', function () {
-  let wrapper;
-  const props = {
-    editingAllowed: true,
-    patient: {},
-    onUpdatePatientSettings: sinon.stub(),
-    trackMetric: sinon.stub(),
-  };
-
-  beforeEach(() => {
-    wrapper = mount(<PatientSettings {...props} />);
-  });
-
-  afterEach(() => {
-    props.onUpdatePatientSettings.reset();
-    props.trackMetric.reset();
-  });
-
   it('should be a function', () => {
     expect(PatientSettings).to.be.a('function');
   });
 
-
   describe('render', function() {
-    it('should render without errors when provided all required props', () => {
-      console.error = sinon.stub();
+    let wrapper;
+    const props = {
+      editingAllowed: true,
+      patient: {},
+      onUpdatePatientSettings: sinon.stub(),
+      trackMetric: sinon.stub(),
+      t: (v) => v,
+    };
 
+    beforeEach(() => {
+      wrapper = mount(<PatientSettings {...props} />);
+    });
+
+    afterEach(() => {
+      props.onUpdatePatientSettings.reset();
+      props.trackMetric.reset();
+      wrapper.unmount();
+    });
+
+    before(() => {
+      sinon.spy(console, 'error');
+    });
+
+    after(() => {
+      console.error.restore();
+    });
+
+    it('should render without errors when provided all required props', () => {
       expect(wrapper.find('.PatientSettings')).to.have.length(1);
       expect(console.error.callCount).to.equal(0);
     });
@@ -109,12 +109,14 @@ describe('PatientSettings', function () {
       patient: {},
       onUpdatePatientSettings: sinon.stub(),
       trackMetric: sinon.stub(),
+      t: (v) => v,
     };
+    let initialState = null;
 
-    const patientSettingsElem = React.createElement(PatientSettings, props);
-    const elem = TestUtils.renderIntoDocument(patientSettingsElem).getWrappedInstance();
-
-    const initialState = elem.state;
+    before(() => {
+      const wrapper = shallow(<PatientSettings {...props} />);
+      initialState = wrapper.state();
+    });
 
     it('should return an object with tracked set to false for low and high bounds', function() {
       expect(Object.keys(initialState).length).to.equal(2);
@@ -139,6 +141,7 @@ describe('PatientSettings', function () {
         },
         onUpdatePatientSettings: sinon.stub(),
         trackMetric: sinon.stub(),
+        t: (v) => v,
       };
 
       const patientSettingsElem = React.createElement(PatientSettings, props);
@@ -170,6 +173,7 @@ describe('PatientSettings', function () {
         },
         onUpdatePatientSettings: sinon.stub(),
         trackMetric: sinon.stub(),
+        t: (v) => v,
       };
 
       const patientSettingsElem = React.createElement(PatientSettings, props);
@@ -197,6 +201,7 @@ describe('PatientSettings', function () {
       },
       onUpdatePatientSettings: sinon.stub(),
       trackMetric: sinon.stub(),
+      t: (v) => v,
     };
 
     let wrapper;
@@ -208,7 +213,7 @@ describe('PatientSettings', function () {
           {...props}
         />
       );
-      patientSettings = wrapper.instance().getWrappedInstance();
+      patientSettings = wrapper.instance();
     });
 
     it('should update state with an error when lower bound is greater than upper bound', function() {

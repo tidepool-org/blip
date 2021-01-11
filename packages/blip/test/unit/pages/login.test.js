@@ -1,15 +1,13 @@
 import React from'react';
 import ReactDOM from 'react-dom';
-import _ from 'lodash';
 import mutationTracker from 'object-invariant-test-helper';
-import chai from 'chai';
+import { assert, expect } from 'chai';
 import sinon from 'sinon';
 
 import { Login, mapStateToProps } from'../../../app/pages/login/login.js';
 import config from '../../../app/config';
 
 describe('Login', function () {
-  const { assert, expect } = chai;
 
   it('should be exposed as a module and be of type function', function() {
     expect(Login).to.be.a('function');
@@ -19,21 +17,11 @@ describe('Login', function () {
     let container = null;
 
     before(() => {
-      try {
-        // FIXME should not protect this call
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-        console.warn(e);
-      }
+      sinon.spy(console, 'error');
     });
 
     after(() => {
-      // @ts-ignore
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
       config.BRANDING = 'tidepool';
     });
 

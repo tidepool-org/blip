@@ -18,17 +18,19 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { scroller } from 'react-scroll';
-import { translate } from 'react-i18next';
 
 import sundial from 'sundial';
 
+import i18n from '../../core/language';
+
+const t = i18n.t.bind(i18n);
 const DATA_SOURCE_STATE_DISCONNECTED = 'disconnected';
 const DATA_SOURCE_STATE_CONNECTED = 'connected';
 const DATA_SOURCE_STATE_ERROR = 'error';
 
 const DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED = 'unauthenticated';
 
-export default translate()(class DataSources extends Component {
+class DataSources extends Component {
   static propTypes = {
     dataSources: PropTypes.array.isRequired,
     fetchDataSources: PropTypes.func.isRequired,
@@ -41,15 +43,14 @@ export default translate()(class DataSources extends Component {
 
   constructor(props) {
     super(props);
-    const { t } = props;
 
     this.providers = [
       {
         id: 'oauth/dexcom',
         restrictedTokenCreate: {
-            paths: [
-              '/v1/oauth/dexcom',
-            ],
+          paths: [
+            '/v1/oauth/dexcom',
+          ],
         },
         dataSourceFilter: {
           providerType: 'oauth',
@@ -98,7 +99,6 @@ export default translate()(class DataSources extends Component {
   }
 
   calculateMessage(dataSource, state) {
-    const { t } = this.props;
     switch (state) {
       case DATA_SOURCE_STATE_DISCONNECTED:
         return t('No data available - click Connect to enable');
@@ -108,7 +108,7 @@ export default translate()(class DataSources extends Component {
         } else if (!dataSource.latestDataTime) {
           return t('No data found');
         } else {
-          return t('Last data {{timeAgo}}', {timeAgo: this.calculateTimeAgoMessage(dataSource.latestDataTime)});
+          return t('Last data {{timeAgo}}', { timeAgo: this.calculateTimeAgoMessage(dataSource.latestDataTime) });
         }
       default:
         return this.calculateErrorMessage(dataSource.error);
@@ -116,7 +116,6 @@ export default translate()(class DataSources extends Component {
   }
 
   calculateErrorMessage(error) {
-    const { t } = this.props;
     if (error.code && error.code === DATA_SOURCE_ERROR_CODE_UNAUTHENTICATED) {
       return t('Login expired - try signing out & in again');
     }
@@ -124,24 +123,15 @@ export default translate()(class DataSources extends Component {
   }
 
   calculateTimeAgoMessage(timestamp) {
-    const { t } = this.props;
-
-    /* The following is for the translation extracter */
-    // t('year', {context: 'timeago'});t('years', {context: 'timeago'});
-    // t('month', {context: 'timeago'});t('months', {context: 'timeago'});
-    // t('week', {context: 'timeago'});t('weeks', {context: 'timeago'});
-    // t('day', {context: 'timeago'});t('days', {context: 'timeago'});
-    // t('hour', {context: 'timeago'});t('hours', {context: 'timeago'});
-    // t('minute', {context: 'timeago'});t('minutes', {context: 'timeago'});
     if (timestamp) {
       for (const units of ['year', 'month', 'week', 'day', 'hour', 'minute']) {
         let diff = sundial.dateDifference(this.state.now, timestamp, units);
         if (diff > 1) {
-          const unit = t(units+'s', {context: 'timeago'});
-          return t('{{diff}} {{unit}} ago_plural', {diff, unit});
+          const unit = t(units + 's', { context: 'timeago' });
+          return t('{{diff}} {{unit}} ago_plural', { diff, unit });
         } else if (diff > 0) {
-          const unit = t(units, {context: 'timeago'});
-          return t('{{diff}} {{unit}} ago', {diff, unit});
+          const unit = t(units, { context: 'timeago' });
+          return t('{{diff}} {{unit}} ago', { diff, unit });
         } else if (diff < 0) {
           return t('unknown');
         }
@@ -156,7 +146,7 @@ export default translate()(class DataSources extends Component {
   }
 
   displayPopupForDataSource(provider) {
-    let popupId = this.calculatePopupId(provider)
+    let popupId = this.calculatePopupId(provider);
     let popups = this.state.popups;
     let popup = popups[popupId];
 
@@ -181,7 +171,7 @@ export default translate()(class DataSources extends Component {
   }
 
   handleConnectDataSource(provider) {
-    this.displayPopupForDataSource(provider)
+    this.displayPopupForDataSource(provider);
     this.props.connectDataSource(provider.id, provider.restrictedTokenCreate, provider.dataSourceFilter);
 
     const location = _.get(this.props, 'queryParams.dexcomConnect', 'settings');
@@ -212,7 +202,7 @@ export default translate()(class DataSources extends Component {
 
     return (
       <button className={className} onClick={onClick.bind(this, provider)}>{text}</button>
-    )
+    );
   }
 
   renderDataSource(provider) {
@@ -259,7 +249,7 @@ export default translate()(class DataSources extends Component {
   }
 
   componentDidUpdate() {
-    let authorizedDataSource = this.props.authorizedDataSource
+    let authorizedDataSource = this.props.authorizedDataSource;
     if (authorizedDataSource && authorizedDataSource.url) {
       let popupId = this.calculatePopupId(authorizedDataSource);
       let popup = this.state.popups[popupId];
@@ -289,10 +279,10 @@ export default translate()(class DataSources extends Component {
     let popups = this.state.popups;
     let changed = false;
 
-    popups = _.omitBy(popups, function(popup) {
+    popups = _.omitBy(popups, function (popup) {
       changed = changed || popup.closed;
       return popup.closed;
-    })
+    });
 
     if (changed) {
       let popupIntervalId = this.state.popupIntervalId;
@@ -307,4 +297,6 @@ export default translate()(class DataSources extends Component {
       this.props.fetchDataSources();
     }
   }
-});
+}
+
+export default DataSources;

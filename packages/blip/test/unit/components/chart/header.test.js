@@ -3,17 +3,16 @@
 /* global sinon */
 /* global it */
 
-import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 var expect = chai.expect;
 
-import Header from '../../../../app/components/chart/header'
+import Header from '../../../../app/components/chart/header';
 
 describe('Header', function () {
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
+      sinon.stub(console, 'error');
       var props = {
         patient: {
           profile: {
@@ -40,6 +39,7 @@ describe('Header', function () {
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
+      console.error.restore();
     });
 
     it('should trigger onClickBack when inTransition is false and back button is clicked', function () {

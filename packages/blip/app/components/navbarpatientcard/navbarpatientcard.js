@@ -17,19 +17,20 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import { translate } from 'react-i18next';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import cx from 'classnames';
 
 import config from '../../config';
+import i18n from '../../core/language';
 
 var launchCustomProtocol = require('custom-protocol-detection');
 var UploadLaunchOverlay = require('../uploadlaunchoverlay');
 
 var personUtils = require('../../core/personutils');
+const t = i18n.t.bind(i18n);
 
-var NavbarPatientCard = translate()(class extends React.Component {
+class NavbarPatientCard extends React.Component {
   static propTypes = {
     href: PropTypes.string.isRequired,
     currentPage: PropTypes.string,
@@ -45,7 +46,6 @@ var NavbarPatientCard = translate()(class extends React.Component {
 
   render() {
     var patient = this.props.patient || {};
-    var self = this;
 
     var classes = cx({
       'patientcard': true,
@@ -75,7 +75,6 @@ var NavbarPatientCard = translate()(class extends React.Component {
   }
 
   renderView = () => {
-    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-view': true,
       'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(data)$/i),
@@ -92,7 +91,6 @@ var NavbarPatientCard = translate()(class extends React.Component {
   };
 
   renderProfile = (patient) => {
-    const { t } = this.props;
     var url = '';
     if (!_.isEmpty(patient.link)) {
       url = patient.link.slice(0,-5) + '/profile';
@@ -120,7 +118,6 @@ var NavbarPatientCard = translate()(class extends React.Component {
   };
 
   renderUpload = (patient) => {
-    const { t } = this.props;
     var classes = cx({
       'patientcard-actions-upload': true,
     });
@@ -146,8 +143,6 @@ var NavbarPatientCard = translate()(class extends React.Component {
   };
 
   renderShare = (patient) => {
-    const { t } = this.props;
-
     var shareUrl = '';
     if (!_.isEmpty(patient.link)) {
       shareUrl = patient.link.slice(0,-5) + '/share';
@@ -173,12 +168,12 @@ var NavbarPatientCard = translate()(class extends React.Component {
   };
 
   renderOverlay = () => {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>;
   };
 
   getFullName = () => {
     return personUtils.patientFullName(this.props.patient);
   };
-});
+}
 
 module.exports = NavbarPatientCard;

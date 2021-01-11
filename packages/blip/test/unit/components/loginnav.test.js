@@ -14,19 +14,10 @@ describe('LoginNav', function () {
   describe('render', function() {
     let container = null;
     before(() => {
-      try {
-        // FIXME should not protect this call
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-      }
+      sinon.spy(console, 'error');
     });
     after(() => {
-      // @ts-ignore
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
     });
 
 

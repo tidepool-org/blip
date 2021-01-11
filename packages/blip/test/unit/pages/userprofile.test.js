@@ -44,8 +44,7 @@ describe('UserProfile', function () {
   };
 
   before(() => {
-    // FIXME: sinon.spy(console, 'error');
-    console.error = sinon.stub();
+    sinon.spy(console, 'error');
   });
   after(() => {
     sinon.restore();

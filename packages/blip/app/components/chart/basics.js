@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -255,4 +255,4 @@ class Basics extends Component {
   };
 }
 
-export default translate()(Basics);
+export default withTranslation()(Basics);

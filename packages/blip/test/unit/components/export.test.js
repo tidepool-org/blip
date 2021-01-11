@@ -1,20 +1,11 @@
-/* global chai */
-/* global describe */
-/* global context */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
-
 import React from 'react';
 import { mount } from 'enzyme';
-import _ from 'lodash';
-
-import Export from '../../../app/components/export';
 import moment from 'moment';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import Export from '../../../app/components/export';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
-const expect = chai.expect;
 
 describe('Export', () => {
   const props = {
@@ -27,7 +18,6 @@ describe('Export', () => {
       userId: 'abc123'
     }
   };
-  const expectedInitialFormValues = {};
   const expectedInitialState = {
     allTime: false,
     endDate: moment().format(JS_DATE_FORMAT),
@@ -54,14 +44,15 @@ describe('Export', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    sinon.stub(console, 'error');
 
     expect(wrapper.find('.Export')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
+    console.error.restore();
   });
 
   it('should set the initial state', () => {
-    expect(wrapper.instance().getWrappedInstance().state).to.eql(
+    expect(wrapper.instance().state).to.eql(
       expectedInitialState
     );
   });
@@ -96,7 +87,7 @@ describe('Export', () => {
     it('should update start and end dates in state when form values change', () => {
       let newStartDate = '2000-02-02';
       let newEndDate = '2001-02-02';
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
+      const wrappedInstance = wrapper.instance();
       expect(wrappedInstance.state.startDate).to.equal(
         expectedInitialState.startDate
       );
@@ -120,11 +111,11 @@ describe('Export', () => {
     it('should not allow startDate to be after endDate', () => {
       let setEndDate = '2001-02-02';
       let attemptedStartDate = '2001-02-03';
-      wrapper.instance().getWrappedInstance().setState({ endDate: setEndDate });
+      wrapper.instance().setState({ endDate: setEndDate });
       startDate.simulate('change', {
         target: { name: 'startDate', value: attemptedStartDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.startDate).to.equal(
+      expect(wrapper.instance().state.startDate).to.equal(
         setEndDate
       );
     });
@@ -138,7 +129,7 @@ describe('Export', () => {
       endDate.simulate('change', {
         target: { name: 'endDate', value: attemptedEndDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.endDate).to.equal(
+      expect(wrapper.instance().state.endDate).to.equal(
         setStartDate
       );
     });
@@ -151,7 +142,7 @@ describe('Export', () => {
       endDate.simulate('change', {
         target: { name: 'endDate', value: attemptedEndDate }
       });
-      expect(wrapper.instance().getWrappedInstance().state.endDate).to.equal(
+      expect(wrapper.instance().state.endDate).to.equal(
         currentDate
       );
     });
@@ -160,13 +151,13 @@ describe('Export', () => {
       excel.simulate('change', {
         target: { name: 'format', checked: true, value: 'excel' }
       });
-      expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
+      expect(wrapper.instance().state.format).to.equal(
         'excel'
       );
       json.simulate('change', {
         target: { name: 'format', checked: true, value: 'json' }
       });
-      expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
+      expect(wrapper.instance().state.format).to.equal(
         'json'
       );
     });
@@ -176,7 +167,7 @@ describe('Export', () => {
     let spy, button;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleSubmit');
+      spy = sinon.spy(wrapper.instance(), 'handleSubmit');
       wrapper.update();
       button = wrapper.find('input[type="submit"]');
     });
@@ -198,7 +189,7 @@ describe('Export', () => {
       props.api.tidepool.getExportDataURL.callsArgWith(2, errMessage);
       button.simulate('submit');
       sinon.assert.calledOnce(props.api.tidepool.getExportDataURL);
-      expect(wrapper.instance().getWrappedInstance().state.error).to.equal(
+      expect(wrapper.instance().state.error).to.equal(
         errMessage
       );
     });
@@ -213,7 +204,7 @@ describe('Export', () => {
       .format(JS_DATE_FORMAT);
 
     it('should set allTime to false', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
+      const wrappedInstance = wrapper.instance();
       wrappedInstance.state.allTime = true;
       expect(wrappedInstance.state.allTime).to.eql(
         true
@@ -224,7 +215,7 @@ describe('Export', () => {
       );
     });
     it('should set end date to current date', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
+      const wrappedInstance = wrapper.instance();
       wrappedInstance.state.endDate = null;
       expect(wrappedInstance.state.endDate).to.eql(null);
       wrappedInstance.setDateRange(5);
@@ -233,7 +224,7 @@ describe('Export', () => {
       );
     });
     it('should set the start date to expected span', () => {
-      const wrappedInstance = wrapper.instance().getWrappedInstance();
+      const wrappedInstance = wrapper.instance();
       wrappedInstance.state.startDate = null;
       expect(wrappedInstance.state.startDate).to.eql(
         null
@@ -250,25 +241,15 @@ describe('Export', () => {
   });
 
   describe('toggleOptions', () => {
-    it('should negate current expanded options state'),
-      () => {
-        expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
-        ).to.eql(false);
-        wrapper
-          .instance()
-          .getWrappedInstance()
-          .toggleOptions();
-        expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
-        ).to.eql(true);
-        wrapper
-          .instance()
-          .getWrappedInstance()
-          .toggleOptions();
-        expect(
-          wrapper.instance().getWrappedInstance().state.extraExpanded
-        ).to.eql(false);
-      };
+    it('should negate current expanded options state'), () => {
+      const instance = wrapper.instance();
+      expect(instance.state.extraExpanded).to.eql(false);
+
+      instance.toggleOptions();
+      expect(instance.state.extraExpanded).to.eql(true);
+
+      instance.toggleOptions();
+      expect(instance.state.extraExpanded).to.eql(false);
+    };
   });
 });

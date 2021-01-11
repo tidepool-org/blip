@@ -24,7 +24,7 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import Stats from './stats';
 import { BG_DATA_TYPES } from '../../core/constants';
@@ -485,4 +485,4 @@ class BgLog extends Component {
   };
 }
 
-export default translate()(BgLog);
+export default withTranslation()(BgLog);

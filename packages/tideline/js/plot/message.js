@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import i18next from 'i18next';
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -25,7 +26,6 @@ var newNoteImg = require('../../img/message/new.png');
 
 var log = require('bows')('Message');
 
-var i18next = require('i18next');
 var t = i18next.t.bind(i18next);
 
 var NEW_NOTE_WIDTH = 36;

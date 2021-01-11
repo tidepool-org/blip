@@ -29,21 +29,6 @@ describe('PatientInfo', function () {
   /** @type {import('enzyme').ReactWrapper<PatientInfo>} */
   let wrapper;
 
-  before(() => {
-    try {
-      sinon.spy(console, 'error');
-    } catch (e) {
-      console.error = sinon.spy();
-    }
-  });
-
-  after(() => {
-    if (_.isFunction(_.get(console, 'error.restore'))) {
-      // @ts-ignore
-      console.error.restore();
-    }
-  });
-
   beforeEach(() => {
     wrapper = mount(
       <PatientInfo
@@ -58,11 +43,17 @@ describe('PatientInfo', function () {
     props.fetchDataSources.reset();
     props.connectDataSource.reset();
     props.disconnectDataSource.reset();
-    // @ts-ignore
-    console.error.resetHistory();
   });
 
   describe('render', function() {
+    before(() => {
+      sinon.spy(console, 'error');
+    });
+
+    after(() => {
+      console.error.restore();
+    });
+
     it('should render without problems when required props are present', () => {
       const pi = wrapper.find('.PatientInfo');
       expect(pi.length, pi.html()).to.be.equal(1);
@@ -551,7 +542,6 @@ describe('PatientInfo', function () {
   describe('prepareFormValuesForSubmit', function() {
 
     it('should throw an error with invalid birthday - non-leap year 29th Feb', function() {
-      console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
           profile : {}
@@ -575,7 +565,6 @@ describe('PatientInfo', function () {
     });
 
     it('should throw an error with invalid birthday - non-existent date', function() {
-      console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
           profile : {}
@@ -629,7 +618,6 @@ describe('PatientInfo', function () {
     });
 
     it('should throw an error with invalid diagnosisDate - non-leap year 29th Feb', function() {
-      console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
           profile : {}
@@ -653,7 +641,6 @@ describe('PatientInfo', function () {
     });
 
     it('should throw an error with invalid diagnosisDate - non-existent date', function() {
-      console.error = sinon.spy(); // Stub the error function
       var props = {
         patient: {
           profile : {}
@@ -857,6 +844,6 @@ describe('PatientInfo', function () {
   describe.skip('renderExport', function() {
     it('should render the export UI', function(){
       expect(wrapper.find('.PatientPage-export')).to.have.length(1);
-    })
+    });
   });
 });

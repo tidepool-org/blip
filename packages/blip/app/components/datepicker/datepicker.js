@@ -16,14 +16,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
 import _ from 'lodash';
 import moment from 'moment';
+
+import i18n from '../../core/language';
+
+const t = i18n.t.bind(i18n);
 
 function containsAll(str, letters) {
   const ll = letters.length;
   let ca = true;
-  for (let i=0; i<ll && ca; i++) {
+  for (let i = 0; i < ll && ca; i++) {
     ca = ca && str.indexOf(letters[i]) >= 0;
   }
   return ca;
@@ -38,9 +41,9 @@ class DatePicker extends React.Component {
 
   static propTypes = {
     name: PropTypes.string,
-    value: PropTypes.oneOfType([ PropTypes.object, PropTypes.string ]),
-    min: PropTypes.oneOfType([ PropTypes.object, PropTypes.string ]),
-    max: PropTypes.oneOfType([ PropTypes.object, PropTypes.string ]),
+    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    min: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    max: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     beforeMinDateMessage: PropTypes.string,
     afterMaxDateMessage: PropTypes.string,
     disabled: PropTypes.bool,
@@ -155,9 +158,8 @@ class DatePicker extends React.Component {
   }
 
   renderFlat() {
-    const { t } = this.props;
     const { value } = this.state;
-    const formElements = [ null, null, null ];
+    const formElements = [null, null, null];
     const months = this.getMonths();
     const monthOptions = _.map(months, (item) => {
       return <option key={item.value} value={item.value}>{item.label}</option>;
@@ -197,17 +199,17 @@ class DatePicker extends React.Component {
     );
 
     if (dateFormat.length === 3 && containsAll(dateFormat, 'YMD')) {
-      for (let i=0; i<3; i++) {
+      for (let i = 0; i < 3; i++) {
         switch (dateFormat[i]) {
-        case 'Y':
-          formElements[i] = inputYear;
-          break;
-        case 'M':
-          formElements[i] = selectMonth;
-          break;
-        case 'D':
-          formElements[i] = inputDay;
-          break;
+          case 'Y':
+            formElements[i] = inputYear;
+            break;
+          case 'M':
+            formElements[i] = selectMonth;
+            break;
+          case 'D':
+            formElements[i] = inputDay;
+            break;
         }
       }
     } else {
@@ -218,9 +220,9 @@ class DatePicker extends React.Component {
 
     return (
       <div className="DatePicker" name={this.props.name}>
-        { formElements[0] }
-        { formElements[1] }
-        { formElements[2] }
+        { formElements[0]}
+        { formElements[1]}
+        { formElements[2]}
       </div>
     );
   }
@@ -232,7 +234,7 @@ class DatePicker extends React.Component {
     // Build the weekdays (Su Mo Tu We Th Fr Sa)
     const weekDays = [];
     const weekDaysLabel = [];
-    for (let i=0; i<7; i++) {
+    for (let i = 0; i < 7; i++) {
       const weekDay = moment().weekday(i);
       const weekDayLabel = weekDay.format('dd');
       weekDaysLabel.push(weekDayLabel);
@@ -307,12 +309,12 @@ class DatePicker extends React.Component {
 
     let tooltip = null;
     if (isBefore) {
-      const { t, beforeMinDateMessage } = this.props;
+      const { beforeMinDateMessage } = this.props;
       if (typeof beforeMinDateMessage === 'string') {
         tooltip = t(beforeMinDateMessage);
       }
     } else if (isAfter) {
-      const { t, afterMaxDateMessage } = this.props;
+      const { afterMaxDateMessage } = this.props;
       if (typeof afterMaxDateMessage === 'string') {
         tooltip = t(afterMaxDateMessage);
       }
@@ -322,21 +324,20 @@ class DatePicker extends React.Component {
   }
 
   getMonths() {
-    const { t } = this.props;
     return [
-      {value: '', label: t('Month')},
-      {value: '0', label: t('January')},
-      {value: '1', label: t('February')},
-      {value: '2', label: t('March')},
-      {value: '3', label: t('April')},
-      {value: '4', label: t('May')},
-      {value: '5', label: t('June')},
-      {value: '6', label: t('July')},
-      {value: '7', label: t('August')},
-      {value: '8', label: t('September')},
-      {value: '9', label: t('October')},
-      {value: '10', label: t('November')},
-      {value: '11', label: t('December')}
+      { value: '', label: t('Month') },
+      { value: '0', label: t('January') },
+      { value: '1', label: t('February') },
+      { value: '2', label: t('March') },
+      { value: '3', label: t('April') },
+      { value: '4', label: t('May') },
+      { value: '5', label: t('June') },
+      { value: '6', label: t('July') },
+      { value: '7', label: t('August') },
+      { value: '8', label: t('September') },
+      { value: '9', label: t('October') },
+      { value: '10', label: t('November') },
+      { value: '11', label: t('December') }
     ];
   }
 
@@ -347,7 +348,7 @@ class DatePicker extends React.Component {
       day: m.get('date'),
       month: m.get('month'),
       year: m.get('year')
-    }
+    };
 
     e.stopPropagation();
     this.setState({ value });
@@ -363,7 +364,7 @@ class DatePicker extends React.Component {
     };
 
     e.stopPropagation();
-    this.setState({value});
+    this.setState({ value });
   }
 
   handleChangePopup(e) {
@@ -422,4 +423,4 @@ class DatePicker extends React.Component {
 
 }
 
-export default translate()(DatePicker);
+export default DatePicker;

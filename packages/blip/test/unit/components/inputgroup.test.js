@@ -55,19 +55,11 @@ describe('InputGroup', () => {
 
   describe('render', () => {
     before(() => {
-      try {
-        // FIXME should not protect this call
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-      }
+      sinon.spy(console, 'error');
     });
 
     after(() => {
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
     });
 
     it('should render without errors when provided all required props', () => {

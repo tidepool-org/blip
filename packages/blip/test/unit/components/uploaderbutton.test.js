@@ -1,16 +1,10 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
 import UploaderButton from '../../../app/components/uploaderbutton';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
-
-const expect = chai.expect;
 
 describe('UploaderButton', function () {
   const props = {
@@ -20,7 +14,7 @@ describe('UploaderButton', function () {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = mount(
+    wrapper = shallow(
       <UploaderButton
         {...props}
       />
@@ -33,7 +27,7 @@ describe('UploaderButton', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      expect(wrapper.find(UploaderButton)).to.have.length(1);
+      expect(wrapper.exists('.uploaderbutton-wrap')).to.be.true;
     });
 
     it('should have a pair of download links', function () {
@@ -41,7 +35,7 @@ describe('UploaderButton', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
       });
@@ -51,7 +45,7 @@ describe('UploaderButton', function () {
     });
 
     it('should display download link if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.setState({
         error: 'some error',
       });
       wrapper.update();
@@ -60,7 +54,7 @@ describe('UploaderButton', function () {
     });
 
     it('should respond to an onClick event', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.setState({
         error: 'some error',
       });
       wrapper.update();

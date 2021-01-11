@@ -16,25 +16,25 @@
  */
 
 /* jshint esversion:6 */
-var i18next = require('i18next');
+import i18next from 'i18next';
 
 var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');
-var bows = require('bows');
+// var bows = require('bows');
 var d3 = require('d3');
 
 var EventEmitter = require('events').EventEmitter;
 
 var tideline = require('../../js/index');
+var { MGDL_UNITS } = require('../../js/data/util/constants');
+
 var fill = tideline.plot.util.fill;
 var dt = tideline.data.util.datetime;
-var { getLatestPumpUpload, isAutomatedBasalDevice } = require('../../js/data/util/device');
-var { MGDL_UNITS } = require('../../js/data/util/constants');
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
 function chartWeeklyFactory(el, options) {
-  var log = bows('Weekly Factory');
+  // var log = bows('Weekly Factory');
   options = options || {};
   var defaults = {
     bgUnits: MGDL_UNITS,

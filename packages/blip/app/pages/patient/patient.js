@@ -15,16 +15,8 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
-import createReactClass from 'create-react-class';
-import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
-import { bindActionCreators } from 'redux';
-
-import * as actions from '../../redux/actions';
-
-import _ from 'lodash';
+import { withTranslation, Trans } from 'react-i18next';
 
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../../components/modaloverlay';
@@ -32,12 +24,10 @@ import PatientInfo from './patientinfo';
 import { PatientTeam } from './patientteam';
 import config from '../../config';
 
-const Patient = translate()(createReactClass({
-  displayName: 'Patient',
-
+export class Patient extends React.Component {
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
-  propTypes: {
+  static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     cancellingInvite: PropTypes.bool,
     dataDonationAccounts: PropTypes.array,
@@ -69,16 +59,22 @@ const Patient = translate()(createReactClass({
     authorizedDataSource: PropTypes.object,
     queryParams: PropTypes.object,
     api: PropTypes.object,
-  },
+    t: PropTypes.func.isRequired,
+  };
 
-  getInitialState: function() {
+  constructor(props) {
+    super(props);
+    this.state = this.getInitialState();
+  }
+
+  getInitialState() {
     return {
       showModalOverlay: false,
       dialog: ''
     };
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <div className="PatientPage js-patient-page">
         <div className="PatientPage-layer">
@@ -88,16 +84,16 @@ const Patient = translate()(createReactClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderSubnav: function() {
+  renderSubnav() {
     return (
       <div className="PatientPage-subnav grid">
       </div>
     );
-  },
+  }
 
-  renderContent: function() {
+  renderContent() {
     var share;
     var modal;
     var profile = this.renderInfo();
@@ -115,13 +111,13 @@ const Patient = translate()(createReactClass({
         {modal}
       </div>
     );
-  },
+  }
 
-  renderFooter: function() {
+  renderFooter() {
     return <div className="PatientPage-footer"></div>;
-  },
+  }
 
-  renderInfo: function() {
+  renderInfo() {
     return (
       <div className="PatientPage-infoSection">
         <PatientInfo
@@ -147,20 +143,20 @@ const Patient = translate()(createReactClass({
           trackMetric={this.props.trackMetric} />
       </div>
     );
-  },
+  }
 
-  isSamePersonUserAndPatient: function() {
+  isSamePersonUserAndPatient() {
     return personUtils.isSame(this.props.user, this.props.patient);
-  },
+  }
 
-  renderDeleteDialog: function() {
+  renderDeleteDialog() {
     const mailto = `mailto:${config.SUPPORT_EMAIL_ADDRESS}?Subject=Delete%20my%20account`;
     return (
       <Trans i18nKey="html.patient-delete-account">If you are sure you want to delete your account, please <a href={mailto} target="_blank">send an email</a> and we take care of it for you.</Trans>
     );
-  },
+  }
 
-  renderDelete: function() {
+  renderDelete() {
     const { t } = this.props;
     var self = this;
 
@@ -180,22 +176,22 @@ const Patient = translate()(createReactClass({
         <div onClick={handleClick}>{t('Delete my account')}</div>
       </div>
     );
-  },
+  }
 
-  overlayClickHandler: function() {
+  overlayClickHandler() {
     this.setState(this.getInitialState());
-  },
+  }
 
-  renderModalOverlay: function() {
+  renderModalOverlay() {
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
     );
-  },
+  }
 
-  renderAccess: function() {
+  renderAccess() {
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
@@ -205,9 +201,9 @@ const Patient = translate()(createReactClass({
         {this.renderPatientTeam()}
       </div>
     );
-  },
+  }
 
-  renderPatientTeam: function() {
+  renderPatientTeam() {
     return (
       <PatientTeam
         acknowledgeNotification={this.props.acknowledgeNotification}
@@ -225,35 +221,35 @@ const Patient = translate()(createReactClass({
         user={this.props.user}
       />
     );
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.trackMetric) {
       if (this.props.shareOnly) {
         this.props.trackMetric('Viewed Share');
       } else {
-        this.props.trackMetric('Viewed Profile')
+        this.props.trackMetric('Viewed Profile');
       }
     }
-  },
+  }
 
-  doFetching: function(nextProps) {
+  doFetching(nextProps) {
     if (!nextProps.fetchers) {
-      return
+      return;
     }
 
     nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
-  },
+  }
 
   /**
    * Before rendering for first time
    * begin fetching any required data
    */
-  UNSAFE_componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.doFetching(this.props);
-  },
-}));
+  }
+}
 
-export default Patient;
+export default withTranslation()(Patient);

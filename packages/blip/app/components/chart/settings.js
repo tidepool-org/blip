@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Trans, translate } from 'react-i18next';
+import { Trans, withTranslation } from 'react-i18next';
 
 import utils from '../../core/utils';
 import * as viz from 'tidepool-viz';
@@ -180,4 +180,4 @@ class Settings extends React.Component {
   };
 }
 
-export default translate()(Settings);
+export default withTranslation()(Settings);

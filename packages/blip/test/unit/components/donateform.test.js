@@ -14,24 +14,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global describe */
-/* global context */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
 
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
 import sinon from 'sinon';
-import chai from 'chai';
+import { expect } from 'chai';
 
-import DonateForm from '../../../app/components/donateform';
+import { DonateForm } from '../../../app/components/donateform/donateform';
 import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
 } from '../../../app/core/constants';
-
-const expect = chai.expect;
 
 describe('DonateForm', () => {
   const props = {
@@ -40,6 +33,7 @@ describe('DonateForm', () => {
     working: false,
     dataDonationAccountsFetched: true,
     trackMetric: sinon.stub(),
+    t: (v) => v,
   };
 
   const expectedInitialFormValues = {
@@ -47,6 +41,7 @@ describe('DonateForm', () => {
     dataDonateDestination: '',
   };
 
+  /** @type {import('enzyme').ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>} */
   let wrapper;
   beforeEach(() => {
     wrapper = mount(
@@ -54,11 +49,14 @@ describe('DonateForm', () => {
         {...props}
       />
     );
+    sinon.stub(console, 'error');
   });
 
   afterEach(() => {
     props.onUpdateDataDonationAccounts.reset();
     props.trackMetric.reset();
+    sinon.restore();
+    wrapper.unmount();
   });
 
   it('should be a function', () => {
@@ -66,8 +64,6 @@ describe('DonateForm', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
-
     expect(wrapper.find('.DonateForm')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
   });
@@ -79,12 +75,12 @@ describe('DonateForm', () => {
       formSubmitted: false,
     };
 
-    expect(wrapper.instance().getWrappedInstance().state).to.eql(expectedInitialState);
+    expect(wrapper.state()).to.eql(expectedInitialState);
   });
 
   describe('getNonProfitAccounts', () => {
     it('should return a slice of the data donation accounts array with the primary account filtered out', () => {
-      expect(wrapper.instance().getWrappedInstance().getNonProfitAccounts([
+      expect(wrapper.instance().getNonProfitAccounts([
         { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
         { email: 'bigdata+CARBDM@tidepool.org' },
         { email: 'bigdata+CWD@tidepool.org' },
@@ -97,17 +93,18 @@ describe('DonateForm', () => {
 
   describe('componentWillReceiveProps', () => {
     it('should set the form values state as soon as the data donation accounts are fetched', () => {
-      const setStateSpy = sinon.spy(DonateForm.WrappedComponent.prototype, 'setState');
+      const setStateSpy = sinon.spy(DonateForm.prototype, 'setState');
 
-      wrapper.setProps({ dataDonationAccountsFetched: false })
+      wrapper.setProps({ dataDonationAccountsFetched: false });
       sinon.assert.callCount(setStateSpy, 0);
 
-      wrapper.setProps({ dataDonationAccountsFetched: true })
+      wrapper.setProps({ dataDonationAccountsFetched: true });
       sinon.assert.callCount(setStateSpy, 1);
       sinon.assert.calledWith(setStateSpy, sinon.match({
         formValues: sinon.match.object,
         initialFormValues: sinon.match.object,
       }));
+      DonateForm.prototype.setState.restore();
     });
   });
 
@@ -140,7 +137,7 @@ describe('DonateForm', () => {
 
   describe('getInitialFormValues', () => {
     it('should set appropriate form values for a non-donor', () => {
-      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql(expectedInitialFormValues);
+      expect(wrapper.state().formValues).to.eql(expectedInitialFormValues);
     });
 
     it('should set appropriate initial form values for a donor who has not yet shared proceeds', () => {
@@ -153,7 +150,7 @@ describe('DonateForm', () => {
       });
 
       const element = mount(<DonateForm {...newProps} />);
-      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
+      expect(element.state().formValues).to.eql(expectedFormValues);
     });
 
     it('should set appropriate initial form values for a donor who has shared proceeds', () => {
@@ -170,8 +167,8 @@ describe('DonateForm', () => {
         dataDonateDestination: 'CARBDM,CWD',
       });
 
-      const element = mount(<DonateForm {...newProps} />)
-      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
+      const element = mount(<DonateForm {...newProps} />);
+      expect(element.state().formValues).to.eql(expectedFormValues);
     });
 
     it('should set sort the nonprofits alphabetically in the value string', () => {
@@ -190,11 +187,11 @@ describe('DonateForm', () => {
       });
 
       const element = mount(<DonateForm {...newProps} />);
-      expect(element.instance().getWrappedInstance().state.formValues).to.eql(expectedFormValues);
+      expect(element.state().formValues).to.eql(expectedFormValues);
     });
 
     it('should set initial form values with a provided props argument', () => {
-      expect(wrapper.instance().getWrappedInstance().getInitialFormValues({
+      expect(wrapper.instance().getInitialFormValues({
         dataDonationAccounts: [
           { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL },
           { email: 'bigdata+NSF@tidepool.org' },
@@ -219,7 +216,7 @@ describe('DonateForm', () => {
       const button = wrapper.find('button.simple-form-submit');
       expect(button.text()).to.equal('Save');
 
-      wrapper.instance().getWrappedInstance().setState({ formSubmitted: true });
+      wrapper.instance().setState({ formSubmitted: true });
       expect(button.text()).to.equal('Saved');
     });
 
@@ -234,24 +231,26 @@ describe('DonateForm', () => {
 
   describe('formIsUpdated', () => {
     it('should return true if the form has been updated', () => {
-      wrapper.instance().getWrappedInstance().setState({ formValues: {
-        dataDonate: true,
-        dataDonateDestination: 'CARBDM,CWD',
-      }})
-      expect(wrapper.instance().getWrappedInstance().formIsUpdated()).to.be.true;
+      wrapper.instance().setState({
+        formValues: {
+          dataDonate: true,
+          dataDonateDestination: 'CARBDM,CWD',
+        }
+      });
+      expect(wrapper.instance().formIsUpdated()).to.be.true;
     });
 
     it('should return false if the form has not been updated', () => {
-      expect(wrapper.instance().getWrappedInstance().formIsUpdated()).to.be.false;
+      expect(wrapper.instance().formIsUpdated()).to.be.false;
     });
-  })
+  });
 
   describe('submitIsDisabled', () => {
     let checkbox, button;
 
     beforeEach(() => {
       checkbox = () => wrapper.find('.simple-form').find('.input-group').first().find('input').first();
-      button =  () => wrapper.find('.simple-form').find('button.simple-form-submit[disabled]');
+      button = () => wrapper.find('.simple-form').find('button.simple-form-submit[disabled]');
     });
 
     it('should disable the submit button if the form values haven\'t changed', () => {
@@ -290,31 +289,31 @@ describe('DonateForm', () => {
     let spy, checkbox, select;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleChange');
-      wrapper.instance().getWrappedInstance().forceUpdate();
+      spy = sinon.spy(wrapper.instance(), 'handleChange');
+      wrapper.instance().forceUpdate();
 
       checkbox = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       select = wrapper.find('.simple-form').first().find('.input-group').at(2).find('.Select').first().find('input').first();
     });
 
     it('should update the form values in state when a form value changes', () => {
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.false;
+      expect(wrapper.instance().state.formValues.dataDonate).to.be.false;
 
       checkbox.simulate('change', { target: { name: 'dataDonate', checked: true } });
       sinon.assert.calledOnce(spy);
 
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonate).to.be.true;
+      expect(wrapper.instance().state.formValues.dataDonate).to.be.true;
     });
 
     it('should ensure that the dataDonate form value string is sorted alphabetically', () => {
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.be.empty;
+      expect(wrapper.instance().state.formValues.dataDonateDestination).to.be.empty;
 
-      wrapper.instance().getWrappedInstance().handleChange({
+      wrapper.instance().handleChange({
         name: 'dataDonateDestination',
         value: ['CWD', 'NSF', 'CARBDM'].map(value => ({ value }))
       });
 
-      expect(wrapper.instance().getWrappedInstance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,NSF');
+      expect(wrapper.instance().state.formValues.dataDonateDestination).to.equal('CARBDM,CWD,NSF');
     });
   });
 
@@ -322,7 +321,7 @@ describe('DonateForm', () => {
     let spy, checkbox, button;
 
     beforeEach(() => {
-      spy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleSubmit');
+      spy = sinon.spy(wrapper.instance(), 'handleSubmit');
       wrapper.update();
 
       checkbox = () => wrapper.find('.simple-form').first().find('.input-group').first().find('input');
@@ -363,9 +362,9 @@ describe('DonateForm', () => {
 
       const location = 'settings';
 
-      wrapper.instance().getWrappedInstance().setState({ formValues });
+      wrapper.instance().setState({ formValues });
 
-      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
+      wrapper.instance().handleSubmit(formValues);
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWith(props.onUpdateDataDonationAccounts, expectedAddAccounts);
 
@@ -392,9 +391,9 @@ describe('DonateForm', () => {
         'bigdata+CARBDM@tidepool.org',
       ];
 
-      wrapper.instance().getWrappedInstance().setState({ formValues });
+      wrapper.instance().setState({ formValues });
 
-      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
+      wrapper.instance().handleSubmit(formValues);
 
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWith(props.onUpdateDataDonationAccounts, expectedAddAccounts);
@@ -419,9 +418,9 @@ describe('DonateForm', () => {
         { email: 'bigdata+CARBDM@tidepool.org' },
       ];
 
-      wrapper.instance().getWrappedInstance().setState({ formValues });
+      wrapper.instance().setState({ formValues });
 
-      wrapper.instance().getWrappedInstance().handleSubmit(formValues);
+      wrapper.instance().handleSubmit(formValues);
 
       sinon.assert.calledOnce(props.onUpdateDataDonationAccounts);
       sinon.assert.calledWithExactly(props.onUpdateDataDonationAccounts, [], expectedRemoveAccounts);

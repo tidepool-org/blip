@@ -16,7 +16,7 @@ describe('Messages', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         timePrefs: {}
       };
@@ -24,6 +24,7 @@ describe('Messages', function () {
       var render = TestUtils.renderIntoDocument(elem);
       expect(render).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 
@@ -34,7 +35,7 @@ describe('Messages', function () {
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var state = render.getWrappedInstance().state;
+      var state = render.state;
 
       expect(state.messages).to.deep.equal(props.messages);
     });

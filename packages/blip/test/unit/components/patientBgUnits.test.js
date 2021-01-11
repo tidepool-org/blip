@@ -30,18 +30,10 @@ describe('PatientBgUnits', () => {
   };
 
   before(() => {
-    try {
-      sinon.spy(console, 'error');
-    } catch (e) {
-      console.error = sinon.stub();
-    }
+    sinon.spy(console, 'error');
   });
-
   after(() => {
-    if (_.isFunction(_.get(console, 'error.restore'))) {
-      // @ts-ignore
-      console.error.restore();
-    }
+    console.error.restore();
   });
 
   it('should be a function', () => {

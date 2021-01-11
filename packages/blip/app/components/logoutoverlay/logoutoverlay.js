@@ -15,9 +15,9 @@
  */
 
 import React from 'react';
-import { translate } from 'react-i18next';
+import i18n from '../../core/language';
 
-var LogoutOverlay = translate()(class extends React.Component {
+class LogoutOverlay extends React.Component {
   state = {
     fadeOut: false
   };
@@ -25,7 +25,6 @@ var LogoutOverlay = translate()(class extends React.Component {
   FADE_OUT_DELAY = 200;
 
   render() {
-    const { t } = this.props;
     var className = 'logout-overlay';
     if (this.state.fadeOut) {
       className += ' logout-overlay-fade-out';
@@ -34,7 +33,7 @@ var LogoutOverlay = translate()(class extends React.Component {
     return (
 
       <div className={className}>
-        <div className="logout-overlay-text">{t('Logging out...')}</div>
+        <div className="logout-overlay-text">{i18n.t('Logging out...')}</div>
       </div>
 
     );
@@ -45,6 +44,6 @@ var LogoutOverlay = translate()(class extends React.Component {
     this.setState({fadeOut: true});
     setTimeout(callback, this.FADE_OUT_DELAY);
   };
-});
+}
 
-module.exports = LogoutOverlay;
+export default LogoutOverlay;

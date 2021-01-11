@@ -15,12 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import i18next from 'i18next';
 
 var _ = require('lodash');
 var React = require('react');
 
-var i18next = require('i18next');
 
 // Should be initialized in calling module
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
@@ -46,7 +45,7 @@ var togglableState = require('../TogglableState');
 var basicsState = function (source, manufacturer) {
   var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default));
   const siteChangesTitle = _.get(_.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]), 'label');
-  
+
   return {
     sections: {
       basals: {

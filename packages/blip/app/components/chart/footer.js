@@ -17,13 +17,13 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { translate } from 'react-i18next';
 
 import { components } from 'tidepool-viz';
+import i18n from '../../core/language';
+
 const RangeSelect = components.RangeSelect;
 
-var TidelineFooter = translate()(class extends React.Component {
+class TidelineFooter extends React.Component {
   static propTypes = {
     chartType: PropTypes.string.isRequired,
     onClickBoxOverlay: PropTypes.func,
@@ -42,10 +42,7 @@ var TidelineFooter = translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
-    var refreshLinkClass = cx({
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
-    });
+    const t = i18n.t.bind(i18n);
 
     var showValues = (
       <div className="footer-right-options">
@@ -108,6 +105,6 @@ var TidelineFooter = translate()(class extends React.Component {
       </div>
     );
   }
-});
+}
 
 export default TidelineFooter;

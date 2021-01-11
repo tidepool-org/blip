@@ -1,10 +1,12 @@
+
+import i18next from 'i18next';
+
 var PropTypes = require('prop-types');
 var React = require('react');
 var createReactClass = require('create-react-class');
 var moment = require('moment-timezone');
 var cx = require('classnames');
 var _ = require('lodash');
-var i18next = require('i18next');
 var t = i18next.t.bind(i18next);
 
 var BasicsUtils = require('../BasicsUtils');

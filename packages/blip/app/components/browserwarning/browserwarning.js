@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
 
@@ -27,7 +27,7 @@ const COPY_STATUS_FAIL = 20;
 const playstoreImageUrl = require('./images/google-play-badge.png');
 const appstoreImageUrl = require('./images/appstore-badge.svg');
 
-export default translate()(class BrowserWarning extends Component {
+export default withTranslation()(class BrowserWarning extends Component {
   static propTypes = {
     trackMetric: PropTypes.func.isRequired
   };

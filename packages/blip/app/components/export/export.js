@@ -17,13 +17,11 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import _ from 'lodash';
-import cx from 'classnames';
 import moment from 'moment-timezone';
-import { translate, Trans } from 'react-i18next';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
-export default translate()(class Export extends Component {
+class Export extends Component {
   static propTypes = {
     api: PropTypes.object.isRequired,
     patient: PropTypes.object.isRequired,
@@ -102,7 +100,7 @@ export default translate()(class Export extends Component {
         value = moment().format(JS_DATE_FORMAT);
       }
     }
-    
+
 
     this.setState({
       [name]: value
@@ -231,4 +229,6 @@ export default translate()(class Export extends Component {
       </div>
     );
   }
-});
+}
+
+export default Export;

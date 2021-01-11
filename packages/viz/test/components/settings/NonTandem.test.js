@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
- /* eslint no-console:0 */
+/* eslint no-console:0 */
+/* eslint-disable lodash/prefer-noop */
 
 import React from 'react';
 // because the component is wrapped, can't use shallow
 import { mount, shallow } from 'enzyme';
 import _ from 'lodash';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import NonTandem from '../../../src/components/settings/NonTandem';
@@ -549,8 +552,7 @@ describe('NonTandem', () => {
     });
 
     it('should also render w/o error with `medtronic` as the deviceKey', () => {
-      console.error = sinon.spy();
-      expect(console.error.callCount).to.equal(0);
+      sinon.spy(console, 'error');
       shallow(
         <NonTandem
           bgUnits={MGDL_UNITS}
@@ -564,6 +566,7 @@ describe('NonTandem', () => {
         />
       );
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should have a button to copy settings', () => {

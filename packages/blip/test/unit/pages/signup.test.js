@@ -4,14 +4,11 @@ import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 import sundial from 'sundial';
 import sinon from 'sinon';
-import chai from 'chai';
+import { expect, assert } from 'chai';
 import _ from 'lodash';
 
 import config from '../../../app/config';
-import { Signup, mapStateToProps } from '../../../app/pages/signup';
-
-var assert = chai.assert;
-var expect = chai.expect;
+import { SignupPage as Signup, mapStateToProps } from '../../../app/pages/signup';
 
 describe('Signup', function () {
 
@@ -26,7 +23,7 @@ describe('Signup', function () {
 
   describe('render', function() {
     it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -34,16 +31,19 @@ describe('Signup', function () {
         trackMetric: sinon.stub(),
         working: false,
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should render signup-selection when no key is set and no key is configured', function () {
       var props = {
         inviteKey: '',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -55,6 +55,7 @@ describe('Signup', function () {
       var props = {
         inviteKey: 'foobar',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -67,6 +68,7 @@ describe('Signup', function () {
         inviteKey: 'wrong-key',
         inviteEmail: 'gordonmdent@gmail.com',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -79,6 +81,7 @@ describe('Signup', function () {
         inviteKey: 'foobar',
         inviteEmail: '',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -90,9 +93,10 @@ describe('Signup', function () {
       var props = {
         inviteKey: '',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      var render = TestUtils.renderIntoDocument(elem);
       render.setState({madeSelection:true});
       var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
@@ -100,42 +104,45 @@ describe('Signup', function () {
     it('should render the personal signup-form when personal was selected', function () {
       var props = {
         inviteKey: '',
-        location: { pathname: 'signup' }
+        location: { pathname: 'signup' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      wrapper.instance().getWrappedInstance().setState({madeSelection:true, selected: 'personal'});
-      wrapper.update()
+      wrapper.instance().setState({madeSelection:true, selected: 'personal'});
+      wrapper.update();
 
-      expect(wrapper.find('.signup-form').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Create')
-      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Account')
+      expect(wrapper.find('.signup-form').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Create');
+      expect(wrapper.find('.signup-title-condensed').text()).to.have.string('Account');
     });
 
     it('should render the clinician signup-form when clinician was selected', function () {
       var props = {
-        location: { pathname: 'signup' }
+        location: { pathname: 'signup' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      wrapper.instance().getWrappedInstance().setState({ madeSelection: true, selected: 'clinician'});
+      wrapper.instance().setState({ madeSelection: true, selected: 'clinician'});
       wrapper.update();
 
-      expect(wrapper.find('.signup-form').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/)
+      expect(wrapper.find('.signup-form').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/);
     });
 
     it('should render the correct fields for the personal signup form', function() {
       var props = {
         location: { pathname: '/signup/personal' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
@@ -152,6 +159,7 @@ describe('Signup', function () {
     it('should render the correct fields for the clinician signup form', function() {
       var props = {
         location: { pathname: '/signup/clinician' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
@@ -167,7 +175,8 @@ describe('Signup', function () {
 
     it('should render a link from the personal form to the clinician form, and vice-versa', function() {
       var props = {
-        location: { pathname: '/signup/personal' }
+        location: { pathname: '/signup/personal' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
@@ -181,15 +190,16 @@ describe('Signup', function () {
       expect(link.length).to.equal(1);
 
       link.simulate('click');
-      expect(wrapper.instance().getWrappedInstance().state.selected).to.equal('clinician');
+      expect(wrapper.instance().state.selected).to.equal('clinician');
 
       link.simulate('click');
-      expect(wrapper.instance().getWrappedInstance().state.selected).to.equal('personal');
+      expect(wrapper.instance().state.selected).to.equal('personal');
     });
 
     it('should render the proper submit button text for each signup form', function() {
       var props = {
         location: { pathname: '/signup/personal' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
@@ -211,6 +221,7 @@ describe('Signup', function () {
       var props = {
         location: { pathname: '/signup/personal' },
         working: true,
+        t: (v) => v,
       };
 
       var wrapper = mount(
@@ -237,6 +248,7 @@ describe('Signup', function () {
       onSubmit: _.noop,
       trackMetric: _.noop,
       working: false,
+      t: (v) => v,
     };
 
     before(() => {
@@ -267,9 +279,10 @@ describe('Signup', function () {
       var props = {
         inviteEmail: 'gordonmdent@gmail.com',
         location: { pathname: 'signup' },
+        t: (v) => v,
       };
       var elem = React.createElement(Signup, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      var render = TestUtils.renderIntoDocument(elem);
       var state = render.state;
 
       expect(state.loading).to.equal(false); // once rendered, loading has been set to false
@@ -281,29 +294,31 @@ describe('Signup', function () {
     it('should set the state to show the personal form according to the location pathname', function() {
       var props = {
         location: { pathname: '/signup/personal' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      expect(wrapper.find('.signup-form').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/)
+      expect(wrapper.find('.signup-form').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').text()).to.match(/Create(.*)Account/);
     });
 
     it('should set the state to show the clinician form according to the location pathname', function() {
       var props = {
         location: { pathname: '/signup/clinician' },
+        t: (v) => v,
       };
 
       var wrapper = mount(
         <Signup {...props} />
       );
 
-      expect(wrapper.find('.signup-form').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').length).to.equal(1)
-      expect(wrapper.find('.signup-title-condensed').text()).to.equal('Create Clinician Account')
+      expect(wrapper.find('.signup-form').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').length).to.equal(1);
+      expect(wrapper.find('.signup-title-condensed').text()).to.equal('Create Clinician Account');
     });
   });
 
@@ -342,7 +357,8 @@ describe('Signup', function () {
       const username = 'jill@gmail.com';
 
       const props = {
-        location: { pathname: '/signup/clinician' }
+        location: { pathname: '/signup/clinician' },
+        t: (v) => v,
       };
 
       const formValues = {
@@ -358,11 +374,11 @@ describe('Signup', function () {
 
       const input = wrapper.find('.simple-form').first().find('.input-group').first().find('input');
       expect(input.length).to.equal(1);
-      expect(wrapper.instance().getWrappedInstance().state.formValues).to.eql(formValues);
+      expect(wrapper.instance().state.formValues).to.eql(formValues);
 
       input.simulate('change', { target: { name: 'username', value: username } });
 
-      const changedFormValues = wrapper.instance().getWrappedInstance().state.formValues;
+      const changedFormValues = wrapper.instance().state.formValues;
       expect(changedFormValues, JSON.stringify([changedFormValues, { ...formValues, username }])).to.eql({ ...formValues, username });
     });
   });
@@ -382,6 +398,7 @@ describe('Signup', function () {
     it('should be prepare the form values for submission of the personal signup form', function() {
       var props = {
         location: { pathname: '/signup/personal' },
+        t: (v) => v,
       };
 
       const formValues = {
@@ -393,7 +410,7 @@ describe('Signup', function () {
       };
 
       const elem = React.createElement(Signup, props);
-      const rendered = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const rendered = TestUtils.renderIntoDocument(elem);
 
       const expectedformattedValues = {
         username: formValues.username,
@@ -413,6 +430,7 @@ describe('Signup', function () {
     it('should be prepare the form values for submission of the clinician signup form', function() {
       var props = {
         location: { pathname: '/signup/clinician' },
+        t: (v) => v,
       };
 
       const formValues = {
@@ -424,7 +442,7 @@ describe('Signup', function () {
       };
 
       const elem = React.createElement(Signup, props);
-      const rendered = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const rendered = TestUtils.renderIntoDocument(elem);
 
       const expectedformattedValues = {
         username: formValues.username,

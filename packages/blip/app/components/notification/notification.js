@@ -19,9 +19,12 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'react-i18next';
 
-var TidepoolNotification = translate()(class extends React.Component {
+import i18n from '../../core/language';
+
+const t = i18n.t.bind(i18n);
+
+class TidepoolNotification extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     contents: PropTypes.object.isRequired,
@@ -30,7 +33,6 @@ var TidepoolNotification = translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
     var type = this.props.type || 'alert';
     var className = 'notification notification-' + type;
     var contents = this.props.contents;
@@ -73,7 +75,6 @@ var TidepoolNotification = translate()(class extends React.Component {
     if (!this.props.onClose) {
       return null;
     }
-    const { t } = this.props;
 
     return (
       <a
@@ -94,6 +95,6 @@ var TidepoolNotification = translate()(class extends React.Component {
       close();
     }
   };
-});
+}
 
 module.exports = TidepoolNotification;

@@ -12,24 +12,18 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global beforeEach */
 
 import React from 'react';
 import { mount } from 'enzyme';
-
-import UploadLaunchOverlay from '../../../app/components/uploadlaunchoverlay';
-import ModalOverlay from '../../../app/components/modaloverlay';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { UploadLaunchOverlay } from '../../../app/components/uploadlaunchoverlay/uploadlaunchoverlay';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
-
-const expect = chai.expect;
 
 describe('UploadLaunchOverlay', function () {
   const props = {
     modalDismissHandler: sinon.spy(),
+    t: (v) => v,
   };
 
   let wrapper;
@@ -43,8 +37,8 @@ describe('UploadLaunchOverlay', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      expect(wrapper.find(UploadLaunchOverlay)).to.have.length(1);
-      expect(wrapper.find(ModalOverlay)).to.have.length(1);
+      expect(wrapper.find('.UploadLaunchOverlay')).to.have.length(1);
+      expect(wrapper.find('.UploadLaunchOverlay-content')).to.have.length(1);
     });
 
     it('should respond to an onClick event', () => {
@@ -60,7 +54,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should have active buttons if URLs have been set', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.setState({
         latestMacRelease: 'test',
         latestWinRelease: 'test',
         uploadDismiss: 'test',
@@ -71,7 +65,7 @@ describe('UploadLaunchOverlay', function () {
     });
 
     it('should display download link if error retrieving github releases', () => {
-      wrapper.instance().getWrappedInstance().setState({
+      wrapper.setState({
         error: 'some error',
       });
       wrapper.update();

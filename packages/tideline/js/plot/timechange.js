@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
+import i18next from 'i18next';
 const d3 = require('d3');
 const _ = require('lodash');
 
 const moment = require('moment-timezone');
-const i18next = require('i18next');
 
 const constants = require('../data/util/constants');
 const format = require('../data/util/format');

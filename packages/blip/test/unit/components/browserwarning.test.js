@@ -1,14 +1,9 @@
-/* global chai */
-/* global describe */
-/* global before */
-/* global sinon */
-/* global it */
 
+import sinon from 'sinon';
+import { expect } from 'chai';
+import { mount } from 'enzyme';
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import BrowserWarning from '../../../app/components/browserwarning';
-
-var expect = chai.expect;
 
 describe('BrowserWarning', function () {
   it('should be a function', function() {
@@ -17,50 +12,47 @@ describe('BrowserWarning', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      var props = {
-        trackMetric: function() {}
+      const props = {
+        trackMetric: sinon.stub()
       };
-      var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      expect(elem).to.be.ok;
+      const wrapper = mount(<BrowserWarning {...props} />);
+      expect(wrapper.exists('.browser-warning')).to.be.true;
+      wrapper.unmount();
     });
 
     it('should fire metric when mounted/rendered', function() {
-      var props = {
+      const props = {
         trackMetric: sinon.stub()
       };
-      var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      expect(elem).to.be.ok;
+      const wrapper = mount(<BrowserWarning {...props} />);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
+      wrapper.unmount();
     });
 
     it('should fire metric when google play clicked', function() {
-      var props = {
+      const props = {
         trackMetric: sinon.stub()
       };
-      var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var playButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'playstore-badge');
+      const wrapper = mount(<BrowserWarning {...props} />);
+      const playButton = wrapper.find('.playstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(playButton);
+      playButton.at(0).simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked Android')).to.be.true;
     });
 
 
     it('should fire metric when apple play store clicked', function() {
-      var props = {
+      const props = {
         trackMetric: sinon.stub()
       };
-      var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = TestUtils.renderIntoDocument(browserWarningElem);
-      var appStoreButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'appstore-badge');
+      const wrapper = mount(<BrowserWarning {...props} />);
+      const appStoreButton = wrapper.find('.appstore-badge');
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('Chrome Required - Screen Displayed')).to.be.true;
-      TestUtils.Simulate.click(appStoreButton);
+      appStoreButton.at(0).simulate('click');
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('No Data - Clicked iOS')).to.be.true;
     });

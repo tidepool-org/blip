@@ -14,14 +14,14 @@
  */
 
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { translate, Trans } from 'react-i18next';
+import React from 'react';
+import { withTranslation, Trans } from 'react-i18next';
 import cx from 'classnames';
 import ModalOverlay from '../modaloverlay';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
 
-const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Component {
+export class UploadLaunchOverlay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,6 +33,7 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
 
   static propTypes = {
     modalDismissHandler: PropTypes.func.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   UNSAFE_componentWillMount = () => {
@@ -104,6 +105,6 @@ const UploadLaunchOverlay = translate()(class UploadLaunchOverlay extends Compon
     );
   };
 
-});
+}
 
-module.exports = UploadLaunchOverlay;
+export default withTranslation()(UploadLaunchOverlay);

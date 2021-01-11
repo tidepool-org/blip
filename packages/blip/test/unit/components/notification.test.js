@@ -10,17 +10,18 @@ var expect = chai.expect;
 var NotificationElem = require('../../../app/components/notification');
 
 describe('NotificationElem', function () {
-  describe('render', function() {
+  describe('render', function () {
     it('should render without problems', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         contents: {},
         onClose: sinon.stub()
-      }
-      var elem = TestUtils.renderIntoDocument(<NotificationElem {...props}/>);
+      };
+      var elem = TestUtils.renderIntoDocument(<NotificationElem {...props} />);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 });

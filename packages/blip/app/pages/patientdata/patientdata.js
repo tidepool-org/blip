@@ -14,10 +14,9 @@
  */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -58,10 +57,8 @@ const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
 const DiabetesDataTypesForDatum = _.filter(DIABETES_DATA_TYPES,t=>t!=='food');
 
-export let PatientData = translate()(createReactClass({
-  displayName: 'PatientData',
-
-  propTypes: {
+export class PatientData extends React.Component {
+  static propTypes = {
     addPatientNote: PropTypes.func.isRequired,
     clearPatientData: PropTypes.func.isRequired,
     currentPatientInViewId: PropTypes.string.isRequired,
@@ -86,10 +83,12 @@ export let PatientData = translate()(createReactClass({
     uploadUrl: PropTypes.string,
     user: PropTypes.object,
     viz: PropTypes.object.isRequired,
-  },
+    t: PropTypes.func.isRequired,
+  }
 
-  getInitialState: function() {
-    var state = {
+  constructor(props) {
+    super(props);
+    this.state = {
       chartType: null,
       chartPrefs: {
         basics: {},
@@ -144,12 +143,12 @@ export let PatientData = translate()(createReactClass({
       canPrint: false,
     };
 
-    return state;
-  },
+    this.log = bows('PatientData');
+    this.handleMessageCreation = this.handleMessageCreation.bind(this);
+    this.handleEditMessage = this.handleEditMessage.bind(this);
+  }
 
-  log: bows('PatientData'),
-
-  render: function() {
+  render() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
@@ -164,9 +163,9 @@ export let PatientData = translate()(createReactClass({
         <Loader show={showLoader} />
       </div>
     );
-  },
+  }
 
-  renderPatientData: function() {
+  renderPatientData() {
     const initialProcessing = this.state.lastDatumProcessedIndex < 0;
 
     if (initialProcessing && this.state.loading) {
@@ -178,9 +177,9 @@ export let PatientData = translate()(createReactClass({
     }
 
     return this.renderChart();
-  },
+  }
 
-  renderEmptyHeader: function() {
+  renderEmptyHeader() {
     const { t } = this.props;
     return (
       <Header
@@ -191,9 +190,9 @@ export let PatientData = translate()(createReactClass({
         canPrint={false}
         ref="header" />
       );
-  },
+  }
 
-  renderInitialLoading: function() {
+  renderInitialLoading() {
     var header = this.renderEmptyHeader();
     return (
       <div>
@@ -205,16 +204,16 @@ export let PatientData = translate()(createReactClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderNoData: function() {
+  renderNoData() {
     if (config.HIDE_UPLOAD_LINK) {
       return this.renderNoDataWithoutUploadLink();
     }
     return this.renderNoDataWithUploadLink();
-  },
+  }
 
-  renderNoDataWithoutUploadLink: function() {
+  renderNoDataWithoutUploadLink() {
     const { t } = this.props;
     var header = this.renderEmptyHeader();
     var noDataText = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
@@ -235,9 +234,9 @@ export let PatientData = translate()(createReactClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderNoDataWithUploadLink: function() {
+  renderNoDataWithUploadLink() {
     const { t } = this.props;
     var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
     var header = this.renderEmptyHeader();
@@ -294,17 +293,17 @@ export let PatientData = translate()(createReactClass({
         {uploadLaunchOverlay}
       </div>
     );
-  },
+  }
 
-  renderUploadOverlay: function() {
+  renderUploadOverlay() {
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
-  },
+  }
 
-  isEmptyPatientData: function() {
+  isEmptyPatientData() {
     return (!_.get(this.props, 'patient.userid', false) || !this.state.processedPatientData);
-  },
+  }
 
-  isInsufficientPatientData: function() {
+  isInsufficientPatientData() {
     var data = _.get(this.state.processedPatientData, 'data', {});
     // add additional checks against data and return false iff:
     // only messages data
@@ -313,9 +312,9 @@ export let PatientData = translate()(createReactClass({
       return true;
     }
     return false;
-  },
+  }
 
-  renderSettings: function() {
+  renderSettings() {
     const { canPrint } = this.state;
     return (
       <div>
@@ -342,9 +341,9 @@ export let PatientData = translate()(createReactClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderChart: function() {
+  renderChart() {
     const { canPrint } = this.state;
     switch (this.state.chartType) {
       case 'basics':
@@ -461,9 +460,9 @@ export let PatientData = translate()(createReactClass({
       case 'settings':
         return this.renderSettings();
     }
-  },
+  }
 
-  renderMessagesContainer: function() {
+  renderMessagesContainer() {
     if (this.state.createMessageDatetime) {
       return (
         <Messages
@@ -488,21 +487,21 @@ export let PatientData = translate()(createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
-  },
+  }
 
-  closeMessageThread: function(){
+  closeMessageThread = function() {
     this.props.onCloseMessageThread();
     this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
-  },
+  }
 
-  closeMessageCreation: function(){
+  closeMessageCreation = function() {
     this.setState({ createMessageDatetime: null });
     this.refs.tideline.getWrappedInstance().closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
-  },
+  }
 
-  generatePDFStats: function (data, state) {
+  generatePDFStats(data, state) {
     const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
@@ -574,9 +573,9 @@ export let PatientData = translate()(createReactClass({
     }
 
     return data;
-  },
+  }
 
-  generatePDF: function (props, state) {
+  generatePDF(props, state) {
     const data = state.processedPatientData;
     const diabetesData = data.diabetesData;
 
@@ -627,15 +626,15 @@ export let PatientData = translate()(createReactClass({
     this.log('Generating PDF with', pdfData, opts);
 
     return createPrintPDFPackage(pdfData, opts);
+  }
 
-  },
-
-  subtractTimezoneOffset: function(datetime, timezoneSettings = this.state.timePrefs) {
+  subtractTimezoneOffset(datetime, timezoneSettings) {
     const dateMoment = moment.utc(datetime);
 
     if (dateMoment.isValid()) {
       let timezoneOffset = 0;
 
+      timezoneSettings = timezoneSettings || this.state.timePrefs;
       if (_.get(timezoneSettings, 'timezoneAware')) {
         timezoneOffset = sundial.getOffsetFromZone(dateMoment.toISOString(), timezoneSettings.timezoneName);
       }
@@ -643,9 +642,9 @@ export let PatientData = translate()(createReactClass({
     }
 
     return datetime;
-  },
+  }
 
-  handleChartDateRangeUpdate: function(endpoints, cb = _.noop) {
+  handleChartDateRangeUpdate = function(endpoints, cb = _.noop) {
     this.updateChartEndpoints(endpoints, () => {
       if (!this.props.fetchingPatientData && !this.state.processingData) {
         const patientID = this.props.currentPatientInViewId;
@@ -692,23 +691,23 @@ export let PatientData = translate()(createReactClass({
         cb();
       }
     });
-  },
+  }
 
-  handleMessageCreation: function(message) {
+  handleMessageCreation(message) {
     this.refs.tideline.getWrappedInstance().createMessageThread(nurseShark.reshapeMessage(message));
     this.props.addPatientNote(message);
     this.props.trackMetric('Created New Message');
-  },
+  }
 
-  handleReplyToMessage: function(comment, cb) {
+  handleReplyToMessage = function(comment, cb) {
     var reply = this.props.onSaveComment;
     if (reply) {
       reply(comment, cb);
     }
     this.props.trackMetric('Replied To Message');
-  },
+  }
 
-  handleEditMessage: function(message, cb) {
+  handleEditMessage(message, cb) {
     var edit = this.props.onEditMessage;
     if (edit) {
       edit(message, cb);
@@ -716,23 +715,23 @@ export let PatientData = translate()(createReactClass({
     this.refs.tideline.getWrappedInstance().editMessageThread(nurseShark.reshapeMessage(message));
     this.props.updatePatientNote(message);
     this.props.trackMetric('Edit To Message');
-  },
+  }
 
-  handleShowMessageThread: function(messageThread) {
+  handleShowMessageThread = function(messageThread) {
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread);
     }
 
     this.props.trackMetric('Clicked Message Icon');
-  },
+  }
 
-  handleShowMessageCreation: function(datetime) {
+  handleShowMessageCreation = function(datetime) {
     this.setState({ createMessageDatetime : datetime });
     this.props.trackMetric('Clicked Message Pool Background');
-  },
+  }
 
-  handleSwitchToBasics: function(e) {
+  handleSwitchToBasics = function(e) {
     this.props.trackMetric('Clicked Switch To Basics', {
       fromChart: this.state.chartType
     });
@@ -744,9 +743,9 @@ export let PatientData = translate()(createReactClass({
     this.setState({
       chartType: 'basics'
     });
-  },
+  }
 
-  handleSwitchToDaily: function(datetime, title) {
+  handleSwitchToDaily = function(datetime, title) {
     this.props.trackMetric('Clicked Basics '+title+' calendar', {
       fromChart: this.state.chartType
     });
@@ -766,9 +765,9 @@ export let PatientData = translate()(createReactClass({
       chartType: 'daily',
       datetimeLocation,
     });
-  },
+  }
 
-  handleSwitchToTrends: function(datetime) {
+  handleSwitchToTrends = function(datetime) {
     this.props.trackMetric('Clicked Switch To Modal', {
       fromChart: this.state.chartType
     });
@@ -786,9 +785,9 @@ export let PatientData = translate()(createReactClass({
       chartType: 'trends',
       datetimeLocation,
     });
-  },
+  }
 
-  handleSwitchToBgLog: function(datetime) {
+  handleSwitchToBgLog = function(datetime) {
     if (config.BRANDING === 'diabeloop') {
       return this.handleSwitchToDaily(datetime, 'BgLog');
     }
@@ -812,9 +811,9 @@ export let PatientData = translate()(createReactClass({
       chartType: 'bgLog',
       datetimeLocation,
     });
-  },
+  }
 
-  handleSwitchToSettings: function(e) {
+  handleSwitchToSettings = function(e) {
     this.props.trackMetric('Clicked Switch To Settings', {
       fromChart: this.state.chartType
     });
@@ -824,9 +823,9 @@ export let PatientData = translate()(createReactClass({
     this.setState({
       chartType: 'settings'
     });
-  },
+  }
 
-  handleClickPrint: function() {
+  handleClickPrint = function() {
     function openPDFWindow(pdf) {
       const printWindow = window.open(pdf.url);
       if (printWindow !== null) {
@@ -871,19 +870,19 @@ export let PatientData = translate()(createReactClass({
         }
       }
     });
-  },
+  }
 
-  handleClickRefresh: function(e) {
+  handleClickRefresh = function(e) {
     this.handleRefresh(e);
     this.props.trackMetric('Clicked Refresh');
-  },
+  }
 
-  handleClickNoDataRefresh: function(e) {
+  handleClickNoDataRefresh = function(e) {
     this.handleRefresh(e);
     this.props.trackMetric('Clicked No Data Refresh');
-  },
+  }
 
-  handleRefresh: function(e) {
+  handleRefresh = function(e) {
     if (e) {
       e.preventDefault();
     }
@@ -906,18 +905,18 @@ export let PatientData = translate()(createReactClass({
         canPrint: false,
       }, () => refresh(this.props.currentPatientInViewId));
     }
-  },
+  }
 
-  updateBasicsData: function(basicsData) {
+  updateBasicsData = function(basicsData) {
     // only attempt to update data if there's already data present to update
     if(this.state.processedPatientData){
       this.setState({
         processedPatientData: _.assign(this.state.processedPatientData, { basicsData }),
       });
     }
-  },
+  }
 
-  updateBasicsSettings: function(patientId, settings, canUpdateSettings) {
+  updateBasicsSettings = function(patientId, settings, canUpdateSettings) {
     if (canUpdateSettings) {
       this.props.updateBasicsSettings(patientId, settings);
     }
@@ -929,9 +928,9 @@ export let PatientData = translate()(createReactClass({
     if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
       this.setState({ updatedSiteChangeSource: settings.siteChangeSource, pdf: null });
     }
-  },
+  }
 
-  updateChartPrefs: function(updates, cb) {
+  updateChartPrefs = function(updates, cb) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
@@ -941,21 +940,21 @@ export let PatientData = translate()(createReactClass({
     this.setState({
       chartPrefs: newPrefs,
     }, cb);
-  },
+  }
 
-  updateDatetimeLocation: function(datetime, cb) {
+  updateDatetimeLocation = function(datetime, cb) {
     this.setState({
       datetimeLocation: datetime,
     }, cb);
-  },
+  }
 
-  updateChartEndpoints: function(endpoints, cb) {
+  updateChartEndpoints = function(endpoints, cb) {
     this.setState({
       endpoints,
     }, cb);
-  },
+  }
 
-  UNSAFE_componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.doFetching(this.props);
     var params = this.props.queryParams;
 
@@ -966,9 +965,9 @@ export let PatientData = translate()(createReactClass({
         chartPrefs: prefs,
       });
     }
-  },
+  }
 
-  UNSAFE_componentWillReceiveProps: function(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const userId = this.props.currentPatientInViewId;
     const nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
@@ -999,9 +998,9 @@ export let PatientData = translate()(createReactClass({
         }
       }
     }
-  },
+  }
 
-  componentDidUpdate: function() {
+  componentDidUpdate() {
     const { fetchingUser } = this.props;
     const { canPrint, processingData, processedPatientData, loading } = this.state;
     let hasDiabetesData = false;
@@ -1013,9 +1012,9 @@ export let PatientData = translate()(createReactClass({
     if (canPrint !== hableToPrint) {
       this.setState({ canPrint: hableToPrint });
     }
-  },
+  }
 
-  setInitialChartType: function(processedData) {
+  setInitialChartType(processedData) {
     // Determine default chart type and date from latest data
     const uploads = _.get(processedData.grouped, 'upload', []);
     const latestData = _.last(processedData.diabetesData);
@@ -1048,9 +1047,9 @@ export let PatientData = translate()(createReactClass({
 
       this.setState(state);
     }
-  },
+  }
 
-  fetchEarlierData: function(options = {}, cb) {
+  fetchEarlierData(options = {}, cb) {
     // Return if we've already fetched all data, or are currently fetching
     if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
       if (cb) { cb(); }
@@ -1090,9 +1089,9 @@ export let PatientData = translate()(createReactClass({
       this.props.trackMetric('Fetched earlier patient data', { patientID, count });
       if (cb) { cb(); }
     });
-  },
+  }
 
-  getLastDatumToProcessIndex: function (unprocessedData, targetDatetime) {
+  getLastDatumToProcessIndex(unprocessedData, targetDatetime) {
     let diabetesDataCount = 0;
 
     // First, we get the index of the first diabetes datum that falls outside of our processing window.
@@ -1120,15 +1119,16 @@ export let PatientData = translate()(createReactClass({
     // Because targetIndex was set to the first one outside of our processing window, and we're
     // looking for the last datum to process, we decrement by one and return
     return --targetIndex;
-  },
+  }
 
-  processData: function(props = this.props, cb = _.noop) {
+  processData(props, cb = _.noop) {
+    props = props || this.props;
     const patientID = props.currentPatientInViewId;
     const patientData = _.get(props, ['patientDataMap', patientID], []);
     const allDataFetched = _.get(props, 'fetchedPatientDataRange.fetchedUntil') === 'start';
 
     // Return if currently processing or we've already fetched and processed all data
-    if (this.state.processingData || allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1) {
+    if (this.state.processingData || (allDataFetched && this.state.lastDatumProcessedIndex === patientData.length - 1)) {
       if (!this.state.processingData) {
         this.setState({
           loading: false,
@@ -1291,18 +1291,18 @@ export let PatientData = translate()(createReactClass({
         });
       }
     });
-  },
+  }
 
-  hideLoading: function(timeout = 250, cb = _.noop) {
+  hideLoading(timeout = 250, cb = _.noop) {
     // Needs to be in a setTimeout to force unsetting the loading state in a new render cycle
     // so that child components can be aware of the change in processing states. It also serves
     // to ensure the loading indicator shows long enough for the user to make sense of it.
     setTimeout(() => {
       this.setState({ loading: false }, cb);
     }, timeout);
-  },
+  }
 
-  handleInitialProcessedData: function(props, processedData, patientSettings) {
+  handleInitialProcessedData(props, processedData, patientSettings) {
     const userId = props.currentPatientInViewId;
     const patientData = _.get(props, ['patientDataMap', userId], []);
     const patientNotes = _.get(props, ['patientNotesMap', userId], []);
@@ -1391,9 +1391,9 @@ export let PatientData = translate()(createReactClass({
       this.dataUtil.removeData();
       this.dataUtil.addData(data[initialBgUnits].data.concat(_.get(data[initialBgUnits], 'grouped.upload', [])))
     };
-  },
+  }
 
-  doFetching: function(nextProps) {
+  doFetching(nextProps) {
     if (this.props.trackMetric) {
       const carelink = nextProps.carelink;
       if (!_.isEmpty(carelink)) {
@@ -1416,14 +1416,14 @@ export let PatientData = translate()(createReactClass({
     }
 
     if (!nextProps.fetchers) {
-      return
+      return;
     }
 
     nextProps.fetchers.forEach(function(fetcher) {
       fetcher();
     });
-  },
-}));
+  }
+}
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -1545,4 +1545,5 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   });
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientData);
+const TrPatientData = withTranslation()(PatientData);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(TrPatientData);

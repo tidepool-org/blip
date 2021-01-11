@@ -2,15 +2,12 @@
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import sinon from 'sinon';
-import chai from 'chai';
+import { assert, expect } from 'chai';
+import { mount } from 'enzyme';
 
 import mutationTracker from 'object-invariant-test-helper';
 
-var assert = chai.assert;
-var expect = chai.expect;
-
-import { Patients } from '../../../app/pages/patients';
-import { mapStateToProps, getFetchers } from '../../../app/pages/patients';
+import { Patients, mapStateToProps, getFetchers } from '../../../app/pages/patients/patients';
 
 describe('Patients', () => {
   it('should be exposed as a module and be of type function', () => {
@@ -56,8 +53,7 @@ describe('Patients', () => {
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
       var props = {};
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients />);
 
       var nextProps = Object.assign({}, props, {
         invites: [1],
@@ -71,15 +67,15 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
+      wrapper.unmount();
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
       var props = {};
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients />);
+
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
         loading: false,
@@ -92,17 +88,17 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
+      wrapper.unmount();
     });
 
     it('should not redirect to patient data when justLogged query param is set and zero patients available', () => {
       var props = {
         showWelcomeMessage: sinon.stub()
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients {...props} />);
+
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -116,18 +112,17 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
+      wrapper.unmount();
     });
 
     it('should trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients and zero invites available', () => {
       var props = {
         showWelcomeMessage: sinon.stub()
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var currentPath = window.location.pathname;
+      const wrapper = mount(<Patients {...props} />);
+
       var nextProps = Object.assign({}, props, {
           loading: false,
           location: { query: {
@@ -140,17 +135,16 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
+      wrapper.unmount();
     });
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
       var props = {
         showWelcomeMessage: sinon.stub()
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients {...props} />);
 
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -164,17 +158,16 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
+      wrapper.unmount();
     });
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients but one invite available', () => {
       var props = {
         showWelcomeMessage: sinon.stub()
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients {...props} />);
 
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -188,15 +181,14 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
+      wrapper.unmount();
     });
 
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
       var props = {};
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients {...props} />);
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -213,16 +205,15 @@ describe('Patients', () => {
         }
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
+      wrapper.unmount();
     });
 
     // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
       var props = {};
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      const wrapper = mount(<Patients {...props} />);
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -236,9 +227,9 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      // eslint-disable-next-line new-cap
-      render.UNSAFE_componentWillReceiveProps(nextProps);
+      wrapper.setProps(nextProps);
       expect(window.location.pathname).to.equal('/patients/1/data');
+      wrapper.unmount();
     });
   });
 
@@ -351,8 +342,12 @@ describe('Patients', () => {
         }
       };
 
-      const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+      let tracked;
+      let result;
+      before(() => {
+        tracked = mutationTracker.trackObj(state);
+        result = mapStateToProps({blip: state});
+      });
 
       it('should not mutate the state', () => {
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -434,8 +429,13 @@ describe('Patients', () => {
           fetchingMetrics: {inProgress: false, completed: true}
         }
       };
-      const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+
+      let tracked;
+      let result;
+      before(() => {
+        tracked = mutationTracker.trackObj(state);
+        result = mapStateToProps({blip: state});
+      });
 
       it('should not mutate the state', () => {
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -517,8 +517,12 @@ describe('Patients', () => {
         }
       };
 
-      const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+      let tracked;
+      let result;
+      before(() => {
+        tracked = mutationTracker.trackObj(state);
+        result = mapStateToProps({blip: state});
+      });
 
       it('should not mutate the state', () => {
         expect(mutationTracker.hasMutated(tracked)).to.be.false;

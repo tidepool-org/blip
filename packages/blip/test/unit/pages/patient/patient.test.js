@@ -1,28 +1,16 @@
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
-import createReactClass from 'create-react-class';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { mount, shallow } from 'enzyme';
 
-import Patient from '../../../../app/pages/patient/patient';
+import { Patient } from '../../../../app/pages/patient/patient';
 import { PatientTeam } from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
-  before(() => {
-    Patient.__Rewire__('PatientInfo', createReactClass({
-      render: function() {
-        return (<div className='fake-patient-info-view'></div>);
-      }
-    }));
-  });
-
-  after(() => {
-    Patient.__ResetDependency__('PatientInfo');
-  });
-
   describe('render', function() {
     it('should render without problems when required props are present', function() {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         acknowledgeNotification: sinon.stub(),
         fetchers: [],
@@ -33,25 +21,26 @@ describe('Patient', function () {
         fetchDataSources: sinon.stub(),
         connectDataSource: sinon.stub(),
         disconnectDataSource: sinon.stub(),
+        t: (v) => v,
       };
-      var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
-
-      expect(elem).to.be.ok;
+      shallow(<Patient {...props} />);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 
   describe('Initial State', function() {
     it('should return an object', function() {
-      var props = {};
-      var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem).getWrappedInstance();
-      var initialState = elem.getInitialState();
+      const props = {
+        t: (v) => v,
+      };
+      const wrapper = mount(<Patient {...props} />);
+      const initialState = wrapper.state();
 
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);
       expect(initialState.dialog).to.equal('');
+      wrapper.unmount();
     });
   });
 
@@ -75,7 +64,8 @@ describe('Patient', function () {
         removingMember: false,
         shareOnly: true,
         trackMetric: sinon.stub(),
-        user: {userid: 'foo'}
+        user: {userid: 'foo'},
+        t: (v) => v,
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -105,7 +95,8 @@ describe('Patient', function () {
         removingMember: false,
         shareOnly: false,
         trackMetric: sinon.stub(),
-        user: {userid: 'foo'}
+        user: {userid: 'foo'},
+        t: (v) => v,
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -135,13 +126,11 @@ describe('Patient', function () {
         removingMember: false,
         shareOnly: true,
         trackMetric: sinon.stub(),
-        user: {userid: 'foo'}
+        user: {userid: 'foo'},
+        t: (v) => v,
       };
-      var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
-      var share = TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
-
-      expect(share).to.be.ok;
+      const wrapper = shallow(<Patient {...props} />);
+      expect(wrapper.exists('.PatientPage-teamSection')).to.be.true;
     });
 
     it('should transfer all props to patient-team', function() {
@@ -167,21 +156,21 @@ describe('Patient', function () {
         removingMember: false,
         shareOnly: true,
         trackMetric: sinon.stub(),
-        user: {userid: 'foo'}
+        user: {userid: 'foo'},
+        t: (v) => v,
       };
-      var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
-      var team = TestUtils.findRenderedComponentWithType(elem, PatientTeam);
+      const wrapper = shallow(<Patient {...props} />);
+      const team = wrapper.find(PatientTeam);
 
-      expect(team.props.onCancelInvite).to.be.ok;
-      expect(team.props.onChangeMemberPermissions).to.be.ok;
-      expect(team.props.onInviteMember).to.be.ok;
-      expect(team.props.onRemoveMember).to.be.ok;
-      expect(team.props.patient.userid).to.equal('foo');
-      expect(team.props.patient.team.length).to.equal(2);
-      expect(team.props.pendingSentInvites.length).to.equal(3);
-      expect(team.props.user.userid).to.equal('foo');
-      expect(team.props.trackMetric).to.be.ok;
+      expect(team.props().onCancelInvite).to.be.ok;
+      expect(team.props().onChangeMemberPermissions).to.be.ok;
+      expect(team.props().onInviteMember).to.be.ok;
+      expect(team.props().onRemoveMember).to.be.ok;
+      expect(team.props().patient.userid).to.equal('foo');
+      expect(team.props().patient.team.length).to.equal(2);
+      expect(team.props().pendingSentInvites.length).to.equal(3);
+      expect(team.props().user.userid).to.equal('foo');
+      expect(team.props().trackMetric).to.be.ok;
     });
   });
 });

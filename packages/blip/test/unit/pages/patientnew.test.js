@@ -1,19 +1,13 @@
-/* global chai */
-/* global sinon */
 
 import _ from 'lodash';
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
-import * as i18n from 'i18next';
-
+import i18next from 'i18next';
+import { assert, expect } from 'chai';
+import sinon from 'sinon';
 import { PatientNew, mapStateToProps } from '../../../app/pages/patientnew/patientnew';
-
-
-
-var assert = chai.assert;
-var expect = chai.expect;
 
 describe('PatientNew', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -30,10 +24,11 @@ describe('PatientNew', function () {
 
   describe('render', function() {
     it('should not warn when required props are set', function() {
-      console.error = sinon.spy();
+      sinon.spy(console, 'error');
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should render a diagnosis type label and select list', function() {
@@ -53,7 +48,6 @@ describe('PatientNew', function () {
 
   describe('initial state', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       var initialState = elem.state;
       expect(initialState.working).to.equal(false);
@@ -117,14 +111,14 @@ describe('PatientNew', function () {
     */
     describe('When local=fr', () => {
       before((done)=> {
-        i18n.off('languageChanged');
-        i18n.changeLanguage('fr', (err) => {
+        i18next.off('languageChanged');
+        i18next.changeLanguage('fr', (err) => {
           if(err) console.log(err);
           done();
         });
       });
       after((done) => {
-        i18n.changeLanguage('en', (err) => {
+        i18next.changeLanguage('en', (err) => {
           if(err) console.log(err);
           done();
         });
@@ -132,7 +126,7 @@ describe('PatientNew', function () {
       it('should call onSubmit with valid form values when local=fr', function(){
           wrapper.instance().handleSubmit(formValues);
           expect(props.onSubmit.callCount).to.equal(1);
-  
+
           sinon.assert.calledWith(props.onSubmit, {
             profile: {
               firstName: 'John',
@@ -146,7 +140,7 @@ describe('PatientNew', function () {
             },
           });
           expect(props.onUpdateDataDonationAccounts.callCount).to.equal(0);
-          expect(props.trackMetric.callCount).to.equal(0); 
+          expect(props.trackMetric.callCount).to.equal(0);
         });
     });
 

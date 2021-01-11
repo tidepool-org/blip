@@ -15,12 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import i18next from 'i18next';
 
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
-var i18next = require('i18next');
 
 // At some time we could add test on other languages
 var i18nconf = {
@@ -58,7 +57,7 @@ describe('format utility', function() {
   before(() => {
     i18next.changeLanguage('en');
   });
-  
+
   describe('tooltipBG', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.tooltipBG);

@@ -18,19 +18,21 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 import ErrorMessages from '../../redux/constants/errorMessages';
 
+import i18n from '../../core/language';
 import utils from '../../core/utils';
 import LoginNav from '../../components/loginnav';
 import LoginLogo from '../../components/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
 
-export let VerificationWithPassword = translate()(class VerificationWithPassword extends React.Component {
+const t = i18n.t.bind(i18n);
+
+export class VerificationWithPassword extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,
@@ -40,7 +42,6 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
     onSubmit: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     working: PropTypes.bool.isRequired,
-    t: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -56,7 +57,6 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
   }
 
   formInputs = () => {
-    const { t } = this.props;
     const formText = 'Welcome!';
     return [
       { name: 'explanation', type: 'explanation', text: formText },
@@ -76,9 +76,9 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (_.get(this.props, 'notification.message', null) === null &&
-      _.get(nextProps, 'notification.message') === ErrorMessages.ERR_BIRTHDAY_MISMATCH) {
+  componentDidUpdate(prevProps) {
+    if (_.get(prevProps, 'notification.message', null) === null &&
+      _.get(this.props, 'notification.message') === ErrorMessages.ERR_BIRTHDAY_MISMATCH) {
       this.props.trackMetric('VCA Home Verification - Birthday Mismatch');
     }
   }
@@ -88,7 +88,6 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
   };
 
   getSubmitButtonText = () => {
-    const { t } = this.props;
     if (this.props.working) {
       return t('Setting up...');
     }
@@ -145,7 +144,6 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
   };
 
   validateFormValues = (formValues) => {
-    const { t } = this.props;
     var form = [
       { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
       { type: 'password', name: 'password', label: t('password'), value: formValues.password },
@@ -193,7 +191,7 @@ export let VerificationWithPassword = translate()(class VerificationWithPassword
       password: formValues.password
     };
   };
-});
+}
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

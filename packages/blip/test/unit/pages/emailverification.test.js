@@ -20,7 +20,7 @@ describe('EmailVerification', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         acknowledgeNotification: sinon.stub(),
         onSubmitResend: sinon.stub(),
@@ -32,6 +32,7 @@ describe('EmailVerification', function () {
       var elem = React.createElement(EmailVerification, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 

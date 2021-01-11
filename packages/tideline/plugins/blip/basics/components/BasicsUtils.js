@@ -14,7 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var i18next = require('i18next');
+import i18next from 'i18next';
 var t = i18next.t.bind(i18next);
 
 var _ = require('lodash');

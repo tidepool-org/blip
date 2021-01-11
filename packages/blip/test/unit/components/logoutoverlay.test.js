@@ -1,39 +1,38 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
 
+import sinon from 'sinon';
+import { expect } from 'chai';
+import { mount } from 'enzyme';
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-var expect = chai.expect;
 
-var LogoutOverlay = require('../../../app/components/logoutoverlay');
+import LogoutOverlay from '../../../app/components/logoutoverlay';
 
 describe('LogoutOverlay', function () {
+  before(() => {
+    sinon.stub(console, 'error');
+  });
+  after(() => {
+    sinon.restore();
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(LogoutOverlay).to.be.a('function');
   });
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
-      var props = {};
-      var elem = React.createElement(LogoutOverlay, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      const wrapper = mount(<LogoutOverlay />);
       expect(console.error.callCount).to.equal(0);
+      wrapper.unmount();
     });
   });
 
   describe('Initial State', function() {
     it('should have fadeOut initially equal to false', function() {
-      console.error = sinon.stub();
-      var props = {};
-      var elem = React.createElement(LogoutOverlay, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
-      var state = render.getWrappedInstance().state;
-
-      expect(state.fadeOut).to.equal(false);
-    })
+      console.error.resetHistory();
+      const wrapper = mount(<LogoutOverlay />);
+      expect(wrapper.state().fadeOut).to.be.false;
+      expect(console.error.callCount).to.equal(0);
+      wrapper.unmount();
+    });
   });
 });

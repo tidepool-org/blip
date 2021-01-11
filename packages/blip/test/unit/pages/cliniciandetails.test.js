@@ -21,19 +21,11 @@ describe('ClinicianDetails', function () {
   };
 
   before(() => {
-    try {
-      sinon.spy(console, 'error');
-    } catch (e) {
-      console.error = sinon.spy();
-    }
+    sinon.spy(console, 'error');
   });
 
   after(() => {
-    // @ts-ignore
-    if (_.isFunction(_.get(console, 'error.restore'))) {
-      // @ts-ignore
-      console.error.restore();
-    }
+    console.error.restore();
     config.ALLOW_SELECT_COUNTRY = true;
   });
 

@@ -16,9 +16,12 @@
  */
 
 /* eslint no-console:0 */
+/* eslint-disable lodash/prefer-noop */
 
 import React from 'react';
 import { mount, shallow } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import CollapsibleContainer from '../../../src/components/settings/common/CollapsibleContainer';
 import Tandem from '../../../src/components/settings/Tandem';
@@ -67,12 +70,13 @@ describe('Tandem', () => {
   });
 
   it('should render without problems when required props provided', () => {
-    console.error = sinon.spy();
+    sinon.spy(console, 'error');
     expect(console.error.callCount).to.equal(0);
     wrapper = shallow(
       <Tandem {...props} />
     );
     expect(console.error.callCount).to.equal(0);
+    console.error.restore();
   });
 
   it('should have a header', () => {

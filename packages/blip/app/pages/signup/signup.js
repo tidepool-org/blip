@@ -14,17 +14,16 @@
  */
 
 import PropTypes from 'prop-types';
-
+import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import { browserHistory } from 'react-router';
 import sundial from 'sundial';
 
 import * as actions from '../../redux/actions';
 
-import _ from 'lodash';
 import config from '../../config';
 import { validateForm } from '../../core/validation';
 import { CONFIG } from '../../core/constants';
@@ -36,7 +35,7 @@ import SimpleForm from '../../components/simpleform';
 
 import check from './images/check.svg';
 
-export let Signup = translate()(class SignupPage extends React.Component {
+export class SignupPage extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     api: PropTypes.object.isRequired,
@@ -466,7 +465,9 @@ export let Signup = translate()(class SignupPage extends React.Component {
 
     return values;
   }
-});
+}
+
+export const Signup = withTranslation()(SignupPage);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

@@ -23,7 +23,7 @@
 /* global afterEach */
 
 import React from 'react';
-import { browserHistory } from 'react-router'
+import { browserHistory } from 'react-router';
 import { shallow, mount } from 'enzyme';
 
 import DonateBanner from '../../../app/components/donatebanner';
@@ -61,14 +61,15 @@ describe('DonateBanner', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    sinon.stub(console, 'error');
 
     expect(wrapper.find('.donateBanner')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
+    console.error.restore();
   });
 
   it('should render a link to the data donation page on the website', () => {
-    const expectedText = 'Learn More'
+    const expectedText = 'Learn More';
     const messageLink = wrapper.find('.message-link');
 
     expect(messageLink).to.have.length(1);
@@ -106,7 +107,7 @@ describe('DonateBanner', () => {
   describe('render', function () {
     context('User is not yet a donor', () => {
       it('should render a donate message', () => {
-        const expectedText = 'Donate your data.'
+        const expectedText = 'Donate your data.';
         const messageText = wrapper.find('.message-text');
 
         expect(messageText).to.have.length(1);
@@ -114,7 +115,7 @@ describe('DonateBanner', () => {
       });
 
       it('should render a donate button', () => {
-        const expectedText = 'Donate my anonymized data'
+        const expectedText = 'Donate my anonymized data';
         const button = wrapper.find('button');
 
         expect(button).to.have.length(1);
@@ -151,7 +152,7 @@ describe('DonateBanner', () => {
       });
 
       it('should render a share proceeds message', () => {
-        const expectedText = 'Donate proceeds'
+        const expectedText = 'Donate proceeds';
         const messageText = wrapper.find('.message-text');
 
         expect(messageText).to.have.length(1);
@@ -159,7 +160,7 @@ describe('DonateBanner', () => {
       });
 
       it('should render a share proceeds button', () => {
-        const expectedText = 'Choose a diabetes nonprofit'
+        const expectedText = 'Choose a diabetes nonprofit';
         const button = wrapper.find('button');
 
         expect(button).to.have.length(1);

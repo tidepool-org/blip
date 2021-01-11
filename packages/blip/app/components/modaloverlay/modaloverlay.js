@@ -1,5 +1,3 @@
-
-var PropTypes = require('prop-types');
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -17,6 +15,7 @@ var PropTypes = require('prop-types');
 
 var React = require('react');
 var cx = require('classnames');
+var PropTypes = require('prop-types');
 
 class ModalOverlay extends React.Component {
   static propTypes = {
@@ -26,13 +25,11 @@ class ModalOverlay extends React.Component {
   };
 
   render() {
-    var self = this;
     var classes = cx({
       'ModalOverlay': true,
       'ModalOverlay--show': this.props.show
     });
 
-    
     return (
       <div className={classes}>
         <div className="ModalOverlay-target" onClick={this.props.overlayClickHandler}></div>
@@ -41,7 +38,7 @@ class ModalOverlay extends React.Component {
         </div>
       </div>
     );
-    
+
   }
 }
 

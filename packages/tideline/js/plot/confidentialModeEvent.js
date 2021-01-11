@@ -16,9 +16,9 @@
  */
 // @ts-nocheck
 
+import i18next from 'i18next';
 const d3 = require('d3');
 const _ = require('lodash');
-const i18next = require('i18next');
 
 const lockIcon = require('lock.svg');
 const utils = require('./util/utils');

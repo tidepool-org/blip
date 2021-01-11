@@ -31,7 +31,7 @@
     "bows": "^1.7.2",
     "browser-locale": "^1.0.3",
     "fontsource-roboto": "^3.0.3",
-    "i18next": "^19.7.0",
+    "i18next": "^19.8.4",
     "lodash": "^4.17.20",
     "moment-timezone": "^0.5.31",
     "react": "^16.13.1",

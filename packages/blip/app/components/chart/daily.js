@@ -17,15 +17,15 @@
  */
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import { BG_DATA_TYPES } from '../../core/constants';
@@ -48,7 +48,9 @@ const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
 import Header from './header';
 import Footer from './footer';
 
-const DailyChart = translate()(class DailyChart extends Component {
+const t = i18n.t.bind(i18n);
+
+class DailyChart extends React.Component {
   static propTypes = {
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
@@ -107,7 +109,7 @@ const DailyChart = translate()(class DailyChart extends Component {
     ];
 
     this.log = bows('Daily Chart');
-    this.state = this.getInitialState()
+    this.state = this.getInitialState();
   }
 
   getInitialState = () => {
@@ -146,7 +148,6 @@ const DailyChart = translate()(class DailyChart extends Component {
   };
 
   initializeChart = datetime => {
-    const { t } = this.props;
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
       throw new Error(t('Cannot create new chart with no data'));
@@ -165,11 +166,9 @@ const DailyChart = translate()(class DailyChart extends Component {
   };
 
   render = () => {
-    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
-      );
-    /* jshint ignore:end */
+    );
   };
 
   // handlers
@@ -216,9 +215,9 @@ const DailyChart = translate()(class DailyChart extends Component {
   editMessage = message => {
     return this.chart.editMessage(message);
   };
-});
+}
 
-class Daily extends Component {
+class Daily extends React.Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
@@ -253,7 +252,7 @@ class Daily extends Component {
 
     this.chartType = 'daily';
     this.log = bows('Daily View');
-    this.state = this.getInitialState()
+    this.state = this.getInitialState();
   }
 
   getInitialState = () => {
@@ -301,7 +300,7 @@ class Daily extends Component {
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.props.onClickPrint}
-        ref="header" />
+          ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -361,29 +360,29 @@ class Daily extends Component {
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
-         onClickRefresh={this.props.onClickRefresh}
-        ref="footer" />
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh}
+          ref="footer" />
         {this.state.hoveredBolus && <BolusTooltip
-            position={{
-              top: this.state.hoveredBolus.top,
-              left: this.state.hoveredBolus.left
-            }}
-            side={this.state.hoveredBolus.side}
-            bolus={this.state.hoveredBolus.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />}
+          position={{
+            top: this.state.hoveredBolus.top,
+            left: this.state.hoveredBolus.left
+          }}
+          side={this.state.hoveredBolus.side}
+          bolus={this.state.hoveredBolus.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
         {this.state.hoveredSMBG && <SMBGTooltip
-            position={{
-              top: this.state.hoveredSMBG.top,
-              left: this.state.hoveredSMBG.left
-            }}
-            side={this.state.hoveredSMBG.side}
-            smbg={this.state.hoveredSMBG.data}
-            timePrefs={timePrefs}
-            bgPrefs={this.props.bgPrefs}
-          />}
+          position={{
+            top: this.state.hoveredSMBG.top,
+            left: this.state.hoveredSMBG.left
+          }}
+          side={this.state.hoveredSMBG.side}
+          smbg={this.state.hoveredSMBG.data}
+          timePrefs={timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
         {this.state.hoveredCBG && <CBGTooltip
           position={{
             top: this.state.hoveredCBG.top,
@@ -446,11 +445,11 @@ class Daily extends Component {
 
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
-      );
+    );
   };
 
   getTitle = datetime => {
-    const { timePrefs, t } = this.props;
+    const { timePrefs } = this.props;
     let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -476,14 +475,14 @@ class Daily extends Component {
   };
 
   handleWindowResize = () => {
-    this.refs.chart && this.refs.chart.getWrappedInstance().rerenderChart();
+    this.refs.chart && this.refs.chart.rerenderChart();
   };
 
   handleClickTrends = e => {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    const datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToTrends(datetime);
   };
 
@@ -491,7 +490,7 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.refs.chart.getWrappedInstance().goToMostRecent();
+    this.refs.chart.goToMostRecent();
   };
 
   handleClickOneDay = e => {
@@ -505,7 +504,7 @@ class Daily extends Component {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.refs.chart.getWrappedInstance().getCurrentDay();
+    const datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToBgLog(datetime);
   };
 
@@ -546,7 +545,7 @@ class Daily extends Component {
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
     bolus.top = rect.top + (rect.height / 2);
-    if(hoursOffset > 5) {
+    if (hoursOffset > 5) {
       bolus.side = 'left';
       bolus.left = rect.left;
     } else {
@@ -568,8 +567,8 @@ class Daily extends Component {
     const rect = smbg.rect;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
-    smbg.top = rect.top + (rect.height / 2)
-    if(hoursOffset > 5) {
+    smbg.top = rect.top + (rect.height / 2);
+    if (hoursOffset > 5) {
       smbg.side = 'left';
       smbg.left = rect.left;
     } else {
@@ -592,8 +591,8 @@ class Daily extends Component {
     var rect = cbg.rect;
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
-    cbg.top = rect.top + (rect.height / 2)
-    if(hoursOffset > 5) {
+    cbg.top = rect.top + (rect.height / 2);
+    if (hoursOffset > 5) {
       cbg.side = 'left';
       cbg.left = rect.left;
     } else {
@@ -615,8 +614,8 @@ class Daily extends Component {
     var rect = carb.rect;
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(carb.data.normalTime, this.state.datetimeLocation, 'h');
-    carb.top = rect.top + (rect.height / 2)
-    if(hoursOffset > 5) {
+    carb.top = rect.top + (rect.height / 2);
+    if (hoursOffset > 5) {
       carb.side = 'left';
       carb.left = rect.left;
     } else {
@@ -638,8 +637,8 @@ class Daily extends Component {
     var rect = reservoir.rect;
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(reservoir.data.normalTime, this.state.datetimeLocation, 'h');
-    reservoir.top = rect.top + (rect.height / 2)
-    if(hoursOffset > 5) {
+    reservoir.top = rect.top + (rect.height / 2);
+    if (hoursOffset > 5) {
       reservoir.side = 'left';
       reservoir.left = rect.left;
     } else {
@@ -649,7 +648,7 @@ class Daily extends Component {
     this.setState({
       hoveredReservoir: reservoir
     });
-  }
+  };
 
   handleReservoirOut = () => {
     this.setState({
@@ -661,8 +660,8 @@ class Daily extends Component {
     var rect = physical.rect;
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(physical.data.normalTime, this.state.datetimeLocation, 'h');
-    physical.top = rect.top + (rect.height / 2)
-    if(hoursOffset > 5) {
+    physical.top = rect.top + (rect.height / 2);
+    if (hoursOffset > 5) {
       physical.side = 'left';
       physical.left = rect.left;
     } else {
@@ -684,7 +683,7 @@ class Daily extends Component {
     const { rect } = parameter;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(parameter.data.normalTime, this.state.datetimeLocation, 'h');
-    parameter.top = rect.top + (rect.height / 2)
+    parameter.top = rect.top + (rect.height / 2);
     if (hoursOffset > 5) {
       parameter.side = 'left';
       parameter.left = rect.left;
@@ -695,7 +694,7 @@ class Daily extends Component {
     this.setState({
       hoveredParameter: parameter
     });
-  }
+  };
 
   handleParameterOut = () => {
     this.setState({
@@ -707,7 +706,7 @@ class Daily extends Component {
     const { rect } = confidential;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(confidential.data.normalTime, this.state.datetimeLocation, 'h');
-    confidential.top = rect.top + (rect.height / 2)
+    confidential.top = rect.top + (rect.height / 2);
     if (hoursOffset > 5) {
       confidential.side = 'left';
       confidential.left = rect.left;
@@ -718,7 +717,7 @@ class Daily extends Component {
     this.setState({
       hoveredConfidential: confidential
     });
-  }
+  };
 
   handleConfidentialOut = () => {
     this.setState({
@@ -760,4 +759,4 @@ class Daily extends Component {
   };
 }
 
-export default translate()(Daily);
+export default Daily;

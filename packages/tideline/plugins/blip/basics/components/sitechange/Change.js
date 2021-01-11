@@ -15,11 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
+import i18next from 'i18next';
+
 var _ = require('lodash');
 var PropTypes = require('prop-types');
 var React = require('react');
 var cx = require('classnames');
-var i18next = require('i18next');
 var t = i18next.t.bind(i18next);
 
 const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } = require('../../logic/constants');
@@ -48,8 +49,8 @@ class Change extends React.Component {
     }
     const manufacturerClass = _.get(
       _.get(
-        SITE_CHANGE_BY_MANUFACTURER, 
-        this.props.manufacturer, 
+        SITE_CHANGE_BY_MANUFACTURER,
+        this.props.manufacturer,
         SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]),
       'class');
 

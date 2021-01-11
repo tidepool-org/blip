@@ -2,7 +2,7 @@
 // @ts-nocheck
 import _ from 'lodash';
 import i18n from 'i18next';
-import { reactI18nextModule } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 import getLocale from 'browser-locale';
 import moment from 'moment';
 import locales from '../../../../locales/languages.json';
@@ -58,7 +58,7 @@ const i18nOptions = {
   resources: locales.resources,
 };
 
-i18n.use(reactI18nextModule);
+i18n.use(initReactI18next);
 
 if (crowdinActive) {
   i18nOptions.fallbackLng = locales.crowdin.fallback;

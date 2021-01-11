@@ -10,13 +10,11 @@ import LoginLogo from '../../../app/components/loginlogo';
 const { expect } = chai;
 
 describe('LoginLogo', function () {
-  let consoleError = null;
   before(() => {
-    consoleError = console.error;
-    console.error = sinon.stub();
+    sinon.stub(console, 'error');
   });
   after(() => {
-    console.error = consoleError;
+    console.error.restore();
   });
   it('should be exposed as a module and be of type function', function() {
     expect(LoginLogo).to.be.a('function');

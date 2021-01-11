@@ -14,22 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global chai */
-/* global describe */
-/* global context */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
 
 import React from 'react';
-import { browserHistory } from 'react-router'
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import DexcomBanner from '../../../app/components/dexcombanner';
 import { URL_DEXCOM_CONNECT_INFO } from '../../../app/core/constants';
-
-const expect = chai.expect;
 
 describe('DexcomBanner', () => {
   const props = {
@@ -55,14 +47,15 @@ describe('DexcomBanner', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    sinon.stub(console, 'error');
 
     expect(wrapper.find('.dexcomBanner')).to.have.length(1);
     expect(console.error.callCount).to.equal(0);
+    console.error.restore();
   });
 
   it('should render a link to the dexcom connect info on the website', () => {
-    const expectedText = 'Learn More'
+    const expectedText = 'Learn More';
     const messageLink = wrapper.find('.message-link');
 
     expect(messageLink).to.have.length(1);
@@ -111,10 +104,11 @@ describe('DexcomBanner', () => {
 
   describe('render', function () {
     it('should render without errors when provided all required props', () => {
-      console.error = sinon.stub();
+      sinon.stub(console, 'error');
 
       expect(wrapper.find('.dexcomBanner')).to.have.length(1);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should render a dexcom message', () => {
@@ -126,7 +120,7 @@ describe('DexcomBanner', () => {
     });
 
     it('should render a link to the dexcom connect info on the website', () => {
-      const expectedText = 'Learn More'
+      const expectedText = 'Learn More';
       const messageLink = wrapper.find('.message-link');
 
       expect(messageLink).to.have.length(1);
@@ -135,7 +129,7 @@ describe('DexcomBanner', () => {
     });
 
     it('should render a get started button', () => {
-      const expectedText = 'Get Started'
+      const expectedText = 'Get Started';
       const button = wrapper.find('button');
 
       expect(button).to.have.length(1);

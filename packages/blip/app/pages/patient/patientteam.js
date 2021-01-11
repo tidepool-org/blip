@@ -14,19 +14,21 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
-import { translate } from 'react-i18next';
 import _ from 'lodash';
 import cx from 'classnames';
-import config from '../../config';
 
+import config from '../../config';
+import i18n from '../../core/language';
 import InputGroup from '../../components/inputgroup';
+
 var ModalOverlay = require('../../components/modaloverlay');
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 
-var PermissionInputGroup = translate()(class PermissionInputGroup extends React.Component {
+const t = i18n.t.bind(i18n);
+
+class PermissionInputGroup extends React.Component {
   static propTypes = {
     value: PropTypes.bool,
     working: PropTypes.bool,
@@ -55,7 +57,6 @@ var PermissionInputGroup = translate()(class PermissionInputGroup extends React.
   };
 
   render() {
-    const { t } = this.props;
     return (
       <InputGroup
         name={this.state.name}
@@ -66,9 +67,9 @@ var PermissionInputGroup = translate()(class PermissionInputGroup extends React.
         onChange={this.handleChange}/>
     );
   }
-});
+}
 
-var MemberInviteForm = translate()(class MemberInviteForm extends React.Component {
+class MemberInviteForm extends React.Component {
   static propTypes = {
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
@@ -94,7 +95,6 @@ var MemberInviteForm = translate()(class MemberInviteForm extends React.Componen
   }
 
   render() {
-    const { t } = this.props;
     var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload();
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
@@ -133,7 +133,6 @@ var MemberInviteForm = translate()(class MemberInviteForm extends React.Componen
   };
 
   handleSubmit = (e) => {
-    const { t } = this.props;
     if (e) {
       e.preventDefault();
     }
@@ -160,7 +159,7 @@ var MemberInviteForm = translate()(class MemberInviteForm extends React.Componen
     };
 
     if (allowUpload) {
-      allowUpload = self.refs.allowUpload.getWrappedInstance().getValue();
+      allowUpload = self.refs.allowUpload.getValue();
       if (allowUpload) {
         self.props.trackMetric('invitation with upload on');
         permissions.upload = {};
@@ -173,9 +172,9 @@ var MemberInviteForm = translate()(class MemberInviteForm extends React.Componen
     self.props.onSubmit(email, permissions);
     self.props.trackMetric('Clicked Invite');
   };
-});
+}
 
-var ConfirmDialog = translate()(class ConfirmDialog extends React.Component {
+class ConfirmDialog extends React.Component {
   static propTypes = {
     buttonText: PropTypes.string,
     dismissText: PropTypes.string,
@@ -185,7 +184,6 @@ var ConfirmDialog = translate()(class ConfirmDialog extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
     return (
       <div>
         <div className="ModalOverlay-content">
@@ -210,9 +208,9 @@ var ConfirmDialog = translate()(class ConfirmDialog extends React.Component {
 
     this.props.onSubmit();
   };
-});
+}
 
-var PatientTeam = translate()(class extends React.Component {
+class PatientTeam extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     cancellingInvite: PropTypes.bool.isRequired,
@@ -227,7 +225,6 @@ var PatientTeam = translate()(class extends React.Component {
     removingMember: PropTypes.bool.isRequired,
     trackMetric: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
-    t: PropTypes.func.isRequired,
   };
 
   state = {
@@ -238,7 +235,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   renderRemoveTeamMemberDialog = (member) => {
-    const { t } = this.props;
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
@@ -299,7 +295,6 @@ var PatientTeam = translate()(class extends React.Component {
       return null;
     }
 
-    const { t } = this.props;
     var upload = config.HIDE_UPLOAD_LINK ? null : this.renderUpload(member);
 
     return (
@@ -336,7 +331,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   renderCancelInviteDialog = (invite) => {
-    const { t } = this.props;
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
@@ -372,7 +366,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   renderPendingInvite = (invite) => {
-    const { t } = this.props;
     return (
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
@@ -428,7 +421,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   renderInvite = () => {
-    const { t } = this.props;
     var isTeamEmpty = false;
     if (utils.getIn(this.props, ['patient', 'team'])) {
       isTeamEmpty = this.props.patient.team.length === 0;
@@ -480,7 +472,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   renderEditControls = () => {
-    const { t } = this.props;
     var key = 'edit';
     var text = t('Remove People');
     if (this.state.editing) {
@@ -502,7 +493,6 @@ var PatientTeam = translate()(class extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
     var classes = cx({
       'PatientTeam': true,
       'isEditing': this.state.editing
@@ -556,7 +546,7 @@ var PatientTeam = translate()(class extends React.Component {
       </div>
     );
   }
-});
+}
 
 export {
   PatientTeam,

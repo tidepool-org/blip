@@ -16,10 +16,10 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { utils } from 'tidepool-viz';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
@@ -54,12 +54,13 @@ const VALUES_MIN_MAX = {
   },
 };
 
-export default translate()(class PatientSettings extends Component {
+export class PatientSettings extends React.Component {
   static propTypes = {
     editingAllowed: PropTypes.bool.isRequired,
     patient: PropTypes.object,
     onUpdatePatientSettings: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -79,7 +80,6 @@ export default translate()(class PatientSettings extends Component {
   }
 
   render() {
-    const self = this;
     const { patient, t, editingAllowed } = this.props;
     let settings = {};
 
@@ -94,11 +94,11 @@ export default translate()(class PatientSettings extends Component {
       settings = getSettings(patient.settings);
     }
 
-    const lowNode = editingAllowed ? self.renderIncrementalInput('low', settings) : self.renderValueNode('low', settings);
-    const highNode = editingAllowed ? self.renderIncrementalInput('high', settings) : self.renderValueNode('high', settings);
+    const lowNode = editingAllowed ? this.renderIncrementalInput('low', settings) : this.renderValueNode('low', settings);
+    const highNode = editingAllowed ? this.renderIncrementalInput('high', settings) : this.renderValueNode('high', settings);
 
-    const resetNode = editingAllowed ? <a href="#" className="PatientSettings-reset" onClick={self.resetRange}>{t('Reset to default')}</a> : null;
-    const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
+    const resetNode = editingAllowed ? <a href="#" className="PatientSettings-reset" onClick={this.resetRange}>{t('Reset to default')}</a> : null;
+    const errorNode = (this.state.error.low || this.state.error.high) ? this.renderErrorNode() : null;
 
     let chartTargets = {
       high: utils.bg.formatBgValue(roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
@@ -241,4 +241,6 @@ export default translate()(class PatientSettings extends Component {
   validateBounds(bounds) {
     return bounds.low < bounds.high;
   }
-});
+}
+
+export default withTranslation()(PatientSettings);

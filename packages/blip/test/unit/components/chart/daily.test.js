@@ -1,17 +1,8 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global before */
-/* global beforeEach */
-/* global afterEach */
-/* global after */
-
 import _ from 'lodash';
 import React from 'react';
-
+import sinon from 'sinon';
+import { expect } from 'chai';
 import { shallow, mount } from 'enzyme';
-import { translate } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
@@ -20,7 +11,6 @@ import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from 'tidepool-viz';
 import createReactClass from 'create-react-class';
 
-var expect = chai.expect;
 const { Loader } = vizComponents;
 
 require('tideline/css/tideline.less');
@@ -101,7 +91,7 @@ describe('Daily', () => {
   let instance;
 
   beforeEach(() => {
-    wrapper = shallow(<Daily.WrappedComponent {...baseProps} />);
+    wrapper = shallow(<Daily {...baseProps} />);
     instance = wrapper.instance();
   });
 
@@ -115,10 +105,10 @@ describe('Daily', () => {
 
   describe('render', () => {
     before(() => {
-      Daily.__Rewire__('DailyChart', translate()(createReactClass({
+      Daily.__Rewire__('DailyChart', createReactClass({
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
-      })));
+      }));
     });
 
     beforeEach(() => {

@@ -20,12 +20,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 var Message = require('./message');
 var MessageForm = require('./messageform');
 
-var Messages = translate()(class extends React.Component {
+class Messages extends React.Component {
   static propTypes = {
     messages: PropTypes.array,
     createDatetime: PropTypes.string,
@@ -106,14 +106,12 @@ var Messages = translate()(class extends React.Component {
   };
 
   renderCommentOnThreadForm = () => {
-    const { t } = this.props;
-    var submitButtonText = t('Comment_submit');
-
+    var submitButtonText = i18n.t('Comment_submit');
 
     return (
       <div className='messages-form'>
         <MessageForm
-          messagePrompt={t('Type a comment here ...')}
+          messagePrompt={i18n.t('Type a comment here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleAddComment}
           timePrefs={this.props.timePrefs} />
@@ -122,15 +120,13 @@ var Messages = translate()(class extends React.Component {
   };
 
   renderNewThreadForm = () => {
-    const { t } = this.props;
-    var submitButtonText = t('Post_submit');
-
+    var submitButtonText = i18n.t('Post_submit');
 
     return (
       <div className='messages-form'>
         <MessageForm
           formFields={{editableTimestamp: this.props.createDatetime}}
-          messagePrompt={t('Type a new note here ...')}
+          messagePrompt={i18n.t('Type a new note here ...')}
           saveBtnText={submitButtonText}
           onSubmit={this.handleCreateNote}
           onCancel={this.handleClose}
@@ -266,6 +262,6 @@ var Messages = translate()(class extends React.Component {
       close();
     }
   };
-});
+}
 
 module.exports = Messages;

@@ -50,7 +50,7 @@ const careTeamMemberNoUpload = {
 describe('NavbarPatientCard', function () {
   describe('render', function() {
     it('should not console.error when trackMetric set', function() {
-      console.error = sinon.stub();
+      sinon.stub(console, 'error');
       var props = {
         href: 'foo',
         trackMetric: function() {}
@@ -60,6 +60,7 @@ describe('NavbarPatientCard', function () {
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      sinon.restore();
     });
 
     it('should render upload button if user is root', function() {
@@ -68,7 +69,7 @@ describe('NavbarPatientCard', function () {
         patient: rootUser.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = shallow(<NavbarPatientCard {...props} />);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -78,7 +79,7 @@ describe('NavbarPatientCard', function () {
         patient: careTeamMemberUpload.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = shallow(<NavbarPatientCard {...props} />);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -88,7 +89,7 @@ describe('NavbarPatientCard', function () {
         patient: careTeamMemberNoUpload.patient,
         t,
       };
-      let wrapper = shallow(<NavbarPatientCard.WrappedComponent {...props} />);
+      let wrapper = shallow(<NavbarPatientCard {...props} />);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });

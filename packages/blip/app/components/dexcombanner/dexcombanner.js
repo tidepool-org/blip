@@ -19,10 +19,9 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { browserHistory } from 'react-router';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
-
 
 const DexcomBanner = (props) => {
   const {
@@ -30,8 +29,9 @@ const DexcomBanner = (props) => {
     onClose,
     patient,
     trackMetric,
-    t
   } = props;
+
+  const t = i18n.t.bind(i18n);
 
   const getMessageText = () => {
     return t('Using Dexcom G5 Mobile on Android? See your data in Tidepool.');
@@ -63,7 +63,7 @@ const DexcomBanner = (props) => {
     if (trackMetric) {
       trackMetric('clicked get started on Dexcom banner');
     }
-  }
+  };
 
   const renderLink = () => {
     const link = {
@@ -107,4 +107,4 @@ DexcomBanner.propTypes = {
   patient: PropTypes.object.isRequired,
 };
 
-export default translate()(DexcomBanner);
+export default DexcomBanner;

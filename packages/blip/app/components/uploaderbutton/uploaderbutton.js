@@ -15,16 +15,17 @@
  */
 
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React from 'react';
 import cx from 'classnames';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 
 import logoSrc from './images/T-logo-dark-512x512.png';
 
+const t = i18n.t.bind(i18n);
 
-export default translate()(class UploaderButton extends Component {
+class UploaderButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -39,15 +40,16 @@ export default translate()(class UploaderButton extends Component {
     buttonText: PropTypes.string.isRequired
   };
 
-  UNSAFE_componentWillMount = () => {
-    this.setState({
-      latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-Setup-2.34.0.exe',
-      latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-2.34.0.dmg',
-    });
-  };
+  componentDidMount() {
+    if (this.state.latestMacRelease === null) {
+      this.setState({
+        latestWinRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-Setup-2.34.0.exe',
+        latestMacRelease: 'https://github.com/tidepool-org/uploader/releases/download/v2.34.0/Tidepool-Uploader-2.34.0.dmg',
+      });
+    }
+  }
 
-  renderErrorText = () => {
-    const { t } = this.props;
+  renderErrorText() {
     return (
       <a
         className="btn btn-uploader"
@@ -60,10 +62,9 @@ export default translate()(class UploaderButton extends Component {
         {this.props.buttonText}
       </a>
     );
-  };
+  }
 
-  render = () => {
-    const { t } = this.props;
+  render() {
     const winReleaseClasses = cx({
       btn: true,
       'btn-uploader': true,
@@ -104,5 +105,7 @@ export default translate()(class UploaderButton extends Component {
         {content}
       </div>
     );
-  };
-});
+  }
+}
+
+export default UploaderButton;

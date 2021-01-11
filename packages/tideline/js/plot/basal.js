@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-const i18next = require('i18next');
+import i18next from 'i18next';
 const moment = require('moment-timezone');
 const d3 = require('d3');
 const _ = require('lodash');

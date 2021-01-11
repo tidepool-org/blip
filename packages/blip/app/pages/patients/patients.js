@@ -19,7 +19,7 @@ import React from 'react';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import update from 'immutability-helper';
 
 import * as actions from '../../redux/actions';
@@ -36,7 +36,7 @@ import BrowserWarning from '../../components/browserwarning';
 
 const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-export let Patients = translate()(class extends React.Component {
+export let Patients = withTranslation()(class extends React.Component {
   static propTypes = {
     clearPatientData: PropTypes.func.isRequired,
     clearPatientInView: PropTypes.func.isRequired,

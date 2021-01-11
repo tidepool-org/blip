@@ -21,12 +21,12 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import _ from 'lodash';
 import sundial from 'sundial';
-import { translate } from 'react-i18next';
 
+import i18n from '../../core/language';
 var MessageMixins = require('./messagemixins');
 
 // Form for creating new Notes or adding Comments
-var MessageForm = translate()(createReactClass({
+var MessageForm = createReactClass({
   displayName: 'MessageForm',
   mixins: [MessageMixins],
 
@@ -41,7 +41,7 @@ var MessageForm = translate()(createReactClass({
   /*
    * Declared so that we can reset them easily
    */
-  initialState: function(){
+  initialState: function () {
     return {
       msg: '',
       whenUtc: null,
@@ -93,11 +93,11 @@ var MessageForm = translate()(createReactClass({
     return _.isEmpty(this.props.formFields) === false;
   },
 
-  hasTextToEdit: function(){
+  hasTextToEdit: function() {
     return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableText) === false;
   },
 
-  hasTimestampToEdit: function(){
+  hasTimestampToEdit: function() {
     return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableTimestamp) === false;
   },
 
@@ -141,7 +141,7 @@ var MessageForm = translate()(createReactClass({
    * Always keep the msg state current
    */
   handleMsgChange: function(e) {
-    this.setState({msg: e.target.value});
+    this.setState({ msg: e.target.value });
   },
 
   /*
@@ -158,11 +158,11 @@ var MessageForm = translate()(createReactClass({
   },
 
   handleDateChange: function(e) {
-    this.setState({date: e.target.value});
+    this.setState({ date: e.target.value });
   },
 
   handleTimeChange: function(e) {
-    this.setState({time: e.target.value});
+    this.setState({ time: e.target.value });
   },
 
   /*
@@ -175,7 +175,7 @@ var MessageForm = translate()(createReactClass({
     var utcTimestamp = this.state.whenUtc, offset;
 
     if (this.state.date && this.state.time) {
-      var editedTimestamp = this.state.date+'T'+this.state.time;
+      var editedTimestamp = this.state.date + 'T' + this.state.time;
       if (this.isTimezoneAware()) {
         editedTimestamp = sundial.applyTimezone(editedTimestamp, this.props.timePrefs.timezoneName);
         offset = sundial.getOffsetFromZone(editedTimestamp, this.props.timePrefs.timezoneName);
@@ -193,7 +193,7 @@ var MessageForm = translate()(createReactClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({saving : true});
+    this.setState({ saving: true });
 
     if (this.props.onSubmit) {
       this.props.onSubmit({
@@ -216,7 +216,7 @@ var MessageForm = translate()(createReactClass({
     }
     this.refs.messageText.rows = 3;
     if (this.isExistingNoteEdit() === false) {
-      this.setState({editing: true, whenUtc: sundial.utcDateString()});
+      this.setState({ editing: true, whenUtc: sundial.utcDateString() });
     }
   },
 
@@ -224,7 +224,7 @@ var MessageForm = translate()(createReactClass({
    * Split the timestamp into the date and time
    * components to allow for editing
    */
-  showEditDate:function(e){
+  showEditDate: function(e) {
     if (e) {
       e.preventDefault();
     }
@@ -245,14 +245,13 @@ var MessageForm = translate()(createReactClass({
    * Just displays the notes date if it is set
    */
   renderDisplayDate: function(canEditTimestamp) {
-    const { t } = this.props;
     var displayDate;
     if (this.state.whenUtc) {
       var editLink;
 
       if (canEditTimestamp) {
         editLink = (
-          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>{t('Change')}</a>
+          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>{i18n.t('Change')}</a>
         );
       }
 
@@ -293,7 +292,7 @@ var MessageForm = translate()(createReactClass({
   },
 
   renderButtons: function() {
-    const { t } = this.props;
+    const t = i18n.t.bind(i18n);
     let saveBtnText = t('Post_submit');
 
     if (this.state.saving) {
@@ -328,7 +327,7 @@ var MessageForm = translate()(createReactClass({
           placeholder={this.props.messagePrompt}
           value={this.state.msg}
           onFocus={this.handleGrow}
-          onChange={this.handleMsgChange}/>
+          onChange={this.handleMsgChange} />
       </div>
     );
   },
@@ -354,6 +353,6 @@ var MessageForm = translate()(createReactClass({
       </form>
     );
   },
-}));
+});
 
 module.exports = MessageForm;

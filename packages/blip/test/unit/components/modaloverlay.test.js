@@ -16,7 +16,7 @@ describe('ModalOverlay', function () {
 
   describe('render', function() {
     it('should render without problems when required props present', function () {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
         show: true,
         dialog: 'some fake node',
@@ -25,6 +25,7 @@ describe('ModalOverlay', function () {
       var elem = React.createElement(ModalOverlay, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 });

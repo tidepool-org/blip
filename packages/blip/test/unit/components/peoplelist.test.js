@@ -1,20 +1,15 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
-var expect = chai.expect;
+import sinon from 'sinon';
+import { expect } from 'chai';
 
-var PeopleList = require('../../../app/components/peoplelist');
-var PatientCard = require('../../../app/components/patientcard');
+import PeopleList from '../../../app/components/peoplelist';
 
 describe('PeopleList', function () {
   describe('render', function() {
     it('should not console.error when trackMetric set', function() {
-      console.error = sinon.stub();
+      sinon.stub(console, 'error');
       var props = {
         trackMetric: function() {}
       };
@@ -23,17 +18,17 @@ describe('PeopleList', function () {
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
   });
 
   describe('Initial State', function() {
     it('should return object with expected properties', function() {
-      console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
       var listElem = React.createElement(PeopleList, props);
-      var elem = TestUtils.renderIntoDocument(listElem).getWrappedInstance();
+      var elem = TestUtils.renderIntoDocument(listElem);
       var state = elem.state;
 
       expect(state.editing).to.equal(false);

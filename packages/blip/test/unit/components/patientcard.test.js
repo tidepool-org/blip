@@ -1,48 +1,41 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
-import {shallow} from 'enzyme';
+import { shallow } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import i18next from '../../../app/core/language';
-
-var expect = chai.expect;
+import PatientCard from '../../../app/components/patientcard';
 
 const t = i18next.t.bind(i18next);
-
-var PatientCard = require('../../../app/components/patientcard');
 
 let patientUpload = {
   permissions: {
     view: {},
     upload: {},
   },
-}
+};
 
 let patientNoUpload = {
   permissions: {
     view: {},
   },
-}
+};
 
 describe('PatientCard', function () {
   describe('render', function() {
     it('should not console.error when required props set', function() {
-      console.error = sinon.stub();
+      sinon.spy(console, 'error');
       var props = {
-        trackMetric: function() {},
+        trackMetric: sinon.stub(),
         href: 'foo',
-        patient: {}
+        patient: {},
+        t,
       };
-      var patientCardElem = React.createElement(PatientCard, props);
-      var elem = TestUtils.renderIntoDocument(patientCardElem);
-
-      expect(elem).to.be.ok;
+      const wrapper = shallow(<PatientCard {...props} />);
+      expect(wrapper.exists('.patientcard-icon')).to.be.true;
       expect(console.error.callCount).to.equal(0);
+      console.error.restore();
     });
 
     it('should render upload button if user has upload permissions', function() {
@@ -50,7 +43,7 @@ describe('PatientCard', function () {
         patient: patientUpload,
         t,
       };
-      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
+      let wrapper = shallow(<PatientCard {...props} />);
       expect(wrapper.contains('Upload')).to.equal(true);
     });
 
@@ -59,7 +52,7 @@ describe('PatientCard', function () {
         patient: patientNoUpload,
         t,
       };
-      let wrapper = shallow(<PatientCard.WrappedComponent {...props} />);
+      let wrapper = shallow(<PatientCard {...props} />);
       expect(wrapper.contains('Upload')).to.equal(false);
     });
   });
@@ -69,7 +62,7 @@ describe('PatientCard', function () {
 
     beforeEach(function() {
       var props = {
-        trackMetric: function() {},
+        trackMetric: sinon.stub(),
         patient: {
           profile: {
             fullName: 'Jane Doe'

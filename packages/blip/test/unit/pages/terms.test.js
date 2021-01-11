@@ -1,18 +1,15 @@
-/* global chai */
 
-import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
+import { assert, expect } from 'chai';
 /** @typedef { import('enzyme').ReactWrapper } ReactWrapper */
 
 import { Terms, mapStateToProps } from '../../../app/pages/terms';
 import config from '../../../app/config';
-
-const { assert, expect } = chai;
 
 describe('Terms', () => {
   const props = {
@@ -32,20 +29,11 @@ describe('Terms', () => {
     let container = null;
 
     before(() => {
-      try {
-        // FIXME should not protect this call
-        sinon.spy(console, 'error');
-      } catch (e) {
-        console.error = sinon.stub();
-      }
+      sinon.spy(console, 'error');
     });
 
     after(() => {
-      // @ts-ignore
-      if (_.isFunction(_.get(console, 'error.restore'))) {
-        // @ts-ignore
-        console.error.restore();
-      }
+      console.error.restore();
       config.BRANDING = 'tidepool';
     });
 

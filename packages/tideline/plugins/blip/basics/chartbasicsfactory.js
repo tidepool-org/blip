@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var i18next = require('i18next');
+import i18next from 'i18next';
 
 var _ = require('lodash');
 var PropTypes = require('prop-types');

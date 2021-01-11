@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
@@ -20,7 +20,7 @@ const {
 const { reshapeBgClassesToBgBounds } = vizUtils.bg;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 
-class Stats extends Component {
+class Stats extends React.Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
@@ -46,7 +46,7 @@ class Stats extends Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const update = this.updatesRequired(nextProps);
 
     if (update) {
@@ -61,13 +61,13 @@ class Stats extends Component {
         this.updateStatData(nextProps);
       }
     }
-  };
+  }
 
-  shouldComponentUpdate = nextProps => {
+  shouldComponentUpdate(nextProps) {
     return this.updatesRequired(nextProps);
-  };
+  }
 
-  updatesRequired = nextProps => {
+  updatesRequired(nextProps) {
     const {
       bgSource,
       chartPrefs,
@@ -88,7 +88,7 @@ class Stats extends Component {
         stats: bgSourceChanged,
       }
       : false;
-  };
+  }
 
   renderStats = (stats, animate) => (_.map(stats, stat => (
     <div id={`Stat--${stat.id}`} key={stat.id}>
@@ -96,7 +96,7 @@ class Stats extends Component {
     </div>
   )));
 
-  render = () => {
+  render() {
     const { chartPrefs: { animateStats } } = this.props;
 
     return (
@@ -104,7 +104,7 @@ class Stats extends Component {
         {this.renderStats(this.state.stats, animateStats)}
       </div>
     );
-  };
+  }
 
   getStatsByChartType = (props = this.props) => {
     const {
@@ -186,16 +186,16 @@ class Stats extends Component {
     return stats;
   };
 
-  updateDataUtilEndpoints = props => {
+  updateDataUtilEndpoints(props) {
     const {
       dataUtil,
       endpoints,
     } = props;
 
     dataUtil.endpoints = endpoints;
-  };
+  }
 
-  updateStatData = props => {
+  updateStatData(props) {
     const { bgSource, dataUtil } = props;
     const stats = this.state.stats;
 
@@ -220,7 +220,7 @@ class Stats extends Component {
     });
 
     this.setState({ stats });
-  };
+  }
 }
 
 export default Stats;

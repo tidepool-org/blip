@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate, Trans } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 
@@ -29,7 +29,7 @@ import SimpleForm from '../../components/simpleform';
 
 import utils from '../../core/utils';
 
-export var EmailVerification = translate()(class EmailVerification extends React.Component {
+export var EmailVerification = withTranslation()(class EmailVerification extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     notification: PropTypes.object,
