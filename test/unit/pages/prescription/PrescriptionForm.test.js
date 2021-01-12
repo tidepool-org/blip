@@ -80,7 +80,7 @@ describe('PrescriptionForm', () => {
     expect(backButton).to.have.length(0);
   });
 
-  describe.skip('generateTherapySettingsOrderText', () => {
+  describe('generateTherapySettingsOrderText', () => {
     it('should generate the therapy settings order text', () => {
       const patientRows = [
         {
@@ -138,7 +138,7 @@ describe('PrescriptionForm', () => {
     });
   });
 
-  describe.skip('handleCopyTherapySettingsClicked', () => {
+  describe('handleCopyTherapySettingsClicked', () => {
     let wrapper;
     let reviewStepProps = {
       ...defaultProps,
