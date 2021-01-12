@@ -32,10 +32,10 @@ class ConfidentialTooltip extends React.Component {
 
   renderConfidential(c) {
     return <Grid container direction="row" alignItems="center" justify="center">
-      <Grid item> 
-      <LockIcon className={styles.icon} /> 
+      <Grid item>
+      <LockIcon className={styles.icon} />
       </Grid>
-      <Grid item>{t('Confidential Mode')}</Grid>
+      <Grid item>{t('Confidential mode')}</Grid>
     </Grid>;
   }
 

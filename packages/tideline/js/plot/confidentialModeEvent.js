@@ -71,7 +71,7 @@ module.exports = function (pool, options = {}) {
         // display the text when no tooltip
         backGroup.filter((d) => !displayTooltip(d))
           .append('text')
-          .text(t('Confidential Mode'))
+          .text(t('Confidential mode'))
           .attr({
             x: (d) => xPos(d) + (calculateWidth(d)) / 2,
             y: ((height - imageSize) / 2) + imageSize + 5,

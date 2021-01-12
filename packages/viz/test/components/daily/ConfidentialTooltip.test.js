@@ -59,7 +59,7 @@ describe('ConfidentialTooltip', () => {
       .find(formatClassesAsSelector('MuiGrid-item'))
       .at(1)
       .text())
-      .to.equal(t('Confidential Mode'));
+      .to.equal(t('Confidential mode'));
     });
 
 });
