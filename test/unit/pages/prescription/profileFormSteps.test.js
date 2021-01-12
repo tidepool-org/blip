@@ -5,22 +5,34 @@ import profileFormSteps from '../../../../app/pages/prescription/profileFormStep
 /* global chai */
 /* global describe */
 /* global it */
+/* global sinon */
 
 const expect = chai.expect;
 
-const meta = {
+const values = {
   phoneNumber: {
-    number: { valid: true },
+    number: 'goodField',
   },
-  mrn: { valid: true },
-  sex: { valid: true },
+  mrn: 'goodField',
+  sex: 'goodField',
   initialSettings: {
-    pumpId: { valid: true },
-    cgmId: { valid: true },
+    pumpId: 'goodField',
+    cgmId: 'goodField',
   },
 };
 
-const invalidateMeta = fieldPath => _.set({ ...meta }, fieldPath, { valid: false });
+const validateSyncAt = sinon.stub();
+validateSyncAt
+  .withArgs('goodField')
+  .returns(true);
+
+validateSyncAt
+  .withArgs('badField')
+  .throws();
+
+const schema = { validateSyncAt };
+
+const invalidateValue = fieldPath => _.set({ ...values }, fieldPath, 'badField');
 
 describe('profileFormSteps', function() {
   it('should export a profileFormSteps function', function() {
@@ -31,29 +43,29 @@ describe('profileFormSteps', function() {
     expect(profileFormSteps().label).to.equal('Complete Patient Profile');
   });
 
-  it('should include the step subSteps with meta passed along', () => {
-    const subSteps = profileFormSteps(meta).subSteps;
+  it('should include the step subSteps with devices passed to 4th substep', () => {
+    const subSteps = profileFormSteps(schema, 'myDevices', values).subSteps;
 
     expect(subSteps).to.be.an('array').and.have.lengthOf(4);
 
-    _.each(subSteps, subStep => {
+    _.each(subSteps, (subStep, index) => {
       expect(subStep.panelContent.type).to.be.a('function');
-      expect(subStep.panelContent.props.meta).to.eql(meta);
+      if (index === 3) expect(subStep.panelContent.props.devices).to.equal('myDevices');
     });
   });
 
   it('should disable the complete button for any invalid fields within a subStep', () => {
-    const subSteps = profileFormSteps(meta).subSteps;
+    const subSteps = profileFormSteps(schema, null, values).subSteps;
     expect(subSteps[0].disableComplete).to.be.false;
     expect(subSteps[1].disableComplete).to.be.false;
     expect(subSteps[2].disableComplete).to.be.false;
     expect(subSteps[3].disableComplete).to.be.false;
 
-    expect(profileFormSteps(invalidateMeta('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateMeta('mrn')).subSteps[1].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateMeta('sex')).subSteps[2].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateMeta('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateMeta('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
   });
 
   it('should not hide the back button for the any subSteps', () => {
