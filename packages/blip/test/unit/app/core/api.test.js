@@ -12,6 +12,7 @@ describe('api', () => {
     tidepool = {
       findProfile: sinon.stub(),
       findConsents: sinon.stub().callsArgWith(1, null),
+      findPreferences: sinon.stub(),
       getUserId: sinon.stub().returns(currentUserId),
       getCurrentUser: sinon.stub(),
       getAssociatedUsersDetails: sinon.stub(),
@@ -28,6 +29,7 @@ describe('api', () => {
     tidepool.getAssociatedUsersDetails.resetHistory();
     tidepool.findProfile.resetHistory();
     tidepool.findConsents.resetHistory();
+    tidepool.findPreferences.resetHistory();
     tidepool.addOrUpdateSettings.resetHistory();
     tidepool.addOrUpdateProfile.resetHistory();
   });
@@ -223,22 +225,63 @@ describe('api', () => {
           userid: currentUserId,
         });
 
-        tidepool.findProfile.callsArgWith(1, null, { fullName: 'Doctor Jay' });
+        tidepool.findProfile.callsArgWith(1, null, { firstName: 'Doctor', lastName: 'Jay' });
+        tidepool.addOrUpdateProfile.callsArgWith(2, null);
         tidepool.addOrUpdateSettings.callsArgWith(2, null);
 
         preferencesStub.callsArgWith(1, null, undefined);
         settingsStub.callsArgWith(1, null, undefined);
+        consentsStub.callsArgWith(1, null, {});
 
         const cb = sinon.stub();
         api.user.get(cb);
 
         sinon.assert.calledOnce(tidepool.addOrUpdateSettings);
         sinon.assert.calledWith(tidepool.addOrUpdateSettings, currentUserId, { country: 'FR' });
+        sinon.assert.calledOnce(consentsStub);
         sinon.assert.calledOnce(cb);
         sinon.assert.calledWith(cb, null, {
           // preferences: {},
-          profile: { fullName: 'Doctor Jay' },
+          profile: { fullName: 'Doctor Jay', firstName: 'Doctor', lastName: 'Jay' },
           settings: { country: 'FR' },
+          userid: currentUserId,
+        });
+      });
+
+      it('should fix the patient bg units settings when necessary - YLP-442', () => {
+        tidepool.getCurrentUser.callsArgWith(0, null, {
+          userid: currentUserId,
+        });
+        tidepool.findProfile.callsArgWith(1, null, { fullName: 'Patient Joe', firstName: 'Patient', lastName: 'Joe' });
+        tidepool.addOrUpdateSettings.callsArgWith(2, null);
+        preferencesStub.callsArgWith(1, null, undefined);
+        settingsStub.callsArgWith(1, null, { bg: 'mmol/L' });
+        consentsStub.callsArgWith(1, null, {});
+
+        const cb = sinon.stub();
+        api.user.get(cb);
+
+        sinon.assert.calledOnce(tidepool.getCurrentUser);
+        sinon.assert.calledOnce(settingsStub);
+        sinon.assert.calledOnce(tidepool.addOrUpdateSettings);
+        sinon.assert.calledWith(tidepool.addOrUpdateSettings, currentUserId, {
+          country: 'FR',
+          units: { bg: 'mmol/L' },
+        });
+        sinon.assert.calledOnce(consentsStub);
+        sinon.assert.calledOnce(cb);
+        sinon.assert.calledWith(cb, null, {
+          profile: {
+            fullName: 'Patient Joe',
+            firstName: 'Patient',
+            lastName: 'Joe'
+          },
+          settings: {
+            country: 'FR',
+            units: {
+              bg: 'mmol/L',
+            }
+          },
           userid: currentUserId,
         });
       });
@@ -292,6 +335,7 @@ describe('api', () => {
 
   describe('patient', () => {
     describe('get', () => {
+      /** @type {sinon.SinonStub} */
       let settingsStub;
 
       before(() => {
@@ -300,6 +344,7 @@ describe('api', () => {
 
       beforeEach(() => {
         settingsStub.resetHistory();
+        tidepool.findProfile.resetHistory();
       });
 
       after(() => {
@@ -341,6 +386,25 @@ describe('api', () => {
           userid: '12345',
           profile: { patient: { fullName: 'Jenny Doe' } },
           settings: 'settings',
+        });
+      });
+
+      it('should fix the bg units settings when necessary - YLP-442', () => {
+        // DBLG1 bug
+        const cb = sinon.stub();
+        tidepool.findProfile.callsArgWith(1, null, { firstName: 'Jenny', lastName: 'Doe', patient: { birthday: '2000-01-01' } });
+        settingsStub.callsArgWith(1, null, { bg: 'mg/dL' });
+
+        api.patient.get('12345', cb);
+
+        sinon.assert.calledWith(cb, null, {
+          userid: '12345',
+          profile: { fullName: 'Jenny Doe', firstName: 'Jenny', lastName: 'Doe', patient: { birthday: '2000-01-01' } },
+          settings: {
+            units: {
+              bg: 'mg/dL'
+            }
+          },
         });
       });
     });

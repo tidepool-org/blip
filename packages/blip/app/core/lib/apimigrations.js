@@ -45,7 +45,23 @@ const migrations = {
       s.country = 'FR';
       return s;
     }
-  }
+  },
+
+  bgUnits: {
+    isRequired: (settings) => {
+      return !_.isEmpty(settings) && _.has(settings, 'bg') && !_.has(settings, 'units.bg');
+    },
+    migrate: (settings = {}) => {
+      const units = _.get(settings, 'bg', 'mg/dL');
+      const s = _.cloneDeep(settings);
+      delete s.bg;
+      if (_.isEmpty(s.units) || !_.isObject(s.units)) {
+        s.units = {};
+      }
+      s.units.bg = units;
+      return s;
+    }
+  },
 };
 
 export default migrations;

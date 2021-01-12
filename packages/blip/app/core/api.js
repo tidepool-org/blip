@@ -262,7 +262,7 @@ api.user.get = (cb) => {
       if (migration.isRequired(profile)) {
         api.log(`Migrating and saving user [${userId}] profile with "fullName"`);
         profile = migration.migrate(profile);
-        return tidepool.addOrUpdateProfile(userId, profile, cb);
+        return api.metadata.profile.put(userId, profile, cb);
       }
 
       return cb(null, profile);
@@ -278,10 +278,19 @@ api.user.get = (cb) => {
       if (!_.isEmpty(err) && err.status !== 404) {
         return cb(err);
       }
+      let migrated = false;
       if (migrations.country.isRequired(settings)) {
         api.log(`Migrating and saving user [${userId}] settings with default country`);
-        const updatedSettings = migrations.country.migrate(settings);
-        return api.metadata.settings.put(userId, updatedSettings, cb);
+        settings = migrations.country.migrate(settings);
+        migrated = true;
+      }
+      if (migrations.bgUnits.isRequired(settings)) {
+        api.log(`Migrating and saving user [${userId}] settings with bg units`);
+        settings = migrations.bgUnits.migrate(settings);
+        migrated = true;
+      }
+      if (migrated) {
+        return api.metadata.settings.put(userId, settings, cb);
       }
       return cb(null, settings);
     });
@@ -546,17 +555,22 @@ function getPatient(patientId, cb) {
     }
 
     // Attach the settings for the patient
-    setPatientSettings(person, cb);
+    getPatientSettings(person, cb);
   });
 }
 
-function setPatientSettings(person, cb) {
+function getPatientSettings(person, cb) {
   api.metadata.settings.get(person.userid, function(err, settings) {
     if (err) {
       return cb(err);
     }
 
-    person.settings = settings || {};
+    if (migrations.bgUnits.isRequired(settings)) {
+      api.log(`Migrating user [${person.userid}] settings with bg units`);
+      person.settings = migrations.bgUnits.migrate(settings);
+    } else {
+      person.settings = settings;
+    }
 
     return cb(null, person);
   });
