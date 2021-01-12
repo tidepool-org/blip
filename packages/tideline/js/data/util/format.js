@@ -188,7 +188,7 @@ var format = {
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return moment(d).utc().format(MMMM_D_FORMAT);
+    return moment.utc(d).format(MMMM_D_FORMAT);
   },
 
   /**

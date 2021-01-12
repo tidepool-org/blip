@@ -63,7 +63,7 @@ class PhysicalTooltip extends React.Component {
       </div>,
       <div key={'duration'} className={styles.pa}>
         <div className={styles.label}>{t('Duration')}</div>
-        <div className={styles.value}>{`${d.value} ${d.units}`}</div>
+        <div className={styles.value}>{`${d.value} ${t(d.units)}`}</div>
       </div>,
     ];
     const inputTime = [];

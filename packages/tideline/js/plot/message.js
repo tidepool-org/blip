@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -120,19 +120,20 @@ module.exports = function(pool, opts) {
     });
 
     var foGroup = tooltip.foGroup;
+    const msgDate = format.datestamp(d.normalTime, d.displayOffset);
+    const msgTime = format.timestamp(d.normalTime, d.displayOffset);
+    const msgDateTime = `<span class="fromto">${t('{{date}} - {{time}}', {date: msgDate, time: msgTime})}</span>`;
     tooltip.foGroup.append('p')
       .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
-      .html(format.datestamp(d.normalTime, d.displayOffset) + 
-        ' <span class="fromto">at</span> ' + 
-        format.timestamp(d.normalTime, d.displayOffset));
+      .html(msgDateTime);
     tooltip.foGroup.append('p')
       .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
       .html('<span class="value">' + format.nameForDisplay(d.user.fullName) + '</span> ' + format.textPreview(d.messageText));
-    
+
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element
@@ -237,7 +238,7 @@ module.exports = function(pool, opts) {
       if (!opts.timezoneAware) {
         var offsetMinutes = new Date(date).getTimezoneOffset();
         date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
-        opts.emitter.emit('clickTranslatesToDate', date);  
+        opts.emitter.emit('clickTranslatesToDate', date);
       }
       else {
         opts.emitter.emit('clickTranslatesToDate', date);
