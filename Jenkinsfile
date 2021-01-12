@@ -9,15 +9,15 @@ pipeline {
     }
     stages {
         stage('Initialization') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.build'
+                    reuseNode true
+                }
+            }
             steps {
-                script {
-                    utils.initPipeline()
-                    docker.image('docker.ci.diabeloop.eu/ci-toolbox').inside() {
-                        env.version = sh (
-                            script: 'release-helper get-version',
-                            returnStdout: true
-                        ).trim().toUpperCase()
-                    }
+                withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
+                    sh 'npm install'
                 }
             }
         }
@@ -30,7 +30,6 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
-                    sh 'npm install'
                     sh 'npm run lint'
                     sh 'npm run test'
                     sh 'npm run test-lambda'
@@ -61,7 +60,32 @@ pipeline {
         }
         stage('Documentation') {
             steps {
-                genDocumentation()
+                script {
+                    withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
+                        docker.image('docker.ci.diabeloop.eu/ci-toolbox').inside() {
+                            env.version = sh (
+                                script: 'release-helper get-version',
+                                returnStdout: true
+                            ).trim().toUpperCase()
+
+                            def config = getConfig()
+                            env.module = config.module
+                            def soupFileName = utils.getSoupFileName(module, version)
+
+                            sh """
+                                mkdir -p output
+                                echo "Soup list generation"
+                                release-helper gen-dep-report --deep-dep 'blip,sundial,tideline,tidepool-platform-client,tidepool-viz' "output/${soupFileName}"
+                                rm -fv deps-errors.txt deps-prod.json
+                            """
+
+                            dir("output") {
+                                archiveArtifacts artifacts: "${soupFileName}"
+                                stash name: utils.docStashName, includes: "*", allowEmtpy: true
+                            }
+                        }
+                    }
+                }
             }
         }
         stage('Publish') {
@@ -81,5 +105,4 @@ pipeline {
             }
         }
     }
-
 }

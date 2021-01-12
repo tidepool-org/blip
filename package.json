@@ -22,7 +22,6 @@
     "test-lambda": "bash test-lambda.sh",
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
     "prebuild-soup": "mkdir -pv doc",
-    "build-soup": "release-helper gen-dep-report --deep-dep 'blip,sundial,tideline,tidepool-platform-client,tidepool-viz' doc/${npm_package_name}-${npm_package_version}-soup.md",
     "prebuild-dev": "rm -rf dist",
     "build-dev": "lerna run --stream --scope blip build-dev",
     "postbuild-dev": "mkdir dist && mv packages/blip/dist dist/static",

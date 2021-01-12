@@ -48,3 +48,8 @@ cloudfront-dist/deployment/.env
 # Lambda testing
 test/lambda/dist
 test/lambda/templates
+
+# SOUP list
+deps-errors.txt
+deps-prod.json
+output/*.md
