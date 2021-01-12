@@ -33,11 +33,13 @@ const ScheduleForm = props => {
     ...boxProps
   } = props;
 
+  const formikContext = useFormikContext();
+
   const {
     setFieldTouched,
     setFieldValue,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const [refs, setRefs] = React.useState([]);
   const [focusedId, setFocusedId] = React.useState();
@@ -84,7 +86,7 @@ const ScheduleForm = props => {
             innerRef={refs[index]}
             id={`${fieldArrayName}.${index}.start`}
             name={`${fieldArrayName}.${index}.start`}
-            error={getFieldError(`${fieldArrayName}.${index}.start`, useFormikContext())}
+            error={getFieldError(`${fieldArrayName}.${index}.start`, formikContext)}
             {...inlineInputStyles}
           />
           {map(fields, (field, fieldIndex) => (
@@ -99,7 +101,7 @@ const ScheduleForm = props => {
                 id={`${fieldArrayName}.${index}.${field.name}`}
                 name={`${fieldArrayName}.${index}.${field.name}`}
                 suffix={field.suffix}
-                error={getFieldError(`${fieldArrayName}.${index}.${field.name}`, useFormikContext())}
+                error={getFieldError(`${fieldArrayName}.${index}.${field.name}`, formikContext)}
                 warning={getThresholdWarning(get(values,`${fieldArrayName}.${index}.${field.name}`), field.threshold)}
                 onBlur={e => {
                   setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);

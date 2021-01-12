@@ -21,6 +21,7 @@ const log = bows('PrescriptionAccount');
 export const AccountType = translate()(props => {
   const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
+  const formikContext = useFormikContext();
 
   return (
     <Box {...fieldsetStyles}>
@@ -31,7 +32,7 @@ export const AccountType = translate()(props => {
         id="accountType"
         name="accountType"
         options={typeOptions}
-        error={getFieldError('accountType', useFormikContext())}
+        error={getFieldError('accountType', formikContext)}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -40,12 +41,13 @@ export const AccountType = translate()(props => {
 
 export const PatientInfo = translate()(props => {
   const { t, initialFocusedInput = 'firstName' } = props;
+  const formikContext = useFormikContext();
 
   const {
     setFieldValue,
     setFieldTouched,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const initialFocusedInputRef = useInitialFocusedInput();
   const dateFormatRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
@@ -60,7 +62,7 @@ export const PatientInfo = translate()(props => {
         label={t('First Name')}
         id="firstName"
         name="firstName"
-        error={getFieldError('firstName', useFormikContext())}
+        error={getFieldError('firstName', formikContext)}
         innerRef={initialFocusedInput === 'firstName' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
@@ -69,7 +71,7 @@ export const PatientInfo = translate()(props => {
         label={t('Last Name')}
         id="lastName"
         name="lastName"
-        error={getFieldError('lastName', useFormikContext())}
+        error={getFieldError('lastName', formikContext)}
         {...condensedInputStyles}
       />
       <FastField
@@ -88,7 +90,7 @@ export const PatientInfo = translate()(props => {
               name="birthday"
               id="birthday"
               label={t('Birthdate')}
-              error={getFieldError('birthday', useFormikContext())}
+              error={getFieldError('birthday', formikContext)}
               innerRef={innerRef}
               {...condensedInputStyles}
             />
@@ -104,12 +106,13 @@ export const PatientInfo = translate()(props => {
 export const PatientEmail = translate()(props => {
   const { t } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
+  const formikContext = useFormikContext();
 
   const {
     setFieldTouched,
     setFieldValue,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const patientName = get(values, 'firstName');
   const isCaregiverAccount = get(values, 'accountType') === 'caregiver';
@@ -143,7 +146,7 @@ export const PatientEmail = translate()(props => {
           label={t('First Name')}
           id="caregiverFirstName"
           name="caregiverFirstName"
-          error={getFieldError('caregiverFirstName', useFormikContext())}
+          error={getFieldError('caregiverFirstName', formikContext)}
           innerRef={initialFocusedInput === 'caregiverFirstName' ? initialFocusedInputRef : undefined}
           {...condensedInputStyles}
         />
@@ -154,7 +157,7 @@ export const PatientEmail = translate()(props => {
           label={t('Last Name')}
           id="caregiverLastName"
           name="caregiverLastName"
-          error={getFieldError('caregiverLastName', useFormikContext())}
+          error={getFieldError('caregiverLastName', formikContext)}
           {...condensedInputStyles}
         />
       )}
@@ -163,7 +166,7 @@ export const PatientEmail = translate()(props => {
         label={t('Email Address')}
         id="email"
         name="email"
-        error={getFieldError('email', useFormikContext())}
+        error={getFieldError('email', formikContext)}
         innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
         {...condensedInputStyles}
       />
@@ -172,7 +175,7 @@ export const PatientEmail = translate()(props => {
         label={t('Confirm Email Address')}
         id="emailConfirm"
         name="emailConfirm"
-        error={getFieldError('emailConfirm', useFormikContext())}
+        error={getFieldError('emailConfirm', formikContext)}
         {...condensedInputStyles}
       />
       <Caption mt={5} mb={3}>
