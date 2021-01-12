@@ -35,14 +35,16 @@ const log = bows('PrescriptionAccount');
 
 export const PatientPhone = translate()(props => {
   const { t } = props;
-  const { values } = useFormikContext();
-  const patientName = get(values, 'firstName');
-  const initialFocusedInputRef = useInitialFocusedInput();
+  const formikContext = useFormikContext();
 
   const {
     setFieldValue,
     setFieldTouched,
-  } = useFormikContext();
+    values,
+  } = formikContext;
+
+  const patientName = get(values, 'firstName');
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -62,7 +64,7 @@ export const PatientPhone = translate()(props => {
               name="phoneNumber.number"
               id="phoneNumber.number"
               label={t('Phone Number')}
-              error={getFieldError('phoneNumber.number', useFormikContext())}
+              error={getFieldError('phoneNumber.number', formikContext)}
               innerRef={innerRef}
               {...condensedInputStyles}
             />
@@ -80,7 +82,8 @@ export const PatientPhone = translate()(props => {
 
 export const PatientMRN = translate()(props => {
   const { t } = props;
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
   const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
 
@@ -92,7 +95,7 @@ export const PatientMRN = translate()(props => {
         label={t('Medical Record Number')}
         id="mrn"
         name="mrn"
-        error={getFieldError('mrn', useFormikContext())}
+        error={getFieldError('mrn', formikContext)}
         innerRef={initialFocusedInputRef}
         {...condensedInputStyles}
       />
@@ -102,7 +105,8 @@ export const PatientMRN = translate()(props => {
 
 export const PatientGender = translate()(props => {
   const { t } = props;
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
   const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
 
@@ -115,7 +119,7 @@ export const PatientGender = translate()(props => {
         id="sex"
         name="sex"
         options={sexOptions}
-        error={getFieldError('sex', useFormikContext())}
+        error={getFieldError('sex', formikContext)}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -124,13 +128,15 @@ export const PatientGender = translate()(props => {
 
 export const PatientDevices = translate()(props => {
   const { t, devices } = props;
-  const { values } = useFormikContext();
-  const patientName = get(values, 'firstName');
-  const initialFocusedInputRef = useInitialFocusedInput();
+  const formikContext = useFormikContext();
 
   const {
     setFieldValue,
-  } = useFormikContext();
+    values,
+  } = formikContext;
+
+  const patientName = get(values, 'firstName');
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -148,7 +154,7 @@ export const PatientDevices = translate()(props => {
               onChange={e => {
                 setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError('initialSettings.pumpId', useFormikContext())}
+              error={getFieldError('initialSettings.pumpId', formikContext)}
               innerRef={initialFocusedInputRef}
               {...checkboxStyles}
             />
@@ -168,7 +174,7 @@ export const PatientDevices = translate()(props => {
               onChange={e => {
                 setFieldValue('initialSettings.cgmId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError('initialSettings.cgmId', useFormikContext())}
+              error={getFieldError('initialSettings.cgmId', formikContext)}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>

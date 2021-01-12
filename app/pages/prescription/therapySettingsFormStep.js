@@ -69,6 +69,7 @@ PatientInfo.propTypes = fieldsetPropTypes;
 export const PatientTraining = props => {
   const { t, pump, ...themeProps } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
+  const formikContext = useFormikContext();
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -83,7 +84,7 @@ export const PatientTraining = props => {
         id="training"
         name="training"
         options={trainingOptions}
-        error={getFieldError('training', useFormikContext())}
+        error={getFieldError('training', formikContext)}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -109,11 +110,13 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 export const GlucoseSettings = props => {
   const { t, pump, ...themeProps } = props;
 
+  const formikContext = useFormikContext();
+
   const {
     setFieldTouched,
     setFieldValue,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const ranges = pumpRanges(pump, bgUnits, values);
@@ -141,7 +144,7 @@ export const GlucoseSettings = props => {
           id="initialSettings.glucoseSafetyLimit"
           name="initialSettings.glucoseSafetyLimit"
           suffix={bgUnits}
-          error={getFieldError('initialSettings.glucoseSafetyLimit', useFormikContext())}
+          error={getFieldError('initialSettings.glucoseSafetyLimit', formikContext)}
           warning={getThresholdWarning(get(values,'initialSettings.glucoseSafetyLimit'), thresholds.glucoseSafetyLimit)}
           onBlur={e => {
             setFieldTouched('initialSettings.glucoseSafetyLimit');
@@ -212,7 +215,7 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPreprandial.low"
             name="initialSettings.bloodGlucoseTargetPreprandial.low"
             suffix={bgUnits}
-            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', useFormikContext())}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.low', formikContext)}
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.low'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.low');
@@ -230,7 +233,7 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPreprandial.high"
             name="initialSettings.bloodGlucoseTargetPreprandial.high"
             suffix={bgUnits}
-            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', useFormikContext())}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPreprandial.high', formikContext)}
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPreprandial.high'), thresholds.bloodGlucoseTargetPreprandial)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPreprandial.high');
@@ -263,7 +266,7 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
             name="initialSettings.bloodGlucoseTargetPhysicalActivity.low"
             suffix={bgUnits}
-            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', useFormikContext())}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.low', formikContext)}
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.low'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.low');
@@ -281,7 +284,7 @@ export const GlucoseSettings = props => {
             id="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
             name="initialSettings.bloodGlucoseTargetPhysicalActivity.high"
             suffix={bgUnits}
-            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', useFormikContext())}
+            error={getFieldError('initialSettings.bloodGlucoseTargetPhysicalActivity.high', formikContext)}
             warning={getThresholdWarning(get(values,'initialSettings.bloodGlucoseTargetPhysicalActivity.high'), thresholds.bloodGlucoseTargetPhysicalActivity)}
             onBlur={e => {
               setFieldTouched('initialSettings.bloodGlucoseTargetPhysicalActivity.high');
@@ -301,12 +304,13 @@ GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
   const { t, pump, ...themeProps } = props;
+  const formikContext = useFormikContext();
 
   const {
     setFieldTouched,
     setFieldValue,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const ranges = pumpRanges(pump, bgUnits, values);
@@ -397,7 +401,7 @@ export const InsulinSettings = props => {
           id="initialSettings.basalRateMaximum.value"
           name="initialSettings.basalRateMaximum.value"
           suffix={t('U/hr')}
-          error={getFieldError('initialSettings.basalRateMaximum.value', useFormikContext())}
+          error={getFieldError('initialSettings.basalRateMaximum.value', formikContext)}
           warning={getThresholdWarning(get(values,'initialSettings.basalRateMaximum.value'), thresholds.basalRateMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.basalRateMaximum.value');
@@ -426,7 +430,7 @@ export const InsulinSettings = props => {
           id="initialSettings.bolusAmountMaximum.value"
           name="initialSettings.bolusAmountMaximum.value"
           suffix={t('U')}
-          error={getFieldError('initialSettings.bolusAmountMaximum.value', useFormikContext())}
+          error={getFieldError('initialSettings.bolusAmountMaximum.value', formikContext)}
           warning={getThresholdWarning(get(values,'initialSettings.bolusAmountMaximum.value'), thresholds.bolusAmountMaximum)}
           onBlur={e => {
             setFieldTouched('initialSettings.bolusAmountMaximum.value');
@@ -470,7 +474,7 @@ export const InsulinSettings = props => {
           id="initialSettings.insulinModel"
           name="initialSettings.insulinModel"
           options={insulinModelOptions}
-          error={getFieldError('initialSettings.insulinModel', useFormikContext())}
+          error={getFieldError('initialSettings.insulinModel', formikContext)}
           mb={4}
         />
 
