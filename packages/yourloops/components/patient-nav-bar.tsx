@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2020, Diabeloop
- * Patient data page
+ * Patient nav bar
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -14,5 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import PatientData from './patient-data';
-export default PatientData;
+import * as React from "react";
+
+import HeaderBar from './header-bar';
+
+function PatientNavBar() : JSX.Element {
+  return (
+    <HeaderBar />
+  );
+}
+
+export default PatientNavBar;

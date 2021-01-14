@@ -16,21 +16,19 @@
 
 import * as React from 'react';
 import { render as renderDOM } from "react-dom";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
-
+import { Router, globalHistory } from "@reach/router";
 import bows from 'bows';
 
 import "fontsource-roboto";
 import "branding/theme-base.css";
 import "branding/theme.css";
 
-import { initI18n } from '../lib/language';
-import Login from '../pages/login';
-import Main from '../pages/main';
+import { initI18n } from "../lib/language";
+import apiClient from "../lib/api";
+
+import LoginPage from '../pages/login';
+import HcpPage from '../pages/hcp';
+import PatientPage from "../pages/patient";
 
 class Yourloops {
   private log: Console;
@@ -45,9 +43,13 @@ class Yourloops {
     await initI18n();
     this.log.debug("i18next initialized");
 
-    // globalHistory.listen(({ location, action }) => {
-    //   this.log.info({ location, action });
-    // });
+    globalHistory.listen(({ location, action }) => {
+      this.log.info({ location, action });
+    });
+
+    apiClient.addEventListener("logout", () => {
+      globalHistory.navigate("/");
+    });
   }
 
   public render(): void {
@@ -63,26 +65,10 @@ class Yourloops {
 
   private router(): JSX.Element {
     return (
-      <Router>
-        {/* 
-        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
-        <Login path="/" />
-        <Login path="/login" />
-        <PatientData path="/patient" /> 
-        */}
-          {/*
-            A <Switch> looks through all its children <Route>
-            elements and renders the first one whose path
-            matches the current URL. Use a <Switch> any time
-            you have multiple routes, but you want only one
-            of them to render at a time
-            style={{ height: "100vh", display: "flex", flexDirection: "column" }}
-          */}
-          <Switch>
-            <Route exact path="/" component={Login} />
-            <Route path="/login" component= {Login} />
-            <Route path="/home" component={Main} />
-          </Switch>
+      <Router style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <LoginPage path="/" />
+        <HcpPage path="/hcp/*" />
+        <PatientPage path="/patient/*" />
       </Router>
     );
   }

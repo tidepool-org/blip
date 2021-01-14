@@ -98,6 +98,10 @@ class API extends EventTarget {
     return this.sessionToken !== null && this.traceToken !== null && this.user !== null;
   }
 
+  public get userIsPatient(): boolean {
+    return this.isLoggedIn && !_.isEmpty(this.user?.profile?.patient);
+  }
+
   /**
    * Listen to session storage events, to know if another tab is logged out.
    * @param {StorageEvent} ev A change in the storage
@@ -192,7 +196,7 @@ class API extends EventTarget {
         return this.getUserProfile(user);
       }).finally(() => {
         this.loginLock = false;
-    });
+      });
   }
 
   /**
@@ -203,6 +207,7 @@ class API extends EventTarget {
       this.sessionToken = null;
       this.traceToken = null;
       this.user = null;
+      this.patients = null;
       sessionStorage.removeItem(TRACE_TOKEN_KEY);
       sessionStorage.removeItem(TRACE_TOKEN_KEY);
       sessionStorage.removeItem(LOGGED_IN_USER);
@@ -212,6 +217,7 @@ class API extends EventTarget {
       this.sessionToken = null;
       this.traceToken = null;
       this.user = null;
+      this.patients = null;
       sessionStorage.removeItem(TRACE_TOKEN_KEY);
       sessionStorage.removeItem(TRACE_TOKEN_KEY);
       sessionStorage.removeItem(LOGGED_IN_USER);
@@ -266,43 +272,46 @@ class API extends EventTarget {
       throw new Error(t(responseBody.reason));
     }
 
+    sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
     return user;
   }
 
   public async loadPatientData(userID: string): Promise<PatientData> {
-    if (this.isLoggedIn && this.patients !== null) {
-      const patient = this.patients.find((user: User) => user.userid === userID);
-      if (typeof patient !== "object") {
-        throw new Error(`Missing patient ${userID}`);
-      }
+    let patient: User | null | undefined = null;
 
-      this.dispatchEvent(new Event("patient-data-loading"));
-
-      const dataURL = new URL(`/data/${userID}`, appConfig.API_HOST);
-      const response = await fetch(dataURL.toString(), {
-        method: "GET",
-        headers: {
-          [TRACE_SESSION_HEADER]: this.traceToken as string,
-          [SESSION_TOKEN_HEADER]: this.sessionToken as string,
-        },
-      });
-
-      if (response.ok) {
-        const patientData = await response.json() as PatientData;
-
-        defer(() => {
-          this.dispatchEvent(new PatientDataLoadedEvent(patient, patientData));
-        });
-
-        return patientData;
-      }
-
-      const responseBody = await response.json() as APIErrorResponse;
-      throw new Error(t(responseBody.reason));
+    if (this.userIsPatient) {
+      patient = this.user;
+    } else if (this.isLoggedIn && this.patients !== null) {
+      patient = this.patients.find((user: User) => user.userid === userID);
     }
 
-    // Users should never see this:
-    throw new Error(t("You are not logged-in"));
+    if (_.isEmpty(patient)) {
+      throw new Error(`Missing patient ${userID}`);
+    }
+
+    this.dispatchEvent(new Event("patient-data-loading"));
+
+    const dataURL = new URL(`/data/${userID}`, appConfig.API_HOST);
+    const response = await fetch(dataURL.toString(), {
+      method: "GET",
+      headers: {
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+    });
+
+    if (response.ok) {
+      const patientData = await response.json() as PatientData;
+
+      defer(() => {
+        this.dispatchEvent(new PatientDataLoadedEvent(patient as User, patientData));
+      });
+
+      return patientData;
+    }
+
+    const responseBody = await response.json() as APIErrorResponse;
+    throw new Error(t(responseBody.reason));
   }
 
   /**
@@ -344,7 +353,7 @@ class API extends EventTarget {
    * @param {any=} properties optional parameter
    */
   sendMetrics(eventName: string, properties?: unknown): void {
-     /** @type {any[]|null} */
+    /** @type {any[]|null} */
     let matomoPaq = null;
     this.log.info("Metrics:", eventName, properties);
     switch (appConfig.METRICS_SERVICE) {

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2020, Diabeloop
- * Yourloops utils functions
+ * Copyright (c) 2021, Diabeloop
+ * HCPs index
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -13,27 +13,5 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-
-/**
-  * setTimeout() as promised
-  * @param timeout in milliseconds
-  */
-export function waitTimeout(timeout: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-}
-
-/**
- * Defer the execution on a function
- * @param fn A function
- * @param timeout optional delay to wait
- */
-export async function defer(fn: () => void, timeout = 1): Promise<void> {
-  try {
-    await waitTimeout(timeout);
-    fn();
-  } catch (err) {
-    console.error(err);
-  }
-}
+import HcpPage from './hcp';
+export default HcpPage;

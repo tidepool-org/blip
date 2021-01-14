@@ -14,8 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import _ from "lodash";
 import * as React from "react";
-import { globalHistory } from "@reach/router";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -30,14 +30,20 @@ import apiClient from "../lib/api";
 import brandingLogo from "branding/logo.png";
 
 interface HeaderProps {
-  children: JSX.Element[];
+  children?: JSX.Element | JSX.Element[];
 }
 
 const toolbarStyles = makeStyles((/* theme */) => ({
   toolBar: {
     backgroundColor: "var(--mdc-theme-surface, white)",
-    display: "flex",
-    flexDirection: "row",
+    display: "grid",
+    gridTemplateRows: "auto",
+  },
+  toolBarWithChildren: {
+    gridTemplateColumns: "auto auto auto",
+  },
+  toolBarWithoutChildren: {
+    gridTemplateColumns: "auto auto",
   },
   accountMenu: {
     marginLeft: "auto",
@@ -76,7 +82,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
 
   const handleLogout = () => {
     setAnchorEl(null);
-    globalHistory.navigate("/");
+    apiClient.logout();
   };
 
   let accountMenu = null;
@@ -120,11 +126,17 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     );
   }
 
+  let toolbarStyle = classes.toolBar;
+  if (_.isEmpty(props.children)) {
+    toolbarStyle = `${toolbarStyle} ${classes.toolBarWithoutChildren}`;
+  } else {
+    toolbarStyle = `${toolbarStyle} ${classes.toolBarWithChildren}`;
+  }
   return (
     <AppBar position="static">
-      <Toolbar className={classes.toolBar}>
+      <Toolbar className={toolbarStyle}>
         <img className={classes.toolbarLogo} alt={t("Logo")} src={brandingLogo} />
-        {...props.children}
+        {props.children}
         {accountMenu}
       </Toolbar>
     </AppBar>

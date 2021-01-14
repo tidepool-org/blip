@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, globalHistory } from "@reach/router";
 import bows from "bows";
 
 import {
@@ -101,7 +101,7 @@ class Login extends React.Component<LoginProps, LoginState> {
           <Grid item xs={12}>
             <Card>
               <CardMedia style={{ display: "flex", paddingTop: "1em", paddingBottom: "1em" }}>
-                <img src={brandingLogo} style={{ height: "60px", marginLeft: "auto", marginRight: "auto" }} />
+                <img src={brandingLogo} style={{ height: "60px", marginLeft: "auto", marginRight: "auto" }} alt={t('Login Branding Logo')} />
               </CardMedia>
               <CardContent>
               <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
@@ -188,7 +188,11 @@ class Login extends React.Component<LoginProps, LoginState> {
     api.login(username, password)
       .then((user: User) => {
         this.log.info(user);
-        this.props.history.push("/home");
+        if (api.userIsPatient) {
+          globalHistory.navigate("/patient");
+        } else {
+          globalHistory.navigate("/hcp");
+        }
       }).catch((reason: Error) => {
         console.log(reason);
         this.setState({ validateError: true, helperTextValue: reason.message });
