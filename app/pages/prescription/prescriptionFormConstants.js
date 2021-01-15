@@ -8,6 +8,7 @@ import max from 'lodash/max';
 import min from 'lodash/min';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
+import moment from 'moment';
 
 import i18next from '../../core/language';
 import { MGDL_UNITS } from '../../core/constants';
@@ -272,6 +273,18 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
   };
 
   return thresholds;
+};
+
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+  const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
+  const isPaed = patientAge < 18;
+
+  return {
+    basalRateMaximum: isFinite(maxBasalRate)
+      ? parseFloat((maxBasalRate * (isPaed ? 3 : 3.5)).toFixed(2))
+      : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
+  };
 };
 
 export const typeOptions = [
