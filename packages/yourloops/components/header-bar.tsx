@@ -28,8 +28,9 @@ import { t } from "../lib/language";
 import apiClient from "../lib/api";
 
 import brandingLogo from "branding/logo.png";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 
-interface HeaderProps {
+interface HeaderProps extends RouteComponentProps {
   children?: JSX.Element | JSX.Element[];
 }
 
@@ -135,7 +136,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={toolbarStyle}>
-        <img className={classes.toolbarLogo} alt={t("Logo")} src={brandingLogo} />
+        <img className={classes.toolbarLogo} alt={t("Logo")} src={`/${brandingLogo}` } />
         {props.children}
         {accountMenu}
       </Toolbar>
@@ -143,4 +144,4 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   );
 }
 
-export default HeaderBar;
+export default withRouter(HeaderBar);

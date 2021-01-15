@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { RouteComponentProps, globalHistory } from "@reach/router";
+import { RouteComponentProps } from "react-router-dom";
 import bows from "bows";
 
 import {
@@ -189,9 +189,9 @@ class Login extends React.Component<LoginProps, LoginState> {
       .then((user: User) => {
         this.log.info(user);
         if (api.userIsPatient) {
-          globalHistory.navigate("/patient");
+          this.props.history.push("/patient");
         } else {
-          globalHistory.navigate("/hcp");
+          this.props.history.push("/hcp");
         }
       }).catch((reason: Error) => {
         console.log(reason);

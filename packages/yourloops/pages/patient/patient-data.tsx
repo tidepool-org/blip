@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps } from "react-router-dom";
 import bows from 'bows';
 
 import Blip from "blip";

@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { Router, RouteComponentProps, globalHistory } from "@reach/router";
+import { Route, RouteComponentProps } from "react-router-dom";
 import bows from 'bows';
 
 import PatientNavBar from '../../components/patient-nav-bar';
@@ -27,10 +27,10 @@ import PatientDataPage from './patient-data';
  */
 function PatientPage(props: RouteComponentProps) : JSX.Element | null {
   const log = bows("Patient Page");
-  log.info("Patient page", globalHistory.location.pathname);
-  if (globalHistory.location.pathname === "/patient") {
+  log.info("Patient page", props.history.location.pathname);
+  if (props.history.location.pathname === "/patient") {
     log.info("Redirecting to the patients list", props);
-    globalHistory.navigate("/patient/data");
+    props.history.push("/patient/data");
     return null;
   }
   // log.info("Current path:", props.path);
@@ -38,9 +38,8 @@ function PatientPage(props: RouteComponentProps) : JSX.Element | null {
     <div>
       <PatientNavBar />
 
-      <Router >
-        <PatientDataPage path="data" />
-      </Router>
+      <Route path= "data" component={PatientDataPage} />
+
     </div>
   );
 }

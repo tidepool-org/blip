@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { Router, RouteComponentProps, globalHistory } from "@reach/router";
+import { Route, RouteComponentProps, Switch } from "react-router-dom";
 import bows from 'bows';
 
 import HcpNavBar from '../../components/hcp-nav-bar';
@@ -27,21 +27,22 @@ import PatientDataPage from './patient-data';
  */
 function HcpPage(props: RouteComponentProps) : JSX.Element | null {
   const log = bows("HCP Page");
-
-  if (globalHistory.location.pathname === "/hcp") {
+  log.info("in HCP page ", props.history.location);
+  if (props.history.location.pathname === "/hcp") {
     log.info("Redirecting to the patients list", props);
-    globalHistory.navigate("/hcp/patients");
+    props.history.push("/hcp/patients");
     return null;
   }
   // log.info("Current path:", props.path);
   return (
     <div>
       <HcpNavBar />
-
-      <Router>
-        <PatientListPage path="patients" />
-        <PatientDataPage path="patient/:patientId" />
-      </Router>
+      
+      <Switch>
+        <Route path="/hcp/patients" component={PatientListPage} />
+        <Route path="/hcp/patient/:patientId" component={PatientDataPage} />
+      </Switch>
+      
     </div>
   );
 }

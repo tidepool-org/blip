@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { RouteComponentProps, globalHistory } from "@reach/router";
+import { RouteComponentProps } from "react-router-dom";
 import bows from 'bows';
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -92,7 +92,7 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
 
   private onSelectPatient(user: User): void {
     this.log.info('Click on', user);
-    globalHistory.navigate(`/hcp/patient/${user.userid}`);
+    this.props.history.push(`/hcp/patient/${user.userid}`);
   }
 }
 

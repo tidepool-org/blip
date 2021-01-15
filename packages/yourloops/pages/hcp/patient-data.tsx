@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps } from "react-router-dom";
 import bows from 'bows';
 
 import Blip from "blip";
@@ -25,7 +25,7 @@ import apiClient from "../../lib/api";
 // import { User } from "../../models/shoreline";
 // import { t } from "../../lib/language";
 
-interface PatientDataProps extends RouteComponentProps {
+interface PatientDataProps {
   patientId?: string;
 }
 
@@ -33,11 +33,11 @@ interface PatientDataProps extends RouteComponentProps {
 interface PatientDataState {
 }
 
-class PatientDataPage extends React.Component<PatientDataProps, PatientDataState> {
+class PatientDataPage extends React.Component<RouteComponentProps<PatientDataProps>, PatientDataState> {
   private log: Console;
 
   constructor(props: PatientDataProps) {
-    super(props);
+    super(props as RouteComponentProps);
 
     this.log = bows("HCPPatientData");
 
@@ -47,9 +47,9 @@ class PatientDataPage extends React.Component<PatientDataProps, PatientDataState
   }
 
   public componentDidMount(): void {
-    const { patientId } = this.props;
+    const { patientId } = this.props.match.params;
 
-    this.log.debug("Mounted");
+    this.log.debug("Mounted", this.props.match.params.patientId);
 
     if (typeof patientId === "string") {
       apiClient.loadPatientData(patientId).catch((reason: unknown) => {

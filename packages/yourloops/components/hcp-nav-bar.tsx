@@ -15,32 +15,25 @@
  */
 
 import * as React from "react";
-import { globalHistory } from "@reach/router";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 
 import { t } from "../lib/language";
 import HeaderBar from './header-bar';
 
-function clickPatients() {
-  globalHistory.navigate("/hcp/patients");
-}
+function HcpNavBar(props: RouteComponentProps) : JSX.Element {
 
-function clickCareTeams() {
-  globalHistory.navigate("/hcp/careteams");
-}
-
-function HcpNavBar() : JSX.Element {
-  const isPatientsPath = globalHistory.location.pathname.startsWith("/hcp/patient");
+  const isPatientsPath = props.history.location.pathname.startsWith("/hcp/patient");
 
   return (
     <HeaderBar>
       <Tabs value={isPatientsPath ? 0 : 1} indicatorColor="primary" textColor="primary" centered>
-        <Tab label={t("Patients")} onClick={clickPatients} />
-        <Tab label={t("Care teams")} onClick={clickCareTeams} />
+        <Tab label={t("Patients")} component={Link} to="/hcp/patients" />
+        <Tab label={t("Care teams")} component={Link} to="/hcp/careteams" />
       </Tabs>
     </HeaderBar>
   );
 }
 
-export default HcpNavBar;
+export default withRouter(HcpNavBar);
