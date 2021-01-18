@@ -51,7 +51,10 @@ const log = bows('PrescriptionForm');
 let schema;
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
-  mapPropsToStatus: () => ({ hydratedValues: null }),
+  mapPropsToStatus: props => ({
+    hydratedValues: null,
+    isPrescriptionEditFlow: !!props.prescription,
+  }),
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
@@ -235,13 +238,23 @@ export const PrescriptionForm = props => {
     // When a user comes to this component initially, without the active step and subStep set by the
     // Stepper component in the url, or when editing an existing prescription,
     // we delete any persisted state from localStorage.
-    if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
+    if (status.isPrescriptionEditFlow || (get(localStorage, storageKey) && activeStepsParam === null)) {
+      delete localStorage[storageKey];
+    }
 
-    // We only use the localStorage persistence for new prescriptions - not while editing an existing one.
+    // Only use the localStorage persistence for new prescriptions - not while editing an existing one.
     setFormPersistReady(!prescription);
   }, []);
 
-  // We save the hydrated localStorage values to the formik form status for easy reference
+  // Save whether or not we are editing a single step to the formik form status for easy reference
+  React.useEffect(() => {
+    setStatus({
+      ...status,
+      isSingleStepEdit,
+    });
+  }, [isSingleStepEdit])
+
+  // Save the hydrated localStorage values to the formik form status for easy reference
   React.useEffect(() => {
     if (formPersistReady) setStatus({
       ...status,
@@ -373,7 +386,7 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values, isSingleStepEdit);
+  const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
   const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 
   const stepProps = step => ({

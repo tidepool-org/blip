@@ -278,13 +278,50 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
 export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
-  const isPaed = patientAge < 18;
+  const isPediatric = patientAge < 18;
 
   return {
     basalRateMaximum: isFinite(maxBasalRate)
-      ? parseFloat((maxBasalRate * (isPaed ? 3 : 3.5)).toFixed(2))
+      ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
+    bloodGlucoseTarget: {
+      low: 101,
+      high: isPediatric ? 115 : 105,
+    },
+    glucoseSafetyLimit: isPediatric ? 80 : 75,
   };
+};
+
+/**
+ * Determine whether or not to update the default value of a field
+ *
+ * Scenarios when we want to update:
+ * New prescription flow
+ * - field in hydrated localStorage values is non-finite and field is untouched
+ *
+ * Edit prescription flow
+ * - no initial value and untouched
+ *
+ * Single step edit from review page
+ * - never
+ *
+ * @param {String} fieldPath path to the field in dot notation
+ * @param {Object} formikContext context provided by useFormikContext()
+ * @returns {Boolean}
+ */
+export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
+  const {
+    initialValues,
+    status,
+    touched,
+  } = formikContext;
+
+  const initialValuesSource = status.isPrescriptionEditFlow ? initialValues : status.hydratedValues;
+
+  return (
+    !status.isSingleStepEdit
+    && !isFinite(get(initialValuesSource, fieldPath))&& !get(touched, fieldPath)
+  );
 };
 
 export const typeOptions = [

@@ -4,9 +4,8 @@ import { translate } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import each from 'lodash/each';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import isFinite from 'lodash/isFinite';
 import map from 'lodash/map';
 import max from 'lodash/max';
 
@@ -20,14 +19,11 @@ import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
 
 import {
-  useParams,
-} from 'react-router-dom';
-
-import {
   defaultValues,
   insulinModelOptions,
   pumpRanges,
   roundValueToIncrement,
+  shouldUpdateDefaultValue,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -118,7 +114,6 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
   const { t, pump, ...themeProps } = props;
-
   const formikContext = useFormikContext();
 
   const {
@@ -312,70 +307,18 @@ export const GlucoseSettings = props => {
 GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
-  const { t, pump, isSingleStepEdit, ...themeProps } = props;
+  const { t, pump, ...themeProps } = props;
   const formikContext = useFormikContext();
-  const params = useParams();
 
   const {
-    initialValues,
     setFieldTouched,
     setFieldValue,
-    status,
-    touched,
     values,
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
   const ranges = pumpRanges(pump, bgUnits, values);
   const thresholds = warningThresholds(pump, bgUnits, values);
-
-  /** Scenarios when we want to update the basalRateMaximum default when max basal rate changes
-   * New prescription flow
-   * - hydrated upon reload of settings step and no value and not touched (if a finite value is hydrated from localStorage, we don't change it)
-   * - not just hydrated and not touched and not a single step edit from the review page (such as when navigating freshly to the page from the previous step. value can be set or unset)
-   *
-   * Edit prescription flow
-   * - no initial value and not touched (can't say never since a new prescription may be created up to the previous step, abandonned, and returned to later as an edit with a blank settings step)
-   *
-   * Single step edit from review page
-   * - Never, but perhaps the 'no (initial?) value and not touched' is also safe, though I can't see it actually occurring.
-   *   Would eliminate the need to detect if it's a single step edit - unless it conflicts with new prescription flow conditions....
-   *   Theoretically, the settings form should always be completed for a user to be at that stage, but who knows if a user will
-   *   just get to an incomplete review page by pasting the url / or refreshing a review page from a different prescription after
-   *   a new one has started and a different prescription is in localStorage.  Getting complicated.  Thinking never is the best route.
-   */
-
-  // Update default basalRateMaximum when max basal rate changes
-  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
-  React.useEffect(() => {
-    const isPrescriptionEditFlow = !!get(params, 'id');
-    let updateDefaultBasalRateMaximum = false;
-
-    if (!isSingleStepEdit) {
-      if (isPrescriptionEditFlow) {
-        updateDefaultBasalRateMaximum = (
-          !isFinite(get(initialValues, 'initialSettings.basalRateMaximum.value'))
-          && !get(touched, 'initialSettings.basalRateMaximum.value')
-        );
-      } else { // new prescription flow
-        updateDefaultBasalRateMaximum = isEmpty(status.hydratedValues)
-          ? !get(touched, 'initialSettings.basalRateMaximum.value')
-          : (
-            !get(touched, 'initialSettings.basalRateMaximum.value')
-            && !isFinite(get(status.hydratedValues, 'initialSettings.basalRateMaximum.value'))
-          );
-      }
-    }
-
-    if (updateDefaultBasalRateMaximum) {
-      const defaults = defaultValues(pump, bgUnits, values);
-      console.log('defaults.basalRateMaximum', defaults.basalRateMaximum);
-      setFieldValue(
-        'initialSettings.basalRateMaximum.value',
-        roundValueToIncrement(defaults.basalRateMaximum, ranges.basalRateMaximum.increment)
-      );
-    }
-  }, [maxBasalRate]);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -580,7 +523,49 @@ export const InsulinSettings = props => {
 InsulinSettings.propTypes = fieldsetPropTypes;
 
 export const TherapySettings = translate()(props => {
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+
+  const {
+    setFieldValue,
+    values,
+  } = formikContext;
+
+  const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const ranges = pumpRanges(props.pump, bgUnits, values);
+  const defaults = defaultValues(props.pump, bgUnits, values);
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+
+  const fieldsWithDefaults = [
+    {
+      path: 'initialSettings.glucoseSafetyLimit',
+      defaultValue: defaults.glucoseSafetyLimit,
+      increment: ranges.glucoseSafetyLimit.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetSchedule[0].low',
+      defaultValue: defaults.bloodGlucoseTarget.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetSchedule[0].high',
+      defaultValue: defaults.bloodGlucoseTarget.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.basalRateMaximum.value',
+      defaultValue: defaults.basalRateMaximum,
+      increment: ranges.basalRateMaximum.increment,
+      dependancies: [maxBasalRate],
+    },
+  ];
+
+  each(fieldsWithDefaults, field => {
+    React.useEffect(() => {
+      if (shouldUpdateDefaultValue(field.path, formikContext)) {
+        setFieldValue(field.path, roundValueToIncrement(field.defaultValue, field.increment));
+      }
+    }, field.dependancies || []);
+  });
 
   return (
     <Box>
@@ -593,10 +578,10 @@ export const TherapySettings = translate()(props => {
   );
 });
 
-const therapySettingsFormStep = (schema, pump, values, isSingleStepEdit) => ({
+const therapySettingsFormStep = (schema, pump, values) => ({
   label: t('Enter Therapy Settings'),
   disableComplete: !fieldsAreValid(stepValidationFields[2][0], schema, values),
-  panelContent: <TherapySettings pump={pump} isSingleStepEdit={isSingleStepEdit} />
+  panelContent: <TherapySettings pump={pump} />
 });
 
 export default therapySettingsFormStep;
