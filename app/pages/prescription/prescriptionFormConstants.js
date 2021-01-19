@@ -275,6 +275,13 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
   return thresholds;
 };
 
+/**
+ * Determine dynamic default values for therapy settings as needed
+ * @param {Object} pump object as provided by the devices api
+ * @param {String} bgUnits one of mg/dL | mmol/L
+ * @param {Object} values form values provided by formik context
+ * @returns {Object} default values keyed by setting
+ */
 export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
@@ -285,10 +292,10 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
     bloodGlucoseTarget: {
-      low: 101,
-      high: isPediatric ? 115 : 105,
+      low: getBgInTargetUnits(101, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(isPediatric ? 115 : 105, MGDL_UNITS, bgUnits),
     },
-    glucoseSafetyLimit: isPediatric ? 80 : 75,
+    glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
   };
 };
 
