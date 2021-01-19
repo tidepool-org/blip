@@ -224,6 +224,101 @@ export default (type) => {
     case types.FETCH_SERVER_TIME_FAILURE:
       return 'fetchingServerTime';
 
+    case types.GET_CLINICS_REQUEST:
+    case types.GET_CLINICS_SUCCESS:
+    case types.GET_CLINICS_FAILURE:
+      return 'fetchingClinics';
+
+    case types.CREATE_CLINIC_REQUEST:
+    case types.CREATE_CLINIC_SUCCESS:
+    case types.CREATE_CLINIC_FAILURE:
+      return 'creatingClinic';
+
+    case types.FETCH_CLINIC_REQUEST:
+    case types.FETCH_CLINIC_SUCCESS:
+    case types.FETCH_CLINIC_FAILURE:
+      return 'fetchingClinic';
+
+    case types.UPDATE_CLINIC_REQUEST:
+    case types.UPDATE_CLINIC_SUCCESS:
+    case types.UPDATE_CLINIC_FAILURE:
+      return 'updatingClinic';
+
+    case types.DELETE_CLINIC_REQUEST:
+    case types.DELETE_CLINIC_SUCCESS:
+    case types.DELETE_CLINIC_FAILURE:
+      return 'deletingClinic';
+
+    case types.FETCH_CLINICIAN_REQUEST:
+    case types.FETCH_CLINICIAN_SUCCESS:
+    case types.FETCH_CLINICIAN_FAILURE:
+      return 'fetchingClinician'
+
+    case types.UPDATE_CLINICIAN_REQUEST:
+    case types.UPDATE_CLINICIAN_SUCCESS:
+    case types.UPDATE_CLINICIAN_FAILURE:
+      return 'updatingClinician';
+
+    case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
+      return 'deletingClinicianFromClinic';
+
+    case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
+    case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
+    case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
+      return 'fetchingPatientsForClinic';
+
+    case types.ADD_PATIENT_TO_CLINIC_REQUEST:
+    case types.ADD_PATIENT_TO_CLINIC_SUCCESS:
+    case types.ADD_PATIENT_TO_CLINIC_FAILURE:
+      return 'addingPatientToClinic';
+
+    case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
+      return 'fetchingPatientFromClinic';
+
+    case types.UPDATE_CLINIC_PATIENT_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_FAILURE:
+      return 'updatingClinicPatient';
+
+    case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
+    case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
+      return 'deletingPatientFromClinic';
+
+    case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:
+      return 'fetchingCliniciansFromClinic';
+
+    case types.ADD_CLINICIAN_TO_CLINIC_REQUEST:
+    case types.ADD_CLINICIAN_TO_CLINIC_SUCCESS:
+    case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
+      return 'addingClinicianToClinic';
+
+    case types.FETCH_CLINICS_PATIENT_REQUEST:
+    case types.FETCH_CLINICS_PATIENT_SUCCESS:
+    case types.FETCH_CLINICS_PATIENT_FAILURE:
+      return 'fetchingClinicsPatient';
+
+    case types.DELETE_CLINICS_PATIENT_REQUEST:
+    case types.DELETE_CLINICS_PATIENT_SUCCESS:
+    case types.DELETE_CLINICS_PATIENT_FAILURE:
+      return 'deletingClinicsPatient';
+
+    case types.FETCH_CLINICS_CLINICIAN_REQUEST:
+    case types.FETCH_CLINICS_CLINICIAN_SUCCESS:
+    case types.FETCH_CLINICS_CLINICIAN_FAILURE:
+      return 'fetchingClinicsClinician';
+
+    case types.DELETE_CLINICS_CLINICIAN_REQUEST:
+    case types.DELETE_CLINICS_CLINICIAN_SUCCESS:
+    case types.DELETE_CLINICS_CLINICIAN_FAILURE:
+      return 'deletingClinicsClinician';
+
     default:
       return null;
   }

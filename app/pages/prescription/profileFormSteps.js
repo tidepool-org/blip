@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import { FastField, useFormikContext } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import bows from 'bows';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import InputMask from 'react-input-mask';
@@ -33,24 +34,27 @@ const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionAccount');
 
 export const PatientPhone = translate()(props => {
-  const { t, meta } = props;
-  const patientName = meta.firstName.value;
-  const initialFocusedInputRef = useInitialFocusedInput();
+  const { t } = props;
+  const formikContext = useFormikContext();
 
   const {
     setFieldValue,
     setFieldTouched,
-  } = useFormikContext();
+    values,
+  } = formikContext;
+
+  const patientName = get(values, 'firstName');
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
       <Headline mb={4}>{t('What is the mobile phone number {{patientName}} will use with Tidepool Loop?', { patientName })}</Headline>
       <FastField
-        as={({innerRef}) => (
+        as={({ innerRef }) => (
           <InputMask
             mask="(999) 999-9999"
             alwaysShowMask
-            defaultValue={meta.phoneNumber.number.value}
+            defaultValue={get(values, 'phoneNumber.number')}
             onBlur={e => {
               setFieldTouched('phoneNumber.number', true);
               setFieldValue('phoneNumber.number', e.target.value);
@@ -60,12 +64,13 @@ export const PatientPhone = translate()(props => {
               name="phoneNumber.number"
               id="phoneNumber.number"
               label={t('Phone Number')}
-              error={getFieldError(meta.phoneNumber.number)}
+              error={getFieldError('phoneNumber.number', formikContext)}
               innerRef={innerRef}
               {...condensedInputStyles}
             />
           </InputMask>
         )}
+        tabIndex={-1}
         innerRef={initialFocusedInputRef}
       />
       <Caption mt={5} mb={3}>
@@ -76,8 +81,10 @@ export const PatientPhone = translate()(props => {
 });
 
 export const PatientMRN = translate()(props => {
-  const { t, meta } = props;
-  const patientName = meta.firstName.value;
+  const { t } = props;
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
+  const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -88,7 +95,7 @@ export const PatientMRN = translate()(props => {
         label={t('Medical Record Number')}
         id="mrn"
         name="mrn"
-        error={getFieldError(meta.mrn)}
+        error={getFieldError('mrn', formikContext)}
         innerRef={initialFocusedInputRef}
         {...condensedInputStyles}
       />
@@ -97,8 +104,10 @@ export const PatientMRN = translate()(props => {
 });
 
 export const PatientGender = translate()(props => {
-  const { t, meta } = props;
-  const patientName = meta.firstName.value;
+  const { t } = props;
+  const formikContext = useFormikContext();
+  const { values } = formikContext;
+  const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
@@ -110,7 +119,7 @@ export const PatientGender = translate()(props => {
         id="sex"
         name="sex"
         options={sexOptions}
-        error={getFieldError(meta.sex)}
+        error={getFieldError('sex', formikContext)}
         innerRef={initialFocusedInputRef}
       />
     </Box>
@@ -118,13 +127,16 @@ export const PatientGender = translate()(props => {
 });
 
 export const PatientDevices = translate()(props => {
-  const { t, meta, devices } = props;
-  const patientName = meta.firstName.value;
-  const initialFocusedInputRef = useInitialFocusedInput();
+  const { t, devices } = props;
+  const formikContext = useFormikContext();
 
   const {
     setFieldValue,
-  } = useFormikContext();
+    values,
+  } = formikContext;
+
+  const patientName = get(values, 'firstName');
+  const initialFocusedInputRef = useInitialFocusedInput();
 
   return (
     <Box {...fieldsetStyles}>
@@ -137,12 +149,12 @@ export const PatientDevices = translate()(props => {
               id="initialSettings.pumpId"
               name="initialSettings.pumpId"
               key={device.value}
-              checked={!isEmpty(meta.initialSettings.pumpId.value)}
+              checked={!isEmpty(get(values, 'initialSettings.pumpId', ''))}
               label={device.label}
               onChange={e => {
                 setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.pumpId)}
+              error={getFieldError('initialSettings.pumpId', formikContext)}
               innerRef={initialFocusedInputRef}
               {...checkboxStyles}
             />
@@ -157,12 +169,12 @@ export const PatientDevices = translate()(props => {
               as={Checkbox}
               id="initialSettings.cgmId"
               name="initialSettings.cgmId"
-              checked={!isEmpty(meta.initialSettings.cgmId.value)}
+              checked={!isEmpty(get(values, 'initialSettings.cgmId', ''))}
               label={device.label}
               onChange={e => {
                 setFieldValue('initialSettings.cgmId', e.target.checked ? device.value : '')
               }}
-              error={getFieldError(meta.initialSettings.cgmId)}
+              error={getFieldError('initialSettings.cgmId', formikContext)}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>
@@ -173,28 +185,28 @@ export const PatientDevices = translate()(props => {
   );
 });
 
-const profileFormSteps = (meta, devices) => ({
+const profileFormSteps = (schema, devices, values) => ({
   label: t('Complete Patient Profile'),
   subSteps: [
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][0], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][0], schema, values),
       onComplete: () => log('Patient Phone Number Complete'),
-      panelContent: <PatientPhone meta={meta} />
+      panelContent: <PatientPhone />
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][1], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][1], schema, values),
       onComplete: () => log('Patient MRN Complete'),
-      panelContent: <PatientMRN meta={meta} />,
+      panelContent: <PatientMRN />,
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][2], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][2], schema, values),
       onComplete: () => log('Patient Gender Complete'),
-      panelContent: <PatientGender meta={meta} />,
+      panelContent: <PatientGender />,
     },
     {
-      disableComplete: !fieldsAreValid(stepValidationFields[1][3], meta),
+      disableComplete: !fieldsAreValid(stepValidationFields[1][3], schema, values),
       onComplete: () => log('Patient Devices Complete'),
-      panelContent: <PatientDevices meta={meta} devices={devices} />,
+      panelContent: <PatientDevices devices={devices} />,
     },
   ],
 });

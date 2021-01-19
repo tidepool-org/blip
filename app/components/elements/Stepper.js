@@ -187,11 +187,18 @@ export const Stepper = props => {
         if (!stepIsAsync || stepComplete) {
           completeAsyncStep();
         }
-        if (pendingStep[1] === 0 && !stepPending && !stepComplete) handleActiveStepOnComplete();
+        if (pendingStep[1] === 0 && !stepPending && stepComplete === null) {
+          handleActiveStepOnComplete();
+        }
       } else if (activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1) {
         if (!subStepPending && stepIsAsync && !stepPending) {
-          if (!stepComplete) {
+          if (stepComplete === null) {
             handleActiveStepOnComplete();
+          } else if (stepComplete === false) {
+            // failed async action so we don't run onComplete, but do set processing to false and
+            // unset the pending step to allow re-submission attempts.
+            setProcessing(false);
+            setPendingStep([]);
           } else {
             completeAsyncStep();
           }

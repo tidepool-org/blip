@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
-import { FastField, Field } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
+import get from 'lodash/get';
 import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
 import sortedLastIndexBy from 'lodash/sortedLastIndexBy';
@@ -17,6 +18,7 @@ import Button from '../../components/elements/Button';
 import { MS_IN_MIN, MS_IN_DAY } from '../../core/constants';
 import { convertMsPer24ToTimeString, convertTimeStringToMsPer24 } from '../../core/datetime';
 import { inlineInputStyles } from './prescriptionFormStyles';
+import { roundValueToIncrement } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
 
@@ -24,12 +26,20 @@ const ScheduleForm = props => {
   const {
     addButtonText,
     fieldArrayName,
-    fieldArrayMeta,
     fields,
     separator,
     t,
+    useFastField,
     ...boxProps
   } = props;
+
+  const formikContext = useFormikContext();
+
+  const {
+    setFieldTouched,
+    setFieldValue,
+    values,
+  } = formikContext;
 
   const [refs, setRefs] = React.useState([]);
   const [focusedId, setFocusedId] = React.useState();
@@ -47,6 +57,8 @@ const ScheduleForm = props => {
   React.useEffect(() => {
     isInteger(focusedId) && refs[focusedId].current.focus();
   }, [focusedId]);
+
+  const FieldElement = useFastField ? FastField : Field;
 
   return (
     <Box {...boxProps}>
@@ -74,23 +86,27 @@ const ScheduleForm = props => {
             innerRef={refs[index]}
             id={`${fieldArrayName}.${index}.start`}
             name={`${fieldArrayName}.${index}.start`}
-            error={getFieldError(fieldArrayMeta, index, 'start')}
+            error={getFieldError(`${fieldArrayName}.${index}.start`, formikContext)}
             {...inlineInputStyles}
           />
           {map(fields, (field, fieldIndex) => (
             <React.Fragment key={fieldIndex}>
-              <FastField
+              <FieldElement
                 as={TextInput}
                 label={index === 0 ? field.label : null}
                 min={field.min}
                 max={field.max}
-                step={field.step}
+                step={get(field, 'inputStep', field.increment)}
                 type={field.type}
                 id={`${fieldArrayName}.${index}.${field.name}`}
                 name={`${fieldArrayName}.${index}.${field.name}`}
                 suffix={field.suffix}
-                error={getFieldError(fieldArrayMeta, index, field.name)}
-                warning={getThresholdWarning(schedule[field.name], field.threshold)}
+                error={getFieldError(`${fieldArrayName}.${index}.${field.name}`, formikContext)}
+                warning={getThresholdWarning(get(values,`${fieldArrayName}.${index}.${field.name}`), field.threshold)}
+                onBlur={e => {
+                  setFieldTouched(`${fieldArrayName}.${index}.${field.name}`);
+                  setFieldValue(`${fieldArrayName}.${index}.${field.name}`, roundValueToIncrement(e.target.value, field.increment))
+                }}
                 {...inlineInputStyles}
               />
               {(fieldIndex < fields.length - 1 ) && separator && (
@@ -145,22 +161,24 @@ ScheduleForm.propTypes = {
   ...BoxProps,
   addButtonText: PropTypes.string,
   fieldArrayName: PropTypes.string,
-  fieldArrayMeta: PropTypes.object,
   fields: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     name: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
-    step: PropTypes.number,
+    increment: PropTypes.number,
+    inputStep: PropTypes.number,
     suffix: PropTypes.string,
     type: PropTypes.string,
   })),
   separator: PropTypes.string,
+  useFastField: PropTypes.bool,
 }
 
 ScheduleForm.defaultProps = {
   addButtonText: t('Add another'),
   fields: [],
+  useFastField: false,
 }
 
 export default translate()(ScheduleForm);

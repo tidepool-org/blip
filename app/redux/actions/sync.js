@@ -1150,3 +1150,489 @@ export function disconnectDataSourceFailure(error, apiError) {
     },
   };
 }
+
+export function getClinicsRequest() {
+  return {
+    type: ActionTypes.GET_CLINICS_REQUEST,
+  };
+}
+
+export function getClinicsSuccess(clinics, options) {
+  return {
+    type: ActionTypes.GET_CLINICS_SUCCESS,
+    payload: {
+      clinics,
+      options
+    },
+  };
+}
+
+export function getClinicsFailure(error, apiError) {
+  return {
+    type: ActionTypes.GET_CLINICS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createClinicRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_REQUEST,
+  };
+}
+
+export function createClinicSuccess(clinic) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SUCCESS,
+    payload: {
+      clinic: clinic,
+    },
+  };
+}
+
+export function createClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_REQUEST,
+  };
+}
+
+export function fetchClinicSuccess(clinic) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_SUCCESS,
+    payload: {
+      clinic: clinic,
+    },
+  };
+}
+
+export function fetchClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_REQUEST,
+  };
+}
+
+export function updateClinicSuccess(clinicId, updates) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      updates
+    },
+  };
+}
+
+export function updateClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_REQUEST,
+  };
+}
+
+export function deleteClinicSuccess(clinicId) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SUCCESS,
+    payload: {
+      clinicId
+    },
+  };
+}
+
+export function deleteClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicianRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_REQUEST,
+  };
+}
+
+export function fetchClinicianSuccess(clinician) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_SUCCESS,
+    payload: {
+      clinician: clinician,
+    },
+  };
+}
+
+export function fetchClinicianFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICIAN_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicianRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINICIAN_REQUEST,
+  };
+}
+
+export function updateClinicianSuccess(clinicId, clinicianId, updates) {
+  return {
+    type: ActionTypes.UPDATE_CLINICIAN_SUCCESS,
+    payload: {
+      clinicId,
+      clinicianId,
+      updates,
+    },
+  };
+}
+
+export function updateClinicianFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINICIAN_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicianFromClinicRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function deleteClinicianFromClinicSuccess(clinicId, clinicianId) {
+  return {
+    type: ActionTypes.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      clinicianId,
+    },
+  };
+}
+
+export function deleteClinicianFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINICIAN_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchPatientsForClinicRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
+  };
+}
+
+export function fetchPatientsForClinicSuccess(patients) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
+    payload: {
+      patients: patients,
+    },
+  };
+}
+
+export function fetchPatientsForClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function addPatientToClinicRequest() {
+  return {
+    type: ActionTypes.ADD_PATIENT_TO_CLINIC_REQUEST,
+  };
+}
+
+export function addPatientToClinicSuccess(clinicId, patient, patientId) {
+  return {
+    type: ActionTypes.ADD_PATIENT_TO_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      patient,
+      patientId,
+    },
+  };
+}
+
+export function addPatientToClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.ADD_PATIENT_TO_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchPatientFromClinicRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function fetchPatientFromClinicSuccess(patient) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_SUCCESS,
+    payload: {
+      patient: patient,
+    },
+  };
+}
+
+export function fetchPatientFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicPatientRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_REQUEST,
+  };
+}
+
+export function updateClinicPatientSuccess(clinicId, patientId, updates) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_SUCCESS,
+    payload: {
+      patientId,
+      clinicId,
+      updates
+    },
+  };
+}
+
+export function updateClinicPatientFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_PATIENT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deletePatientFromClinicRequest() {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function deletePatientFromClinicSuccess(clinicId, patientId) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      patientId
+    },
+  };
+}
+
+export function deletePatientFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchCliniciansFromClinicRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function fetchCliniciansFromClinicSuccess(clinicians) {
+  return {
+    type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
+    payload: {
+      clinicians: clinicians,
+    },
+  };
+}
+
+export function fetchCliniciansFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function addClinicianToClinicRequest() {
+  return {
+    type: ActionTypes.ADD_CLINICIAN_TO_CLINIC_REQUEST,
+  };
+}
+
+export function addClinicianToClinicSuccess(clinician, clinicId) {
+  return {
+    type: ActionTypes.ADD_CLINICIAN_TO_CLINIC_SUCCESS,
+    payload: {
+      clinician: clinician,
+      clinicId: clinicId,
+    },
+  };
+}
+
+export function addClinicianToClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.ADD_CLINICIAN_TO_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicsPatientRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICS_PATIENT_REQUEST,
+  };
+}
+
+export function fetchClinicsPatientSuccess(patients) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_PATIENT_SUCCESS,
+    payload: {
+      patients: patients,
+    },
+  };
+}
+
+export function fetchClinicsPatientFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_PATIENT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicsPatientRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINICS_PATIENT_REQUEST,
+  };
+}
+
+export function deleteClinicsPatientSuccess(patientId) {
+  return {
+    type: ActionTypes.DELETE_CLINICS_PATIENT_SUCCESS,
+    payload: {
+      patientId: patientId,
+    },
+  };
+}
+
+export function deleteClinicsPatientFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINICS_PATIENT_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicsClinicianRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICS_CLINICIAN_REQUEST,
+  };
+}
+
+export function fetchClinicsClinicianSuccess(clinicians) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_CLINICIAN_SUCCESS,
+    payload: {
+      clinicians: clinicians,
+    },
+  };
+}
+
+export function fetchClinicsClinicianFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_CLINICIAN_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicsClinicianRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINICS_CLINICIAN_REQUEST,
+  };
+}
+
+export function deleteClinicsClinicianSuccess(clinicianId) {
+  return {
+    type: ActionTypes.DELETE_CLINICS_CLINICIAN_SUCCESS,
+    payload: {
+      clinicianId: clinicianId,
+    },
+  };
+}
+
+export function deleteClinicsClinicianFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINICS_CLINICIAN_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
