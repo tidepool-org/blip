@@ -21,7 +21,7 @@ import bows from 'bows';
 import Blip from "blip";
 
 import appConfig from "../../lib/config";
-import apiClient from "../../lib/api";
+import apiClient from "../../lib/auth/api";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface PatientDataProps extends RouteComponentProps {

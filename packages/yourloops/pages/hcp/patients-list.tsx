@@ -21,8 +21,9 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import apiClient from "../../lib/api";
+import apiClient from "../../lib/auth/api"; // temporary fix to be change after rework on api splitting
 import { User } from "../../models/shoreline";
+import { AuthContext } from '../../lib/auth/hook/use-auth';
 
 interface PatientListProps {
   patients: User[];
@@ -58,6 +59,8 @@ function PatientsList(props: PatientListProps): JSX.Element {
 class PatientListPage extends React.Component<RouteComponentProps, PatientListPageState> {
   private log: Console;
 
+  context!: React.ContextType<typeof AuthContext>;
+
   constructor(props: RouteComponentProps) {
     super(props);
 
@@ -72,7 +75,6 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
 
   public componentDidMount(): void {
     this.log.debug("Mounted");
-
     apiClient.getUserShares().then((patients: User[]) => {
       this.setState({ patients });
     }).catch((reason: unknown) => {

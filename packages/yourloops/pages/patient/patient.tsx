@@ -38,7 +38,7 @@ function PatientPage(props: RouteComponentProps) : JSX.Element | null {
     <div>
       <PatientNavBar />
 
-      <Route path= "data" component={PatientDataPage} />
+      <Route path="/patient/data" component={PatientDataPage} />
 
     </div>
   );

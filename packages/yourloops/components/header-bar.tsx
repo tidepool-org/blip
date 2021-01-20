@@ -25,10 +25,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 
 import { t } from "../lib/language";
-import apiClient from "../lib/api";
 
 import brandingLogo from "branding/logo.png";
 import { RouteComponentProps, withRouter } from "react-router-dom";
+import { useAuth } from "../lib/auth/hook/use-auth";
 
 interface HeaderProps extends RouteComponentProps {
   children?: JSX.Element | JSX.Element[];
@@ -68,8 +68,6 @@ const toolbarStyles = makeStyles((/* theme */) => ({
 
 function HeaderBar(props: HeaderProps): JSX.Element {
   const classes = toolbarStyles();
-
-  // Context menu for profile/logout
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -82,13 +80,17 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   };
 
   const handleLogout = () => {
+    const { history } = props;
+    auth.logout();
     setAnchorEl(null);
-    apiClient.logout();
+    history.push("/");
   };
 
+
   let accountMenu = null;
-  if (apiClient.isLoggedIn) {
-    const user = apiClient.whoami;
+  const auth = useAuth();
+  if (auth.user) {
+    const user = auth.user;
     const role = user?.roles ? user.roles[0] : "unknown";
     accountMenu = (
       <div className={classes.accountMenu}>

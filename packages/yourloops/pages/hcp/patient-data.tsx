@@ -21,7 +21,7 @@ import bows from 'bows';
 import Blip from "blip";
 
 import appConfig from "../../lib/config";
-import apiClient from "../../lib/api";
+import apiClient from "../../lib/auth/api";
 // import { User } from "../../models/shoreline";
 // import { t } from "../../lib/language";
 
