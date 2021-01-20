@@ -200,7 +200,7 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
     },
     bloodGlucoseTarget: {
       low: {
-        value: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.recommendedBounds.minimum', 101), MGDL_UNITS, bgUnits),
+        value: getBgInTargetUnits(getPumpGuardrail(pump, 'correctionRange.recommendedBounds.minimum', 100), MGDL_UNITS, bgUnits),
         message: lowWarning,
       },
       high: {
@@ -292,8 +292,16 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
     bloodGlucoseTarget: {
-      low: getBgInTargetUnits(101, MGDL_UNITS, bgUnits),
+      low: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(isPediatric ? 115 : 105, MGDL_UNITS, bgUnits),
+    },
+    bloodGlucoseTargetPhysicalActivity: {
+      low: getBgInTargetUnits(150, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(170, MGDL_UNITS, bgUnits),
+    },
+    bloodGlucoseTargetPreprandial: {
+      low: getBgInTargetUnits(80, MGDL_UNITS, bgUnits),
+      high: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
     },
     glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
   };

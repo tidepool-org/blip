@@ -251,7 +251,7 @@ describe('prescriptionFormConstants', function() {
           low: undefined,
         },
         bloodGlucoseTarget: {
-          low: { value: 101, message: lowWarning },
+          low: { value: 100, message: lowWarning },
           high: { value: 115, message: highWarning },
         },
         bloodGlucoseTargetPhysicalActivity: {
@@ -613,7 +613,7 @@ describe('prescriptionFormConstants', function() {
           birthday,
         });
 
-        expect(result.bloodGlucoseTarget.low).to.equal(101);
+        expect(result.bloodGlucoseTarget.low).to.equal(100);
         expect(result.bloodGlucoseTarget.high).to.equal(115);
       });
 
@@ -676,7 +676,7 @@ describe('prescriptionFormConstants', function() {
           birthday,
         });
 
-        expect(result.bloodGlucoseTarget.low).to.equal(101);
+        expect(result.bloodGlucoseTarget.low).to.equal(100);
         expect(result.bloodGlucoseTarget.high).to.equal(105);
       });
 
@@ -704,6 +704,34 @@ describe('prescriptionFormConstants', function() {
 
         expect(result.glucoseSafetyLimit).to.equal(4.2);
       });
+    });
+
+    it('should return a default value for bloodGlucoseTargetPhysicalActivity in mg/dL units', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS);
+
+      expect(result.bloodGlucoseTargetPhysicalActivity.low).to.equal(150);
+      expect(result.bloodGlucoseTargetPhysicalActivity.high).to.equal(170);
+    });
+
+    it('should return a default value for bloodGlucoseTargetPhysicalActivity in mmol/L units', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS);
+
+      expect(result.bloodGlucoseTargetPhysicalActivity.low).to.equal(8.3);
+      expect(result.bloodGlucoseTargetPhysicalActivity.high).to.equal(9.4);
+    });
+
+    it('should return a default value for bloodGlucoseTargetPreprandial in mg/dL units', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS);
+
+      expect(result.bloodGlucoseTargetPreprandial.low).to.equal(80);
+      expect(result.bloodGlucoseTargetPreprandial.high).to.equal(100);
+    });
+
+    it('should return a default value for bloodGlucoseTargetPreprandial in mmol/L units', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS);
+
+      expect(result.bloodGlucoseTargetPreprandial.low).to.equal(4.4);
+      expect(result.bloodGlucoseTargetPreprandial.high).to.equal(5.6);
     });
   });
 

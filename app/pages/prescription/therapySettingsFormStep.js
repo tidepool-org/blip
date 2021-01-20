@@ -552,6 +552,26 @@ export const TherapySettings = translate()(props => {
       increment: ranges.bloodGlucoseTarget.increment,
     },
     {
+      path: 'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+      defaultValue: defaults.bloodGlucoseTargetPhysicalActivity.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+      defaultValue: defaults.bloodGlucoseTargetPhysicalActivity.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPreprandial.low',
+      defaultValue: defaults.bloodGlucoseTargetPreprandial.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPreprandial.high',
+      defaultValue: defaults.bloodGlucoseTargetPreprandial.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
       path: 'initialSettings.basalRateMaximum.value',
       defaultValue: defaults.basalRateMaximum,
       increment: ranges.basalRateMaximum.increment,
