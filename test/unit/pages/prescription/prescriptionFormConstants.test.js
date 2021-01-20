@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 import * as prescriptionFormConstants from '../../../../app/pages/prescription/prescriptionFormConstants';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
 
@@ -563,6 +564,256 @@ describe('prescriptionFormConstants', function() {
             },
           }).glucoseSafetyLimit.max).to.equal(85);
         });
+      });
+    });
+  });
+
+  describe('defaultValues', () => {
+    const pump = {
+      guardRails: {
+        basalRateMaximum: {
+          defaultValue: {
+            units: 0,
+            nanos: 100000000,
+          },
+        },
+      },
+    };
+
+    context('pediatric patient', () => {
+      const birthday = moment().subtract(18, 'years').add(1, 'day').toISOString();
+
+      context('max basal rate is not set', () => {
+        it('should return a default value from pump guardrails for basalRateMaximum', () => {
+          const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+            birthday,
+          });
+
+          expect(result.basalRateMaximum).to.equal(0.1);
+        });
+      });
+
+      context('max basal rate is set', () => {
+        it('should return a default value of 3x the max basal rate for basalRateMaximum', () => {
+          const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+            birthday,
+            initialSettings: { basalRateSchedule: [
+              { rate: 0.05 },
+              { rate: 0.15 },
+              { rate: 0.1 },
+            ] },
+          });
+
+          expect(result.basalRateMaximum).to.equal(0.45);
+        });
+      });
+
+      it('should return a default value for bloodGlucoseTarget in mg/dL units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+          birthday,
+        });
+
+        expect(result.bloodGlucoseTarget.low).to.equal(101);
+        expect(result.bloodGlucoseTarget.high).to.equal(115);
+      });
+
+      it('should return a default value for bloodGlucoseTarget in mmol/L units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS, {
+          birthday,
+        });
+
+        expect(result.bloodGlucoseTarget.low).to.equal(5.6);
+        expect(result.bloodGlucoseTarget.high).to.equal(6.4);
+      });
+
+      it('should return a default value for glucoseSafetyLimit in mg/dL units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+          birthday,
+        });
+
+        expect(result.glucoseSafetyLimit).to.equal(80);
+      });
+
+      it('should return a default value for glucoseSafetyLimit in mmol/L units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS, {
+          birthday,
+        });
+
+        expect(result.glucoseSafetyLimit).to.equal(4.4);
+      });
+    });
+
+    context('adult patient', () => {
+      const birthday = moment().subtract(18, 'years').toISOString();
+
+      context('max basal rate is not set', () => {
+        it('should return a default value from pump guardrails for basalRateMaximum', () => {
+          const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+            birthday,
+          });
+
+          expect(result.basalRateMaximum).to.equal(0.1);
+        });
+      });
+
+      context('max basal rate is set', () => {
+        it('should return a default value of 3.5x the max basal rate for basalRateMaximum', () => {
+          const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+            birthday,
+            initialSettings: { basalRateSchedule: [
+              { rate: 0.05 },
+              { rate: 0.15 },
+              { rate: 0.1 },
+            ] },
+          });
+
+          expect(result.basalRateMaximum).to.equal(0.53);
+        });
+      });
+
+      it('should return a default value for bloodGlucoseTarget in mg/dL units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+          birthday,
+        });
+
+        expect(result.bloodGlucoseTarget.low).to.equal(101);
+        expect(result.bloodGlucoseTarget.high).to.equal(105);
+      });
+
+      it('should return a default value for bloodGlucoseTarget in mmol/L units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS, {
+          birthday,
+        });
+
+        expect(result.bloodGlucoseTarget.low).to.equal(5.6);
+        expect(result.bloodGlucoseTarget.high).to.equal(5.8);
+      });
+
+      it('should return a default value for glucoseSafetyLimit in mg/dL units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+          birthday,
+        });
+
+        expect(result.glucoseSafetyLimit).to.equal(75);
+      });
+
+      it('should return a default value for glucoseSafetyLimit in mmol/L units', () => {
+        const result = prescriptionFormConstants.defaultValues(pump, MMOLL_UNITS, {
+          birthday,
+        });
+
+        expect(result.glucoseSafetyLimit).to.equal(4.2);
+      });
+    });
+  });
+
+  describe('shouldUpdateDefaultValue', () => {
+    const initialValue = {
+      initialValues: { field: { path: 30 } },
+    };
+
+    const noInitialValue = {
+      initialValues: { field: { path: undefined } },
+    };
+
+    const touched = {
+      touched: { field: { path: true } },
+    };
+
+    const notTouched = {
+      touched: { field: { path: false } },
+    };
+
+    const hydratedValue = {
+      hydratedValues: { field: { path: 20 } },
+    };
+
+    const noHydratedValue = {
+      hydratedValues: { field: { path: undefined } },
+    };
+
+    const singleStepEdit = {
+      isSingleStepEdit: true,
+    };
+
+    const prescriptionEditFlow = {
+      isPrescriptionEditFlow: true,
+    };
+
+    context('new prescription flow', () => {
+      it('should return `true` if field in hydrated localStorage values is non-finite and field is untouched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          status: { ...noHydratedValue },
+          ...notTouched,
+        })).to.equal(true);
+      });
+
+      it('should return `false` if field in hydrated localStorage values is finite and field is untouched but is in single step edit mode', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          status: { ...noHydratedValue, ...singleStepEdit },
+          ...notTouched,
+        })).to.equal(false);
+      });
+
+      it('should return `false` if field in hydrated localStorage values is finite and field is untouched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          status: { ...hydratedValue },
+          ...notTouched,
+        })).to.equal(false);
+      });
+
+      it('should return `false` if field in hydrated localStorage values is non-finite and field is touched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          status: { ...noHydratedValue },
+          ...touched,
+        })).to.equal(false);
+      });
+    });
+
+    context('edit prescription flow', () => {
+      const prescriptionEditFlowContext = {
+        status: {
+          ...prescriptionEditFlow,
+        },
+      };
+
+      const prescriptionEditFlowSingleStepContext = {
+        status: {
+          ...prescriptionEditFlow,
+          ...singleStepEdit,
+        },
+      };
+
+      it('should return `true` if field in initial values is non-finite and field is untouched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          ...prescriptionEditFlowContext,
+          ...noInitialValue,
+          ...notTouched,
+        })).to.equal(true);
+      });
+
+      it('should return `false` if field in initial values is non-finite and field is untouched but is in single step edit mode', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          ...prescriptionEditFlowSingleStepContext,
+          ...noInitialValue,
+          ...notTouched,
+        })).to.equal(false);
+      });
+
+      it('should return `false` if field in initial values is finite and field is untouched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          ...prescriptionEditFlowContext,
+          ...initialValue,
+          ...notTouched,
+        })).to.equal(false);
+      });
+
+      it('should return `false` if field in initial values is non-finite and field is touched', () => {
+        expect(prescriptionFormConstants.shouldUpdateDefaultValue('field.path', {
+          ...prescriptionEditFlowContext,
+          ...noInitialValue,
+          ...touched,
+        })).to.equal(false);
       });
     });
   });
