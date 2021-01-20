@@ -38,7 +38,7 @@ export function getParametersByLevel(parameters) {
 
       const value = formatParameterValue(parameter.value, parameter.unit);
       const param = {
-        name: t(`params:::${parameter.name}`),
+        name: t(`params|${parameter.name}`),
         value,
         unit: parameter.unit,
         level: parameter.level,

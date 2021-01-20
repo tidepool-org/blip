@@ -101,7 +101,7 @@ export default class HistoryTable extends Table {
     return (
       <span>
         {icon}
-        <span className={styles.parameterHistory}>{t(`params:::${parameter.name}`)}</span>
+        <span className={styles.parameterHistory}>{t(`params|${parameter.name}`)}</span>
       </span>
     );
   }

@@ -24,11 +24,11 @@
     "noImplicitThis": true,
     "noImplicitUseStrict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "allowJs": true
   },
   "exclude": [
     "node_modules",
-    "test/*"
   ],
   "include": [
     "./types/*.d.ts",

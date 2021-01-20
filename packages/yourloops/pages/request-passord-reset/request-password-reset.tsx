@@ -18,51 +18,49 @@
 import _ from "lodash";
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-//import bows from "bows";
 
-import {
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Container,
-  TextField,
-  Grid,
-  Button,
-  Typography,
-} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 
 import { t } from "../../lib/language";
 import brandingLogo from "branding/logo.png";
 import { useState } from "react";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface RequestPasswordResetProps extends RouteComponentProps {
-}
-
 /**
  * Login page
  */
-function RequestPasswordReset(props : RequestPasswordResetProps ) : JSX.Element {
+function RequestPasswordReset(props: RouteComponentProps ): JSX.Element {
+  const [username, setUserName] = useState("");
+  const [validateError, setValidateError ] = useState(false);
+  const [helperTextValue, setHelperTextValue ] = useState("");
+  //const loginFormStyles = useState(["stage-transition-container-variant"]);
+  const auth = useAuth();
+  const emptyUsername = _.isEmpty(username);
 
-  function onUsernameChange(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
+  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setUserName(event.target.value);
-  }
-  
-  function onBack() {
+  };
+
+  const onBack = (): void => {
     console.log("on back", props.history);
     // requires two back for going to login page
-    props.history.go(-2);
-  }
+    props.history.go(-2); // eslint-disable-line no-magic-numbers
+  };
 
-  function onSendResetLink() {
+  const onSendResetLink = (): void => {
     if (_.isEmpty(username)) {
       setValidateError(true);
       return;
     }
     setValidateError(false);
-    // eslint-disable-next-line no-use-before-define
     auth.sendPasswordResetEmail(username)
       .then(() => {
         props.history.push("/password-reset-confirmed");
@@ -70,14 +68,7 @@ function RequestPasswordReset(props : RequestPasswordResetProps ) : JSX.Element 
         setValidateError(true);
         setHelperTextValue(reason.message);
       });
-  }
-
-  const [username, setUserName] = useState("");
-  const [validateError, setValidateError ] = useState(false);
-  const [helperTextValue, setHelperTextValue ] = useState("");
-  //const loginFormStyles = useState(["stage-transition-container-variant"]);
-  const auth = useAuth();
-  const emptyUsername = _.isEmpty(username);
+  };
 
   return (
     <Container maxWidth="sm" style={{ margin: "auto" }}>
@@ -91,7 +82,7 @@ function RequestPasswordReset(props : RequestPasswordResetProps ) : JSX.Element 
         <Grid item xs={12}>
           <Card>
             <CardMedia style={{ display: "flex", paddingTop: "1em", paddingBottom: "1em" }}>
-              <img src={brandingLogo} style={{ height: "60px", marginLeft: "auto", marginRight: "auto" }} />
+              <img src={brandingLogo} alt={t('Login Branding Logo')} style={{ height: "60px", marginLeft: "auto", marginRight: "auto" }} />
             </CardMedia>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -133,7 +124,7 @@ function RequestPasswordReset(props : RequestPasswordResetProps ) : JSX.Element 
         </Grid>
       </Grid>
     </Container>
-  ); 
+  );
 }
 
 export default RequestPasswordReset;

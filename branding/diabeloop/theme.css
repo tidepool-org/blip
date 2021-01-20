@@ -12,3 +12,19 @@ body {
 	height: 100vh;
 	margin: 0px;
 }
+
+:global(#app) {
+  display: flex;
+  flex-direction: column;
+	height: 100vh;
+}
+
+:global(div.api-error-message) {
+  display: inline-flex;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: auto;
+  justify-content: center;
+  align-self: center;
+  min-width: 25em;
+}

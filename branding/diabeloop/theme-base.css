@@ -33,4 +33,11 @@
   --mdc-theme-text-hint-on-dark: rgba(255, 255, 255, 0.5);
   --mdc-theme-text-disabled-on-dark: rgba(255, 255, 255, 0.5);
   --mdc-theme-text-icon-on-dark: rgba(255, 255, 255, 0.5);
+  /* Sizes based on bootstrap */
+  --media-width-xs: 0x;
+  --media-width-sm: 576px;
+  --media-width-md: 768px;
+  --media-width-lg: 992px;
+  --media-width-xl: 1200px;
+  --media-width-xxl: 1400px;
 }

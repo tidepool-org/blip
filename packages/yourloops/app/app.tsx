@@ -16,11 +16,12 @@
 
 import * as React from 'react';
 import { render as renderDOM } from "react-dom";
+import { ThemeProvider } from "@material-ui/core/styles";
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-  } from "react-router-dom";
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from "react-router-dom";
 import bows from 'bows';
 
 import "fontsource-roboto";
@@ -28,8 +29,8 @@ import "branding/theme-base.css";
 import "branding/theme.css";
 
 import { initI18n } from "../lib/language";
-// import apiClient from "../lib/api";
 
+import { theme } from "../components/theme";
 import LoginPage from '../pages/login';
 import HcpPage from '../pages/hcp';
 import PatientPage from "../pages/patient";
@@ -49,14 +50,6 @@ class Yourloops {
 
     await initI18n();
     this.log.debug("i18next initialized");
-
-    // globalHistory.listen(({ location, action }) => {
-    //   this.log.info({ location, action });
-    // });
-
-    // apiClient.addEventListener("logout", () => {
-    //   globalHistory.navigate("/");
-    // });
   }
 
   public render(): void {
@@ -72,16 +65,18 @@ class Yourloops {
 
   private router(): JSX.Element {
     return (
-      <AuthProvider>
-        <Router>
-          <Switch>
-            <Route exact path="/" component={LoginPage} />
-            <Route path="/request-password-reset" component={RequestPasswordReset} />
-            <PrivateRoute path="/hcp" component={HcpPage} />
-            <PrivateRoute path="/patient" component={PatientPage} />
-          </Switch>
-        </Router>
-      </AuthProvider>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <Router>
+            <Switch>
+              <Route exact path="/" component={LoginPage} />
+              <Route path="/request-password-reset" component={RequestPasswordReset} />
+              <PrivateRoute path="/hcp" component={HcpPage} />
+              <PrivateRoute path="/patient" component={PatientPage} />
+            </Switch>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     );
   }
 }

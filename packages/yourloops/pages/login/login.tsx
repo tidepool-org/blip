@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /**
  * Copyright (c) 2020, Diabeloop
  * Login page
@@ -18,20 +17,20 @@
 import _ from "lodash";
 import * as React from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
-//import bows from "bows";
+import bows from "bows";
 
-import {
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Container,
-  InputAdornment,
-  IconButton,
-  TextField,
-  Grid,
-  Button,
-} from "@material-ui/core";
+import { makeStyles /*, Theme */ } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import TextField from "@material-ui/core/TextField";
+
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
@@ -40,32 +39,39 @@ import brandingLogo from "branding/logo.png";
 import { useState } from "react";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface LoginProps extends RouteComponentProps {
-}
+const loginStyle = makeStyles(( /* theme: Theme */) => {
+  return {
+    mainContainer: { margin: "auto" },
+    loginButton: {
+      marginLeft: "auto !important",
+    },
+  };
+});
 
 /**
  * Login page
  */
-function Login(props : LoginProps ) : JSX.Element {
+function Login(props: RouteComponentProps): JSX.Element {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword ] = useState(false);
-  const [validateError, setValidateError ] = useState(false);
-  const [helperTextValue, setHelperTextValue ] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [validateError, setValidateError] = useState(false);
+  const [helperTextValue, setHelperTextValue] = useState("");
   const auth = useAuth();
+  const classes = loginStyle();
   const emptyUsername = _.isEmpty(username);
   const emptyPassword = _.isEmpty(password);
+  const log = bows("Login");
 
-  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setUserName(event.target.value);
   };
 
-  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setPassword(event.target.value);
   };
-  
-  const onClickShowPasswordVisibility = () => {
+
+  const onClickShowPasswordVisibility = (): void => {
     if (showPassword) {
       setShowPassword(false);
       //authApi.sendMetrics("Hide password");
@@ -74,49 +80,46 @@ function Login(props : LoginProps ) : JSX.Element {
       // authApi.sendMetrics("Show password");
     }
   };
-  
-  // function onMouseDownPassword(ev: React.MouseEvent): void {
-  //   //this.log.debug("onMouseDownPassword", ev);
-  // }
-  
-  function onClickLoginButton() {
+
+  const onClickLoginButton = async (): Promise<void> => {
     if (_.isEmpty(username) || _.isEmpty(password)) {
       setValidateError(true);
       return;
     }
     setValidateError(false);
-    // eslint-disable-next-line no-use-before-define
-    auth.login(username, password)
-      .then((user) => {
-        // for now, simply read the profile
-        // we will refactor by creating a class obj with IsPatient method
-        if (!_.isEmpty(user?.profile?.patient)) {
-          props.history.push("/patient");
-        } else {
-          props.history.push("/hcp");
-        }
-      }).catch((reason: Error) => {
-        console.log(reason);
-        //this.log.error(reason);
-        setValidateError(true);
-        setHelperTextValue(reason.message);
-      });
-  }
+    setHelperTextValue("");
 
-  function onClickLoginReset() {
+    try {
+      const user = await auth.login(username, password);
+      // for now, simply read the profile
+      // we will refactor by creating a class obj with IsPatient method
+      if (!_.isEmpty(user?.profile?.patient)) {
+        props.history.push("/patient");
+      } else {
+        props.history.push("/hcp");
+      }
+    } catch (reason: unknown) {
+      log.error(reason);
+      setValidateError(true);
+      const message = _.isError(reason) ? reason.message : (new String(reason)).toString();
+      setHelperTextValue(message);
+    }
+  };
+
+  const onClickLoginReset = (): void => {
     props.history.push("/request-password-reset");
-  }
-  
+  };
+
   // function onClickForgotPassword() {
   //   //this.log.debug("onClickForgotPassword");
   // }
-  
+
   // function onClickSignup() {
   //   //this.log.debug("onClickSignup");
   // }
 
   return (
-    <Container maxWidth="sm" style={{ margin: "auto" }}>
+    <Container maxWidth="sm" className={classes.mainContainer}>
       <Grid
         container
         spacing={0}
@@ -145,17 +148,13 @@ function Login(props : LoginProps ) : JSX.Element {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   required
-                  error={validateError && emptyPassword}
+                  error={validateError && (emptyPassword || helperTextValue.length > 0)}
                   onChange={onPasswordChange}
                   helperText={helperTextValue}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton
-                          aria-label={t("aria-toggle-password-visibility")}
-                          onClick={onClickShowPasswordVisibility}
-                          //onMouseDown={onMouseDownPassword.bind(this)}
-                        >
+                        <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={onClickShowPasswordVisibility}>
                           {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
@@ -165,8 +164,8 @@ function Login(props : LoginProps ) : JSX.Element {
               </form>
             </CardContent>
             <CardActions>
-              <Link 
-                to="/request-password-reset" 
+              <Link
+                to="/request-password-reset"
                 onClick={onClickLoginReset}>
                 {t('Forgot your password?')}
               </Link>
@@ -174,6 +173,7 @@ function Login(props : LoginProps ) : JSX.Element {
                 variant="contained"
                 color="primary"
                 onClick={onClickLoginButton}
+                className={classes.loginButton}
                 disabled={emptyUsername || emptyPassword}
               >
                 {t("Login")}

@@ -13,7 +13,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-import i18n, { InitOptions, TFunction, Resource } from 'i18next';
+import i18n, { InitOptions, TFunction, TOptions, Resource } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import moment from 'moment-timezone';
 import locales from '../../../locales/languages.json';
@@ -37,7 +37,7 @@ const i18nOptions: InitOptions = {
   // To allow . in keys
   keySeparator: false,
   // To allow : in keys
-  nsSeparator: ':::',
+  nsSeparator: '|',
 
   debug: false,
 
@@ -91,7 +91,18 @@ i18n.on('languageChanged', (lng: string) => {
 async function initI18n(): Promise<TFunction> {
   return i18n.init(i18nOptions);
 }
-const t = i18n.t.bind(i18n);
+
+/**
+ *
+ * @param s The string to translate
+ * @param p Optional translation parameters
+ * @returns The translated string
+ * @example t("translate-me");
+ * @example t("translate-{{someone}}", { someone: "me" });
+ */
+function t(s: string, p?: TOptions | string): string {
+  return i18n.t(`yourloops|${s}`, p);
+}
 
 export { initI18n, t };
 export default i18n;

@@ -81,7 +81,6 @@ class PatientDataPage extends React.Component {
     super(props);
     const { api } = this.props;
     this.log = bows('PatientData');
-    this.log.debug(props);
 
     /** @type {(eventName: string, properties?: unknown) => void} */
     this.trackMetric = api.sendMetrics.bind(api);
@@ -92,6 +91,7 @@ class PatientDataPage extends React.Component {
       // New states info
       chartType: 'basics',
       loadingState: LOADING_STATE_NONE,
+      errorMessage: null,
       endpoints: [],
       timePrefs: {
         timezoneAware: false,
@@ -161,6 +161,7 @@ class PatientDataPage extends React.Component {
     this.handleSwitchToTrends = this.handleSwitchToTrends.bind(this);
     this.handleSwitchToSettings = this.handleSwitchToSettings.bind(this);
     this.handleShowMessageCreation = this.handleShowMessageCreation.bind(this);
+    this.handleClickRefresh = this.handleClickRefresh.bind(this);
 
     this.updateBasicsData = this.updateBasicsData.bind(this);
     this.updateDatetimeLocation = this.updateDatetimeLocation.bind(this);
@@ -177,19 +178,24 @@ class PatientDataPage extends React.Component {
 
       this.setState({
         loadingState: LOADING_STATE_INITIAL_PROCESS,
+        errorMessage: null,
         patient,
         chartType: 'basics',
         createMessageDatetime: null,
         canPrint: false,
         pdf: null,
-      }, () => {
-        this.processData(ev.patientData);
+      }, async () => {
+        try {
+          await this.processData(ev.patientData);
+        } catch (e) {
+          this.onLoadingFailure(e);
+        }
       });
     });
   }
 
   render() {
-    const { loadingState, chartType } = this.state;
+    const { loadingState, chartType, errorMessage } = this.state;
 
     let loader = null;
     let messages = null;
@@ -213,7 +219,7 @@ class PatientDataPage extends React.Component {
       loader = <Loader />;
       break;
     default:
-      errorDisplay = <p>{t('Failed somewhere')}</p>;
+      errorDisplay = <p>{errorMessage ?? t('Failed somewhere')}</p>;
       break;
     }
 
@@ -757,28 +763,23 @@ class PatientDataPage extends React.Component {
     });
   }
 
-  handleClickRefresh(e) {
-    this.handleRefresh(e);
+  handleClickRefresh(/* e */) {
     this.trackMetric('Clicked Refresh');
+    this.handleRefresh();
   }
 
-  handleClickNoDataRefresh(e) {
-    this.handleRefresh(e);
+  handleClickNoDataRefresh(/* e */) {
     this.trackMetric('Clicked No Data Refresh');
+    this.handleRefresh();
   }
 
-  handleRefresh(e) {
-    const { onRefresh } = this.props;
+  handleRefresh() {
+    const { api } = this.props;
     const { patient } = this.state;
 
-    if (e) {
-      e.preventDefault();
-    }
-
-    if (onRefresh) {
-      this.props.clearPatientData(patient.userid);
-
+    if (patient !== null) {
       this.setState({
+        loadingState: LOADING_STATE_INITIAL_FETCH,
         endpoints: [],
         datetimeLocation: this.state.initialDatetimeLocation,
         fetchEarlierDataCount: 0,
@@ -786,9 +787,16 @@ class PatientDataPage extends React.Component {
         lastProcessedDateTarget: null,
         processEarlierDataCount: 0,
         processedPatientData: null,
+        patient: null,
         pdf: null,
         canPrint: false,
-      }, () => onRefresh(patient.userid));
+      }, async () => {
+        try {
+          await api.loadPatientData(patient.userid);
+        } catch (e) {
+          this.onLoadingFailure(e);
+        }
+      });
     }
   }
 
@@ -804,6 +812,12 @@ class PatientDataPage extends React.Component {
     }).catch((reason) => {
       cb(reason, null);
     });
+  }
+
+  onLoadingFailure(err) {
+    const errorMessage = _.isError(err) ? err.message : (new String(err)).toString()
+    this.log.error(errorMessage, err);
+    this.setState({ loadingState: LOADING_STATE_ERROR, errorMessage });
   }
 
   updateBasicsData(basicsData) {
@@ -1000,6 +1014,10 @@ class PatientDataPage extends React.Component {
     const res = nurseShark.processData(data, opts.bgUnits);
     const tidelineData = new TidelineData(res.processedData, opts);
     console.timeEnd('process data');
+
+    if (_.isEmpty(tidelineData.data)) {
+      throw new Error(t("No data to display!"));
+    }
 
     const endpoints = [
       tidelineData.data[0].normalTime,

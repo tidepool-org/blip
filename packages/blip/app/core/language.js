@@ -35,7 +35,7 @@ const i18nOptions = {
   // To allow . in keys
   keySeparator: false,
   // To allow : in keys
-  nsSeparator: ':::',
+  nsSeparator: '|',
 
   debug: false,
 

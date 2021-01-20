@@ -22,6 +22,16 @@ interface Profile {
   patient?: unknown;
 }
 
+interface Settings {
+  units?: {
+    bg?: "mmol/L" | "mg/dL";
+  };
+}
+
+interface Preferences {
+  displayLanguageCode?: string;
+  patientsStarred?: string[];
+}
 interface User {
   /** The user id */
   userid: string;
@@ -37,6 +47,10 @@ interface User {
   emailVerified?: boolean;
   /** User profile */
   profile?: Profile;
+  /** User settings (read-only for patient only?) */
+  settings?: Settings;
+  /** User preferences */
+  preferences?: Preferences;
 }
 
 export { User, Profile };

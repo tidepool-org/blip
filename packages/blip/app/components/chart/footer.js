@@ -96,8 +96,7 @@ class TidelineFooter extends React.Component {
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
           <div className="patient-data-footer-left">
-            <button className="btn btn-chart btn-refresh"
-              onClick={this.props.onClickRefresh}>
+            <button className="btn btn-chart btn-refresh" onClick={this.props.onClickRefresh}>
               {t('Refresh')}</button>
           </div>
           <div className="patient-data-footer-right">{rightSide}</div>

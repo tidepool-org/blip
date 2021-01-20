@@ -52,7 +52,7 @@ class ParameterTooltip extends React.Component {
 
     return [
       <span className={styles.date} key={`${parameter.id}-date`}>{displayHour}</span>,
-      <span className={styles.label} key={`${parameter.id}-name`}>{i18next.t(`params:::${parameter.name}`)}</span>,
+      <span className={styles.label} key={`${parameter.id}-name`}>{i18next.t(`params|${parameter.name}`)}</span>,
       previousValue,
       prevToNext,
       <span className={valueClassName} key={`${parameter.id}-value`}>{value}</span>,

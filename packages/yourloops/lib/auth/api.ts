@@ -13,7 +13,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import bows from "bows";
 import _ from "lodash";
 
@@ -61,20 +61,37 @@ class AuthApi extends EventTarget {
 
   constructor() {
     super();
-    this.sessionToken = sessionStorage.getItem(SESSION_TOKEN_KEY);
-    this.traceToken = sessionStorage.getItem(TRACE_TOKEN_KEY);
 
     this.user = null;
     this.patients = null;
-
-    const loggedInUser = sessionStorage.getItem(LOGGED_IN_USER);
-    if (loggedInUser !== null) {
-      this.user = JSON.parse(loggedInUser);
-    }
-
-    this.log = bows("Auth API");
+    this.log = bows("API");
     this.loginLock = false;
     this.wrongCredentialCount = 0;
+
+    this.sessionToken = sessionStorage.getItem(SESSION_TOKEN_KEY);
+    this.traceToken = sessionStorage.getItem(TRACE_TOKEN_KEY);
+    const loggedInUser = sessionStorage.getItem(LOGGED_IN_USER);
+
+    if (this.sessionToken !== null && this.sessionToken.length < 1) {
+      this.sessionToken = null;
+      this.log.warn("Invalid session token in session storage");
+    }
+    if (this.traceToken !== null && validateUuid(this.traceToken) === false) {
+      this.traceToken = null;
+      this.log.warn("Invalid trace token in session storage");
+    }
+    if (loggedInUser !== null) {
+      try {
+        this.user = JSON.parse(loggedInUser);
+      } catch (e) {
+        this.log.warn("Invalid user in session storage", e);
+      }
+    }
+
+    if (!this.isLoggedIn) {
+      this.removeAuthInfoFromSessionStorage();
+    }
+
     // Listen to storage events, to be able to monitor
     // logout on others tabs.
     window.addEventListener("storage", this.onStorageChange.bind(this));
@@ -102,6 +119,10 @@ class AuthApi extends EventTarget {
 
   public get userIsPatient(): boolean {
     return this.isLoggedIn && !_.isEmpty(this.user?.profile?.patient);
+  }
+
+  public get havePatientsShare(): boolean {
+    return !_.isEmpty(this.patients);
   }
 
   /**
@@ -155,31 +176,31 @@ class AuthApi extends EventTarget {
     });
 
     if (!response.ok || response.status !== http.StatusOK) {
-
       switch (response.status) {
-        case http.StatusUnauthorized:
-          // eslint-disable-next-line no-undefined
-          if (appConfig.MAX_FAILED_LOGIN_ATTEMPTS !== undefined) {
-            if (++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
-              reason = `Your account has been locked for ${appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT} minutes. You have reached the maximum number of login attempts.`;
-            } else {
-              reason = 'Wrong username or password';
-            }
+      case http.StatusUnauthorized:
+        if (_.isNumber(appConfig.MAX_FAILED_LOGIN_ATTEMPTS)) {
+          if (++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
+            reason = t("Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
+              { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT });
+          } else {
+            reason = t("Wrong username or password");
           }
-          break;
-        // missing handling 403 status => email not verified
-        default:
-          reason = 'An error occurred while logging in.';
-          break;
+        }
+        break;
+      // missing handling 403 status => email not verified
+      default:
+        reason = t("An error occurred while logging in.");
+        break;
       }
 
       if (reason === null) {
-        reason = "Login Failed";
+        reason = t("Login Failed");
       }
 
       this.sendMetrics("Login failed", reason);
-      return Promise.reject(new Error(reason));
+      return Promise.reject(new Error(reason as string));
     }
+
     this.wrongCredentialCount = 0;
     this.sessionToken = response.headers.get(SESSION_TOKEN_HEADER);
     this.user = await response.json() as User;
@@ -222,12 +243,12 @@ class AuthApi extends EventTarget {
     this.log.debug("debug logout");
     if (this.loginLock && this.isLoggedIn) {
       this.log.debug("logout with a loginlock ");
-      this.removeAuthInfofromSessionStorage();
+      this.removeAuthInfoFromSessionStorage();
     } else if (this.isLoggedIn) {
       this.log.debug("logout with no loginlock");
       this.loginLock = true;
       this.sendMetrics("resetUserId");
-      this.removeAuthInfofromSessionStorage();
+      this.removeAuthInfoFromSessionStorage();
       this.dispatchEvent(new Event("logout"));
       this.loginLock = false;
     }
@@ -236,10 +257,11 @@ class AuthApi extends EventTarget {
   /**
    * Clear the session & trace tokens
    */
-  private removeAuthInfofromSessionStorage() {
+  private removeAuthInfoFromSessionStorage() {
     this.sessionToken = null;
     this.traceToken = null;
     this.user = null;
+    this.patients = null;
     sessionStorage.removeItem(SESSION_TOKEN_KEY);
     sessionStorage.removeItem(TRACE_TOKEN_KEY);
     sessionStorage.removeItem(LOGGED_IN_USER);
@@ -292,8 +314,36 @@ class AuthApi extends EventTarget {
       throw new Error(t(responseBody.reason));
     }
 
-    sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
+    if (this.user?.userid === user.userid) {
+      sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
+    }
     return user;
+  }
+
+  public async flagPatient(userId: string): Promise<string[]> {
+    if (!this.isLoggedIn || this.user === null) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
+    }
+    if (typeof this.user.preferences !== "object" || this.user.preferences === null) {
+      this.user.preferences = {
+        patientsStarred: [],
+      };
+    }
+    if (!Array.isArray(this.user.preferences.patientsStarred)) {
+      this.user.preferences.patientsStarred = [];
+    }
+    const userIdIdx = this.user.preferences.patientsStarred.indexOf(userId);
+    // eslint-disable-next-line no-magic-numbers
+    if (userIdIdx > -1) {
+      this.user.preferences.patientsStarred.splice(userIdIdx, 1);
+      this.log.info("Unflag patient", userId);
+    } else {
+      this.user.preferences.patientsStarred.push(userId);
+      this.log.info("Flag patient", userId);
+    }
+
+    return this.user.preferences.patientsStarred;
   }
 
   public async loadPatientData(userID: string): Promise<PatientData> {

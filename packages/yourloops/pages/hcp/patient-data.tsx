@@ -18,12 +18,12 @@ import * as React from 'react';
 import { RouteComponentProps } from "react-router-dom";
 import bows from 'bows';
 
+import Container from "@material-ui/core/Container";
+
 import Blip from "blip";
 
 import appConfig from "../../lib/config";
 import apiClient from "../../lib/auth/api";
-// import { User } from "../../models/shoreline";
-// import { t } from "../../lib/language";
 
 interface PatientDataProps {
   patientId?: string;
@@ -52,7 +52,7 @@ class PatientDataPage extends React.Component<RouteComponentProps<PatientDataPro
     this.log.debug("Mounted", this.props.match.params.patientId);
 
     if (typeof patientId === "string") {
-      apiClient.loadPatientData(patientId).catch((reason: unknown) => {
+      this.refresh(patientId).catch((reason: unknown) => {
         this.log.error(reason);
       });
     } else {
@@ -62,10 +62,17 @@ class PatientDataPage extends React.Component<RouteComponentProps<PatientDataPro
 
   public render(): JSX.Element {
     return (
-      <div id="patient-data" style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Container maxWidth="lg">
         <Blip config={appConfig} api={apiClient} />
-      </div>
+      </Container>
     );
+  }
+
+  private async refresh(patientId: string): Promise<void> {
+    if (!apiClient.havePatientsShare) {
+      await apiClient.getUserShares();
+    }
+    await apiClient.loadPatientData(patientId);
   }
 }
 

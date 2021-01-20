@@ -40,7 +40,7 @@ export function useAuth() : IAuthContext {
 export const AuthProvider: React.FC<React.ReactNode> = ({ children }) => {
   const auth = useProvideAuth();
   return (
-    <AuthContext.Provider value={ auth }> 
+    <AuthContext.Provider value={ auth }>
       { children }
     </AuthContext.Provider>
   );
@@ -48,17 +48,14 @@ export const AuthProvider: React.FC<React.ReactNode> = ({ children }) => {
 
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUser] = React.useState<User | null>(AuthApiClient.whoami);
 
-  // Wrap any methods we want to use making sure 
+  // Wrap any methods we want to use making sure
   // to save the user to state.
-  const login = (username: string, password: string) => {
-    return AuthApiClient
-      .login(username, password)
-      .then((user: User) => {
-        setUser(user);
-        return user;
-      });
+  const login = async (username: string, password: string): Promise<User> => {
+    const user = await AuthApiClient.login(username, password);
+    setUser(user);
+    return user;
   };
 
   const signup = (username: string, password: string): void => {

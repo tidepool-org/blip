@@ -2,7 +2,8 @@
   "fallback": "en",
   "namespaces": [
     "main",
-    "params"
+    "params",
+    "yourloops"
   ],
   "defaultNS": "main",
   "crowdin": {
@@ -19,40 +20,46 @@
       "main": {
         "Log in": "Einloggen"
       },
-      "params": {}
+      "params": {},
+      "yourloops": {}
     },
     "en": {
       "name": "English",
       "main": {},
-      "params": {}
+      "params": {},
+      "yourloops": {}
     },
     "es": {
       "name": "Español",
       "main": {
         "Log in": "Iniciar sesión"
       },
-      "params": {}
+      "params": {},
+      "yourloops": {}
     },
     "fr": {
       "name": "Français",
       "main": {
         "Log in": "Connexion"
       },
-      "params": {}
+      "params": {},
+      "yourloops": {}
     },
     "it": {
       "name": "Italiano",
       "main": {
         "Log in": "Accedi"
       },
-      "params": {}
+      "params": {},
+      "yourloops": {}
     },
     "nl": {
       "name": "Nederlands",
       "main": {
         "Log in": "Inloggen"
       },
-      "params": {}
+      "params": {},
+      "yourloops": {}
     }
   },
   "countries": {

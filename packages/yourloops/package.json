@@ -14,19 +14,21 @@
   "license": "BSD-2-Clause",
   "scripts": {
     "mrproper": "rm -rf node_modules dist",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist coverage",
     "lint": "eslint app lib models pages",
     "build": "npm run build-prod",
     "prebuild-prod": "npm run clean",
     "build-prod": "NODE_ENV=production webpack --mode=production",
     "prebuild-dev": "npm run clean",
     "build-dev": "NODE_ENV=development webpack --mode=development",
-    "start-dev": "NODE_ENV=development USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --colors --port 3001 --host 0.0.0.0"
+    "start-dev": "NODE_ENV=development USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --colors --port 3001 --host 0.0.0.0",
+    "pretest": "rm -rf coverage",
+    "test": "NODE_ENV='test' NODE_OPTIONS='--max-old-space-size=4096' karma --single-run --log-level debug start"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@types/react-router-dom": "^5.1.7",
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "latest",
     "blip": "file:../blip",
     "bows": "^1.7.2",
     "browser-locale": "^1.0.3",
