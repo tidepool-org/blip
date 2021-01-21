@@ -10,6 +10,9 @@
     "AppConfig": true
   },
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.test.json"
+  },
   "plugins": [
     "@typescript-eslint",
     "moment-utc",
@@ -17,10 +20,14 @@
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended",
     "eslint:recommended",
     "plugin:react/recommended"
   ],
   "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-use-before-define": "error",
+    "@typescript-eslint/require-await": "error",
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
     "complexity": "error",
     "comma-dangle": ["warn", "always-multiline"],
@@ -38,17 +45,21 @@
         }
       }
     }],
+    "eol-last": ["error", "always"],
     "max-lines": ["error", {"max": 1000, "skipComments": true, "skipBlankLines": true}],
     "no-implied-eval": "error",
     "no-eq-null": "error",
     "no-else-return": "error",
     "no-fallthrough": ["warn", {"commentPattern": ".*[Ff]allthrough.*"}],
     "no-loop-func": "error",
-    "no-magic-numbers": ["warn", { "ignore":[0, 1] }],
+    "no-magic-numbers": ["warn", { "ignore":[-1, 0, 1, 2] }],
     "no-multi-spaces": "error",
     "no-return-assign": "error",
     "no-return-await": "error",
-    "no-undefined": "error",
+    "no-trailing-spaces": "error",
+    "no-undef": "off",
+    "no-underscore-dangle": ["error", { "allow": ["_jipt", "_paq"]}],
+    "no-use-before-define": "off",
     "object-curly-spacing": ["error", "always"],
     "prefer-promise-reject-errors": "error",
     "radix": "warn",
@@ -58,7 +69,9 @@
       "named": "never",
       "asyncArrow": "always"
     }],
-    "semi": "error"
+    "indent": ["error", 2],
+    "semi": "error",
+    "lodash/prefer-lodash-typecheck": "off"
   },
   "settings": {
     "react": {
