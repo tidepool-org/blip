@@ -335,7 +335,7 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
 
   return (
     !status.isSingleStepEdit
-    && !isFinite(get(initialValuesSource, fieldPath))&& !get(touched, fieldPath)
+    && !isFinite(get(initialValuesSource, fieldPath)) && !get(touched, fieldPath)
   );
 };
 
