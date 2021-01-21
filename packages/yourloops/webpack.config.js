@@ -51,11 +51,21 @@ const webpackConfig = {
     publicPath: 'http://localhost:3001/',
     historyApiFallback: true,
     hot: true,
-    clientLogLevel: 'info',
+    clientLogLevel: 'debug',
     disableHostCheck: true,
     before: (app /*, server, compiler */) => {
-      app.get('/patient', (req, res) => {
-        res.redirect('/');
+      app.use('/*', (req, res, next) => {
+        const dirname = path.dirname(req.baseUrl);
+        const basename = path.basename(req.baseUrl);
+        const now = (new Date()).toISOString();
+        if (basename.indexOf('.') > 0 && dirname !== '/') {
+          console.log(now, req.method, req.baseUrl, '=>', `/${basename}`);
+          res.redirect(`/${basename}`);
+          res.end();
+          return;
+        }
+        console.log(now, req.method, req.baseUrl);
+        next();
       });
     },
   },
