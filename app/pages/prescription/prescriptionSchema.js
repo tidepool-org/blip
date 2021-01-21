@@ -21,25 +21,19 @@ import {
 
 const t = i18next.t.bind(i18next);
 
-export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
+export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) => {
   const pump = find(devices.pumps, { id: pumpId });
-  const ranges = pumpRanges(pump);
+  const ranges = pumpRanges(pump, bgUnits, values);
 
   const deviceOptions = {
     pumps: pumpDeviceOptions(devices),
     cgms: cgmDeviceOptions(devices),
   }
 
-  const rangeErrors = {
-    basalRate: `Basal rate out of range. Please select a value between ${ranges.basalRate.min}-${ranges.basalRate.max}`,
-    basalRateMaximum: `Basal limit out of range. Please select a value between ${ranges.basalRateMaximum.min}-${ranges.basalRateMaximum.max}`,
-    bloodGlucoseTargetMin: `Correction target out of range. Please select a value between ${ranges.bloodGlucoseTarget.min}-${ranges.bloodGlucoseTarget.max}`,
-    bloodGlucoseTargetMax: `Correction target out of range. Please select a value below ${ranges.bloodGlucoseTarget.max}`,
-    bolusAmountMaximum: `Bolus limit out of range. Please select a value between ${ranges.bolusAmountMaximum.min}-${ranges.bolusAmountMaximum.max}`,
-    carbRatio: `Insulin-to-carb ratio of range. Please select a value between ${ranges.carbRatio.min}-${ranges.carbRatio.max}`,
-    insulinSensitivityFactor: `Sensitivity factor out of range. Please select a value between ${ranges.insulinSensitivityFactor.min}-${ranges.insulinSensitivityFactor.max}`,
-    bloodGlucoseSuspendThreshold: `Threshold out of range. Please select a value between ${ranges.bloodGlucoseSuspendThreshold.min}-${ranges.bloodGlucoseSuspendThreshold.max}`,
-  };
+  const rangeError = key => t('Please select a value between {{min}}-{{max}}', {
+    min: ranges[key].min,
+    max: ranges[key].max,
+  });
 
   return yup.object().shape({
     id: yup.string(),
@@ -52,11 +46,11 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       .required(t('First name is required')),
     lastName: yup.string()
       .required(t('Last name is required')),
-    caregiverFirstName: yup.string().when('accountType', {
+    caregiverFirstName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
       then: yup.string().required(t('First name is required')),
     }),
-    caregiverLastName: yup.string().when('accountType', {
+    caregiverLastName: yup.mixed().notRequired().when('accountType', {
       is: 'caregiver',
       then: yup.string().required(t('Last name is required')),
     }),
@@ -97,38 +91,35 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       insulinModel: yup.string()
         .oneOf(map(insulinModelOptions, 'value'))
         .required(t('An insulin model must be specified')),
-      bloodGlucoseSuspendThreshold: yup.number()
-        .min(ranges.bloodGlucoseSuspendThreshold.min, rangeErrors.bloodGlucoseSuspendThreshold)
-        .max(ranges.bloodGlucoseSuspendThreshold.max, rangeErrors.bloodGlucoseSuspendThreshold)
+      glucoseSafetyLimit: yup.number()
+        .min(ranges.glucoseSafetyLimit.min, rangeError('glucoseSafetyLimit'))
+        .max(ranges.glucoseSafetyLimit.max, rangeError('glucoseSafetyLimit'))
         .required(t('Suspend threshold is required')),
       basalRateMaximum: yup.object().shape({
         value: yup.number()
-          .min(ranges.basalRateMaximum.min, rangeErrors.basalRateMaximum)
-          .max(ranges.basalRateMaximum.max, rangeErrors.basalRateMaximum)
+          .min(ranges.basalRateMaximum.min, rangeError('basalRateMaximum'))
+          .max(ranges.basalRateMaximum.max, rangeError('basalRateMaximum'))
           .required(t('Max basal rate is required')),
         units: yup.string()
           .default(defaultUnits.basalRate),
       }),
       bolusAmountMaximum: yup.object().shape({
         value: yup.number()
-          .min(ranges.bolusAmountMaximum.min, rangeErrors.bolusAmountMaximum)
-          .max(ranges.bolusAmountMaximum.max, rangeErrors.bolusAmountMaximum)
+          .min(ranges.bolusAmountMaximum.min, rangeError('bolusAmountMaximum'))
+          .max(ranges.bolusAmountMaximum.max, rangeError('bolusAmountMaximum'))
           .required(t('Max bolus amount is required')),
         units: yup.string()
           .default(defaultUnits.bolusAmount),
       }),
       bloodGlucoseTargetSchedule: yup.array().of(
         yup.object().shape({
-          context: yup.object().shape({
-            min: yup.number().default(ranges.bloodGlucoseTarget.min),
-          }),
           high: yup.number()
-            .min(yup.ref('low') || yup.ref('context.min'), rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-            .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+            .min(yup.ref('low') || ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget').replace(ranges.bloodGlucoseTarget.min, '${min}'))
+            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
             .required(t('High target is required')),
           low: yup.number()
-            .min(yup.ref('context.min') || ranges.bloodGlucoseTarget.min, rangeErrors.bloodGlucoseTargetMin.replace(ranges.bloodGlucoseTarget.min, '${min}'))
-            .max(ranges.bloodGlucoseTarget.max, rangeErrors.bloodGlucoseTargetMax)
+            .min(ranges.bloodGlucoseTarget.min, rangeError('bloodGlucoseTarget'))
+            .max(ranges.bloodGlucoseTarget.max, rangeError('bloodGlucoseTarget'))
             .required(t('Low target is required')),
           start: yup.number()
             .integer()
@@ -137,11 +128,31 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
             .required(t('Start time is required')),
         }),
       ),
+      bloodGlucoseTargetPhysicalActivity: yup.object().shape({
+        high: yup.number()
+          .min(yup.ref('low') || ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity').replace(ranges.bloodGlucoseTargetPhysicalActivity.min, '${min}'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
+          .required(t('High target is required')),
+        low: yup.number()
+          .min(ranges.bloodGlucoseTargetPhysicalActivity.min, rangeError('bloodGlucoseTargetPhysicalActivity'))
+          .max(ranges.bloodGlucoseTargetPhysicalActivity.max, rangeError('bloodGlucoseTargetPhysicalActivity'))
+          .required(t('Low target is required')),
+      }),
+      bloodGlucoseTargetPreprandial: yup.object().shape({
+        high: yup.number()
+          .min(yup.ref('low') || ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial').replace(ranges.bloodGlucoseTargetPreprandial.min, '${min}'))
+          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
+          .required(t('High target is required')),
+        low: yup.number()
+          .min(ranges.bloodGlucoseTargetPreprandial.min, rangeError('bloodGlucoseTargetPreprandial'))
+          .max(ranges.bloodGlucoseTargetPreprandial.max, rangeError('bloodGlucoseTargetPreprandial'))
+          .required(t('Low target is required')),
+      }),
       basalRateSchedule: yup.array().of(
         yup.object().shape({
           rate: yup.number()
-            .min(ranges.basalRate.min, rangeErrors.basalRate)
-            .max(ranges.basalRate.max, rangeErrors.basalRate)
+            .min(ranges.basalRate.min, rangeError('basalRate'))
+            .max(ranges.basalRate.max, rangeError('basalRate'))
             .required(t('Basal rate is required')),
           start: yup.number()
             .integer()
@@ -153,8 +164,8 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       carbohydrateRatioSchedule: yup.array().of(
         yup.object().shape({
           amount: yup.number()
-            .min(ranges.carbRatio.min, rangeErrors.carbRatio)
-            .max(ranges.carbRatio.max, rangeErrors.carbRatio)
+            .min(ranges.carbRatio.min, rangeError('carbRatio'))
+            .max(ranges.carbRatio.max, rangeError('carbRatio'))
             .required(t('Insulin-to-carb ratio is required')),
           start: yup.number()
             .integer()
@@ -166,8 +177,8 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose) => {
       insulinSensitivitySchedule: yup.array().of(
         yup.object().shape({
           amount: yup.number()
-            .min(ranges.insulinSensitivityFactor.min, rangeErrors.insulinSensitivityFactor)
-            .max(ranges.insulinSensitivityFactor.max, rangeErrors.insulinSensitivityFactor)
+            .min(ranges.insulinSensitivityFactor.min, rangeError('insulinSensitivityFactor'))
+            .max(ranges.insulinSensitivityFactor.max, rangeError('insulinSensitivityFactor'))
             .required(t('Sensitivity factor is required')),
           start: yup.number()
             .integer()
