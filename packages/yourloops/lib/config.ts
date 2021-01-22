@@ -37,7 +37,7 @@ export interface AppConfig {
   DEV: boolean;
   TEST: boolean;
   LATEST_TERMS?: string;
-  PASSWORD_MIN_LENGTH?: number;
+  PASSWORD_MIN_LENGTH: number;
   PASSWORD_MAX_LENGTH?: number;
   ABOUT_MAX_LENGTH?: number;
   ALLOW_SIGNUP_PATIENT?: boolean;

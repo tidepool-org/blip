@@ -48,7 +48,7 @@ import { useAuth } from "../../lib/auth/hook/use-auth";
 /**
  * Login page
  */
-function RequestPasswordReset(props: RouteComponentProps ): JSX.Element {
+function RequestPasswordResetPage(props: RouteComponentProps ): JSX.Element {
   const [username, setUserName] = useState("");
   const [validateError, setValidateError ] = useState(false);
   const [helperTextValue, setHelperTextValue ] = useState("");
@@ -138,4 +138,4 @@ function RequestPasswordReset(props: RouteComponentProps ): JSX.Element {
   );
 }
 
-export default RequestPasswordReset;
+export default RequestPasswordResetPage;

@@ -46,7 +46,7 @@ import { theme } from "../components/theme";
 import LoginPage from '../pages/login';
 import HcpPage from '../pages/hcp';
 import PatientPage from "../pages/patient";
-import RequestPasswordReset from '../pages/request-passord-reset';
+import { RequestPasswordResetPage, ConfirmPasswordResetPage } from '../pages/password-reset';
 import { AuthProvider } from '../lib/auth/hook/use-auth';
 import PrivateRoute from '../components/private-route';
 
@@ -82,7 +82,8 @@ class Yourloops {
           <Router>
             <Switch>
               <Route exact path="/" component={LoginPage} />
-              <Route path="/request-password-reset" component={RequestPasswordReset} />
+              <Route path="/request-password-reset" component={RequestPasswordResetPage} />
+              <Route path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
               <PrivateRoute path="/hcp" component={HcpPage} />
               <PrivateRoute path="/patient" component={PatientPage} />
             </Switch>
