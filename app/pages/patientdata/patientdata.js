@@ -332,8 +332,9 @@ export const PatientDataClass = createReactClass({
             this.setState({ datesDialogFetchingData: true });
 
             this.fetchEarlierData({
+              returnData: false,
               showLoading: true,
-              returnData: false
+              startDate,
             });
           } else {
             this.closeDatesDialog();
