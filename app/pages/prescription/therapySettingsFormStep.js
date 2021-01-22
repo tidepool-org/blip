@@ -4,7 +4,10 @@ import { translate } from 'react-i18next';
 import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex, Text, BoxProps } from 'rebass/styled-components';
 import bows from 'bows';
+import each from 'lodash/each';
 import get from 'lodash/get';
+import map from 'lodash/map';
+import max from 'lodash/max';
 
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
@@ -16,9 +19,11 @@ import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
 
 import {
+  defaultValues,
   insulinModelOptions,
   pumpRanges,
   roundValueToIncrement,
+  shouldUpdateDefaultValue,
   stepValidationFields,
   trainingOptions,
   warningThresholds,
@@ -109,7 +114,6 @@ InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
   const { t, pump, ...themeProps } = props;
-
   const formikContext = useFormikContext();
 
   const {
@@ -519,7 +523,69 @@ export const InsulinSettings = props => {
 InsulinSettings.propTypes = fieldsetPropTypes;
 
 export const TherapySettings = translate()(props => {
-  const { values } = useFormikContext();
+  const formikContext = useFormikContext();
+
+  const {
+    setFieldValue,
+    values,
+  } = formikContext;
+
+  const bgUnits = values.initialSettings.bloodGlucoseUnits;
+  const ranges = pumpRanges(props.pump, bgUnits, values);
+  const defaults = defaultValues(props.pump, bgUnits, values);
+  const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+
+  const fieldsWithDefaults = [
+    {
+      path: 'initialSettings.glucoseSafetyLimit',
+      defaultValue: defaults.glucoseSafetyLimit,
+      increment: ranges.glucoseSafetyLimit.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetSchedule[0].low',
+      defaultValue: defaults.bloodGlucoseTarget.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetSchedule[0].high',
+      defaultValue: defaults.bloodGlucoseTarget.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPhysicalActivity.low',
+      defaultValue: defaults.bloodGlucoseTargetPhysicalActivity.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPhysicalActivity.high',
+      defaultValue: defaults.bloodGlucoseTargetPhysicalActivity.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPreprandial.low',
+      defaultValue: defaults.bloodGlucoseTargetPreprandial.low,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.bloodGlucoseTargetPreprandial.high',
+      defaultValue: defaults.bloodGlucoseTargetPreprandial.high,
+      increment: ranges.bloodGlucoseTarget.increment,
+    },
+    {
+      path: 'initialSettings.basalRateMaximum.value',
+      defaultValue: defaults.basalRateMaximum,
+      increment: ranges.basalRateMaximum.increment,
+      dependancies: [maxBasalRate],
+    },
+  ];
+
+  each(fieldsWithDefaults, field => {
+    React.useEffect(() => {
+      if (shouldUpdateDefaultValue(field.path, formikContext)) {
+        setFieldValue(field.path, roundValueToIncrement(field.defaultValue, field.increment));
+      }
+    }, field.dependancies || []);
+  });
 
   return (
     <Box>
