@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.18.0-web-1127-carb-print-view-rounding.1":
-  version "1.18.0-web-1127-carb-print-view-rounding.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.18.0-web-1127-carb-print-view-rounding.1.tgz#d6e721c046ee9edfae209e969f0f7038548c0f42"
-  integrity sha512-c/RDmenZo54l+OjHt2oAeHgE16SVBYAt1QnrizuHYKJX4aXiQYdA+u+GtYMh/BlOQL5yakUPeSRJhlTD6BZ86w==
+"@tidepool/viz@1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.18.0.tgz#33d5cba8745857a7362b3f0429212991a49f60fb"
+  integrity sha512-TpMWP8xNxY0ZuKcOgQongOFRbjBP2uJlCdW6JS2uteKbAXVnOO9FRZ04PHT3F+3gLKZuQjJ8XS1A0TkNHXuJIg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
