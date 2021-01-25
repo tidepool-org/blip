@@ -458,6 +458,9 @@ class AuthApi extends EventTarget {
       code: "123456789",
       ownerId: "abcdef",
       type: "medical",
+      address: "Boulevard de la Chantourne\n38700 La Tronche",
+      phone: "+33 (0)4 76 76 75 75",
+      email: "secretariat-diabethologie@chu-grenoble.fr",
     }, {
       id: "team-2",
       name: "Clinique Nantes",
