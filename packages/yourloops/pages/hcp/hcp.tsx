@@ -34,6 +34,7 @@ import { defer } from "../../lib/utils";
 import HcpNavBar from "../../components/hcp-nav-bar";
 import PatientListPage from "./patients-list";
 import PatientDataPage from "./patient-data";
+import TeamsListPage from "./teams-list";
 
 /**
  * Health care professional page
@@ -53,6 +54,7 @@ function HcpPage(props: RouteComponentProps): JSX.Element | null {
       <Switch>
         <Route path="/hcp/patients" component={PatientListPage} />
         <Route path="/hcp/patient/:patientId" component={PatientDataPage} />
+        <Route path="/hcp/teams" component={TeamsListPage} />
       </Switch>
     </React.Fragment>
   );

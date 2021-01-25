@@ -42,7 +42,7 @@ function HcpNavBar(props: RouteComponentProps) : JSX.Element {
     <HeaderBar>
       <Tabs value={isPatientsPath ? 0 : 1} indicatorColor="primary" textColor="primary" centered>
         <Tab label={t("Patients")} component={Link} to="/hcp/patients" />
-        <Tab label={t("Care teams")} component={Link} to="/hcp/careteams" />
+        <Tab label={t("Care teams")} component={Link} to="/hcp/teams" />
       </Tabs>
     </HeaderBar>
   );

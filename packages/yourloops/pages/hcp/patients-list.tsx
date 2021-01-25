@@ -36,11 +36,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
-import apiClient from "../../lib/auth/api";
-import { AuthContext } from '../../lib/auth/hook/use-auth';
 import { t } from "../../lib/language";
 import { User } from "../../models/shoreline";
-import { SortDirection, FilterType, SortFields, Team } from "./types";
+import { Team } from "../../models/team";
+import { SortDirection, FilterType, SortFields } from "./types";
+import apiClient from "../../lib/auth/api";
+import { AuthContext } from '../../lib/auth/hook/use-auth';
 import PatientListBar from "./patients-list-bar";
 import PatientListTable from "./patients-list-table";
 
@@ -59,26 +60,18 @@ interface PatientListPageState {
 
 class PatientListPage extends React.Component<RouteComponentProps, PatientListPageState> {
   private log: Console;
-
-  context!: React.ContextType<typeof AuthContext>;
+  declare context: React.ContextType<typeof AuthContext>
 
   constructor(props: RouteComponentProps) {
     super(props);
 
-    const whoAmI = apiClient.whoami;
     this.state = {
       loading: true,
       errorMessage: null,
       patients: [],
       allPatients: [],
-      teams: [{ // FIXME
-        id: "team-1",
-        name: "CHU Grenoble",
-      }, {
-        id: "team-2",
-        name: "Clinique Nantes",
-      }],
-      flagged: whoAmI?.preferences?.patientsStarred ?? [],
+      teams: [],
+      flagged: [],
       order: "asc",
       orderBy: "lastname",
       filter: "",
@@ -102,7 +95,7 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
     this.onRefresh();
   }
 
-  render(): JSX.Element | null {
+  render(): JSX.Element {
     const { loading, patients, teams, flagged, order, orderBy, filter, filterType, errorMessage } = this.state;
 
     if (loading) {
@@ -114,7 +107,7 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
       return (
         <div id="div-api-error-message" className="api-error-message">
           <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>{errorMessage}</Alert>
-          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>{t("Again !")}</Button>
+          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>{t("button-refresh-page-on-error")}</Button>
         </div>
       );
     }
@@ -147,10 +140,14 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
   }
 
   private onRefresh(): void {
-    this.setState({ loading: true, errorMessage: null }, async () => {
+    const whoAmI = this.context.user;
+    this.setState({ flagged: whoAmI?.preferences?.patientsStarred ?? [] });
+
+    this.setState({ loading: true, errorMessage: null, teams: [], allPatients: [], patients: [] }, async () => {
       try {
         const patients = await apiClient.getUserShares();
-        this.setState({ patients, allPatients: patients, loading: false }, this.updatePatientList);
+        const teams = await apiClient.fetchTeams();
+        this.setState({ patients, allPatients: patients, teams, loading: false }, this.updatePatientList);
       } catch (reason: unknown) {
         this.log.error("onRefresh", reason);
         let errorMessage: string;

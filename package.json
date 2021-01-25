@@ -29,7 +29,7 @@
     "security-checks": "npm audit --production --audit-level=high --registry=https://registry.npmjs.org/",
     "prebuild-soup": "mkdir -pv doc",
     "prebuild-dev": "rm -rf dist",
-    "build-dev": "lerna run --stream --scope yourloops build-dev",
+    "build-dev": "NODE_OPTIONS='--max-old-space-size=4096' lerna run --stream --scope yourloops build-dev",
     "postbuild-dev": "mkdir dist && mv packages/yourloops/dist dist/static",
     "start-dev": "bash -c 'source config/env.docker.sh && lerna run --stream --scope yourloops start-dev'"
   },
