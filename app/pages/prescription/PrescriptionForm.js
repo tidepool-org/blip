@@ -51,6 +51,10 @@ const log = bows('PrescriptionForm');
 let schema;
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
+  mapPropsToStatus: props => ({
+    hydratedValues: null,
+    isPrescriptionEditFlow: !!props.prescription,
+  }),
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
@@ -80,11 +84,11 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
         glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
         basalRateMaximum: {
-          value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0)),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
@@ -166,6 +170,8 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
+    setStatus,
+    status,
     values,
   } = useFormikContext();
 
@@ -230,12 +236,31 @@ export const PrescriptionForm = props => {
     }
 
     // When a user comes to this component initially, without the active step and subStep set by the
-    // Stepper component in the url, we delete any persisted state from localStorage.
-    // As well, when editing an existing prescription, we delete it so that the current prescription
-    // values replace whatever values were previously stored
-    if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
-    setFormPersistReady(true);
+    // Stepper component in the url, or when editing an existing prescription,
+    // we delete any persisted state from localStorage.
+    if (status.isPrescriptionEditFlow || (get(localStorage, storageKey) && activeStepsParam === null)) {
+      delete localStorage[storageKey];
+    }
+
+    // Only use the localStorage persistence for new prescriptions - not while editing an existing one.
+    setFormPersistReady(!prescription);
   }, []);
+
+  // Save whether or not we are editing a single step to the formik form status for easy reference
+  React.useEffect(() => {
+    setStatus({
+      ...status,
+      isSingleStepEdit,
+    });
+  }, [isSingleStepEdit])
+
+  // Save the hydrated localStorage values to the formik form status for easy reference
+  React.useEffect(() => {
+    if (formPersistReady) setStatus({
+      ...status,
+      hydratedValues: JSON.parse(get(localStorage, storageKey, JSON.stringify(status.hydratedValues))),
+    });
+  }, [formPersistReady]);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
