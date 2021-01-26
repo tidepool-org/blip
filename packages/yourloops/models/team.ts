@@ -27,6 +27,12 @@ export interface Team {
   ownerId: string;
   phone?: string;
   email?: string;
-  address?: string;
+  address?: {
+    line1: string;
+    line2?: string;
+    zip: string;
+    city: string;
+    country: string;
+  };
   description?: string;
 }

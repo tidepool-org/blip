@@ -113,10 +113,19 @@ class AuthApi extends EventTarget {
       code: "123456789",
       ownerId: "abcdef",
       type: "medical",
+      address: {
+        line1: "Boulevard de la Chantourne",
+        zip: "38700",
+        city: "La Tronche",
+        country: "FR",
+      },
+      phone: "+33 (0)4 76 76 75 75",
+      email: "secretariat-diabethologie@chu-grenoble.fr",
     }, {
       id: "team-2",
       name: "Clinique Nantes",
       code: "987654321",
+      phone: "00-00-00-00-00",
       ownerId: "abcdef",
       type: "medical",
     }];
@@ -452,32 +461,41 @@ class AuthApi extends EventTarget {
   public async fetchTeams(): Promise<Team[]> {
     // eslint-disable-next-line no-magic-numbers
     await waitTimeout(500 + Math.random()*200);
-    return [{ // FIXME
-      id: "team-1",
-      name: "CHU Grenoble",
-      code: "123456789",
-      ownerId: "abcdef",
-      type: "medical",
-      address: "Boulevard de la Chantourne\n38700 La Tronche",
-      phone: "+33 (0)4 76 76 75 75",
-      email: "secretariat-diabethologie@chu-grenoble.fr",
-    }, {
-      id: "team-2",
-      name: "Clinique Nantes",
-      code: "987654321",
-      ownerId: "abcdef",
-      type: "medical",
-    }];
+    return _.cloneDeep(this.teams ?? []);
   }
 
-  public async createTeam(team: Team): Promise<Team[]> {
+  public async createTeam(team: Partial<Team>): Promise<Team[]> {
     if (this.teams === null) {
       this.teams = [];
     }
-    this.teams.push(team);
+
+    // id, code, owner fields will be set by the back-end API
+
+    // eslint-disable-next-line no-magic-numbers
+    team.id = `team-${Math.round(Math.random() * 1000)}`;
+    team.code = "123-456-789";
+    team.ownerId = this.user?.userid as string;
+    this.teams.push(team as Team);
     // eslint-disable-next-line no-magic-numbers
     await waitTimeout(500 + Math.random()*200);
-    return this.teams;
+    return _.cloneDeep(this.teams);
+  }
+
+  public async editTeam(editedTeam: Team): Promise<Team[]> {
+    if (this.teams === null || this.teams.length < 1) {
+      throw new Error("Empty team list!");
+    }
+    const nTeams = this.teams.length;
+    for (let i = 0; i < nTeams; i++) {
+      const team = this.teams[i];
+      if (editedTeam.id === team.id) {
+        this.teams[i] = editedTeam;
+        break;
+      }
+    }
+    // eslint-disable-next-line no-magic-numbers
+    await waitTimeout(500 + Math.random()*200);
+    return _.cloneDeep(this.teams);
   }
 
   /**

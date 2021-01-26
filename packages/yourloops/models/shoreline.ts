@@ -37,6 +37,7 @@ interface Settings {
   units?: {
     bg?: "mmol/L" | "mg/dL";
   };
+  country?: string;
 }
 
 interface Preferences {

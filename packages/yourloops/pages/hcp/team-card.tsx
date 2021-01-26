@@ -43,8 +43,11 @@ import PhoneIcon from '@material-ui/icons/Phone';
 import { Team } from "../../models/team";
 import { t } from "../../lib/language";
 
+import TeamEditModal from "./team-edit-modal";
+
 interface TeamCardProps {
   team: Team;
+  onEditTeam: (team: Team) => Promise<void>;
 }
 
 interface TeamInfoProps {
@@ -129,10 +132,18 @@ function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 function TeamCard(props: TeamCardProps): JSX.Element {
   const { team } = props;
   const classes = teamCardStyles();
+  const [ modalOpened, setModalOpen ] = React.useState(false);
+
+  const handleClickEdit = (): void => {
+    setModalOpen(true);
+  };
+  const onSaveTeam = (team: Partial<Team>): Promise<void> => {
+    return props.onEditTeam(team as Team);
+  };
 
   // FIXME: if (team.isAdmin(currentUser)) { ... show buttons }
   const buttonEdit = (
-    <Button id={`team-card-${team.id}-button-edit`} className={classes.buttonActionFirstRow} startIcon={<EditIcon color="primary" />}>
+    <Button id={`team-card-${team.id}-button-edit`} className={classes.buttonActionFirstRow} startIcon={<EditIcon color="primary" />} onClick={handleClickEdit}>
       {t("button-team-edit")}
     </Button>
   );
@@ -141,6 +152,12 @@ function TeamCard(props: TeamCardProps): JSX.Element {
       {t("button-team-add-member")}
     </Button>
   );
+
+  let address: string | undefined = undefined;
+  if (typeof team.address === "object") {
+    const { line1, line2, zip, city, country } = team.address;
+    address = `${line1} ${line2 ?? ""} ${zip} ${city} ${country}`;
+  }
 
   return (
     <Paper className={classes.paper} classes={{ root: classes.paperRoot }}>
@@ -154,9 +171,10 @@ function TeamCard(props: TeamCardProps): JSX.Element {
       <div id={`team-card-${team.id}-infos`} className={classes.secondRow}>
         <TeamInfo label="label-team-card-code" value={team.code} icon={<FingerprintIcon />} />
         <TeamInfo label="label-team-card-phone" value={team.phone} icon={<PhoneIcon />} />
-        <TeamInfo label="label-team-card-address" value={team.address} icon={<LocationOnIcon />} />
+        <TeamInfo label="label-team-card-address" value={address} icon={<LocationOnIcon />} />
         <TeamInfo label="label-team-card-email" value={team.email} icon={<EmailIcon />} />
       </div>
+      <TeamEditModal action="edit" team={team} modalOpened={modalOpened} setModalOpen={setModalOpen} onSaveTeam={onSaveTeam} />
     </Paper>
   );
 }
