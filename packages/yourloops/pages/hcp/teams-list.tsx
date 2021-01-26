@@ -30,110 +30,30 @@ import * as React from "react";
 import bows from "bows";
 import { RouteComponentProps } from "react-router-dom";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
-
 import Alert from "@material-ui/lab/Alert";
-import AppBar from "@material-ui/core/AppBar";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-
-import AddIcon from "@material-ui/icons/Add";
-import HomeIcon from "@material-ui/icons/Home";
 
 import { Team } from "../../models/team";
 import { t } from "../../lib/language";
 import apiClient from "../../lib/auth/api";
 import TeamCard from "./team-card";
-import TeamEditModal from "./team-edit-modal";
+import TeamsListBar from "./teams-list-bar";
 
 interface TeamsListPageState {
   loading: boolean;
   errorMessage: string | null;
   teams: Team[];
 }
-interface BarProps {
-  onCreateTeam: (team: Partial<Team>) => Promise<void>
-}
 
-const log = bows("TeamsListPage");
-
-const pageBarStyles = makeStyles((theme: Theme) => {
-  /* eslint-disable no-magic-numbers */
-  return {
-    toolBar: {
-      display: "grid",
-      gridTemplateRows: "auto",
-      gridTemplateColumns: "auto auto auto",
-      paddingLeft: theme.spacing(12),
-      paddingRight: theme.spacing(12),
-    },
-    toolBarRight: {
-      display: "flex",
-    },
-    breadcrumbLink: {
-      display: "flex",
-    },
-    homeIcon: {
-      marginRight: "0.5em",
-    },
-    buttonAddTeam: {
-      marginLeft: "auto",
-    },
-  };
-});
-
-function AppBarPage(props: BarProps): JSX.Element {
-  const classes = pageBarStyles();
-
-  const [ modalOpened, setModalOpen ] = React.useState(false);
-
-  const handleOpenModalAddTeam = (): void => {
-    setModalOpen(true);
-  };
-
-  const fakeNewTeam: Partial<Team> = {
-    type: "medical",
-  };
-
-  return (
-    <React.Fragment>
-      <AppBar position="static" color="secondary">
-        <Toolbar className={classes.toolBar}>
-          <div id="team-list-toolbar-item-left">
-            <Breadcrumbs aria-label={t("breadcrumb")}>
-              <Typography color="textPrimary" className={classes.breadcrumbLink}>
-                <HomeIcon className={classes.homeIcon} />
-                {t("team-list-breadcrumbs-title-my-teams")}
-              </Typography>
-            </Breadcrumbs>
-          </div>
-          <div id="team-list-toolbar-item-middle"></div>
-          <div id="team-list-toolbar-item-right" className={classes.toolBarRight}>
-            <Button
-              id="team-list-toolbar-add-team"
-              color="primary"
-              variant="contained"
-              className={classes.buttonAddTeam}
-              onClick={handleOpenModalAddTeam}
-            >
-              <AddIcon />&nbsp;{t("button-add-team")}
-            </Button>
-          </div>
-        </Toolbar>
-      </AppBar>
-      <TeamEditModal action="create" modalOpened={modalOpened} setModalOpen={setModalOpen} team={fakeNewTeam} onSaveTeam={props.onCreateTeam} />
-    </React.Fragment>
-  );
-}
 /**
  * HCP page to manage teams
  */
 class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageState> {
+  private log: Console;
+
   constructor(props: RouteComponentProps) {
     super(props);
 
@@ -143,12 +63,13 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
       teams: [],
     };
 
+    this.log = bows("TeamsListPage");
+
     this.onCreateTeam = this.onCreateTeam.bind(this);
     this.onEditTeam = this.onEditTeam.bind(this);
   }
 
   componentDidMount(): void {
-    console.log("TeamListPage", { userid: this.context.user?.userid });
     this.onRefresh();
   }
 
@@ -180,7 +101,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
 
     return (
       <React.Fragment>
-        <AppBarPage onCreateTeam={this.onCreateTeam} />
+        <TeamsListBar onCreateTeam={this.onCreateTeam} />
         <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
           <Grid container spacing={3}>
             {teamsItems}
@@ -191,12 +112,13 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   }
 
   onRefresh(): void {
+    this.log.info("Refreshing the page");
     this.setState({ loading: true, errorMessage: null, teams: [] }, async () => {
       try {
         const teams = await apiClient.fetchTeams();
         this.setState({ teams, loading: false });
       } catch (reason: unknown) {
-        log.error("onRefresh", reason);
+        this.log.error("onRefresh", reason);
         let errorMessage: string;
         if (reason instanceof Error) {
           errorMessage = reason.message;
@@ -210,12 +132,13 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   }
 
   async onCreateTeam(team: Partial<Team>): Promise<void> {
-    log.info("Create team", team);
+    this.log.info("onCreateTeam", team);
     const newTeams = await apiClient.createTeam(team);
     this.setState({ teams: newTeams });
   }
 
   async onEditTeam(team: Team): Promise<void> {
+    this.log.info("onEditTeam", team);
     const teams = await apiClient.editTeam(team);
     this.setState({ teams });
   }

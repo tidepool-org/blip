@@ -192,7 +192,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
   };
 });
 
-function PatientListBar(props: PatientListBarProps): JSX.Element {
+function PatientsListBar(props: PatientListBarProps): JSX.Element {
   const selectMenuProps: Partial<MenuProps> = {
     anchorOrigin: {
       vertical: "bottom",
@@ -349,4 +349,4 @@ function PatientListBar(props: PatientListBarProps): JSX.Element {
   );
 }
 
-export default PatientListBar;
+export default PatientsListBar;
