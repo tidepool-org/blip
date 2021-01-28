@@ -28,12 +28,10 @@
 
 import * as React from "react";
 
-import HeaderBar from './header-bar';
+import HeaderBar from "./header-bar";
 
-function PatientNavBar() : JSX.Element {
-  return (
-    <HeaderBar />
-  );
+function PatientNavBar(): JSX.Element {
+  return <HeaderBar />;
 }
 
 export default PatientNavBar;

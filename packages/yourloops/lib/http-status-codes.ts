@@ -1,4 +1,3 @@
-
 // From https://github.com/golang/go/blob/master/src/net/http/status.go
 // With this license:
 // Copyright 2009 The Go Authors. All rights reserved.

@@ -73,6 +73,7 @@ function PersonRemoveIcon(): JSX.Element {
   // For some reason this icon is not available with material-ui
   // This one come directly from material-design
   // Source: https://material.io/resources/icons/?icon=person_remove&style=baseline
+  // prettier-ignore
   return (
     <SvgIcon>
       <svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" className="MuiSvgIcon-root">
@@ -112,6 +113,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     setUpdatingUser("");
   };
 
+  // prettier-ignore
   const rows: JSX.Element[] = members.map((member: TeamMember): JSX.Element => {
     const userId = member.userId;
     const lastname = member.user?.profile?.lastName ?? member.user?.profile?.fullName ?? member.user?.username ?? member.userId;
@@ -135,7 +137,15 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         </div>
       );
     } else {
-      checkboxElement = <Checkbox disabled={checkboxAdminDisabled} id={`team-members-list-${team.id}-row-${member.userId}-role-checkbox`} color="primary" name={member.userId} checked={isAdmin} onChange={handleSwitchRole} />;
+      checkboxElement = (
+        <Checkbox
+          disabled={checkboxAdminDisabled}
+          id={`team-members-list-${team.id}-row-${member.userId}-role-checkbox`}
+          color="primary"
+          name={member.userId}
+          checked={isAdmin}
+          onChange={handleSwitchRole} />
+      );
     }
 
     let removeMemberButton: JSX.Element | null = null;
@@ -165,11 +175,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     );
   });
 
-  return (
-    <TableBody>
-      {rows}
-    </TableBody>
-  );
+  return <TableBody>{rows}</TableBody>;
 }
 
 function TeamMembers(props: TeamMembersProps): JSX.Element {
@@ -182,18 +188,32 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
   return (
     <div id={`team-members-list-${team.id}`} className={classes.root}>
       <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary id={`team-members-list-${team.id}-header`} expandIcon={<ExpandMoreIcon />} aria-label={t("aria-expand-team-members")} aria-controls={`team-members-list-${team.id}-content`}>
+        <AccordionSummary
+          id={`team-members-list-${team.id}-header`}
+          expandIcon={<ExpandMoreIcon />}
+          aria-label={t("aria-expand-team-members")}
+          aria-controls={`team-members-list-${team.id}-content`}>
           <Typography>{t("team-members-list-header", { nMembers })}</Typography>
         </AccordionSummary>
+
+        {/* prettier-ignore */}
         <AccordionDetails>
           <Table>
             <TableHead className={classes.tableRowHeader}>
               <TableRow>
-                <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>{t("team-members-header-lastname")}</TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>{t("team-members-header-firstname")}</TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-email`}>{t("team-members-header-email")}</TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-role`}>{t("team-members-header-role")}</TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-actions`}></TableCell>
+                <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
+                  {t("team-members-header-lastname")}
+                </TableCell>
+                <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>
+                  {t("team-members-header-firstname")}
+                </TableCell>
+                <TableCell id={`team-members-list-${team.id}-cellheader-email`}>
+                  {t("team-members-header-email")}
+                </TableCell>
+                <TableCell id={`team-members-list-${team.id}-cellheader-role`}>
+                  {t("team-members-header-role")}
+                </TableCell>
+                <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
               </TableRow>
             </TableHead>
             <MembersTableBody {...props} />

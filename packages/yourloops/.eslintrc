@@ -13,12 +13,7 @@
   "parserOptions": {
     "project": "tsconfig.test.json"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "moment-utc",
-    "react",
-    "react-hooks"
-  ],
+  "plugins": ["@typescript-eslint", "moment-utc", "react", "react-hooks"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended",
@@ -29,48 +24,57 @@
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-use-before-define": "error",
     "@typescript-eslint/require-await": "error",
-    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "complexity": "error",
     "comma-dangle": ["warn", "always-multiline"],
     "consistent-return": "error",
     "default-param-last": "error",
     "func-names": ["error", "as-needed"],
     "guard-for-in": "warn",
-    "keyword-spacing": ["error", {
-      "before": true,
-      "after": true,
-      "overrides": {
-        "function": {
-          "before": true,
-          "after": false
+    "keyword-spacing": [
+      "error",
+      {
+        "before": true,
+        "after": true,
+        "overrides": {
+          "function": {
+            "before": true,
+            "after": false
+          }
         }
       }
-    }],
+    ],
     "eol-last": ["error", "always"],
-    "max-lines": ["error", {"max": 1000, "skipComments": true, "skipBlankLines": true}],
+    "max-lines": [
+      "error",
+      { "max": 1000, "skipComments": true, "skipBlankLines": true }
+    ],
     "no-implied-eval": "error",
     "no-eq-null": "error",
     "no-else-return": "error",
-    "no-fallthrough": ["warn", {"commentPattern": ".*[Ff]allthrough.*"}],
+    "no-fallthrough": ["warn", { "commentPattern": ".*[Ff]allthrough.*" }],
     "no-loop-func": "error",
-    "no-magic-numbers": ["warn", { "ignore":[-1, 0, 1, 2] }],
+    "no-magic-numbers": ["warn", { "ignore": [-1, 0, 1, 2] }],
     "no-multi-spaces": "error",
     "no-return-assign": "error",
     "no-return-await": "error",
     "no-trailing-spaces": "error",
     "no-undef": "off",
-    "no-underscore-dangle": ["error", { "allow": ["_jipt", "_paq"]}],
+    "no-underscore-dangle": ["error", { "allow": ["_jipt", "_paq"] }],
     "no-use-before-define": "off",
     "object-curly-spacing": ["error", "always"],
     "prefer-promise-reject-errors": "error",
     "radix": "warn",
     "space-before-blocks": ["error", "always"],
-    "space-before-function-paren": ["error", {
-      "anonymous": "always",
-      "named": "never",
-      "asyncArrow": "always"
-    }],
-    "indent": ["error", 2],
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "indent": [1, 2],
     "semi": "error",
     "lodash/prefer-lodash-typecheck": "off",
     "react-hooks/rules-of-hooks": "error",

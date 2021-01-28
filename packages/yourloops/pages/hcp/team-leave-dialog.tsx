@@ -30,7 +30,7 @@ import * as React from "react";
 import { Trans } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import { red } from '@material-ui/core/colors';
+import { red } from "@material-ui/core/colors";
 
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -66,7 +66,7 @@ const leaveTeamDialogClasses = makeStyles((theme: Theme) => {
     },
     buttonLeaveAndDel: {
       backgroundColor: red[500], // eslint-disable-line no-magic-numbers
-      '&:hover': {
+      "&:hover": {
         backgroundColor: red[700], // eslint-disable-line no-magic-numbers
       },
     },
@@ -145,12 +145,11 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
       <DialogContent>
         <DialogContentText id="team-leave-dialog-question">
           <Trans i18nKey="team-leave-dialog-and-del-question" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
-            Since you are the only &quot;member&quot; in this team, {{ teamName }} will be <strong>permanently deleted</strong> if you leave it.
+            Since you are the only &quot;member&quot; in this team, {{ teamName }} will be <strong>permanently deleted</strong> if
+            you leave it.
           </Trans>
         </DialogContentText>
-        <DialogContentText id="team-leave-dialog-consequences">
-          {t("team-leave-dialog-and-del-consequences")}
-        </DialogContentText>
+        <DialogContentText id="team-leave-dialog-consequences">{t("team-leave-dialog-and-del-consequences")}</DialogContentText>
       </DialogContent>
     );
   }
@@ -160,7 +159,8 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
       <DialogContent>
         <DialogContentText id="team-leave-dialog-consequences">
           <Trans i18nKey="team-leave-dialog-only-admin-consequences" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
-            Since you are the only team&apos;s administrator, you need to <strong>give administrator permission to another member</strong> before leaving.
+            Since you are the only team&apos;s administrator, you need to
+            <strong>give administrator permission to another member</strong> before leaving.
           </Trans>
         </DialogContentText>
       </DialogContent>
@@ -169,12 +169,8 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
 
   return (
     <DialogContent>
-      <DialogContentText id="team-leave-dialog-question">
-        {t("team-leave-dialog-question")}
-      </DialogContentText>
-      <DialogContentText id="team-leave-dialog-consequences">
-        {t("team-leave-dialog-consequences")}
-      </DialogContentText>
+      <DialogContentText id="team-leave-dialog-question">{t("team-leave-dialog-question")}</DialogContentText>
+      <DialogContentText id="team-leave-dialog-consequences">{t("team-leave-dialog-consequences")}</DialogContentText>
     </DialogContent>
   );
 }
@@ -190,10 +186,22 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
   if (onlyMember) {
     return (
       <DialogActions>
-        <Button id="team-leave-dialog-button-cancel" onClick={handleClose} disabled={buttonsDisabled} className={classes.buttonCancel} color="secondary" variant="contained">
+        <Button
+          id="team-leave-dialog-button-cancel"
+          onClick={handleClose}
+          disabled={buttonsDisabled}
+          className={classes.buttonCancel}
+          color="secondary"
+          variant="contained">
           {t("Cancel")}
         </Button>
-        <Button id="team-leave-dialog-button-leave" onClick={handleLeaveTeam} disabled={buttonsDisabled} color="secondary" className={classes.buttonLeaveAndDel} variant="contained">
+        <Button
+          id="team-leave-dialog-button-leave"
+          onClick={handleLeaveTeam}
+          disabled={buttonsDisabled}
+          color="secondary"
+          className={classes.buttonLeaveAndDel}
+          variant="contained">
           {t("team-leave-dialog-button-leave-and-del")}
         </Button>
       </DialogActions>
@@ -203,7 +211,12 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
   if (userIsTheOnlyAdministrator) {
     return (
       <DialogActions>
-        <Button id="team-leave-dialog-button-ok" onClick={handleClose} disabled={buttonsDisabled} color="primary" variant="contained">
+        <Button
+          id="team-leave-dialog-button-ok"
+          onClick={handleClose}
+          disabled={buttonsDisabled}
+          color="primary"
+          variant="contained">
           {t("button-ok")}
         </Button>
       </DialogActions>
@@ -212,10 +225,21 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
 
   return (
     <DialogActions>
-      <Button id="team-leave-dialog-button-cancel" onClick={handleClose} disabled={buttonsDisabled} className={classes.buttonCancel} color="secondary" variant="contained">
+      <Button
+        id="team-leave-dialog-button-cancel"
+        onClick={handleClose}
+        disabled={buttonsDisabled}
+        className={classes.buttonCancel}
+        color="secondary"
+        variant="contained">
         {t("Cancel")}
       </Button>
-      <Button id="team-leave-dialog-button-leave" onClick={handleLeaveTeam} disabled={buttonsDisabled} color="primary" variant="contained">
+      <Button
+        id="team-leave-dialog-button-leave"
+        onClick={handleLeaveTeam}
+        disabled={buttonsDisabled}
+        color="primary"
+        variant="contained">
         {t("team-leave-dialog-button-leave")}
       </Button>
     </DialogActions>
@@ -251,7 +275,9 @@ function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
   };
 
   return (
-    <Dialog id="team-leave-dialog" open={team !== null}
+    <Dialog
+      id="team-leave-dialog"
+      open={team !== null}
       aria-labelledby={t("aria-team-leave-dialog-title")}
       aria-describedby={t("aria-team-leave-dialog-question", { teamName })}
       BackdropProps={{ invisible: true }}>

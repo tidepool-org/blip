@@ -51,7 +51,7 @@ import brandingLogo from "branding/logo.png";
 import { useState } from "react";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 
-const loginStyle = makeStyles(( /* theme: Theme */) => {
+const loginStyle = makeStyles((/* theme: Theme */) => {
   return {
     mainContainer: { margin: "auto" },
     loginButton: {
@@ -75,11 +75,15 @@ function Login(props: RouteComponentProps): JSX.Element {
   const emptyPassword = _.isEmpty(password);
   const log = bows("Login");
 
-  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+  const onUsernameChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     setUserName(event.target.value);
   };
 
-  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+  const onPasswordChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     setPassword(event.target.value);
   };
 
@@ -113,7 +117,9 @@ function Login(props: RouteComponentProps): JSX.Element {
     } catch (reason: unknown) {
       log.error(reason);
       setValidateError(true);
-      const message = _.isError(reason) ? reason.message : (new String(reason)).toString();
+      const message = _.isError(reason)
+        ? reason.message
+        : new String(reason).toString();
       setHelperTextValue(message);
     }
   };
@@ -137,15 +143,33 @@ function Login(props: RouteComponentProps): JSX.Element {
         spacing={0}
         alignItems="center"
         justify="center"
-        style={{ minHeight: '100vh' }}
+        style={{ minHeight: "100vh" }}
       >
         <Grid item xs={12}>
           <Card>
-            <CardMedia style={{ display: "flex", paddingTop: "1em", paddingBottom: "1em" }}>
-              <img src={brandingLogo} style={{ height: "60px", marginLeft: "auto", marginRight: "auto" }} alt={t('Login Branding Logo')} />
+            <CardMedia
+              style={{
+                display: "flex",
+                paddingTop: "1em",
+                paddingBottom: "1em",
+              }}
+            >
+              <img
+                src={brandingLogo}
+                style={{
+                  height: "60px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+                alt={t("Login Branding Logo")}
+              />
             </CardMedia>
             <CardContent>
-              <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
+              <form
+                style={{ display: "flex", flexDirection: "column" }}
+                noValidate
+                autoComplete="off"
+              >
                 <TextField
                   id="login-username"
                   label={t("Email")}
@@ -160,13 +184,19 @@ function Login(props: RouteComponentProps): JSX.Element {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   required
-                  error={validateError && (emptyPassword || helperTextValue.length > 0)}
+                  error={
+                    validateError &&
+                    (emptyPassword || helperTextValue.length > 0)
+                  }
                   onChange={onPasswordChange}
                   helperText={helperTextValue}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={onClickShowPasswordVisibility}>
+                        <IconButton
+                          aria-label={t("aria-toggle-password-visibility")}
+                          onClick={onClickShowPasswordVisibility}
+                        >
                           {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
@@ -176,10 +206,8 @@ function Login(props: RouteComponentProps): JSX.Element {
               </form>
             </CardContent>
             <CardActions>
-              <Link
-                to="/request-password-reset"
-                onClick={onClickLoginReset}>
-                {t('Forgot your password?')}
+              <Link to="/request-password-reset" onClick={onClickLoginReset}>
+                {t("Forgot your password?")}
               </Link>
               <Button
                 variant="contained"

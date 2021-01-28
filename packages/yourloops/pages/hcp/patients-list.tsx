@@ -61,7 +61,7 @@ interface PatientListPageState {
 
 class PatientListPage extends React.Component<RouteComponentProps, PatientListPageState> {
   private log: Console;
-  declare context: React.ContextType<typeof AuthContext>
+  declare context: React.ContextType<typeof AuthContext>;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -107,8 +107,12 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
     if (errorMessage !== null) {
       return (
         <div id="div-api-error-message" className="api-error-message">
-          <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>{errorMessage}</Alert>
-          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>{t("button-refresh-page-on-error")}</Button>
+          <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>
+            {errorMessage}
+          </Alert>
+          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>
+            {t("button-refresh-page-on-error")}
+          </Button>
         </div>
       );
     }
@@ -121,8 +125,14 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
           teams={teams}
           onFilter={this.onFilter}
           onFilterType={this.onFilterType}
-          onInvitePatient={this.onInvitePatient} />
-        <Grid container direction="row" justify="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
+          onInvitePatient={this.onInvitePatient}
+        />
+        <Grid
+          container
+          direction="row"
+          justify="center"
+          alignItems="center"
+          style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
           <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
         </Grid>
         <Container maxWidth="lg" style={{ marginBottom: "2em" }}>
@@ -134,7 +144,8 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
             log={this.log}
             onClickPatient={this.onSelectPatient}
             onFlagPatient={this.onFlagPatient}
-            onSortList={this.onSortList} />
+            onSortList={this.onSortList}
+          />
         </Container>
       </React.Fragment>
     );

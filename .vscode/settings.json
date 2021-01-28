@@ -1,5 +1,23 @@
 {
+  "editor.tabSize": 2,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "double",
   "eslint.workingDirectories": [{
     "pattern": "./packages/*/"
-  }]
+  }],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.printWidth": 130,
+  "prettier.jsxBracketSameLine": true,
+  "prettier.jsxSingleQuote": false,
+  "prettier.bracketSpacing": true
 }

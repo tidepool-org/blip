@@ -96,7 +96,13 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
       onClickPatient(patient);
     };
     elems.push(
-      <TableRow id={`patients-list-row-${userId}`} key={userId} tabIndex={-1} hover onClick={onRowClick} className={classes.tableRow}>
+      <TableRow
+        id={`patients-list-row-${userId}`}
+        key={userId}
+        tabIndex={-1}
+        hover
+        onClick={onRowClick}
+        className={classes.tableRow}>
         <TableCell id={`patients-list-row-flag-${userId}`}>
           <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
             {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
@@ -112,7 +118,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
     );
   }
 
-  const createSortHandler = (property: SortFields): () => void => {
+  const createSortHandler = (property: SortFields): (() => void) => {
     return (/* event: React.MouseEvent */): void => {
       onSortList(property, order === "asc" ? "desc" : "asc");
     };
@@ -140,9 +146,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
             <TableCell id="patients-list-header-upload">{t("list-patient-upload")}</TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
-          {elems}
-        </TableBody>
+        <TableBody>{elems}</TableBody>
       </Table>
     </TableContainer>
   );

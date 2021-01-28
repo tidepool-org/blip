@@ -18,7 +18,6 @@
   "aria-team-members-dialog-add-member-title": "New member for {{teamName}}",
   "header-patients-tab": "Patients",
   "header-careteams-tab": "Care Teams",
-  "breadcrumb": "breadcrumb",
   "button-add-patient": "Add patient",
   "button-add-team": "Create a team",
   "button-ok": "OK",

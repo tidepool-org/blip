@@ -26,9 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import bows from 'bows';
+import bows from "bows";
 
 import Blip from "blip";
 
@@ -36,10 +36,12 @@ import appConfig from "../../lib/config";
 import apiClient from "../../lib/auth/api";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface PatientDataState {
-}
+interface PatientDataState {}
 
-class PatientDataPage extends React.Component<RouteComponentProps, PatientDataState> {
+class PatientDataPage extends React.Component<
+  RouteComponentProps,
+  PatientDataState
+> {
   private log: Console;
 
   constructor(props: RouteComponentProps) {
@@ -70,7 +72,10 @@ class PatientDataPage extends React.Component<RouteComponentProps, PatientDataSt
   public render(): JSX.Element {
     this.log.debug("render");
     return (
-      <div id="patient-data" style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <div
+        id="patient-data"
+        style={{ display: "flex", flexDirection: "column", height: "100vh" }}
+      >
         <Blip config={appConfig} api={apiClient} />
       </div>
     );

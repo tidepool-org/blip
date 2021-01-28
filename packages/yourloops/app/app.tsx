@@ -26,15 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import { render as renderDOM } from "react-dom";
 import { ThemeProvider } from "@material-ui/core/styles";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
-import bows from 'bows';
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import bows from "bows";
 
 import "@fontsource/roboto";
 import "branding/theme-base.css";
@@ -43,12 +39,15 @@ import "branding/theme.css";
 import { initI18n } from "../lib/language";
 
 import { theme } from "../components/theme";
-import LoginPage from '../pages/login';
-import HcpPage from '../pages/hcp';
+import LoginPage from "../pages/login";
+import HcpPage from "../pages/hcp";
 import PatientPage from "../pages/patient";
-import { RequestPasswordResetPage, ConfirmPasswordResetPage } from '../pages/password-reset';
-import { AuthProvider } from '../lib/auth/hook/use-auth';
-import PrivateRoute from '../components/private-route';
+import {
+  RequestPasswordResetPage,
+  ConfirmPasswordResetPage,
+} from "../pages/password-reset";
+import { AuthProvider } from "../lib/auth/hook/use-auth";
+import PrivateRoute from "../components/private-route";
 
 class Yourloops {
   private log: Console;
@@ -82,8 +81,14 @@ class Yourloops {
           <Router>
             <Switch>
               <Route exact path="/" component={LoginPage} />
-              <Route path="/request-password-reset" component={RequestPasswordResetPage} />
-              <Route path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
+              <Route
+                path="/request-password-reset"
+                component={RequestPasswordResetPage}
+              />
+              <Route
+                path="/confirm-password-reset"
+                component={ConfirmPasswordResetPage}
+              />
               <PrivateRoute path="/hcp" component={HcpPage} />
               <PrivateRoute path="/patient" component={PatientPage} />
             </Switch>

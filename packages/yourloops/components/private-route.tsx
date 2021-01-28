@@ -47,7 +47,9 @@ function PrivateRoute(props: RouteProps): JSX.Element {
       const Component = component as React.ComponentType<unknown>;
       return <Component {...routeProps} />;
     }
-    return <Redirect to={{ pathname: "/", state: { from: routeProps.location } }} />;
+    return (
+      <Redirect to={{ pathname: "/", state: { from: routeProps.location } }} />
+    );
   };
 
   return <Route {...rest} render={RenderComponent} />;

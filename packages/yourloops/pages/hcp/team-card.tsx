@@ -155,17 +155,32 @@ function TeamCard(props: TeamCardProps): JSX.Element {
 
   // FIXME: if (team.isAdmin(currentUser)) { ... show buttons }
   const buttonEdit = (
-    <Button id={`team-card-${team.id}-button-edit`} className={classes.buttonActionFirstRow} startIcon={<EditIcon color="primary" />} onClick={handleClickEdit} disabled={buttonsDisabled}>
+    <Button
+      id={`team-card-${team.id}-button-edit`}
+      className={classes.buttonActionFirstRow}
+      startIcon={<EditIcon color="primary" />}
+      onClick={handleClickEdit}
+      disabled={buttonsDisabled}>
       {t("button-team-edit")}
     </Button>
   );
   const buttonAddMember = (
-    <Button id={`team-card-${team.id}-button-add-member`} className={classes.buttonActionFirstRow} startIcon={<PersonAddIcon color="primary" />} onClick={handleClickAddMember} disabled={buttonsDisabled}>
+    <Button
+      id={`team-card-${team.id}-button-add-member`}
+      className={classes.buttonActionFirstRow}
+      startIcon={<PersonAddIcon color="primary" />}
+      onClick={handleClickAddMember}
+      disabled={buttonsDisabled}>
       {t("button-team-add-member")}
     </Button>
   );
   const buttonLeaveTeam = (
-    <Button id={`team-card-${team.id}-button-leave-team`} className={classes.buttonActionFirstRow} startIcon={<ExitToAppIcon color="primary" />} onClick={handleClickLeaveTeam} disabled={buttonsDisabled}>
+    <Button
+      id={`team-card-${team.id}-button-leave-team`}
+      className={classes.buttonActionFirstRow}
+      startIcon={<ExitToAppIcon color="primary" />}
+      onClick={handleClickLeaveTeam}
+      disabled={buttonsDisabled}>
       {t("button-team-leave")}
     </Button>
   );
@@ -179,7 +194,9 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   return (
     <Paper className={classes.paper} classes={{ root: classes.paperRoot }}>
       <div id={`team-card-${team.id}-actions`} className={classes.firstRow}>
-        <h2 id={`team-card-${team.id}-name`} className={classes.teamName}>{team.name}</h2>
+        <h2 id={`team-card-${team.id}-name`} className={classes.teamName}>
+          {team.name}
+        </h2>
         <div className={classes.divActions}>
           {buttonEdit}
           {buttonAddMember}

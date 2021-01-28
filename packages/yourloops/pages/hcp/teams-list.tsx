@@ -58,7 +58,7 @@ interface TeamsListPageState {
   apiReturnAlert: null | {
     message: string;
     severity: "error" | "warning" | "info" | "success";
-  }
+  };
   userToBeRemoved: null | {
     team: Team;
     userId: string;
@@ -121,8 +121,12 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     if (errorMessage !== null) {
       return (
         <div id="div-api-error-message" className="api-error-message">
-          <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>{errorMessage}</Alert>
-          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>{t("button-refresh-page-on-error")}</Button>
+          <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>
+            {errorMessage}
+          </Alert>
+          <Button id="button-api-error-message" variant="contained" color="secondary" onClick={this.onRefresh}>
+            {t("button-refresh-page-on-error")}
+          </Button>
         </div>
       );
     }
@@ -131,8 +135,17 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     for (const team of teams) {
       teamsItems.push(
         <Grid item xs={12} key={team.id}>
-          <TeamCard team={team} onEditTeam={this.onEditTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} onShowAddMemberDialog={this.onShowAddMemberDialog} />
-          <TeamMembers team={team} onSwitchAdminRole={this.onSwitchAdminRole} onShowModalRemoveMember={this.onShowModalRemoveMember} />
+          <TeamCard
+            team={team}
+            onEditTeam={this.onEditTeam}
+            onShowModalLeaveTeam={this.onShowModalLeaveTeam}
+            onShowAddMemberDialog={this.onShowAddMemberDialog}
+          />
+          <TeamMembers
+            team={team}
+            onSwitchAdminRole={this.onSwitchAdminRole}
+            onShowModalRemoveMember={this.onShowModalRemoveMember}
+          />
         </Grid>
       );
     }
@@ -146,12 +159,20 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
           </Grid>
         </Container>
 
-        <RemoveMemberDialog userToBeRemoved={userToBeRemoved} handleClose={this.onHideModalRemoveMember} handleRemoveTeamMember={this.onRemoveTeamMember} />
+        <RemoveMemberDialog
+          userToBeRemoved={userToBeRemoved}
+          handleClose={this.onHideModalRemoveMember}
+          handleRemoveTeamMember={this.onRemoveTeamMember}
+        />
         <LeaveTeamDialog team={teamToLeave} onLeaveTeam={this.onLeaveTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} />
         <SwitchRoleDialog switchAdminRole={switchAdminRole} />
         <AddMemberDialog addMember={addMember} />
 
-        <Snackbar open={apiReturnAlert !== null} autoHideDuration={6000} onClose={this.onCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Snackbar
+          open={apiReturnAlert !== null}
+          autoHideDuration={6000}
+          onClose={this.onCloseAlert}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}>
           <Alert onClose={this.onCloseAlert} severity={apiReturnAlert?.severity}>
             {apiReturnAlert?.message}
           </Alert>
@@ -281,10 +302,11 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   }
 
   async onShowAddMemberDialog(team: Team): Promise<void> {
-    const getMemberEmail = () => new Promise((resolve: (result: { email: string | null, role: TeamMemberRole }) => void): void => {
-      const addMember = { team, onDialogResult: resolve };
-      this.setState({ addMember });
-    });
+    const getMemberEmail = () =>
+      new Promise((resolve: (result: { email: string | null; role: TeamMemberRole }) => void): void => {
+        const addMember = { team, onDialogResult: resolve };
+        this.setState({ addMember });
+      });
 
     const { email, role } = await getMemberEmail();
     this.setState({ addMember: null });

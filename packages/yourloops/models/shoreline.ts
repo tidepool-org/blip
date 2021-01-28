@@ -50,7 +50,7 @@ interface User {
   /** The username (login) */
   username: string;
   /** Roles of the users  */
-  roles?: string[]
+  roles?: string[];
   /** Emails of the users */
   emails?: string[];
   /** Date of the last accepted terms */

@@ -26,20 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import i18n, { InitOptions, TFunction, TOptions, Resource } from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import moment from 'moment-timezone';
-import locales from '../../../locales/languages.json';
-import getLocale from './browser-locale';
+import i18n, { InitOptions, TFunction, TOptions, Resource } from "i18next";
+import { initReactI18next } from "react-i18next";
+import moment from "moment-timezone";
+import locales from "../../../locales/languages.json";
+import getLocale from "./browser-locale";
 
-const crowdinActive = typeof window._jipt === 'object';
+const crowdinActive = typeof window._jipt === "object";
 
 let language = getLocale();
 if (self.localStorage && self.localStorage.lang) {
   language = self.localStorage.lang;
 
-  if (typeof window.zE === 'function') {
-    window.zE('webWidget', 'setLocale', language);
+  if (typeof window.zE === "function") {
+    window.zE("webWidget", "setLocale", language);
   }
 }
 
@@ -50,7 +50,7 @@ const i18nOptions: InitOptions = {
   // To allow . in keys
   keySeparator: false,
   // To allow : in keys
-  nsSeparator: '|',
+  nsSeparator: "|",
 
   debug: false,
 
@@ -63,7 +63,7 @@ const i18nOptions: InitOptions = {
 
   react: {
     wait: true,
-    defaultTransParent: 'div', // a valid react element - required before react 16
+    defaultTransParent: "div", // a valid react element - required before react 16
     transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
   },
   ns: locales.namespaces,
@@ -72,26 +72,26 @@ const i18nOptions: InitOptions = {
   resources: locales.resources,
 };
 
-
 if (crowdinActive) {
   i18nOptions.fallbackLng = locales.crowdin.fallback;
-  (i18nOptions.resources as Resource)[locales.crowdin.fallback] = locales.crowdin.resources;
+  (i18nOptions.resources as Resource)[locales.crowdin.fallback] =
+    locales.crowdin.resources;
 }
 i18n.use(initReactI18next);
 
 // Update moment with the right language, for date display
-i18n.on('languageChanged', (lng: string) => {
+i18n.on("languageChanged", (lng: string) => {
   // FIXME Only perform the update when the locale really changed.
   // For some reason, it is call a lots of times
-  if (typeof lng === 'string' && language !== lng) {
+  if (typeof lng === "string" && language !== lng) {
     language = lng;
 
     // FIXME: Get currently use Crowdin language, when Crowdin is active.
     moment.locale(lng);
 
     // Zendesk locale
-    if (typeof window.zE === 'function') {
-      window.zE('webWidget', 'setLocale', language);
+    if (typeof window.zE === "function") {
+      window.zE("webWidget", "setLocale", language);
     }
 
     // Save locale for future load

@@ -51,7 +51,8 @@ const toolbarStyles = makeStyles({
     backgroundColor: "var(--mdc-theme-surface, white)",
     display: "grid",
     gridTemplateRows: "auto",
-    gridTemplateColumns: (props: HeaderProps) => _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
+    gridTemplateColumns: (props: HeaderProps) =>
+      _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
     paddingLeft: "6em",
     paddingRight: "6em",
   },
@@ -103,7 +104,9 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     accountMenu = (
       <div className={classes.accountMenu}>
         <div className={classes.accountInfos}>
-          <div className={classes.accountName}>{`${user?.profile?.firstName} ${user?.profile?.lastName}`}</div>
+          <div
+            className={classes.accountName}
+          >{`${user?.profile?.firstName} ${user?.profile?.lastName}`}</div>
           <div className={classes.accountType}>{role}</div>
         </div>
         <IconButton
@@ -130,8 +133,8 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           open={open}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}>{t('Profile')}</MenuItem>
-          <MenuItem onClick={handleLogout}>{t('Logout')}</MenuItem>
+          <MenuItem onClick={handleClose}>{t("Profile")}</MenuItem>
+          <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
         </Menu>
       </div>
     );
@@ -140,7 +143,11 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <img className={classes.toolbarLogo} alt={t("alt-img-logo")} src={`/${brandingLogo}` } />
+        <img
+          className={classes.toolbarLogo}
+          alt={t("alt-img-logo")}
+          src={`/${brandingLogo}`}
+        />
         {props.children}
         {accountMenu}
       </Toolbar>

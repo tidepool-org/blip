@@ -26,6 +26,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import ConfirmPasswordResetPage from './confirm-password-reset';
-import RequestPasswordResetPage from './request-password-reset';
+import ConfirmPasswordResetPage from "./confirm-password-reset";
+import RequestPasswordResetPage from "./request-password-reset";
 export { RequestPasswordResetPage, ConfirmPasswordResetPage };

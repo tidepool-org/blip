@@ -36,7 +36,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Typography from '@material-ui/core/Typography';
+import Typography from "@material-ui/core/Typography";
 
 import { t } from "../../lib/language";
 import { useAuth } from "../../lib/auth/hook/use-auth";
@@ -78,7 +78,9 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
   };
 
   return (
-    <Dialog id="team-members-dialog-switch-role" open={switchAdminRole !== null}
+    <Dialog
+      id="team-members-dialog-switch-role"
+      open={switchAdminRole !== null}
       aria-labelledby={t("aria-team-members-dialog-switch-role-title", { teamName })}
       aria-describedby={t("aria-team-members-dialog-switch-role-question")}
       BackdropProps={{ invisible: true }}>
@@ -97,23 +99,26 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
           {t("team-members-dialog-switch-role-consequences")}
         </DialogContentText>
         <Typography component="ul" variant="body1" color="textSecondary">
-          <li id="team-members-dialog-switch-role-consequences-1">
-            {t("team-members-dialog-switch-role-consequences-1")}
-          </li>
-          <li id="team-members-dialog-switch-role-consequences-2">
-            {t("team-members-dialog-switch-role-consequences-2")}
-          </li>
-          <li id="team-members-dialog-switch-role-consequences-3">
-            {t("team-members-dialog-switch-role-consequences-3")}
-          </li>
+          <li id="team-members-dialog-switch-role-consequences-1">{t("team-members-dialog-switch-role-consequences-1")}</li>
+          <li id="team-members-dialog-switch-role-consequences-2">{t("team-members-dialog-switch-role-consequences-2")}</li>
+          <li id="team-members-dialog-switch-role-consequences-3">{t("team-members-dialog-switch-role-consequences-3")}</li>
         </Typography>
       </DialogContent>
 
       <DialogActions>
-        <Button id="team-members-dialog-switch-role-button-cancel" onClick={handleClose} className={classes.buttonCancel} color="secondary" variant="contained">
+        <Button
+          id="team-members-dialog-switch-role-button-cancel"
+          onClick={handleClose}
+          className={classes.buttonCancel}
+          color="secondary"
+          variant="contained">
           {t("Cancel")}
         </Button>
-        <Button id="team-members-dialog-switch-role-button-remove" onClick={handleClickRemoveTeamMyself} color="primary" variant="contained">
+        <Button
+          id="team-members-dialog-switch-role-button-remove"
+          onClick={handleClickRemoveTeamMyself}
+          color="primary"
+          variant="contained">
           {t("team-members-dialog-switch-role-button-remove")}
         </Button>
       </DialogActions>

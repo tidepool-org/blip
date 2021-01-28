@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import App from './app';
+import App from "./app";
 
 // TODO: window.onerror
 
@@ -37,6 +37,7 @@ app
   .then(() => {
     app.render();
     console.log("Application started");
-  }).catch((reason: unknown) => {
+  })
+  .catch((reason: unknown) => {
     console.error("Failed to start the application", reason);
   });

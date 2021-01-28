@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from 'lodash';
+import _ from "lodash";
 
 declare const BUILD_CONFIG: string;
 
@@ -55,13 +55,13 @@ export interface AppConfig {
   TERMS_PRIVACY_DATE?: string;
 }
 
-const DUMMY_DOMAIN = 'example.com';
+const DUMMY_DOMAIN = "example.com";
 const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;
 
 const defaultConfig: AppConfig = {
-  VERSION: '0.0.0',
+  VERSION: "0.0.0",
   API_HOST: `${window.location.protocol}//${window.location.hostname}:8009`,
-  LATEST_TERMS: '1970-01-01',
+  LATEST_TERMS: "1970-01-01",
   PASSWORD_MIN_LENGTH: 8,
   PASSWORD_MAX_LENGTH: 72,
   ABOUT_MAX_LENGTH: 256,
@@ -74,20 +74,20 @@ const defaultConfig: AppConfig = {
   REGULATORY_WEB_ADDRESS: DUMMY_URL,
   HELP_LINK: null,
   ASSETS_URL: DUMMY_URL,
-  BRANDING: 'diabeloop',
-  METRICS_SERVICE: 'disabled',
+  BRANDING: "diabeloop",
+  METRICS_SERVICE: "disabled",
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
-  TERMS_PRIVACY_DATE: '',
+  TERMS_PRIVACY_DATE: "",
   DEV: true,
   TEST: false,
 };
 const appConfig = _.assign({}, defaultConfig);
-if (_.has(window, 'config') && _.isObjectLike(_.get(window, 'config', null))) {
-  const runConfig = _.get(window, 'config', null);
+if (_.has(window, "config") && _.isObjectLike(_.get(window, "config", null))) {
+  const runConfig = _.get(window, "config", null);
   _.assign(appConfig, runConfig);
 } else {
-  console.warn('Config not found, using build configuration');
+  console.warn("Config not found, using build configuration");
 
   /** @type {defaultConfig} */
   const buildConfig = JSON.parse(BUILD_CONFIG);
@@ -100,7 +100,7 @@ if (!_.isString(appConfig.API_HOST)) {
   appConfig.API_HOST = defaultConfig.API_HOST;
 }
 
-_.set(window, 'config', appConfig);
+_.set(window, "config", appConfig);
 
 export { DUMMY_URL };
 export default appConfig;
