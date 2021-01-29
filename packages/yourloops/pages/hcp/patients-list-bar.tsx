@@ -55,8 +55,9 @@ import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import SearchIcon from "@material-ui/icons/Search";
 
 import { defer, REGEX_EMAIL } from "../../lib/utils";
+import { Team } from "../../models/team";
 import { t } from "../../lib/language";
-import { FilterType, Team } from "./types";
+import { FilterType } from "./types";
 
 export interface PatientListBarProps {
   teams: Team[];

@@ -26,14 +26,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { Team } from "../../models/team";
+
 export type SortDirection = "asc" | "desc";
 export type SortFields = "lastname" | "firstname";
 export type FilterType = "all" | "flagged" | "pending" | string;
 
-/**
- * FIXME: Remove me when we have the team API
- */
-export interface Team {
-  id: string;
-  name: string;
+export interface SwitchRoleDialogContentProps {
+  team: Team;
+  userId: string;
+  admin: boolean;
+  onDialogResult: (result: boolean) => void;
 }
