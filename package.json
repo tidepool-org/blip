@@ -84,6 +84,7 @@
     "eslint-plugin-lodash": "^7.1.0",
     "eslint-plugin-moment-utc": "^1.0.0",
     "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "file-loader": "^6.2.0",
     "handlebars": "^4.7.6",
     "helmet": "^4.2.0",

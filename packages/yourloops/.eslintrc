@@ -16,7 +16,8 @@
   "plugins": [
     "@typescript-eslint",
     "moment-utc",
-    "react"
+    "react",
+    "react-hooks"
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended",
@@ -71,7 +72,9 @@
     }],
     "indent": ["error", 2],
     "semi": "error",
-    "lodash/prefer-lodash-typecheck": "off"
+    "lodash/prefer-lodash-typecheck": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "settings": {
     "react": {
