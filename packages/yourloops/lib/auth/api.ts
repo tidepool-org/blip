@@ -39,8 +39,8 @@ import { MessageNote } from "models/message";
 import { defer, waitTimeout } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
-
 import http from "../http-status-codes";
+import { TeamMemberRole } from "../../models/team";
 
 const SESSION_TOKEN_KEY = "session-token";
 const TRACE_TOKEN_KEY = "trace-token";
@@ -610,6 +610,23 @@ class AuthApi extends EventTarget {
     // eslint-disable-next-line no-magic-numbers
     await waitTimeout(500 + Math.random()*200);
     return _.cloneDeep(this.teams);
+  }
+
+  public async inviteHcpTeamMember(team: Team, email: string, role: TeamMemberRole): Promise<void> {
+    if (this.teams === null || this.teams.length < 1) {
+      throw new Error("Empty team list!");
+    }
+
+    // eslint-disable-next-line no-magic-numbers
+    if (Math.random() < 0.2) {
+      // eslint-disable-next-line no-magic-numbers
+      await waitTimeout(500 + Math.random()*200);
+      throw new Error("A random error");
+    }
+
+    this.log.info(`Invite ${email} to ${team.name} with role ${role}`);
+    // eslint-disable-next-line no-magic-numbers
+    await waitTimeout(500 + Math.random()*200);
   }
 
   /**

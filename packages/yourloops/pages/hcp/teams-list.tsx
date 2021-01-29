@@ -37,12 +37,13 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Snackbar from "@material-ui/core/Snackbar";
 
-import { Team } from "../../models/team";
+import { Team, TeamMemberRole } from "../../models/team";
 import { t } from "../../lib/language";
 import { errorTextFromException } from "../../lib/utils";
 import apiClient from "../../lib/auth/api";
 
-import { SwitchRoleDialogContentProps } from "./types";
+import { SwitchRoleDialogContentProps, AddMemberDialogContentProps } from "./types";
+import AddMemberDialog from "./team-member-add-dialog";
 import TeamCard from "./team-card";
 import TeamsListBar from "./teams-list-bar";
 import TeamMembers from "./team-members";
@@ -62,6 +63,7 @@ interface TeamsListPageState {
     team: Team;
     userId: string;
   };
+  addMember: null | AddMemberDialogContentProps;
   switchAdminRole: null | SwitchRoleDialogContentProps;
   teamToLeave: Team | null;
 }
@@ -88,6 +90,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     this.onEditTeam = this.onEditTeam.bind(this);
     this.onLeaveTeam = this.onLeaveTeam.bind(this);
     this.onSwitchAdminRole = this.onSwitchAdminRole.bind(this);
+    this.onShowAddMemberDialog = this.onShowAddMemberDialog.bind(this);
   }
 
   private static initialState(): TeamsListPageState {
@@ -97,6 +100,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
       teams: [],
       userToBeRemoved: null,
       apiReturnAlert: null,
+      addMember: null,
       switchAdminRole: null,
       teamToLeave: null,
     };
@@ -107,7 +111,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   }
 
   render(): JSX.Element {
-    const { loading, errorMessage, teams, apiReturnAlert, userToBeRemoved, teamToLeave, switchAdminRole } = this.state;
+    const { loading, errorMessage, teams, apiReturnAlert, userToBeRemoved, teamToLeave, switchAdminRole, addMember } = this.state;
 
     if (loading) {
       return (
@@ -127,7 +131,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     for (const team of teams) {
       teamsItems.push(
         <Grid item xs={12} key={team.id}>
-          <TeamCard team={team} onEditTeam={this.onEditTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} />
+          <TeamCard team={team} onEditTeam={this.onEditTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} onShowAddMemberDialog={this.onShowAddMemberDialog} />
           <TeamMembers team={team} onSwitchAdminRole={this.onSwitchAdminRole} onShowModalRemoveMember={this.onShowModalRemoveMember} />
         </Grid>
       );
@@ -141,9 +145,12 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
             {teamsItems}
           </Grid>
         </Container>
+
         <RemoveMemberDialog userToBeRemoved={userToBeRemoved} handleClose={this.onHideModalRemoveMember} handleRemoveTeamMember={this.onRemoveTeamMember} />
         <LeaveTeamDialog team={teamToLeave} onLeaveTeam={this.onLeaveTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} />
         <SwitchRoleDialog switchAdminRole={switchAdminRole} />
+        <AddMemberDialog addMember={addMember} />
+
         <Snackbar open={apiReturnAlert !== null} autoHideDuration={6000} onClose={this.onCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
           <Alert onClose={this.onCloseAlert} severity={apiReturnAlert?.severity}>
             {apiReturnAlert?.message}
@@ -271,6 +278,28 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
       const switchAdminRole = { team, userId, admin, onDialogResult: resolve };
       this.setState({ switchAdminRole });
     });
+  }
+
+  async onShowAddMemberDialog(team: Team): Promise<void> {
+    const getMemberEmail = () => new Promise((resolve: (result: { email: string | null, role: TeamMemberRole }) => void): void => {
+      const addMember = { team, onDialogResult: resolve };
+      this.setState({ addMember });
+    });
+
+    const { email, role } = await getMemberEmail();
+    this.setState({ addMember: null });
+    if (email === null) {
+      return;
+    }
+
+    try {
+      await apiClient.inviteHcpTeamMember(team, email, role);
+      this.setState({ apiReturnAlert: { message: t("team-list-success-invite-hcp", { email }), severity: "success" } });
+    } catch (reason: unknown) {
+      const errorMessage = errorTextFromException(reason);
+      const message = t("team-list-failed-invite-hcp", { errorMessage });
+      this.setState({ apiReturnAlert: { message, severity: "error" } });
+    }
   }
 }
 

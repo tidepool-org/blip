@@ -50,6 +50,7 @@ interface TeamCardProps {
   team: Team;
   onEditTeam: (team: Team) => Promise<void>;
   onShowModalLeaveTeam: (team: Team | null) => void;
+  onShowAddMemberDialog: (team: Team) => void;
 }
 
 interface TeamInfoProps {
@@ -132,9 +133,10 @@ function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 }
 
 function TeamCard(props: TeamCardProps): JSX.Element {
-  const { team, onShowModalLeaveTeam } = props;
+  const { team, onShowModalLeaveTeam, onShowAddMemberDialog } = props;
   const classes = teamCardStyles();
   const [modalOpened, setModalOpen] = React.useState(false);
+  const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
 
   const handleClickEdit = (): void => {
     setModalOpen(true);
@@ -145,20 +147,25 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   const handleClickLeaveTeam = (): void => {
     onShowModalLeaveTeam(team);
   };
+  const handleClickAddMember = async (): Promise<void> => {
+    setButtonsDisabled(true);
+    await onShowAddMemberDialog(team);
+    setButtonsDisabled(false);
+  };
 
   // FIXME: if (team.isAdmin(currentUser)) { ... show buttons }
   const buttonEdit = (
-    <Button id={`team-card-${team.id}-button-edit`} className={classes.buttonActionFirstRow} startIcon={<EditIcon color="primary" />} onClick={handleClickEdit}>
+    <Button id={`team-card-${team.id}-button-edit`} className={classes.buttonActionFirstRow} startIcon={<EditIcon color="primary" />} onClick={handleClickEdit} disabled={buttonsDisabled}>
       {t("button-team-edit")}
     </Button>
   );
   const buttonAddMember = (
-    <Button id={`team-card-${team.id}-button-add-member`} className={classes.buttonActionFirstRow} startIcon={<PersonAddIcon color="primary" />}>
+    <Button id={`team-card-${team.id}-button-add-member`} className={classes.buttonActionFirstRow} startIcon={<PersonAddIcon color="primary" />} onClick={handleClickAddMember} disabled={buttonsDisabled}>
       {t("button-team-add-member")}
     </Button>
   );
   const buttonLeaveTeam = (
-    <Button id={`team-card-${team.id}-button-leave-team`} className={classes.buttonActionFirstRow} startIcon={<ExitToAppIcon color="primary" />} onClick={handleClickLeaveTeam}>
+    <Button id={`team-card-${team.id}-button-leave-team`} className={classes.buttonActionFirstRow} startIcon={<ExitToAppIcon color="primary" />} onClick={handleClickLeaveTeam} disabled={buttonsDisabled}>
       {t("button-team-leave")}
     </Button>
   );

@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { Team } from "../../models/team";
+import { Team, TeamMemberRole } from "../../models/team";
 
 export type SortDirection = "asc" | "desc";
 export type SortFields = "lastname" | "firstname";
@@ -37,4 +37,9 @@ export interface SwitchRoleDialogContentProps {
   userId: string;
   admin: boolean;
   onDialogResult: (result: boolean) => void;
+}
+
+export interface AddMemberDialogContentProps {
+  team: Team;
+  onDialogResult: (result: { email: string | null, role: TeamMemberRole }) => void;
 }
