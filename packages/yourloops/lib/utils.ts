@@ -51,3 +51,14 @@ export async function defer(fn: () => void, timeout = 1): Promise<void> {
     console.error(err);
   }
 }
+
+export function errorTextFromException(reason: unknown): string {
+  let errorMessage: string;
+  if (reason instanceof Error) {
+    errorMessage = reason.message;
+  } else {
+    const s = new String(reason);
+    errorMessage = s.toString();
+  }
+  return errorMessage;
+}

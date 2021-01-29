@@ -31,7 +31,7 @@ import bows from "bows";
 import _ from "lodash";
 
 import { User, Profile } from "models/shoreline";
-import { Team } from "models/team";
+import { Team, TeamMember } from "models/team";
 import { PatientData } from "models/device-data";
 import { APIErrorResponse } from "models/error";
 import { MessageNote } from "models/message";
@@ -121,6 +121,9 @@ class AuthApi extends EventTarget {
       },
       phone: "+33 (0)4 76 76 75 75",
       email: "secretariat-diabethologie@chu-grenoble.fr",
+      members: [
+        { teamId: "team-1", userId: "132abc", role: "viewer", user: { userid: "132abc", username: "a@b.fr", profile: { firstName: "A", lastName: "B", fullName: "A B" } } },
+      ],
     }, {
       id: "team-2",
       name: "Clinique Nantes",
@@ -128,7 +131,15 @@ class AuthApi extends EventTarget {
       phone: "00-00-00-00-00",
       ownerId: "abcdef",
       type: "medical",
+      members: [
+        { teamId: "team-2", userId: "132abc", role: "viewer", user: { userid: "132abc", username: "a@b.fr", profile: { firstName: "A", lastName: "B", fullName: "A B" } } },
+      ],
     }];
+
+    if (this.user !== null) {
+      this.teams[0].members?.push({ teamId: "team-1", userId: this.user.userid, role: "admin", user: this.user });
+      this.teams[1].members?.push({ teamId: "team-2", userId: this.user.userid, role: "admin", user: this.user });
+    }
 
     // Listen to storage events, to be able to monitor
     // logout on others tabs.
@@ -254,6 +265,13 @@ class AuthApi extends EventTarget {
     sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
 
     this.sendMetrics("setUserId", this.user.userid);
+
+    // FIXME: Remove me!
+    if (this.teams !== null) {
+      this.teams[0].members?.push({ teamId: "team-1", userId: this.user.userid, role: "admin", user: this.user });
+      this.teams[1].members?.push({ teamId: "team-2", userId: this.user.userid, role: "admin", user: this.user });
+    }
+    // END FIXME
 
     return this.user;
   }
@@ -490,6 +508,69 @@ class AuthApi extends EventTarget {
       const team = this.teams[i];
       if (editedTeam.id === team.id) {
         this.teams[i] = editedTeam;
+        break;
+      }
+    }
+    // eslint-disable-next-line no-magic-numbers
+    await waitTimeout(500 + Math.random()*200);
+    return _.cloneDeep(this.teams);
+  }
+
+  public async removeTeamMember(team: Team, userId: string): Promise<Team[]> {
+    if (this.teams === null || this.teams.length < 1) {
+      throw new Error("Empty team list!");
+    }
+
+    // eslint-disable-next-line no-magic-numbers
+    if (Math.random() < 0.2) {
+      // eslint-disable-next-line no-magic-numbers
+      await waitTimeout(500 + Math.random()*200);
+      throw new Error("A random error");
+    }
+
+    const nTeams = this.teams.length;
+    for (let i = 0; i < nTeams; i++) {
+      const thisTeam = this.teams[i];
+      if (thisTeam.id === team.id) {
+        if (Array.isArray(thisTeam.members)) {
+          const idx = thisTeam.members.findIndex((tm: TeamMember): boolean => tm.userId === userId);
+          if (idx > -1) {
+            thisTeam.members.splice(idx, 1);
+          }
+        }
+        break;
+      }
+    }
+    // eslint-disable-next-line no-magic-numbers
+    await waitTimeout(500 + Math.random()*200);
+    return _.cloneDeep(this.teams);
+  }
+
+  public async changeTeamUserRole(team: Team, userId: string, admin: boolean): Promise<Team[]> {
+    if (this.teams === null || this.teams.length < 1) {
+      throw new Error("Empty team list!");
+    }
+
+    // eslint-disable-next-line no-magic-numbers
+    if (Math.random() < 0.2) {
+      // eslint-disable-next-line no-magic-numbers
+      await waitTimeout(500 + Math.random()*200);
+      throw new Error("A random error");
+    }
+
+    const nTeams = this.teams.length;
+    for (let i = 0; i < nTeams; i++) {
+      const thisTeam = this.teams[i];
+      if (thisTeam.id === team.id) {
+        if (!Array.isArray(thisTeam.members)) {
+          throw new Error("No member for this team !");
+        }
+        for (const member of thisTeam.members) {
+          if (member.userId === userId) {
+            member.role = admin ? "admin" : "viewer";
+            break;
+          }
+        }
         break;
       }
     }

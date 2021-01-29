@@ -14,11 +14,22 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-export type TeamType = "medical" | "personal";
-
-/**
- * FIXME: Remove me when we have the team API
+/*
+ * TODO: Review me when we have the team API
  */
+
+import { User } from "./shoreline";
+
+export type TeamType = "medical" | "personal";
+export type TeamMemberRole = "admin" | "viewer" | "patient";
+
+export interface TeamMember {
+  userId: string;
+  teamId: string;
+  role: TeamMemberRole;
+  user?: User;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -35,4 +46,5 @@ export interface Team {
     country: string;
   };
   description?: string;
+  members?: TeamMember[];
 }

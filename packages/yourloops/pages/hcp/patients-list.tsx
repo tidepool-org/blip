@@ -40,6 +40,7 @@ import { t } from "../../lib/language";
 import { User } from "../../models/shoreline";
 import { Team } from "../../models/team";
 import { SortDirection, FilterType, SortFields } from "./types";
+import { errorTextFromException } from "../../lib/utils";
 import apiClient from "../../lib/auth/api";
 import { AuthContext } from '../../lib/auth/hook/use-auth';
 import PatientListBar from "./patients-list-bar";
@@ -150,13 +151,7 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
         this.setState({ patients, allPatients: patients, teams, loading: false }, this.updatePatientList);
       } catch (reason: unknown) {
         this.log.error("onRefresh", reason);
-        let errorMessage: string;
-        if (reason instanceof Error) {
-          errorMessage = reason.message;
-        } else {
-          const s = new String(reason);
-          errorMessage = s.toString();
-        }
+        const errorMessage = errorTextFromException(reason);
         this.setState({ loading: false, errorMessage });
       }
     });
