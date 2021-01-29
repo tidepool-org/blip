@@ -26,5 +26,5 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import HcpPage from './hcp';
+import HcpPage from "./hcp";
 export default HcpPage;

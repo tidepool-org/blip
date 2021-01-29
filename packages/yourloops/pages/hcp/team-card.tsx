@@ -33,12 +33,13 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
 
-import EditIcon from '@material-ui/icons/Edit';
-import EmailIcon from '@material-ui/icons/Email';
-import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import PhoneIcon from '@material-ui/icons/Phone';
+import EditIcon from "@material-ui/icons/Edit";
+import EmailIcon from "@material-ui/icons/Email";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import FingerprintIcon from "@material-ui/icons/Fingerprint";
+import LocationOnIcon from "@material-ui/icons/LocationOn";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import PhoneIcon from "@material-ui/icons/Phone";
 
 import { Team } from "../../models/team";
 import { t } from "../../lib/language";
@@ -48,6 +49,7 @@ import TeamEditModal from "./team-edit-modal";
 interface TeamCardProps {
   team: Team;
   onEditTeam: (team: Team) => Promise<void>;
+  onShowModalLeaveTeam: (team: Team | null) => void;
 }
 
 interface TeamInfoProps {
@@ -96,7 +98,7 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
   return {
     card: {
       display: "flex",
-      flexDirection:  "row",
+      flexDirection: "row",
     },
     divLabelValue: {
       display: "flex",
@@ -130,15 +132,18 @@ function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 }
 
 function TeamCard(props: TeamCardProps): JSX.Element {
-  const { team } = props;
+  const { team, onShowModalLeaveTeam } = props;
   const classes = teamCardStyles();
-  const [ modalOpened, setModalOpen ] = React.useState(false);
+  const [modalOpened, setModalOpen] = React.useState(false);
 
   const handleClickEdit = (): void => {
     setModalOpen(true);
   };
   const onSaveTeam = (team: Partial<Team>): Promise<void> => {
     return props.onEditTeam(team as Team);
+  };
+  const handleClickLeaveTeam = (): void => {
+    onShowModalLeaveTeam(team);
   };
 
   // FIXME: if (team.isAdmin(currentUser)) { ... show buttons }
@@ -150,6 +155,11 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   const buttonAddMember = (
     <Button id={`team-card-${team.id}-button-add-member`} className={classes.buttonActionFirstRow} startIcon={<PersonAddIcon color="primary" />}>
       {t("button-team-add-member")}
+    </Button>
+  );
+  const buttonLeaveTeam = (
+    <Button id={`team-card-${team.id}-button-leave-team`} className={classes.buttonActionFirstRow} startIcon={<ExitToAppIcon color="primary" />} onClick={handleClickLeaveTeam}>
+      {t("button-team-leave")}
     </Button>
   );
 
@@ -166,6 +176,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         <div className={classes.divActions}>
           {buttonEdit}
           {buttonAddMember}
+          {buttonLeaveTeam}
         </div>
       </div>
       <div id={`team-card-${team.id}-infos`} className={classes.secondRow}>

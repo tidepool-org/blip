@@ -87,14 +87,14 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
       BackdropProps={{ invisible: true }}>
 
       <DialogTitle id="team-members-dialog-rmmember-title">
-        <Trans i18nKey="team-members-dialog-rmmember-title" t={t}>
+        <Trans i18nKey="team-members-dialog-rmmember-title" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
           Remove a healthcare professional from the team <strong>{{ teamName }}</strong>
         </Trans>
       </DialogTitle>
 
       <DialogContent>
-        <DialogContentText id="team-members-dialog-rmmember-question">
-          <Trans i18nKey="team-members-dialog-rmmember-question" t={t}>
+        <DialogContentText id="team-members-dialog-rmmember-question" >
+          <Trans i18nKey="team-members-dialog-rmmember-question" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
             Are you sure you want to remove <strong>{{ hcpName }}</strong> from this medical team?
           </Trans>
         </DialogContentText>

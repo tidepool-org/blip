@@ -38,7 +38,7 @@ import Modal from "@material-ui/core/Modal";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 
-import locales from '../../../../locales/languages.json';
+import locales from "../../../../locales/languages.json";
 import { t } from "../../lib/language";
 import { REGEX_EMAIL } from "../../lib/utils";
 import { Team } from "../../models/team";
@@ -101,8 +101,6 @@ function TeamEditModal(props: TeamEditModalProps): JSX.Element {
 
   const classes = modalStyles();
   const auth = useAuth();
-
-  console.info("TeamEditModal", auth.user?.settings?.country);
 
   const [ teamName, setTeamName ] = React.useState(team.name ?? "");
   const [ teamPhone, setTeamPhone ] = React.useState(team.phone ?? "");

@@ -45,6 +45,7 @@ import TeamCard from "./team-card";
 import TeamsListBar from "./teams-list-bar";
 import TeamMembers from "./team-members";
 import RemoveMemberDialog from "./team-member-remove-dialog";
+import LeaveTeamDialog from "./team-leave-dialog";
 
 interface TeamsListPageState {
   loading: boolean;
@@ -58,6 +59,7 @@ interface TeamsListPageState {
     team: Team;
     userId: string;
   };
+  teamToLeave: Team | null;
 }
 
 /**
@@ -69,23 +71,30 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   constructor(props: RouteComponentProps) {
     super(props);
 
-    this.state = {
-      loading: true,
-      errorMessage: null,
-      teams: [],
-      userToBeRemoved: null,
-      apiReturnAlert: null,
-    };
+    this.state = TeamsListPage.initialState();
 
     this.log = bows("TeamsListPage");
 
     this.onCloseAlert = this.onCloseAlert.bind(this);
     this.onShowModalRemoveMember = this.onShowModalRemoveMember.bind(this);
     this.onHideModalRemoveMember = this.onHideModalRemoveMember.bind(this);
+    this.onShowModalLeaveTeam = this.onShowModalLeaveTeam.bind(this);
     this.onRemoveTeamMember = this.onRemoveTeamMember.bind(this);
     this.onCreateTeam = this.onCreateTeam.bind(this);
     this.onEditTeam = this.onEditTeam.bind(this);
+    this.onLeaveTeam = this.onLeaveTeam.bind(this);
     this.onSwitchAdminRole = this.onSwitchAdminRole.bind(this);
+  }
+
+  private static initialState(): TeamsListPageState {
+    return {
+      loading: true,
+      errorMessage: null,
+      teams: [],
+      userToBeRemoved: null,
+      apiReturnAlert: null,
+      teamToLeave: null,
+    };
   }
 
   componentDidMount(): void {
@@ -93,7 +102,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
   }
 
   render(): JSX.Element {
-    const { loading, errorMessage, teams, apiReturnAlert, userToBeRemoved } = this.state;
+    const { loading, errorMessage, teams, apiReturnAlert, userToBeRemoved, teamToLeave } = this.state;
 
     if (loading) {
       return (
@@ -113,7 +122,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     for (const team of teams) {
       teamsItems.push(
         <Grid item xs={12} key={team.id}>
-          <TeamCard team={team} onEditTeam={this.onEditTeam} />
+          <TeamCard team={team} onEditTeam={this.onEditTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} />
           <TeamMembers team={team} onSwitchAdminRole={this.onSwitchAdminRole} onShowModalRemoveMember={this.onShowModalRemoveMember} />
         </Grid>
       );
@@ -128,7 +137,8 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
           </Grid>
         </Container>
         <RemoveMemberDialog userToBeRemoved={userToBeRemoved} handleClose={this.onHideModalRemoveMember} handleRemoveTeamMember={this.onRemoveTeamMember} />
-        <Snackbar open={apiReturnAlert !== null} autoHideDuration={6000} onClose={this.onCloseAlert} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <LeaveTeamDialog team={teamToLeave} onLeaveTeam={this.onLeaveTeam} onShowModalLeaveTeam={this.onShowModalLeaveTeam} />
+        <Snackbar open={apiReturnAlert !== null} autoHideDuration={6000} onClose={this.onCloseAlert} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
           <Alert onClose={this.onCloseAlert} severity={apiReturnAlert?.severity}>
             {apiReturnAlert?.message}
           </Alert>
@@ -139,7 +149,7 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
 
   onRefresh(): void {
     this.log.info("Refreshing the page");
-    this.setState({ loading: true, errorMessage: null, teams: [] }, async () => {
+    this.setState(TeamsListPage.initialState(), async () => {
       try {
         const teams = await apiClient.fetchTeams();
         this.setState({ teams, loading: false });
@@ -171,6 +181,11 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     this.setState({ userToBeRemoved: null });
   }
 
+  onShowModalLeaveTeam(teamToLeave: Team | null): void {
+    this.log.debug("onShowModalLeaveTeam", { teamToLeave });
+    this.setState({ teamToLeave });
+  }
+
   async onRemoveTeamMember(): Promise<void> {
     const { userToBeRemoved } = this.state;
     this.log.info("onRemoveTeamMember", userToBeRemoved);
@@ -199,6 +214,30 @@ class TeamsListPage extends React.Component<RouteComponentProps, TeamsListPageSt
     this.log.info("onEditTeam", team);
     const teams = await apiClient.editTeam(team);
     this.setState({ teams });
+  }
+
+  async onLeaveTeam(): Promise<void> {
+    const { teamToLeave } = this.state;
+    this.log.info("onLeaveTeam", { teamToLeave });
+
+    if (teamToLeave === null) {
+      this.log.error("onLeaveTeam: Should not have been called with no team to leave");
+      return;
+    }
+
+    try {
+      const onlyMember = !((teamToLeave.members?.length ?? 0) > 1);
+      const teams = await apiClient.leaveTeam(teamToLeave);
+      const message = onlyMember ? t("team-list-success-deleted") : t("team-list-success-leave");
+      this.setState({ teams, apiReturnAlert: { message, severity: "success" } });
+    } catch (reason: unknown) {
+      const errorMessage = errorTextFromException(reason);
+      const message = t("team-list-failed-leave", { errorMessage });
+      this.setState({ apiReturnAlert: { message, severity: "error" } });
+    }
+
+    // Hide the dialog:
+    this.setState({ teamToLeave: null });
   }
 
   async onSwitchAdminRole(team: Team, userId: string, admin: boolean): Promise<void> {

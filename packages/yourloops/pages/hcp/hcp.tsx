@@ -26,9 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import { Route, RouteComponentProps, Switch } from "react-router-dom";
-import bows from 'bows';
+import bows from "bows";
 
 import { defer } from "../../lib/utils";
 import HcpNavBar from "../../components/hcp-nav-bar";

@@ -42,7 +42,7 @@ import { Team } from "../../models/team";
 import { SortDirection, FilterType, SortFields } from "./types";
 import { errorTextFromException } from "../../lib/utils";
 import apiClient from "../../lib/auth/api";
-import { AuthContext } from '../../lib/auth/hook/use-auth';
+import { AuthContext } from "../../lib/auth/hook/use-auth";
 import PatientListBar from "./patients-list-bar";
 import PatientListTable from "./patients-list-table";
 

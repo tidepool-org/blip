@@ -516,6 +516,39 @@ class AuthApi extends EventTarget {
     return _.cloneDeep(this.teams);
   }
 
+  public async leaveTeam(team: Team): Promise<Team[]> {
+    if (this.teams === null || this.teams.length < 1) {
+      throw new Error("Empty team list !");
+    }
+    if (this.user === null) {
+      throw new Error("Not logged-in !");
+    }
+
+    // eslint-disable-next-line no-magic-numbers
+    if (Math.random() < 0.2) {
+      // eslint-disable-next-line no-magic-numbers
+      await waitTimeout(500 + Math.random()*200);
+      throw new Error("A random error");
+    }
+
+    const nTeams = this.teams.length;
+    for (let i = 0; i < nTeams; i++) {
+      const thisTeam = this.teams[i];
+      if (thisTeam.id === team.id && Array.isArray(thisTeam.members)) {
+        const userId = this.user.userid;
+        const idx = thisTeam.members.findIndex((tm: TeamMember) => tm.userId === userId);
+        if (idx > -1) {
+          this.teams.splice(i, 1);
+        }
+        break;
+      }
+    }
+
+    // eslint-disable-next-line no-magic-numbers
+    await waitTimeout(500 + Math.random()*200);
+    return _.cloneDeep(this.teams);
+  }
+
   public async removeTeamMember(team: Team, userId: string): Promise<Team[]> {
     if (this.teams === null || this.teams.length < 1) {
       throw new Error("Empty team list!");

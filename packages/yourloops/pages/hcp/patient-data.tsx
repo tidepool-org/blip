@@ -26,9 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import bows from 'bows';
+import bows from "bows";
 
 import Container from "@material-ui/core/Container";
 
@@ -68,7 +68,7 @@ class PatientDataPage extends React.Component<RouteComponentProps<PatientDataPro
         this.log.error(reason);
       });
     } else {
-      this.log.error('Invalid patientId', patientId, this.props);
+      this.log.error("Invalid patientId", patientId, this.props);
     }
   }
 
