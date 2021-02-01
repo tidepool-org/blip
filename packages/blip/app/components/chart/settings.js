@@ -42,7 +42,7 @@ class Settings extends React.Component {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func,
     onClickPrint: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
@@ -68,6 +68,8 @@ class Settings extends React.Component {
           inTransition={this.state.inTransition}
           title={this.state.title}
           canPrint={this.props.canPrint}
+          trackMetric={this.props.trackMetric}
+          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickMostRecent={this.handleClickMostRecent}
           onClickBasics={this.props.onSwitchToBasics}
           onClickOneDay={this.handleClickOneDay}

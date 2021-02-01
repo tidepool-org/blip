@@ -89,7 +89,7 @@ class PatientDataPage extends React.Component {
 
     this.state = {
       // New states info
-      chartType: 'basics',
+      chartType: 'daily',
       loadingState: LOADING_STATE_NONE,
       errorMessage: null,
       endpoints: [],
@@ -180,7 +180,7 @@ class PatientDataPage extends React.Component {
         loadingState: LOADING_STATE_INITIAL_PROCESS,
         errorMessage: null,
         patient,
-        chartType: 'basics',
+        chartType: 'daily',
         createMessageDatetime: null,
         canPrint: false,
         pdf: null,
@@ -310,6 +310,7 @@ class PatientDataPage extends React.Component {
             patient={patient}
             patientData={this.state.processedPatientData}
             canPrint={canPrint}
+            permsOfLoggedInUser={this.state.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -372,6 +373,7 @@ class PatientDataPage extends React.Component {
             patientData={this.state.processedPatientData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
+            permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -399,6 +401,7 @@ class PatientDataPage extends React.Component {
             patientData={this.state.processedPatientData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
+            permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}

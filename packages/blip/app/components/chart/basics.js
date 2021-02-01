@@ -37,7 +37,7 @@ class Basics extends Component {
     onSwitchToDaily: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateBasicsData: PropTypes.func.isRequired,
@@ -85,6 +85,8 @@ class Basics extends Component {
           inTransition={this.state.inTransition}
           title={this.state.title}
           canPrint={this.props.canPrint}
+          trackMetric={this.props.trackMetric}
+          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickOneDay}
           onClickTrends={this.handleClickTrends}

@@ -13,13 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.patient-data {
+ .patient-data {
   margin-bottom: @spacing-large;
   position: relative;
-}
-.patient-data-yourloops {
-  margin-left: auto;
-  margin-right: auto;
 }
 
 // Subnav
@@ -29,9 +25,11 @@
 @patient-data-subnav-horizontal-padding: @spacing-small;
 
 .patient-data-subnav-inner {
-  color: #fff;
-  background-color: @gray-dark;
+  color: @black-80;
+  background-color: @green-header;
 
+  font-family: Roboto;
+  font-size: 16px;
   padding: 0;
 }
 
@@ -39,6 +37,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  height: 64px;
+  align-items: center;
 
   @media (min-width: @screen-md-lg-min) {
     justify-content: space-between;
@@ -66,7 +66,9 @@
     padding: 0;
   }
 
-  color: #fff;
+  color: @black-80;
+  font-weight: bold;
+  letter-spacing: 0;
   text-decoration: none;
 
   &:hover,
@@ -87,18 +89,18 @@
   }
 }
 
-.patient-data-subnav a.patient-data-subnav-active {
+.patient-data-footer-left a.patient-data-subnav-active {
   font-weight: bold;
 }
 
-.patient-data-footer-left a.patient-data-subnav-active {
-  font-weight: bold;
+a.js-home {
+  cursor: pointer;
 }
 
 .patient-data-subnav button.patient-data-subnav-button {
   border-width: 0px;
   background-color: transparent;
-  color: white;
+  color: @black-80;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -113,6 +115,7 @@
   }
   &:active, &:disabled {
     color: @gray;
+    // color: @green-active;
   }
   &.patient-data-subnav-hidden {
     display: none;

@@ -286,6 +286,7 @@ class BgLog extends Component {
         iconNext={'icon-next-up'}
         iconMostRecent={'icon-most-recent-up'}
         canPrint={this.props.canPrint}
+        trackMetric={this.props.trackMetric}
         onClickBack={this.handlePanBack}
         onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}

@@ -37,6 +37,13 @@ import PatientDataPage from "./patient-data";
 import TeamsListPage from "./teams-list";
 
 /**
+ * Patient profile page for HCPs
+ */
+function PatientProfile(): JSX.Element {
+  return <div>TODO</div>;
+}
+
+/**
  * Health care professional page
  */
 function HcpPage(props: RouteComponentProps): JSX.Element | null {
@@ -53,6 +60,7 @@ function HcpPage(props: RouteComponentProps): JSX.Element | null {
       <HcpNavBar />
       <Switch>
         <Route path="/hcp/patients" component={PatientListPage} />
+        <Route path="/hcp/profile/:patientId" component={PatientProfile} />
         <Route path="/hcp/patient/:patientId" component={PatientDataPage} />
         <Route path="/hcp/teams" component={TeamsListPage} />
       </Switch>

@@ -38,11 +38,11 @@ import HeaderBar from "./header-bar";
 function HcpNavBar(props: RouteComponentProps): JSX.Element {
   const { t } = useTranslation("yourloops");
 
-  const isPatientsPath = props.history.location.pathname.startsWith("/hcp/patient");
+  const isTeamPath = props.history.location.pathname.startsWith("/hcp/teams");
 
   return (
     <HeaderBar>
-      <Tabs value={isPatientsPath ? 0 : 1} indicatorColor="primary" textColor="primary" centered>
+      <Tabs value={isTeamPath ? 1 : 0} indicatorColor="primary" textColor="primary" centered>
         <Tab label={t("Patients")} component={Link} to="/hcp/patients" />
         <Tab label={t("Care teams")} component={Link} to="/hcp/teams" />
       </Tabs>

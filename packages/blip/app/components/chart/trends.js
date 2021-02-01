@@ -61,7 +61,7 @@ class Trends extends React.PureComponent {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
@@ -434,9 +434,11 @@ class Trends extends React.PureComponent {
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         title={title}
+        trackMetric={this.props.trackMetric}
         iconBack={'icon-back'}
         iconNext={'icon-next'}
         iconMostRecent={'icon-most-recent'}
+        permsOfLoggedInUser={this.props.permsOfLoggedInUser}
         onClickBack={this.handleClickBack}
         onClickBasics={this.props.onSwitchToBasics}
         onClickTrends={this.handleClickTrends}
