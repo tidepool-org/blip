@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
@@ -49,7 +50,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import { Team, TeamMember } from "../../models/team";
 import { useAuth } from "../../lib/auth/hook/use-auth";
-import { t } from "../../lib/language";
 
 interface TeamMembersProps {
   team: Team;
@@ -184,6 +184,7 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
   const nMembers = members.length;
 
   const classes = teamMembersStyles();
+  const { t } = useTranslation("yourloops");
 
   return (
     <div id={`team-members-list-${team.id}`} className={classes.root}>

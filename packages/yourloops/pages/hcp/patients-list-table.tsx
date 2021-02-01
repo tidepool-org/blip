@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
@@ -42,7 +43,6 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
-import { t } from "../../lib/language";
 import { User } from "../../models/shoreline";
 import { SortDirection, SortFields } from "./types";
 
@@ -76,6 +76,7 @@ const patientListStyle = makeStyles((theme: Theme) => {
 
 function PatientListTable(props: PatientListTableProps): JSX.Element {
   const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList, log } = props;
+  const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
   const elems = [];
   const nPatients = patients.length;

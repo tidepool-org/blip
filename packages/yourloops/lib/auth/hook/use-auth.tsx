@@ -108,9 +108,7 @@ function useProvideAuth() {
 
 // Provider component that wraps your app and makes auth object
 // available to any child component that calls useAuth().
-export const AuthProvider: React.FC<React.ReactNode> = ({
-  children,
-}: IAuthProvider) => {
+export const AuthProvider: React.FC<React.ReactNode> = ({ children }: IAuthProvider) => {
   const auth = useProvideAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };

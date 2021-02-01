@@ -89,8 +89,7 @@ if (_.has(window, "config") && _.isObjectLike(_.get(window, "config", null))) {
 } else {
   console.warn("Config not found, using build configuration");
 
-  /** @type {defaultConfig} */
-  const buildConfig = JSON.parse(BUILD_CONFIG);
+  const buildConfig = JSON.parse(BUILD_CONFIG) as AppConfig;
   _.assign(appConfig, buildConfig);
 }
 

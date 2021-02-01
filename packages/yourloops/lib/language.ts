@@ -26,83 +26,83 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import i18n, { InitOptions, TFunction, TOptions, Resource } from "i18next";
-import { initReactI18next } from "react-i18next";
+import i18n, { InitOptions, Resource, TOptions } from "i18next";
 import moment from "moment-timezone";
-import locales from "../../../locales/languages.json";
+import { initReactI18next } from "react-i18next";
+
 import getLocale from "./browser-locale";
+import locales from "../../../locales/languages.json";
 
-const crowdinActive = typeof window._jipt === "object";
+async function init(): Promise<void> {
+  const crowdinActive = typeof window._jipt === "object";
 
-let language = getLocale();
-if (self.localStorage && self.localStorage.lang) {
-  language = self.localStorage.lang;
+  let language = getLocale();
+  if (self.localStorage && self.localStorage.lang) {
+    language = self.localStorage.lang;
 
-  if (typeof window.zE === "function") {
-    window.zE("webWidget", "setLocale", language);
-  }
-}
-
-const i18nOptions: InitOptions = {
-  fallbackLng: locales.fallback,
-  lng: language,
-
-  // To allow . in keys
-  keySeparator: false,
-  // To allow : in keys
-  nsSeparator: "|",
-
-  debug: false,
-
-  interpolation: {
-    escapeValue: false, // not needed for react!!
-  },
-
-  // If the translation is empty, return the key instead
-  returnEmptyString: false,
-
-  react: {
-    wait: true,
-    defaultTransParent: "div", // a valid react element - required before react 16
-    transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
-  },
-  ns: locales.namespaces,
-  defaultNS: locales.defaultNS,
-
-  resources: locales.resources,
-};
-
-if (crowdinActive) {
-  i18nOptions.fallbackLng = locales.crowdin.fallback;
-  (i18nOptions.resources as Resource)[locales.crowdin.fallback] =
-    locales.crowdin.resources;
-}
-i18n.use(initReactI18next);
-
-// Update moment with the right language, for date display
-i18n.on("languageChanged", (lng: string) => {
-  // FIXME Only perform the update when the locale really changed.
-  // For some reason, it is call a lots of times
-  if (typeof lng === "string" && language !== lng) {
-    language = lng;
-
-    // FIXME: Get currently use Crowdin language, when Crowdin is active.
-    moment.locale(lng);
-
-    // Zendesk locale
     if (typeof window.zE === "function") {
       window.zE("webWidget", "setLocale", language);
     }
-
-    // Save locale for future load
-    if (self.localStorage) {
-      self.localStorage.lang = lng;
-    }
   }
-});
 
-async function initI18n(): Promise<TFunction> {
-  return i18n.init(i18nOptions);
+  const i18nOptions: InitOptions = {
+    fallbackLng: locales.fallback,
+    lng: language,
+
+    // To allow . in keys
+    keySeparator: false,
+    // To allow : in keys
+    nsSeparator: "|",
+
+    debug: false,
+
+    interpolation: {
+      escapeValue: false, // not needed for react!!
+    },
+
+    // If the translation is empty, return the key instead
+    returnEmptyString: false,
+
+    react: {
+      wait: true,
+      transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
+    },
+    ns: locales.namespaces,
+    defaultNS: locales.defaultNS,
+
+    resources: locales.resources,
+  };
+
+  if (crowdinActive) {
+    i18nOptions.fallbackLng = locales.crowdin.fallback;
+    (i18nOptions.resources as Resource)[locales.crowdin.fallback] = locales.crowdin.resources;
+  }
+
+  i18n.use(initReactI18next);
+
+  // Update moment with the right language, for date display
+  i18n.on("languageChanged", (lng: string) => {
+    // FIXME Only perform the update when the locale really changed.
+    // For some reason, it is call a lots of times
+    if (typeof lng === "string" && language !== lng) {
+      language = lng;
+
+      // FIXME: Get currently use Crowdin language, when Crowdin is active.
+      moment.locale(lng);
+
+      // Zendesk locale
+      if (typeof window.zE === "function") {
+        window.zE("webWidget", "setLocale", language);
+      }
+
+      // Save locale for future load
+      if (self.localStorage) {
+        self.localStorage.lang = lng;
+      }
+    }
+  });
+
+  await i18n.init(i18nOptions);
 }
 
 /**
@@ -117,5 +117,5 @@ function t(s: string, p?: TOptions | string): string {
   return i18n.t(`yourloops|${s}`, p);
 }
 
-export { initI18n, t };
+export { init, t };
 export default i18n;

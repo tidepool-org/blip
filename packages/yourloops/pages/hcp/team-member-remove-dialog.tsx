@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
@@ -39,7 +39,6 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { Team, TeamMember } from "../../models/team";
-import { t } from "../../lib/language";
 
 interface RemoveMemberDialogProps {
   userToBeRemoved: null | {
@@ -61,6 +60,7 @@ const removeMemberDialogClasses = makeStyles((theme: Theme) => {
 function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
   const { userToBeRemoved, handleClose, handleRemoveTeamMember } = props;
   const classes = removeMemberDialogClasses();
+  const { t } = useTranslation("yourloops");
 
   let hcpName = "n/a";
   let teamName = "n/a";

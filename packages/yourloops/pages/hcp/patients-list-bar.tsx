@@ -28,6 +28,9 @@
 
 import * as React from "react";
 import { useHistory } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+import { Theme, makeStyles } from "@material-ui/core/styles";
 
 import AppBar from "@material-ui/core/AppBar";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -44,7 +47,6 @@ import { MenuProps } from "@material-ui/core/Menu";
 import Modal from "@material-ui/core/Modal";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import Select from "@material-ui/core/Select";
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Toolbar from "@material-ui/core/Toolbar";
 
@@ -56,7 +58,6 @@ import SearchIcon from "@material-ui/icons/Search";
 
 import { defer, REGEX_EMAIL } from "../../lib/utils";
 import { Team } from "../../models/team";
-import { t } from "../../lib/language";
 import { FilterType } from "./types";
 
 export interface PatientListBarProps {
@@ -207,6 +208,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
   };
 
   const { filter, filterType, teams, onFilter, onFilterType, onInvitePatient } = props;
+  const { t } = useTranslation("yourloops");
   const classes = pageBarStyles();
   const history = useHistory();
   const [modalAddPatientOpen, setModalAddPatientOpen] = React.useState(false);
@@ -286,11 +288,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
       <Toolbar className={classes.toolBar}>
         <div id="patients-list-toolbar-item-left">
           <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-            <Link
-              color="textPrimary"
-              className={classes.breadcrumbLink}
-              href="/hcp/patients"
-              onClick={handleClickMyPatients}>
+            <Link color="textPrimary" className={classes.breadcrumbLink} href="/hcp/patients" onClick={handleClickMyPatients}>
               <HomeIcon className={classes.homeIcon} />
               {t("My Patients")}
             </Link>
@@ -363,7 +361,10 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
                     <NativeSelect
                       value={modalSelectedTeam}
                       onChange={handleChangeAddPatientTeam}
-                      inputProps={{ name: "teamid", id: "select-patient-list-modal-team" }}>
+                      inputProps={{
+                        name: "teamid",
+                        id: "select-patient-list-modal-team",
+                      }}>
                       {optionsTeamsElements}
                     </NativeSelect>
                   </FormControl>

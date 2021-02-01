@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
@@ -40,7 +41,6 @@ import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
 import { Team } from "../../models/team";
-import { t } from "../../lib/language";
 import TeamEditModal from "./team-edit-modal";
 
 interface BarProps {
@@ -74,6 +74,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
 
 function TeamsListBar(props: BarProps): JSX.Element {
   const classes = pageBarStyles();
+  const { t } = useTranslation("yourloops");
 
   const [modalOpened, setModalOpen] = React.useState(false);
 

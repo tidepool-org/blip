@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
@@ -40,7 +41,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 
 import { TeamMemberRole } from "../../models/team";
-import { t } from "../../lib/language";
 import { REGEX_EMAIL } from "../../lib/utils";
 
 import { AddMemberDialogContentProps } from "./types";
@@ -65,6 +65,7 @@ const dialogClasses = makeStyles((theme: Theme) => {
 function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
   const { addMember } = props;
 
+  const { t } = useTranslation("yourloops");
   const [email, setEMail] = React.useState("");
   const [role, setRole] = React.useState("viewer" as TeamMemberRole);
   const [buttonDisabled, setButtonDisabled] = React.useState(true);

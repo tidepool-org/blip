@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /**
  * Copyright (c) 2021, Diabeloop
  * Confirm Password Reset page
@@ -29,9 +28,11 @@
 
 import _ from "lodash";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { RouteComponentProps } from "react-router-dom";
 
-import { makeStyles /*, Theme */ } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -39,18 +40,17 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
+
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
-import { t } from "../../lib/language";
+import brandingLogo from "branding/logo.png";
 import { REGEX_EMAIL } from "../../lib/utils";
 import appConfig from "../../lib/config";
-import brandingLogo from "branding/logo.png";
-import { useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ConfirmPasswordResetProps extends RouteComponentProps {}
@@ -67,31 +67,27 @@ const formStyle = makeStyles((/* theme: Theme */) => {
 /**
  * ConfirmPasswordReset page
  */
-function ConfirmPasswordResetPage(
-  props: ConfirmPasswordResetProps
-): JSX.Element {
+function ConfirmPasswordResetPage(props: ConfirmPasswordResetProps): JSX.Element {
   const defaultErr = {
     username: false,
     newPassword: false,
     confirmNewPassword: false,
   };
-  const [username, setUserName] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [errors, setErrors] = useState(defaultErr);
-  const [userNameHelperTextValue, setUserNameHelperTextValue] = useState("");
-  const [
-    newPasswordChangeHelperTextValue,
-    setNewPasswordChangeHelperTextValue,
-  ] = useState("");
-  const [
-    confirmNewPasswordChangeHelperTextValue,
-    setConfirmNewPasswordChangeHelperTextValue,
-  ] = useState("");
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  const emptyUsername = _.isEmpty(username);
+
   const classes = formStyle();
+  const { t } = useTranslation("yourloops");
+
+  const [username, setUserName] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = React.useState("");
+  const [errors, setErrors] = React.useState(defaultErr);
+  const [userNameHelperTextValue, setUserNameHelperTextValue] = React.useState("");
+  const [newPasswordChangeHelperTextValue, setNewPasswordChangeHelperTextValue] = React.useState("");
+  const [confirmNewPasswordChangeHelperTextValue, setConfirmNewPasswordChangeHelperTextValue] = React.useState("");
+  const [showNewPassword, setShowNewPassword] = React.useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(false);
+
+  const emptyUsername = _.isEmpty(username);
 
   const onChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -175,13 +171,7 @@ function ConfirmPasswordResetPage(
 
   return (
     <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid
-        container
-        spacing={0}
-        alignItems="center"
-        justify="center"
-        style={{ minHeight: "100vh" }}
-      >
+      <Grid container spacing={0} alignItems="center" justify="center" style={{ minHeight: "100vh" }}>
         <Grid item xs={12}>
           <Card>
             <CardMedia
@@ -189,8 +179,7 @@ function ConfirmPasswordResetPage(
                 display: "flex",
                 paddingTop: "1em",
                 paddingBottom: "1em",
-              }}
-            >
+              }}>
               <img
                 src={brandingLogo}
                 style={{
@@ -205,11 +194,7 @@ function ConfirmPasswordResetPage(
               <Typography variant="h6" gutterBottom>
                 {t("Change your password")}
               </Typography>
-              <form
-                style={{ display: "flex", flexDirection: "column" }}
-                noValidate
-                autoComplete="off"
-              >
+              <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
                 <TextField
                   id="username"
                   label={t("Email")}
@@ -233,10 +218,7 @@ function ConfirmPasswordResetPage(
                       <InputAdornment position="end">
                         <IconButton
                           aria-label={t("aria-toggle-password-visibility")}
-                          onClick={(e) =>
-                            onClick(e, showNewPassword, setShowNewPassword)
-                          }
-                        >
+                          onClick={(e) => onClick(e, showNewPassword, setShowNewPassword)}>
                           {showNewPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
@@ -257,19 +239,8 @@ function ConfirmPasswordResetPage(
                       <InputAdornment position="end">
                         <IconButton
                           aria-label={t("aria-toggle-password-visibility")}
-                          onClick={(e) =>
-                            onClick(
-                              e,
-                              showConfirmNewPassword,
-                              setShowConfirmNewPassword
-                            )
-                          }
-                        >
-                          {showConfirmNewPassword ? (
-                            <Visibility />
-                          ) : (
-                            <VisibilityOff />
-                          )}
+                          onClick={(e) => onClick(e, showConfirmNewPassword, setShowConfirmNewPassword)}>
+                          {showConfirmNewPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -278,12 +249,7 @@ function ConfirmPasswordResetPage(
               </form>
             </CardContent>
             <CardActions>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={onGotoLogin}
-                className={classes.Button}
-              >
+              <Button variant="contained" color="secondary" onClick={onGotoLogin} className={classes.Button}>
                 {t("Cancel")}
               </Button>
               <Button
@@ -291,8 +257,7 @@ function ConfirmPasswordResetPage(
                 color="primary"
                 onClick={onSendResetPassword}
                 disabled={emptyUsername}
-                className={classes.Button}
-              >
+                className={classes.Button}>
                 {t("Save")}
               </Button>
             </CardActions>

@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
@@ -38,7 +39,6 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 
-import { t } from "../../lib/language";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 import { SwitchRoleDialogContentProps } from "./types";
 
@@ -56,6 +56,8 @@ const dialogClasses = makeStyles((theme: Theme) => {
 
 function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
   const { switchAdminRole } = props;
+
+  const { t } = useTranslation("yourloops");
   const auth = useAuth();
   const classes = dialogClasses();
 

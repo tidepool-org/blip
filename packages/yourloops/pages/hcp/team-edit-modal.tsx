@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -39,7 +40,6 @@ import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 
 import locales from "../../../../locales/languages.json";
-import { t } from "../../lib/language";
 import { REGEX_EMAIL } from "../../lib/utils";
 import { Team } from "../../models/team";
 import { useAuth } from "../../lib/auth/hook/use-auth";
@@ -101,6 +101,7 @@ function TeamEditModal(props: TeamEditModalProps): JSX.Element {
 
   const classes = modalStyles();
   const auth = useAuth();
+  const { t } = useTranslation("yourloops");
 
   const [teamName, setTeamName] = React.useState(team.name ?? "");
   const [teamPhone, setTeamPhone] = React.useState(team.phone ?? "");

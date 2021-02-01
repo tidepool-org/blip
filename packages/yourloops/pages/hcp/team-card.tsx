@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
@@ -42,8 +43,6 @@ import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import PhoneIcon from "@material-ui/icons/Phone";
 
 import { Team } from "../../models/team";
-import { t } from "../../lib/language";
-
 import TeamEditModal from "./team-edit-modal";
 
 interface TeamCardProps {
@@ -116,6 +115,7 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
 function TeamInfo(props: TeamInfoProps): JSX.Element | null {
   const { label, value, icon } = props;
   const classes = teamInfoStyles();
+  const { t } = useTranslation("yourloops");
 
   if (typeof value !== "string") {
     return null;
@@ -135,6 +135,7 @@ function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 function TeamCard(props: TeamCardProps): JSX.Element {
   const { team, onShowModalLeaveTeam, onShowAddMemberDialog } = props;
   const classes = teamCardStyles();
+  const { t } = useTranslation("yourloops");
   const [modalOpened, setModalOpen] = React.useState(false);
   const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
 

@@ -195,11 +195,7 @@ class AuthApi extends EventTarget {
    * @returns {boolean} true if the user is logged in.
    */
   public get isLoggedIn(): boolean {
-    return (
-      this.sessionToken !== null &&
-      this.traceToken !== null &&
-      this.user !== null
-    );
+    return this.sessionToken !== null && this.traceToken !== null && this.user !== null;
   }
 
   public get userIsPatient(): boolean {
@@ -232,10 +228,7 @@ class AuthApi extends EventTarget {
    * @param {string} password The account password
    * @return {Promise<User>} Return the logged-in user or a promise rejection.
    */
-  private async authenticate(
-    username: string,
-    password: string
-  ): Promise<User> {
+  private async authenticate(username: string, password: string): Promise<User> {
     let reason: string | null = null;
     this.logout(); // To be sure to reset the values
 
@@ -265,24 +258,22 @@ class AuthApi extends EventTarget {
 
     if (!response.ok || response.status !== http.StatusOK) {
       switch (response.status) {
-        case http.StatusUnauthorized:
-          if (_.isNumber(appConfig.MAX_FAILED_LOGIN_ATTEMPTS)) {
-            if (
-              ++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS
-            ) {
-              reason = t(
-                "Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
-                { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT }
-              );
-            } else {
-              reason = t("Wrong username or password");
-            }
+      case http.StatusUnauthorized:
+        if (_.isNumber(appConfig.MAX_FAILED_LOGIN_ATTEMPTS)) {
+          if (++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
+            reason = t(
+              "Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
+              { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT }
+            );
+          } else {
+            reason = t("Wrong username or password");
           }
-          break;
-        // missing handling 403 status => email not verified
-        default:
-          reason = t("An error occurred while logging in.");
-          break;
+        }
+        break;
+      // missing handling 403 status => email not verified
+      default:
+        reason = t("An error occurred while logging in.");
+        break;
       }
 
       if (reason === null) {
@@ -383,10 +374,7 @@ class AuthApi extends EventTarget {
       throw new Error(t("You are not logged-in"));
     }
 
-    const seagullURL = new URL(
-      `/metadata/users/${this.user?.userid}/users`,
-      appConfig.API_HOST
-    );
+    const seagullURL = new URL(`/metadata/users/${this.user?.userid}/users`, appConfig.API_HOST);
     const response = await fetch(seagullURL.toString(), {
       method: "GET",
       headers: {
@@ -410,10 +398,7 @@ class AuthApi extends EventTarget {
       throw new Error(t("You are not logged-in"));
     }
 
-    const seagullURL = new URL(
-      `/metadata/${user.userid}/profile`,
-      appConfig.API_HOST
-    );
+    const seagullURL = new URL(`/metadata/${user.userid}/profile`, appConfig.API_HOST);
 
     const response = await fetch(seagullURL.toString(), {
       method: "GET",
@@ -441,10 +426,7 @@ class AuthApi extends EventTarget {
       // Users should never see this:
       throw new Error(t("You are not logged-in"));
     }
-    if (
-      typeof this.user.preferences !== "object" ||
-      this.user.preferences === null
-    ) {
+    if (typeof this.user.preferences !== "object" || this.user.preferences === null) {
       this.user.preferences = {
         patientsStarred: [],
       };
@@ -495,9 +477,7 @@ class AuthApi extends EventTarget {
       const patientData = (await response.json()) as PatientData;
 
       defer(() => {
-        this.dispatchEvent(
-          new PatientDataLoadedEvent(patient as User, patientData)
-        );
+        this.dispatchEvent(new PatientDataLoadedEvent(patient as User, patientData));
       });
 
       return patientData;
@@ -517,10 +497,7 @@ class AuthApi extends EventTarget {
       throw new Error(t("You are not logged-in"));
     }
 
-    const messageURL = new URL(
-      `/message/send/${message.groupid}`,
-      appConfig.API_HOST
-    );
+    const messageURL = new URL(`/message/send/${message.groupid}`, appConfig.API_HOST);
     const response = await fetch(messageURL.toString(), {
       method: "POST",
       headers: {
@@ -595,7 +572,7 @@ class AuthApi extends EventTarget {
     // eslint-disable-next-line no-magic-numbers
     if (Math.random() < 0.2) {
       // eslint-disable-next-line no-magic-numbers
-      await waitTimeout(500 + Math.random()*200);
+      await waitTimeout(500 + Math.random() * 200);
       throw new Error("A random error");
     }
 
@@ -613,7 +590,7 @@ class AuthApi extends EventTarget {
     }
 
     // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random()*200);
+    await waitTimeout(500 + Math.random() * 200);
     return _.cloneDeep(this.teams);
   }
 
@@ -634,9 +611,7 @@ class AuthApi extends EventTarget {
       const thisTeam = this.teams[i];
       if (thisTeam.id === team.id) {
         if (Array.isArray(thisTeam.members)) {
-          const idx = thisTeam.members.findIndex(
-            (tm: TeamMember): boolean => tm.userId === userId
-          );
+          const idx = thisTeam.members.findIndex((tm: TeamMember): boolean => tm.userId === userId);
           if (idx > -1) {
             thisTeam.members.splice(idx, 1);
           }
@@ -649,11 +624,7 @@ class AuthApi extends EventTarget {
     return _.cloneDeep(this.teams);
   }
 
-  public async changeTeamUserRole(
-    team: Team,
-    userId: string,
-    admin: boolean
-  ): Promise<Team[]> {
+  public async changeTeamUserRole(team: Team, userId: string, admin: boolean): Promise<Team[]> {
     if (this.teams === null || this.teams.length < 1) {
       throw new Error("Empty team list!");
     }
@@ -694,13 +665,13 @@ class AuthApi extends EventTarget {
     // eslint-disable-next-line no-magic-numbers
     if (Math.random() < 0.2) {
       // eslint-disable-next-line no-magic-numbers
-      await waitTimeout(500 + Math.random()*200);
+      await waitTimeout(500 + Math.random() * 200);
       throw new Error("A random error");
     }
 
     this.log.info(`Invite ${email} to ${team.name} with role ${role}`);
     // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random()*200);
+    await waitTimeout(500 + Math.random() * 200);
   }
 
   /**
@@ -713,32 +684,28 @@ class AuthApi extends EventTarget {
     let matomoPaq = null;
     this.log.info("Metrics:", eventName, properties);
     switch (appConfig.METRICS_SERVICE) {
-      case "matomo":
-        matomoPaq = window._paq;
-        if (!_.isObject(matomoPaq)) {
-          this.log.error(
-            "Matomo do not seems to be available, wrong configuration"
-          );
-        }
-        if (eventName === "CookieConsent") {
-          matomoPaq.push(["setConsentGiven", properties]);
-        } else if (eventName === "setCustomUrl") {
-          matomoPaq.push(["setCustomUrl", properties]);
-        } else if (eventName === "setUserId") {
-          matomoPaq.push(["setUserId", properties]);
-        } else if (eventName === "resetUserId") {
-          matomoPaq.push(["resetUserId"]);
-        } else if (
-          eventName === "setDocumentTitle" &&
-          typeof properties === "string"
-        ) {
-          matomoPaq.push(["setDocumentTitle", properties]);
-        } else if (typeof properties === "undefined") {
-          matomoPaq.push(["trackEvent", eventName]);
-        } else {
-          matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
-        }
-        break;
+    case "matomo":
+      matomoPaq = window._paq;
+      if (!_.isObject(matomoPaq)) {
+        this.log.error("Matomo do not seems to be available, wrong configuration");
+        return;
+      }
+      if (eventName === "CookieConsent") {
+        matomoPaq.push(["setConsentGiven", properties]);
+      } else if (eventName === "setCustomUrl") {
+        matomoPaq.push(["setCustomUrl", properties]);
+      } else if (eventName === "setUserId") {
+        matomoPaq.push(["setUserId", properties]);
+      } else if (eventName === "resetUserId") {
+        matomoPaq.push(["resetUserId"]);
+      } else if (eventName === "setDocumentTitle" && typeof properties === "string") {
+        matomoPaq.push(["setDocumentTitle", properties]);
+      } else if (typeof properties === "undefined") {
+        matomoPaq.push(["trackEvent", eventName]);
+      } else {
+        matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
+      }
+      break;
     }
   }
 }

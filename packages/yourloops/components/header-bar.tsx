@@ -29,15 +29,17 @@
 import _ from "lodash";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+import { makeStyles } from "@material-ui/core/styles";
+
 import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { makeStyles } from "@material-ui/core/styles";
-import AccountCircle from "@material-ui/icons/AccountCircle";
+import Toolbar from "@material-ui/core/Toolbar";
 
-import { t } from "../lib/language";
+import AccountCircle from "@material-ui/icons/AccountCircle";
 
 import brandingLogo from "branding/logo.png";
 import { useAuth } from "../lib/auth/hook/use-auth";
@@ -51,8 +53,7 @@ const toolbarStyles = makeStyles({
     backgroundColor: "var(--mdc-theme-surface, white)",
     display: "grid",
     gridTemplateRows: "auto",
-    gridTemplateColumns: (props: HeaderProps) =>
-      _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
+    gridTemplateColumns: (props: HeaderProps) => (_.isEmpty(props.children) ? "auto auto" : "auto auto auto"),
     paddingLeft: "6em",
     paddingRight: "6em",
   },
@@ -77,6 +78,7 @@ const toolbarStyles = makeStyles({
 });
 
 function HeaderBar(props: HeaderProps): JSX.Element {
+  const { t } = useTranslation("yourloops");
   const classes = toolbarStyles(props);
   const auth = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -104,9 +106,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     accountMenu = (
       <div className={classes.accountMenu}>
         <div className={classes.accountInfos}>
-          <div
-            className={classes.accountName}
-          >{`${user?.profile?.firstName} ${user?.profile?.lastName}`}</div>
+          <div className={classes.accountName}>{`${user?.profile?.firstName} ${user?.profile?.lastName}`}</div>
           <div className={classes.accountType}>{role}</div>
         </div>
         <IconButton
@@ -114,8 +114,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           aria-controls="menu-appbar"
           aria-haspopup="true"
           onClick={handleMenu}
-          color="inherit"
-        >
+          color="inherit">
           <AccountCircle />
         </IconButton>
         <Menu
@@ -131,8 +130,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
             horizontal: "right",
           }}
           open={open}
-          onClose={handleClose}
-        >
+          onClose={handleClose}>
           <MenuItem onClick={handleClose}>{t("Profile")}</MenuItem>
           <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
         </Menu>
@@ -143,11 +141,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <img
-          className={classes.toolbarLogo}
-          alt={t("alt-img-logo")}
-          src={`/${brandingLogo}`}
-        />
+        <img className={classes.toolbarLogo} alt={t("alt-img-logo")} src={`/${brandingLogo}`} />
         {props.children}
         {accountMenu}
       </Toolbar>

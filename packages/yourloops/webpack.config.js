@@ -35,7 +35,7 @@ const alias = {
 ///** @type {webpack.Configuration} */
 const webpackConfig = {
   entry: {
-    main: "./app/index.ts",
+    main: "./app/index.tsx",
   },
   output: {
     filename: "yourloops.[hash].js",

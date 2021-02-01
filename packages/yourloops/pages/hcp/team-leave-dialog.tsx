@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import { red } from "@material-ui/core/colors";
@@ -40,7 +40,6 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { Team } from "models/team";
-import { t } from "../../lib/language";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 
 interface LeaveTeamDialogProps {
@@ -99,6 +98,7 @@ function isUserIsTheOnlyAdministrator(team: Team | null, userId: string): boolea
 
 function LeaveTeamDialogTitle(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, teamName, onlyMember, userIsTheOnlyAdministrator } = props;
+  const { t } = useTranslation("yourloops");
 
   if (team === null) {
     return null;
@@ -135,6 +135,7 @@ function LeaveTeamDialogTitle(props: LeaveTeamDialogElementsProps): JSX.Element 
 
 function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, teamName, onlyMember, userIsTheOnlyAdministrator } = props;
+  const { t } = useTranslation("yourloops");
 
   if (team === null) {
     return null;
@@ -178,6 +179,7 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
 function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, onlyMember, userIsTheOnlyAdministrator, buttonsDisabled, handleClose, handleLeaveTeam } = props;
   const classes = leaveTeamDialogClasses();
+  const { t } = useTranslation("yourloops");
 
   if (team === null) {
     return null;
@@ -252,6 +254,7 @@ function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
   const onlyMember = !((team?.members?.length ?? 0) > 1);
 
   const auth = useAuth();
+  const { t } = useTranslation("yourloops");
   const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
 
   const userIsTheOnlyAdministrator = isUserIsTheOnlyAdministrator(team, auth.user?.userid as string);

@@ -38,10 +38,7 @@ import apiClient from "../../lib/auth/api";
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface PatientDataState {}
 
-class PatientDataPage extends React.Component<
-  RouteComponentProps,
-  PatientDataState
-> {
+class PatientDataPage extends React.Component<RouteComponentProps, PatientDataState> {
   private log: Console;
 
   constructor(props: RouteComponentProps) {
@@ -72,10 +69,7 @@ class PatientDataPage extends React.Component<
   public render(): JSX.Element {
     this.log.debug("render");
     return (
-      <div
-        id="patient-data"
-        style={{ display: "flex", flexDirection: "column", height: "100vh" }}
-      >
+      <div id="patient-data" style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <Blip config={appConfig} api={apiClient} />
       </div>
     );
