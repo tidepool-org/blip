@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.19.0-web-717-carb-exchanges.1":
-  version "1.19.0-web-717-carb-exchanges.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-web-717-carb-exchanges.1.tgz#68ace44a9c7bd9bdfeb99e44a1baaf87027e0081"
-  integrity sha512-/Yo7bDrNd95t+6q1sG3PDOE5rkvbmwCFVlaEptSMhU0fMChmDHppqFabAg98b8RwznnMW8kI3o2Cw2NZgnqFqg==
+"@tidepool/viz@1.19.0-web-717-carb-exchanges.2":
+  version "1.19.0-web-717-carb-exchanges.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-web-717-carb-exchanges.2.tgz#cebcf39cc63a0b93283af16000a9f07a347fa861"
+  integrity sha512-LCKRGurIRoN2/Ek7dP01R9+ysB0xzZjZ8HHfh6Az3yAfLJKESMm/ZuBwQt0INnTZ0WzBDj7mfL3z0UKxHdIVDQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
