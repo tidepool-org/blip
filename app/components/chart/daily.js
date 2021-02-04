@@ -382,8 +382,8 @@ class Daily extends Component {
 
     const hasCarbExchanges = _.some(
       _.get(this.props, 'data.data.combined'),
-      { type: 'wizard', carbUnits: 'exchanges'
-    });
+      { type: 'wizard', carbUnits: 'exchanges' }
+    );
 
     if (hasCarbExchanges) carbUnits.push('exchanges');
 
