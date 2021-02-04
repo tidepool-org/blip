@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.19.0-rc.1":
-  version "1.19.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-rc.1.tgz#407416eea5a14022d3a8b9f6fefc445f4691da26"
-  integrity sha512-KpYHPdJdhhtOuU09KeSfNft/PAe9qCDdRcm7xwakQgrg2LBD+L9nrfJg47W8es+BBn/pOorwrEA44nFrBS7FMA==
+"@tidepool/viz@1.19.0-rc.2":
+  version "1.19.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-rc.2.tgz#5a2571aadf56428e18ee8c287d6eecfca85be50f"
+  integrity sha512-LezznQmX8E4sN2y2GsYMJJMNmPUYO+jqqicWMtRvaLfOqpPa+0JWWwZWXUfU3ewg7hHL9TYL7A9dhasOzmWpUQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
