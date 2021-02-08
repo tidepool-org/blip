@@ -22,6 +22,7 @@ import PdfTable from 'voilab-pdf-table';
 import PdfTableFitColumn from 'voilab-pdf-table/plugins/fitcolumn';
 import i18next from 'i18next';
 import moment from 'moment-timezone';
+import colors from '../../styles/colors.css';
 
 import {
   getTimezoneFromTimePrefs,
@@ -94,11 +95,11 @@ class PrintView {
       smbg: '#6480FB',
       smbgHeader: '#E8ECFE',
       siteChange: '#FCD144',
-      veryLow: '#FB5951',
-      low: '#FF8B7C',
-      target: '#76D3A6',
-      high: '#BB9AE7',
-      veryHigh: '#8C65D6',
+      veryLow: colors.veryLow,
+      low: colors.low,
+      target: colors.target,
+      high: colors.high,
+      veryHigh: colors.veryHigh,
       grey: '#6D6D6D',
       lightGrey: '#979797',
       darkGrey: '#4E4E4F',
