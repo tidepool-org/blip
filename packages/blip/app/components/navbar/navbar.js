@@ -23,7 +23,7 @@ import i18n from '../../core/language';
 var personUtils = require('../../core/personutils');
 var NavbarPatientCard = require('../../components/navbarpatientcard');
 
-var logoSrc = require('./images/tidepool/logo.png');
+var logoSrc = require('branding/logo.png');
 
 const t = i18n.t.bind(i18n);
 

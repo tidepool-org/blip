@@ -141,7 +141,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <img className={classes.toolbarLogo} alt={t("alt-img-logo")} src={`/${brandingLogo}`} />
+        <img className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} />
         {props.children}
         {accountMenu}
       </Toolbar>

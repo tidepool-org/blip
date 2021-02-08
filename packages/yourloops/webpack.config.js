@@ -87,10 +87,8 @@ const webpackConfig = {
       blipWebpack.babelLoaderConfiguration,
       blipWebpack.lessLoaderConfiguration,
       blipWebpack.cssLoaderConfiguration,
-      // blipWebpack.imageLoaderConfiguration,
-      // { test: /\.css$/, use: ["style-loader", "css-loader"] },
+      blipWebpack.imageLoaderConfiguration,
       { test: /\.(ttf|eot|woff2?)$/, use: ["file-loader"] },
-      { test: /\.(png|svg|jpe?g|gif)$/, use: ["file-loader"] },
 
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },

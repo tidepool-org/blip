@@ -143,7 +143,6 @@ const resolve = {
   ],
   alias: {
     pdfkit: 'pdfkit/js/pdfkit.standalone.js',
-    './images/tidepool/logo.png': path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo.png`),
     'lock.svg': path.resolve(__dirname, `../../branding/lock.svg`),
   },
 };

@@ -19,7 +19,7 @@ import React from 'react';
 import config from '../../config';
 import { CONFIG } from '../../core/constants';
 
-import logoSrc from './images/tidepool/logo.png';
+import logoSrc from 'branding/logo.png';
 
 function LoginLogo() {
   const altText = CONFIG[config.BRANDING].name;
