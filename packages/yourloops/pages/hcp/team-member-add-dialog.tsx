@@ -98,23 +98,22 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
 
   return (
     <Dialog
-      id="team-members-dialog-add-member"
+      id="team-add-member-dialog"
       open={addMember !== null}
-      aria-labelledby={t("aria-team-members-dialog-add-member-title", { teamName })}
+      aria-labelledby={t("aria-team-add-member-dialog-title", { teamName })}
       onClose={handleClickClose}>
-
-      <DialogTitle id="team-members-dialog-add-member-title">
-        <strong>{t("team-members-dialog-add-member-title")}</strong>
+      <DialogTitle id="team-add-member-dialog-title">
+        <strong>{t("team-add-member-dialog-title")}</strong>
         <br />
-        <span id="team-members-dialog-add-member-title-team-name">{teamName}</span>
+        <span id="team-add-member-dialog-title-team-name">{teamName}</span>
       </DialogTitle>
 
       <DialogContent className={classes.dialogContent}>
         <TextField
-          id="team-members-dialog-add-member-field-email"
+          id="team-add-member-dialog-field-email"
           variant="outlined"
           onChange={handleChangeEMail}
-          name="name"
+          name="email"
           value={email}
           label={t("Email")}
           required={true}
@@ -122,14 +121,22 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
           type="email"
         />
         <FormControlLabel
-          control={<Checkbox checked={role === TeamMemberRole.admin} onChange={handleChangeRole} name="role" color="primary" />}
-          label={t("team-members-dialog-add-member-checkbox-admin")}
+          control={
+            <Checkbox
+              id="team-add-member-dialog-checkbox-admin"
+              checked={role === TeamMemberRole.admin}
+              onChange={handleChangeRole}
+              name="role"
+              color="primary"
+            />
+          }
+          label={t("team-add-member-dialog-checkbox-admin")}
         />
       </DialogContent>
 
       <DialogActions>
         <Button
-          id="team-members-dialog-add-member-button-cancel"
+          id="team-add-member-dialog-button-cancel"
           onClick={handleClickClose}
           className={classes.buttonCancel}
           color="secondary"
@@ -137,12 +144,12 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
           {t("Cancel")}
         </Button>
         <Button
-          id="team-members-dialog-add-member-button-add"
+          id="team-add-member-dialog-button-add"
           onClick={handleClickAdd}
           color="primary"
           variant="contained"
           disabled={buttonDisabled}>
-          {t("team-members-dialog-add-member-button-add")}
+          {t("team-add-member-dialog-button-add")}
         </Button>
       </DialogActions>
     </Dialog>

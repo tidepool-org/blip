@@ -344,7 +344,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               {t("Cancel")}
             </Button>
             <Button
-              id="team-edit-dialog-button-create"
+              id="team-edit-dialog-button-validate"
               disabled={formIsIncomplete}
               onClick={handleValidateModal}
               color="primary"

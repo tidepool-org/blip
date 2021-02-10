@@ -80,32 +80,30 @@ function TeamsNavBar(props: BarProps): JSX.Element {
   };
 
   return (
-    <React.Fragment>
-      <AppBar position="static" color="secondary">
-        <Toolbar className={classes.toolBar}>
-          <div id="teams-navbar-item-left">
-            <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-              <Typography color="textPrimary" className={classes.breadcrumbLink}>
-                <HomeIcon className={classes.homeIcon} />
-                {t("teams-navbar-breadcrumbs-title-my-teams")}
-              </Typography>
-            </Breadcrumbs>
-          </div>
-          <div id="teams-navbar-item-middle"></div>
-          <div id="teams-navbar-item-right" className={classes.toolBarRight}>
-            <Button
-              id="teams-navbar-add-team"
-              color="primary"
-              variant="contained"
-              className={classes.buttonAddTeam}
-              onClick={handleOpenModalAddTeam}>
-              <AddIcon />
-              &nbsp;{t("button-add-team")}
-            </Button>
-          </div>
-        </Toolbar>
-      </AppBar>
-    </React.Fragment>
+    <AppBar position="static" color="secondary">
+      <Toolbar className={classes.toolBar}>
+        <div id="teams-navbar-item-left">
+          <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
+            <Typography color="textPrimary" className={classes.breadcrumbLink}>
+              <HomeIcon className={classes.homeIcon} />
+              {t("teams-navbar-breadcrumbs-title-my-teams")}
+            </Typography>
+          </Breadcrumbs>
+        </div>
+        <div id="teams-navbar-item-middle"></div>
+        <div id="teams-navbar-item-right" className={classes.toolBarRight}>
+          <Button
+            id="teams-navbar-add-team"
+            color="primary"
+            variant="contained"
+            className={classes.buttonAddTeam}
+            onClick={handleOpenModalAddTeam}>
+            <AddIcon />
+            &nbsp;{t("button-add-team")}
+          </Button>
+        </div>
+      </Toolbar>
+    </AppBar>
   );
 }
 

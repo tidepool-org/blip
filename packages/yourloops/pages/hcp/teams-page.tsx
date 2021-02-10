@@ -129,7 +129,11 @@ class TeamsPage extends React.Component<RouteComponentProps, TeamsListPageState>
 
     if (loading) {
       return (
-        <CircularProgress disableShrink style={{ position: "absolute", top: "calc(50vh - 20px)", left: "calc(50vw - 20px)" }} />
+        <CircularProgress
+          id="team-page-loading-progress"
+          disableShrink
+          style={{ position: "absolute", top: "calc(50vh - 20px)", left: "calc(50vw - 20px)" }}
+        />
       );
     }
     if (errorMessage !== null) {
@@ -168,7 +172,7 @@ class TeamsPage extends React.Component<RouteComponentProps, TeamsListPageState>
       <React.Fragment>
         <TeamsNavBar onShowEditTeamDialog={this.onShowEditTeamDialog} />
         <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
-          <Grid container spacing={3}>
+          <Grid id="team-page-grid-list" container spacing={3}>
             {teamsItems}
           </Grid>
         </Container>
@@ -184,7 +188,7 @@ class TeamsPage extends React.Component<RouteComponentProps, TeamsListPageState>
           autoHideDuration={6000}
           onClose={this.onCloseAlert}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-          <Alert onClose={this.onCloseAlert} severity={apiReturnAlert?.severity}>
+          <Alert id="team-page-alert" onClose={this.onCloseAlert} severity={apiReturnAlert?.severity}>
             {apiReturnAlert?.message}
           </Alert>
         </Snackbar>

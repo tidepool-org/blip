@@ -51,7 +51,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Team, TeamMember } from "../../models/team";
 import { useAuth } from "../../lib/auth/hook/use-auth";
 
-interface TeamMembersProps {
+export interface TeamMembersProps {
   team: Team;
   onSwitchAdminRole: (team: Team, userId: string, admin: boolean) => Promise<void>;
   onShowRemoveTeamMemberDialog: (team: Team, userId: string) => Promise<void>;
@@ -151,7 +151,12 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         await onShowRemoveTeamMemberDialog(team, userId);
       };
       removeMemberButton = (
-        <IconButton color="primary" aria-label="aria-team-remove-member" component="span" onClick={handleClickRemoveMember}>
+        <IconButton
+          id={`team-members-list-${team.id}-row-${member.userId}-action-remove`}
+          color="primary"
+          aria-label="aria-team-remove-member"
+          component="span"
+          onClick={handleClickRemoveMember}>
           <PersonRemoveIcon />
         </IconButton>
       );
@@ -198,7 +203,7 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
 
         {/* prettier-ignore */}
         <AccordionDetails>
-          <Table>
+          <Table id={`team-members-list-${team.id}-table`}>
             <TableHead className={classes.tableRowHeader}>
               <TableRow>
                 <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>

@@ -30,7 +30,10 @@ import * as React from "react";
 import { User } from "models/shoreline";
 import AuthApiClient from "../api";
 
-interface IAuthContext {
+/**
+ * The auth provider hook return values.
+ */
+export interface IAuthContext {
   user: User | null;
   login(username: string, password: string): Promise<User>;
   logout(): void;
@@ -39,8 +42,9 @@ interface IAuthContext {
   sendPasswordResetEmail(username: string): Promise<boolean>;
 }
 
-interface IAuthProvider {
+export interface IAuthProvider {
   children?: React.ReactNode;
+  provider: () => IAuthContext;
 }
 
 export const AuthContext = React.createContext({} as IAuthContext);
@@ -51,8 +55,10 @@ export function useAuth(): IAuthContext {
   return React.useContext(AuthContext);
 }
 
-// Provider hook that creates auth object and handles state
-function useProvideAuth() {
+/**
+ * Provider hook that creates auth object and handles state
+ */
+export function DefaultAuthProvider(): IAuthContext {
   const [user, setUser] = React.useState<User | null>(AuthApiClient.whoami);
 
   // Wrap any methods we want to use making sure
@@ -89,10 +95,8 @@ function useProvideAuth() {
   //       setUser(null);
   //     }
   //   });
-
   //   // Cleanup subscription on unmount
   //   return () => unsubscribe();
-
   // }, []);
 
   // Return the user object and auth methods
@@ -106,9 +110,14 @@ function useProvideAuth() {
   };
 }
 
-// Provider component that wraps your app and makes auth object
-// available to any child component that calls useAuth().
-export const AuthProvider: React.FC<React.ReactNode> = ({ children }: IAuthProvider) => {
-  const auth = useProvideAuth();
+/**
+ * Provider component that wraps your app and makes auth object available to any child component that calls useAuth().
+ * @param props for auth provider & children
+ */
+export function CustomAuthProvider(props: IAuthProvider): JSX.Element {
+  const { provider, children } = props;
+  const auth = provider();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-};
+}
+
+export default CustomAuthProvider;

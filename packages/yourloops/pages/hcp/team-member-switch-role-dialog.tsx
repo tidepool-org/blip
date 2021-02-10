@@ -75,7 +75,7 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
   const handleClose = () => {
     switchAdminRole.onDialogResult(false);
   };
-  const handleClickRemoveTeamMyself = () => {
+  const handleClickOK = () => {
     switchAdminRole.onDialogResult(true);
   };
 
@@ -117,11 +117,11 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
           {t("Cancel")}
         </Button>
         <Button
-          id="team-members-dialog-switch-role-button-remove"
-          onClick={handleClickRemoveTeamMyself}
+          id="team-members-dialog-switch-role-button-ok"
+          onClick={handleClickOK}
           color="primary"
           variant="contained">
-          {t("team-members-dialog-switch-role-button-remove")}
+          {t("team-members-dialog-switch-role-button-ok")}
         </Button>
       </DialogActions>
 

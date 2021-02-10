@@ -46,14 +46,15 @@ import PhoneIcon from "@material-ui/icons/Phone";
 import locales from "../../../../locales/languages.json";
 import { Team } from "../../models/team";
 
-interface TeamCardProps {
+export interface TeamCardProps {
   team: Team;
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;
   onShowLeaveTeamDialog: (team: Team) => Promise<void>;
   onShowAddMemberDialog: (team: Team) => Promise<void>;
 }
 
-interface TeamInfoProps {
+export interface TeamInfoProps {
+  id: string;
   label: string;
   value?: string | JSX.Element;
   icon: JSX.Element;
@@ -134,8 +135,8 @@ function VerifiedIcon(props: SvgIconProps): JSX.Element {
   );
 }
 
-function TeamInfo(props: TeamInfoProps): JSX.Element | null {
-  const { label, value, icon } = props;
+export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
+  const { id, label, value, icon } = props;
   const classes = teamInfoStyles();
   const { t } = useTranslation("yourloops");
 
@@ -144,11 +145,11 @@ function TeamInfo(props: TeamInfoProps): JSX.Element | null {
   }
 
   return (
-    <div className={classes.card}>
+    <div id={`team-card-info-${id}-${label}`} className={classes.card}>
       <Avatar className={classes.avatar}>{icon}</Avatar>
       <div className={classes.divLabelValue}>
-        <span>{t(label)}</span>
-        <span className={classes.spanValue}>{value}</span>
+        <span id={`team-card-info-${id}-${label}-label`}>{t(`team-card-label-${label}`)}</span>
+        <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>{value}</span>
       </div>
     </div>
   );
@@ -176,10 +177,12 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     setButtonsDisabled(false);
   };
 
+  const { id } = team;
+
   // FIXME: if (team.isAdmin(currentUser)) { ... show buttons }
   const buttonEdit = (
     <Button
-      id={`team-card-${team.id}-button-edit`}
+      id={`team-card-${id}-button-edit`}
       className={classes.buttonActionFirstRow}
       startIcon={<EditIcon color="primary" />}
       onClick={handleClickEdit}
@@ -189,7 +192,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   );
   const buttonAddMember = (
     <Button
-      id={`team-card-${team.id}-button-add-member`}
+      id={`team-card-${id}-button-add-member`}
       className={classes.buttonActionFirstRow}
       startIcon={<PersonAddIcon color="primary" />}
       onClick={handleClickAddMember}
@@ -199,7 +202,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   );
   const buttonLeaveTeam = (
     <Button
-      id={`team-card-${team.id}-button-leave-team`}
+      id={`team-card-${id}-button-leave-team`}
       className={classes.buttonActionFirstRow}
       startIcon={<ExitToAppIcon color="primary" />}
       onClick={handleClickLeaveTeam}
@@ -215,7 +218,12 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     address = (
       <React.Fragment>
         {line1}
-        {_.isString(line2) ? <React.Fragment><br />{line2}</React.Fragment> : null}
+        {_.isString(line2) ? (
+          <React.Fragment>
+            <br />
+            {line2}
+          </React.Fragment>
+        ) : null}
         <br />
         {`${zip} ${city} ${countryName}`}
       </React.Fragment>
@@ -224,8 +232,8 @@ function TeamCard(props: TeamCardProps): JSX.Element {
 
   return (
     <Paper className={classes.paper} classes={{ root: classes.paperRoot }}>
-      <div id={`team-card-${team.id}-actions`} className={classes.firstRow}>
-        <h2 id={`team-card-${team.id}-name`} className={classes.teamName}>
+      <div id={`team-card-${id}-actions`} className={classes.firstRow}>
+        <h2 id={`team-card-${id}-name`} className={classes.teamName}>
           {team.name}
         </h2>
         <div className={classes.divActions}>
@@ -234,11 +242,11 @@ function TeamCard(props: TeamCardProps): JSX.Element {
           {buttonLeaveTeam}
         </div>
       </div>
-      <div id={`team-card-${team.id}-infos`} className={classes.secondRow}>
-        <TeamInfo label="label-team-card-code" value={team.code} icon={<VerifiedIcon className={classes.teamInfoIcon} />} />
-        <TeamInfo label="label-team-card-phone" value={team.phone} icon={<PhoneIcon className={classes.teamInfoIcon} />} />
-        <TeamInfo label="label-team-card-address" value={address} icon={<LocationOnIcon className={classes.teamInfoIcon} />} />
-        <TeamInfo label="label-team-card-email" value={team.email} icon={<EmailIcon className={classes.teamInfoIcon} />} />
+      <div id={`team-card-${id}-infos`} className={classes.secondRow}>
+        <TeamInfo id={id} label="code" value={team.code} icon={<VerifiedIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="phone" value={team.phone} icon={<PhoneIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="address" value={address} icon={<LocationOnIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="email" value={team.email} icon={<EmailIcon className={classes.teamInfoIcon} />} />
       </div>
     </Paper>
   );

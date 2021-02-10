@@ -89,6 +89,7 @@ const karmaConfig = {
   webpack,
   webpackMiddleware: {
     noInfo: true,
+    stats: "errors-only",
   },
 };
 
