@@ -31,7 +31,7 @@ import bows from "bows";
 import _ from "lodash";
 
 import { User, Profile } from "models/shoreline";
-import { Team, TeamMember } from "models/team";
+import { Team, TeamMember, TeamMemberRole, TeamType } from "../../models/team";
 import { PatientData } from "models/device-data";
 import { APIErrorResponse } from "models/error";
 import { MessageNote } from "models/message";
@@ -40,7 +40,6 @@ import { defer, waitTimeout } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
 import http from "../http-status-codes";
-import { TeamMemberRole } from "../../models/team";
 
 const SESSION_TOKEN_KEY = "session-token";
 const TRACE_TOKEN_KEY = "trace-token";
@@ -114,9 +113,10 @@ class AuthApi extends EventTarget {
         name: "CHU Grenoble",
         code: "123456789",
         ownerId: "abcdef",
-        type: "medical",
+        type: TeamType.medical,
         address: {
           line1: "Boulevard de la Chantourne",
+          line2: "Cedex 38703",
           zip: "38700",
           city: "La Tronche",
           country: "FR",
@@ -126,32 +126,38 @@ class AuthApi extends EventTarget {
         members: [
           {
             teamId: "team-1",
-            userId: "132abc",
-            role: "viewer",
+            userId: "a0a1a2a3",
+            role: TeamMemberRole.viewer,
             user: {
-              userid: "132abc",
-              username: "a@b.fr",
-              profile: { firstName: "A", lastName: "B", fullName: "A B" },
+              userid: "a0a1a2a3",
+              username: "jean.dupont@chu-grenoble.fr",
+              profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
             },
           },
         ],
       },
       {
         id: "team-2",
-        name: "Clinique Nantes",
+        name: "Charité – Universitätsmedizin Berlin",
         code: "987654321",
-        phone: "00-00-00-00-00",
+        phone: "+49 30 450 - 50",
+        address: {
+          line1: "Charitéplatz 1",
+          city: "Berlin",
+          zip: "10117",
+          country: "DE",
+        },
         ownerId: "abcdef",
-        type: "medical",
+        type: TeamType.medical,
         members: [
           {
             teamId: "team-2",
-            userId: "132abc",
-            role: "viewer",
+            userId: "b0b1b2b3",
+            role: TeamMemberRole.admin,
             user: {
-              userid: "132abc",
-              username: "a@b.fr",
-              profile: { firstName: "A", lastName: "B", fullName: "A B" },
+              userid: "b0b1b2b3",
+              username: "adelheide.alvar@charite.de",
+              profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
             },
           },
         ],
@@ -162,13 +168,13 @@ class AuthApi extends EventTarget {
       this.teams[0].members?.push({
         teamId: "team-1",
         userId: this.user.userid,
-        role: "admin",
+        role: TeamMemberRole.admin,
         user: this.user,
       });
       this.teams[1].members?.push({
         teamId: "team-2",
         userId: this.user.userid,
-        role: "admin",
+        role: TeamMemberRole.admin,
         user: this.user,
       });
     }
@@ -305,13 +311,13 @@ class AuthApi extends EventTarget {
       this.teams[0].members?.push({
         teamId: "team-1",
         userId: this.user.userid,
-        role: "admin",
+        role: TeamMemberRole.admin,
         user: this.user,
       });
       this.teams[1].members?.push({
         teamId: "team-2",
         userId: this.user.userid,
-        role: "admin",
+        role: TeamMemberRole.admin,
         user: this.user,
       });
     }
@@ -645,7 +651,7 @@ class AuthApi extends EventTarget {
         }
         for (const member of thisTeam.members) {
           if (member.userId === userId) {
-            member.role = admin ? "admin" : "viewer";
+            member.role = admin ? TeamMemberRole.admin : TeamMemberRole.viewer;
             break;
           }
         }

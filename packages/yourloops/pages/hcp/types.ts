@@ -39,7 +39,24 @@ export interface SwitchRoleDialogContentProps {
   onDialogResult: (result: boolean) => void;
 }
 
+export interface TeamLeaveDialogContentProps {
+  team: Team;
+  onDialogResult: (result: boolean) => void;
+}
+
 export interface AddMemberDialogContentProps {
   team: Team;
   onDialogResult: (result: { email: string | null; role: TeamMemberRole }) => void;
+}
+
+export interface RemoveMemberDialogContentProps {
+  team: Team;
+  userId: string;
+  onDialogResult: (result: boolean) => void;
+}
+
+export interface TeamEditModalContentProps {
+  team: Partial<Team>;
+  /** Promise callback for the modal. null means cancel edit */
+  onSaveTeam: (team: Partial<Team> | null) => void;
 }

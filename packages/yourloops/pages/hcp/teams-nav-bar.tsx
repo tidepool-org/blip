@@ -41,10 +41,9 @@ import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
 import { Team } from "../../models/team";
-import TeamEditModal from "./team-edit-modal";
 
 interface BarProps {
-  onCreateTeam: (team: Partial<Team>) => Promise<void>;
+  onShowEditTeamDialog: (team: Team | null) => Promise<void>;
 }
 
 const pageBarStyles = makeStyles((theme: Theme) => {
@@ -72,36 +71,30 @@ const pageBarStyles = makeStyles((theme: Theme) => {
   };
 });
 
-function TeamsListBar(props: BarProps): JSX.Element {
+function TeamsNavBar(props: BarProps): JSX.Element {
   const classes = pageBarStyles();
   const { t } = useTranslation("yourloops");
 
-  const [modalOpened, setModalOpen] = React.useState(false);
-
-  const handleOpenModalAddTeam = (): void => {
-    setModalOpen(true);
-  };
-
-  const fakeNewTeam: Partial<Team> = {
-    type: "medical",
+  const handleOpenModalAddTeam = async (): Promise<void> => {
+    await props.onShowEditTeamDialog(null);
   };
 
   return (
     <React.Fragment>
       <AppBar position="static" color="secondary">
         <Toolbar className={classes.toolBar}>
-          <div id="team-list-toolbar-item-left">
+          <div id="teams-navbar-item-left">
             <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
               <Typography color="textPrimary" className={classes.breadcrumbLink}>
                 <HomeIcon className={classes.homeIcon} />
-                {t("team-list-breadcrumbs-title-my-teams")}
+                {t("teams-navbar-breadcrumbs-title-my-teams")}
               </Typography>
             </Breadcrumbs>
           </div>
-          <div id="team-list-toolbar-item-middle"></div>
-          <div id="team-list-toolbar-item-right" className={classes.toolBarRight}>
+          <div id="teams-navbar-item-middle"></div>
+          <div id="teams-navbar-item-right" className={classes.toolBarRight}>
             <Button
-              id="team-list-toolbar-add-team"
+              id="teams-navbar-add-team"
               color="primary"
               variant="contained"
               className={classes.buttonAddTeam}
@@ -112,15 +105,8 @@ function TeamsListBar(props: BarProps): JSX.Element {
           </div>
         </Toolbar>
       </AppBar>
-      <TeamEditModal
-        action="create"
-        modalOpened={modalOpened}
-        setModalOpen={setModalOpen}
-        team={fakeNewTeam}
-        onSaveTeam={props.onCreateTeam}
-      />
     </React.Fragment>
   );
 }
 
-export default TeamsListBar;
+export default TeamsNavBar;

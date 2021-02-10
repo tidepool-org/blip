@@ -67,7 +67,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
 
   const { t } = useTranslation("yourloops");
   const [email, setEMail] = React.useState("");
-  const [role, setRole] = React.useState("viewer" as TeamMemberRole);
+  const [role, setRole] = React.useState(TeamMemberRole.viewer);
   const [buttonDisabled, setButtonDisabled] = React.useState(true);
   const classes = dialogClasses();
 
@@ -79,21 +79,21 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
     setButtonDisabled(!REGEX_EMAIL.test(eMail));
   };
   const handleChangeRole = (_e: React.ChangeEvent<HTMLInputElement>, checked: boolean): void => {
-    setRole(checked ? "admin" : "viewer");
+    setRole(checked ? TeamMemberRole.admin : TeamMemberRole.viewer);
   };
 
   const handleClickClose = (): void => {
     addMember?.onDialogResult({ email: null, role });
     setEMail("");
     setButtonDisabled(true);
-    setRole("viewer");
+    setRole(TeamMemberRole.viewer);
   };
 
   const handleClickAdd = (): void => {
     addMember?.onDialogResult({ email, role });
     setEMail("");
     setButtonDisabled(true);
-    setRole("viewer");
+    setRole(TeamMemberRole.viewer);
   };
 
   return (
@@ -101,7 +101,8 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
       id="team-members-dialog-add-member"
       open={addMember !== null}
       aria-labelledby={t("aria-team-members-dialog-add-member-title", { teamName })}
-      BackdropProps={{ invisible: true }}>
+      onClose={handleClickClose}>
+
       <DialogTitle id="team-members-dialog-add-member-title">
         <strong>{t("team-members-dialog-add-member-title")}</strong>
         <br />
@@ -121,7 +122,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
           type="email"
         />
         <FormControlLabel
-          control={<Checkbox checked={role === "admin"} onChange={handleChangeRole} name="role" color="primary" />}
+          control={<Checkbox checked={role === TeamMemberRole.admin} onChange={handleChangeRole} name="role" color="primary" />}
           label={t("team-members-dialog-add-member-checkbox-admin")}
         />
       </DialogContent>

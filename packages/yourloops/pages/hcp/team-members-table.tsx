@@ -38,7 +38,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
-import SvgIcon from "@material-ui/core/SvgIcon";
+import SvgIcon, { SvgIconProps } from "@material-ui/core/SvgIcon";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -54,7 +54,7 @@ import { useAuth } from "../../lib/auth/hook/use-auth";
 interface TeamMembersProps {
   team: Team;
   onSwitchAdminRole: (team: Team, userId: string, admin: boolean) => Promise<void>;
-  onShowModalRemoveMember: (team: Team, userId: string) => void;
+  onShowRemoveTeamMemberDialog: (team: Team, userId: string) => Promise<void>;
 }
 
 const teamMembersStyles = makeStyles((theme: Theme) => {
@@ -69,23 +69,21 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
   };
 });
 
-function PersonRemoveIcon(): JSX.Element {
+function PersonRemoveIcon(props: SvgIconProps): JSX.Element {
   // For some reason this icon is not available with material-ui
   // This one come directly from material-design
   // Source: https://material.io/resources/icons/?icon=person_remove&style=baseline
   // prettier-ignore
   return (
-    <SvgIcon>
-      <svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" className="MuiSvgIcon-root">
-        <g><rect fill="none" height="24" width="24"/></g>
-        <g><path d="M14,8c0-2.21-1.79-4-4-4S6,5.79,6,8s1.79,4,4,4S14,10.21,14,8z M17,10v2h6v-2H17z M2,18v2h16v-2c0-2.66-5.33-4-8-4 S2,15.34,2,18z"/></g>
-      </svg>
+    <SvgIcon xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" {...props}>
+      <g><rect fill="none" height="24" width="24"/></g>
+      <g><path d="M14,8c0-2.21-1.79-4-4-4S6,5.79,6,8s1.79,4,4,4S14,10.21,14,8z M17,10v2h6v-2H17z M2,18v2h16v-2c0-2.66-5.33-4-8-4 S2,15.34,2,18z"/></g>
     </SvgIcon>
   );
 }
 
 function MembersTableBody(props: TeamMembersProps): JSX.Element {
-  const { team, onSwitchAdminRole, onShowModalRemoveMember } = props;
+  const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;
   const members = team.members ?? [];
 
   let userIsAdmin = false;
@@ -107,7 +105,6 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const userId = event.target.name;
     const isAdmin = event.target.checked;
-    console.log("handleSwitchRole", { userId, isAdmin });
     setUpdatingUser(userId);
     await onSwitchAdminRole(team, userId, isAdmin);
     setUpdatingUser("");
@@ -150,7 +147,9 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
 
     let removeMemberButton: JSX.Element | null = null;
     if (userIsAdmin && userId !== currentUserId) {
-      const handleClickRemoveMember = (): void => onShowModalRemoveMember(team, userId);
+      const handleClickRemoveMember = async (): Promise<void> => {
+        await onShowRemoveTeamMemberDialog(team, userId);
+      };
       removeMemberButton = (
         <IconButton color="primary" aria-label="aria-team-remove-member" component="span" onClick={handleClickRemoveMember}>
           <PersonRemoveIcon />

@@ -38,15 +38,11 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { Team, TeamMember } from "../../models/team";
+import { TeamMember } from "../../models/team";
+import { RemoveMemberDialogContentProps } from "./types";
 
 interface RemoveMemberDialogProps {
-  userToBeRemoved: null | {
-    team: Team;
-    userId: string;
-  };
-  handleClose: () => void;
-  handleRemoveTeamMember: () => Promise<void>;
+  userToBeRemoved: RemoveMemberDialogContentProps | null;
 }
 
 const removeMemberDialogClasses = makeStyles((theme: Theme) => {
@@ -58,37 +54,39 @@ const removeMemberDialogClasses = makeStyles((theme: Theme) => {
 });
 
 function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
-  const { userToBeRemoved, handleClose, handleRemoveTeamMember } = props;
+  const { userToBeRemoved } = props;
   const classes = removeMemberDialogClasses();
   const { t } = useTranslation("yourloops");
 
-  let hcpName = "n/a";
+  let hcpFirstName = "n/a";
+  let hcpLastName = "n/a";
   let teamName = "n/a";
   if (userToBeRemoved !== null) {
     teamName = userToBeRemoved.team.name ?? "";
     const teamMember = userToBeRemoved.team.members?.find((tm: TeamMember) => tm.userId === userToBeRemoved.userId);
 
-    hcpName =
-      teamMember?.user?.profile?.fullName ??
-      `${teamMember?.user?.profile?.firstName} ${teamMember?.user?.profile?.lastName}` ??
-      teamMember?.user?.username ??
-      userToBeRemoved.userId;
+    hcpLastName = teamMember?.user?.profile?.lastName ?? teamMember?.user?.profile?.fullName ?? teamMember?.user?.username ?? userToBeRemoved.userId;
+    hcpFirstName = teamMember?.user?.profile?.firstName ?? "";
   }
 
-  const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
-  const handleClickRemoveTeamMember = async (): Promise<void> => {
-    setButtonsDisabled(true);
-    await handleRemoveTeamMember();
-    setButtonsDisabled(false);
+  const handleClose = (): void => {
+    if (userToBeRemoved !== null) {
+      userToBeRemoved.onDialogResult(false);
+    }
+  };
+  const handleClickRemoveTeamMember = (): void => {
+    if (userToBeRemoved !== null) {
+      userToBeRemoved.onDialogResult(true);
+    }
   };
 
   return (
     <Dialog
       id="team-members-dialog-rmmember"
       open={userToBeRemoved !== null}
+      onClose={handleClose}
       aria-labelledby={t("aria-team-members-dialog-rmmember-title", { teamName })}
-      aria-describedby={t("aria-team-members-dialog-rmmember-question", { hcpName })}
-      BackdropProps={{ invisible: true }}>
+      aria-describedby={t("aria-team-members-dialog-rmmember-question", { hcpFirstName, hcpLastName })}>
       <DialogTitle id="team-members-dialog-rmmember-title">
         <Trans i18nKey="team-members-dialog-rmmember-title" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
           Remove a healthcare professional from the team <strong>{{ teamName }}</strong>
@@ -101,8 +99,9 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
             i18nKey="team-members-dialog-rmmember-question"
             t={t}
             components={{ strong: <strong /> }}
+            values={{ hcpFirstName, hcpLastName }}
             parent={React.Fragment}>
-            Are you sure you want to remove <strong>{{ hcpName }}</strong> from this medical team?
+            Are you sure you want to remove <strong>{hcpFirstName} {hcpLastName}</strong> from this medical team?
           </Trans>
         </DialogContentText>
         <DialogContentText id="team-members-dialog-rmmember-consequences">
@@ -114,7 +113,6 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
         <Button
           id="team-members-dialog-rmmember-button-cancel"
           onClick={handleClose}
-          disabled={buttonsDisabled}
           className={classes.buttonCancel}
           color="secondary"
           variant="contained">
@@ -123,7 +121,6 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
         <Button
           id="team-members-dialog-rmmember-button-remove"
           onClick={handleClickRemoveTeamMember}
-          disabled={buttonsDisabled}
           color="primary"
           variant="contained">
           {t("team-members-dialog-rmmember-button-remove")}

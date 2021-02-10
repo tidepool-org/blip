@@ -85,7 +85,7 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
       open={switchAdminRole !== null}
       aria-labelledby={t("aria-team-members-dialog-switch-role-title", { teamName })}
       aria-describedby={t("aria-team-members-dialog-switch-role-question")}
-      BackdropProps={{ invisible: true }}>
+      onClose={handleClose}>
 
       <DialogTitle id="team-members-dialog-switch-role-title">
         <strong>{t("team-members-dialog-switch-role-title")}</strong>
