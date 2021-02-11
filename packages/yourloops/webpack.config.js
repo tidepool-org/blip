@@ -88,11 +88,11 @@ const webpackConfig = {
       blipWebpack.lessLoaderConfiguration,
       blipWebpack.cssLoaderConfiguration,
       blipWebpack.imageLoaderConfiguration,
-      { test: /\.(ttf|eot|woff2?)$/, use: ["file-loader"] },
+      { test: /\.(ttf|eot|woff2?)$/, loader: "file-loader" },
 
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
-      { test: /locales\/languages\.json$/, use: { loader: './locales-loader.js' } },
+      { enforce: "pre", test: /\.(js|ts|tsx)$/, loader: "source-map-loader" },
+      { test: /locales\/languages\.json$/, loader: './locales-loader.js' },
     ],
   },
   plugins: [
