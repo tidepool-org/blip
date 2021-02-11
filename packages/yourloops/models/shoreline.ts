@@ -26,22 +26,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+enum Units {
+  mole = "mmol/L",
+  gram = "mg/dL",
+}
+
+enum Roles {
+  patient = "patient",
+  clinic = "clinic",
+}
+
 interface Profile {
   fullName: string;
   firstName?: string;
   lastName?: string;
-  patient?: unknown;
+  patient?: Patient;
+}
+
+interface Patient {
+  birthday?: string;
+  diagnosisDate?: string;
+  diagnosisType?: string;
 }
 
 interface Settings {
   units?: {
-    bg?: "mmol/L" | "mg/dL";
+    bg?: Units;
   };
   country?: string;
 }
 
 interface Preferences {
-  displayLanguageCode?: string;
+  displayLanguageCode?: "en" | "de" | "es" | "fr" | "it" | "nl";
   patientsStarred?: string[];
 }
 interface User {
@@ -50,7 +66,7 @@ interface User {
   /** The username (login) */
   username: string;
   /** Roles of the users  */
-  roles?: string[];
+  roles?: Roles[];
   /** Emails of the users */
   emails?: string[];
   /** Date of the last accepted terms */
@@ -65,4 +81,4 @@ interface User {
   preferences?: Preferences;
 }
 
-export { User, Profile };
+export { User, Profile, Settings, Units, Roles, Preferences };

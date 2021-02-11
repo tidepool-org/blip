@@ -26,12 +26,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import i18n, { InitOptions, Resource, TOptions } from "i18next";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
 
 import getLocale from "./browser-locale";
 import locales from "../../../locales/languages.json";
+import { Preferences } from "../models/shoreline";
 
 async function init(): Promise<void> {
   const crowdinActive = typeof window._jipt === "object";
@@ -117,5 +119,22 @@ function t(s: string, p?: TOptions | string): string {
   return i18n.t(`yourloops|${s}`, p);
 }
 
-export { init, t };
+const getCurrentLocaleName = (shortLocale: Preferences["displayLanguageCode"]): string => {
+  return shortLocale ? locales.resources[shortLocale]?.name : "";
+};
+
+const getLocaleShortname = (locale: string): Preferences["displayLanguageCode"] => {
+  let shortName = "";
+  _.forEach(locales.resources, ({ name }, key) => {
+    if (name === locale) {
+      shortName = key;
+    }
+  });
+
+  return shortName as Preferences["displayLanguageCode"];
+};
+
+const availableLocales = _.map(locales.resources, ({ name }) => name);
+
+export { init, t, getCurrentLocaleName, getLocaleShortname, availableLocales };
 export default i18n;

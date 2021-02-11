@@ -28,7 +28,7 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import { RouteComponentProps, useHistory, withRouter } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -92,6 +92,11 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     setAnchorEl(null);
   };
 
+  const history = useHistory();
+  const handleOpenProfilePage = () => {
+    history.push("/account-preferences");
+  };
+
   const handleLogout = () => {
     const { history } = props;
     setAnchorEl(null);
@@ -131,7 +136,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           }}
           open={open}
           onClose={handleClose}>
-          <MenuItem onClick={handleClose}>{t("Profile")}</MenuItem>
+          <MenuItem onClick={handleOpenProfilePage}>{t("account-preferences")}</MenuItem>
           <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
         </Menu>
       </div>

@@ -40,6 +40,7 @@ import HcpPage from "../pages/hcp";
 import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 import AuthProvider, { DefaultAuthProvider } from "../lib/auth/hook/use-auth";
+import { ProfilePage } from "../pages/profile/profile";
 import PrivateRoute from "../components/private-route";
 
 const Yourloops: React.FunctionComponent = () => {
@@ -53,6 +54,7 @@ const Yourloops: React.FunctionComponent = () => {
             <Route path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
             <PrivateRoute path="/hcp" component={HcpPage} />
             <PrivateRoute path="/patient" component={PatientPage} />
+            <PrivateRoute path="/account-preferences" component={ProfilePage} />
           </Switch>
         </Router>
       </AuthProvider>

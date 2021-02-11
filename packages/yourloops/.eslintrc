@@ -45,10 +45,7 @@
       }
     ],
     "eol-last": ["error", "always"],
-    "max-lines": [
-      "error",
-      { "max": 1000, "skipComments": true, "skipBlankLines": true }
-    ],
+    "max-lines": ["error", { "max": 1000, "skipComments": true, "skipBlankLines": true }],
     "no-implied-eval": "error",
     "no-eq-null": "error",
     "no-else-return": "error",

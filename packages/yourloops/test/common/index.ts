@@ -124,5 +124,6 @@ export function TestAuthProviderHCP(): IAuthContext {
     logout: sinon.spy(),
     sendPasswordResetEmail: sinon.stub().returns(true),
     signup: sinon.spy(),
+    setUser: sinon.spy(),
   };
 }

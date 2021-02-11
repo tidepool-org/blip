@@ -35,6 +35,7 @@ import AuthApiClient from "../api";
  */
 export interface IAuthContext {
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   login(username: string, password: string): Promise<User>;
   logout(): void;
   signup(username: string, password: string): void;
@@ -102,6 +103,7 @@ export function DefaultAuthProvider(): IAuthContext {
   // Return the user object and auth methods
   return {
     user,
+    setUser,
     login,
     logout,
     signup,

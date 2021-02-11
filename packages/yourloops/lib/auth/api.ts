@@ -30,8 +30,6 @@ import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import bows from "bows";
 import _ from "lodash";
 
-import { User, Profile } from "models/shoreline";
-import { Team, TeamMember, TeamMemberRole, TeamType } from "../../models/team";
 import { PatientData } from "models/device-data";
 import { APIErrorResponse } from "models/error";
 import { MessageNote } from "models/message";
@@ -39,7 +37,9 @@ import { MessageNote } from "models/message";
 import { defer, waitTimeout } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
-import http from "../http-status-codes";
+import { User, Profile, Settings, Roles, Preferences } from "../../models/shoreline";
+import { Team, TeamMember, TeamMemberRole, TeamType } from "../../models/team";
+import HttpStatus from "../http-status-codes";
 
 const SESSION_TOKEN_KEY = "session-token";
 const TRACE_TOKEN_KEY = "trace-token";
@@ -262,24 +262,24 @@ class AuthApi extends EventTarget {
       },
     });
 
-    if (!response.ok || response.status !== http.StatusOK) {
+    if (!response.ok || response.status !== HttpStatus.StatusOK) {
       switch (response.status) {
-      case http.StatusUnauthorized:
-        if (_.isNumber(appConfig.MAX_FAILED_LOGIN_ATTEMPTS)) {
-          if (++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
-            reason = t(
-              "Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
-              { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT }
-            );
-          } else {
-            reason = t("Wrong username or password");
+        case HttpStatus.StatusUnauthorized:
+          if (_.isNumber(appConfig.MAX_FAILED_LOGIN_ATTEMPTS)) {
+            if (++this.wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
+              reason = t(
+                "Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
+                { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT }
+              );
+            } else {
+              reason = t("Wrong username or password");
+            }
           }
-        }
-        break;
-      // missing handling 403 status => email not verified
-      default:
-        reason = t("An error occurred while logging in.");
-        break;
+          break;
+        // missing handling 403 status => email not verified
+        default:
+          reason = t("An error occurred while logging in.");
+          break;
       }
 
       if (reason === null) {
@@ -295,7 +295,7 @@ class AuthApi extends EventTarget {
     this.user = (await response.json()) as User;
 
     if (!Array.isArray(this.user.roles)) {
-      this.user.roles = ["patient"];
+      this.user.roles = [Roles.patient];
     }
 
     // ???
@@ -335,8 +335,23 @@ class AuthApi extends EventTarget {
   async login(username: string, password: string): Promise<User> {
     this.loginLock = true;
     return this.authenticate(username, password)
-      .then((user: User) => {
-        return this.getUserProfile(user);
+      .then(async (user: User) => {
+        const [profile, preferences, settings] = await Promise.all([
+          this.getUserProfile(user),
+          this.getUserPreferences(user),
+          this.getUserSettings(user),
+        ]);
+        if (profile !== null) {
+          user.profile = profile;
+        }
+        if (preferences !== null) {
+          user.preferences = preferences;
+        }
+        if (settings !== null) {
+          user.settings = settings;
+        }
+        sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(user));
+        return user;
       })
       .finally(() => {
         this.loginLock = false;
@@ -398,7 +413,7 @@ class AuthApi extends EventTarget {
     throw new Error(t(responseBody.reason));
   }
 
-  public async getUserProfile(user: User): Promise<User> {
+  public async getUserProfile(user: User): Promise<Profile | null> {
     if (!this.isLoggedIn) {
       // Users should never see this:
       throw new Error(t("not-logged-in"));
@@ -414,17 +429,83 @@ class AuthApi extends EventTarget {
       },
     });
 
+    let profile: Profile | null = null;
     if (response.ok) {
-      user.profile = (await response.json()) as Profile;
+      try {
+        profile = (await response.json()) as Profile;
+      } catch (e) {
+        this.log.debug(e);
+      }
+    } else if (response.status === HttpStatus.StatusNotFound) {
+      this.log.debug("Error : 404 not found");
     } else {
       const responseBody = (await response.json()) as APIErrorResponse;
       throw new Error(t(responseBody.reason));
     }
 
-    if (this.user?.userid === user.userid) {
-      sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
+    return profile;
+  }
+
+  public async getUserPreferences({ userid }: User): Promise<Preferences | null> {
+    if (!this.isLoggedIn) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
     }
-    return user;
+    const seagullURL = new URL(`/metadata/${userid}/preferences`, appConfig.API_HOST);
+    const response = await fetch(seagullURL.toString(), {
+      method: "GET",
+      headers: {
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+    });
+
+    let preferences: Preferences | null = null;
+    if (response.ok) {
+      try {
+        preferences = (await response.json()) as Preferences;
+      } catch (e) {
+        this.log.debug(e);
+      }
+    } else if (response.status === HttpStatus.StatusNotFound) {
+      this.log.debug("Error : 404 not found");
+    } else {
+      const responseBody = (await response.json()) as APIErrorResponse;
+      throw new Error(t(responseBody.reason));
+    }
+
+    return preferences;
+  }
+
+  public async getUserSettings({ userid }: User): Promise<Settings | null> {
+    if (!this.isLoggedIn) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
+    }
+    const seagullURL = new URL(`/metadata/${userid}/settings`, appConfig.API_HOST);
+    const response = await fetch(seagullURL.toString(), {
+      method: "GET",
+      headers: {
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+    });
+
+    let settings: Settings | null = null;
+    if (response.ok) {
+      try {
+        settings = (await response.json()) as Settings;
+      } catch (e) {
+        this.log.debug(e);
+      }
+    } else if (response.status === HttpStatus.StatusNotFound) {
+      this.log.debug("Error : 404 not found");
+    } else {
+      const responseBody = (await response.json()) as APIErrorResponse;
+      throw new Error(t(responseBody.reason));
+    }
+
+    return settings;
   }
 
   public async flagPatient(userId: string): Promise<string[]> {
@@ -690,28 +771,118 @@ class AuthApi extends EventTarget {
     let matomoPaq = null;
     this.log.info("Metrics:", eventName, properties);
     switch (appConfig.METRICS_SERVICE) {
-    case "matomo":
-      matomoPaq = window._paq;
-      if (!_.isObject(matomoPaq)) {
-        this.log.error("Matomo do not seems to be available, wrong configuration");
-        return;
+      case "matomo":
+        matomoPaq = window._paq;
+        if (!_.isObject(matomoPaq)) {
+          this.log.error("Matomo do not seems to be available, wrong configuration");
+          return;
+        }
+        if (eventName === "CookieConsent") {
+          matomoPaq.push(["setConsentGiven", properties]);
+        } else if (eventName === "setCustomUrl") {
+          matomoPaq.push(["setCustomUrl", properties]);
+        } else if (eventName === "setUserId") {
+          matomoPaq.push(["setUserId", properties]);
+        } else if (eventName === "resetUserId") {
+          matomoPaq.push(["resetUserId"]);
+        } else if (eventName === "setDocumentTitle" && typeof properties === "string") {
+          matomoPaq.push(["setDocumentTitle", properties]);
+        } else if (typeof properties === "undefined") {
+          matomoPaq.push(["trackEvent", eventName]);
+        } else {
+          matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
+        }
+        break;
+    }
+  }
+
+  public async updateUserProfile({ userid, profile }: User): Promise<void> {
+    if (!this.isLoggedIn) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
+    }
+
+    const seagullURL = new URL(`/metadata/${userid}/profile`, appConfig.API_HOST);
+
+    const response = await fetch(seagullURL.toString(), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+      body: JSON.stringify(profile),
+    });
+
+    if (response.ok) {
+      profile = (await response.json()) as Profile;
+      if (this.user?.userid === userid) {
+        this.user.profile = profile;
+        sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
       }
-      if (eventName === "CookieConsent") {
-        matomoPaq.push(["setConsentGiven", properties]);
-      } else if (eventName === "setCustomUrl") {
-        matomoPaq.push(["setCustomUrl", properties]);
-      } else if (eventName === "setUserId") {
-        matomoPaq.push(["setUserId", properties]);
-      } else if (eventName === "resetUserId") {
-        matomoPaq.push(["resetUserId"]);
-      } else if (eventName === "setDocumentTitle" && typeof properties === "string") {
-        matomoPaq.push(["setDocumentTitle", properties]);
-      } else if (typeof properties === "undefined") {
-        matomoPaq.push(["trackEvent", eventName]);
-      } else {
-        matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
+    } else {
+      const responseBody = (await response.json()) as APIErrorResponse;
+      throw new Error(t(responseBody.reason));
+    }
+  }
+
+  public async updateUserSettings({ userid, settings }: User): Promise<void> {
+    if (!this.isLoggedIn) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
+    }
+
+    const seagullURL = new URL(`/metadata/${userid}/settings`, appConfig.API_HOST);
+
+    const response = await fetch(seagullURL.toString(), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (response.ok) {
+      settings = (await response.json()) as Settings;
+      if (this.user?.userid === userid) {
+        this.user.settings = settings;
+        sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
       }
-      break;
+    } else {
+      const responseBody = (await response.json()) as APIErrorResponse;
+      throw new Error(t(responseBody.reason));
+    }
+  }
+
+  public async updateUserPreferences({ userid, preferences }: User): Promise<void> {
+    if (!this.isLoggedIn) {
+      // Users should never see this:
+      throw new Error(t("You are not logged-in"));
+    }
+
+    const seagullURL = new URL(`/metadata/${userid}/preferences`, appConfig.API_HOST);
+
+    const response = await fetch(seagullURL.toString(), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        [TRACE_SESSION_HEADER]: this.traceToken as string,
+        [SESSION_TOKEN_HEADER]: this.sessionToken as string,
+      },
+      body: JSON.stringify(preferences),
+    });
+
+    if (response.ok) {
+      preferences = (await response.json()) as Preferences;
+      if (this.user?.userid === userid) {
+        this.user.preferences = preferences;
+        sessionStorage.setItem(LOGGED_IN_USER, JSON.stringify(this.user));
+      }
+    } else {
+      const responseBody = (await response.json()) as APIErrorResponse;
+      throw new Error(t(responseBody.reason));
     }
   }
 }
