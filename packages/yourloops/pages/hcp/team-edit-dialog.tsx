@@ -224,11 +224,11 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     // Create a new team
     ariaModal = t("aria-modal-team-add");
     modalTitle = t("modal-team-add-title");
-    modalButtonValidate = t("modal-team-button-create");
+    modalButtonValidate = t("create");
   } else {
     ariaModal = t("aria-modal-team-edit");
     modalTitle = t("modal-team-edit-title");
-    modalButtonValidate = t("modal-team-button-edit");
+    modalButtonValidate = t("save");
   }
 
   return (
@@ -329,7 +329,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               onChange={(e) => setTeamEmail(e.target.value)}
               name="email"
               value={teamEmail}
-              label={t("team-edit-dialog-placeholder-email")}
+              label={t("email")}
               required={false}
               aria-required="false"
             />

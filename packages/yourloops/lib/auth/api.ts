@@ -239,12 +239,12 @@ class AuthApi extends EventTarget {
     this.logout(); // To be sure to reset the values
 
     if (!_.isString(username) || _.isEmpty(username)) {
-      reason = t("Must specify a username") as string;
+      reason = t("no-username") as string;
       return Promise.reject(new Error(reason));
     }
 
     if (!_.isString(password) || _.isEmpty(password)) {
-      reason = t("Must specify a password") as string;
+      reason = t("no-password") as string;
       return Promise.reject(new Error(reason));
     }
 
@@ -377,7 +377,7 @@ class AuthApi extends EventTarget {
   public async getUserShares(): Promise<User[]> {
     if (!this.isLoggedIn) {
       // Users should never see this:
-      throw new Error(t("You are not logged-in"));
+      throw new Error(t("not-logged-in"));
     }
 
     const seagullURL = new URL(`/metadata/users/${this.user?.userid}/users`, appConfig.API_HOST);
@@ -401,7 +401,7 @@ class AuthApi extends EventTarget {
   public async getUserProfile(user: User): Promise<User> {
     if (!this.isLoggedIn) {
       // Users should never see this:
-      throw new Error(t("You are not logged-in"));
+      throw new Error(t("not-logged-in"));
     }
 
     const seagullURL = new URL(`/metadata/${user.userid}/profile`, appConfig.API_HOST);
@@ -430,7 +430,7 @@ class AuthApi extends EventTarget {
   public async flagPatient(userId: string): Promise<string[]> {
     if (!this.isLoggedIn || this.user === null) {
       // Users should never see this:
-      throw new Error(t("You are not logged-in"));
+      throw new Error(t("not-logged-in"));
     }
     if (typeof this.user.preferences !== "object" || this.user.preferences === null) {
       this.user.preferences = {
@@ -500,7 +500,7 @@ class AuthApi extends EventTarget {
   public async startMessageThread(message: MessageNote): Promise<string> {
     if (!this.isLoggedIn) {
       // Users should never see this:
-      throw new Error(t("You are not logged-in"));
+      throw new Error(t("not-logged-in"));
     }
 
     const messageURL = new URL(`/message/send/${message.groupid}`, appConfig.API_HOST);

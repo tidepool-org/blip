@@ -151,7 +151,7 @@ function testTeamPage(): void {
       expect(leaveTeamStub.calledOnce, "calledOnce").to.be.true;
       expect(leaveTeamStub.calledWith(teams[0]), "calledWith").to.be.true;
 
-      expect(teamPage.state.apiReturnAlert).to.be.deep.equal({ message: t("team-page-success-leave"), severity: "success" });
+      expect(teamPage.state.apiReturnAlert).to.be.deep.equal({ message: t("team-page-leave-success"), severity: "success" });
     });
 
     it("should display an error alert if the api call failed", async () => {

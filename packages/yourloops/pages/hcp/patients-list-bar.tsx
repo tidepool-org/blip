@@ -266,7 +266,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
   const optionsFilterTeamsElements: JSX.Element[] = [];
   const optionsTeamsElements: JSX.Element[] = [<option aria-label={t("aria-none")} value="" key="none" />];
   if (teams.length > 0) {
-    optionsFilterTeamsElements.push(<ListSubheader key="team-sub-header">{t("Teams")}</ListSubheader>);
+    optionsFilterTeamsElements.push(<ListSubheader key="team-sub-header">{t("teams")}</ListSubheader>);
     for (const team of teams) {
       optionsFilterTeamsElements.push(
         <MenuItem value={team.id} key={team.id} aria-label={team.name}>
@@ -290,7 +290,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
           <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
             <Link color="textPrimary" className={classes.breadcrumbLink} href="/hcp/patients" onClick={handleClickMyPatients}>
               <HomeIcon className={classes.homeIcon} />
-              {t("My Patients")}
+              {t("my-patients-title")}
             </Link>
           </Breadcrumbs>
         </div>
@@ -332,11 +332,11 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
             className={classes.buttonAddPatient}
             onClick={handleOpenModalAddPatient}>
             <PersonAddIcon />
-            &nbsp;{t("button-add-patient")}
+            &nbsp;{t("add-patient")}
           </Button>
           <Modal
             id="patient-list-toolbar-modal-add-patient"
-            aria-labelledby={t("aria-modal-add-patient")}
+            aria-labelledby={t("add-patient")}
             className={classes.modalAddPatient}
             open={modalAddPatientOpen}
             onClose={handleCloseModalAddPatient}
@@ -354,10 +354,10 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
                     id="patient-list-toolbar-modal-add-patient-username"
                     onChange={handleChangeUsername}
                     value={modalUsername}
-                    label={t("Required")}
+                    label={t("required")}
                   />
                   <FormControl className={classes.formControlSelectTeam}>
-                    <InputLabel htmlFor="select-patient-list-modal-team">{t("Team")}</InputLabel>
+                    <InputLabel htmlFor="select-patient-list-modal-team">{t("team")}</InputLabel>
                     <NativeSelect
                       value={modalSelectedTeam}
                       onChange={handleChangeAddPatientTeam}
@@ -382,7 +382,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
                       onClick={handleModalAddPatient}
                       color="primary"
                       variant="contained">
-                      {t("Create")}
+                      {t("create")}
                     </Button>
                   </div>
                 </form>

@@ -221,10 +221,10 @@ module.exports = function (common, config, deps) {
     }
 
     if (user.username == null) {
-      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'no-username' });
     }
     if (user.password == null) {
-      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'no-password' });
     }
 
     superagent
@@ -287,10 +287,10 @@ module.exports = function (common, config, deps) {
     }
 
     if (user.username == null) {
-      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'no-username' });
     }
     if (user.password == null) {
-      return cb({ status: common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
+      return cb({ status: common.STATUS_BAD_REQUEST, message: 'no-password' });
     }
 
     var newUser = _.pick(user, 'username', 'password', 'emails', 'roles');

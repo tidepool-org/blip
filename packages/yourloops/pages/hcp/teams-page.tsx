@@ -231,7 +231,7 @@ class TeamsPage extends React.Component<RouteComponentProps, TeamsListPageState>
       try {
         const onlyMember = !((team.members?.length ?? 0) > 1);
         const teams = await apiClient.leaveTeam(team);
-        const message = onlyMember ? t("team-page-success-deleted") : t("team-page-success-leave");
+        const message = onlyMember ? t("team-page-success-deleted") : t("team-page-leave-success");
         this.setState({ teams, apiReturnAlert: { message, severity: "success" } });
       } catch (reason: unknown) {
         this.log.error("onShowLeaveTeamDialog", reason);

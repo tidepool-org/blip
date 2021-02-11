@@ -149,7 +149,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
           color="primary"
           variant="contained"
           disabled={buttonDisabled}>
-          {t("team-add-member-dialog-button-add")}
+          {t("button-invite")}
         </Button>
       </DialogActions>
     </Dialog>

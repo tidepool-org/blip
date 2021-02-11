@@ -133,12 +133,12 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
             <TableCell id="patients-list-header-flag" />
             <TableCell id="patients-list-header-lastname">
               <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler("lastname")}>
-                {t("list-patient-lastname")}
+                {t("lastname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-firstname">
               <TableSortLabel active={orderBy === "firstname"} direction={order} onClick={createSortHandler("firstname")}>
-                {t("list-patient-firstname")}
+                {t("firstname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-tir">{t("list-patient-tir")}</TableCell>

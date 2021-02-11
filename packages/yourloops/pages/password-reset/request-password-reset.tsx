@@ -115,7 +115,7 @@ function RequestPasswordResetPage(props: RouteComponentProps): JSX.Element {
               <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
                 <TextField
                   id="username"
-                  label={t("Email")}
+                  label={t("email")}
                   value={username}
                   required
                   error={validateError || emptyUsername}
