@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCP patient list bar tests
+ * Data API
  *
  * All rights reserved.
  *
@@ -26,33 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { expect } from "chai";
-import { shallow } from "enzyme";
-import sinon from "sinon";
+import {
+  DataContext,
+  DataProvider,
+  DefaultDataContext,
+  PatientDataLoadedEvent,
+  DataContextProvider,
+  useData,
+} from "./hook";
 
-import PatientListTable, { PatientListTableProps } from "../../../pages/hcp/patients-list-table";
-import { SortDirection, SortFields } from "../../../pages/hcp//types";
-
-function testPatientListTable(): void {
-  const defaultProps: PatientListTableProps = {
-    patients: [],
-    flagged: [],
-    order: SortDirection.asc,
-    orderBy: SortFields.lastname,
-    onClickPatient: sinon.spy(),
-    onFlagPatient: sinon.spy(),
-    onSortList: sinon.spy(),
-  };
-
-  it("should be exported as a function", () => {
-    expect(PatientListTable).to.be.a("function");
-  });
-
-  it("should be able to render", () => {
-    const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-header-flag").length).to.be.equal(1);
-  });
-}
-
-export default testPatientListTable;
+export {
+  DataContext,
+  DataProvider,
+  DefaultDataContext,
+  PatientDataLoadedEvent,
+  DataContextProvider,
+  useData,
+};

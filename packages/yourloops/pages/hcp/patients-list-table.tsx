@@ -43,17 +43,18 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
-import { User } from "../../models/shoreline";
+import sendMetrics from "../../lib/metrics";
+import { getUserFirstName, getUserLastName } from "../../lib/utils";
+import { TeamUser } from "../../lib/team";
 import { SortDirection, SortFields } from "./types";
 
 export interface PatientListTableProps {
-  patients: User[];
+  patients: TeamUser[];
   flagged: string[];
   order: SortDirection;
   orderBy: SortFields;
-  log: Console;
-  onClickPatient: (user: User) => void;
-  onFlagPatient: (userId: string) => void;
+  onClickPatient: (user: TeamUser) => void;
+  onFlagPatient: (userId: string) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
 }
 
@@ -65,6 +66,10 @@ const patientListStyle = makeStyles((theme: Theme) => {
     tableRow: {
       cursor: "pointer",
     },
+    tableRowPending: {
+      cursor: "pointer",
+      backgroundColor: "grey",
+    },
     tableRowHeader: {
       fontVariant: "small-caps",
     },
@@ -75,28 +80,25 @@ const patientListStyle = makeStyles((theme: Theme) => {
 });
 
 function PatientListTable(props: PatientListTableProps): JSX.Element {
-  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList, log } = props;
+  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
-  const elems = [];
-  const nPatients = patients.length;
 
-  for (let i = 0; i < nPatients; i++) {
-    const patient = patients[i];
+  const patientsRows = patients.map((patient: TeamUser): JSX.Element => {
     const userId = patient.userid;
-    const firstName = patient.profile?.firstName ?? "";
-    const lastName = patient.profile?.lastName ?? patient.profile?.fullName ?? patient.username;
     const isFlagged = flagged.includes(userId);
+    const firstName = getUserFirstName(patient);
+    const lastName = getUserLastName(patient);
     const onClickFlag = (e: React.MouseEvent): void => {
       e.stopPropagation();
-      log.debug("onClickFlag", e);
+      sendMetrics("flag-patient", { flagged: !isFlagged });
       onFlagPatient(userId);
     };
-    const onRowClick = (e: React.MouseEvent): void => {
-      log.debug("onRowClick", patient, e);
+    const onRowClick = (/* e: React.MouseEvent */): void => {
+      sendMetrics("show-patient-data", { flagged: isFlagged });
       onClickPatient(patient);
     };
-    elems.push(
+    return (
       <TableRow
         id={`patients-list-row-${userId}`}
         key={userId}
@@ -117,11 +119,11 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
         <TableCell id={`patients-list-row-upload-${userId}`}>{t("N/A")}</TableCell>
       </TableRow>
     );
-  }
+  });
 
   const createSortHandler = (property: SortFields): (() => void) => {
     return (/* event: React.MouseEvent */): void => {
-      onSortList(property, order === "asc" ? "desc" : "asc");
+      onSortList(property, order === SortDirection.asc ? SortDirection.desc : SortDirection.asc);
     };
   };
 
@@ -132,12 +134,12 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
           <TableRow className={classes.tableRowHeader}>
             <TableCell id="patients-list-header-flag" />
             <TableCell id="patients-list-header-lastname">
-              <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler("lastname")}>
+              <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-firstname">
-              <TableSortLabel active={orderBy === "firstname"} direction={order} onClick={createSortHandler("firstname")}>
+              <TableSortLabel active={orderBy === "firstname"} direction={order} onClick={createSortHandler(SortFields.firstname)}>
                 {t("firstname")}
               </TableSortLabel>
             </TableCell>
@@ -147,7 +149,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
             <TableCell id="patients-list-header-upload">{t("list-patient-upload")}</TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>{elems}</TableBody>
+        <TableBody>{patientsRows}</TableBody>
       </Table>
     </TableContainer>
   );

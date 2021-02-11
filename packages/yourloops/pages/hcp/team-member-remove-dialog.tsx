@@ -38,10 +38,10 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { TeamMember } from "../../models/team";
+import { getUserFirstName, getUserLastName } from "../../lib/utils";
 import { RemoveMemberDialogContentProps } from "./types";
 
-interface RemoveMemberDialogProps {
+export interface RemoveMemberDialogProps {
   userToBeRemoved: RemoveMemberDialogContentProps | null;
 }
 
@@ -59,18 +59,13 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
 
   let hcpFirstName = "n/a";
-  let hcpLastName = "n/a";
+  let hcpLastName = "";
   let teamName = "n/a";
   if (userToBeRemoved !== null) {
-    teamName = userToBeRemoved.team.name ?? "";
-    const teamMember = userToBeRemoved.team.members?.find((tm: TeamMember) => tm.userId === userToBeRemoved.userId);
-
-    hcpLastName =
-      teamMember?.user?.profile?.lastName ??
-      teamMember?.user?.profile?.fullName ??
-      teamMember?.user?.username ??
-      userToBeRemoved.userId;
-    hcpFirstName = teamMember?.user?.profile?.firstName ?? "";
+    const { member } = userToBeRemoved;
+    teamName = member.team.name;
+    hcpFirstName = getUserFirstName(member.user);
+    hcpLastName = getUserLastName(member.user);
   }
 
   const handleClose = (): void => {

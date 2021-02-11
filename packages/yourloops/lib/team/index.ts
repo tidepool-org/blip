@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCP patient list bar tests
+ * Teams management & helpers
  *
  * All rights reserved.
  *
@@ -25,34 +25,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import {
+  Team,
+  TeamAPI,
+  TeamContext,
+  TeamMember,
+  TeamProvider,
+  TeamUser,
+} from "./models";
 
-import * as React from "react";
-import { expect } from "chai";
-import { shallow } from "enzyme";
-import sinon from "sinon";
+import {
+  TeamContextProvider,
+  loadTeams,
+  useTeam,
+} from "./hook";
 
-import PatientListTable, { PatientListTableProps } from "../../../pages/hcp/patients-list-table";
-import { SortDirection, SortFields } from "../../../pages/hcp//types";
-
-function testPatientListTable(): void {
-  const defaultProps: PatientListTableProps = {
-    patients: [],
-    flagged: [],
-    order: SortDirection.asc,
-    orderBy: SortFields.lastname,
-    onClickPatient: sinon.spy(),
-    onFlagPatient: sinon.spy(),
-    onSortList: sinon.spy(),
-  };
-
-  it("should be exported as a function", () => {
-    expect(PatientListTable).to.be.a("function");
-  });
-
-  it("should be able to render", () => {
-    const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-header-flag").length).to.be.equal(1);
-  });
-}
-
-export default testPatientListTable;
+export {
+  Team,
+  TeamAPI,
+  TeamUser,
+  TeamMember,
+  TeamContext,
+  TeamProvider,
+  TeamContextProvider,
+  loadTeams,
+  useTeam,
+};

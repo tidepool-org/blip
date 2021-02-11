@@ -31,20 +31,42 @@ import { expect } from "chai";
 import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 
-import AuthProvider from "../../../lib/auth/hook/use-auth";
-import SwitchRoleDialog from "../../../pages/hcp/team-member-switch-role-dialog";
+import { TeamMemberRole } from "../../../models/team";
+import { waitTimeout } from "../../../lib/utils";
+import { AuthContextProvider } from "../../../lib/auth";
+import { Team, TeamMember, TeamContextProvider, loadTeams } from "../../../lib/team";
+import SwitchRoleDialog, { SwitchRoleDialogProps } from "../../../pages/hcp/team-member-switch-role-dialog";
 import { SwitchRoleDialogContentProps } from "../../../pages/hcp/types";
-import { teams, TestAuthProviderHCP, loggedInUsers } from "../../common";
+
+import { authHookHcp, authHcp } from "../../lib/auth/hook.test";
+import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
 function testTeamSwitchRoleDialog(): void {
+  const apiTimeout = 50;
   const defaultProps: SwitchRoleDialogContentProps = {
-    team: teams[0],
-    userId: loggedInUsers.hcp.userid,
-    admin: true,
+    member: {} as TeamMember,
+    role: TeamMemberRole.viewer,
     onDialogResult: sinon.spy(),
   };
 
+  let teams: Team[] = [];
   let component: ReactWrapper | null = null;
+
+  function TestSwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element {
+    return (
+      <AuthContextProvider value={authHookHcp}>
+        <TeamContextProvider api={teamAPI}>
+          <SwitchRoleDialog switchAdminRole={props.switchAdminRole} />
+        </TeamContextProvider>
+      </AuthContextProvider>
+    );
+  }
+
+  before(async () => {
+    const result = await loadTeams(authHcp, teamAPI.fetchTeams, teamAPI.fetchPatients);
+    teams = result.teams;
+    defaultProps.member = teams[1].members[0];
+  });
 
   afterEach(() => {
     if (component !== null) {
@@ -52,6 +74,7 @@ function testTeamSwitchRoleDialog(): void {
       component = null;
     }
     (defaultProps.onDialogResult as sinon.SinonSpy).resetHistory();
+    resetTeamAPIStubs();
   });
 
   it("should be closed if switchAdminRole is null", () => {
@@ -60,41 +83,37 @@ function testTeamSwitchRoleDialog(): void {
     expect(component.html()).to.be.null;
   });
 
-  it("should be closed if switchAdminRole is called with wrong user", () => {
-    component = mount(<SwitchRoleDialog switchAdminRole={{ ...defaultProps, userId: "wrongId" }} />);
+  it("should be closed if switchAdminRole is called with wrong user", async () => {
+    const member = teams[1].members[1];
+    component = mount(<TestSwitchRoleDialog switchAdminRole={{ ...defaultProps, member }} />);
+    await waitTimeout(apiTimeout);
     expect(component.exists("#team-members-dialog-switch-role")).to.be.false;
-    expect(component.html()).to.be.null;
+    expect(component.html()).to.be.a("string").empty;
+    const spy = defaultProps.onDialogResult as sinon.SinonSpy;
+    expect(spy.calledOnce, "calledOnce").to.be.true;
+    expect(spy.calledWith(true), "calledWith(true)").to.be.true;
   });
 
-  it("should not be closed if switchAdminRole exists", () => {
-    component = mount(
-      <AuthProvider provider={TestAuthProviderHCP}>
-        <SwitchRoleDialog switchAdminRole={defaultProps} />
-      </AuthProvider>
-    );
+  it("should not be closed if switchAdminRole exists", async () => {
+    component = mount(<TestSwitchRoleDialog switchAdminRole={defaultProps} />);
+    await waitTimeout(apiTimeout);
     expect(component.exists("#team-members-dialog-switch-role"), "dialog id found").to.be.true;
     expect(component.html(), "html not empty").to.be.a("string").not.empty;
   });
 
-  it("should return false if click on the cancel button", () => {
-    component = mount(
-      <AuthProvider provider={TestAuthProviderHCP}>
-        <SwitchRoleDialog switchAdminRole={defaultProps} />
-      </AuthProvider>
-    );
+  it("should return false if click on the cancel button", async () => {
+    component = mount(<TestSwitchRoleDialog switchAdminRole={defaultProps} />);
     component.find("#team-members-dialog-switch-role-button-cancel").last().simulate("click");
+    await waitTimeout(apiTimeout);
     const spy = defaultProps.onDialogResult as sinon.SinonSpy;
     expect(spy.calledOnce, "calledOnce").to.be.true;
     expect(spy.calledWith(false), "calledWith(false)").to.be.true;
   });
 
-  it("should return true if click on the ok button", () => {
-    component = mount(
-      <AuthProvider provider={TestAuthProviderHCP}>
-        <SwitchRoleDialog switchAdminRole={defaultProps} />
-      </AuthProvider>
-    );
+  it("should return true if click on the ok button", async () => {
+    component = mount(<TestSwitchRoleDialog switchAdminRole={defaultProps} />);
     component.find("#team-members-dialog-switch-role-button-ok").last().simulate("click");
+    await waitTimeout(apiTimeout);
     const spy = defaultProps.onDialogResult as sinon.SinonSpy;
     expect(spy.calledOnce, "calledOnce").to.be.true;
     expect(spy.calledWith(true), "calledWith(true)").to.be.true;

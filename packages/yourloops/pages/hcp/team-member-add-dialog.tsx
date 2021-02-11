@@ -40,7 +40,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 
-import { TeamMemberRole } from "../../models/team";
+import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
 import { REGEX_EMAIL } from "../../lib/utils";
 
 import { AddMemberDialogContentProps } from "./types";
@@ -67,7 +67,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
 
   const { t } = useTranslation("yourloops");
   const [email, setEMail] = React.useState("");
-  const [role, setRole] = React.useState(TeamMemberRole.viewer);
+  const [role, setRole] = React.useState<Exclude<TypeTeamMemberRole, "patient">>(TeamMemberRole.viewer);
   const [buttonDisabled, setButtonDisabled] = React.useState(true);
   const classes = dialogClasses();
 

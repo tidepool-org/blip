@@ -26,14 +26,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-enum Units {
-  mole = "mmol/L",
-  gram = "mg/dL",
-}
+import { Units } from "./generic";
 
-enum Roles {
+enum UserRoles {
+  hcp = "hcp",
+  caregiver = "caregiver",
   patient = "patient",
-  clinic = "clinic",
 }
 
 interface Profile {
@@ -62,25 +60,23 @@ interface Preferences {
 }
 interface User {
   /** The user id */
-  userid: string;
+  readonly userid: string;
   /** The username (login) */
-  username: string;
+  readonly username: string;
   /** Roles of the users  */
-  roles?: Roles[];
+  /*readonly*/ roles?: UserRoles[];
   /** Emails of the users */
   emails?: string[];
   /** Date of the last accepted terms */
-  termsAccepted?: string;
+  readonly termsAccepted?: string;
   /** true if the account has been verified */
-  emailVerified?: boolean;
+  readonly emailVerified?: boolean;
   /** User profile */
   profile?: Profile;
   /** User settings (read-only for patient only?) */
   settings?: Settings;
   /** User preferences */
   preferences?: Preferences;
-  /** Teams ids (FIXME don't know what the API will send us yet) */
-  teams?: string[];
 }
 
-export { User, Profile, Settings, Units, Roles, Preferences };
+export { User, Preferences, Profile, Settings, UserRoles };

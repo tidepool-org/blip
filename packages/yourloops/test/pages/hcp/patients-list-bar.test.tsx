@@ -28,28 +28,53 @@
 
 import * as React from "react";
 import { expect } from "chai";
-import { shallow } from "enzyme";
+import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 
+import { waitTimeout } from "../../../lib/utils";
+import { AuthContextProvider } from "../../../lib/auth";
+import { TeamContextProvider } from "../../../lib/team";
+import { FilterType } from "../../../pages/hcp/types";
 import AppBarPage, { PatientListBarProps } from "../../../pages/hcp/patients-list-bar";
 
+import { authHookHcp } from "../../lib/auth/hook.test";
+import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
+
 function testAppBar(): void {
+  const apiTimeout = 50;
   const defaultProps: PatientListBarProps = {
     filter: "",
-    filterType: "",
-    teams: [],
+    filterType: FilterType.all,
     onFilter: sinon.spy(),
     onFilterType: sinon.spy(),
     onInvitePatient: sinon.spy(),
   };
 
+  let component: ReactWrapper | null = null;
+
+  afterEach(() => {
+    if (component !== null) {
+      component.unmount();
+      component = null;
+    }
+    resetTeamAPIStubs();
+  });
+
   it("should be exported as a function", () => {
     expect(AppBarPage).to.be.a("function");
   });
 
-  it("should be able to render", () => {
-    const bar = shallow(<AppBarPage {...defaultProps} />);
-    expect(bar.find("#patients-list-toolbar-item-left").length).to.be.equal(1);
+  it("should be able to render", async () => {
+    component = mount(
+      <AuthContextProvider value={authHookHcp}>
+        <TeamContextProvider api={teamAPI}>
+          <AppBarPage {...defaultProps} />
+        </TeamContextProvider>
+      </AuthContextProvider>
+    );
+    // component.update();
+    await waitTimeout(apiTimeout);
+    expect(component.find("#patients-list-toolbar-item-left").length).to.be.equal(1);
   });
 }
 

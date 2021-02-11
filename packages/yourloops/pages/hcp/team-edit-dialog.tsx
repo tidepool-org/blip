@@ -40,8 +40,9 @@ import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 
 import locales from "../../../../locales/languages.json";
+import { Team } from "../../lib/team";
 import { REGEX_EMAIL } from "../../lib/utils";
-import { useAuth } from "../../lib/auth/hook/use-auth";
+import { useAuth } from "../../lib/auth";
 import { TeamEditModalContentProps } from "./types";
 
 interface LocalesCountries {
@@ -109,7 +110,7 @@ const teamFieldsLimits = {
  */
 function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   const { teamToEdit } = props;
-  const { team, onSaveTeam } = teamToEdit ?? ({ team: {}, onSaveTeam: _.noop } as TeamEditModalContentProps);
+  const { team, onSaveTeam } = teamToEdit ?? ({ team: null, onSaveTeam: _.noop } as TeamEditModalContentProps);
 
   const classes = modalStyles();
   const auth = useAuth();
@@ -180,7 +181,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   };
 
   const handleValidateModal = (): void => {
-    const updatedTeam = _.cloneDeep(team);
+    const updatedTeam = team === null ? {} as Partial<Team> : { ...team, members: [] };
     updatedTeam.name = teamName.trim();
     updatedTeam.phone = teamPhone.trim();
 
@@ -191,15 +192,14 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
       delete updatedTeam.email;
     }
 
-    const line2 = addrLine2.trim();
     updatedTeam.address = {
       line1: addrLine1.trim(),
-      line2,
+      line2: addrLine2.trim(),
       zip: addrZipCode.trim(),
       city: addrCity.trim(),
       country: addrCountry.trim(),
     };
-    if (line2.length < 1) {
+    if ((updatedTeam.address.line2?.length ?? 0) < 1) {
       delete updatedTeam.address.line2;
     }
     onSaveTeam(updatedTeam);
@@ -207,23 +207,34 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
 
   React.useEffect((): void => {
     setModalOpened(teamToEdit !== null);
-    setAddrCity(team.address?.city ?? "");
-    setAddrCountry(team.address?.country ?? auth.user?.settings?.country ?? "FR");
-    setAddrLine1(team.address?.line1 ?? "");
-    setAddrLine2(team.address?.line2 ?? "");
-    setAddrZipCode(team.address?.zip ?? "");
-    setTeamEmail(team.email ?? "");
-    setTeamName(team.name ?? "");
-    setTeamPhone(team.phone ?? "");
+    if (team) {
+      setAddrCity(team.address?.city ?? "");
+      setAddrCountry(team.address?.country ?? auth.user?.settings?.country ?? "FR");
+      setAddrLine1(team.address?.line1 ?? "");
+      setAddrLine2(team.address?.line2 ?? "");
+      setAddrZipCode(team.address?.zip ?? "");
+      setTeamEmail(team.email ?? "");
+      setTeamName(team.name ?? "");
+      setTeamPhone(team.phone ?? "");
+    } else {
+      setAddrCity("");
+      setAddrCountry(auth.user?.settings?.country ?? "FR");
+      setAddrLine1("");
+      setAddrLine2("");
+      setAddrZipCode("");
+      setTeamEmail("");
+      setTeamName("");
+      setTeamPhone("");
+    }
   }, [teamToEdit, team, auth]);
 
   let ariaModal = "";
   let modalTitle = "";
   let modalButtonValidate = "";
-  if (_.isEmpty(team)) {
+  if (team === null) {
     // Create a new team
     ariaModal = t("button-add-team");
-    modalTitle = t("modal-team-add-title");
+    modalTitle = t("team-modal-add-title");
     modalButtonValidate = t("create");
   } else {
     ariaModal = t("aria-modal-team-edit");

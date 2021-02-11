@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Display patient data
+ * Patient data page
  *
  * All rights reserved.
  *
@@ -27,54 +27,72 @@
  */
 
 import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
 import bows from "bows";
+import Container from "@material-ui/core/Container";
 
 import Blip from "blip";
 
+import { errorTextFromException } from "../../lib/utils";
 import appConfig from "../../lib/config";
-import apiClient from "../../lib/auth/api";
+import { useTeam } from "../../lib/team";
+import { useData } from "../../lib/data";
 import ProfileDialog from "../../components/profile-dialog";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface PatientDataState {}
+interface PatientDataProps {
+  patientId?: string;
+}
 
-class PatientDataPage extends React.Component<RouteComponentProps, PatientDataState> {
-  private log: Console;
+interface PatientDataPageErrorProps {
+  msg: string;
+}
 
-  constructor(props: RouteComponentProps) {
-    super(props);
+const log = bows("PatientDataPage");
 
-    this.log = bows("PatientData");
+function PatientDataPageError({ msg }: PatientDataPageErrorProps): JSX.Element {
+  return (
+    <Container maxWidth="lg">
+      <strong>{msg}</strong>
+    </Container>
+  );
+}
 
-    this.state = {
-      user: null,
-    };
-  }
+function PatientDataPage(props: PatientDataProps): JSX.Element {
+  const { patientId } = props;
 
-  public componentDidMount(): void {
-    this.log.debug("Mounted");
+  const [initialized, setInitialized] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const teamHook = useTeam();
+  const dataHook = useData();
 
-    if (apiClient.isLoggedIn) {
-      const user = apiClient.whoami;
-      const userId = user?.userid as string;
-      this.log.debug("Loading patient data", userId);
-      apiClient.loadPatientData(userId).catch((reason: unknown) => {
-        this.log.error(reason);
+  log.debug("render");
+
+  React.useEffect(() => {
+    if (!initialized) {
+      setInitialized(true);
+      if (typeof patientId === "undefined") {
+        setError("Invalid patient Id");
+        return;
+      }
+      const patient = teamHook.getUser(patientId);
+      if (patient === null) {
+        setError("Patient not found");
+        return;
+      }
+      dataHook.loadPatientData(patient).catch((reason: unknown) => {
+        setError(errorTextFromException(reason));
       });
-    } else {
-      this.log.error("Not logged-in");
     }
+  }, [patientId, initialized, dataHook, teamHook]);
+
+  if (error !== null) {
+    return <PatientDataPageError msg={error} />;
   }
 
-  public render(): JSX.Element {
-    this.log.debug("render");
-    return (
-      <div id="patient-data" style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <Blip config={appConfig} api={apiClient} profileDialog={ProfileDialog} />
-      </div>
-    );
-  }
+  return (
+    <Container maxWidth="lg">
+      <Blip config={appConfig} api={dataHook.blipApi} profileDialog={ProfileDialog} />
+    </Container>
+  );
 }
 
 export default PatientDataPage;

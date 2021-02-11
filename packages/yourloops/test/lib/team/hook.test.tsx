@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCPs index
+ * Teams hook tests
  *
  * All rights reserved.
  *
@@ -26,5 +26,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import HcpPage from "./hcp";
-export default HcpPage;
+import sinon from "sinon";
+import { TeamAPI } from "../../../lib/team";
+import {
+  teams,
+  members,
+  patients,
+} from "../../common";
+
+export const teamAPI: TeamAPI = {
+  fetchTeams: sinon.stub().resolves(teams),
+  fetchPatients: sinon.stub().resolves(patients),
+  changeMemberRole: sinon.stub().resolves(),
+  createTeam: sinon.stub().resolves(teams[1]),
+  editTeam: sinon.stub().resolves(),
+  inviteMember: sinon.stub().resolves(members[0]),
+  invitePatient: sinon.stub().resolves(patients[4]),
+  leaveTeam: sinon.stub().resolves(),
+  removeMember: sinon.stub().resolves(),
+};
+
+export function resetTeamAPIStubs(): void {
+  (teamAPI.fetchTeams as sinon.SinonStub).resetHistory();
+  (teamAPI.fetchPatients as sinon.SinonStub).resetHistory();
+  (teamAPI.changeMemberRole as sinon.SinonStub).resetHistory();
+  (teamAPI.createTeam as sinon.SinonStub).resetHistory();
+  (teamAPI.editTeam as sinon.SinonStub).resetHistory();
+  (teamAPI.inviteMember as sinon.SinonStub).resetHistory();
+  (teamAPI.invitePatient as sinon.SinonStub).resetHistory();
+  (teamAPI.leaveTeam as sinon.SinonStub).resetHistory();
+  (teamAPI.removeMember as sinon.SinonStub).resetHistory();
+
+  (teamAPI.fetchTeams as sinon.SinonStub).resolves(teams);
+  (teamAPI.fetchPatients as sinon.SinonStub).resolves(patients);
+}

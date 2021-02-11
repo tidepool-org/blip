@@ -40,7 +40,7 @@ import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
-import { Team } from "../../models/team";
+import { Team } from "../../lib/team";
 
 interface BarProps {
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;

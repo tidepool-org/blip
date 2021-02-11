@@ -48,13 +48,15 @@ import Typography from "@material-ui/core/Typography";
 
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import { Team, TeamMember } from "../../models/team";
-import { useAuth } from "../../lib/auth/hook/use-auth";
+import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
+import { getUserFirstName, getUserLastName } from "../../lib/utils";
+import { useAuth } from "../../lib/auth";
+import { Team, TeamMember, useTeam } from "../../lib/team";
 
 export interface TeamMembersProps {
   team: Team;
-  onSwitchAdminRole: (team: Team, userId: string, admin: boolean) => Promise<void>;
-  onShowRemoveTeamMemberDialog: (team: Team, userId: string) => Promise<void>;
+  onSwitchAdminRole: (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
+  onShowRemoveTeamMemberDialog: (member: TeamMember) => Promise<void>;
 }
 
 const teamMembersStyles = makeStyles((theme: Theme) => {
@@ -84,46 +86,29 @@ function PersonRemoveIcon(props: SvgIconProps): JSX.Element {
 
 function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;
-  const members = team.members ?? [];
 
-  let userIsAdmin = false;
-  let nAdmin = 0;
+  // Hooks
   const authContext = useAuth();
-  const currentUserId = authContext.user?.userid;
-  for (const member of members) {
-    const isAdmin = member.role === "admin";
-    if (isAdmin) {
-      nAdmin++;
-    }
-    if (isAdmin && member.userId === currentUserId) {
-      userIsAdmin = true;
-    }
-  }
-
+  const teamHook = useTeam();
   const [updatingUser, setUpdatingUser] = React.useState("");
 
-  const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const userId = event.target.name;
-    const isAdmin = event.target.checked;
-    setUpdatingUser(userId);
-    await onSwitchAdminRole(team, userId, isAdmin);
-    setUpdatingUser("");
-  };
+  // Local variables
+  const currentUserId = authContext.user?.userid as string;
+  const userIsAdmin = teamHook.isUserAdministrator(team, currentUserId);
+  const userIsTheOnlyAdministrator = teamHook.isUserTheOnlyAdministrator(team, currentUserId);
 
-  // prettier-ignore
-  const rows: JSX.Element[] = members.map((member: TeamMember): JSX.Element => {
-    const userId = member.userId;
-    const lastname = member.user?.profile?.lastName ?? member.user?.profile?.fullName ?? member.user?.username ?? member.userId;
-    const firstname = member.user?.profile?.firstName ?? "";
-    const email = member.user?.username ?? "";
-    const isAdmin = member.role === "admin";
+  const rows: JSX.Element[] = teamHook.getMedicalMembers(team).map((member: Readonly<TeamMember>): JSX.Element => {
+    const userId = member.user.userid;
+    const email = member.user.username ?? "";
+    const firstName = getUserFirstName(member.user);
+    const lastName = getUserLastName(member.user);
+    const isAdmin = member.role === TeamMemberRole.admin;
 
     // Determine if the current user can change the admin role for this member
-    let checkboxAdminDisabled = updatingUser.length > 0 || !userIsAdmin;
-    if (userIsAdmin && nAdmin < 2 && userId === currentUserId) {
-      // An admin user, can't remove it's admin role if he is the only team admin
-      checkboxAdminDisabled = true;
-    }
+    // - Must be an admin
+    // - Mustn't be the only admin for it's own entry
+    // - An update mustn't be in progress
+    const checkboxAdminDisabled = !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
 
     let checkboxElement: JSX.Element | null = null;
     if (updatingUser === userId) {
@@ -134,12 +119,19 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         </div>
       );
     } else {
+      const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+        const userId = event.target.name;
+        const isAdmin = event.target.checked;
+        setUpdatingUser(userId);
+        await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
+        setUpdatingUser("");
+      };
       checkboxElement = (
         <Checkbox
           disabled={checkboxAdminDisabled}
-          id={`team-members-list-${team.id}-row-${member.userId}-role-checkbox`}
+          id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
           color="primary"
-          name={member.userId}
+          name={userId}
           checked={isAdmin}
           onChange={handleSwitchRole} />
       );
@@ -148,11 +140,11 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     let removeMemberButton: JSX.Element | null = null;
     if (userIsAdmin && userId !== currentUserId) {
       const handleClickRemoveMember = async (): Promise<void> => {
-        await onShowRemoveTeamMemberDialog(team, userId);
+        await onShowRemoveTeamMemberDialog(member);
       };
       removeMemberButton = (
         <IconButton
-          id={`team-members-list-${team.id}-row-${member.userId}-action-remove`}
+          id={`team-members-list-${team.id}-row-${userId}-action-remove`}
           color="primary"
           aria-label="aria-team-remove-member"
           component="span"
@@ -163,16 +155,16 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     }
 
     return (
-      <TableRow id={`team-members-list-${team.id}-row-${member.userId}`} key={member.userId}>
-        <TableCell id={`team-members-list-${team.id}-row-${member.userId}-lastname`}>{lastname}</TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${member.userId}-firstname`}>{firstname}</TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${member.userId}-email`}>
-          <Link id={`team-members-list-${team.id}-row-${member.userId}-email-link`} href={`mailto:${email}`}>{email}</Link>
+      <TableRow id={`team-members-list-${team.id}-row-${userId}`} key={userId}>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-lastname`}>{lastName}</TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-firstname`}>{firstName}</TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
+          <Link id={`team-members-list-${team.id}-row-${userId}-email-link`} href={`mailto:${email}`}>{email}</Link>
         </TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${member.userId}-role`}>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>
           {checkboxElement}
         </TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${member.userId}-actions`} align="right">
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
           {removeMemberButton}
         </TableCell>
       </TableRow>
@@ -184,11 +176,11 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
 
 function TeamMembers(props: TeamMembersProps): JSX.Element {
   const { team } = props;
-  const members = team.members ?? [];
-  const nMembers = members.length;
 
   const classes = teamMembersStyles();
   const { t } = useTranslation("yourloops");
+  const teamHook = useTeam();
+  const nMembers = teamHook.getNumMedicalMembers(team);
 
   return (
     <div id={`team-members-list-${team.id}`} className={classes.root}>
@@ -216,7 +208,7 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
                   {t("email")}
                 </TableCell>
                 <TableCell id={`team-members-list-${team.id}-cellheader-role`}>
-                  {t("team-members-admin")}
+                  {t("team-member-admin")}
                 </TableCell>
                 <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
               </TableRow>

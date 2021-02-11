@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Main App file
+ * HCPs main page
  *
  * All rights reserved.
  *
@@ -27,39 +27,46 @@
  */
 
 import * as React from "react";
-import { ThemeProvider } from "@material-ui/core/styles";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
+import bows from "bows";
 
-import "@fontsource/roboto";
-import "branding/theme-base.css";
-import "branding/theme.css";
+import { TeamContextProvider } from "../../lib/team";
+import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+import HcpNavBar from "../../components/hcp-nav-bar";
+import PatientListPage from "./patients-list";
+import PatientDataPage from "./patient-data";
+import TeamsPage from "./teams-page";
 
-import { theme } from "../components/theme";
-import LoginPage from "../pages/login";
-import HcpPage from "../pages/hcp";
-import PatientPage from "../pages/patient";
-import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
-import { AuthContextProvider } from "../lib/auth";
-import { ProfilePage } from "../pages/profile/profile";
-import PrivateRoute from "../components/private-route";
+const log = bows("HcpPage");
 
-const Yourloops: React.FunctionComponent = () => {
+/**
+ * Health care professional page
+ */
+function HcpPage(): JSX.Element | null {
+  const historyHook = useHistory();
+  const pathname = historyHook.location.pathname;
+
+  React.useEffect(() => {
+    if (/^\/hcp\/?$/.test(pathname)) {
+      log.info("Redirecting to the patients list");
+      historyHook.push("/hcp/patients");
+    }
+  }, [pathname, historyHook]);
+
+  log.info("render", pathname);
+
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <AuthContextProvider>
-          <Switch>
-            <Route exact path="/" component={LoginPage} />
-            <Route path="/request-password-reset" component={RequestPasswordResetPage} />
-            <Route path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
-            <PrivateRoute path="/hcp" component={HcpPage} />
-            <PrivateRoute path="/patient" component={PatientPage} />
-            <PrivateRoute path="/account-preferences" component={ProfilePage} />
-          </Switch>
-        </AuthContextProvider>
-      </Router>
-    </ThemeProvider>
+    <TeamContextProvider>
+      <HcpNavBar />
+      <Switch>
+        <Route path="/hcp/patients" component={PatientListPage} />
+        <Route path="/hcp/teams" component={TeamsPage} />
+        <DataContextProvider context={DefaultDataContext}>
+          <Route path="/hcp/patient/:patientId" component={PatientDataPage} />
+        </DataContextProvider>
+      </Switch>
+    </TeamContextProvider>
   );
-};
+}
 
-export default Yourloops;
+export default HcpPage;

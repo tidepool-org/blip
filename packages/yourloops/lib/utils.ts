@@ -26,9 +26,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { User } from "../models/shoreline";
+
 export const REGEX_EMAIL = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 export const REGEX_BIRTHDATE = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
+
 /**
  * setTimeout() as promised
  * @param timeout in milliseconds
@@ -62,4 +65,18 @@ export function errorTextFromException(reason: unknown): string {
     errorMessage = s.toString();
   }
   return errorMessage;
+}
+
+/**
+ * Return the user first name
+ */
+export function getUserFirstName(user: User): string {
+  return user.profile?.firstName ?? "";
+}
+
+/**
+ * Return the user last name
+ */
+export function getUserLastName(user: User): string {
+  return user.profile?.lastName ?? user.profile?.fullName ?? user.username;
 }

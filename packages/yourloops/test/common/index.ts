@@ -26,27 +26,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { TeamMemberRole, TeamType } from "../../models/team";
-import { IAuthContext } from "../../lib/auth/hook/use-auth";
-import sinon from "sinon";
+import { Units } from "../../models/generic";
+import { User, UserRoles } from "../../models/shoreline";
+import { ITeam, ITeamMember, TeamMemberRole, TeamMemberStatus, TeamType } from "../../models/team";
+
+const userHCP: User = {
+  userid: "a0000000",
+  username: "john.doe@example.com",
+  roles: [UserRoles.hcp],
+  termsAccepted: new Date().toISOString(),
+  emailVerified: true,
+  profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
+  preferences: { displayLanguageCode: "en" },
+  settings: { units: { bg: Units.gram } },
+};
 
 /**
  * Logged in users for test, choose one suitable
  */
 export const loggedInUsers = {
-  hcp: {
-    userid: "a0000000",
-    username: "john.doe@example.com",
-    profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
-  },
-  patient: {},
-  careGiver: {},
+  hcp: userHCP,
+  // patient: {} as User,
+  // careGiver: {} as User,
 };
 
 /**
  * An example list of teams for the unit tests
  */
-export const teams = [
+export const teams: ITeam[] = [
   {
     // FIXME
     id: "team-0",
@@ -68,12 +75,14 @@ export const teams = [
         teamId: "team-0",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.admin,
+        invitationStatus: TeamMemberStatus.accepted,
         user: loggedInUsers.hcp,
       },
       {
         teamId: "team-0",
         userId: "a0a1a2a3",
         role: TeamMemberRole.viewer,
+        invitationStatus: TeamMemberStatus.accepted,
         user: {
           userid: "a0a1a2a3",
           username: "jean.dupont@chu-grenoble.fr",
@@ -100,12 +109,14 @@ export const teams = [
         teamId: "team-1",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.viewer,
+        invitationStatus: TeamMemberStatus.accepted,
         user: loggedInUsers.hcp,
       },
       {
         teamId: "team-1",
         userId: "b0b1b2b3",
         role: TeamMemberRole.admin,
+        invitationStatus: TeamMemberStatus.accepted,
         user: {
           userid: "b0b1b2b3",
           username: "adelheide.alvar@charite.de",
@@ -116,14 +127,99 @@ export const teams = [
   },
 ];
 
-export function TestAuthProviderHCP(): IAuthContext {
-  return {
-    user: loggedInUsers.hcp,
-    isLoggedIn: sinon.stub().returns(true),
-    login: sinon.spy(),
-    logout: sinon.spy(),
-    sendPasswordResetEmail: sinon.stub().returns(true),
-    signup: sinon.spy(),
-    setUser: sinon.spy(),
-  };
-}
+export const members: ITeamMember[] = [
+  {
+    teamId: "team-0",
+    userId: "b0b1b2b4",
+    role: TeamMemberRole.admin,
+    invitationStatus: TeamMemberStatus.pending,
+    user: {
+      userid: "b0b1b2b4",
+      username: "michelle.dufour@chu-grenoble.fr",
+      profile: { firstName: "Michelle", lastName: "Dufour", fullName: "Michelle Dufour" },
+    },
+  }
+];
+
+export const patients: ITeamMember[] = [
+  {
+    invitationStatus: TeamMemberStatus.accepted,
+    role: TeamMemberRole.patient,
+    teamId: "team-0",
+    userId: "a0a0a0b0",
+    user: {
+      userid: "a0a0a0b0",
+      username: "josephine.dupuis@example.com",
+      termsAccepted: "2021-01-05T15:00:00.000Z",
+      profile: {
+        firstName: "Josephine",
+        lastName: "Dupuis",
+        fullName: "Josephine D.",
+      },
+    },
+  },
+  {
+    invitationStatus: TeamMemberStatus.accepted,
+    role: TeamMemberRole.patient,
+    teamId: "team-1",
+    userId: "a0a0a0b0",
+    user: {
+      userid: "a0a0a0b0",
+      username: "josephine.dupuis@example.com",
+      termsAccepted: "2021-01-05T15:00:00.000Z",
+      profile: {
+        firstName: "Josephine",
+        lastName: "Dupuis",
+        fullName: "Josephine D.",
+      },
+    },
+  },
+  {
+    invitationStatus: TeamMemberStatus.accepted,
+    role: TeamMemberRole.patient,
+    teamId: "team-1",
+    userId: "a0a0a0b1",
+    user: {
+      userid: "a0a0a0b1",
+      username: "michel.dupont@example.com",
+      termsAccepted: "2021-01-05T15:00:00.000Z",
+      profile: {
+        firstName: "Michel",
+        lastName: "Dupont",
+        fullName: "Michel D.",
+      },
+    },
+  },
+  {
+    invitationStatus: TeamMemberStatus.accepted,
+    role: TeamMemberRole.patient,
+    teamId: TeamType.private,
+    userId: "a0a0a0b2",
+    user: {
+      userid: "a0a0a0b2",
+      username: "marivone.duplessie@example.com",
+      termsAccepted: "2021-01-05T15:00:00.000Z",
+      profile: {
+        firstName: "Marivone",
+        lastName: "Duplessie",
+        fullName: "Marivone Duplessie",
+      },
+    },
+  },
+  {
+    invitationStatus: TeamMemberStatus.pending,
+    role: TeamMemberRole.patient,
+    teamId: "team-0",
+    userId: "a0a0a0b3",
+    user: {
+      userid: "a0a0a0b3",
+      username: "gerard.dumoulin@example.com",
+      termsAccepted: "2021-01-05T15:00:00.000Z",
+      profile: {
+        firstName: "Gerard",
+        lastName: "Dumoulin",
+        fullName: "Gerard D.",
+      },
+    },
+  },
+];

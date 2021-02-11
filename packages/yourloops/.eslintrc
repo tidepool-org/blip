@@ -55,7 +55,7 @@
     "no-else-return": "error",
     "no-fallthrough": ["warn", { "commentPattern": ".*[Ff]allthrough.*" }],
     "no-loop-func": "error",
-    "no-magic-numbers": ["warn", { "ignore": [-1, 0, 1, 2, 10] }],
+    "no-magic-numbers": ["warn", { "ignore": [-1, 0, 1, 2, 10, 1000] }],
     "no-multi-spaces": "error",
     "no-return-assign": "error",
     "no-return-await": "error",
@@ -77,9 +77,10 @@
     ],
     "indent": [1, 2],
     "semi": "error",
+    "lodash/prefer-is-nil": "off",
     "lodash/prefer-lodash-typecheck": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "error"
   },
   "settings": {
     "react": {

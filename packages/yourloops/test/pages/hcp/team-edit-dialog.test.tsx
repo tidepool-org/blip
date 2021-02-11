@@ -32,13 +32,15 @@ import { expect } from "chai";
 import { mount, ReactWrapper, MountRendererProps } from "enzyme";
 import sinon from "sinon";
 
+import { Team, loadTeams } from "../../../lib/team";
 import TeamEditDialog from "../../../pages/hcp/team-edit-dialog";
 import { TeamEditModalContentProps } from "../../../pages/hcp/types";
-import { teams } from "../../common";
+import { authHcp } from "../../lib/auth/hook.test";
+import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
 function testTeamEditDialog(): void {
   const defaultProps: TeamEditModalContentProps = {
-    team: teams[0],
+    team: {} as Team,
     onSaveTeam: sinon.spy(),
   };
   const textFieldIds = [
@@ -58,13 +60,15 @@ function testTeamEditDialog(): void {
     attachTo: null,
   };
 
-  before(() => {
+  before(async () => {
     mountOptions.attachTo = document.getElementById("app");
     if (mountOptions.attachTo === null) {
       mountOptions.attachTo = document.createElement("div");
       mountOptions.attachTo.id = "app";
       document.body.appendChild(mountOptions.attachTo);
     }
+    const { teams } = await loadTeams(authHcp, teamAPI.fetchTeams, teamAPI.fetchPatients);
+    defaultProps.team = teams[1];
   });
 
   after(() => {
@@ -82,6 +86,7 @@ function testTeamEditDialog(): void {
       component = null;
     }
     (defaultProps.onSaveTeam as sinon.SinonSpy).resetHistory();
+    resetTeamAPIStubs();
   });
 
   it("should be closed if teamToEdit is null", () => {
@@ -109,7 +114,7 @@ function testTeamEditDialog(): void {
   });
 
   it("should have empty fields when creating a new team", () => {
-    component = mount(<TeamEditDialog teamToEdit={{ ...defaultProps, team: {} }} />, mountOptions);
+    component = mount(<TeamEditDialog teamToEdit={{ ...defaultProps, team: null }} />, mountOptions);
     textFieldIds.forEach((id: string) => {
       if (component === null) throw new Error("silent typescript");
       const field = component.find(`#${id}`);
@@ -146,17 +151,22 @@ function testTeamEditDialog(): void {
         value: "Updated name",
       },
     };
-    const updatedTeam = {
-      ...defaultProps.team,
-      name: event.target.value,
-    };
+    const updatedTeam = { ...defaultProps.team, members: [], name: event.target.value };
+
     component.find("input").find("#team-edit-dialog-field-name").at(0).simulate("change", event);
     expect(component.find("#team-edit-dialog-button-validate").at(0).prop("disabled")).to.be.false;
 
     component.find("#team-edit-dialog-button-validate").at(0).simulate("click");
 
-    expect((defaultProps.onSaveTeam as sinon.SinonSpy).calledOnce, "calledOnce").to.be.true;
-    expect((defaultProps.onSaveTeam as sinon.SinonSpy).calledWith(updatedTeam), "calledWith updatedTeam").to.be.true;
+    const spy = defaultProps.onSaveTeam as sinon.SinonSpy;
+    expect(spy.calledOnce, "calledOnce").to.be.true;
+
+    const message = {
+      test: "calledWith updatedTeam",
+      expected: updatedTeam,
+      having: spy.getCall(0).firstArg,
+    };
+    expect(spy.calledWith(updatedTeam), JSON.stringify(message, null, 2)).to.be.true;
   });
 }
 

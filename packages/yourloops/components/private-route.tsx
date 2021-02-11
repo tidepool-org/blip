@@ -28,7 +28,7 @@
 
 import * as React from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
-import { useAuth } from "../lib/auth/hook/use-auth";
+import { useAuth } from "../lib/auth";
 
 /**
  * Perform a redirect if you are not authenticated yet

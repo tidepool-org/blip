@@ -44,19 +44,19 @@ import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import PhoneIcon from "@material-ui/icons/Phone";
 
 import locales from "../../../../locales/languages.json";
-import { Team } from "../../models/team";
+import { Team } from "../../lib/team";
 
 export interface TeamCardProps {
-  team: Team;
+  team: Readonly<Team>;
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;
-  onShowLeaveTeamDialog: (team: Team) => Promise<void>;
+  onShowLeaveTeamDialog: (team: Team) => Promise<boolean>;
   onShowAddMemberDialog: (team: Team) => Promise<void>;
 }
 
 export interface TeamInfoProps {
   id: string;
   label: string;
-  value?: string | JSX.Element;
+  value?: null | string | JSX.Element;
   icon: JSX.Element;
 }
 
@@ -140,7 +140,7 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
   const classes = teamInfoStyles();
   const { t } = useTranslation("yourloops");
 
-  if (typeof value === "undefined") {
+  if (value === null || typeof value === "undefined") {
     return null;
   }
 
@@ -168,8 +168,10 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   };
   const handleClickLeaveTeam = async (): Promise<void> => {
     setButtonsDisabled(true);
-    await onShowLeaveTeamDialog(team);
-    setButtonsDisabled(false);
+    const result = await onShowLeaveTeamDialog(team);
+    if (!result) {
+      setButtonsDisabled(false);
+    }
   };
   const handleClickAddMember = async (): Promise<void> => {
     setButtonsDisabled(true);
@@ -211,9 +213,10 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     </Button>
   );
 
-  let address: JSX.Element | undefined = undefined;
-  if (typeof team.address === "object") {
-    const { line1, line2, zip, city, country } = team.address;
+  let address: JSX.Element | null = null;
+  const teamAddress = team.address ?? null;
+  if (teamAddress !== null) {
+    const { line1, line2, zip, city, country } = teamAddress;
     const countryName = _.get(locales, `countries.${country}.name`, country) as string;
     address = (
       <React.Fragment>

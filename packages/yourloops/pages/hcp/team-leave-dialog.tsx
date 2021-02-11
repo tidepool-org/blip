@@ -39,8 +39,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { Team } from "models/team";
-import { useAuth } from "../../lib/auth/hook/use-auth";
+import { Team, useTeam } from "../../lib/team";
+import { useAuth } from "../../lib/auth";
 import { TeamLeaveDialogContentProps } from "./types";
 
 interface LeaveTeamDialogProps {
@@ -70,31 +70,6 @@ const leaveTeamDialogClasses = makeStyles((theme: Theme) => {
     },
   };
 });
-
-/**
- * Return true if the userId is the only administrator of this team.
- * @param team The team to test
- * @param userId The current user id
- */
-function isUserIsTheOnlyAdministrator(team: Team | null, userId: string): boolean {
-  if (team === null) {
-    return false;
-  }
-
-  const members = team.members ?? [];
-  let nAdmin = 0;
-  let userIsAdmin = false;
-
-  for (const member of members) {
-    if (member.role === "admin") {
-      nAdmin++;
-      if (member.userId === userId) {
-        userIsAdmin = true;
-      }
-    }
-  }
-  return userIsAdmin && nAdmin === 1;
-}
 
 function LeaveTeamDialogTitle(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, teamName, onlyMember, userIsTheOnlyAdministrator } = props;
@@ -253,15 +228,17 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
 
 function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
   const { teamToLeave } = props;
-  const team = teamToLeave?.team ?? null;
-  const teamName = team?.name ?? "";
-  const onlyMember = !((team?.members?.length ?? 0) > 1);
   const dialogIsOpen = teamToLeave !== null;
+  const team = teamToLeave?.team ?? null;
+
+  const teamName = team?.name ?? "";
+  const onlyMember = !((team?.members.length ?? 0) > 1);
 
   const auth = useAuth();
   const { t } = useTranslation("yourloops");
+  const teamHook = useTeam();
 
-  const userIsTheOnlyAdministrator = isUserIsTheOnlyAdministrator(team, auth.user?.userid as string);
+  const userIsTheOnlyAdministrator = team === null ? false : teamHook.isUserTheOnlyAdministrator(team, auth.user?.userid as string);
 
   const ariaTitle = t("aria-team-leave-dialog-title");
   const ariaQuestion = t("aria-team-leave-dialog-question", { teamName });

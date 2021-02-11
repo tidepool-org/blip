@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import Tab from "@material-ui/core/Tab";
@@ -35,10 +35,11 @@ import Tabs from "@material-ui/core/Tabs";
 
 import HeaderBar from "./header-bar";
 
-function HcpNavBar(props: RouteComponentProps): JSX.Element {
+function HcpNavBar(): JSX.Element {
+  const historyHook = useHistory();
   const { t } = useTranslation("yourloops");
 
-  const isTeamPath = props.history.location.pathname.startsWith("/hcp/teams");
+  const isTeamPath = historyHook.location.pathname.startsWith("/hcp/teams");
 
   return (
     <HeaderBar>
@@ -50,4 +51,4 @@ function HcpNavBar(props: RouteComponentProps): JSX.Element {
   );
 }
 
-export default withRouter(HcpNavBar);
+export default HcpNavBar;

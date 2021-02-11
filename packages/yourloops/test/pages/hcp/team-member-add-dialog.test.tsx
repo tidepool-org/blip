@@ -31,17 +31,25 @@ import { expect } from "chai";
 import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 
+import { Team } from "../../../lib/team";
+import { loadTeams } from "../../../lib/team/hook";
 import AddMemberDialog from "../../../pages/hcp/team-member-add-dialog";
 import { AddMemberDialogContentProps } from "../../../pages/hcp/types";
-import { teams } from "../../common";
+import { authHcp } from "../../lib/auth/hook.test";
+import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
 function testTeamAddMemberDialog(): void {
   const defaultProps: AddMemberDialogContentProps = {
-    team: teams[0],
+    team: {} as Team,
     onDialogResult: sinon.spy(),
   };
 
   let component: ReactWrapper | null = null;
+
+  before(async () => {
+    const { teams } = await loadTeams(authHcp, teamAPI.fetchTeams, teamAPI.fetchPatients);
+    defaultProps.team = teams[1];
+  });
 
   afterEach(() => {
     if (component !== null) {
@@ -49,6 +57,7 @@ function testTeamAddMemberDialog(): void {
       component = null;
     }
     (defaultProps.onDialogResult as sinon.SinonSpy).resetHistory();
+    resetTeamAPIStubs();
   });
 
   it("should be closed if addMember is null", () => {

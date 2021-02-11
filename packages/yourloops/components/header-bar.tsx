@@ -42,7 +42,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 
 import brandingLogo from "branding/logo.png";
-import { useAuth } from "../lib/auth/hook/use-auth";
+import { useAuth } from "../lib/auth";
 
 interface HeaderProps extends RouteComponentProps {
   children?: JSX.Element | JSX.Element[];

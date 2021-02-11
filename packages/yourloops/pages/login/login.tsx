@@ -49,7 +49,8 @@ import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import brandingLogo from "branding/logo.png";
-import { useAuth } from "../../lib/auth/hook/use-auth";
+
+import { useAuth } from "../../lib/auth";
 import LoginFooterLink from "./login-footer-link";
 
 const loginStyle = makeStyles((theme: Theme) => {

@@ -39,10 +39,10 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 
-import { useAuth } from "../../lib/auth/hook/use-auth";
+import { useAuth } from "../../lib/auth";
 import { SwitchRoleDialogContentProps } from "./types";
 
-interface SwitchRoleDialogProps {
+export interface SwitchRoleDialogProps {
   switchAdminRole: null | SwitchRoleDialogContentProps;
 }
 
@@ -65,12 +65,12 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
     return null;
   }
 
-  if (switchAdminRole.userId !== auth.user?.userid) {
+  if (switchAdminRole.member.user.userid !== auth.user?.userid) {
     switchAdminRole.onDialogResult(true);
     return null;
   }
 
-  const teamName = switchAdminRole.team.name;
+  const teamName = switchAdminRole.member.team.name;
 
   const handleClose = () => {
     switchAdminRole.onDialogResult(false);

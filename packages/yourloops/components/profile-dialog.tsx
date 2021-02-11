@@ -42,7 +42,10 @@ import {
   Theme,
 } from "@material-ui/core";
 
-import { Units, User } from "../models/shoreline";
+import { Units } from "../models/generic";
+import { User } from "../models/shoreline";
+import { getUserFirstName, getUserLastName } from "../lib/utils";
+
 interface ProfileDialogProps {
   user: User;
   isOpen: boolean;
@@ -59,13 +62,13 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: "1em",
       "& input:disabled": {
         backgroundColor: "white",
-        color: theme.palette.grey[800],
+        color: theme.palette.grey[800], // eslint-disable-line no-magic-numbers
       },
     },
     disabled: {
       "&&:before": {
         borderBottom: "0.5px solid",
-        color: theme.palette.grey[400],
+        color: theme.palette.grey[400], // eslint-disable-line no-magic-numbers
       },
     },
   })
@@ -79,8 +82,8 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
   const hbA1c = "8.5%"; // TODO
   const birthDate = moment.utc(user?.profile?.patient?.birthday).format("L");
 
-  const firstName = user.profile?.firstName ?? "";
-  const lastName = user.profile?.lastName ?? user.profile?.fullName ?? "";
+  const firstName = getUserFirstName(user);
+  const lastName = getUserLastName(user);
 
   return (
     <Dialog fullWidth={true} maxWidth="xs" open={isOpen} onClose={handleClose}>

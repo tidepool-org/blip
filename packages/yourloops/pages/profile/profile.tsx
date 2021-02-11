@@ -35,15 +35,15 @@ import {
   Toolbar,
 } from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
+import { Alert } from "@material-ui/lab";
 
+import { Units } from "../../models/generic";
+import { Preferences, Profile, UserRoles, Settings, User } from "../../models/shoreline";
+import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
+import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
+import { useAuth } from "../../lib/auth";
 import HeaderBar from "../../components/header-bar";
 import { Password } from "../../components/utils/password";
-import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
-import apiClient from "../../lib/auth/api";
-import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
-import { Preferences, Profile, Roles, Settings, Units, User } from "../../models/shoreline";
-import { useAuth } from "../../lib/auth/hook/use-auth";
-import { Alert } from "@material-ui/lab";
 
 interface Errors {
   firstName: boolean;
@@ -124,7 +124,7 @@ export const ProfilePage: FunctionComponent = () => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const history = useHistory();
-  const { user, setUser } = useAuth();
+  const { user, setUser, updatePreferences, updateProfile, updateSettings } = useAuth();
 
   const [firstName, setFirstName] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -135,7 +135,7 @@ export const ProfilePage: FunctionComponent = () => {
   const [password, setPassword] = useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const [unit, setUnit] = useState<Units>(Units.gram);
-  const [role, setRole] = useState<Roles | null>(null);
+  const [role, setRole] = useState<UserRoles | null>(null);
   const [birthDate, setBirthDate] = useState<string>("");
   const [hbA1c, setHbA1c] = useState<string>("8.5%"); // TODO
   const [hasProfileChanged, setHasProfileChanged] = useState<boolean>(false);
@@ -144,7 +144,7 @@ export const ProfilePage: FunctionComponent = () => {
   const [apiReturnAlert, setApiReturnAlert] = useState<ApiReturnAlert | null>(null);
 
   const handleUserUpdate = useCallback(
-    (promises: Promise<void>[], newUser: User, callbacks: React.Dispatch<React.SetStateAction<boolean>>[]): void => {
+    (promises: Promise<unknown>[], newUser: User, callbacks: React.Dispatch<React.SetStateAction<boolean>>[]): void => {
       Promise.all(promises)
         .then(() => {
           callbacks.forEach((callback) => callback(false));
@@ -153,7 +153,7 @@ export const ProfilePage: FunctionComponent = () => {
         })
         .catch(() => setApiReturnAlert({ message: t("profile-update-failed"), severity: "error" }));
     },
-    [t]
+    [t, setUser]
   );
 
   useEffect(() => {
@@ -207,7 +207,7 @@ export const ProfilePage: FunctionComponent = () => {
       // eslint-disable-next-line no-magic-numbers
       password: password.length > 0 && password.length < 10, // TODO: define rules
       passwordConfirmation: passwordConfirmation !== password,
-      birthDate: role === Roles.patient && !REGEX_BIRTHDATE.test(birthDate),
+      birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
     [firstName, name, mail, password, passwordConfirmation, birthDate, role]
   );
@@ -242,7 +242,7 @@ export const ProfilePage: FunctionComponent = () => {
   const onSave = useCallback(() => {
     if (user) {
       const localeShortname = getLocaleShortname(locale);
-      const promises: Promise<void>[] = [];
+      const promises: Promise<unknown>[] = [];
       const callbacks: React.Dispatch<React.SetStateAction<boolean>>[] = [];
       const newUser: User = {
         ...user,
@@ -264,24 +264,38 @@ export const ProfilePage: FunctionComponent = () => {
             i18n.changeLanguage(localeShortname!);
           }
         }
-        promises.push(apiClient.updateUserPreferences(newUser));
+        promises.push(updatePreferences(newUser));
         callbacks.push(setHavePreferencesChanged);
       }
 
       if (haveSettingsChanged) {
-        promises.push(apiClient.updateUserSettings(newUser));
+        promises.push(updateSettings(newUser));
         callbacks.push(setHaveSettingsChanged);
       }
 
       if (hasProfileChanged) {
-        promises.push(apiClient.updateUserProfile(newUser));
+        promises.push(updateProfile(newUser));
         callbacks.push(setHasProfileChanged);
       }
       if (promises.length) {
         handleUserUpdate(promises, newUser, callbacks);
       }
     }
-  }, [user, haveSettingsChanged, havePreferencesChanged, hasProfileChanged, firstName, name, locale, i18n, unit, setUser]);
+  }, [
+    user,
+    haveSettingsChanged,
+    havePreferencesChanged,
+    hasProfileChanged,
+    firstName,
+    name,
+    locale,
+    i18n,
+    unit,
+    handleUserUpdate,
+    updatePreferences,
+    updateSettings,
+    updateProfile,
+  ]);
 
   const onCancel = (): void => history.goBack();
   const onCloseAlert = (): void => setApiReturnAlert(null);
@@ -311,7 +325,7 @@ export const ProfilePage: FunctionComponent = () => {
             className={classes.textField}
           />
 
-          {role === Roles.clinic ? (
+          {role !== UserRoles.patient ? (
             <Fragment>
               <TextField
                 id="mail"
@@ -363,7 +377,7 @@ export const ProfilePage: FunctionComponent = () => {
           <FormControl className={classes.formControl}>
             <InputLabel id="units-input-label">{t("units")}</InputLabel>
             <Select
-              disabled={role !== Roles.clinic}
+              disabled={role === UserRoles.patient}
               labelId="unit-selector"
               id="unit-selector"
               value={unit}
