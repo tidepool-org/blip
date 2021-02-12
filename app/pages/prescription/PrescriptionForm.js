@@ -105,14 +105,14 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
+          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05), // TODO: calculator defaults here???
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-          start: 0,
+          start: 0, // TODO: calculator defaults here???
         }]),
         insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-          start: 0,
+          start: 0, // TODO: calculator defaults here???
         }]),
       },
       training: get(props, 'prescription.latestRevision.attributes.training'),
@@ -320,6 +320,17 @@ export const PrescriptionForm = props => {
       setInitialFocusedInput(initialFocusedInput);
     },
 
+    clearCalculator: () => {
+      setFieldValue('calculator.method', undefined, false)
+      setFieldValue('calculator.totalDailyDose', undefined, false)
+      setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
+      setFieldValue('calculator.weight', undefined, false)
+      setFieldValue('calculator.weightUnits', undefined, false)
+      setFieldValue('calculator.recommendedBasalRate', undefined, false)
+      setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
+      setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
+    },
+
     generateTherapySettingsOrderText,
 
     handleCopyTherapySettingsClicked: () => {
@@ -394,7 +405,7 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, values);
+  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, values, handlers);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
   const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 

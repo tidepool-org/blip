@@ -212,9 +212,10 @@ export const CalculatorInputs = translate()(props => {
   );
 });
 
-const settingsCalculatorFormSteps = (schema, values) => ({
+const settingsCalculatorFormSteps = (schema, values, handlers) => ({
   label: t('Therapy Settings Calculator'),
   optional: true,
+  onSkip: handlers.clearCalculator,
   subSteps: [
     {
       disableComplete: isEmpty(get(values, stepValidationFields[2][0][0])) || !fieldsAreValid(stepValidationFields[2][0], schema, values),
@@ -224,8 +225,6 @@ const settingsCalculatorFormSteps = (schema, values) => ({
     {
       disableComplete: !fieldsAreValid(stepValidationFields[2][1], schema, values),
       onComplete: () => log('Calculator Inputs Complete'),
-      // completeText: t('Use Defaults'),
-      // skipText: t('Discard Defaults'),
       panelContent: <CalculatorInputs schema={schema} />
     },
   ],
