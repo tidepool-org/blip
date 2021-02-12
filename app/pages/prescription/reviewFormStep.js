@@ -300,7 +300,7 @@ export const PatientInfo = props => {
   const initialFocusedInputRef = useInitialFocusedInput();
 
   const nameStep = [0, 1];
-  const currentStep = [3, 0];
+  const currentStep = [4, 0];
 
   const { values } = useFormikContext();
 
@@ -358,8 +358,8 @@ export const TherapySettings = props => {
     ...themeProps
   } = props;
 
-  const therapySettingsStep = [2, 0];
-  const currentStep = [3, 0];
+  const therapySettingsStep = [3, 0];
+  const currentStep = [4, 0];
 
   const { values } = useFormikContext();
 
