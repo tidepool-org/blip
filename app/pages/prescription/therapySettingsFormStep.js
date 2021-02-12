@@ -600,7 +600,7 @@ export const TherapySettings = translate()(props => {
 
 const therapySettingsFormStep = (schema, pump, values) => ({
   label: t('Enter Therapy Settings'),
-  disableComplete: !fieldsAreValid(stepValidationFields[2][0], schema, values),
+  disableComplete: !fieldsAreValid(stepValidationFields[3][0], schema, values),
   panelContent: <TherapySettings pump={pump} />
 });
 
