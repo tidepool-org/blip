@@ -49,7 +49,7 @@ export const loggedInUsers = {
 export const teams = [
   {
     // FIXME
-    id: "team-1",
+    id: "team-0",
     name: "CHU Grenoble",
     code: "123456789",
     ownerId: "abcdef",
@@ -65,13 +65,13 @@ export const teams = [
     email: "secretariat-diabethologie@chu-grenoble.fr",
     members: [
       {
-        teamId: "team-1",
+        teamId: "team-0",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.admin,
         user: loggedInUsers.hcp,
       },
       {
-        teamId: "team-1",
+        teamId: "team-0",
         userId: "a0a1a2a3",
         role: TeamMemberRole.viewer,
         user: {
@@ -83,7 +83,7 @@ export const teams = [
     ],
   },
   {
-    id: "team-2",
+    id: "team-1",
     name: "Charité – Universitätsmedizin Berlin",
     code: "987654321",
     phone: "+49 30 450 - 50",
@@ -97,13 +97,13 @@ export const teams = [
     type: TeamType.medical,
     members: [
       {
-        teamId: "team-2",
+        teamId: "team-1",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.viewer,
         user: loggedInUsers.hcp,
       },
       {
-        teamId: "team-2",
+        teamId: "team-1",
         userId: "b0b1b2b3",
         role: TeamMemberRole.admin,
         user: {

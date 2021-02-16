@@ -42,7 +42,6 @@ import { Team } from "../../models/team";
 import { SortDirection, FilterType, SortFields } from "./types";
 import { errorTextFromException } from "../../lib/utils";
 import apiClient from "../../lib/auth/api";
-import { AuthContext } from "../../lib/auth/hook/use-auth";
 import PatientListBar from "./patients-list-bar";
 import PatientListTable from "./patients-list-table";
 
@@ -61,24 +60,11 @@ interface PatientListPageState {
 
 class PatientListPage extends React.Component<RouteComponentProps, PatientListPageState> {
   private log: Console;
-  declare context: React.ContextType<typeof AuthContext>;
 
   constructor(props: RouteComponentProps) {
     super(props);
 
-    this.state = {
-      loading: true,
-      errorMessage: null,
-      patients: [],
-      allPatients: [],
-      teams: [],
-      flagged: [],
-      order: "asc",
-      orderBy: "lastname",
-      filter: "",
-      filterType: "all",
-    };
-
+    this.state = PatientListPage.getInitialState();
     this.log = bows("PatientListPage");
 
     this.onSelectPatient = this.onSelectPatient.bind(this);
@@ -94,6 +80,21 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
   public componentDidMount(): void {
     this.log.debug("Mounted");
     this.onRefresh();
+  }
+
+  private static getInitialState(): PatientListPageState {
+    return {
+      loading: true,
+      errorMessage: null,
+      patients: [],
+      allPatients: [],
+      teams: [],
+      flagged: [],
+      order: "asc",
+      orderBy: "lastname",
+      filter: "",
+      filterType: "all",
+    };
   }
 
   render(): JSX.Element {
@@ -152,13 +153,11 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
   }
 
   private onRefresh(): void {
-    const whoAmI = this.context.user;
-    this.setState({ flagged: whoAmI?.preferences?.patientsStarred ?? [] });
-
-    this.setState({ loading: true, errorMessage: null, teams: [], allPatients: [], patients: [] }, async () => {
+    this.setState(PatientListPage.getInitialState(), async () => {
       try {
-        const patients = await apiClient.getUserShares();
-        const teams = await apiClient.fetchTeams();
+        const [teams, patients] = await Promise.all([apiClient.fetchTeams(), apiClient.getUserShares()]);
+        this.log.info("Fetching teams & patients: OK");
+        this.setState({ flagged: apiClient.whoami?.preferences?.patientsStarred ?? [] });
         this.setState({ patients, allPatients: patients, teams, loading: false }, this.updatePatientList);
       } catch (reason: unknown) {
         this.log.error("onRefresh", reason);
@@ -256,6 +255,9 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
         case "pending":
           return false; // TODO
         default:
+          if ((patient.teams?.includes(filterType) ?? false) === false) {
+            return false;
+          }
           break;
         }
 
@@ -274,7 +276,7 @@ class PatientListPage extends React.Component<RouteComponentProps, PatientListPa
     } else if (filterType === "pending") {
       patients = []; // TODO
     } else if (filterType !== "all") {
-      // TODO
+      patients = allPatients.filter((patient: User): boolean => patient.teams?.includes(filterType) ?? false);
     }
 
     // Sort the patients

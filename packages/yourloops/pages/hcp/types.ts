@@ -30,7 +30,7 @@ import { Team, TeamMemberRole } from "../../models/team";
 
 export type SortDirection = "asc" | "desc";
 export type SortFields = "lastname" | "firstname";
-export type FilterType = "all" | "flagged" | "pending" | string;
+export type FilterType = "all" | "flagged" | "pending" | "private" | string;
 
 export interface SwitchRoleDialogContentProps {
   team: Team;

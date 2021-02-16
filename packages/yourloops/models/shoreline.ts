@@ -79,6 +79,8 @@ interface User {
   settings?: Settings;
   /** User preferences */
   preferences?: Preferences;
+  /** Teams ids (FIXME don't know what the API will send us yet) */
+  teams?: string[];
 }
 
 export { User, Profile, Settings, Units, Roles, Preferences };

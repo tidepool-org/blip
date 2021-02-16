@@ -31,6 +31,7 @@
     "default-param-last": "error",
     "func-names": ["error", "as-needed"],
     "guard-for-in": "warn",
+    "no-bitwise": ["error", { "int32Hint": true }],
     "keyword-spacing": [
       "error",
       {
@@ -51,7 +52,7 @@
     "no-else-return": "error",
     "no-fallthrough": ["warn", { "commentPattern": ".*[Ff]allthrough.*" }],
     "no-loop-func": "error",
-    "no-magic-numbers": ["warn", { "ignore": [-1, 0, 1, 2] }],
+    "no-magic-numbers": ["warn", { "ignore": [-1, 0, 1, 2, 10] }],
     "no-multi-spaces": "error",
     "no-return-assign": "error",
     "no-return-await": "error",

@@ -78,6 +78,7 @@ class AuthApi extends EventTarget {
 
     this.user = null;
     this.patients = null;
+    this.teams = null;
     this.log = bows("API");
     this.loginLock = false;
     this.wrongCredentialCount = 0;
@@ -104,79 +105,6 @@ class AuthApi extends EventTarget {
 
     if (!this.isLoggedIn) {
       this.removeAuthInfoFromSessionStorage();
-    }
-
-    this.teams = [
-      {
-        // FIXME
-        id: "team-1",
-        name: "CHU Grenoble",
-        code: "123456789",
-        ownerId: "abcdef",
-        type: TeamType.medical,
-        address: {
-          line1: "Boulevard de la Chantourne",
-          line2: "Cedex 38703",
-          zip: "38700",
-          city: "La Tronche",
-          country: "FR",
-        },
-        phone: "+33 (0)4 76 76 75 75",
-        email: "secretariat-diabethologie@chu-grenoble.fr",
-        members: [
-          {
-            teamId: "team-1",
-            userId: "a0a1a2a3",
-            role: TeamMemberRole.viewer,
-            user: {
-              userid: "a0a1a2a3",
-              username: "jean.dupont@chu-grenoble.fr",
-              profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
-            },
-          },
-        ],
-      },
-      {
-        id: "team-2",
-        name: "Charité – Universitätsmedizin Berlin",
-        code: "987654321",
-        phone: "+49 30 450 - 50",
-        address: {
-          line1: "Charitéplatz 1",
-          city: "Berlin",
-          zip: "10117",
-          country: "DE",
-        },
-        ownerId: "abcdef",
-        type: TeamType.medical,
-        members: [
-          {
-            teamId: "team-2",
-            userId: "b0b1b2b3",
-            role: TeamMemberRole.admin,
-            user: {
-              userid: "b0b1b2b3",
-              username: "adelheide.alvar@charite.de",
-              profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
-            },
-          },
-        ],
-      },
-    ];
-
-    if (this.user !== null) {
-      this.teams[0].members?.push({
-        teamId: "team-1",
-        userId: this.user.userid,
-        role: TeamMemberRole.admin,
-        user: this.user,
-      });
-      this.teams[1].members?.push({
-        teamId: "team-2",
-        userId: this.user.userid,
-        role: TeamMemberRole.admin,
-        user: this.user,
-      });
     }
 
     // Listen to storage events, to be able to monitor
@@ -306,23 +234,6 @@ class AuthApi extends EventTarget {
 
     this.sendMetrics("setUserId", this.user.userid);
 
-    // FIXME: Remove me!
-    if (this.teams !== null) {
-      this.teams[0].members?.push({
-        teamId: "team-1",
-        userId: this.user.userid,
-        role: TeamMemberRole.admin,
-        user: this.user,
-      });
-      this.teams[1].members?.push({
-        teamId: "team-2",
-        userId: this.user.userid,
-        role: TeamMemberRole.admin,
-        user: this.user,
-      });
-    }
-    // END FIXME
-
     return this.user;
   }
 
@@ -395,6 +306,8 @@ class AuthApi extends EventTarget {
       throw new Error(t("not-logged-in"));
     }
 
+    this.log.info("Fetching patients...");
+
     const seagullURL = new URL(`/metadata/users/${this.user?.userid}/users`, appConfig.API_HOST);
     const response = await fetch(seagullURL.toString(), {
       method: "GET",
@@ -406,6 +319,17 @@ class AuthApi extends EventTarget {
 
     if (response.ok) {
       this.patients = (await response.json()) as User[];
+      // FIXME will be removed with the team API call
+      const nPatients = this.patients.length;
+      for (let i = 0; i < nPatients; i++) {
+        const patient = this.patients[i];
+        const val = (Math.random() * 10)|0;
+        patient.teams = [`team-${val % 2}`];
+        if (i < 2) {
+          patient.teams.push("private");
+        }
+      }
+      // FIXME end
       return this.patients;
     }
 
@@ -609,8 +533,86 @@ class AuthApi extends EventTarget {
   }
 
   public async fetchTeams(): Promise<Team[]> {
-    // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random() * 200);
+    if (this.teams === null) {
+      this.log.info("Fetching teams...");
+      // eslint-disable-next-line no-magic-numbers
+      await waitTimeout(1000 + Math.random() * 200);
+
+      this.teams = [
+        {
+          // FIXME
+          id: "team-0",
+          name: "CHU Grenoble",
+          code: "123456789",
+          ownerId: "abcdef",
+          type: TeamType.medical,
+          address: {
+            line1: "Boulevard de la Chantourne",
+            line2: "Cedex 38703",
+            zip: "38700",
+            city: "La Tronche",
+            country: "FR",
+          },
+          phone: "+33 (0)4 76 76 75 75",
+          email: "secretariat-diabethologie@chu-grenoble.fr",
+          members: [
+            {
+              teamId: "team-0",
+              userId: "a0a1a2a3",
+              role: TeamMemberRole.viewer,
+              user: {
+                userid: "a0a1a2a3",
+                username: "jean.dupont@chu-grenoble.fr",
+                profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
+              },
+            },
+          ],
+        },
+        {
+          id: "team-1",
+          name: "Charité – Universitätsmedizin Berlin",
+          code: "987654321",
+          phone: "+49 30 450 - 50",
+          address: {
+            line1: "Charitéplatz 1",
+            city: "Berlin",
+            zip: "10117",
+            country: "DE",
+          },
+          ownerId: "abcdef",
+          type: TeamType.medical,
+          members: [
+            {
+              teamId: "team-1",
+              userId: "b0b1b2b3",
+              role: TeamMemberRole.admin,
+              user: {
+                userid: "b0b1b2b3",
+                username: "adelheide.alvar@charite.de",
+                profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
+              },
+            },
+          ],
+        },
+      ];
+
+      const user = this.whoami;
+      if (user !== null) {
+        this.teams[0].members?.push({
+          teamId: "team-0",
+          userId: user.userid,
+          role: TeamMemberRole.admin,
+          user,
+        });
+        this.teams[1].members?.push({
+          teamId: "team-1",
+          userId: user.userid,
+          role: TeamMemberRole.admin,
+          user,
+        });
+      }
+    }
+
     return _.cloneDeep(this.teams ?? []);
   }
 
