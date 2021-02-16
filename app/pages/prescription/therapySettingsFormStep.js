@@ -113,7 +113,7 @@ export const InModuleTrainingNotification = props => {
 InModuleTrainingNotification.propTypes = fieldsetPropTypes;
 
 export const GlucoseSettings = props => {
-  const { t, pump, ...themeProps } = props;
+  const { t, pump, ranges, thresholds, ...themeProps } = props;
   const formikContext = useFormikContext();
 
   const {
@@ -123,8 +123,6 @@ export const GlucoseSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
-  const ranges = pumpRanges(pump, bgUnits, values);
-  const thresholds = warningThresholds(pump, bgUnits, values);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -307,7 +305,7 @@ export const GlucoseSettings = props => {
 GlucoseSettings.propTypes = fieldsetPropTypes;
 
 export const InsulinSettings = props => {
-  const { t, pump, ...themeProps } = props;
+  const { t, pump, ranges, thresholds, ...themeProps } = props;
   const formikContext = useFormikContext();
 
   const {
@@ -317,8 +315,6 @@ export const InsulinSettings = props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
-  const ranges = pumpRanges(pump, bgUnits, values);
-  const thresholds = warningThresholds(pump, bgUnits, values);
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
@@ -531,9 +527,31 @@ export const TherapySettings = translate()(props => {
   } = formikContext;
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
-  const ranges = pumpRanges(props.pump, bgUnits, values);
-  const defaults = defaultValues(props.pump, bgUnits, values);
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
+  const bloodGlucoseTargetSchedules = get(values, 'initialSettings.bloodGlucoseTargetSchedule');
+  const carbohydrateRatioSchedules = get(values, 'initialSettings.carbohydrateRatioSchedule');
+  const glucoseSafetyLimit = get(values, 'initialSettings.glucoseSafetyLimit');
+  const bloodGlucoseTargetPhysicalActivityLow = get(values, 'initialSettings.bloodGlucoseTargetPhysicalActivity.low');
+  const bloodGlucoseTargetPreprandialLow = get(values, 'initialSettings.bloodGlucoseTargetPreprandial.low');
+
+  // Only re-calculate thresholds, ranges, and defaults when relevant dependancy values change
+  const thresholds = React.useMemo(() => warningThresholds(props.pump, bgUnits, values), [
+    maxBasalRate,
+    bloodGlucoseTargetSchedules,
+  ]);
+
+  const ranges = React.useMemo(() => pumpRanges(props.pump, bgUnits, values), [
+    maxBasalRate,
+    carbohydrateRatioSchedules,
+    bloodGlucoseTargetSchedules,
+    bloodGlucoseTargetPhysicalActivityLow,
+    bloodGlucoseTargetPreprandialLow,
+    glucoseSafetyLimit,
+  ]);
+
+  const defaults = React.useMemo(() => defaultValues(props.pump, bgUnits, values), [
+    maxBasalRate,
+  ]);
 
   const fieldsWithDefaults = [
     {
@@ -592,8 +610,8 @@ export const TherapySettings = translate()(props => {
       <PatientInfo mb={4} {...props} />
       <PatientTraining mt={0} mb={4} {...props} />
       {values.training === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
-      <GlucoseSettings mt={0} mb={4} {...props} />
-      <InsulinSettings mt={0} {...props} />
+      <GlucoseSettings mt={0} mb={4} {...{ ranges, thresholds, ...props }} />
+      <InsulinSettings mt={0} {...{ ranges, thresholds, ...props }} />
     </Box>
   );
 });
