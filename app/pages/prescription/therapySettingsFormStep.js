@@ -551,6 +551,7 @@ export const TherapySettings = translate()(props => {
 
   const defaults = React.useMemo(() => defaultValues(props.pump, bgUnits, values), [
     maxBasalRate,
+    values.calculator,
   ]);
 
   const fieldsWithDefaults = [
@@ -595,6 +596,21 @@ export const TherapySettings = translate()(props => {
       increment: ranges.basalRateMaximum.increment,
       dependancies: [maxBasalRate],
     },
+    {
+      path: 'initialSettings.basalRateSchedule[0].rate',
+      defaultValue: defaults.basalRate,
+      increment: ranges.basalRate.increment,
+    },
+    {
+      path: 'initialSettings.carbohydrateRatioSchedule[0].amount',
+      defaultValue: defaults.carbohydrateRatio,
+      increment: ranges.carbRatio.increment,
+    },
+    {
+      path: 'initialSettings.insulinSensitivitySchedule[0].amount',
+      defaultValue: defaults.insulinSensitivity,
+      increment: ranges.insulinSensitivityFactor.increment,
+    },
   ];
 
   each(fieldsWithDefaults, field => {
@@ -602,7 +618,7 @@ export const TherapySettings = translate()(props => {
       if (shouldUpdateDefaultValue(field.path, formikContext)) {
         setFieldValue(field.path, roundValueToIncrement(field.defaultValue, field.increment));
       }
-    }, field.dependancies || []);
+    }, field.dependancies || [field.defaultValue]);
   });
 
   return (

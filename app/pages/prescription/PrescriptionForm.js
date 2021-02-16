@@ -105,14 +105,13 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05), // TODO: calculator defaults here???
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
-          start: 0, // TODO: calculator defaults here???
+          start: 0,
         }]),
         insulinSensitivitySchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinSensitivitySchedule', [{
-          start: 0, // TODO: calculator defaults here???
+          start: 0,
         }]),
       },
       training: get(props, 'prescription.latestRevision.attributes.training'),

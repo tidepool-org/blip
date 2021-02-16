@@ -285,11 +285,20 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @returns {Object} default values keyed by setting
  */
 export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+  const {
+    calculator: {
+      recommendedBasalRate,
+      recommendedInsulinSensitivity,
+      recommendedCarbohydrateRatio,
+    },
+  } = values;
+
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
   const isPediatric = patientAge < 18;
 
   return {
+    basalRate: recommendedBasalRate || 0.05,
     basalRateMaximum: isFinite(maxBasalRate)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
@@ -305,6 +314,8 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values)
       low: getBgInTargetUnits(80, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
     },
+    carbohydrateRatio: recommendedCarbohydrateRatio,
+    insulinSensitivity: recommendedInsulinSensitivity,
     glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
   };
 };
