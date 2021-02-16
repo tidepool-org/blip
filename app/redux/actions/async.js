@@ -1681,8 +1681,7 @@ export function createClinic(api, clinic) {
             ));
           } else {
             dispatch(sync.addClinicianToClinicSuccess(clinician, clinic.id));
-            console.log('redirect to clinic management interface');
-            // redirect to clinic management interface
+            dispatch(push('/clinic-admin'));
           }
         })
       }

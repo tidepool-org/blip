@@ -4045,7 +4045,7 @@ describe('Actions', () => {
     });
 
     describe('createClinic', () => {
-      it('should trigger CREATE_CLINICS_SUCCESS, ADD_CLINICIAN_TO_CLINIC and it should call clinics.create and clinics.addClinicianToClinic once for a successful request', () => {
+      it('should trigger CREATE_CLINICS_SUCCESS, ADD_CLINICIAN_TO_CLINIC and it should call clinics.create and clinics.addClinicianToClinic once and redirect to "clinic-admin" for a successful request', () => {
         let clinicReturn = {
           id: 'new_clinic_id'
         };
@@ -4062,7 +4062,12 @@ describe('Actions', () => {
           { type: 'CREATE_CLINIC_REQUEST' },
           { type: 'CREATE_CLINIC_SUCCESS', payload: { clinic : clinicReturn } },
           { type: 'ADD_CLINICIAN_TO_CLINIC_REQUEST' },
-          { type: 'ADD_CLINICIAN_TO_CLINIC_SUCCESS', payload: { clinicId: clinicReturn.id, clinician: clinician } }
+          { type: 'ADD_CLINICIAN_TO_CLINIC_SUCCESS', payload: { clinicId: clinicReturn.id, clinician: clinician } },
+          { type: '@@router/CALL_HISTORY_METHOD',
+            payload: { args: [ '/clinic-admin' ],
+              method: 'push',
+            },
+          }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

@@ -655,6 +655,14 @@ export const clinics = (state = initialState.clinics, action) => {
           },
         },
       });
+    case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS: {
+      const clinicians = _.get(action.payload, 'clinicians', []);
+      const newClinics = _.cloneDeep(state);
+      _.forEach(clinicians, (clinician) => {
+        _.set(newClinics, [clinician.clinicId, 'clinicians', clinician.clinicianId, 'permissions'], clinician.permissions);
+      });
+      return newClinics;
+    }
     case types.GET_CLINICS_SUCCESS:
       clinics = _.get(action.payload, 'clinics', []);
       const options = _.get(action.payload, 'options', {});

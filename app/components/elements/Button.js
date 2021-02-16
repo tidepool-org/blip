@@ -72,6 +72,7 @@ Button.propTypes = {
     'textPrimary',
     'textSecondary',
     'pagination',
+    'paginationLight',
     'filter',
     'chip',
   ]),
