@@ -132,7 +132,6 @@ export const CalculatorInputs = translate()(props => {
             }}
             options={totalDailyDoseScaleFactorOptions}
             error={getFieldError('calculator.totalDailyDoseScaleFactor', formikContext)}
-            innerRef={initialFocusedInputRef}
           />
       </Box>
       )}
