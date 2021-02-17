@@ -5,6 +5,7 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Changed
 - YLP-441 Change glucose level colors
+- YLP-423 Add Dexcom branding to the glucose graph
 ### Engineering Use
 - YLP-699 Add CodeQL Analysis
 
