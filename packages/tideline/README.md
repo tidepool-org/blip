@@ -180,7 +180,7 @@ As noted above, tideline *loves* SVG group `<g>` elements. The basic structure o
 
 ```XML
 |--<svg id='tidelineSVGOneDayContainer'>
-| |-<g id='tidelineMain'>
+| |-<g id='tidelineMainSVG'>
 | | |-<g id='tidelineXAxis'>
 | | |-<g id='tidelinePools'>
 | | | |-<g id='pool[Datatype]'>
@@ -199,7 +199,7 @@ And the two-week chart differs only minimally:
 
 ```XML
 |--<svg id='tidelineSVGTwoWeekContainer'>
-| |-<g id='tidelineMain'>
+| |-<g id='tidelineMainSVG'>
 | | |-<g id='tidelinePools'>
 | | | |-<g id='daysGroup'>
 | | | | |-<g id='poolBG_[date]'>

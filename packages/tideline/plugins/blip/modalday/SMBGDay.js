@@ -15,9 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-
-/* jshint esversion:6 */
-
 window.d3 = window.d3 || require('d3/d3.min.js');
 window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
 
@@ -29,7 +26,6 @@ var bgBoundaryClass = tideline.plot.util.bgboundary;
 var dt = tideline.data.util.datetime;
 var format = tideline.data.util.format;
 var tooltips = tideline.plot.util.tooltips.generalized;
-var shapes = tideline.plot.util.tooltips.shapes;
 var { MGDL_UNITS } = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000, NINE_HRS = 75600000;

@@ -2,7 +2,7 @@ const dt = require('../../data/util/datetime');
 
 var utils = {
 
-  xPos: function(d, opts){ 
+  xPos: function(d, opts){
     return opts.xScale(Date.parse(d.normalTime)) + 1;
   },
 
@@ -26,8 +26,15 @@ var utils = {
   calculateWidth: function(d, opts) {
     const {start, end} = this.getDuration(d);
     return opts.xScale(end) - opts.xScale(start) - 1;
-  }
+  },
 
-}
+  getTooltipContainer: function(d) {
+    const parentContainer = document.getElementById('tidelineMain').getBoundingClientRect();
+    const container = d.getBoundingClientRect();
+    container.y = container.top - parentContainer.top;
+    container.x = container.left - parentContainer.left;
+    return container;
+  },
+};
 
 module.exports = utils;

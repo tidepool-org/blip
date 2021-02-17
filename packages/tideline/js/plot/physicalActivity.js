@@ -18,6 +18,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+const utils = require('./util/utils');
 var drawphysicalactivity = require('./util/drawphysicalactivity');
 
 module.exports = function(pool, opts) {
@@ -30,7 +31,6 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var drawpa = drawphysicalactivity(pool, opts);
-  var mainGroup = pool.parent();
 
   return function(selection) {
     opts.xScale = pool.xScale().copy();
@@ -67,11 +67,7 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-pa-group').on('mouseover', function(d) {
         if (d.reportedIntensity) {
-          var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-          var container = this.getBoundingClientRect();
-          container.y = container.top - parentContainer.top;
-
-          drawpa.tooltip.add(d, container);
+          drawpa.tooltip.add(d, utils.getTooltipContainer(this));
         }
 
         // highlight is disabled for now but we may decide to use it later one

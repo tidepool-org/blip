@@ -18,6 +18,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+const utils = require('./util/utils');
 var commonbolus = require('./util/commonbolus');
 var drawbolus = require('./util/drawbolus');
 
@@ -125,11 +126,7 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
         if (d.bolus) {
-          var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-          var container = this.getBoundingClientRect();
-          container.y = container.top - parentContainer.top;
-
-          drawBolus.tooltip.add(d, container);
+          drawBolus.tooltip.add(d, utils.getTooltipContainer(this));
         }
 
         highlight.on(d3.select(this));

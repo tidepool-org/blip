@@ -36,9 +36,6 @@ module.exports = function(emitter, opts) {
   };
   _.defaults(opts, defaults);
 
-  // constants
-  var MS_IN_24 = 86400000;
-
   // basic attributes
   var id,
     minWidth = 300, minHeight = 400,
@@ -77,7 +74,7 @@ module.exports = function(emitter, opts) {
   function container(selection) {
     mainSVG = selection.append('svg');
 
-    mainGroup = mainSVG.append('g').attr('id', 'tidelineMain');
+    mainGroup = mainSVG.append('g').attr('id', 'tidelineMainSVG');
 
     // update SVG dimenions and ID
     mainSVG.attr({
@@ -100,7 +97,7 @@ module.exports = function(emitter, opts) {
         .attr('id', 'tidelineScrollNav');
     }
 
-    mainSVG.insert('clipPath', '#tidelineMain')
+    mainSVG.insert('clipPath', '#tidelineMainSVG')
       .attr('id', 'mainClipPath')
       .append('rect')
       .attr({
@@ -207,8 +204,6 @@ module.exports = function(emitter, opts) {
 
   container.navString = function(a) {
     var currentDomain = container.getCurrentDomain();
-    var beginning = a[0];
-    var end = a[1];
     emitter.emit('currentDomain', {
       'domain': a
     });
@@ -338,7 +333,7 @@ module.exports = function(emitter, opts) {
   container.setScrollNav = function() {
     var translationAdjustment = axisGutter;
     scrollNav.selectAll('line').remove();
-    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight * 2/5)) + ')')
+    scrollNav.attr('transform', 'translate(0,' + (height - (nav.scrollNavHeight * 2/5)) + ')')
       .insert('line', '.scrollThumb')
       .attr({
         'stroke-width': nav.scrollGutterHeight,

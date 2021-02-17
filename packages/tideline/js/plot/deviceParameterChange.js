@@ -20,6 +20,8 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+const utils = require('./util/utils');
+
 module.exports = function(pool, opts) {
   var defaults = {
     r: 14,
@@ -62,7 +64,7 @@ module.exports = function(pool, opts) {
           y: function(d) {
             return 0;
           },
-          width, 
+          width,
           height: function() {
             return offset;
           },
@@ -74,13 +76,7 @@ module.exports = function(pool, opts) {
 
       // tooltips
       selection.selectAll('.d3-param-group').on('mouseover', function() {
-        var parentContainer = document
-          .getElementsByClassName('patient-data')[0]
-          .getBoundingClientRect();
-        var container = this.getBoundingClientRect();
-        container.y = container.top - parentContainer.top;
-
-        parameter.addTooltip(d3.select(this).datum(), container);
+        parameter.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
 
       selection.selectAll('.d3-param-group').on('mouseout', function() {

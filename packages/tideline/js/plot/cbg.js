@@ -20,9 +20,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var log = require('bows')('CBG');
-var bgBoundaryClass = require('./util/bgboundary');
-var format = require('../data/util/format');
+const utils = require('./util/utils');
 var categorizer = require('../../js/data/util/categorize');
 var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../../js/data/util/constants');
 
@@ -123,11 +121,7 @@ module.exports = function(pool, opts) {
           default:
             break;
         }
-        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-        var container = this.getBoundingClientRect();
-        container.y = container.top - parentContainer.top;
-
-        cbg.addTooltip(d3.select(this).datum(), container);
+        cbg.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function () {
         highlight.off();

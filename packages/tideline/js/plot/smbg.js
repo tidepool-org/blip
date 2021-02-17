@@ -19,9 +19,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var log = require('bows')('SMBG');
-var format = require('../data/util/format');
-var scales = require('./util/scales')();
+const utils = require('./util/utils');
 var bgBoundaryClass = require('./util/bgboundary');
 var categorizer = require('../data/util/categorize');
 var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
@@ -76,11 +74,7 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
         highlight.on(d3.select(this));
-        var parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-        var container = this.getBoundingClientRect();
-        container.y = container.top - parentContainer.top;
-
-        smbg.addTooltip(d3.select(this).datum(), container);
+        smbg.addTooltip(d3.select(this).datum(), utils.getTooltipContainer(this));
       });
       selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
         highlight.off();

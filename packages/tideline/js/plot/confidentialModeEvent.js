@@ -85,10 +85,7 @@ module.exports = function (pool, options = {}) {
       selection.selectAll('.d3-confidential-group').on('mouseover', function (d) {
         const {duration} = utils.getDuration(d);
         if ( duration < maxSizeWithTooltip) {
-          const parentContainer = document.getElementsByClassName('patient-data')[0].getBoundingClientRect();
-          const container = this.getBoundingClientRect();
-          container.y = container.top - parentContainer.top;
-          confidentialModeEvent.addTooltip(d, container);
+          confidentialModeEvent.addTooltip(d, utils.getTooltipContainer(this));
         }
       });
 
