@@ -284,13 +284,13 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @param {Object} values form values provided by formik context
  * @returns {Object} default values keyed by setting
  */
-export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}) => {
   const {
     calculator: {
       recommendedBasalRate,
       recommendedInsulinSensitivity,
       recommendedCarbohydrateRatio,
-    },
+    } = {},
   } = values;
 
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));

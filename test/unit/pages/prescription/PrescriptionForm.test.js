@@ -59,14 +59,15 @@ describe('PrescriptionForm', () => {
     expect(stepper).to.have.length(1);
 
     const steps = stepper.find('.MuiStep-root');
-    expect(steps).to.have.length(4);
+    expect(steps).to.have.length(5);
 
     expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
     expect(steps.at(0).hasClass('active')).to.be.true;
 
     expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
+    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
+    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {
@@ -142,7 +143,7 @@ describe('PrescriptionForm', () => {
     let wrapper;
     let reviewStepProps = {
       ...defaultProps,
-      location: { search: '?prescription-form-steps-step=3,0' },
+      location: { search: '?prescription-form-steps-step=4,0' },
     };
 
     beforeEach(() => {

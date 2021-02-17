@@ -94,6 +94,7 @@ describe('prescriptionFormConstants', function() {
       glucoseSafetyLimit: MGDL_UNITS,
       bolusAmount: 'Units',
       insulinCarbRatio: 'g/U',
+      weight: 'kg',
     });
   });
 
