@@ -20,14 +20,11 @@ const values = {
   emailConfirm: 'goodField',
 };
 
-const validateSyncAt = sinon.stub();
-validateSyncAt
-  .withArgs('goodField')
-  .returns(true);
-
-validateSyncAt
-  .withArgs('badField')
-  .throws();
+const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
+  if (_.get(values, fieldKey) === 'badField') {
+    throw('error');
+  }
+});
 
 const schema = { validateSyncAt };
 
@@ -59,14 +56,14 @@ describe('accountFormSteps', function() {
     expect(subSteps[1].disableComplete).to.be.false;
     expect(subSteps[2].disableComplete).to.be.false;
 
-    expect(accountFormSteps(invalidateValue('accountType')).subSteps[0].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('firstName')).subSteps[1].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('lastName')).subSteps[1].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('birthday')).subSteps[1].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('caregiverFirstName')).subSteps[2].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('caregiverLastName')).subSteps[2].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('email')).subSteps[2].disableComplete).to.be.true;
-    expect(accountFormSteps(invalidateValue('emailConfirm')).subSteps[2].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('accountType')).subSteps[0].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('firstName')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('lastName')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('birthday')).subSteps[1].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('caregiverFirstName')).subSteps[2].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('caregiverLastName')).subSteps[2].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('email')).subSteps[2].disableComplete).to.be.true;
+    expect(accountFormSteps(schema, null, invalidateValue('emailConfirm')).subSteps[2].disableComplete).to.be.true;
   });
 
   it('should hide the back button for the first subStep', () => {

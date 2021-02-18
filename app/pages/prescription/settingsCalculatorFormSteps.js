@@ -211,7 +211,7 @@ export const CalculatorInputs = translate()(props => {
   );
 });
 
-const settingsCalculatorFormSteps = (schema, values, handlers) => ({
+const settingsCalculatorFormSteps = (schema, handlers, values ) => ({
   label: t('Therapy Settings Calculator'),
   optional: true,
   onSkip: handlers.clearCalculator,

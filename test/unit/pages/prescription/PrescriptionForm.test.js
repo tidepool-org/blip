@@ -81,6 +81,10 @@ describe('PrescriptionForm', () => {
     expect(backButton).to.have.length(0);
   });
 
+  describe('clearCalculator', () => {
+
+  });
+
   describe('generateTherapySettingsOrderText', () => {
     it('should generate the therapy settings order text', () => {
       const patientRows = [

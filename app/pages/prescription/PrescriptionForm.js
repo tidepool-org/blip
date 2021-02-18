@@ -404,7 +404,7 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
-  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, values, handlers);
+  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
   const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 

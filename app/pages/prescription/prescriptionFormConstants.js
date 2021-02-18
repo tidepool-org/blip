@@ -332,8 +332,10 @@ export const calculateRecommendedTherapySettings = values => {
       weightUnits,
       totalDailyDose,
       totalDailyDoseScaleFactor,
-    },
-    initialSettings: { bloodGlucoseUnits: bgUnits = defaultUnits.bloodGlucose }
+    } = {},
+    initialSettings: {
+      bloodGlucoseUnits: bgUnits = defaultUnits.bloodGlucose
+    } = {},
   } = values;
 
   const baseTotalDailyDoseInputs = [];
