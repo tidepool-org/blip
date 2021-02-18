@@ -91,7 +91,6 @@ describe('prescriptionFormConstants', function() {
     expect(prescriptionFormConstants.defaultUnits).to.eql({
       basalRate: 'Units/hour',
       bloodGlucose: 'mg/dL',
-      glucoseSafetyLimit: MGDL_UNITS,
       bolusAmount: 'Units',
       insulinCarbRatio: 'g/U',
       weight: 'kg',

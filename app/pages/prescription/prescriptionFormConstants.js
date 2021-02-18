@@ -72,7 +72,6 @@ export const defaultUnits = {
   basalRate: 'Units/hour',
   bloodGlucose: MGDL_UNITS,
   bolusAmount: 'Units',
-  glucoseSafetyLimit: MGDL_UNITS,
   insulinCarbRatio: 'g/U',
   weight: 'kg',
 };
