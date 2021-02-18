@@ -17,7 +17,7 @@ import ClinicAdmin from '../../../app/pages/clinicadmin';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicAdmin', () => {
+describe('ClinicAdmin', () => {
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),

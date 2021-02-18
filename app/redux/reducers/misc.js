@@ -679,7 +679,7 @@ export const clinics = (state = initialState.clinics, action) => {
       const newClinics = _.reduce(
         clinics,
         (newSet, clinic) => {
-          newSet[clinic._id] = { ...clinicians, ...patients, ...clinic };
+          newSet[clinic.id] = { ...clinicians, ...patients, ...clinic };
           return newSet;
         },
         {}

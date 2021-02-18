@@ -15,7 +15,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import { Title, MediumTitle } from '../../components/elements/FontStyles';
+import {
+  Title,
+  MediumTitle,
+  Body1,
+} from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
@@ -47,8 +51,9 @@ const MoreMenu = (props) => {
     <React.Fragment>
       <Text color="text.primary">
         <Icon
-          label="info"
+          label="more"
           icon={MoreHorizRoundedIcon}
+          variant="button"
           {...bindTrigger(popupState)}
         />
       </Text>
@@ -59,16 +64,16 @@ const MoreMenu = (props) => {
         {...bindPopover(popupState)}
       >
         <Flex
-          p={2}
+          p={'10px'}
           pr={4}
           sx={{ borderBottom: baseTheme.borders.divider, cursor: 'pointer' }}
           onClick={props.handleResendInvite}
         >
           <Icon label="send" icon={InputIcon} mr={1} />
-          <Text>Resend Invitation</Text>
+          <Text color="text.primary">Resend Invitation</Text>
         </Flex>
         <Flex
-          p={2}
+          p={'10px'}
           pr={4}
           color="feedback.danger"
           sx={{ cursor: 'pointer' }}
@@ -96,15 +101,17 @@ const MoreMenu = (props) => {
           <MediumTitle id="dialog-title">Remove {props.fullName}</MediumTitle>
         </DialogTitle>
         <DialogContent>
-          {props.fullName} will lose all access to this clinic workspace and its
-          patient list. Are you sure you want to remove this user?
+          <Body1>
+            {props.fullName} will lose all access to this clinic workspace and
+            its patient list. Are you sure you want to remove this user?
+          </Body1>
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={closeDialog}>
             Cancel
           </Button>
           <Button
-            bg="feedback.danger"
+            variant="danger"
             onClick={() => {
               props.handleDelete();
               closeDialog();
@@ -335,7 +342,10 @@ export const ClinicAdmin = (props) => {
       my={2}
       bg="white"
       width={[1, 0.75, 0.75, 0.5]}
-      sx={{ border: baseTheme.borders.default }}
+      sx={{
+        border: baseTheme.borders.default,
+        borderRadius: baseTheme.radii.default,
+      }}
     >
       <Flex
         sx={{ borderBottom: baseTheme.borders.default }}
@@ -361,7 +371,7 @@ export const ClinicAdmin = (props) => {
         <TextInput
           themeProps={{
             minWidth: '250px',
-            padding: `${baseTheme.space[3]}px`,
+            py: 3,
           }}
           placeholder={t('search')}
           icon={SearchIcon}

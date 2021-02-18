@@ -752,7 +752,7 @@ describe('Actions', () => {
         const creds = { username: 'bruce', password: 'wayne' };
         const user = { userid: 27, roles: ['clinic'], profile: { clinic: true }, emailVerified: true };
         const patient = { foo: 'bar' };
-        const clinics = [{_id: 'clinicId', name: 'Clinic Name' }];
+        const clinics = [{id: 'clinicId', name: 'Clinic Name' }];
 
         const api = {
           user: {
@@ -3987,7 +3987,7 @@ describe('Actions', () => {
       it('should trigger GET_CLINICS_SUCCESS and it should call clinics.getAll once for a successful request', () => {
         let clinics = [
           {
-            _id: '5f85fbe6686e6bb9170ab5d0',
+            id: '5f85fbe6686e6bb9170ab5d0',
             address: '1 Address Ln, City Zip',
             name: 'Clinic1',
             phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
@@ -4113,7 +4113,7 @@ describe('Actions', () => {
     describe('fetchClinic', () => {
       it('should trigger FETCH_CLINIC_SUCCESS and it should call clinics.get once for a successful request', () => {
         let clinic = {
-          _id: '5f85fbe6686e6bb9170ab5d0',
+          id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
           name: 'Clinic1',
           phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],

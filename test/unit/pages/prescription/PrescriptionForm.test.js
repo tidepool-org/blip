@@ -174,7 +174,7 @@ describe('PrescriptionForm', () => {
     });
 
     it('should track a metric when copy as text button is clicked', () => {
-      const copyButton = wrapper.find('button[title="Copy therapy settings order as text"]');
+      const copyButton = wrapper.find('button[title="Copy therapy settings order as text"]').at(0);
       sinon.assert.notCalled(defaultProps.trackMetric);
       copyButton.simulate('click');
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Copy Therapy Settings Order');

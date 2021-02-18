@@ -109,7 +109,7 @@ describe('ScheduleForm', () => {
     expect(rateWarning.last().text()).to.equal('Too low!');
 
     // Delete icon (disabled)
-    const deleteIcon = rows.first().find('span[aria-label="Delete"]').hostNodes();
+    const deleteIcon = rows.first().find('button[aria-label="Delete"]').hostNodes();
     expect(deleteIcon).to.have.length(1);
     expect(deleteIcon.prop('disabled')).to.be.true;
     expect(deleteIcon.hasClass('disabled')).to.be.true;

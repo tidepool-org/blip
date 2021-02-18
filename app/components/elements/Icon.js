@@ -23,7 +23,7 @@ const StyledIcon = styled(Box)`
 
 export const Icon = props => {
   const { icon: IconElement, innerRef, label, variant, ...buttonProps } = props;
-  const as = props.variant === 'icons.button' ? 'button' : 'span';
+  const as = props.variant === 'button' ? 'button' : 'span';
 
   const classNames = cx({
     disabled: props.disabled,

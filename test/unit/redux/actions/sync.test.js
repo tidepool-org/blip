@@ -2263,8 +2263,8 @@ describe('Actions', () => {
 
     describe('getClinicsSuccess', () => {
       let clinics = [
-        {_id: 'clinicId', name: 'Clinic Name'},
-        {_id: 'clinicId2', name: 'Clinic Name'},
+        {id: 'clinicId', name: 'Clinic Name'},
+        {id: 'clinicId2', name: 'Clinic Name'},
       ];
       let options = {clinicianId: 'clinicianId'};
       it('should be a TSA', () => {

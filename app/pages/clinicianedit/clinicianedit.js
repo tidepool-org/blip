@@ -6,7 +6,11 @@ import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import _ from 'lodash';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import { Title, MediumTitle } from '../../components/elements/FontStyles';
+import {
+  Title,
+  MediumTitle,
+  Body1,
+} from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
@@ -92,7 +96,11 @@ export const ClinicianEdit = (props) => {
 
   function handleConfirmDeleteDialog() {
     // TODO: dispatch(actions.async.deleteClinicianFromClinic(api,selectedClinic,selectedClinicianId))
-    console.log('deleteClinicianFromClinic',selectedClinic,selectedClinicianId);
+    console.log(
+      'deleteClinicianFromClinic',
+      selectedClinic,
+      selectedClinicianId
+    );
     dispatch(push('/clinic-admin'));
   }
 
@@ -106,31 +114,31 @@ export const ClinicianEdit = (props) => {
 
   function handleSave() {
     const updatedPermissions = [];
-    updatedPermissions.push(selectedType)
-    if(prescriberPermission) updatedPermissions.push('PRESCRIBER');
-    const updates = {permissions: updatedPermissions}
+    updatedPermissions.push(selectedType);
+    if (prescriberPermission) updatedPermissions.push('PRESCRIBER');
+    const updates = { permissions: updatedPermissions };
     // TODO: dispatch(actions.async.updateClinician(api,selectedClinic,selectedClinician,updates));
-    console.log('updateClinician',selectedClinic,selectedClinician,updates);
+    console.log('updateClinician', selectedClinic, selectedClinician, updates);
     dispatch(push('/clinic-admin'));
   }
 
   const clinicAdminDesc = (
     <>
       <Title>Clinic Admin</Title>
-      <Text>
+      <Body1>
         Clinic administrators have full read and edit access to access. Clinic
         administrators have full read and edit access to access{' '}
-      </Text>
+      </Body1>
     </>
   );
 
   const clinicMemberDesc = (
     <>
       <Title>Clinic Member</Title>
-      <Text>
+      <Body1>
         Clinic members have read access to access management. More details are
         described here.{' '}
-      </Text>
+      </Body1>
     </>
   );
 
@@ -168,8 +176,28 @@ export const ClinicianEdit = (props) => {
           value={selectedType}
           onChange={handleSelectType}
           variant={'verticalBordered'}
+          sx={{
+            '&&': {
+              label: {
+                marginBottom: 0,
+                '&:first-child': {
+                  borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
+                  borderBottom: 'none',
+                },
+              },
+            },
+          }}
         />
-        <Box p={4} my={4} bg="lightestGrey">
+        <Box
+          p={4}
+          mb={4}
+          bg="lightestGrey"
+          sx={{
+            border: baseTheme.borders.default,
+            borderTop: 'none',
+            borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+          }}
+        >
           <Checkbox
             label={'Prescribing access'}
             checked={prescriberPermission}
@@ -193,20 +221,19 @@ export const ClinicianEdit = (props) => {
         onClose={handleCloseDeleteDialog}
       >
         <DialogTitle onClose={handleCloseDeleteDialog}>
-          <MediumTitle id="dialog-title">
-            Remove {fullName}
-          </MediumTitle>
+          <MediumTitle id="dialog-title">Remove {fullName}</MediumTitle>
         </DialogTitle>
         <DialogContent>
-          {fullName} will lose all access to this
-          clinic workspace and its patient list. Are you sure you want to remove
-          this user?
+          <Body1>
+            {fullName} will lose all access to this clinic workspace and its
+            patient list. Are you sure you want to remove this user?
+          </Body1>
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button bg="feedback.danger" onClick={handleConfirmDeleteDialog}>
+          <Button variant="danger" onClick={handleConfirmDeleteDialog}>
             Remove User
           </Button>
         </DialogActions>
@@ -215,21 +242,25 @@ export const ClinicianEdit = (props) => {
         id="confirmDialog"
         aria-labelledBy="dialog-title"
         open={confirmDialogOpen}
-        onClose={handleCloseConfirmDialog}>
+        onClose={handleCloseConfirmDialog}
+      >
         <DialogTitle onClose={handleCloseConfirmDialog}>
           <MediumTitle id="dialog-title">Unsaved changes</MediumTitle>
         </DialogTitle>
         <DialogContent>
-          You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?
+          <Body1>
+            You have a unsaved changes to this clinician which will be lost if
+            you navigate away. Are you sure you wish to discard these changes?
+          </Body1>
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={handleCloseConfirmDialog}>
             Cancel
           </Button>
-          <Button bg="feedback.danger" onClick={handleExitConfirmDialog}>
+          <Button variant="danger" onClick={handleExitConfirmDialog}>
             Exit
           </Button>
-          </DialogActions>
+        </DialogActions>
       </Dialog>
     </Box>
   );

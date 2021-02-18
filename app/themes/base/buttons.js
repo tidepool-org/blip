@@ -68,6 +68,23 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
     },
     tertiary: tertiaryStyles,
+    danger: {
+      ...defaultStyles,
+      backgroundColor: colors.feedback.danger,
+      color: colors.white,
+      border: borders.input,
+      borderColor: colors.pinks[12],
+      borderRadius: radii.default,
+      '&.selected': {
+        backgroundColor: colors.pinks[13],
+        borderColor: colors.pinks[13],
+      },
+      '&:disabled': {
+        backgroundColor: colors.coral,
+        borderColor: colors.coral,
+        color: colors.text.primaryDisabled,
+      },
+    },
     textPrimary: {
       ...defaultStyles,
       backgroundColor: colors.white,

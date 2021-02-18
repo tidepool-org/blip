@@ -3,9 +3,14 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { translate } from 'react-i18next';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import { push, useLocation } from 'connected-react-router';
+import { push } from 'connected-react-router';
+import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
-import { Title, MediumTitle } from '../../components/elements/FontStyles';
+import {
+  Title,
+  MediumTitle,
+  Body1,
+} from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
@@ -29,7 +34,7 @@ export const ClinicInvite = (props) => {
   const location = useLocation();
   const selectedClinic = _.get(location, 'state.clinicId', false);
 
-  if(!selectedClinic){
+  if (!selectedClinic) {
     dispatch(push('/clinic-admin'));
   }
 
@@ -82,20 +87,20 @@ export const ClinicInvite = (props) => {
   const clinicAdminDesc = (
     <>
       <Title>Clinic Admin</Title>
-      <Text>
+      <Body1>
         Clinic administrators have full read and edit access to access. Clinic
         administrators have full read and edit access to access{' '}
-      </Text>
+      </Body1>
     </>
   );
 
   const clinicMemberDesc = (
     <>
       <Title>Clinic Member</Title>
-      <Text>
+      <Body1>
         Clinic members have read access to access management. More details are
         described here.{' '}
-      </Text>
+      </Body1>
     </>
   );
 
@@ -120,9 +125,9 @@ export const ClinicInvite = (props) => {
           id="email"
           themeProps={{
             minWidth: '250px',
-            padding: `${baseTheme.space[3]}px`,
+            py: `${baseTheme.space[3]}px`,
           }}
-          placeholder={t('')}
+          placeholder={t('Enter email address')}
           name="email"
           variant="condensed"
           value={email}
@@ -138,8 +143,28 @@ export const ClinicInvite = (props) => {
           value={selectedType}
           onChange={handleSelectType}
           variant={'verticalBordered'}
+          sx={{
+            '&&': {
+              label: {
+                marginBottom: 0,
+                '&:first-child': {
+                  borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
+                  borderBottom: 'none',
+                },
+              },
+            },
+          }}
         />
-        <Box p={4} my={4} bg="lightestGrey">
+        <Box
+          p={4}
+          mb={4}
+          bg="lightestGrey"
+          sx={{
+            border: baseTheme.borders.default,
+            borderTop: 'none',
+            borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+          }}
+        >
           <Checkbox
             label={'Prescribing access'}
             checked={prescriberPermission}
@@ -166,14 +191,16 @@ export const ClinicInvite = (props) => {
           <MediumTitle id="dialog-title">Unsaved invitation</MediumTitle>
         </DialogTitle>
         <DialogContent>
-          You have a unsaved changes to this invitation which will be lost if
-          you navigate away. Are you sure you wish to discard these changes?
+          <Body1>
+            You have a unsaved changes to this invitation which will be lost if
+            you navigate away. Are you sure you wish to discard these changes?
+          </Body1>
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={handleDialogClose}>
             Cancel
           </Button>
-          <Button bg="feedback.danger" onClick={handleDialogConfirm}>
+          <Button variant="danger" onClick={handleDialogConfirm}>
             Exit
           </Button>
         </DialogActions>
