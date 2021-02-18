@@ -6,7 +6,6 @@ import bows from 'bows';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
-import map from 'lodash/map';
 
 import { fieldsAreValid, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
