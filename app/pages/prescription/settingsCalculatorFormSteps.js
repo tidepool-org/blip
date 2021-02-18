@@ -32,7 +32,7 @@ import {
 } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
-const log = bows('PrescriptionAccount');
+const log = bows('PrescriptionCalculator');
 
 export const CalculatorMethod = translate()(props => {
   const { t } = props;
