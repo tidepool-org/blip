@@ -1,5 +1,6 @@
 /* eslint-disable lodash/prefer-lodash-typecheck */
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -10,16 +11,24 @@ const morgan = require('morgan');
 const request = require('request');
 
 let httpPort = 3000;
+let httpsPort = 3002;
 
 /** @type {string[]} */
 const fileList = [];
 /** @type {http.Server} */
 let httpServer = null;
+/** @type {https.Server} */
+let httpsServer = null;
 let lambdaUrl = 'http://localhost:9001';
 
 // If ports specified override the default value (3000)
 if (process.env.PORT !== undefined && process.env.PORT !== '') {
   httpPort = Number.parseInt(process.env.PORT, 10);
+}
+
+// If ports specified override the default value (3002)
+if (process.env.HTTPS_PORT !== undefined && process.env.HTTPS_PORT !== '') {
+  httpsPort = Number.parseInt(process.env.HTTPS_PORT, 10);
 }
 
 if (process.env.LAMBDA_URL !== undefined && process.env.LAMBDA_URL !== '') {
@@ -107,11 +116,18 @@ function redirectMiddleware(req, res, next) {
  * @param {express.Express} app
  */
 async function stopServer(app) {
-  console.log('Stopping server...');
+  console.log('Stopping http server...');
   if (httpServer !== null) {
     httpServer.close();
     httpServer.removeAllListeners();
     httpServer = null;
+  }
+
+  console.log('Stopping https server...');
+  if (httpsServer !== null) {
+    httpsServer.close();
+    httpsServer.removeAllListeners();
+    httpsServer = null;
   }
 
   if (app !== null) {
@@ -150,6 +166,25 @@ if (httpPort) {
     console.log(`${now} Connect server started on HTTP port`, httpPort);
     console.log(`${now} Serving static directory '${staticDir}/'`);
   });
+}
+
+if (httpsPort) {
+  fs.access("/dist/server/blip.cert", fs.F_OK, (err) => {
+    if (err) {
+      console.warn("Certificate is missing, https server not starting");
+    }
+    else {
+      httpsServer = https.createServer({
+        key: fs.readFileSync('/dist/server/blip.key'),
+        cert: fs.readFileSync('/dist/server/blip.cert')
+      }, app)
+      .listen(httpsPort, () => {
+        const now = new Date().toISOString();
+        console.log(`${now} Connect server started on HTTPS port`, httpsPort);
+        console.log(`${now} Serving static directory '${staticDir}/'`);
+      })
+    }
+  })
 }
 
 // Handle simple process kill

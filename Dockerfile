@@ -20,8 +20,12 @@ COPY ./templates ./templates
 
 # this part contains the aws lambda middleware
 FROM node:12.18.3-alpine as lambda
+RUN apk --no-cache update && \
+  apk --no-cache upgrade && \
+  apk add --no-cache openssl
 WORKDIR /server
 COPY ./server .
+RUN openssl req -nodes -new -x509 -keyout blip.key -out blip.cert -subj "/C=FR/ST=France/L=Grenoble/O=Diabeloop/OU=Platforms/CN=platforms@diabeloop.fr"
 RUN npm install
 
 FROM node:12.18.3-alpine as final
