@@ -28,11 +28,11 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { Link, RouteComponentProps } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Link as RouterLink, RouteComponentProps } from "react-router-dom";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 
-import { makeStyles /*, Theme */ } from "@material-ui/core/styles";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -43,18 +43,41 @@ import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
+import Link from "@material-ui/core/Link";
 
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import brandingLogo from "branding/logo.png";
 import { useAuth } from "../../lib/auth/hook/use-auth";
+import LoginFooterLink from "./login-footer-link";
 
-const loginStyle = makeStyles((/* theme: Theme */) => {
+const loginStyle = makeStyles((theme: Theme) => {
   return {
     mainContainer: { margin: "auto" },
+    root: { minHeight: "100vh" },
     loginButton: {
       marginLeft: "auto !important",
+    },
+    rightLink: {
+      padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
+      textAlign: "start",
+      fontSize: "small",
+    },
+    centeredLink: {
+      padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
+      textAlign: "center",
+      color: "#109182",
+    },
+    leftLink: {
+      padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
+      textAlign: "end",
+      fontSize: "small",
+    },
+    selection: {
+      padding: theme.spacing(2),
+      textAlign: "center",
+      fontSize: "small",
     },
   };
 });
@@ -63,7 +86,7 @@ const loginStyle = makeStyles((/* theme: Theme */) => {
  * Login page
  */
 function Login(props: RouteComponentProps): JSX.Element {
-  const { t } = useTranslation("yourloops");
+  const { t } = useTranslation();
   const auth = useAuth();
   const classes = loginStyle();
 
@@ -77,11 +100,15 @@ function Login(props: RouteComponentProps): JSX.Element {
   const emptyPassword = _.isEmpty(password);
   const log = bows("Login");
 
-  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+  const onUsernameChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     setUserName(event.target.value);
   };
 
-  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+  const onPasswordChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     setPassword(event.target.value);
   };
 
@@ -115,7 +142,9 @@ function Login(props: RouteComponentProps): JSX.Element {
     } catch (reason: unknown) {
       log.error(reason);
       setValidateError(true);
-      const message = _.isError(reason) ? reason.message : new String(reason).toString();
+      const message = _.isError(reason)
+        ? reason.message
+        : new String(reason).toString();
       setHelperTextValue(message);
     }
   };
@@ -134,7 +163,13 @@ function Login(props: RouteComponentProps): JSX.Element {
 
   return (
     <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid container spacing={0} alignItems="center" justify="center" style={{ minHeight: "100vh" }}>
+      <Grid
+        container
+        spacing={0}
+        alignItems="center"
+        justify="center"
+        className={classes.root}
+      >
         <Grid item xs={12}>
           <Card>
             <CardMedia
@@ -142,7 +177,8 @@ function Login(props: RouteComponentProps): JSX.Element {
                 display: "flex",
                 paddingTop: "1em",
                 paddingBottom: "1em",
-              }}>
+              }}
+            >
               <img
                 src={brandingLogo}
                 style={{
@@ -154,7 +190,11 @@ function Login(props: RouteComponentProps): JSX.Element {
               />
             </CardMedia>
             <CardContent>
-              <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
+              <form
+                style={{ display: "flex", flexDirection: "column" }}
+                noValidate
+                autoComplete="off"
+              >
                 <TextField
                   id="login-username"
                   label={t("email")}
@@ -169,13 +209,19 @@ function Login(props: RouteComponentProps): JSX.Element {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   required
-                  error={validateError && (emptyPassword || helperTextValue.length > 0)}
+                  error={
+                    validateError &&
+                    (emptyPassword || helperTextValue.length > 0)
+                  }
                   onChange={onPasswordChange}
                   helperText={helperTextValue}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={onClickShowPasswordVisibility}>
+                        <IconButton
+                          aria-label={t("aria-toggle-password-visibility")}
+                          onClick={onClickShowPasswordVisibility}
+                        >
                           {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
@@ -185,7 +231,11 @@ function Login(props: RouteComponentProps): JSX.Element {
               </form>
             </CardContent>
             <CardActions>
-              <Link to="/request-password-reset" onClick={onClickLoginReset}>
+              <Link
+                component={RouterLink}
+                to="/request-password-reset"
+                onClick={onClickLoginReset}
+              >
                 {t("Forgot your password?")}
               </Link>
               <Button
@@ -193,11 +243,13 @@ function Login(props: RouteComponentProps): JSX.Element {
                 color="primary"
                 onClick={onClickLoginButton}
                 className={classes.loginButton}
-                disabled={emptyUsername || emptyPassword}>
+                disabled={emptyUsername || emptyPassword}
+              >
                 {t("Login")}
               </Button>
             </CardActions>
           </Card>
+          <LoginFooterLink />
         </Grid>
       </Grid>
     </Container>
