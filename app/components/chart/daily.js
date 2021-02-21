@@ -76,6 +76,7 @@ const DailyChart = translate()(class DailyChart extends Component {
       'bgClasses',
       'bgUnits',
       'bolusRatio',
+      'carbUnits',
       'dynamicCarbs',
       'timePrefs',
       'onBolusHover',
@@ -377,15 +378,24 @@ class Daily extends Component {
   renderChart = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const carbUnits = ['grams'];
+
+    const hasCarbExchanges = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'wizard', carbUnits: 'exchanges' }
+    );
+
+    if (hasCarbExchanges) carbUnits.push('exchanges');
 
     return (
       <DailyChart
         bgClasses={bgPrefs.bgClasses}
         bgUnits={bgPrefs.bgUnits}
         bolusRatio={this.props.chartPrefs.bolusRatio}
+        carbUnits={carbUnits}
+        data={this.props.data}
         dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        data={this.props.data}
         timePrefs={timePrefs}
         // message handlers
         onCreateMessage={this.props.onCreateMessage}
