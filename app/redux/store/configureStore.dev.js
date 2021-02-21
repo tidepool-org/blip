@@ -17,15 +17,16 @@
 
 /* global __DEV_TOOLS__ */
 
+import { createBrowserHistory } from 'history';
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { browserHistory } from 'react-router';
-import { syncHistory, routeReducer } from 'react-router-redux';
+import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
+import qhistory from 'qhistory';
+import { stringify, parse } from 'qs';
 
-// eslint-disable-next-line import/no-unresolved
 import Worker from 'worker-loader?inline!./../../worker/index';
 
 import blipState from '../reducers/initialState';
@@ -40,11 +41,11 @@ function getDebugSessionKey() {
   return (matches && matches.length > 0)? matches[1] : null;
 }
 
-const reduxRouterMiddleware = syncHistory(browserHistory);
+export const history = qhistory(createBrowserHistory(), stringify, parse);
 
 const reducer = combineReducers({
   blip: reducers,
-  routing: routeReducer,
+  router: connectRouter(history),
 });
 
 const loggerMiddleware = createLogger({
@@ -62,7 +63,7 @@ if (!__DEV_TOOLS__) {
       applyMiddleware(
         workerMiddleware,
         thunkMiddleware,
-        reduxRouterMiddleware,
+        routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
       ),
@@ -77,7 +78,7 @@ if (!__DEV_TOOLS__) {
         workerMiddleware,
         thunkMiddleware,
         loggerMiddleware,
-        reduxRouterMiddleware,
+        routerMiddleware(history),
         createErrorLogger(api),
         trackingMiddleware(api),
         mutationTracker(),
@@ -95,7 +96,10 @@ function _createStore(api) {
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>
-      store.replaceReducer(require('../reducers'))
+      store.replaceReducer(combineReducers({
+        blip: require('../reducers'),
+        router: connectRouter(history),
+      }))
     );
   };
 

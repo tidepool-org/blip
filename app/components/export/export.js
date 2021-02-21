@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -24,9 +25,10 @@ const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
 export default translate()(class Export extends Component {
   static propTypes = {
-    api: React.PropTypes.object.isRequired,
-    patient: React.PropTypes.object.isRequired,
-    user: React.PropTypes.object.isRequired,
+    api: PropTypes.object.isRequired,
+    patient: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -40,7 +42,7 @@ export default translate()(class Export extends Component {
         .subtract(30, 'd')
         .format(JS_DATE_FORMAT),
       anonymizeData: false,
-      format: 'json',
+      format: 'excel',
       extraExpanded: false,
       error: false,
       bgUnits: _.get(props, 'patient.settings.units.bg', MGDL_UNITS),
@@ -52,6 +54,7 @@ export default translate()(class Export extends Component {
   }
 
   handleSubmit(event) {
+    this.props.trackMetric('Clicked "export data"');
     event.preventDefault();
     this.setState({ error: null });
     let options = _.pick(this.state, [
@@ -106,6 +109,25 @@ export default translate()(class Export extends Component {
       }
     }
 
+    let metric;
+
+    switch (name) {
+      case 'format':
+        metric = 'Selected file format';
+        break;
+      case 'startDate':
+      case 'endDate':
+        metric = 'Selected custom start or end date';
+        break;
+      case 'bgUnits':
+        metric = 'Selected diabetes data format';
+        break;
+      default:
+        break;
+    }
+
+    metric && this.props.trackMetric(metric);
+
     this.setState({
       [name]: value
     });
@@ -127,6 +149,7 @@ export default translate()(class Export extends Component {
       endDate,
       startDate,
     });
+    this.props.trackMetric('Selected pre-determined date range');
   }
 
   render() {
@@ -182,10 +205,13 @@ export default translate()(class Export extends Component {
           </div>
 
           <div>
-            <a onClick={() => this.setState({ allTime: true })}>All Data</a> |
-            <a onClick={() => this.setDateRange(90)}>Last 90 Days</a> |
-            <a onClick={() => this.setDateRange(30)}>Last 30 Days</a> |
-            <a onClick={() => this.setDateRange(14)}>Last 14 Days</a>
+            <a onClick={() => {
+              this.props.trackMetric('Selected pre-determined date range');
+              this.setState({ allTime: true });
+            }}>All Data</a> |
+            <a onClick={() => this.setDateRange(90)}> Last 90 Days</a> |
+            <a onClick={() => this.setDateRange(30)}> Last 30 Days</a> |
+            <a onClick={() => this.setDateRange(14)}> Last 14 Days</a>
           </div>
 
           <div className="Export-units">

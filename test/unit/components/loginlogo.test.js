@@ -4,10 +4,10 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
-var LoginLogo = require('../../../app/components/loginlogo');
+import LoginLogo from '../../../app/components/loginlogo/loginlogo';
 
 describe('LoginLogo', function () {
   it('should be exposed as a module and be of type function', function() {

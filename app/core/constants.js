@@ -25,7 +25,8 @@ export const URL_TERMS_OF_USE = 'https://tidepool.org/terms-of-use';
 export const URL_PRIVACY_POLICY = 'https://tidepool.org/privacy-policy';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project';
 export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool';
-export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/'
+export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepool-uploader/';
+export const URL_SHARE_DATA_INFO = 'https://support.tidepool.org/hc/en-us/articles/360029684951-Share-your-Data';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
@@ -48,6 +49,7 @@ export const DIABETES_TYPES = () => [
   { value: 'gestational', label: t('Gestational') },
   { value: 'prediabetes', label: t('Pre-diabetes') },
   { value: 'lada', label: t('LADA (Type 1.5)') },
+  { value: 'mody', label: t('MODY/Monogenic') },
   { value: 'other', label: t('Other') },
 ];
 
@@ -67,3 +69,7 @@ export const DIABETES_DATA_TYPES = [
 export const MGDL_UNITS = t('mg/dL');
 export const MMOLL_UNITS = t('mmol/L');
 export const MGDL_PER_MMOLL = 18.01559;
+
+export const MS_IN_DAY = 864e5;
+export const MS_IN_HOUR = 864e5 / 24;
+export const MS_IN_MIN = MS_IN_HOUR / 60;

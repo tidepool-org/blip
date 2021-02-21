@@ -824,6 +824,127 @@ api.metrics.track = function(eventName, properties, cb) {
   return tidepool.trackMetric(eventName, properties, cb);
 };
 
+// ----- Prescription -----
+
+api.prescription = {};
+
+api.prescription.getAll = function(cb) {
+  return tidepool.getPrescriptions(cb);
+};
+
+api.prescription.create = function(prescription, cb) {
+  return tidepool.createPrescription(prescription, cb);
+};
+
+api.prescription.createRevision = function(revision, prescriptionId, cb) {
+  return tidepool.createPrescriptionRevision(revision, prescriptionId, cb);
+};
+
+api.prescription.delete = function(prescriptionId, cb) {
+  return tidepool.deletePrescription(prescriptionId, cb);
+};
+
+// ----- Devices -----
+
+api.devices = {};
+
+api.devices.getAll = function(cb) {
+  async.parallel({
+    cgm: tidepool.getCGMDevices,
+    pump: tidepool.getPumpDevices,
+  },
+  function(err, results) {
+    if (err) {
+      return cb(err);
+    }
+
+    cb(null, {
+      ...results.cgm,
+      ...results.pump,
+    });
+  });
+};
+
+// ----- Clinics -----
+
+api.clinics = {};
+
+api.clinics.getAll = function(options, cb) {
+  return tidepool.getClinics(options, cb);
+};
+
+api.clinics.create = function(clinic, cb) {
+  return tidepool.createClinic(clinic, cb);
+};
+
+api.clinics.get = function(clinicId, cb) {
+  return tidepool.getClinic(clinicId, cb);
+};
+
+api.clinics.update = function(clinicId, updates, cb) {
+  return tidepool.updateClinic(clinicId, updates, cb);
+};
+
+api.clinics.delete = function(clinicId, cb) {
+  return tidepool.deleteClinic(clinicId, cb);
+};
+
+api.clinics.getClinician = function(clinicId, clinicianId, cb) {
+  return tidepool.getClinician(clinicId, clinicianId, cb);
+};
+
+api.clinics.updateClinician = function(clinicId, clinicianId, updates, cb) {
+  return tidepool.updateClinician(clinicId, clinicianId, updates, cb);
+};
+
+api.clinics.deleteClinicianFromClinic = function(clinicId, clinicianId, cb) {
+  return tidepool.deleteClinicianFromClinic(clinicId, clinicianId, cb);
+};
+
+api.clinics.getPatientsForClinic = function(clinicId, cb) {
+  return tidepool.getPatientsForClinic(clinicId, cb);
+};
+
+api.clinics.addPatientToClinic = function(clinicId, patient, cb) {
+  return tidepool.addPatientToClinic(clinicId, patient, cb);
+};
+
+api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {
+  return tidepool.getPatientFromClinic(clinicId, patientId, cb);
+};
+
+api.clinics.updateClinicPatient = function(clinicId, patientId, updates, cb) {
+  return tidepool.updateClinicPatient(clinicId, patientId, updates, cb);
+};
+
+api.clinics.deletePatientFromClinic = function(clinicId, patientId, cb) {
+  return tidepool.deletePatientFromClinic(clinicId, patientId, cb);
+};
+
+api.clinics.getCliniciansFromClinic = function(clinicId, cb) {
+  return tidepool.getCliniciansFromClinic(clinicId, cb);
+};
+
+api.clinics.addClinicianToClinic = function(clinicId, clinician, cb) {
+  return tidepool.addClinicianToClinic(clinicId, clinician, cb);
+};
+
+api.clinics.getClinicsPatient = function(patientId, cb) {
+  return tidepool.getClinicsPatient(patientId, cb);
+};
+
+api.clinics.deleteClinicsPatient = function(patientId, cb) {
+  return tidepool.deleteClinicsPatient(patientId, cb);
+};
+
+api.clinics.getClinicsClinician = function(clinicianId, cb) {
+  return tidepool.getClinicsClinician(clinicianId, cb);
+};
+
+api.clinics.deleteClinicsClinician = function(clinicianId, cb) {
+  return tidepool.deleteClinicsClinician(clinicianId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};
@@ -839,6 +960,9 @@ api.errors.log = function(error, message, properties, cb) {
     if (_.isError(error.originalError)) {
       _.assign(extra, { displayError: _.omit(error, ['originalError']) });
       error = error.originalError;
+    }
+    if (_.get(error, 'body.reason')) {
+      error.message = `API Error: ${error.body.reason}`;
     }
     rollbar.error(error, extra);
   }

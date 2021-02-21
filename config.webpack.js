@@ -23,6 +23,8 @@ const defineEnvPlugin = new webpack.DefinePlugin({
   __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
   __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
   __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
+  __RX_ENABLED__: JSON.stringify(process.env.RX_ENABLED || false),
+  __CLINICS_ENABLED__: JSON.stringify(process.env.CLINICS_ENABLED || false),
   __VERSION__: JSON.stringify(VERSION),
   __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
   __VERSION_SHA__: JSON.stringify(VERSION_SHA),

@@ -10,10 +10,14 @@ const terser = require('terser');
 const fs = require('fs');
 const pkg = require('./package.json');
 const cp = require('child_process');
+const optional = require('optional');
+const _ = require('lodash');
 
 const isDev = (process.env.NODE_ENV === 'development');
 const isTest = (process.env.NODE_ENV === 'test');
 const isProd = (process.env.NODE_ENV === 'production');
+
+const linkedPackages = (isDev || isTest) ? _.get(optional('./config/linked-packages'), 'packages', {}) : {};
 
 const VERSION = pkg.version;
 const ROLLBAR_POST_CLIENT_TOKEN = '7e29ff3610ab407f826307c8f5ad386f';
@@ -31,7 +35,7 @@ const localIdentName = process.env.NODE_ENV === 'test'
   : '[name]--[local]--[hash:base64:5]';
 
 const styleLoaderConfiguration = {
-  test: /\.less$/,
+  test: /\.(less|css)$/,
   use: [
     (isDev || isTest) ? 'style-loader' : MiniCssExtractPlugin.loader,
     {
@@ -142,6 +146,8 @@ const plugins = [
     __PASSWORD_MAX_LENGTH__: JSON.stringify(process.env.PASSWORD_MAX_LENGTH || null),
     __ABOUT_MAX_LENGTH__: JSON.stringify(process.env.ABOUT_MAX_LENGTH || null),
     __I18N_ENABLED__: JSON.stringify(process.env.I18N_ENABLED || false),
+    __RX_ENABLED__: JSON.stringify(process.env.RX_ENABLED || false),
+    __CLINICS_ENABLED__: JSON.stringify(process.env.CLINICS_ENABLED || false),
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),
@@ -170,6 +176,9 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: 'index.ejs',
     favicon: 'favicon.ico',
+    minify: {
+      removeComments: false,
+    },
   }),
 ];
 
@@ -207,10 +216,19 @@ const output = {
 };
 
 const resolve = {
-  modules: [
-    path.join(__dirname, 'node_modules'),
-    'node_modules',
-  ],
+  alias: {
+    ...linkedPackages,
+    'babel-core': path.resolve('node_modules/babel-core'),
+    classnames: path.resolve('node_modules/classnames'),
+    lodash: path.resolve('node_modules/lodash'),
+    moment: path.resolve('node_modules/moment'),
+    'moment-timezone': path.resolve('node_modules/moment-timezone'),
+    react: path.resolve('node_modules/react'),
+    'react-dom': '@hot-loader/react-dom',
+    'react-addons-update': path.resolve('node_modules/react-addons-update'),
+    'react-redux': path.resolve('node_modules/react-redux'),
+    redux: path.resolve('node_modules/redux'),
+  },
 };
 
 let devtool = process.env.WEBPACK_DEVTOOL || 'eval-source-map';

@@ -1,33 +1,27 @@
+import React from 'react';
+import styled from 'styled-components';
 
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
+import logoSrc from './images/tidepool-logo-880x96.png'
 
-var React = require('react');
-
-var logoSrc = require('./images/tidepool-logo-880x96.png');
-
-var LoginLogo = React.createClass({
-  render: function() {
-
-    return (
-      <div className="login-logo">
-        <img src={logoSrc} alt="Tidepool"/>
-      </div>
-    );
-
+const StyledLogo = styled.div`
+  text-align: center;
+  padding-top: 40px;
+  img {
+    height: 27px;
+    @media(min-width: 512px) {
+      height: 45px;
+    }
   }
-});
+`;
 
-module.exports = LoginLogo;
+export const LoginLogo = () => {
+  return (
+    <StyledLogo>
+      <a href="/">
+        <img src={logoSrc} alt="Tidepool" />
+      </a>
+    </StyledLogo>
+  )
+};
+
+export default LoginLogo;

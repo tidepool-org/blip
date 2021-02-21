@@ -2,10 +2,13 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global beforeEach */
+/* global afterEach */
 
-import React from 'react';
-import { browserHistory } from 'react-router';
-import TestUtils from 'react-addons-test-utils';
+
+import React, { createElement } from 'react';
+import { mount } from 'enzyme';
+import { BrowserRouter } from 'react-router-dom';
 
 import mutationTracker from 'object-invariant-test-helper';
 
@@ -20,27 +23,34 @@ describe('Patients', () => {
     expect(Patients).to.be.a('function');
   });
 
+  let props = {
+    clearPatientInView: sinon.stub(),
+    dataWorkerRemoveDataRequest: sinon.stub(),
+  };
+
+  let wrapper;
+  beforeEach(() => {
+    wrapper = mount(
+      createElement(
+        props => (
+          <BrowserRouter>
+            <Patients {...props} />
+          </BrowserRouter>
+        ), props )
+    );
+  });
+
+  afterEach(() => {
+    props.dataWorkerRemoveDataRequest.reset();
+    props.clearPatientInView.reset();
+  });
+
   describe('componentWillMount', () => {
     it('should clear previously viewed patient data', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
-      };
-
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
       sinon.assert.calledOnce(props.dataWorkerRemoveDataRequest);
     });
 
     it('should call the `clearPatientInView` prop when provided', () => {
-      var props = {
-        clearPatientInView: sinon.stub(),
-        dataWorkerRemoveDataRequest: sinon.stub(),
-      };
-
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
-
       sinon.assert.calledOnce(props.clearPatientInView);
     });
   });
@@ -50,8 +60,9 @@ describe('Patients', () => {
       var props = {
         dataWorkerRemoveDataRequest: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [1],
@@ -65,7 +76,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -73,8 +84,8 @@ describe('Patients', () => {
       var props = {
         dataWorkerRemoveDataRequest: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
         loading: false,
@@ -87,7 +98,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -96,8 +107,8 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
         showWelcomeMessage: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -111,7 +122,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
@@ -120,8 +131,8 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
         showWelcomeMessage: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -135,7 +146,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
     });
 
@@ -144,8 +155,8 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
         showWelcomeMessage: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -159,7 +170,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -168,8 +179,8 @@ describe('Patients', () => {
         dataWorkerRemoveDataRequest: sinon.stub(),
         showWelcomeMessage: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -183,7 +194,7 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
@@ -191,8 +202,8 @@ describe('Patients', () => {
       var props = {
         dataWorkerRemoveDataRequest: sinon.stub(),
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -209,7 +220,7 @@ describe('Patients', () => {
         }
       });
 
-      render.componentWillReceiveProps(nextProps);
+      render.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
@@ -217,9 +228,12 @@ describe('Patients', () => {
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
       var props = {
         dataWorkerRemoveDataRequest: sinon.stub(),
+        history: {
+          push: sinon.stub()
+        },
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      wrapper.setProps(props);
+      var render = wrapper.find(Patients).instance().getWrappedInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -233,8 +247,8 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.componentWillReceiveProps(nextProps);
-      expect(window.location.pathname).to.equal('/patients/1/data');
+      render.UNSAFE_componentWillReceiveProps(nextProps);
+      sinon.assert.calledWith(props.history.push, '/patients/1/data');
     });
   });
 

@@ -18,6 +18,7 @@ import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
+import createReactClass from 'create-react-class';
 
 const { Loader } = vizComponents;
 
@@ -108,7 +109,7 @@ describe('Daily', () => {
 
   describe('render', () => {
     before(() => {
-      Daily.__Rewire__('DailyChart', translate()(React.createClass({
+      Daily.__Rewire__('DailyChart', translate()(createReactClass({
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
       })));
@@ -136,37 +137,12 @@ describe('Daily', () => {
       sinon.assert.callCount(props.onClickRefresh, 1);
     });
 
-    it('should have a disabled print button and spinner when a pdf is not ready to print', () => {
-      var props = _.assign({}, baseProps, {
-        printReady: false,
-        pdf: {},
-      });
-
-      wrapper.setProps(props);
-
-      var printLink = wrapper.find('.printview-print-icon').hostNodes();
-      expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.true;
-
-      var spinner = wrapper.find('.print-loading-spinner').hostNodes();
-      expect(spinner.length).to.equal(1);
-    });
-
-    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
-      var props = _.assign({}, baseProps, {
-        printReady: true,
-        pdf: {
-          url: 'blobURL',
-        },
-      });
-
-      wrapper.setProps(props);
-
+    it('should have a print button and icon and call onClickPrint when clicked', () => {
       var printLink = wrapper.find('.printview-print-icon').hostNodes();
 
-      sinon.assert.callCount(props.onClickPrint, 0);
+      sinon.assert.callCount(baseProps.onClickPrint, 0);
       printLink.simulate('click');
-      sinon.assert.callCount(props.onClickPrint, 1);
+      sinon.assert.callCount(baseProps.onClickPrint, 1);
     });
 
     it('should show a loader when loading prop is true and the daily chart is rendered', () => {

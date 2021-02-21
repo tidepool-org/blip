@@ -30,6 +30,7 @@ describe('Export', () => {
     user: {
       userID: 'def456'
     },
+    trackMetric: sinon.stub(),
   };
   const mmollProps = {
     api: {
@@ -48,6 +49,7 @@ describe('Export', () => {
     user: {
       userID: 'def456'
     },
+    trackMetric: sinon.stub(),
   };
   const expectedInitialState = {
     allTime: false,
@@ -56,7 +58,7 @@ describe('Export', () => {
       .subtract(30, 'd')
       .format(JS_DATE_FORMAT),
     anonymizeData: false,
-    format: 'json',
+    format: 'excel',
     extraExpanded: false,
     error: false,
     bgUnits: MGDL_UNITS,
@@ -68,7 +70,7 @@ describe('Export', () => {
       .subtract(30, 'd')
       .format(JS_DATE_FORMAT),
     anonymizeData: false,
-    format: 'json',
+    format: 'excel',
     extraExpanded: false,
     error: false,
     bgUnits: MMOLL_UNITS,
@@ -81,6 +83,7 @@ describe('Export', () => {
 
   afterEach(() => {
     props.api.tidepool.getExportDataURL.reset();
+    props.trackMetric.reset();
   });
 
   it('should be a function', () => {
@@ -147,12 +150,17 @@ describe('Export', () => {
       startDate.simulate('change', {
         target: { name: 'startDate', value: newStartDate }
       });
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
       expect(wrappedInstance.state.startDate).to.equal(
         newStartDate
       );
+      props.trackMetric.reset();
       endDate.simulate('change', {
         target: { name: 'endDate', value: newEndDate }
       });
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Selected custom start or end date');
       expect(wrappedInstance.state.endDate).to.equal(
         newEndDate
       );
@@ -204,12 +212,17 @@ describe('Export', () => {
       expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
         'excel'
       );
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Selected file format');
+      props.trackMetric.reset();
       json.simulate('change', {
         target: { name: 'format', checked: true, value: 'json' }
       });
       expect(wrapper.instance().getWrappedInstance().state.format).to.equal(
         'json'
       );
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Selected file format');
     });
   });
 
@@ -232,6 +245,8 @@ describe('Export', () => {
     it('should call getExportDataURL', () => {
       button.simulate('submit');
       sinon.assert.calledOnce(props.api.tidepool.getExportDataURL);
+      sinon.assert.calledOnce(props.trackMetric)
+      sinon.assert.calledWith(props.trackMetric, 'Clicked "export data"');
     });
 
     it('should set error state if callback errors', () => {
@@ -272,6 +287,8 @@ describe('Export', () => {
       expect(wrappedInstance.state.endDate).to.eql(
         moment().format(JS_DATE_FORMAT)
       );
+      sinon.assert.calledOnce(props.trackMetric);
+      sinon.assert.calledWith(props.trackMetric, 'Selected pre-determined date range');
     });
     it('should set the start date to expected span', () => {
       const wrappedInstance = wrapper.instance().getWrappedInstance();
@@ -291,7 +308,7 @@ describe('Export', () => {
   });
 
   describe('toggleOptions', () => {
-    it('should negate current expanded options state'),
+    it('should negate current expanded options state',
       () => {
         expect(
           wrapper.instance().getWrappedInstance().state.extraExpanded
@@ -310,6 +327,6 @@ describe('Export', () => {
         expect(
           wrapper.instance().getWrappedInstance().state.extraExpanded
         ).to.eql(false);
-      };
+      });
   });
 });

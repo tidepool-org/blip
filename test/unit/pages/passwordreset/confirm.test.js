@@ -4,8 +4,9 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import { BrowserRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
 
 import { ConfirmPasswordReset } from '../../../../app/pages/passwordreset/confirm';
 import { mapStateToProps } from '../../../../app/pages/passwordreset/confirm';
@@ -30,8 +31,7 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
       expect(console.error.callCount).to.equal(0);
     });
   });
@@ -48,9 +48,8 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
-      var formInputs = render.formInputs();
+      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance().getWrappedInstance();
+      var formInputs = wrapper.formInputs();
       expect(formInputs.length).to.equal(3);
       expect(formInputs[0].name).to.equal('email');
       expect(formInputs[0].label).to.equal('Email');
@@ -68,7 +67,7 @@ describe('ConfirmPasswordReset', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should be in this expected format', function() {
       console.error = sinon.stub();
       var props = {
@@ -80,9 +79,8 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var initialState = render.getWrappedInstance().getInitialState();
+      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance();
+      var initialState = wrapper.getWrappedInstance().state;
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
@@ -101,8 +99,7 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(ConfirmPasswordReset, props);
-      var render = TestUtils.renderIntoDocument(elem).getWrappedInstance();
+      var render = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).instance().getWrappedInstance();
       var vals = {
         email: 'foo@bar.com',
         password: 'woowoo'

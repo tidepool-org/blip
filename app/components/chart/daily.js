@@ -15,17 +15,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
-import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
+import DeviceSelection from './deviceSelection';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -43,29 +44,29 @@ import Footer from './footer';
 
 const DailyChart = translate()(class DailyChart extends Component {
   static propTypes = {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    bolusRatio: React.PropTypes.number,
-    data: React.PropTypes.object.isRequired,
-    dynamicCarbs: React.PropTypes.bool,
-    initialDatetimeLocation: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
+    bgClasses: PropTypes.object.isRequired,
+    bgUnits: PropTypes.string.isRequired,
+    bolusRatio: PropTypes.number,
+    data: PropTypes.object.isRequired,
+    dynamicCarbs: PropTypes.bool,
+    initialDatetimeLocation: PropTypes.string,
+    patient: PropTypes.object,
+    timePrefs: PropTypes.object.isRequired,
     // message handlers
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onShowMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: PropTypes.func.isRequired,
+    onShowMessageThread: PropTypes.func.isRequired,
     // other handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired,
-    onBolusHover: React.PropTypes.func.isRequired,
-    onBolusOut: React.PropTypes.func.isRequired,
-    onSMBGHover: React.PropTypes.func.isRequired,
-    onSMBGOut: React.PropTypes.func.isRequired,
-    onCBGHover: React.PropTypes.func.isRequired,
-    onCBGOut: React.PropTypes.func.isRequired,
-    onCarbHover: React.PropTypes.func.isRequired,
-    onCarbOut: React.PropTypes.func.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
+    onMostRecent: PropTypes.func.isRequired,
+    onTransition: PropTypes.func.isRequired,
+    onBolusHover: PropTypes.func.isRequired,
+    onBolusOut: PropTypes.func.isRequired,
+    onSMBGHover: PropTypes.func.isRequired,
+    onSMBGOut: PropTypes.func.isRequired,
+    onCBGHover: PropTypes.func.isRequired,
+    onCBGOut: PropTypes.func.isRequired,
+    onCarbHover: PropTypes.func.isRequired,
+    onCarbOut: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -75,6 +76,7 @@ const DailyChart = translate()(class DailyChart extends Component {
       'bgClasses',
       'bgUnits',
       'bolusRatio',
+      'carbUnits',
       'dynamicCarbs',
       'timePrefs',
       'onBolusHover',
@@ -202,32 +204,32 @@ const DailyChart = translate()(class DailyChart extends Component {
 
 class Daily extends Component {
   static propTypes = {
-    addingData: React.PropTypes.object.isRequired,
-    chartPrefs: React.PropTypes.object.isRequired,
-    data: React.PropTypes.object.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    loading: React.PropTypes.bool.isRequired,
-    mostRecentDatetimeLocation: React.PropTypes.string,
-    pdf: React.PropTypes.object.isRequired,
-    queryDataCount: React.PropTypes.number.isRequired,
-    stats: React.PropTypes.array.isRequired,
-    updatingDatum: React.PropTypes.object.isRequired,
+    addingData: PropTypes.object.isRequired,
+    chartPrefs: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
+    initialDatetimeLocation: PropTypes.string,
+    loading: PropTypes.bool.isRequired,
+    mostRecentDatetimeLocation: PropTypes.string,
+    queryDataCount: PropTypes.number.isRequired,
+    stats: PropTypes.array.isRequired,
+    updatingDatum: PropTypes.object.isRequired,
     // refresh handler
-    onClickRefresh: React.PropTypes.func.isRequired,
+    onClickRefresh: PropTypes.func.isRequired,
     // message handlers
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onShowMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: PropTypes.func.isRequired,
+    onShowMessageThread: PropTypes.func.isRequired,
     // navigation handlers
-    onSwitchToBasics: React.PropTypes.func.isRequired,
-    onSwitchToDaily: React.PropTypes.func.isRequired,
-    onClickPrint: React.PropTypes.func.isRequired,
-    onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToBgLog: React.PropTypes.func.isRequired,
-    onSwitchToTrends: React.PropTypes.func.isRequired,
+    onSwitchToBasics: PropTypes.func.isRequired,
+    onSwitchToDaily: PropTypes.func.isRequired,
+    onClickPrint: PropTypes.func.isRequired,
+    onSwitchToSettings: PropTypes.func.isRequired,
+    onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     // data state updaters
-    onUpdateChartDateRange: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
+    onUpdateChartDateRange: PropTypes.func.isRequired,
+    updateChartPrefs: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -249,7 +251,7 @@ class Daily extends Component {
     };
   };
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
@@ -277,7 +279,6 @@ class Daily extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
@@ -313,6 +314,13 @@ class Daily extends Component {
                 bgPrefs={bgPrefs}
                 chartPrefs={this.props.chartPrefs}
                 stats={this.props.stats}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>
@@ -370,15 +378,24 @@ class Daily extends Component {
   renderChart = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const carbUnits = ['grams'];
+
+    const hasCarbExchanges = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'wizard', carbUnits: 'exchanges' }
+    );
+
+    if (hasCarbExchanges) carbUnits.push('exchanges');
 
     return (
       <DailyChart
         bgClasses={bgPrefs.bgClasses}
         bgUnits={bgPrefs.bgUnits}
         bolusRatio={this.props.chartPrefs.bolusRatio}
+        carbUnits={carbUnits}
+        data={this.props.data}
         dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        data={this.props.data}
         timePrefs={timePrefs}
         // message handlers
         onCreateMessage={this.props.onCreateMessage}

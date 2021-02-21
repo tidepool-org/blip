@@ -4,7 +4,7 @@
 /* global it */
 
 var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+var TestUtils = require('react-dom/test-utils');
 var expect = chai.expect;
 
 var LogoutOverlay = require('../../../app/components/logoutoverlay');
@@ -24,14 +24,14 @@ describe('LogoutOverlay', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should have fadeOut initially equal to false', function() {
       console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(LogoutOverlay, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      var state = render.getWrappedInstance().getInitialState();
+      var state = render.getWrappedInstance().state;
 
       expect(state.fadeOut).to.equal(false);
     })

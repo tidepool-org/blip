@@ -1,53 +1,37 @@
-
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
 import _ from 'lodash';
-import bows from 'bows';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Loading from 'react-loading';
 import { translate } from 'react-i18next';
+import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 
-import printPng from './img/print-icon-2x.png';
+import Icon from '../elements/Icon';
 
 const Header = translate()(class Header extends Component {
   static propTypes = {
-    patient: React.PropTypes.object,
-    printReady: React.PropTypes.bool,
-    title: React.PropTypes.string.isRequired,
-    chartType: React.PropTypes.string.isRequired,
-    inTransition: React.PropTypes.bool.isRequired,
-    atMostRecent: React.PropTypes.bool.isRequired,
-    iconBack: React.PropTypes.string,
-    iconNext: React.PropTypes.string,
-    iconMostRecent: React.PropTypes.string,
-    onClickBack: React.PropTypes.func,
-    onClickBasics: React.PropTypes.func,
-    onClickTrends: React.PropTypes.func,
-    onClickMostRecent: React.PropTypes.func,
-    onClickNext: React.PropTypes.func,
-    onClickOneDay: React.PropTypes.func,
-    onClickBgLog: React.PropTypes.func,
-    onClickSettings: React.PropTypes.func,
-    onClickPrint: React.PropTypes.func,
+    patient: PropTypes.object,
+    title: PropTypes.string.isRequired,
+    chartType: PropTypes.string.isRequired,
+    inTransition: PropTypes.bool.isRequired,
+    atMostRecent: PropTypes.bool.isRequired,
+    iconBack: PropTypes.string,
+    iconNext: PropTypes.string,
+    iconMostRecent: PropTypes.string,
+    onClickBack: PropTypes.func,
+    onClickBasics: PropTypes.func,
+    onClickChartDates: PropTypes.func,
+    onClickTrends: PropTypes.func,
+    onClickMostRecent: PropTypes.func,
+    onClickNext: PropTypes.func,
+    onClickOneDay: PropTypes.func,
+    onClickBgLog: PropTypes.func,
+    onClickSettings: PropTypes.func,
+    onClickPrint: PropTypes.func,
   };
 
   static defaultProps = {
-    printReady: true,
+    onClickChartDates: _.noop,
   };
 
   renderStandard = () => {
@@ -131,9 +115,8 @@ const Header = translate()(class Header extends Component {
       'printview-print-icon': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': showPrintLink,
+      'patient-data-subnav-active': false,
       'patient-data-subnav-hidden': !showPrintLink,
-      'patient-data-subnav-disabled': !this.props.printReady,
     });
 
     return (
@@ -148,17 +131,42 @@ const Header = translate()(class Header extends Component {
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
           <div className={dateLinkClass}>
             {this.props.title}
+            {this.props.chartType === 'basics' && (
+              <Icon
+                variant="default"
+                sx={{
+                  ml: 2,
+                  mt: -1,
+                  color: 'white',
+                  outline: 'none',
+                  '&:hover': { color: 'grays.6' },
+                }}
+                label="Choose custom date range"
+                icon={DateRangeRoundedIcon}
+                onClick={this.props.onClickChartDates}
+              />
+            )}
           </div>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            {this.props.printReady && <img className="print-icon" src={printPng} alt="Print" />}
-            {!this.props.printReady && <Loading className="print-loading-spinner" width={16} height={16} delay={0} type="spin" color="#fff" />}
+            <Icon
+              className="icon"
+              variant="default"
+              sx={{
+                mr: 1,
+                mt: '-2px',
+                color: 'white',
+                outline: 'none',
+              }}
+              label="Print PDF report"
+              icon={PrintRoundedIcon}
+            />
             {t('Print')}
           </a>
+          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
         </div>
       </div>
     );

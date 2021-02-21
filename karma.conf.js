@@ -5,13 +5,15 @@ const optional = require('optional');
 const webpackConf = require('./webpack.config.js');
 const mochaConf = optional('./config/mocha.opts.json') || {};
 
+const watch = process.env.npm_lifecycle_script.indexOf('--no-single-run') !== -1;
 const testWebpackConf = _.assign({}, webpackConf, {
-  devtool: 'inline-source-map',
+  devtool: watch ? false : 'inline-cheap-module-source-map',
   plugins: [
     new webpack.DefinePlugin({
       __DEV__: false,
       __TEST__: true,
       __PROD__: false,
+      __I18N_ENABLED__: 'false',
     }),
   ],
 });
@@ -25,7 +27,7 @@ testWebpackConf.output = {
 testWebpackConf.mode = 'development';
 
 module.exports = function karmaConfig(config) {
-  config.set({
+  const defaultConfig = {
     autoWatch: true,
     browserNoActivityTimeout: 60000,
     browsers: ['CustomChromeHeadless'],
@@ -63,10 +65,18 @@ module.exports = function karmaConfig(config) {
     },
     reporters: ['mocha', 'coverage'],
     singleRun: true,
+    mochaReporter: {
+        showDiff: true,
+    },
     webpack: testWebpackConf,
     webpackMiddleware: {
       noInfo: true,
       stats: 'errors-only',
     },
-  });
+  };
+  if(watch){ //remove test coverage for test-watch
+    delete defaultConfig.coverageReporter;
+    defaultConfig.reporters = ['mocha'];
+  }
+  config.set(defaultConfig);
 };

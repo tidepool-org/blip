@@ -33,6 +33,12 @@ describe('constants', function() {
     expect(Constants.MMOLL_UNITS).to.equal('mmol/L');
   });
 
+  it('should define common time spans in milliseconds values', function() {
+    expect(Constants.MS_IN_DAY).to.equal(864e5);
+    expect(Constants.MS_IN_HOUR).to.equal(864e5 / 24);
+    expect(Constants.MS_IN_MIN).to.equal(864e5 / 24 / 60);
+  });
+
   it('should define the glucose mmoll conversion factor as 18.01559', function() {
     expect(Constants.MGDL_PER_MMOLL).to.equal(18.01559);
   });
@@ -65,6 +71,7 @@ describe('constants', function() {
       'gestational',
       'prediabetes',
       'lada',
+      'mody',
       'other',
     ]);
   });

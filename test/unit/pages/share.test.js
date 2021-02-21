@@ -4,7 +4,7 @@
 /* global it */
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import _ from 'lodash';
 var assert = chai.assert;
 var expect = chai.expect;
@@ -27,7 +27,9 @@ describe('PatientCareTeam', () => {
     };
 
     const ownProps = {
-      routeParams: { id: '12345' }
+      match: {
+        params: { id: '12345' }
+      }
     };
 
     const dispatchProps = {

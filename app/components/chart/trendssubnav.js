@@ -1,35 +1,20 @@
-
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
 var React = require('react');
 var cx = require('classnames');
+import PropTypes from 'prop-types';
+
 import { translate } from 'react-i18next';
 
 var d3 = window.d3;
 
-var DaysGroup = React.createClass({
-  propTypes: {
-    active: React.PropTypes.bool.isRequired,
-    category: React.PropTypes.string.isRequired,
-    days: React.PropTypes.array.isRequired,
-    onClickGroup: React.PropTypes.func.isRequired
-  },
-  render: function() {
+class DaysGroup extends React.Component {
+  static propTypes = {
+    active: PropTypes.bool.isRequired,
+    category: PropTypes.string.isRequired,
+    days: PropTypes.array.isRequired,
+    onClickGroup: PropTypes.func.isRequired
+  };
+
+  render() {
     var groupClass = cx({
       'daysGroup': true,
       'active': this.props.active
@@ -44,23 +29,25 @@ var DaysGroup = React.createClass({
       </div>
       );
 
-  },
-  handleDaysGroupClick: function() {
-    this.props.onClickGroup(this.props.category);
   }
-});
 
-var TrendsSubNav = translate()(React.createClass({
-  propTypes: {
-    activeDays: React.PropTypes.object.isRequired,
-    activeDomain: React.PropTypes.string.isRequired,
-    extentSize: React.PropTypes.number.isRequired,
-    domainClickHandlers: React.PropTypes.object.isRequired,
-    onClickDay: React.PropTypes.func.isRequired,
-    toggleWeekdays: React.PropTypes.func.isRequired,
-    toggleWeekends: React.PropTypes.func.isRequired
-  },
-  renderDayAbbrev: function(day) {
+  handleDaysGroupClick = () => {
+    this.props.onClickGroup(this.props.category);
+  };
+}
+
+var TrendsSubNav = translate()(class extends React.Component {
+  static propTypes = {
+    activeDays: PropTypes.object.isRequired,
+    activeDomain: PropTypes.string.isRequired,
+    extentSize: PropTypes.number.isRequired,
+    domainClickHandlers: PropTypes.object.isRequired,
+    onClickDay: PropTypes.func.isRequired,
+    toggleWeekdays: PropTypes.func.isRequired,
+    toggleWeekends: PropTypes.func.isRequired
+  };
+
+  renderDayAbbrev = (day) => {
     const { t } = this.props;
     switch (day) {
       case 'monday': return t('M_Monday');
@@ -72,8 +59,9 @@ var TrendsSubNav = translate()(React.createClass({
       case 'sunday': return t('Su_Sunday');
       default: return undefined
     }
-  },
-  renderDomain: function(domain) {
+  };
+
+  renderDomain = (domain) => {
     const { t } = this.props;
     switch (domain) {
       case '1 week': return t('1 week');
@@ -81,16 +69,19 @@ var TrendsSubNav = translate()(React.createClass({
       case '4 weeks': return t('4 weeks');
       default: return domain;
     }
-  },
-  componentWillMount: function() {
+  };
+
+  UNSAFE_componentWillMount() {
     this.areWeekdaysActive(this.props);
     this.areWeekendsActive(this.props);
-  },
-  componentWillReceiveProps: function(nextProps) {
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.areWeekdaysActive(nextProps);
     this.areWeekendsActive(nextProps);
-  },
-  render: function() {
+  }
+
+  render() {
     var domainLinks = this.renderDomainLinks();
     var dayFilters = this.renderDayFilters();
 
@@ -103,8 +94,9 @@ var TrendsSubNav = translate()(React.createClass({
       </div>
       );
 
-  },
-  renderDomainLinks: function() {
+  }
+
+  renderDomainLinks = () => {
     const { t } = this.props;
     var domains = ['1 week', '2 weeks', '4 weeks'];
     var domainLinks = [];
@@ -133,8 +125,9 @@ var TrendsSubNav = translate()(React.createClass({
       </div>
       );
 
-  },
-  renderDomainLink: function(domain) {
+  };
+
+  renderDomainLink = (domain) => {
     var domainLinkClass = cx({
       'btn btn-chart-control' : true,
       'active': domain === this.props.activeDomain
@@ -145,8 +138,9 @@ var TrendsSubNav = translate()(React.createClass({
         onClick={this.props.domainClickHandlers[domain]}>{this.renderDomain(domain)}</button>
       );
 
-  },
-  renderDayFilters: function() {
+  };
+
+  renderDayFilters = () => {
     var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     var dayLinks = [];
     for (var i = 0; i < days.length; ++i) {
@@ -168,8 +162,9 @@ var TrendsSubNav = translate()(React.createClass({
       </div>
       );
 
-  },
-  renderDay: function(day) {
+  };
+
+  renderDay = (day) => {
     var dayLinkClass = cx({
       'dayFilter': true,
       'btn btn-chart-control': true,
@@ -181,8 +176,9 @@ var TrendsSubNav = translate()(React.createClass({
       <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.renderDayAbbrev(day)}</a>
       );
 
-  },
-  areWeekdaysActive: function(props) {
+  };
+
+  areWeekdaysActive = (props) => {
     var weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
     var active = true;
     var activeDays = props.activeDays;
@@ -195,22 +191,24 @@ var TrendsSubNav = translate()(React.createClass({
     this.setState({
       weekdaysActive: active
     });
-  },
-  areWeekendsActive: function(props) {
+  };
+
+  areWeekendsActive = (props) => {
     var activeDays = props.activeDays;
     this.setState({
       weekendsActive: activeDays.saturday && activeDays.sunday
     });
-  },
+  };
+
   // handlers
-  handleSelectDaysGroup: function(category) {
+  handleSelectDaysGroup = (category) => {
     if (category === 'weekday') {
       this.props.toggleWeekdays(this.state.weekdaysActive);
     }
     else if (category === 'weekend') {
       this.props.toggleWeekends(this.state.weekendsActive);
     }
-  }
-}));
+  };
+});
 
 module.exports = TrendsSubNav;

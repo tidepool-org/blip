@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 import _ from 'lodash';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import { generateCacheTTL } from 'redux-cache';
 
 import initialState from './initialState';
@@ -54,6 +54,9 @@ export const notification = (state = initialState.notification, action) => {
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
+    case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
+    case types.ADD_PATIENT_TO_CLINIC_FAILURE:
+    case types.CREATE_CLINIC_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
         return {
@@ -125,6 +128,74 @@ export const showingDexcomConnectBanner = (state = initialState.showingDexcomCon
       return (dismissedBanner || clickedBanner) ? false : state;
     case types.HIDE_BANNER:
         return (action.payload.type === 'dexcom') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'updatetype' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'updatetype') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUpdateTypeBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'updatetype') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingUploaderBanner = (state = initialState.showingUploaderBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'uploader' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'uploader') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUploaderBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUploaderBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'uploader') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.type === 'sharedata' && state !== false) ? true : state;
+    case types.DISMISS_BANNER:
+      return (action.payload.type === 'sharedata') ? false : state;
+    case types.FETCH_USER_SUCCESS:
+      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedShareDataBannerTime');
+      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
+      return (dismissedBanner || clickedBanner) ? false : state;
+    case types.HIDE_BANNER:
+        return (action.payload.type === 'sharedata') ? null : state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
+  switch (action.type) {
+    case types.SHOW_BANNER:
+      return (action.payload.count > 2) ? true : state;
     case types.LOGOUT_REQUEST:
       return null;
     default:
@@ -529,6 +600,85 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
       return update(state, { $set: authorizedDataSource });
     case types.LOGOUT_REQUEST:
       return {};
+    default:
+      return state;
+  }
+};
+
+export const prescriptions = (state = initialState.prescriptions, action) => {
+  switch (action.type) {
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+      const prescriptions = _.get(action.payload, 'prescriptions', {});
+      return update(state, { $set: prescriptions });
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+      const prescription = _.get(action.payload, 'prescription', {});
+      return update(state, { $push: [prescription] });
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+      const updatedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescription.id });
+      return update(state, { $splice: [[updatedPrescriptionIndex, 1, action.payload.prescription]] });
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+      const deletedPrescriptionIndex = _.findIndex(state, { id: action.payload.prescriptionId });
+      return update(state, { $splice: [[deletedPrescriptionIndex, 1]] });
+    case types.LOGOUT_REQUEST:
+      return [];
+    default:
+      return state;
+  }
+};
+
+export const devices = (state = initialState.devices, action) => {
+  switch (action.type) {
+    case types.FETCH_DEVICES_SUCCESS:
+      const devices = _.get(action.payload, 'devices', {});
+      return update(state, { $set: devices });
+
+    default:
+      return state;
+  }
+};
+
+export const clinics = (state = initialState.clinics, action) => {
+  let clinic, clinician, clinics, clinicId;
+  switch (action.type) {
+    case types.CREATE_CLINIC_SUCCESS:
+      clinic = _.get(action.payload, 'clinic', {});
+      return update(state, {
+        [clinic.id]: { $set: { clinicians: {}, patients: {} } },
+      });
+    case types.ADD_CLINICIAN_TO_CLINIC_SUCCESS:
+      clinicId = _.get(action.payload, 'clinicId', {});
+      clinician = _.get(action.payload, 'clinician', {});
+      return update(state, {
+        [clinicId]: {
+          clinicians: {
+            [clinician.id]: { $set: clinician },
+          },
+        },
+      });
+    case types.GET_CLINICS_SUCCESS:
+      clinics = _.get(action.payload, 'clinics', []);
+      const options = _.get(action.payload, 'options', {});
+      const clinicians = {
+        clinicians: !_.isUndefined(options.clinicianId)
+          ? { [options.clinicianId]: {} }
+          : {},
+      };
+      const patients = {
+        patients: !_.isUndefined(options.patientId)
+          ? { [options.patientId]: {} }
+          : {},
+      };
+      const newClinics = _.reduce(
+        clinics,
+        (newSet, clinic) => {
+          newSet[clinic._id] = { ...clinicians, ...patients, ...clinic };
+          return newSet;
+        },
+        {}
+      );
+      return _.merge({}, state, newClinics);
+    case types.LOGOUT_REQUEST:
+      return initialState.clinics;
     default:
       return state;
   }

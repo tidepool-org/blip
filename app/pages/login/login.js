@@ -1,19 +1,4 @@
-
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,55 +6,60 @@ import { translate } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
 import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 
 import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
-export let Login = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    confirmSignup: React.PropTypes.func.isRequired,
-    fetchers: React.PropTypes.array.isRequired,
-    isInvite: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object,
-    onSubmit: React.PropTypes.func.isRequired,
-    seedEmail: React.PropTypes.string,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired
-  },
+export let Login = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    confirmSignup: PropTypes.func.isRequired,
+    fetchers: PropTypes.array.isRequired,
+    isInvite: PropTypes.bool.isRequired,
+    notification: PropTypes.object,
+    onSubmit: PropTypes.func.isRequired,
+    seedEmail: PropTypes.string,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired
+  };
 
-  formInputs: function() {
-    const { t } = this.props;
-
-    return [
-      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
-      { name: 'password', placeholder: t('Password'), type: 'password' },
-      { name: 'remember', label: t('Remember me'), type: 'checkbox' }
-    ];
-  },
-
-  getInitialState: function() {
-    var formValues = {};
-    var email = this.props.seedEmail;
+  constructor(props) {
+    super(props);
+    var formValues = {
+      username : '',
+      password: '',
+      remember: true,
+    };
+    var email = props.seedEmail;
 
     if (email) {
       formValues.username = email;
     }
 
-    return {
+    this.state = {
       formValues: formValues,
       validationErrors: {},
       notification: null
     };
-  },
+  }
 
-  render: function() {
+  formInputs = () => {
+    const { t } = this.props;
+
+    return [
+      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail, autoFocus: true },
+      { name: 'password', placeholder: t('Password'), type: 'password' },
+      { name: 'remember', label: t('Remember me'), type: 'checkbox' }
+    ];
+  };
+
+  render() {
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
 
@@ -88,9 +78,9 @@ export let Login = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderInviteIntroduction: function() {
+  renderInviteIntroduction = () => {
     const { t } = this.props;
     if (!this.props.isInvite) {
       return null;
@@ -101,9 +91,9 @@ export let Login = translate()(React.createClass({
         <p>{t('You\'ve been invited to Tidepool.')}</p><p>{t('Log in to view the invitation.')}</p>
       </div>
     );
-  },
+  };
 
-  renderForm: function() {
+  renderForm = () => {
     const { t } = this.props;
 
     var submitButtonText = this.props.working ? t('Logging in...') : t('Login');
@@ -121,18 +111,18 @@ export let Login = translate()(React.createClass({
         {<div className="login-forgotpassword">{forgotPassword}</div>}
       </SimpleForm>
     );
-  },
+  };
 
-  logPasswordReset : function() {
+  logPasswordReset = () => {
     this.props.trackMetric('Clicked Forgot Password');
-  },
+  };
 
-  renderForgotPassword: function() {
+  renderForgotPassword = () => {
     const { t } = this.props;
     return <Link to="/request-password-reset">{t('Forgot your password?')}</Link>;
-  },
+  };
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     if (this.props.working) {
@@ -149,18 +139,18 @@ export let Login = translate()(React.createClass({
     const { user, options } = this.prepareFormValuesForSubmit(formValues);
 
     this.props.onSubmit(user, options);
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.props.acknowledgeNotification('loggingIn');
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var form = [
       { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
@@ -180,9 +170,9 @@ export let Login = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     return {
       user: {
         username: formValues.username,
@@ -192,25 +182,25 @@ export let Login = translate()(React.createClass({
         remember: formValues.remember
       }
     };
-  },
+  };
 
-  doFetching: function(nextProps) {
+  doFetching = (nextProps) => {
     if (!nextProps.fetchers) {
       return;
     }
     nextProps.fetchers.forEach(fetcher => {
       fetcher();
     });
-  },
+  };
 
   /**
    * Before rendering for first time
    * begin fetching any required data
    */
-  componentWillMount: function() {
+  UNSAFE_componentWillMount() {
     this.doFetching(this.props);
   }
-}));
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -243,12 +233,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
   let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
-  let api = ownProps.routes[0].api;
+  let api = ownProps.api;
   return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,
-    trackMetric: ownProps.routes[0].trackMetric,
+    trackMetric: ownProps.trackMetric,
     onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
 };

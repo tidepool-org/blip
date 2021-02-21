@@ -6,12 +6,11 @@
 
 import _ from 'lodash';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
 import { mount } from 'enzyme';
 
-import { PatientNew } from '../../../app/pages/patientnew';
-import { mapStateToProps } from '../../../app/pages/patientnew';
+import { PatientNew, mapStateToProps } from '../../../app/pages/patientnew';
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -26,7 +25,8 @@ describe('PatientNew', function () {
     onUpdateDataDonationAccounts: sinon.stub(),
     onSubmit: sinon.stub(),
     trackMetric: sinon.stub(),
-    working: false
+    working: false,
+    requireAuthAndNoPatient: sinon.stub(),
   };
 
   describe('render', function() {
@@ -52,11 +52,11 @@ describe('PatientNew', function () {
     });
   });
 
-  describe('getInitialState', function() {
+  describe('initial state', function() {
     it('should be in this expected format', function() {
       console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientNew/>).getWrappedInstance();
-      var initialState = elem.getInitialState();
+      var initialState = elem.state;
       expect(initialState.working).to.equal(false);
       expect(initialState.formValues.isOtherPerson).to.equal(false);
       expect(initialState.formValues.fullName).to.equal('');

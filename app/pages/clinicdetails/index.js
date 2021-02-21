@@ -13,16 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@login-logo-height:       45px;
-
-.login-logo {
-  text-align: center;
-
-  > img {
-    height: (@login-logo-height*3/5);
-
-    @media(min-width: @screen-md-min) {
-      height: @login-logo-height;
-    }
-  }
-}
+module.exports = require('./clinicdetails');

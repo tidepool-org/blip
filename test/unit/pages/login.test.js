@@ -4,8 +4,10 @@
 /* global it */
 
 import React from'react';
-import TestUtils from'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import mutationTracker from 'object-invariant-test-helper';
+import { BrowserRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
 
 import { Login } from'../../../app/pages/login/login.js';
 import { mapStateToProps } from'../../../app/pages/login/login.js';
@@ -30,8 +32,7 @@ describe('Login', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var elem = React.createElement(Login, props);
-      var render = TestUtils.renderIntoDocument(elem);
+      mount(<BrowserRouter><Login {...props} /></BrowserRouter>)
       expect(console.error.callCount).to.equal(0);
     });
   });

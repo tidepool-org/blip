@@ -1,26 +1,10 @@
-/*
- * == BSD2 LICENSE ==
- * Copyright (c) 2017, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
 const d3 = window.d3;
 
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
-import React, { PropTypes, PureComponent } from 'react';
+import moment from 'moment-timezone';
+import PropTypes from 'prop-types';
+import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
@@ -30,6 +14,7 @@ import SubNav from './trendssubnav';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Footer from './footer';
+import DeviceSelection from './deviceSelection';
 
 import {
   components as vizComponents,
@@ -65,11 +50,12 @@ const Trends = translate()(class Trends extends PureComponent {
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object,
-    queryDataCount: React.PropTypes.number.isRequired,
+    queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    uploadUrl: PropTypes.string.isRequired
+    uploadUrl: PropTypes.string.isRequired,
+    removeGeneratedPDFS: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -442,6 +428,7 @@ const Trends = translate()(class Trends extends PureComponent {
   render() {
     const { currentPatientInViewId, t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'trends';
+    const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
 
     return (
       <div id="tidelineMain" className="trends grid">
@@ -475,7 +462,14 @@ const Trends = translate()(class Trends extends PureComponent {
               <Stats
                 bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
-                stats={this.props.stats}
+                stats={statsToRender}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                updateChartPrefs={this.props.updateChartPrefs}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
               />
             </div>
           </div>

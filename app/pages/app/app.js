@@ -1,27 +1,15 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
+import moment from 'moment';
 
 import * as actions from '../../redux/actions';
 
 import utils from '../../core/utils';
+import personUtils from '../../core/personutils';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import * as UserMessages from '../../redux/constants/usrMessages';
@@ -33,7 +21,10 @@ import DexcomBanner from '../../components/dexcombanner';
 import AddEmailBanner from '../../components/addemailbanner';
 import SendVerificationBanner from '../../components/sendverificationbanner';
 import LogoutOverlay from '../../components/logoutoverlay';
+import ShareDataBanner from '../../components/sharedatabanner';
 import TidepoolNotification from '../../components/notification';
+import UpdateTypeBanner from '../../components/updatetypebanner';
+import UploaderBanner from '../../components/uploaderbanner';
 
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
@@ -46,51 +37,57 @@ require('../../style.less');
 
 export class AppComponent extends React.Component {
   static propTypes = {
-    authenticated: React.PropTypes.bool.isRequired,
-    children: React.PropTypes.object.isRequired,
-    fetchers: React.PropTypes.array.isRequired,
-    fetchingPatient: React.PropTypes.bool.isRequired,
-    fetchingPendingSentInvites: React.PropTypes.bool.isRequired,
-    fetchingUser: React.PropTypes.shape({
-      inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+    authenticated: PropTypes.bool.isRequired,
+    children: PropTypes.object.isRequired,
+    fetchers: PropTypes.array.isRequired,
+    fetchingPatient: PropTypes.bool.isRequired,
+    fetchingPendingSentInvites: PropTypes.bool.isRequired,
+    fetchingUser: PropTypes.shape({
+      inProgress: PropTypes.bool.isRequired,
+      completed: PropTypes.bool,
     }).isRequired,
-    fetchingDataSources: React.PropTypes.shape({
-      inProgress: React.PropTypes.bool.isRequired,
-      completed: React.PropTypes.oneOfType([null, React.PropTypes.bool]),
+    fetchingDataSources: PropTypes.shape({
+      inProgress: PropTypes.bool.isRequired,
+      completed: PropTypes.bool,
     }).isRequired,
-    location: React.PropTypes.string.isRequired,
-    loggingOut: React.PropTypes.bool.isRequired,
-    updatingDataDonationAccounts: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object,
-    onAcceptTerms: React.PropTypes.func.isRequired,
-    onCloseNotification: React.PropTypes.func.isRequired,
-    onDismissDonateBanner: React.PropTypes.func.isRequired,
-    onDismissDexcomConnectBanner: React.PropTypes.func.isRequired,
-    onUpdateDataDonationAccounts: React.PropTypes.func.isRequired,
-    onLogout: React.PropTypes.func.isRequired,
-    patient: React.PropTypes.object,
-    context: React.PropTypes.shape({
-      DEBUG: React.PropTypes.bool.isRequired,
-      api: React.PropTypes.object.isRequired,
-      config: React.PropTypes.object.isRequired,
-      log: React.PropTypes.func.isRequired,
-      personUtils: React.PropTypes.object.isRequired,
-      trackMetric: React.PropTypes.func.isRequired,
+    location: PropTypes.string.isRequired,
+    loggingOut: PropTypes.bool.isRequired,
+    updatingDataDonationAccounts: PropTypes.bool.isRequired,
+    notification: PropTypes.object,
+    onAcceptTerms: PropTypes.func.isRequired,
+    onCloseNotification: PropTypes.func.isRequired,
+    onDismissDonateBanner: PropTypes.func.isRequired,
+    onDismissDexcomConnectBanner: PropTypes.func.isRequired,
+    onDismissShareDataBanner: PropTypes.func,
+    onDismissUpdateTypeBanner: PropTypes.func,
+    onDismissUploaderBanner: PropTypes.func,
+    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
+    onLogout: PropTypes.func.isRequired,
+    patient: PropTypes.object,
+    context: PropTypes.shape({
+      DEBUG: PropTypes.bool.isRequired,
+      api: PropTypes.object.isRequired,
+      config: PropTypes.object.isRequired,
+      log: PropTypes.func.isRequired,
+      personUtils: PropTypes.object.isRequired,
+      trackMetric: PropTypes.func.isRequired,
     }).isRequired,
-    showingDonateBanner: React.PropTypes.bool,
-    showingDexcomConnectBanner: React.PropTypes.bool,
-    showBanner: React.PropTypes.func.isRequired,
-    hideBanner: React.PropTypes.func.isRequired,
-    termsAccepted: React.PropTypes.string,
-    user: React.PropTypes.object,
-    userHasData: React.PropTypes.bool.isRequired,
-    userIsCurrentPatient: React.PropTypes.bool.isRequired,
-    userIsDonor: React.PropTypes.bool.isRequired,
-    userIsSupportingNonprofit: React.PropTypes.bool.isRequired,
-    permsOfLoggedInUser: React.PropTypes.object,
-    resendEmailVerificationProgress: React.PropTypes.bool.isRequired,
-    resentEmailVerification: React.PropTypes.bool.isRequired,
+    showingDonateBanner: PropTypes.bool,
+    showingDexcomConnectBanner: PropTypes.bool,
+    showingShareDataBanner: PropTypes.bool,
+    seenShareDataBannerMax: PropTypes.bool,
+    showingUpdateTypeBanner: PropTypes.bool,
+    showingUploaderBanner: PropTypes.bool,
+    showBanner: PropTypes.func.isRequired,
+    hideBanner: PropTypes.func.isRequired,
+    termsAccepted: PropTypes.string,
+    user: PropTypes.object,
+    userHasData: PropTypes.bool.isRequired,
+    userIsCurrentPatient: PropTypes.bool.isRequired,
+    userIsDonor: PropTypes.bool.isRequired,
+    userIsSupportingNonprofit: PropTypes.bool.isRequired,
+    permsOfLoggedInUser: PropTypes.object,
+    resentEmailVerification: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -99,6 +96,9 @@ export class AppComponent extends React.Component {
     this.state = {
       dexcomShowBannerMetricTracked: false,
       donateShowBannerMetricTracked: false,
+      shareDataBannerMetricTracked: false,
+      updateTypeBannerMetricTracked: false,
+      uploaderBannerMetricTracked: false,
     }
   }
 
@@ -136,7 +136,7 @@ export class AppComponent extends React.Component {
    * Before rendering for first time
    * begin fetching any required data
    */
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.doFetching(this.props);
   }
 
@@ -144,15 +144,24 @@ export class AppComponent extends React.Component {
    * Before any subsequent re-rendering
    * begin fetching any required data
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {
       showingDonateBanner,
       showingDexcomConnectBanner,
+      showingShareDataBanner,
+      updateShareDataBannerSeen,
+      seenShareDataBannerMax,
+      showingUpdateTypeBanner,
+      showingUploaderBanner,
       location,
       userHasData,
       userHasConnectedDataSources,
+      userHasSharedDataWithClinician,
+      userHasDiabetesType,
       userIsCurrentPatient,
-      userIsSupportingNonprofit
+      userIsSupportingNonprofit,
+      patient,
+      authenticated,
     } = nextProps;
 
     if (!utils.isOnSamePage(this.props, nextProps)) {
@@ -160,31 +169,66 @@ export class AppComponent extends React.Component {
     }
 
     const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-    const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-    let displayDonateBanner = false;
 
-    // Determine whether or not to show the donate banner.
-    // If showingDonateBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDonateBanner !== false) {
-      if (showDonateBanner) {
-        this.props.showBanner('donate');
-        displayDonateBanner = true;
+    const showUploaderBanner = authenticated && moment().isBefore('2020-10-01');
+    let displayUploaderBanner = false;
 
-        if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
-          this.props.context.trackMetric('Big Data banner displayed');
-          this.setState({ donateShowBannerMetricTracked: true });
+    if (showingUploaderBanner !== false) {
+      if (showUploaderBanner) {
+        this.props.showBanner('uploader');
+        displayUploaderBanner = true;
+
+        if (this.props.context.trackMetric && !this.state.uploaderShowBannerMetricTracked) {
+          this.props.context.trackMetric('Uploader banner displayed');
+          this.setState({ uploaderShowBannerMetricTracked: true });
         }
-      } else if (showingDonateBanner) {
-        this.props.hideBanner('donate');
+      } else if (showingUploaderBanner) {
+        this.props.hideBanner('uploader');
       }
     }
 
-    // Determine whether or not to show the dexcom banner.
-    // If showingDexcomConnectBanner is false, it means it was dismissed and we do not show it again.
-    if (showingDexcomConnectBanner !== false && !displayDonateBanner) {
+    let displayShareDataBanner = false;
+
+    if (showingShareDataBanner !== false && !displayUploaderBanner) {
+      const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
+      if (showShareDataBanner) {
+        this.props.showBanner('sharedata');
+        displayShareDataBanner = true;
+        updateShareDataBannerSeen(patient.userid);
+
+        if (this.props.context.trackMetric && !this.state.shareDataBannerMetricTracked) {
+          this.props.context.trackMetric('Share Data banner displayed');
+          this.setState({ shareDataBannerMetricTracked: true });
+        }
+      } else if (showingShareDataBanner) {
+        this.props.hideBanner('sharedata');
+      }
+    }
+
+    let displayDonateBanner = false;
+
+    if (showingDonateBanner !== false && !displayUploaderBanner && !displayShareDataBanner) {
+      const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
+          if (showDonateBanner) {
+            this.props.showBanner('donate');
+            displayDonateBanner = true;
+
+            if (this.props.context.trackMetric && !this.state.donateShowBannerMetricTracked) {
+              this.props.context.trackMetric('Big Data banner displayed');
+              this.setState({ donateShowBannerMetricTracked: true });
+            }
+          } else if (showingDonateBanner) {
+            this.props.hideBanner('donate');
+          }
+        }
+
+    let displayDexcomConnectBanner = false;
+
+    if (showingDexcomConnectBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner) {
       const showDexcomBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources;
       if (showDexcomBanner) {
         this.props.showBanner('dexcom');
+        displayDexcomConnectBanner = true;
 
         if (this.props.context.trackMetric && !this.state.dexcomShowBannerMetricTracked) {
           this.props.context.trackMetric('Dexcom OAuth banner displayed');
@@ -194,7 +238,22 @@ export class AppComponent extends React.Component {
         this.props.hideBanner('dexcom');
       }
     }
+
+    if (showingUpdateTypeBanner !== false && !displayUploaderBanner && !displayShareDataBanner && !displayDonateBanner && !displayDexcomConnectBanner) {
+      const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasConnectedDataSources && !userHasDiabetesType;
+      if (showUpdateTypeBanner) {
+        this.props.showBanner('updatetype');
+
+        if (this.props.context.trackMetric && !this.state.updateTypeShowBannerMetricTracked) {
+          this.props.context.trackMetric('Update Type banner displayed');
+          this.setState({ updateTypeShowBannerMetricTracked: true });
+        }
+      } else if (showingUpdateTypeBanner) {
+        this.props.hideBanner('updatetype');
+      }
+    }
   }
+
 
   /**
    * Render Functions
@@ -255,6 +314,32 @@ export class AppComponent extends React.Component {
     return null;
   }
 
+  renderShareDataBanner() {
+    this.props.context.log('Rendering share data banner');
+
+    const {
+      showingShareDataBanner,
+      onClickShareDataBanner,
+      onDismissShareDataBanner,
+      patient,
+    } = this.props;
+
+    if (showingShareDataBanner) {
+      return (
+        <div className="App-sharedatabanner">
+          <ShareDataBanner
+            onClick={onClickShareDataBanner}
+            onClose={onDismissShareDataBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient}
+            history={this.props.history}/>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   renderDonateBanner() {
     this.props.context.log('Rendering donation banner');
 
@@ -301,6 +386,56 @@ export class AppComponent extends React.Component {
             onClose={onDismissDexcomConnectBanner}
             trackMetric={this.props.context.trackMetric}
             patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  renderUpdateTypeBanner() {
+    this.props.context.log('Rendering update type banner');
+
+    const {
+      showingUpdateTypeBanner,
+      onClickUpdateTypeBanner,
+      onDismissUpdateTypeBanner,
+      patient,
+    } = this.props;
+
+    if (showingUpdateTypeBanner) {
+      return (
+        <div className="App-updatetypebanner">
+          <UpdateTypeBanner
+            onClick={onClickUpdateTypeBanner}
+            onClose={onDismissUpdateTypeBanner}
+            trackMetric={this.props.context.trackMetric}
+            patient={patient} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  renderUploaderBanner() {
+    this.props.context.log('Rendering uploader banner');
+
+    const {
+      showingUploaderBanner,
+      onClickUploaderBanner,
+      onDismissUploaderBanner,
+      user,
+    } = this.props;
+
+    if (showingUploaderBanner) {
+      return (
+        <div className="App-uploaderbanner">
+          <UploaderBanner
+            onClick={onClickUploaderBanner}
+            onClose={onDismissUploaderBanner}
+            trackMetric={this.props.context.trackMetric}
+            user={user} />
         </div>
       );
     }
@@ -420,6 +555,9 @@ export class AppComponent extends React.Component {
     var notification = this.renderNotification();
     var donatebanner = this.renderDonateBanner();
     var dexcombanner = this.renderDexcomConnectBanner();
+    var sharedatabanner = this.renderShareDataBanner();
+    var updatetypebanner = this.renderUpdateTypeBanner();
+    var uploaderbanner = this.renderUploaderBanner();
     var emailbanner = this.renderAddEmailBanner();
     var footer = this.renderFooter();
 
@@ -431,6 +569,9 @@ export class AppComponent extends React.Component {
         {notification}
         {donatebanner}
         {dexcombanner}
+        {sharedatabanner}
+        {updatetypebanner}
+        {uploaderbanner}
         {this.props.children}
         {footer}
       </div>
@@ -463,9 +604,19 @@ export function mapStateToProps(state) {
   let permsOfLoggedInUser = null;
   let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
   let userHasConnectedDataSources = _.get(state, 'blip.dataSources', []).length > 0;
+  let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
+  let userHasSharedDataWithClinician = false;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
   let userHasData = false;
+  let userHasDiabetesType = false;
+
+  if (userHasSharedData) {
+    let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
+    userHasSharedDataWithClinician = userCareTeam.some(user => {
+      return personUtils.isClinic(user);
+    });
+  }
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -479,6 +630,10 @@ export function mapStateToProps(state) {
 
       if (_.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
+      }
+
+      if (_.get(user, 'profile.patient.diagnosisType')) {
+          userHasDiabetesType = true;
       }
     }
 
@@ -494,9 +649,9 @@ export function mapStateToProps(state) {
         {}
       );
       permsOfLoggedInUser = _.get(
-       state.blip.membershipPermissionsInOtherCareTeams,
-       state.blip.currentPatientInViewId,
-       {}
+        state.blip.membershipPermissionsInOtherCareTeams,
+        state.blip.currentPatientInViewId,
+        {}
       );
     }
 
@@ -565,15 +720,21 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     showingDonateBanner: state.blip.showingDonateBanner,
     showingDexcomConnectBanner: state.blip.showingDexcomConnectBanner,
+    showingShareDataBanner: state.blip.showingShareDataBanner,
+    seenShareDataBannerMax: state.blip.seenShareDataBannerMax,
+    showingUpdateTypeBanner: state.blip.showingUpdateTypeBanner,
+    showingUploaderBanner: state.blip.showingUploaderBanner,
     userIsCurrentPatient,
     userHasData,
+    userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,
+    userHasSharedDataWithClinician,
     userIsSupportingNonprofit,
     resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
     resentEmailVerification: state.blip.resentEmailVerification,
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptTerms: actions.async.acceptTerms,
@@ -583,7 +744,14 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   onCloseNotification: actions.sync.acknowledgeNotification,
   onDismissDonateBanner: actions.async.dismissDonateBanner,
   onDismissDexcomConnectBanner: actions.async.dismissDexcomConnectBanner,
+  onDismissShareDataBanner: actions.async.dismissShareDataBanner,
+  onDismissUpdateTypeBanner: actions.async.dismissUpdateTypeBanner,
+  onDismissUploaderBanner: actions.async.dismissUploaderBanner,
   onClickDexcomConnectBanner: actions.async.clickDexcomConnectBanner,
+  onClickShareDataBanner: actions.async.clickShareDataBanner,
+  onClickUpdateTypeBanner: actions.async.clickUpdateTypeBanner,
+  onClickUploaderBanner: actions.async.clickUploaderBanner,
+  updateShareDataBannerSeen: actions.async.updateShareDataBannerSeen,
   updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   showBanner: actions.sync.showBanner,
   hideBanner: actions.sync.hideBanner,
@@ -591,9 +759,16 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.routes[0].api;
+  var api = ownProps.api;
   return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
-    context: ownProps.route,
+    context: {
+      DEBUG: ownProps.DEBUG,
+      api: ownProps.api,
+      config: ownProps.config,
+      log: ownProps.log,
+      personUtils: ownProps.personUtils,
+      trackMetric: ownProps.trackMetric,
+    },
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     fetchers: getFetchers(stateProps, dispatchProps, api),
     location: ownProps.location.pathname,
@@ -601,7 +776,14 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onCloseNotification: dispatchProps.onCloseNotification,
     onDismissDonateBanner: dispatchProps.onDismissDonateBanner.bind(null, api),
     onDismissDexcomConnectBanner: dispatchProps.onDismissDexcomConnectBanner.bind(null, api),
+    onDismissShareDataBanner: dispatchProps.onDismissShareDataBanner.bind(null, api),
+    onDismissUpdateTypeBanner: dispatchProps.onDismissUpdateTypeBanner.bind(null, api),
+    onDismissUploaderBanner: dispatchProps.onDismissUploaderBanner.bind(null, api),
     onClickDexcomConnectBanner: dispatchProps.onClickDexcomConnectBanner.bind(null, api),
+    onClickShareDataBanner: dispatchProps.onClickShareDataBanner.bind(null, api),
+    onClickUpdateTypeBanner: dispatchProps.onClickUpdateTypeBanner.bind(null, api),
+    onClickUploaderBanner: dispatchProps.onClickUploaderBanner.bind(null, api),
+    updateShareDataBannerSeen: dispatchProps.updateShareDataBannerSeen.bind(null, api),
     onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     showBanner: dispatchProps.showBanner,
     hideBanner: dispatchProps.hideBanner,

@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
@@ -49,6 +49,11 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
+    case types.FETCH_PRESCRIPTIONS_REQUEST:
+    case types.CREATE_PRESCRIPTION_REQUEST:
+    case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
+    case types.DELETE_PRESCRIPTION_REQUEST:
+    case types.FETCH_DEVICES_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
     case types.EDIT_MESSAGE_THREAD_REQUEST:
@@ -82,6 +87,25 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_SERVER_TIME_REQUEST:
     case types.CONNECT_DATA_SOURCE_REQUEST:
     case types.DISCONNECT_DATA_SOURCE_REQUEST:
+    case types.GET_CLINICS_REQUEST:
+    case types.CREATE_CLINIC_REQUEST:
+    case types.FETCH_CLINIC_REQUEST:
+    case types.UPDATE_CLINIC_REQUEST:
+    case types.DELETE_CLINIC_REQUEST:
+    case types.FETCH_CLINICIAN_REQUEST:
+    case types.UPDATE_CLINICIAN_REQUEST:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
+    case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
+    case types.ADD_PATIENT_TO_CLINIC_REQUEST:
+    case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_REQUEST:
+    case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
+    case types.ADD_CLINICIAN_TO_CLINIC_REQUEST:
+    case types.FETCH_CLINICS_PATIENT_REQUEST:
+    case types.DELETE_CLINICS_PATIENT_REQUEST:
+    case types.FETCH_CLINICS_CLINICIAN_REQUEST:
+    case types.DELETE_CLINICS_CLINICIAN_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -92,6 +116,19 @@ export default (state = initialWorkingState, action) => {
                 notification: null,
                 completed: state[key].completed,
                 patientId: _.get(action, ['payload', 'patientId'], null),
+              }
+            }
+          });
+        } else if (_.includes([
+          types.CREATE_PRESCRIPTION_REQUEST,
+          types.CREATE_PRESCRIPTION_REVISION_REQUEST,
+        ], action.type)) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: null, // For these types we don't persist the completed state
               }
             }
           });
@@ -121,6 +158,11 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
+    case types.FETCH_PRESCRIPTIONS_SUCCESS:
+    case types.CREATE_PRESCRIPTION_SUCCESS:
+    case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
+    case types.DELETE_PRESCRIPTION_SUCCESS:
+    case types.FETCH_DEVICES_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
     case types.EDIT_MESSAGE_THREAD_SUCCESS:
@@ -155,6 +197,25 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_SERVER_TIME_SUCCESS:
     case types.CONNECT_DATA_SOURCE_SUCCESS:
     case types.DISCONNECT_DATA_SOURCE_SUCCESS:
+    case types.GET_CLINICS_SUCCESS:
+    case types.CREATE_CLINIC_SUCCESS:
+    case types.FETCH_CLINIC_SUCCESS:
+    case types.UPDATE_CLINIC_SUCCESS:
+    case types.DELETE_CLINIC_SUCCESS:
+    case types.FETCH_CLINICIAN_SUCCESS:
+    case types.UPDATE_CLINICIAN_SUCCESS:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
+    case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
+    case types.ADD_PATIENT_TO_CLINIC_SUCCESS:
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+    case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
+    case types.ADD_CLINICIAN_TO_CLINIC_SUCCESS:
+    case types.FETCH_CLINICS_PATIENT_SUCCESS:
+    case types.DELETE_CLINICS_PATIENT_SUCCESS:
+    case types.FETCH_CLINICS_CLINICIAN_SUCCESS:
+    case types.DELETE_CLINICS_CLINICIAN_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -188,6 +249,17 @@ export default (state = initialWorkingState, action) => {
               $set: initialState.working[generatingPDFWorkingKey],
             },
           });
+        } else if (action.type === types.CREATE_PRESCRIPTION_SUCCESS) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: false,
+                notification: _.get(action, ['payload', 'notification'], null),
+                completed: true,
+                prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
+              }
+            }
+          });
         } else {
           return update(state, {
             [key]: {
@@ -215,6 +287,11 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_PRESCRIPTIONS_FAILURE:
+    case types.CREATE_PRESCRIPTION_FAILURE:
+    case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
+    case types.DELETE_PRESCRIPTION_FAILURE:
+    case types.FETCH_DEVICES_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:
     case types.EDIT_MESSAGE_THREAD_FAILURE:
@@ -247,6 +324,25 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
+    case types.GET_CLINICS_FAILURE:
+    case types.CREATE_CLINIC_FAILURE:
+    case types.FETCH_CLINIC_FAILURE:
+    case types.UPDATE_CLINIC_FAILURE:
+    case types.DELETE_CLINIC_FAILURE:
+    case types.FETCH_CLINICIAN_FAILURE:
+    case types.UPDATE_CLINICIAN_FAILURE:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
+    case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
+    case types.ADD_PATIENT_TO_CLINIC_FAILURE:
+    case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
+    case types.UPDATE_CLINIC_PATIENT_FAILURE:
+    case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:
+    case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
+    case types.FETCH_CLINICS_PATIENT_FAILURE:
+    case types.DELETE_CLINICS_PATIENT_FAILURE:
+    case types.FETCH_CLINICS_CLINICIAN_FAILURE:
+    case types.DELETE_CLINICS_CLINICIAN_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

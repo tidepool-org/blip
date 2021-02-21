@@ -17,8 +17,10 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 /* jshint unused: false */
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 var _ = require('lodash');
 var sundial = require('sundial');
+var PropTypes = require('prop-types');
 
 var MessageForm = require('./messageform');
 var MessageMixins = require('./messagemixins');
@@ -30,19 +32,23 @@ if (!window.process) {
   var profileSmallSrc = require('./images/profile-64x64.png');
 }
 
-var Message = translate() (React.createClass({
+var Message = translate() (createReactClass({
+  displayName: 'Message',
   mixins: [MessageMixins],
+
   propTypes: {
-    theNote : React.PropTypes.object.isRequired,
-    imageSize: React.PropTypes.string,
-    onSaveEdit: React.PropTypes.func,
-    timePrefs: React.PropTypes.object.isRequired
+    theNote : PropTypes.object.isRequired,
+    imageSize: PropTypes.string,
+    onSaveEdit: PropTypes.func,
+    timePrefs: PropTypes.object.isRequired
   },
+
   getInitialState: function() {
     return {
       editing: false
     };
   },
+
   componentDidMount: function () {
     if (this.props.theNote) {
       this.setState({
@@ -52,6 +58,7 @@ var Message = translate() (React.createClass({
       });
     }
   },
+
   getUserDisplayName: function(user) {
     var result = 'Anonymous user';
     if (user && user.fullName) {
@@ -59,9 +66,11 @@ var Message = translate() (React.createClass({
     }
     return result;
   },
+
   isComment: function() {
     return _.isEmpty(this.props.theNote.parentmessage) === false;
   },
+
   handleEditSave: function(edits) {
     var saveEdit = this.props.onSaveEdit;
 
@@ -86,18 +95,21 @@ var Message = translate() (React.createClass({
       this.setState(newState);
     }
   },
+
   handleAllowEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({editing:true});
   },
+
   handleCancelEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({editing:false});
   },
+
   renderTitle: function() {
     var edit = this.renderEditLink();
 
@@ -109,6 +121,7 @@ var Message = translate() (React.createClass({
     );
 
   },
+
   renderEditLink: function() {
     const { t } = this.props;
     if (this.state.editing === false && this.props.onSaveEdit) {
@@ -123,6 +136,7 @@ var Message = translate() (React.createClass({
       );
     }
   },
+
   renderImage: function() {
     var imageSize = this.props.imageSize;
     var imageSource;
@@ -143,6 +157,7 @@ var Message = translate() (React.createClass({
     );
 
   },
+
   renderNoteEdit: function() {
     if (this.state.editing) {
       var editForm;
@@ -186,6 +201,7 @@ var Message = translate() (React.createClass({
 
     }
   },
+
   renderNoteContent: function() {
     if (this.state.editing === false) {
       var image = this.renderImage();

@@ -1,20 +1,5 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
+import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { bindActionCreators } from 'redux';
@@ -26,87 +11,83 @@ import _ from 'lodash';
 import config from '../../config';
 
 import utils from '../../core/utils';
-import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-var formText = 'Welcome!';
+export let VerificationWithPassword = translate()(class extends React.Component {
+  static propTypes = {
+    acknowledgeNotification: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
+    notification: PropTypes.object,
+    signupEmail: PropTypes.string.isRequired,
+    signupKey: PropTypes.string.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
+    working: PropTypes.bool.isRequired
+  };
 
-export let VerificationWithPassword = translate()(React.createClass({
-  propTypes: {
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
-    notification: React.PropTypes.object,
-    signupEmail: React.PropTypes.string.isRequired,
-    signupKey: React.PropTypes.string.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired
-  },
-
-  formInputs: function() {
-    const { t } = this.props;
-    return [
-      { name: 'explanation', type: 'explanation', text: formText },
-      { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
-      { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
-      { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
-    ];
-  },
-
-  componentWillMount: function() {
-    this.setState({ loading: false });
-  },
-
-  componentDidMount: function() {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('VCA Home Verification - Screen Displayed');
-    }
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    if (_.get(this.props, 'notification.message', null) === null &&
-        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
-      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
-    }
-  },
-
-  getInitialState: function() {
+  constructor(props) {
+    super(props);
     var formValues = {};
 
-    return {
+    this.state = {
       loading: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
     };
-  },
+  }
 
-  isFormDisabled: function() {
+  formInputs = () => {
+    const { t } = this.props;
+    return [
+      { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
+      { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
+      { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
+    ];
+  };
+
+  UNSAFE_componentWillMount() {
+    this.setState({ loading: false });
+  }
+
+  componentDidMount() {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('VCA Home Verification - Screen Displayed');
+    }
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (_.get(this.props, 'notification.message', null) === null &&
+        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
+      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
+    }
+  }
+
+  isFormDisabled = () => {
     return (this.props.fetchingUser && !this.props.user);
-  },
+  };
 
-  getSubmitButtonText: function() {
+  getSubmitButtonText = () => {
     const { t } = this.props;
     if (this.props.working) {
       return t('Setting up...');
     }
-    return t('Ready!');
-  },
+    return t('Confirm');
+  };
 
-  render: function() {
+  render() {
+    const { t } = this.props;
+
     return (
       <div className="VerificationWithPassword">
-        <LoginNav
-          page="VerificationWithPassword"
-          trackMetric={this.props.trackMetric}
-          hideLinks={true} />
         <LoginLogo />
-        <div className="container-small-outer VerificationWithPassword-form">
+        <div className="container-small-outer VerificationWithPassword-form-container">
           <div className="container-small-inner VerificationWithPassword-form-box">
+            <div className="VerificationWithPassword-title">{t('Verify your account')}</div>
             <SimpleForm
               inputs={this.formInputs()}
               formValues={this.state.formValues}
@@ -119,9 +100,9 @@ export let VerificationWithPassword = translate()(React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
-  handleSubmit: function(formValues) {
+  handleSubmit = (formValues) => {
     var self = this;
 
     if (this.props.working) {
@@ -138,17 +119,17 @@ export let VerificationWithPassword = translate()(React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
     this.props.onSubmit(this.props.api, this.props.signupKey, this.props.signupEmail, formValues.birthday, formValues.password);
-  },
+  };
 
-  resetFormStateBeforeSubmit: function(formValues) {
+  resetFormStateBeforeSubmit = (formValues) => {
     this.setState({
       formValues: formValues,
       validationErrors: {},
       notification: null
     });
-  },
+  };
 
-  validateFormValues: function(formValues) {
+  validateFormValues = (formValues) => {
     const { t } = this.props;
     var form = [
       { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
@@ -168,10 +149,9 @@ export let VerificationWithPassword = translate()(React.createClass({
     }
 
     return validationErrors;
-  },
+  };
 
-
-  handleInputChange: function(attributes) {
+  handleInputChange = (attributes) => {
     var key = attributes.name;
     var value = attributes.value;
     if (!key) {
@@ -181,25 +161,24 @@ export let VerificationWithPassword = translate()(React.createClass({
     var formValues = _.clone(this.state.formValues);
     formValues[key] = value;
     this.setState({formValues: formValues});
-  },
+  };
 
-  makeRawDateString: function(dateObj){
+  makeRawDateString = (dateObj) => {
 
     var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
     var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
 
     return dateObj.year+'-'+mm+'-'+dd;
-  },
+  };
 
-
-  prepareFormValuesForSubmit: function(formValues) {
+  prepareFormValuesForSubmit = (formValues) => {
     return {
       birthday: this.makeRawDateString(formValues.birthday),
       password: formValues.password
     };
-  },
-}));
+  };
+});
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -222,8 +201,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     configuredInviteKey: config.INVITE_KEY,
     signupEmail: utils.getSignupEmail(ownProps.location),
     signupKey: utils.getSignupKey(ownProps.location),
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    trackMetric: ownProps.trackMetric,
+    api: ownProps.api,
   });
 };
 
