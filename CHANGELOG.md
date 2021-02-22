@@ -8,6 +8,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-423 Add Dexcom branding to the glucose graph
 ### Fixed
 - YLP-511 Wrong string used for "serial number"
+- YLP-454 The Number of Login validation does not make the count for a single account
 ### Engineering Use
 - YLP-699 Add CodeQL Analysis
 
