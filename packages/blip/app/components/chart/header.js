@@ -1,4 +1,3 @@
-
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -29,6 +28,12 @@ import StayCurrentPortrait from '@material-ui/icons/StayCurrentPortrait';
 const t = i18n.t.bind(i18n);
 
 class TidelineHeader extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { isDialogOpen: false };
+  }
+
   static propTypes = {
     patient: PropTypes.object,
     title: PropTypes.node.isRequired,
@@ -50,6 +55,7 @@ class TidelineHeader extends React.Component {
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
+    ProfileDialog: PropTypes.func,
   };
 
   static defaultProps = {
@@ -71,7 +77,7 @@ class TidelineHeader extends React.Component {
     const showPrintLink = _.includes(printViews, this.props.chartType);
     const showHome = _.has(this.props.permsOfLoggedInUser, 'view');
     const homeValue = _.get(this.props.patient, 'profile.fullName', t('Home'));
-    const patientLink =  this.getPatientLink();
+    const patientLink = this.getPatientLink();
 
     const home = cx({
       'js-home': true,
@@ -106,7 +112,8 @@ class TidelineHeader extends React.Component {
 
     const dateLinkClass = cx({
       'js-date': true,
-      'patient-data-subnav-text' : this.props.chartType === 'basics' ||
+      'patient-data-subnav-text':
+        this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
         this.props.chartType === 'bgLog' ||
         this.props.chartType === 'trends',
@@ -129,8 +136,7 @@ class TidelineHeader extends React.Component {
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data',
+      'patient-data-subnav-hidden': this.props.chartType === 'settings' || this.props.chartType === 'no-data',
     });
 
     const nextClass = cx({
@@ -138,8 +144,7 @@ class TidelineHeader extends React.Component {
       'patient-data-icon': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data',
+      'patient-data-subnav-hidden': this.props.chartType === 'settings' || this.props.chartType === 'no-data',
     });
 
     const settingsLinkClass = cx({
@@ -161,42 +166,62 @@ class TidelineHeader extends React.Component {
 
       printLink = (
         <button className={printLinkClass} onClick={this.onClickPrint}>
-          <Timeline className="print-icon" />
+          <Timeline className='print-icon' />
           {t('Print')}
-      </button>
+        </button>
       );
     }
 
     /** @type {(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void} */
-      const handleClick = (/* e */) => {
+    const handleClick = (/* e */) => {
       // e.preventDefault();
       // FIXME: Find a way to use the react-router-dom
       this.props.trackMetric('Clicked Navbar Name');
-      };
+      this.setState({ isDialogOpen: true });
+    };
+
+    const handleDialogClose = () => {
+      this.setState({ isDialogOpen: false });
+    };
+
+    let profileDialog = null;
+    if (this.props.ProfileDialog) {
+      const ProfileDialog = this.props.ProfileDialog;
+      profileDialog = (
+        <ProfileDialog user={this.props.patient} isOpen={this.state.isDialogOpen} handleClose={handleDialogClose} />
+      );
+    }
 
     return (
-      <div className="grid patient-data-subnav">
-        <div className="app-no-print patient-data-subnav-left">
+      <div className='grid patient-data-subnav'>
+        <div className='app-no-print patient-data-subnav-left'>
           {/* Here we can add the home icon */}
           <Link className={home} to={patientLink} onClick={handleClick} title={t('Profile')}>
             <div>{homeValue}</div>
           </Link>
+          {profileDialog}
         </div>
-        <div className="app-no-print patient-data-subnav-left">
-            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
-            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
-            <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
-            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
+        <div className='app-no-print patient-data-subnav-left'>
+          <a href='' className={basicsLinkClass} onClick={this.props.onClickBasics}>
+            {t('Basics')}
+          </a>
+          <a href='' className={dayLinkClass} onClick={this.props.onClickOneDay}>
+            {t('Daily')}
+          </a>
+          <a href='' className={bgLogLinkClass} onClick={this.props.onClickBgLog}>
+            {t('BG Log')}
+          </a>
+          <a href='' className={trendsLinkClass} onClick={this.props.onClickTrends}>
+            {t('Trends')}
+          </a>
         </div>
-        <div className="patient-data-subnav-center" id="tidelineLabel">
+        <div className='patient-data-subnav-center' id='tidelineLabel'>
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
-          <div className={dateLinkClass}>
-            {this.props.title}
-          </div>
+          <div className={dateLinkClass}>{this.props.title}</div>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
-        <div className="app-no-print patient-data-subnav-right">
+        <div className='app-no-print patient-data-subnav-right'>
           {printLink}
           <button className={settingsLinkClass} onClick={this.props.onClickSettings}>
             <StayCurrentPortrait />
@@ -205,17 +230,15 @@ class TidelineHeader extends React.Component {
         </div>
       </div>
     );
-  };
+  }
 
   render() {
     return (
-      <div className="container-box-outer patient-data-subnav-outer">
-        <div className="container-box-inner patient-data-subnav-inner">
-          {this.renderStandard()}
-        </div>
+      <div className='container-box-outer patient-data-subnav-outer'>
+        <div className='container-box-inner patient-data-subnav-inner'>{this.renderStandard()}</div>
       </div>
     );
-  };
+  }
 
   /**
    * Helper function for rendering the various navigation buttons in the header.
@@ -227,18 +250,26 @@ class TidelineHeader extends React.Component {
    *
    * @return {JSX.Element}
    */
-  renderNavButton(buttonClass, clickAction, icon){
-    const nullAction = function(e) {
+  renderNavButton(buttonClass, clickAction, icon) {
+    const nullAction = function (e) {
       if (e) {
         e.preventDefault();
       }
     };
     if (this.props.inTransition) {
-      return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>);
+      return (
+        <a href='' className={buttonClass} onClick={nullAction}>
+          <i className={icon} />
+        </a>
+      );
     } else {
-      return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
+      return (
+        <a href='' className={buttonClass} onClick={clickAction}>
+          <i className={icon} />
+        </a>
+      );
     }
-  };
+  }
 
   /**
    * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} event The DOM/React event
@@ -246,7 +277,7 @@ class TidelineHeader extends React.Component {
   onClickPrint = (event) => {
     event.preventDefault();
     this.props.onClickPrint();
-  }
+  };
 }
 
 export default TidelineHeader;

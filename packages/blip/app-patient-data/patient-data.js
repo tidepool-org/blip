@@ -42,17 +42,14 @@ import nurseShark from '../../tideline/plugins/nurseshark';
 import Messages from '../app/components/messages';
 import { FETCH_PATIENT_DATA_SUCCESS } from '../app/redux/constants/actionTypes';
 
-import {
-  MGDL_UNITS,
-  DIABETES_DATA_TYPES,
-} from '../app/core/constants';
+import { MGDL_UNITS, DIABETES_DATA_TYPES } from '../app/core/constants';
 
 const { waitTimeout } = utils;
 const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 
-const DiabetesDataTypesForDatum = _.filter(DIABETES_DATA_TYPES, t => t !== 'food');
+const DiabetesDataTypesForDatum = _.filter(DIABETES_DATA_TYPES, (t) => t !== 'food');
 
 /** @type {(s: string, p?: object) => string} */
 const t = i18n.t.bind(i18n);
@@ -95,7 +92,7 @@ class PatientDataPage extends React.Component {
       endpoints: [],
       timePrefs: {
         timezoneAware: false,
-        timezoneName: 'UTC'
+        timezoneName: 'UTC',
       },
       bgPrefs: {
         bgUnits: MGDL_UNITS,
@@ -176,21 +173,24 @@ class PatientDataPage extends React.Component {
     api.addEventListener('patient-data-loaded', (/** @type {PatientDataLoadedEvent} */ ev) => {
       const patient = ev.user;
 
-      this.setState({
-        loadingState: LOADING_STATE_INITIAL_PROCESS,
-        errorMessage: null,
-        patient,
-        chartType: 'daily',
-        createMessageDatetime: null,
-        canPrint: false,
-        pdf: null,
-      }, async () => {
-        try {
-          await this.processData(ev.patientData);
-        } catch (e) {
-          this.onLoadingFailure(e);
+      this.setState(
+        {
+          loadingState: LOADING_STATE_INITIAL_PROCESS,
+          errorMessage: null,
+          patient,
+          chartType: 'daily',
+          createMessageDatetime: null,
+          canPrint: false,
+          pdf: null,
+        },
+        async () => {
+          try {
+            await this.processData(ev.patientData);
+          } catch (e) {
+            this.onLoadingFailure(e);
+          }
         }
-      });
+      );
     });
   }
 
@@ -203,28 +203,28 @@ class PatientDataPage extends React.Component {
     let errorDisplay = null;
 
     switch (loadingState) {
-    case LOADING_STATE_DONE:
-      if (chartType === 'daily') {
-        messages = this.renderMessagesContainer();
-      }
-      patientData = this.renderPatientData();
-      break;
-    case LOADING_STATE_NONE:
-      messages = <p>Please select a patient</p>;
-      break;
-    case LOADING_STATE_EARLIER_FETCH:
-    case LOADING_STATE_EARLIER_PROCESS:
-    case LOADING_STATE_INITIAL_FETCH:
-    case LOADING_STATE_INITIAL_PROCESS:
-      loader = <Loader />;
-      break;
-    default:
-      errorDisplay = <p>{errorMessage ?? t('Failed somewhere')}</p>;
-      break;
+      case LOADING_STATE_DONE:
+        if (chartType === 'daily') {
+          messages = this.renderMessagesContainer();
+        }
+        patientData = this.renderPatientData();
+        break;
+      case LOADING_STATE_NONE:
+        messages = <p>Please select a patient</p>;
+        break;
+      case LOADING_STATE_EARLIER_FETCH:
+      case LOADING_STATE_EARLIER_PROCESS:
+      case LOADING_STATE_INITIAL_FETCH:
+      case LOADING_STATE_INITIAL_PROCESS:
+        loader = <Loader />;
+        break;
+      default:
+        errorDisplay = <p>{errorMessage ?? t('Failed somewhere')}</p>;
+        break;
     }
 
     return (
-      <div className="patient-data patient-data-yourloops">
+      <div className='patient-data patient-data-yourloops'>
         {messages}
         {patientData}
         {loader}
@@ -241,14 +241,7 @@ class PatientDataPage extends React.Component {
   }
 
   renderEmptyHeader() {
-    return (
-      <Header
-        chartType={'no-data'}
-        inTransition={false}
-        atMostRecent={false}
-        title={t('Data')}
-        canPrint={false} />
-      );
+    return <Header chartType={'no-data'} inTransition={false} atMostRecent={false} title={t('Data')} canPrint={false} />;
   }
 
   renderInitialLoading() {
@@ -256,9 +249,9 @@ class PatientDataPage extends React.Component {
     return (
       <div>
         {header}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content"></div>
+        <div className='container-box-outer patient-data-content-outer'>
+          <div className='container-box-inner patient-data-content-inner'>
+            <div className='patient-data-content'></div>
           </div>
         </div>
       </div>
@@ -267,18 +260,22 @@ class PatientDataPage extends React.Component {
 
   renderNoData() {
     const header = this.renderEmptyHeader();
-    const noDataText = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.state.patient)});
+    const noDataText = t('{{patientName}} does not have any data yet.', {
+      patientName: personUtils.patientFullName(this.state.patient),
+    });
     const reloadBtnText = t('Click to reload.');
 
     return (
       <div>
         {header}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
-              <div className="patient-data-message-no-data">
+        <div className='container-box-outer patient-data-content-outer'>
+          <div className='container-box-inner patient-data-content-inner'>
+            <div className='patient-data-content'>
+              <div className='patient-data-message-no-data'>
                 <p>{noDataText}</p>
-                <button type="button" className="btn btn-primary" onClick={this.handleClickNoDataRefresh}>{reloadBtnText}</button>
+                <button type='button' className='btn btn-primary' onClick={this.handleClickNoDataRefresh}>
+                  {reloadBtnText}
+                </button>
               </div>
             </div>
           </div>
@@ -301,7 +298,7 @@ class PatientDataPage extends React.Component {
     const { canPrint, patient } = this.state;
     return (
       <div>
-        <div className="app-no-print">
+        <div className='app-no-print'>
           <Settings
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
@@ -319,7 +316,8 @@ class PatientDataPage extends React.Component {
             onSwitchToSettings={this.handleSwitchToSettings}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.trackMetric}
-            uploadUrl={config.UPLOAD_API} />
+            uploadUrl={config.UPLOAD_API}
+          />
         </div>
       </div>
     );
@@ -337,6 +335,7 @@ class PatientDataPage extends React.Component {
       case 'basics':
         return (
           <Basics
+            profileDialog={this.props.profileDialog}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
@@ -359,11 +358,13 @@ class PatientDataPage extends React.Component {
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            uploadUrl={config.UPLOAD_API} />
-          );
+            uploadUrl={config.UPLOAD_API}
+          />
+        );
       case 'daily':
         return (
           <Daily
+            profileDialog={this.props.profileDialog}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             dataUtil={this.dataUtil}
@@ -386,11 +387,15 @@ class PatientDataPage extends React.Component {
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            ref={(c) => { this.chart = c; }} />
-          );
+            ref={(c) => {
+              this.chart = c;
+            }}
+          />
+        );
       case 'trends':
         return (
           <Trends
+            profileDialog={this.props.profileDialog}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={patient.userid}
@@ -413,8 +418,9 @@ class PatientDataPage extends React.Component {
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={config.UPLOAD_API}
             trendsState={trendState}
-            endpoints={this.state.endpoints} />
-          );
+            endpoints={this.state.endpoints}
+          />
+        );
       case 'settings':
         return this.renderSettings();
     }
@@ -432,9 +438,10 @@ class PatientDataPage extends React.Component {
           onSave={this.handleCreateNote.bind(this)}
           onNewMessage={this.handleMessageCreation}
           onEdit={this.handleEditMessage}
-          timePrefs={this.state.timePrefs} />
+          timePrefs={this.state.timePrefs}
+        />
       );
-    } else if(this.props.messageThread) {
+    } else if (this.props.messageThread) {
       return (
         <Messages
           messages={this.props.messageThread}
@@ -443,7 +450,8 @@ class PatientDataPage extends React.Component {
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
           onEdit={this.handleEditMessage}
-          timePrefs={this.state.timePrefs} />
+          timePrefs={this.state.timePrefs}
+        />
       );
     }
   }
@@ -460,7 +468,11 @@ class PatientDataPage extends React.Component {
   }
 
   generatePDFStats(data, state) {
-    const { bgBounds, bgUnits, latestPump: { manufacturer, deviceModel } } = this.dataUtil;
+    const {
+      bgBounds,
+      bgUnits,
+      latestPump: { manufacturer, deviceModel },
+    } = this.dataUtil;
     const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
 
     const getStat = (statType) => {
@@ -479,10 +491,7 @@ class PatientDataPage extends React.Component {
 
     const basicsDateRange = _.get(data, 'basics.dateRange');
     if (basicsDateRange) {
-      data.basics.endpoints = [
-        basicsDateRange[0],
-        getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString(),
-      ];
+      data.basics.endpoints = [basicsDateRange[0], getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString()];
 
       this.dataUtil.endpoints = data.basics.endpoints;
 
@@ -498,22 +507,25 @@ class PatientDataPage extends React.Component {
 
     const dailyDateRanges = _.get(data, 'daily.dataByDate');
     if (dailyDateRanges) {
-      _.forIn(dailyDateRanges, _.bind(function(value, key) {
-        data.daily.dataByDate[key].endpoints = [
-          getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
-          getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
-        ];
+      _.forIn(
+        dailyDateRanges,
+        _.bind(function (value, key) {
+          data.daily.dataByDate[key].endpoints = [
+            getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
+            getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
+          ];
 
-        this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
+          this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
 
-        data.daily.dataByDate[key].stats = {
-          [commonStats.timeInRange]: getStat(commonStats.timeInRange),
-          [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
-          [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
-          [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
-          [commonStats.carbs]: getStat(commonStats.carbs),
-        };
-      }, this));
+          data.daily.dataByDate[key].stats = {
+            [commonStats.timeInRange]: getStat(commonStats.timeInRange),
+            [commonStats.averageGlucose]: getStat(commonStats.averageGlucose),
+            [commonStats.totalInsulin]: getStat(commonStats.totalInsulin),
+            [commonStats.timeInAuto]: isAutomatedBasalDevice ? getStat(commonStats.timeInAuto) : undefined,
+            [commonStats.carbs]: getStat(commonStats.carbs),
+          };
+        }, this)
+      );
     }
 
     const bgLogDateRange = _.get(data, 'bgLog.dateRange');
@@ -554,22 +566,16 @@ class PatientDataPage extends React.Component {
 
     const dailyData = vizUtils.data.selectDailyViewData(
       mostRecent,
-      _.pick(
-        data.grouped,
-        ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']
-      ),
+      _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']),
       state.printOpts.numDays.daily,
-      state.timePrefs,
+      state.timePrefs
     );
 
     const bgLogData = vizUtils.data.selectBgLogViewData(
       mostRecent,
-      _.pick(
-        data.grouped,
-        ['smbg']
-      ),
+      _.pick(data.grouped, ['smbg']),
       state.printOpts.numDays.bgLog,
-      state.timePrefs,
+      state.timePrefs
     );
 
     const pdfData = {
@@ -648,13 +654,13 @@ class PatientDataPage extends React.Component {
   }
 
   handleShowMessageCreation(datetime) {
-    this.setState({ createMessageDatetime : datetime });
+    this.setState({ createMessageDatetime: datetime });
     this.trackMetric('Clicked Message Pool Background');
   }
 
   handleSwitchToBasics(e) {
     this.trackMetric('Clicked Switch To Basics', {
-      fromChart: this.state.chartType
+      fromChart: this.state.chartType,
     });
     if (e) {
       e.preventDefault();
@@ -662,24 +668,20 @@ class PatientDataPage extends React.Component {
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
     this.setState({
-      chartType: 'basics'
+      chartType: 'basics',
     });
   }
 
   handleSwitchToDaily(datetime, title) {
-    this.trackMetric('Clicked Basics '+title+' calendar', {
-      fromChart: this.state.chartType
+    this.trackMetric('Clicked Basics ' + title + ' calendar', {
+      fromChart: this.state.chartType,
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
-      .subtract(1, 'day')
-      .hours(12)
-      .toISOString();
+    const datetimeLocation = moment.utc(dateCeiling.valueOf()).tz(timezone).subtract(1, 'day').hours(12).toISOString();
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
@@ -690,16 +692,14 @@ class PatientDataPage extends React.Component {
 
   handleSwitchToTrends(datetime) {
     this.trackMetric('Clicked Switch To Modal', {
-      fromChart: this.state.chartType
+      fromChart: this.state.chartType,
     });
 
     // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
     const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
     const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf())
-      .tz(timezone)
-      .toISOString();
+    const datetimeLocation = moment.utc(dateCeiling.valueOf()).tz(timezone).toISOString();
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
     this.setState({
@@ -710,13 +710,13 @@ class PatientDataPage extends React.Component {
 
   handleSwitchToSettings(e) {
     this.trackMetric('Clicked Switch To Settings', {
-      fromChart: this.state.chartType
+      fromChart: this.state.chartType,
     });
     if (e) {
       e.preventDefault();
     }
     this.setState({
-      chartType: 'settings'
+      chartType: 'settings',
     });
   }
 
@@ -732,7 +732,7 @@ class PatientDataPage extends React.Component {
     }
 
     this.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType
+      fromChart: this.state.chartType,
     });
 
     // Return a promise for the tests
@@ -748,17 +748,19 @@ class PatientDataPage extends React.Component {
         }
 
         if (loadingState === LOADING_STATE_DONE && !processingData && hasDiabetesData) {
-          this.generatePDF(this.props, this.state).then((pdf) => {
-            openPDFWindow(pdf);
-            this.setState({ pdf });
-            resolve();
-          }).catch((err) => {
-            this.log('generatePDF:', err);
-            if (_.isFunction(window.onerror)) {
-              window.onerror('print', 'patient-data', 0, 0, err);
-            }
-            reject(err);
-          });
+          this.generatePDF(this.props, this.state)
+            .then((pdf) => {
+              openPDFWindow(pdf);
+              this.setState({ pdf });
+              resolve();
+            })
+            .catch((err) => {
+              this.log('generatePDF:', err);
+              if (_.isFunction(window.onerror)) {
+                window.onerror('print', 'patient-data', 0, 0, err);
+              }
+              reject(err);
+            });
         } else {
           resolve();
         }
@@ -781,25 +783,28 @@ class PatientDataPage extends React.Component {
     const { patient } = this.state;
 
     if (patient !== null) {
-      this.setState({
-        loadingState: LOADING_STATE_INITIAL_FETCH,
-        endpoints: [],
-        datetimeLocation: this.state.initialDatetimeLocation,
-        fetchEarlierDataCount: 0,
-        lastDatumProcessedIndex: -1,
-        lastProcessedDateTarget: null,
-        processEarlierDataCount: 0,
-        processedPatientData: null,
-        patient: null,
-        pdf: null,
-        canPrint: false,
-      }, async () => {
-        try {
-          await api.loadPatientData(patient.userid);
-        } catch (e) {
-          this.onLoadingFailure(e);
+      this.setState(
+        {
+          loadingState: LOADING_STATE_INITIAL_FETCH,
+          endpoints: [],
+          datetimeLocation: this.state.initialDatetimeLocation,
+          fetchEarlierDataCount: 0,
+          lastDatumProcessedIndex: -1,
+          lastProcessedDateTarget: null,
+          processEarlierDataCount: 0,
+          processedPatientData: null,
+          patient: null,
+          pdf: null,
+          canPrint: false,
+        },
+        async () => {
+          try {
+            await api.loadPatientData(patient.userid);
+          } catch (e) {
+            this.onLoadingFailure(e);
+          }
         }
-      });
+      );
     }
   }
 
@@ -810,15 +815,18 @@ class PatientDataPage extends React.Component {
    */
   handleCreateNote(message, cb) {
     const { api } = this.props;
-    api.startMessageThread(message).then((id) => {
-      cb(null, id);
-    }).catch((reason) => {
-      cb(reason, null);
-    });
+    api
+      .startMessageThread(message)
+      .then((id) => {
+        cb(null, id);
+      })
+      .catch((reason) => {
+        cb(reason, null);
+      });
   }
 
   onLoadingFailure(err) {
-    const errorMessage = _.isError(err) ? err.message : (new String(err)).toString()
+    const errorMessage = _.isError(err) ? err.message : new String(err).toString();
     this.log.error(errorMessage, err);
     this.setState({ loadingState: LOADING_STATE_ERROR, errorMessage });
   }
@@ -828,7 +836,7 @@ class PatientDataPage extends React.Component {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // only attempt to update data if there's already data present to update
     if (processedPatientData) {
-      const patientData =_.assign(_.cloneDeep(processedPatientData), { basicsData });
+      const patientData = _.assign(_.cloneDeep(processedPatientData), { basicsData });
       this.setState({
         processedPatientData: patientData,
       });
@@ -857,21 +865,30 @@ class PatientDataPage extends React.Component {
     };
 
     this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
-    this.setState({
-      chartPrefs: newPrefs,
-    }, cb);
+    this.setState(
+      {
+        chartPrefs: newPrefs,
+      },
+      cb
+    );
   }
 
   updateDatetimeLocation(datetime, cb) {
-    this.setState({
-      datetimeLocation: datetime,
-    }, cb);
+    this.setState(
+      {
+        datetimeLocation: datetime,
+      },
+      cb
+    );
   }
 
   updateChartEndpoints(endpoints, cb) {
-    this.setState({
-      endpoints,
-    }, cb);
+    this.setState(
+      {
+        endpoints,
+      },
+      cb
+    );
   }
 
   deriveChartTypeFromLatestData(latestData, uploads) {
@@ -887,26 +904,25 @@ class PatientDataPage extends React.Component {
       if (latestDataDevice) {
         const tags = deviceMap[latestData.deviceId].deviceTags;
 
-        switch(true) {
-          case (_.includes(tags, 'insulin-pump')):
+        switch (true) {
+          case _.includes(tags, 'insulin-pump'):
             chartType = 'basics';
             break;
 
-          case (_.includes(tags, 'cgm')):
+          case _.includes(tags, 'cgm'):
             chartType = 'trends';
             break;
 
-          case (_.includes(tags, 'bgm')):
+          case _.includes(tags, 'bgm'):
             chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
             break;
         }
-      }
-      else {
+      } else {
         // If we were unable, for some reason, to get the device tags for the
         // latest upload, we can fall back to setting the default view by the data type
         const type = latestData.type;
 
-        switch(type) {
+        switch (type) {
           case 'bolus':
           case 'basal':
           case 'wizard':
@@ -932,7 +948,9 @@ class PatientDataPage extends React.Component {
     const patientID = patient.userid;
     // Return if we've already fetched all data, or are currently fetching
     if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
-      if (cb) { cb(); }
+      if (cb) {
+        cb();
+      }
       return;
     }
 
@@ -947,33 +965,38 @@ class PatientDataPage extends React.Component {
 
     const count = this.state.fetchEarlierDataCount + 1;
 
-    this.setState({
-      // requestedPatientDataRange,
-      // fetchEarlierDataCount: count,
-      canPrint: false,
-    }, () => {
-      const fetchOpts = _.defaults(options, {
-        startDate: requestedPatientDataRange.start,
-        endDate: requestedPatientDataRange.end,
-        // carelink: this.props.carelink,
-        // dexcom: this.props.dexcom,
-        // medtronic: this.props.medtronic,
-        useCache: false,
-        initial: false,
-      });
+    this.setState(
+      {
+        // requestedPatientDataRange,
+        // fetchEarlierDataCount: count,
+        canPrint: false,
+      },
+      () => {
+        const fetchOpts = _.defaults(options, {
+          startDate: requestedPatientDataRange.start,
+          endDate: requestedPatientDataRange.end,
+          // carelink: this.props.carelink,
+          // dexcom: this.props.dexcom,
+          // medtronic: this.props.medtronic,
+          useCache: false,
+          initial: false,
+        });
 
-      this.props.onFetchEarlierData(fetchOpts, patientID);
+        this.props.onFetchEarlierData(fetchOpts, patientID);
 
-      this.trackMetric('Fetched earlier patient data', { patientID, count });
-      if (cb) { cb(); }
-    });
+        this.trackMetric('Fetched earlier patient data', { patientID, count });
+        if (cb) {
+          cb();
+        }
+      }
+    );
   }
 
-  getLastDatumToProcessIndex (unprocessedData, targetDatetime) {
+  getLastDatumToProcessIndex(unprocessedData, targetDatetime) {
     let diabetesDataCount = 0;
 
     // First, we get the index of the first diabetes datum that falls outside of our processing window.
-    let targetIndex = _.findIndex(unprocessedData, datum => {
+    let targetIndex = _.findIndex(unprocessedData, (datum) => {
       const isDiabetesDatum = _.includes(DiabetesDataTypesForDatum, datum.type);
 
       if (isDiabetesDatum) {
@@ -1010,7 +1033,7 @@ class PatientDataPage extends React.Component {
 
     const opts = {
       timePrefs,
-      ...bgPrefs
+      ...bgPrefs,
     };
 
     console.time('process data');
@@ -1019,42 +1042,38 @@ class PatientDataPage extends React.Component {
     console.timeEnd('process data');
 
     if (_.isEmpty(tidelineData.data)) {
-      throw new Error(t("No data to display!"));
+      throw new Error(t('No data to display!'));
     }
 
-    const endpoints = [
-      tidelineData.data[0].normalTime,
-      tidelineData.data[tidelineData.data.length - 1].normalTime,
-    ];
+    const endpoints = [tidelineData.data[0].normalTime, tidelineData.data[tidelineData.data.length - 1].normalTime];
 
     this.log.info('Initial endpoints:', endpoints);
 
-    this.dataUtil = new DataUtils(
-      tidelineData.data.concat(_.get(tidelineData, 'grouped.upload', [])),
-      { bgPrefs, timePrefs }
+    this.dataUtil = new DataUtils(tidelineData.data.concat(_.get(tidelineData, 'grouped.upload', [])), { bgPrefs, timePrefs });
+
+    this.setState(
+      {
+        processedPatientData: tidelineData,
+        loadingState: LOADING_STATE_DONE,
+        endpoints,
+      },
+      () => {
+        this.log.debug('dispatch(FETCH_PATIENT_DATA_SUCCESS)');
+        store.dispatch({
+          type: FETCH_PATIENT_DATA_SUCCESS,
+          payload: {
+            patientId: patient.userid,
+          },
+        });
+      }
     );
-
-    this.setState({
-      processedPatientData: tidelineData,
-      loadingState: LOADING_STATE_DONE,
-      endpoints,
-    }, () => {
-      this.log.debug('dispatch(FETCH_PATIENT_DATA_SUCCESS)');
-      store.dispatch({
-        type: FETCH_PATIENT_DATA_SUCCESS,
-        payload: {
-          patientId: patient.userid,
-        },
-      });
-    });
-
   }
 }
 
 PatientDataPage.propTypes = {
   api: PropTypes.object.isRequired,
   store: PropTypes.object.isRequired,
+  profileDialog: PropTypes.func.isRequired,
 };
-
 
 export default PatientDataPage;

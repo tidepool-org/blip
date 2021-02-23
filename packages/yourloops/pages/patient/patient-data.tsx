@@ -34,6 +34,7 @@ import Blip from "blip";
 
 import appConfig from "../../lib/config";
 import apiClient from "../../lib/auth/api";
+import ProfileDialog from "../../components/profile-dialog";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface PatientDataState {}
@@ -70,7 +71,7 @@ class PatientDataPage extends React.Component<RouteComponentProps, PatientDataSt
     this.log.debug("render");
     return (
       <div id="patient-data" style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <Blip config={appConfig} api={apiClient} />
+        <Blip config={appConfig} api={apiClient} profileDialog={ProfileDialog} />
       </div>
     );
   }

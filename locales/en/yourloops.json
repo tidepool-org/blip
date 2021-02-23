@@ -139,9 +139,9 @@
   "signup-consent-hcp-terms-condition": "I have read and accepted YourLoops {{terms}}. I confirm that I am an authorized healthcare practitioner according to local laws and regulation. I undertake to use YourLoops solely in accordance with these Terms of Use and what is allowed by the law.",
   "signup-account-selection-error": "You must select an account type",
   "signup-radiolabel-hcp-header": "Professional",
-  "signup-radiolabel-hcp-body": "View all your patients diabetes data in one place. Join and create a care team for your clinic or practice.",
-  "signup-radiolabel-caregiver-header": "Caregiver and family",
-  "signup-radiolabel-caregiver-body": "View patients diabetes data as an individual caregiver or family member.",
+  "signup-radiolabel-hcp-body": "View all your patients diabetes data in one place. Join and create medical team for your clinic or pratice",
+  "signup-radiolabel-caregiver-header": "Caregivers and family",
+  "signup-radiolabel-caregiver-body": "Access patients diabetes  as an individual caregivers or family member",
   "signup-steppers-create-account": "Create Account",
   "signup-steppers-next": "Next",
   "signup-steppers-step1": "Select account type",
@@ -234,5 +234,6 @@
   "modal-switch-hcp-action": "Switch to Professional",
   "modal-switch-hcp-failure": "Impossible to switch account. Please retry later.",
   "notif-hcp-invitation": "{hcpName} invites you to join {teamName}.",
-  "notif-caregiver-invitation": "{patientName} wants to share their diabetes data with you."
+  "notif-caregiver-invitation": "{patientName} wants to share their diabetes data with you.",
+  "patient-profile": "Patient profile"
 }

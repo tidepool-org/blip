@@ -36,6 +36,7 @@ import Blip from "blip";
 
 import appConfig from "../../lib/config";
 import apiClient from "../../lib/auth/api";
+import ProfileDialog from "../../components/profile-dialog";
 
 interface PatientDataProps {
   patientId?: string;
@@ -74,7 +75,7 @@ class PatientDataPage extends React.Component<RouteComponentProps<PatientDataPro
   public render(): JSX.Element {
     return (
       <Container maxWidth="lg">
-        <Blip config={appConfig} api={apiClient} />
+        <Blip config={appConfig} api={apiClient} profileDialog={ProfileDialog} />
       </Container>
     );
   }

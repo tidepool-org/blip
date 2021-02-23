@@ -32,22 +32,22 @@ describe('Basics', () => {
   const bgPrefs = {
     bgClasses: {
       'very-low': {
-        boundary: 60
+        boundary: 60,
       },
-      'low': {
-        boundary: 80
+      low: {
+        boundary: 80,
       },
-      'target': {
-        boundary: 180
+      target: {
+        boundary: 180,
       },
-      'high': {
-        boundary: 200
+      high: {
+        boundary: 200,
       },
       'very-high': {
-        boundary: 300
-      }
+        boundary: 300,
+      },
     },
-    bgUnits: MGDL_UNITS
+    bgUnits: MGDL_UNITS,
   };
 
   let baseProps = {
@@ -70,6 +70,7 @@ describe('Basics', () => {
     t: i18next.t.bind(i18next),
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
+    profileDialog: sinon.stub().returns(null),
   };
 
   let wrapper;
@@ -100,16 +101,16 @@ describe('Basics', () => {
           basicsData: _.assign({}, baseProps.patientData.basicsData, {
             data: {
               smbg: {
-                data: [
-                  { type: 'smbg' }
-                ],
+                data: [{ type: 'smbg' }],
               },
             },
-            days: [{
-              type: 'mostRecent',
-            }],
+            days: [
+              {
+                type: 'mostRecent',
+              },
+            ],
           }),
-        }
+        },
       });
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
@@ -138,10 +139,7 @@ describe('Basics', () => {
         patientData: {
           basicsData: {
             data: {},
-            dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
+            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
           },
         },
       });
@@ -155,10 +153,7 @@ describe('Basics', () => {
         patientData: {
           basicsData: {
             data: {},
-            dateRange: [
-              '2018-01-15T05:00:00.000Z',
-              '2018-01-30T03:46:52.000Z',
-            ],
+            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
           },
         },
       });
@@ -187,20 +182,14 @@ describe('Basics', () => {
         patientData: {
           basicsData: {
             data: {},
-            dateRange: [
-              '2018-01-15T00:00:00.000Z',
-              '2018-01-30T12:46:52.000Z',
-            ],
+            dateRange: ['2018-01-15T00:00:00.000Z', '2018-01-30T12:46:52.000Z'],
           },
         },
       });
 
       let mountedWrapper = mount(<Basics {...props} />);
       sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-31T00:00:00.000Z',
-      ]);
+      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, ['2018-01-15T00:00:00.000Z', '2018-01-31T00:00:00.000Z']);
     });
 
     it('should call the `onUpdateChartDateRange` method with an endpoint accounting for timezone offset when present', () => {
@@ -208,10 +197,7 @@ describe('Basics', () => {
         patientData: {
           basicsData: {
             data: {},
-            dateRange: [
-              '2018-01-15T08:00:00.000Z',
-              '2018-01-30T12:46:52.000Z',
-            ],
+            dateRange: ['2018-01-15T08:00:00.000Z', '2018-01-30T12:46:52.000Z'],
           },
         },
         timePrefs: {
@@ -222,10 +208,7 @@ describe('Basics', () => {
 
       let mountedWrapper = mount(<Basics {...props} />);
       sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-01-15T08:00:00.000Z',
-        '2018-01-31T08:00:00.000Z',
-      ]);
+      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, ['2018-01-15T08:00:00.000Z', '2018-01-31T08:00:00.000Z']);
     });
 
     it('should call the `onUpdateChartDateRange` method with an endpoint accounting for DST offset when applicable', () => {

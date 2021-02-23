@@ -10,18 +10,18 @@ var expect = chai.expect;
 import Header from '../../../../app/components/chart/header';
 
 describe('Header', function () {
-  describe('render', function() {
+  describe('render', function () {
     it('should render without problems', function () {
       sinon.stub(console, 'error');
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -35,6 +35,7 @@ describe('Header', function () {
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -46,12 +47,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -64,7 +65,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -81,12 +83,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: true,
@@ -99,7 +101,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -116,12 +119,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -134,7 +137,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -151,12 +155,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -169,7 +173,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -186,12 +191,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: true,
@@ -204,7 +209,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -221,12 +227,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -239,7 +245,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -256,12 +263,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: true,
@@ -274,7 +281,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -291,12 +299,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -309,7 +317,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -326,12 +335,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -344,7 +353,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -361,12 +371,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -379,7 +389,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
@@ -396,12 +407,12 @@ describe('Header', function () {
       var props = {
         patient: {
           profile: {
-            fullName: 'Jane Doe'
+            fullName: 'Jane Doe',
           },
           permissions: {
             note: {},
-            view: {}
-          }
+            view: {},
+          },
         },
         chartType: 'Awesome',
         inTransition: false,
@@ -414,7 +425,8 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        ProfileDialog: sinon.stub().returns(null),
       };
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);

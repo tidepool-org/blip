@@ -28,9 +28,9 @@ function blipReducer(state, action) {
   }
 
   switch (action.type) {
-  case FETCH_PATIENT_DATA_SUCCESS:
-    state.currentPatientInViewId = action.payload.patientId;
-    break;
+    case FETCH_PATIENT_DATA_SUCCESS:
+      state.currentPatientInViewId = action.payload.patientId;
+      break;
   }
 
   return state;
@@ -39,31 +39,35 @@ function blipReducer(state, action) {
 function ReduxProvider(props) {
   if (store === null) {
     // I love redux
-    store = applyMiddleware(thunkMiddleware)(createStore)(combineReducers({viz: vizReducers, blip: blipReducer}), { viz: {}, blip: { currentPatientInViewId: null } });
+    store = applyMiddleware(thunkMiddleware)(createStore)(combineReducers({ viz: vizReducers, blip: blipReducer }), {
+      viz: {},
+      blip: { currentPatientInViewId: null },
+    });
   }
   return (
     // @ts-ignore
     <Provider store={store}>
-      <PatientData api={props.api} store={store} />
+      <PatientData api={props.api} store={store} profileDialog={props.profileDialog} />
     </Provider>
   );
 }
 
 ReduxProvider.propTypes = {
   api: PropType.object.isRequired,
+  profileDialog: PropType.func.isRequired,
 };
 
 const logger = bows('blip');
 
 function Blip(props) {
   try {
-    const { config, api } = props;
+    const { config, api, profileDialog } = props;
     const blipConfig = updateConfig(config);
     logger.info('blip config:', blipConfig);
 
-    return <ReduxProvider api={api} />;
+    return <ReduxProvider api={api} profileDialog={profileDialog} />;
   } catch (err) {
-    console.error('Blip:',err);
+    console.error('Blip:', err);
   }
 }
 
