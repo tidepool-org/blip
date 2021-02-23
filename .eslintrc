@@ -120,6 +120,7 @@
     "react/no-deprecated": 1,
     "react/no-string-refs": 1,
     "react/display-name": 1,
+    "react/require-render-return": "warn",
     "react/prop-types": 1
   },
   "plugins": [
