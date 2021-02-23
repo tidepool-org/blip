@@ -21,7 +21,7 @@ import baseTheme from '../../themes/baseTheme';
 const t = i18next.t.bind(i18next);
 
 export const Pagination = props => {
-  const { id, variant, buttonVariant, nextLabel, previousLabel, ...paginationProps } = props;
+  const { id, variant, buttonVariant, controlLabels, ...paginationProps } = props;
 
   const classNames = cx({
     condensed: variant === 'condensed',
@@ -41,7 +41,7 @@ export const Pagination = props => {
                 <Button px={2} variant={buttonVariant} {...item}>
                   {type === 'first' && <Icon variant="static" theme={baseTheme} label="Go to first page" icon={FirstPageRoundedIcon} />}
                   {type === 'previous' && <Icon variant="static" theme={baseTheme} label="Go to previous page" icon={NavigateBeforeRoundedIcon} />}
-                  {variant === 'default' && <Text pl={1}>{capitalize(previousLabel || type)}</Text>}
+                  {variant === 'default' && <Text pl={1}>{capitalize(controlLabels[type])}</Text>}
                 </Button>
               </li>
             ))}
@@ -80,7 +80,7 @@ export const Pagination = props => {
             {map(nextControls, ({ type, ...item }) => (
               <li id={`${id}-${type}`} key={`${id}-${type}`}>
                 <Button px={2} variant={buttonVariant} {...item}>
-                  {variant === 'default' && <Text pr={1}>{capitalize(nextLabel || type)}</Text>}
+                  {variant === 'default' && <Text pr={1}>{capitalize(controlLabels[type])}</Text>}
                   {type === 'next' && <Icon variant="static" theme={baseTheme} label="Go to next page" icon={NavigateNextRoundedIcon} />}
                   {type === 'last' && <Icon variant="static" theme={baseTheme} label="Go to last page" icon={LastPageRoundedIcon} />}
                 </Button>
@@ -97,8 +97,12 @@ Pagination.propTypes = {
   id: PropTypes.string.isRequired,
   ...PaginationProps,
   ...BoxProps,
-  nextLabel: PropTypes.string,
-  previousLabel: PropTypes.string,
+  controlLabels: PropTypes.shape({
+    first: PropTypes.string.isRequired,
+    last: PropTypes.string.isRequired,
+    previous: PropTypes.string.isRequired,
+    next: PropTypes.string.isRequired,
+  }),
   variant: PropTypes.oneOf(['default', 'condensed']),
   buttonVariant: PropTypes.oneOf(['pagination', 'paginationLight']),
 };
@@ -106,8 +110,12 @@ Pagination.propTypes = {
 Pagination.defaultProps = {
   variant: 'default',
   buttonVariant: 'pagination',
-  nextLabel: t('Next'),
-  previousLabel: t('Previous')
+  controlLabels: {
+    first: t('First'),
+    last: t('Last'),
+    previous: t('Previous'),
+    next: t('Next'),
+  }
 };
 
 export default Pagination;

@@ -154,6 +154,7 @@
 	"F_Friday": "V",
 	"February": "Febrero",
   "File type:": "Tipo de archivo",
+  "First": "Primero",
 	"For email or notes": "Para correo electrónico o notas",
 	"Forgot your password?": "¿Olvidaste tu contraseña?",
 	"from": "desde",
@@ -221,6 +222,7 @@
 	"June": "junio",
 	"LADA (Type 1.5)": "LADA (Tipo 1.5)",
 	"Language": "Idioma",
+  "Last": "Último",
   "Last 14 Days": "Últimos 14 días",
   "Last 30 Days": "Últimos 30 días",
   "Last 90 Days": "Últimos 90 días",
@@ -293,7 +295,6 @@
 	"Please enter your email address.": "Por favor, introduzca su dirección de correo electrónico.",
 	"Please keep \"about\" text under {{maxLength}} characters": "Mantenga el texto \"acerca de\" debajo de {{maxLength}} caracteres",
 	"Please press Ctrl + C now": "Por favor presione Ctrl + C",
-	"Post_submit": "",
 	"Pre-diabetes": "Pre-diabetes",
   "Preparing Chart Data": "Preparando gráfico de datos",
   "Previous": "Anterior",
@@ -480,6 +481,6 @@
 	"You want to manage your diabetes data. You are caring for or supporting someone with diabetes.": "Desea administrar sus datos de diabetes. Está cuidando o apoyando a alguien con diabetes.",
 	"You've been invited to Tidepool.": "Has sido invitado a Tidepool.",
 	"Your password was changed successfully. You can now log in with your new password.": "Su contraseña fue cambiada exitosamente. Ahora puede iniciar sesión con su nueva contraseña.",
-  	"Post_submit": "Guardar",
+  "Post_submit": "Guardar",
   "to": "hasta"
 }
