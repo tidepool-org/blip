@@ -392,7 +392,7 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
                       className={classes.divModalButtonCancel}
                       variant="contained"
                       onClick={handleCloseModalAddPatient}>
-                      {t("Cancel")}
+                      {t("common-cancel")}
                     </Button>
                     <Button
                       id="patients-list-modal-button-create"

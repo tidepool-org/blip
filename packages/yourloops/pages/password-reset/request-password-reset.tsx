@@ -126,7 +126,7 @@ function RequestPasswordResetPage(props: RouteComponentProps): JSX.Element {
             </CardContent>
             <CardActions>
               <Button variant="contained" color="secondary" onClick={onBack}>
-                {t("Cancel")}
+                {t("common-cancel")}
               </Button>
               <Button variant="contained" color="primary" onClick={onSendResetLink} disabled={emptyUsername}>
                 {t("Send reset link")}

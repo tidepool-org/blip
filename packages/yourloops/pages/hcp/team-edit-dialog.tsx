@@ -222,7 +222,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   let modalButtonValidate = "";
   if (_.isEmpty(team)) {
     // Create a new team
-    ariaModal = t("aria-modal-team-add");
+    ariaModal = t("button-add-team");
     modalTitle = t("modal-team-add-title");
     modalButtonValidate = t("create");
   } else {
@@ -341,7 +341,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               className={classes.divModalButtonCancel}
               variant="contained"
               onClick={handleCloseModal}>
-              {t("Cancel")}
+              {t("common-cancel")}
             </Button>
             <Button
               id="team-edit-dialog-button-validate"

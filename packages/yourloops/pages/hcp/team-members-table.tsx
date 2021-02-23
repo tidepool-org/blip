@@ -207,10 +207,10 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
             <TableHead className={classes.tableRowHeader}>
               <TableRow>
                 <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
-                  {t("team-members-header-lastname")}
+                  {t("lastName")}
                 </TableCell>
                 <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>
-                  {t("team-members-header-firstname")}
+                  {t("firstName")}
                 </TableCell>
                 <TableCell id={`team-members-list-${team.id}-cellheader-email`}>
                   {t("email")}

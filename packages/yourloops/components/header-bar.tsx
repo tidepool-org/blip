@@ -136,7 +136,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           }}
           open={open}
           onClose={handleClose}>
-          <MenuItem onClick={handleOpenProfilePage}>{t("account-preferences")}</MenuItem>
+          <MenuItem onClick={handleOpenProfilePage}>{t("menu-account-preferences")}</MenuItem>
           <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
         </Menu>
       </div>

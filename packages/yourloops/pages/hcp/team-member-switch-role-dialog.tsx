@@ -86,7 +86,6 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
       aria-labelledby={t("aria-team-members-dialog-switch-role-title", { teamName })}
       aria-describedby={t("team-members-dialog-switch-role-question")}
       onClose={handleClose}>
-
       <DialogTitle id="team-members-dialog-switch-role-title">
         <strong>{t("team-members-dialog-switch-role-title")}</strong>
         <br />
@@ -114,17 +113,12 @@ function SwitchRoleDialog(props: SwitchRoleDialogProps): JSX.Element | null {
           className={classes.buttonCancel}
           color="secondary"
           variant="contained">
-          {t("Cancel")}
+          {t("common-cancel")}
         </Button>
-        <Button
-          id="team-members-dialog-switch-role-button-ok"
-          onClick={handleClickOK}
-          color="primary"
-          variant="contained">
+        <Button id="team-members-dialog-switch-role-button-ok" onClick={handleClickOK} color="primary" variant="contained">
           {t("team-members-dialog-switch-role-button-ok")}
         </Button>
       </DialogActions>
-
     </Dialog>
   );
 }

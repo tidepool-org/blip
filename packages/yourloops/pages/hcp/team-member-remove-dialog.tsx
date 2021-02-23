@@ -65,7 +65,11 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
     teamName = userToBeRemoved.team.name ?? "";
     const teamMember = userToBeRemoved.team.members?.find((tm: TeamMember) => tm.userId === userToBeRemoved.userId);
 
-    hcpLastName = teamMember?.user?.profile?.lastName ?? teamMember?.user?.profile?.fullName ?? teamMember?.user?.username ?? userToBeRemoved.userId;
+    hcpLastName =
+      teamMember?.user?.profile?.lastName ??
+      teamMember?.user?.profile?.fullName ??
+      teamMember?.user?.username ??
+      userToBeRemoved.userId;
     hcpFirstName = teamMember?.user?.profile?.firstName ?? "";
   }
 
@@ -101,7 +105,11 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
             components={{ strong: <strong /> }}
             values={{ hcpFirstName, hcpLastName }}
             parent={React.Fragment}>
-            Are you sure you want to remove <strong>{hcpFirstName} {hcpLastName}</strong> from this medical team?
+            Are you sure you want to remove{" "}
+            <strong>
+              {hcpFirstName} {hcpLastName}
+            </strong>{" "}
+            from this medical team?
           </Trans>
         </DialogContentText>
         <DialogContentText id="team-members-dialog-rmmember-consequences">
@@ -116,7 +124,7 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
           className={classes.buttonCancel}
           color="secondary"
           variant="contained">
-          {t("Cancel")}
+          {t("common-cancel")}
         </Button>
         <Button
           id="team-members-dialog-rmmember-button-remove"

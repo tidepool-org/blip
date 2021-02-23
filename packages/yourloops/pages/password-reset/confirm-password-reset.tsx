@@ -250,7 +250,7 @@ function ConfirmPasswordResetPage(props: ConfirmPasswordResetProps): JSX.Element
             </CardContent>
             <CardActions>
               <Button variant="contained" color="secondary" onClick={onGotoLogin} className={classes.Button}>
-                {t("Cancel")}
+                {t("common-cancel")}
               </Button>
               <Button
                 variant="contained"
@@ -258,7 +258,7 @@ function ConfirmPasswordResetPage(props: ConfirmPasswordResetProps): JSX.Element
                 onClick={onSendResetPassword}
                 disabled={emptyUsername}
                 className={classes.Button}>
-                {t("Save")}
+                {t("save")}
               </Button>
             </CardActions>
           </Card>

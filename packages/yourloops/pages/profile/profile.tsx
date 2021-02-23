@@ -111,7 +111,7 @@ const ProfileHeader = () => {
           <Breadcrumbs aria-label={t("breadcrumb")}>
             <Link className={classes.breadcrumbLink} color="textPrimary" href="/hcp">
               <HomeIcon className={classes.homeIcon} />
-              {t("account-preferences")}
+              {t("menu-account-preferences")}
             </Link>
           </Breadcrumbs>
         </Toolbar>
@@ -291,7 +291,7 @@ export const ProfilePage: FunctionComponent = () => {
       <ProfileHeader />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
-          <div className={classes.title}>{t("account-preferences-title")}</div>
+          <div className={classes.title}>{t("hcp-account-preferences-title")}</div>
           <TextField
             id="firstName"
             label={t("First name")}
@@ -344,7 +344,7 @@ export const ProfilePage: FunctionComponent = () => {
             <Fragment>
               <TextField
                 id="birthDate"
-                label={t("Date of birth")}
+                label={t("hcp-patient-profile-birthdate")}
                 value={birthDate}
                 onChange={handleChange(setBirthDate)}
                 error={errors.birthDate}
@@ -352,7 +352,7 @@ export const ProfilePage: FunctionComponent = () => {
               />
               <TextField
                 id="hbA1c"
-                label={t("initial-hbA1c")}
+                label={t("hcp-patient-profile-hba1c")}
                 disabled
                 value={hbA1c}
                 onChange={handleChange(setHbA1c)}
@@ -384,7 +384,7 @@ export const ProfilePage: FunctionComponent = () => {
           </FormControl>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <Button variant="contained" color="secondary" onClick={onCancel} className={classes.button}>
-              {t("Cancel")}
+              {t("common-cancel")}
             </Button>
             <Button
               variant="contained"
@@ -392,7 +392,7 @@ export const ProfilePage: FunctionComponent = () => {
               color="primary"
               onClick={onSave}
               className={classes.button}>
-              {t("Save")}
+              {t("save")}
             </Button>
           </div>
         </div>
