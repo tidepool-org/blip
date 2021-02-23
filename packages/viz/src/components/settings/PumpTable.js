@@ -14,14 +14,14 @@ class PumpTable extends React.Component {
   }
 
   render() {
-    const { pump } = this.props; 
+    const { pump } = this.props;
 
     if ( pump === null) {
       return null;
     }
-    
+
     const pumpExpirationDate = this.formatDate(pump.expirationDate);
-    
+
     return (
       <table className={styles.pumpTable}>
         <caption className={styles.bdlgSettingsHeader}>
@@ -29,7 +29,7 @@ class PumpTable extends React.Component {
         </caption>
         <tbody>
           <tr><td>{t('Manufacturer')}</td><td>{pump.manufacturer}</td></tr>
-          <tr><td>{t('Serial number')}</td><td>{pump.serialNumber}</td></tr>
+          <tr><td>{t('Serial Number')}</td><td>{pump.serialNumber}</td></tr>
           <tr><td>{t('Pump version')}</td><td>{pump.swVersion}</td></tr>
           <tr><td>{t('Pump cartridge expiration date')}</td><td>{pumpExpirationDate}</td></tr>
         </tbody>
