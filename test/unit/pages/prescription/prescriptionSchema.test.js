@@ -27,6 +27,7 @@ describe('prescriptionSchema', function() {
       'phoneNumber',
       'mrn',
       'sex',
+      'calculator',
       'initialSettings',
       'training',
       'therapySettingsReviewed',
@@ -98,6 +99,17 @@ describe('prescriptionSchema', function() {
     expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule._subType._nodes).to.be.an('array').and.have.members([
       'amount',
       'start',
+    ]);
+
+    expect(schema.fields.calculator._nodes).to.be.an('array').and.have.members([
+      'method',
+      'totalDailyDose',
+      'totalDailyDoseScaleFactor',
+      'weight',
+      'weightUnits',
+      'recommendedBasalRate',
+      'recommendedInsulinSensitivity',
+      'recommendedCarbohydrateRatio',
     ]);
   });
 });
