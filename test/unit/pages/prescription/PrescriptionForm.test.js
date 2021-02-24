@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 
 import {
+  clearCalculator,
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
@@ -11,6 +12,7 @@ import {
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 import { withFormik } from 'formik';
+import { set } from 'lodash';
 
 /* global chai */
 /* global sinon */
@@ -82,7 +84,19 @@ describe('PrescriptionForm', () => {
   });
 
   describe('clearCalculator', () => {
+    const setFieldValue = sinon.stub();
 
+    it('should clear all calculator values', () => {
+      clearCalculator(setFieldValue);
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.method', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDose', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDoseScaleFactor', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weight', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weightUnits', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+    });
   });
 
   describe('generateTherapySettingsOrderText', () => {

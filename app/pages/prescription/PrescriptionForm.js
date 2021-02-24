@@ -159,6 +159,17 @@ export const generateTherapySettingsOrderText = (patientRows = [], therapySettin
   return textString;
 };
 
+export const clearCalculator = setFieldValue => {
+  setFieldValue('calculator.method', undefined, false)
+  setFieldValue('calculator.totalDailyDose', undefined, false)
+  setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
+  setFieldValue('calculator.weight', undefined, false)
+  setFieldValue('calculator.weightUnits', undefined, false)
+  setFieldValue('calculator.recommendedBasalRate', undefined, false)
+  setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
+  setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
+};
+
 export const PrescriptionForm = props => {
   const {
     t,
@@ -319,16 +330,7 @@ export const PrescriptionForm = props => {
       setInitialFocusedInput(initialFocusedInput);
     },
 
-    clearCalculator: () => {
-      setFieldValue('calculator.method', undefined, false)
-      setFieldValue('calculator.totalDailyDose', undefined, false)
-      setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
-      setFieldValue('calculator.weight', undefined, false)
-      setFieldValue('calculator.weightUnits', undefined, false)
-      setFieldValue('calculator.recommendedBasalRate', undefined, false)
-      setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
-      setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
-    },
+    clearCalculator: clearCalculator.bind(null, setFieldValue),
 
     generateTherapySettingsOrderText,
 
