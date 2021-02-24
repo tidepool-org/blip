@@ -59,7 +59,7 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  it('should export the list pump device options', function() {
+  it('should export the list of the pump device options', function() {
     const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
     expect(pumpDeviceOptions).to.be.an('array');
     expect(_.map(pumpDeviceOptions, 'value')).to.eql([
@@ -73,7 +73,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list cgm device options', function() {
+  it('should export the list of the cgm device options', function() {
     const cgmDeviceOptions = prescriptionFormConstants.cgmDeviceOptions(devices);
     expect(cgmDeviceOptions).to.be.an('array');
     expect(_.map(cgmDeviceOptions, 'value')).to.eql([
@@ -1006,7 +1006,7 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  it('should export the list the prescription account type options', function() {
+  it('should export the list of the prescription account type options', function() {
     expect(prescriptionFormConstants.typeOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
       'patient',
@@ -1018,7 +1018,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the prescription patient sex options', function() {
+  it('should export the list of the prescription patient sex options', function() {
     expect(prescriptionFormConstants.sexOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.sexOptions, 'value')).to.eql([
       'female',
@@ -1031,7 +1031,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the prescription training options', function() {
+  it('should export the list of the prescription training options', function() {
     expect(prescriptionFormConstants.trainingOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.trainingOptions, 'value')).to.eql([
       'inPerson',
@@ -1043,7 +1043,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the prescription insulin type options', function() {
+  it('should export the list of the prescription insulin type options', function() {
     expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
       'rapidAdult',
@@ -1055,7 +1055,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the calculator method options', function() {
+  it('should export the list of the calculator method options', function() {
     expect(prescriptionFormConstants.calculatorMethodOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.calculatorMethodOptions, 'value')).to.eql([
       'totalDailyDose',
@@ -1068,7 +1068,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the calculator tdd scale factor options', function() {
+  it('should export the list of the calculator tdd scale factor options', function() {
     expect(prescriptionFormConstants.totalDailyDoseScaleFactorOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.totalDailyDoseScaleFactorOptions, 'value')).to.eql([
       1,
@@ -1080,7 +1080,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list the calculator weight unit options', function() {
+  it('should export the list of the calculator weight unit options', function() {
     expect(prescriptionFormConstants.weightUnitOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.weightUnitOptions, 'value')).to.eql([
       'kg',
