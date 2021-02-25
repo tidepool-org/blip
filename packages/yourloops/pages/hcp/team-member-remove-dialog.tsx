@@ -126,7 +126,7 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
           onClick={handleClickRemoveTeamMember}
           color="primary"
           variant="contained">
-          {t("team-members-dialog-rmmember-button-remove")}
+          {t("team-member-remove")}
         </Button>
       </DialogActions>
     </Dialog>

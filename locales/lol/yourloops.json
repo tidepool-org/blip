@@ -78,7 +78,7 @@
   "team-members-dialog-rmmember-title": "crwdns47036:0{{teamName}}crwdne47036:0",
   "team-members-dialog-rmmember-question": "crwdns47038:0{{hcpFirstName}}crwdnd47038:0{{hcpLastName}}crwdne47038:0",
   "team-members-dialog-rmmember-consequences": "crwdns47040:0crwdne47040:0",
-  "team-members-dialog-rmmember-button-remove": "crwdns47042:0crwdne47042:0",
+  "team-member-remove": "crwdns47042:0crwdne47042:0",
   "team-members-dialog-switch-role-title": "crwdns47092:0crwdne47092:0",
   "team-members-dialog-switch-role-question": "crwdns47094:0crwdne47094:0",
   "team-members-dialog-switch-role-consequences": "crwdns47096:0crwdne47096:0",

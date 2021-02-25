@@ -44,11 +44,13 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from "@material-ui/core/Typography";
 
+import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
+import { TeamMemberRole, TypeTeamMemberRole, TeamMemberStatus } from "../../models/team";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { Team, TeamMember, useTeam } from "../../lib/team";
@@ -57,6 +59,7 @@ export interface TeamMembersProps {
   team: Team;
   onSwitchAdminRole: (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
   onShowRemoveTeamMemberDialog: (member: TeamMember) => Promise<void>;
+  classes?: Record<"tableRowPending", string>;
 }
 
 const teamMembersStyles = makeStyles((theme: Theme) => {
@@ -67,6 +70,9 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
     },
     tableRowHeader: {
       fontVariant: "small-caps",
+    },
+    tableRowPending: {
+      backgroundColor: theme.palette.primary.light,
     },
   };
 });
@@ -90,6 +96,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   // Hooks
   const authContext = useAuth();
   const teamHook = useTeam();
+  const { t } = useTranslation("yourloops");
   const [updatingUser, setUpdatingUser] = React.useState("");
 
   // Local variables
@@ -97,65 +104,100 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const userIsAdmin = teamHook.isUserAdministrator(team, currentUserId);
   const userIsTheOnlyAdministrator = teamHook.isUserTheOnlyAdministrator(team, currentUserId);
 
-  const rows: JSX.Element[] = teamHook.getMedicalMembers(team).map((member: Readonly<TeamMember>): JSX.Element => {
+  const members = teamHook.getMedicalMembers(team);
+  members.sort((a: Readonly<TeamMember>, b: Readonly<TeamMember>): number => {
+    let ret = 0;
+    if (a.status !== b.status) {
+      ret = a.status === TeamMemberStatus.pending ? 1 : -1;
+    }
+    if (ret === 0) {
+      const aln = getUserLastName(a.user);
+      const bln = getUserLastName(b.user);
+      ret = aln.localeCompare(bln);
+    }
+    if (ret === 0) {
+      const afn = getUserFirstName(a.user);
+      const bfn = getUserFirstName(b.user);
+      ret = afn.localeCompare(bfn);
+    }
+    return ret;
+  });
+
+  const rows: JSX.Element[] = members.map((member: Readonly<TeamMember>): JSX.Element => {
     const userId = member.user.userid;
-    const email = member.user.username ?? "";
-    const firstName = getUserFirstName(member.user);
-    const lastName = getUserLastName(member.user);
+    const email = member.user.username;
+    // Dash: U+2014
+    const firstName = member.status === TeamMemberStatus.pending ? "—" : getUserFirstName(member.user);
+    const lastName = member.status === TeamMemberStatus.pending ? "—" : getUserLastName(member.user);
     const isAdmin = member.role === TeamMemberRole.admin;
 
-    // Determine if the current user can change the admin role for this member
-    // - Must be an admin
-    // - Mustn't be the only admin for it's own entry
-    // - An update mustn't be in progress
-    const checkboxAdminDisabled = !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
-
     let checkboxElement: JSX.Element | null = null;
-    if (updatingUser === userId) {
-      // Disabled while update in progress (backend api call in progress)
-      checkboxElement = (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
-          <CircularProgress disableShrink size={17} />
-        </div>
-      );
+    let removeMemberButton: JSX.Element | null = null;
+    let rowClassName = "";
+    let icon: JSX.Element | null = null;
+
+    if (member.status === TeamMemberStatus.accepted) {
+      // Determine if the current user can change the admin role for this member
+      // - Must be an admin
+      // - Mustn't be the only admin for it's own entry
+      // - An update mustn't be in progress
+      const checkboxAdminDisabled = !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
+      if (updatingUser === userId) {
+        // Disabled while update in progress (backend api call in progress)
+        checkboxElement = (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
+            <CircularProgress disableShrink size={17} />
+          </div>
+        );
+      } else {
+        const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+          const userId = event.target.name;
+          const isAdmin = event.target.checked;
+          setUpdatingUser(userId);
+          await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
+          setUpdatingUser("");
+        };
+        checkboxElement = (
+          <Checkbox
+            disabled={checkboxAdminDisabled}
+            id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
+            color="primary"
+            name={userId}
+            checked={isAdmin}
+            onChange={handleSwitchRole} />
+        );
+      }
     } else {
-      const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-        const userId = event.target.name;
-        const isAdmin = event.target.checked;
-        setUpdatingUser(userId);
-        await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
-        setUpdatingUser("");
-      };
-      checkboxElement = (
-        <Checkbox
-          disabled={checkboxAdminDisabled}
-          id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
-          color="primary"
-          name={userId}
-          checked={isAdmin}
-          onChange={handleSwitchRole} />
+      rowClassName = props.classes?.tableRowPending ?? "";
+      icon = (
+        <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+          <AccessTimeIcon />
+        </Tooltip>
       );
     }
 
-    let removeMemberButton: JSX.Element | null = null;
     if (userIsAdmin && userId !== currentUserId) {
       const handleClickRemoveMember = async (): Promise<void> => {
         await onShowRemoveTeamMemberDialog(member);
       };
+      const removeText = t("team-member-remove");
       removeMemberButton = (
-        <IconButton
-          id={`team-members-list-${team.id}-row-${userId}-action-remove`}
-          color="primary"
-          aria-label="aria-team-remove-member"
-          component="span"
-          onClick={handleClickRemoveMember}>
-          <PersonRemoveIcon />
-        </IconButton>
+        <Tooltip title={removeText} aria-label={removeText} placement="bottom">
+          <IconButton
+            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+            color="primary"
+            aria-label={removeText}
+            component="span"
+            onClick={handleClickRemoveMember}>
+            <PersonRemoveIcon />
+          </IconButton>
+        </Tooltip>
       );
     }
 
     return (
-      <TableRow id={`team-members-list-${team.id}-row-${userId}`} key={userId}>
+      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={userId}>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-lastname`}>{lastName}</TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-firstname`}>{firstName}</TableCell>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
@@ -198,6 +240,7 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
           <Table id={`team-members-list-${team.id}-table`}>
             <TableHead className={classes.tableRowHeader}>
               <TableRow>
+                <TableCell id={`team-members-list-${team.id}-cellheader-icon`} />
                 <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
                   {t("lastName")}
                 </TableCell>
@@ -213,7 +256,7 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
                 <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
               </TableRow>
             </TableHead>
-            <MembersTableBody {...props} />
+            <MembersTableBody {...props} classes={classes} />
           </Table>
         </AccordionDetails>
       </Accordion>
