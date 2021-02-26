@@ -45,7 +45,7 @@
   "nurse": "Enfermero/a",
   "select-all-patients": "All patients",
   "select-flagged-patients": "Flagged",
-  "private-pratice": "Private Practice",
+  "private-practice": "Private Practice",
   "select-pending-invitation-patients": "Pending",
   "teams-navbar-breadcrumbs-title-my-teams": "My Teams",
   "team-card-label-code": "Identification code",
@@ -162,7 +162,7 @@
   "modal-add-patient-legal-placeholder": "By inviting this patient to share their data with me and their care team, I declare under my professional responsibility that I am part of this patient’s care team and, as such, have the right to access the patient’s personal data according to the applicable regulations. Read our Terms of Use and Data Privacy.",
   "modal-team-code-descr-placeholder": "Communicate this identification code to your patient during a consultation so they can verify your identity.",
   "modal-team-code-descr-placeholder-2": "This identification code is always available in the team information on the “My teams”page.",
-  "team-member-pending": "Pending member",
+  "team-member-pending": "Pending invitation",
   "team-member-admin": "Admin",
   "modal-add-team-member-admin-info": "A team administrator can:",
   "modal-leave-team-last-leave-button": "Leave and delete the team",
@@ -234,5 +234,6 @@
   "modal-switch-hcp-action": "Switch to Professional",
   "modal-switch-hcp-failure": "Impossible to switch account. Please retry later.",
   "notif-hcp-invitation": "{hcpName} invites you to join {teamName}.",
-  "notif-caregiver-invitation": "{patientName} wants to share their diabetes data with you."
+  "notif-caregiver-invitation": "{patientName} wants to share their diabetes data with you.",
+  "patient-profile": "Patient profile"
 }

@@ -1,6 +1,6 @@
 {
-  "alt-img-logo": "Branding Logo",
-  "aria-breadcrumbs": "Breadcrumbs",
+  "alt-img-logo": "YourLoops Logo",
+  "aria-breadcrumbs": "Breadcrumb",
   "aria-current-user-account": "Current user account",
   "aria-expand-team-members": "Expand team members list",
   "aria-none": "None",
@@ -66,7 +66,7 @@
   "team-modal-create-warning-2": "By accepting our {{terms-and-conditions}} you confirm you are a registered healthcare professional in your country and have the right to create a care team.",
   "team-page-failed-edit": "Impossible to save team information. Please try again later.",
   "team-page-failed-remove-member": "Impossible to remove member. Please try again later.",
-  "team-page-failed-update-role": "Impossible to change user role. Please try again later.",
+  "team-page-failed-update-role": "Impossible to change member role. Please try again later.",
   "team-page-failed-leave": "Impossible to leave team. Please try again later.",
   "team-page-failed-invite-hcp": "Impossible to send invitation. Please try again later.",
   "team-page-success-remove-member": "Healthcare professional is no longer part of your care team.",

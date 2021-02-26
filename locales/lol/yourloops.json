@@ -45,7 +45,7 @@
   "nurse": "crwdns47438:0crwdne47438:0",
   "select-all-patients": "crwdns46956:0crwdne46956:0",
   "select-flagged-patients": "crwdns46958:0crwdne46958:0",
-  "private-pratice": "crwdns47506:0crwdne47506:0",
+  "private-practice": "crwdns53330:0crwdne53330:0",
   "select-pending-invitation-patients": "crwdns46960:0crwdne46960:0",
   "teams-navbar-breadcrumbs-title-my-teams": "crwdns47126:0crwdne47126:0",
   "team-card-label-code": "crwdns47166:0crwdne47166:0",
@@ -78,7 +78,7 @@
   "team-members-dialog-rmmember-title": "crwdns47036:0{{teamName}}crwdne47036:0",
   "team-members-dialog-rmmember-question": "crwdns47038:0{{hcpFirstName}}crwdnd47038:0{{hcpLastName}}crwdne47038:0",
   "team-members-dialog-rmmember-consequences": "crwdns47040:0crwdne47040:0",
-  "team-member-remove": "crwdns47042:0crwdne47042:0",
+  "team-member-remove": "crwdns53334:0crwdne53334:0",
   "team-members-dialog-switch-role-title": "crwdns47092:0crwdne47092:0",
   "team-members-dialog-switch-role-question": "crwdns47094:0crwdne47094:0",
   "team-members-dialog-switch-role-consequences": "crwdns47096:0crwdne47096:0",
@@ -234,5 +234,6 @@
   "modal-switch-hcp-action": "crwdns47408:0crwdne47408:0",
   "modal-switch-hcp-failure": "crwdns47410:0crwdne47410:0",
   "notif-hcp-invitation": "crwdns47412:0{hcpName}crwdnd47412:0{teamName}crwdne47412:0",
-  "notif-caregiver-invitation": "crwdns47414:0{patientName}crwdne47414:0"
+  "notif-caregiver-invitation": "crwdns47414:0{patientName}crwdne47414:0",
+  "patient-profile": "crwdns50530:0crwdne50530:0"
 }
