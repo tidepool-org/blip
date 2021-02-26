@@ -31,7 +31,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
                     sh 'npm run lint'
-                    sh 'npm run test-platform-client'
                     sh 'npm run test-sundial'
                     sh 'npm run test-tideline'
                     sh 'npm run test-viz'
@@ -54,7 +53,7 @@ pipeline {
                   string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN'),
                   string(credentialsId: 'github-token', variable: 'GIT_TOKEN'),
                 ]) {
-                    sh 'bash build.sh'
+                    sh 'nice bash build.sh'
                 }
             }
         }
@@ -81,7 +80,7 @@ pipeline {
                             sh """
                                 mkdir -p output
                                 echo "Soup list generation"
-                                release-helper gen-dep-report --deep-dep 'blip,sundial,tideline,tidepool-platform-client,tidepool-viz' "output/${soupFileName}"
+                                release-helper gen-dep-report --deep-dep 'blip,sundial,tideline,tidepool-viz' "output/${soupFileName}"
                                 rm -fv deps-errors.txt deps-prod.json
                             """
 
@@ -95,7 +94,7 @@ pipeline {
             }
         }
         stage('Publish') {
-            when { 
+            when {
                 expression {
                     env.GIT_BRANCH == "dblp" || env.CHANGE_BRANCH == "engineering/team-managment-v1"
                     }
@@ -110,12 +109,14 @@ pipeline {
                         }
                     }
                 }
-                withCredentials([string(credentialsId: 'DEV_AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
-                    string(credentialsId: 'DEV_AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-                    string(credentialsId: 'AWS_ACCOUNT_ID', variable: 'AWS_ACCOUNT')]) {
-                    sh 'docker run --rm -e STACK_VERSION=${version}:${GIT_COMMIT} -e APP_VERSION=${version}:${GIT_COMMIT} -e AWS_ACCOUNT -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --env-file ./cloudfront-dist/deployment/${target}.env blip:${GIT_COMMIT}'
+                lock('blip-cloudfront-publish') {
+                    withCredentials([string(credentialsId: 'DEV_AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'DEV_AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+                        string(credentialsId: 'AWS_ACCOUNT_ID', variable: 'AWS_ACCOUNT')]) {
+                        sh 'docker run --rm -e STACK_VERSION=${version}:${GIT_COMMIT} -e APP_VERSION=${version}:${GIT_COMMIT} -e AWS_ACCOUNT -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --env-file ./cloudfront-dist/deployment/${target}.env blip:${GIT_COMMIT}'
+                    }
+                    publish()
                 }
-                publish()
             }
         }
     }

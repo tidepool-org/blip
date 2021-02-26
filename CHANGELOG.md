@@ -11,6 +11,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-454 The Number of Login validation does not make the count for a single account
 ### Engineering Use
 - YLP-699 Add CodeQL Analysis
+- Add jenkins lock on CloudFront publication
 
 ## 1.7.3-rc1 2021-02-22
 ### Engineering Use
