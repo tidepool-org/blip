@@ -27,14 +27,13 @@
  */
 
 import * as React from "react";
-import { ThemeProvider } from "@material-ui/core/styles";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch } from "react-router-dom";
 
 import "@fontsource/roboto";
 import "branding/theme-base.css";
 import "branding/theme.css";
 
-import { theme } from "../components/theme";
+import { PrivateRoute, PublicRoute } from "../components/routes";
 import LoginPage from "../pages/login";
 import { SignUpPage } from "../pages/signup";
 import HcpPage from "../pages/hcp";
@@ -42,26 +41,21 @@ import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 import { AuthContextProvider } from "../lib/auth";
 import { ProfilePage } from "../pages/profile/profile";
-import PrivateRoute from "../components/private-route";
 
-const Yourloops: React.FunctionComponent = () => {
-  return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <AuthContextProvider>
-          <Switch>
-            <Route exact path="/" component={LoginPage} />
-            <Route exact path="/signup" component={SignUpPage} />
-            <Route path="/request-password-reset" component={RequestPasswordResetPage} />
-            <Route path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
-            <PrivateRoute path="/hcp" component={HcpPage} />
-            <PrivateRoute path="/patient" component={PatientPage} />
-            <PrivateRoute path="/account-preferences" component={ProfilePage} />
-          </Switch>
-        </AuthContextProvider>
-      </Router>
-    </ThemeProvider>
-  );
-};
+const Yourloops: React.FunctionComponent = () => (
+  <Router>
+    <AuthContextProvider>
+      <Switch>
+        <PublicRoute exact path="/" component={LoginPage} />
+        <PublicRoute exact path="/signup" component={SignUpPage} />
+        <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
+        <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
+        <PrivateRoute path="/hcp" component={HcpPage} />
+        <PrivateRoute path="/patient" component={PatientPage} />
+        <PrivateRoute path="/account-preferences" component={ProfilePage} />
+      </Switch>
+    </AuthContextProvider>
+  </Router>
+);
 
 export default Yourloops;

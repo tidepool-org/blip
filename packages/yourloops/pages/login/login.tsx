@@ -101,15 +101,11 @@ function Login(props: RouteComponentProps): JSX.Element {
   const emptyPassword = _.isEmpty(password);
   const log = bows("Login");
 
-  const onUsernameChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ): void => {
+  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setUserName(event.target.value);
   };
 
-  const onPasswordChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ): void => {
+  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setPassword(event.target.value);
   };
 
@@ -143,22 +139,14 @@ function Login(props: RouteComponentProps): JSX.Element {
     } catch (reason: unknown) {
       log.error(reason);
       setValidateError(true);
-      const message = _.isError(reason)
-        ? reason.message
-        : new String(reason).toString();
+      const message = _.isError(reason) ? reason.message : new String(reason).toString();
       setHelperTextValue(message);
     }
   };
 
   return (
     <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid
-        container
-        spacing={0}
-        alignItems="center"
-        justify="center"
-        className={classes.root}
-      >
+      <Grid container spacing={0} alignItems="center" justify="center" className={classes.root}>
         <Grid item xs={12}>
           <Card className={classes.Card}>
             <CardMedia
@@ -166,8 +154,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                 display: "flex",
                 paddingTop: "1em",
                 paddingBottom: "1em",
-              }}
-            >
+              }}>
               <img
                 src={brandingLogo}
                 style={{
@@ -186,8 +173,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                   justifyContent: "center",
                 }}
                 noValidate
-                autoComplete="off"
-              >
+                autoComplete="off">
                 <TextField
                   id="login-username"
                   className={classes.TextField}
@@ -208,19 +194,13 @@ function Login(props: RouteComponentProps): JSX.Element {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   required
-                  error={
-                    validateError &&
-                    (emptyPassword || helperTextValue.length > 0)
-                  }
+                  error={validateError && (emptyPassword || helperTextValue.length > 0)}
                   onChange={onPasswordChange}
                   helperText={helperTextValue}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton
-                          aria-label={t("aria-toggle-password-visibility")}
-                          onClick={onClickShowPasswordVisibility}
-                        >
+                        <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={onClickShowPasswordVisibility}>
                           {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
@@ -228,18 +208,12 @@ function Login(props: RouteComponentProps): JSX.Element {
                   }}
                 />
               </form>
-              <Link
-                component={RouterLink}
-                to="/request-password-reset"
-              >
+              <Link component={RouterLink} to="/request-password-reset">
                 {t("Forgot your password?")}
               </Link>
             </CardContent>
             <CardActions className={classes.CardActions}>
-              <Link
-                component={RouterLink}
-                to="/signup"
-              >
+              <Link component={RouterLink} to="/signup">
                 {t("signup-steppers-create-account")}
               </Link>
               <Button
@@ -247,8 +221,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                 color="primary"
                 onClick={onClickLoginButton}
                 className={classes.loginButton}
-                disabled={emptyUsername || emptyPassword}
-              >
+                disabled={emptyUsername || emptyPassword}>
                 {t("Login")}
               </Button>
             </CardActions>

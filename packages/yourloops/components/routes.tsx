@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Material-UI Theming
+ * Wrapper for <Route>
  *
  * All rights reserved.
  *
@@ -26,37 +26,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createMuiTheme } from "@material-ui/core/styles";
+import React from "react";
+import { Redirect, Route, RouteProps } from "react-router-dom";
 
-const commonTheme = {
-  primary: {
-    main: "#109182",
-    light: "#F7F7F8",
-  },
-  secondary: {
-    main: "#E5F0F0",
-    light: "#F5F9F9",
-    dark: "#B8B9DD",
-  },
-  error: {
-    main: "#DE514B",
-  },
-  text: {
-    primary: "#000",
-  },
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { ThemeProvider } from "@material-ui/core/styles";
+
+import { useAuth } from "../lib/auth";
+import { publicRoutesTheme, mainTheme } from "./theme";
+
+export const PublicRoute = (props: RouteProps): JSX.Element => {
+  const { isLoggedIn, user } = useAuth();
+
+  // FIXME: pathname = auth.user.roles[0] ?
+  const pathname = user?.profile?.patient ? "/patient" : "/hcp";
+
+  return isLoggedIn() ? (
+    <Redirect to={{ pathname, state: { from: props.location } }} />
+  ) : (
+    <ThemeProvider theme={publicRoutesTheme}>
+      <CssBaseline />
+      <Route {...props} />
+    </ThemeProvider>
+  );
 };
 
-// Not using var(): https://github.com/mui-org/material-ui/issues/12827
-export const mainTheme = createMuiTheme({
-  palette: {
-    ...commonTheme,
-    background: { default: "#FFFFFF" },
-  },
-});
+export const PrivateRoute = (props: RouteProps): JSX.Element => {
+  const { isLoggedIn } = useAuth();
 
-export const publicRoutesTheme = createMuiTheme({
-  palette: {
-    ...commonTheme,
-    background: { default: "#F7F7F8" },
-  },
-});
+  return isLoggedIn() ? (
+    <ThemeProvider theme={mainTheme}>
+      <CssBaseline />
+      <Route {...props} />
+    </ThemeProvider>
+  ) : (
+    <Redirect to={{ pathname: "/", state: { from: props.location } }} />
+  );
+};
