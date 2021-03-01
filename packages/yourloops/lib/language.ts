@@ -135,6 +135,7 @@ const getLocaleShortname = (locale: string): Preferences["displayLanguageCode"] 
 };
 
 const availableLocales = _.map(locales.resources, ({ name }) => name);
+const availableCountries = _.map(locales.countries, ({ name }) => name);
 
-export { init, t, getCurrentLocaleName, getLocaleShortname, availableLocales };
+export { init, t, getCurrentLocaleName, getLocaleShortname, availableLocales, availableCountries };
 export default i18n;

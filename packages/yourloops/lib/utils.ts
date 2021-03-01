@@ -32,6 +32,8 @@ export const REGEX_EMAIL = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|
 
 export const REGEX_BIRTHDATE = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 
+export const REGEX_PHONE = /^\+(?:[0-9]\x20?){6,14}[0-9]$/;
+
 /**
  * setTimeout() as promised
  * @param timeout in milliseconds

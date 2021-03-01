@@ -34,11 +34,22 @@ enum UserRoles {
   patient = "patient",
 }
 
+/** List of job for an heath care practitioners (hcp).
+ *  The value are key used in crowding for translation */
+enum Jobs {
+  diabetologist = "diabetologist",
+  doctor = "doctor",
+  nurse = "nurse",
+  nurseAssistant = "nurse-assistant",
+  studyNurse = "study-nurse",
+}
+
 interface Profile {
   fullName: string;
   firstName?: string;
   lastName?: string;
   patient?: Patient;
+  job?: Jobs;
 }
 
 interface Patient {
@@ -79,4 +90,4 @@ interface User {
   preferences?: Preferences;
 }
 
-export { User, Preferences, Profile, Settings, UserRoles };
+export { User, Profile, Settings, Preferences, UserRoles, Jobs };
