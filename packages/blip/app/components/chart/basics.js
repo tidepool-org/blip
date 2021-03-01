@@ -6,8 +6,7 @@ import sundial from 'sundial';
 import i18next from 'i18next';
 import { Trans } from 'react-i18next';
 
-// tideline dependencies & plugins
-import tidelineBlip from 'tideline/plugins/blip';
+import { pluginsBlip } from 'tideline';
 import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
 
 import Stats from './stats';
@@ -16,7 +15,7 @@ import Header from './header';
 import Footer from './footer';
 import { BG_DATA_TYPES } from '../../core/constants';
 
-const BasicsChart = tidelineBlip.basics;
+const BasicsChart = pluginsBlip.basics;
 const Loader = vizComponents.Loader;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
@@ -126,11 +125,12 @@ class Basics extends React.Component {
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.basics-no-uploaded-data" t={i18next.t.bind(i18next)}>
-        <p>The Basics view shows a summary of your recent device activity, but it looks like you haven't uploaded device data yet.</p>
-        <p>To see the Basics, <a href={this.props.uploadUrl} target="_blank" onClick={handleClickUpload}>upload</a> some device data.</p>
-        <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
-        </p>
+      <Trans i18nKey="html.basics-no-uploaded-data" t={i18next.t.bind(i18next)}>
+        <div className="patient-data-message patient-data-message-loading">
+          <p>The Basics view shows a summary of your recent device activity, but it looks like you haven't uploaded device data yet.</p>
+          <p>To see the Basics, <a href={this.props.uploadUrl} target="_blank" onClick={handleClickUpload}>upload</a> some device data.</p>
+          <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.</p>
+        </div>
       </Trans>
     );
   }

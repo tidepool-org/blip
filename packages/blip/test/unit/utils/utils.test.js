@@ -1,13 +1,10 @@
-/* global chai */
-/* global describe */
-/* global it */
-/* global context */
-/* global sinon */
 
 import _ from 'lodash';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import utils from '../../../app/core/utils';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
-const expect = chai.expect;
 
 describe('utils', () => {
 

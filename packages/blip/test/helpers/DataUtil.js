@@ -1,4 +1,4 @@
-/* global sinon */
+import sinon from 'sinon';
 
 export default class DataUtil {
   constructor(data = [], opts = {}) {

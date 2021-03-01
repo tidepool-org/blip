@@ -17,8 +17,7 @@
 
 import _ from 'lodash';
 import sundial from 'sundial';
-import TidelineData from 'tideline/js/tidelinedata';
-import nurseShark from 'tideline/plugins/nurseshark';
+import { TidelineData, nurseShark } from 'tideline';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL, DIABETES_DATA_TYPES, DEFAULT_BG_TARGETS, DEFAULT_BG_SETTINGS } from './constants';
 import config from '../config';
 

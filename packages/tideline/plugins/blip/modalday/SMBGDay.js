@@ -14,18 +14,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
-window.d3 = window.d3 || require('d3/d3.min.js');
-window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
-
 var _ = require('lodash');
 var d3 = window.d3;
 
-var tideline = require('../../../js/index');
-var bgBoundaryClass = tideline.plot.util.bgboundary;
-var dt = tideline.data.util.datetime;
-var format = tideline.data.util.format;
-var tooltips = tideline.plot.util.tooltips.generalized;
+var bgBoundaryClass = require('../../../js/plot/util/bgboundary');
+var tooltips = require('../../../js/plot/util/tooltips/generalized');
+var format = require('../../../js/data/util/format');
+var dt = require('../../../js/data/util/datetime');
 var { MGDL_UNITS } = require('../../../js/data/util/constants');
 
 var THREE_HRS = 10800000, NINE_HRS = 75600000;

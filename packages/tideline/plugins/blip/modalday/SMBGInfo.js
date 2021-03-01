@@ -15,19 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
-
-window.d3 = window.d3 || require('d3/d3.min.js');
-window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
-
 var _ = require('lodash');
-var d3 = window.d3;
 
-var tideline = require('../../../js/index');
-var dt = tideline.data.util.datetime;
-var format = tideline.data.util.format;
+var format = require('../../../js/data/util/format');
+var dt = require('../../../js/data/util/datetime');
 var { MGDL_UNITS } = require('../../../js/data/util/constants');
 
+const d3 = window.d3;
 d3.chart('SMBGInfo', {
   initialize: function() {
     var chart = this;

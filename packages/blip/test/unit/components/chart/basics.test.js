@@ -65,16 +65,19 @@ describe('Basics', () => {
     }),
     onClickPrint: sinon.stub(),
     tidelineData: {
+      grouped: {},
       basicsData: {
         nData: 0,
         data: {},
       },
     },
+    loading: false,
     canPrint: false,
     timePrefs: {
       timezoneAware: false,
       timezoneName: 'US/Pacific',
     },
+    permsOfLoggedInUser: {},
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
     profileDialog: sinon.stub().returns(null),
@@ -101,7 +104,7 @@ describe('Basics', () => {
   describe('render', () => {
     it('should render the missing data text if no data has been uploaded', () => {
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
-      const chart = wrapper.hostNodes('BasicsChart');
+      const chart = wrapper.find('#tidelineContainer');
       expect(noDataMessage.length).to.equal(1);
       expect(chart.length).to.equal(0);
       expect(noDataMessage.text()).to.include('The Basics view shows a summary');
@@ -136,7 +139,6 @@ describe('Basics', () => {
       wrapper = null; // In case the next mount() failed...
       wrapper = mount(<Basics {...dataProps} />);
       wrapper.update();
-      console.info(wrapper.html());
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.find('#tidelineContainer');
       expect(noDataMessage.length, JSON.stringify(dataProps, null, 2)).to.equal(0);

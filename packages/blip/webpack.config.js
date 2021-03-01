@@ -279,7 +279,7 @@ if (isTest) {
   resolve.alias['./Root.prod'] = './Root.dev';
   resolve.alias['./configureStore.prod'] = './configureStore.dev';
 } else {
-  entry = [ './app/main.prod.js' ];
+  entry = [ './app/index.js' ];
 }
 
 let devtool = 'source-map';

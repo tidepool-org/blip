@@ -7,15 +7,13 @@ import _ from 'lodash';
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
+import i18next from 'i18next';
 
-import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
-import Daily from '../../../../app/components/chart/daily';
+import Daily, { DailyChart } from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from 'tidepool-viz';
-import createReactClass from 'create-react-class';
-
 
 const { Loader } = vizComponents;
 
@@ -96,8 +94,16 @@ describe('Daily', () => {
   let wrapper;
   let instance;
 
+  before(() => {
+    sinon.stub(DailyChart.prototype, 'rerenderChart');
+    sinon.stub(DailyChart.prototype, 'mountChart');
+    sinon.stub(DailyChart.prototype, 'unmountChart');
+    sinon.stub(DailyChart.prototype, 'initializeChart');
+    sinon.stub(DailyChart.prototype, 'render').returns(<div className='fake-daily-chart' />);
+  });
+
   beforeEach(() => {
-    wrapper = shallow(<Daily {...baseProps} />);
+    wrapper = mount(<Daily {...baseProps} />);
     instance = wrapper.instance();
   });
 
@@ -107,26 +113,14 @@ describe('Daily', () => {
     baseProps.trackMetric.reset();
     baseProps.updateChartPrefs.reset();
     baseProps.updateDatetimeLocation.reset();
+    wrapper.unmount();
+  });
+
+  after(() => {
+    sinon.restore();
   });
 
   describe('render', () => {
-    before(() => {
-      Daily.__Rewire__('DailyChart', createReactClass({
-        displayName: 'DailyChart',
-        rerenderChart: sinon.stub(),
-        render: () => <div className='fake-daily-chart' />,
-      }));
-    });
-
-    beforeEach(() => {
-      wrapper = mount(<Daily {...baseProps} />);
-    });
-
-    after(() => {
-      Daily.__ResetDependency__('DailyChart');
-      wrapper.unmount();
-    });
-
     it('should have a refresh button which should call onClickRefresh when clicked', () => {
       var props = _.assign({}, baseProps, {
         onClickRefresh: sinon.spy(),

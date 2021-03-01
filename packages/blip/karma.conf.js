@@ -44,7 +44,7 @@ const karmaConfig = {
   files: [
     'test/run-tests.js',
   ],
-  frameworks: ['mocha', 'chai', 'sinon'],
+  frameworks: ['mocha'],
   preprocessors: {
     'test/run-tests.js': ['webpack', 'sourcemap'],
   },

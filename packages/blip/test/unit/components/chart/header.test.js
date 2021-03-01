@@ -1,11 +1,8 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
 
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
-var expect = chai.expect;
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import Header from '../../../../app/components/chart/header';
 

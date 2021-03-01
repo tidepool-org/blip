@@ -21,16 +21,17 @@ import bows from 'bows';
 import sundial from 'sundial';
 import moment from 'moment-timezone';
 import WindowSizeListener from 'react-window-size-listener';
+import i18next from 'i18next';
 
-import i18n from '../../core/language';
+import { pluginsBlip } from 'tideline';
+import { components as vizComponents } from 'tidepool-viz';
+
+import { BG_DATA_TYPES } from '../../core/constants';
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
-import { BG_DATA_TYPES } from '../../core/constants';
+import Header from './header';
+import Footer from './footer';
 
-// tideline dependencies & plugins
-import chartDailyFactory from 'tideline/plugins/blip/chartdailyfactory';
-
-import { components as vizComponents } from 'tidepool-viz';
 const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;
@@ -41,10 +42,9 @@ const PhysicalTooltip = vizComponents.PhysicalTooltip;
 const ParameterTooltip = vizComponents.ParameterTooltip;
 const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
 
-import Header from './header';
-import Footer from './footer';
+const { chartDailyFactory } = pluginsBlip;
 
-const t = i18n.t.bind(i18n);
+const t = i18next.t.bind(i18next);
 
 class DailyChart extends React.Component {
   static propTypes = {
@@ -748,4 +748,5 @@ class Daily extends React.Component {
   };
 }
 
+export { DailyChart };
 export default Daily;

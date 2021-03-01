@@ -14,21 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global chai */
-/* global describe */
-/* global context */
-/* global sinon */
-/* global it */
-/* global beforeEach */
-/* global afterEach */
 
 import React from 'react';
 import _ from 'lodash';
 import { shallow, mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import BgSourceToggle from '../../../../app/components/chart/bgSourceToggle';
-
-const expect = chai.expect;
 
 describe('BgSourceToggle', () => {
   const props = {

@@ -1,6 +1,3 @@
-window.d3 = window.d3 || require('d3/d3.min.js');
-window.d3.chart = window.d3.chart || require('d3.chart/d3.chart.min.js');
-
 var _ = require('lodash');
 var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
@@ -9,7 +6,7 @@ var moment = require('moment-timezone');
 
 var MS_IN_24 = 86400000;
 
-var MMM_FORMAT, MMM_D_FORMAT = require('../../../js/data/util/constants');
+var { MMM_FORMAT, MMM_D_FORMAT } = require('../../../js/data/util/constants');
 
 d3.chart('Brush', {
   initialize: function() {

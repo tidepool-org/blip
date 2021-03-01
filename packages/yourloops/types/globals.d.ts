@@ -37,7 +37,7 @@ declare global {
     _paq: any[];
     zE: (...args: any) => void;
     config?: AppConfig;
-    blipLogoutRequest?: () => void;
+    cleanBlipReduxStore?: () => void;
   }
   interface Navigator {
     userLanguage?: string;

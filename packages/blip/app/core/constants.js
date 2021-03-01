@@ -16,7 +16,7 @@
  */
 /* eslint-disable no-underscore-dangle */
 
-import i18next from './language';
+import i18next from 'i18next';
 import config from '../config';
 
 const t = i18next.t.bind(i18next);

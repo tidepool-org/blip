@@ -14,14 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-/* global chai */
-/* global describe */
-/* global it */
 
 import _ from 'lodash';
+import { expect } from 'chai';
 import * as Constants from '../../../../app/core/constants';
-
-const expect = chai.expect;
 
 describe('constants', function() {
   it('should export an object', function() {

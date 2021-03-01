@@ -11,12 +11,6 @@ module.exports = function babelConfig(api) {
 
   const env = api.env();
 
-  if (env === 'dev' && process.env.USE_WEBPACK_DEV_SERVER === 'true') {
-    plugins.unshift(
-      'react-hot-loader/babel',
-    );
-  }
-
   if (env === 'test') {
     plugins.unshift(
       ['babel-plugin-istanbul', {

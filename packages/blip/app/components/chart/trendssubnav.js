@@ -18,10 +18,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import i18next from 'i18next';
 
-import i18n from '../../core/language';
-
-const t = i18n.t.bind(i18n);
+const t = i18next.t.bind(i18next);
 const domains = ['1 week', '2 weeks', '4 weeks', '3 months'];
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

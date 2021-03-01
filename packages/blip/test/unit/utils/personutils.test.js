@@ -1,14 +1,12 @@
-/* global chai */
-/* global describe */
-/* global it */
 
 import _ from 'lodash';
+import { expect } from 'chai';
+
 import personUtils from '../../../app/core/personutils';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../app/core/constants';
 import config from '../../../app/config';
 
 const FORM_DATE_FORMAT = 'MM/DD/YYYY';
-const expect = chai.expect;
 
 
 describe('personutils', () => {

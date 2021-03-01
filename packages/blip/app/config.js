@@ -13,8 +13,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-/* global BUILD_CONFIG */
-
 import _ from 'lodash';
 
 const DUMMY_DOMAIN = 'example.com';
@@ -52,45 +50,21 @@ const defaultConfig = {
   TEST: false,
 };
 
-/** @type {defaultConfig} */
+/** @typedef {typeof defaultConfig} AppConfig */
+
+/** @type {AppConfig} */
 // @ts-ignore
-const appConfig = {};
+const appConfig = _.clone(defaultConfig);
 
 /**
  *
- * @param {defaultConfig} newConfig
- * @returns {defaultConfig}
+ * @param {AppConfig} newConfig The new config to use
+ * @returns {AppConfig} The updated config
  */
 function updateConfig(newConfig) {
   _.assign(appConfig, newConfig);
-  _.set(window, 'config', appConfig);
   return appConfig;
 }
-
-function initConfig() {
-  _.assign(appConfig, defaultConfig);
-  if (_.has(window, 'config') && _.isObjectLike(_.get(window, 'config', null))) {
-    const runConfig = _.get(window, 'config', null);
-    _.assign(appConfig, runConfig);
-  } else {
-    console.warn('Config not found, using build configuration');
-
-    /** @type {defaultConfig} */
-    // @ts-ignore
-    const buildConfig = JSON.parse(BUILD_CONFIG);
-    _.assign(appConfig, buildConfig);
-  }
-
-  _.defaults(appConfig, defaultConfig);
-
-  if (!_.isString(appConfig.API_HOST)) {
-    appConfig.API_HOST = defaultConfig.API_HOST;
-  }
-
-  _.set(window, 'config', appConfig);
-}
-
-initConfig();
 
 export { DUMMY_URL, updateConfig };
 export default appConfig;

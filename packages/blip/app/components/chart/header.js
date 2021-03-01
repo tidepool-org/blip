@@ -18,14 +18,15 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import i18n from '../../core/language';
-import config from '../../config';
+import i18next from 'i18next';
 
 import Link from '@material-ui/core/Link';
 import Timeline from '@material-ui/icons/Timeline';
 import StayCurrentPortrait from '@material-ui/icons/StayCurrentPortrait';
 
-const t = i18n.t.bind(i18n);
+import config from '../../config';
+
+const t = i18next.t.bind(i18next);
 
 class TidelineHeader extends React.Component {
   constructor(props) {

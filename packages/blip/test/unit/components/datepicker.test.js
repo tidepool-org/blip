@@ -17,11 +17,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-dom/test-utils';
 import moment from 'moment';
-import chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import { DatePicker, RangeDatePicker } from '../../../app/components/datepicker';
-
-const { expect } = chai;
 
 function deferPromise() {
   return new Promise((resolve) => {

@@ -14,11 +14,11 @@
  */
 
 import _ from 'lodash';
+import i18next from 'i18next';
 import sundial from 'sundial';
 
 import config from '../config';
 import utils from './utils';
-import i18next from './language';
 
 const t = i18next.t.bind(i18next);
 

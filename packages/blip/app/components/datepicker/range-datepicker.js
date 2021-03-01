@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2020, Diabeloop
  *
@@ -16,7 +15,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import i18next from '../../core/language';
+import i18next from 'i18next';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import bows from 'bows';

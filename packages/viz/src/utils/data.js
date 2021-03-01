@@ -13,7 +13,7 @@ import { MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY } from './constants';
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
 
-export class DataUtil {
+class DataUtil {
   /**
    * @param {Object} bgBounds - object describing boundaries for blood glucose categories
    * @param {Array} data Unfiltered tideline data
@@ -529,7 +529,7 @@ export class DataUtil {
     return durations;
   };
 
-  getTotalInsulinAndWeightData = () => { 
+  getTotalInsulinAndWeightData = () => {
     const weight = this.getWeight();
     const { basal, bolus } = this.getBasalBolusData();
 

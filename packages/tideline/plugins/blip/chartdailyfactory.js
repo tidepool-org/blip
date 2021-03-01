@@ -22,12 +22,27 @@ import bows from 'bows';
 import { EventEmitter } from 'events';
 
 const d3 = require('d3');
-const tideline = require('../../js');
 const { MGDL_UNITS } = require('../../js/data/util/constants');
 
-const fill = tideline.plot.util.fill;
-const scalesutil = tideline.plot.util.scales;
-const dt = tideline.data.util.datetime;
+const oneDay = require('../../js/oneday');
+const fill = require('../../js/plot/util/fill');
+const scalesutil = require('../../js/plot/util/scales');
+const axesDailyx = require('../../js/plot/util/axes/dailyx');
+const plotZenModeEvent = require('../../js/plot/zenModeEvent');
+const plotPhysicalActivity = require('../../js/plot/physicalActivity');
+const plotReservoirChange = require('../../js/plot/reservoir');
+const plotDeviceParameterChange = require('../../js/plot/deviceParameterChange');
+const plotConfidentialModeEvent = require('../../js/plot/confidentialModeEvent');
+const plotCbg = require('../../js/plot/cbg');
+const plotSmbg = require('../../js/plot/smbg');
+const plotWizard = require('../../js/plot/wizard');
+const plotCarb = require('../../js/plot/carb');
+const plotQuickbolus = require('../../js/plot/quickbolus');
+const plotBasal = require('../../js/plot/basal');
+const plotSuspend = require('../../js/plot/suspend');
+const plotMessage = require('../../js/plot/message');
+const plotTimeChange = require('../../js/plot/message');
+const dt = require('../../js/data/util/datetime');
 const t = i18next.t.bind(i18next);
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
@@ -49,7 +64,7 @@ function chartDailyFactory(el, options) {
 
   const scales = scalesutil(options);
   const emitter = new EventEmitter();
-  const chart = tideline.oneDay(emitter, options);
+  const chart = oneDay(emitter, options);
   chart.emitter = emitter;
   chart.options = options;
 
@@ -63,12 +78,8 @@ function chartDailyFactory(el, options) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
 
-    var width = el.offsetWidth;
-    var height = el.offsetHeight;
-    if (!(width && height)) {
-      throw new Error('Chart element must have a set width and height ' +
-                      '(got: ' + width + ', ' + height + ')');
-    }
+    var width = Math.max(640, el.offsetWidth);
+    var height = Math.max(480, el.offsetHeight);
 
     // basic chart set up
     chart.id(el.id).width(width).height(height);
@@ -192,7 +203,7 @@ function chartDailyFactory(el, options) {
 
     // x-axis pools
     // add ticks to top x-axis pool
-    poolXAxis.addPlotType('fill', tideline.plot.util.axes.dailyx(poolXAxis, {
+    poolXAxis.addPlotType('fill', axesDailyx(poolXAxis, {
       'class': 'd3-top',
       emitter: emitter,
       leftEdge: chart.axisGutter(),
@@ -243,13 +254,13 @@ function chartDailyFactory(el, options) {
       yScale: scaleHeightBG
     }), true, true);
 
-    poolBG.addPlotType('deviceEvent', tideline.plot.zenModeEvent(poolBG, {
+    poolBG.addPlotType('deviceEvent', plotZenModeEvent(poolBG, {
       yScale: scaleBG,
       timezoneAware: chart.options.timePrefs.timezoneAware,
       data: tidelineData.zenEvents,
     }), false, true);
 
-    poolBG.addPlotType('physicalActivity', tideline.plot.physicalActivity(poolBG, {
+    poolBG.addPlotType('physicalActivity', plotPhysicalActivity(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
@@ -261,7 +272,7 @@ function chartDailyFactory(el, options) {
       data: tidelineData.physicalActivities,
     }), true, true);
 
-    poolBG.addPlotType('deviceEvent', tideline.plot.reservoirChange(poolBG, {
+    poolBG.addPlotType('deviceEvent', plotReservoirChange(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
@@ -272,7 +283,7 @@ function chartDailyFactory(el, options) {
       onReservoirOut: options.onReservoirOut,
     }), true, true);
 
-    poolBG.addPlotType('deviceEvent', tideline.plot.deviceParameterChange(poolBG, {
+    poolBG.addPlotType('deviceEvent', plotDeviceParameterChange(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
@@ -285,7 +296,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add confidential mode to BG pool
-    poolBG.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBG, {
+    poolBG.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBG, {
       yScale: scaleBG,
       timezoneAware: chart.options.timePrefs.timezoneAware,
       data: tidelineData.confidentialEvents,
@@ -294,7 +305,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
+    poolBG.addPlotType('cbg', plotCbg(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
@@ -304,7 +315,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {
+    poolBG.addPlotType('smbg', plotSmbg(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
@@ -346,7 +357,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add wizard data to wizard pool
-    poolBolus.addPlotType('wizard', tideline.plot.wizard(poolBolus, {
+    poolBolus.addPlotType('wizard', plotWizard(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
       subdueOpacity: 0.4,
@@ -355,7 +366,7 @@ function chartDailyFactory(el, options) {
       onBolusOut: options.onBolusOut,
     }), true, true);
 
-    poolBolus.addPlotType('food', tideline.plot.carb(poolBolus, {
+    poolBolus.addPlotType('food', plotCarb(poolBolus, {
       emitter: emitter,
       timezoneAware: chart.options.timePrefs.timezoneAware,
       onCarbHover: options.onCarbHover,
@@ -363,7 +374,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // quick bolus data to wizard pool
-    poolBolus.addPlotType('bolus', tideline.plot.quickbolus(poolBolus, {
+    poolBolus.addPlotType('bolus', plotQuickbolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
       subdueOpacity: 0.4,
@@ -373,7 +384,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add confidential mode to Bolus pool
-    poolBolus.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBolus, {
+    poolBolus.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBolus, {
       yScale: scaleBolus,
       timezoneAware: chart.options.timePrefs.timezoneAware,
       data: tidelineData.confidentialEvents,
@@ -393,7 +404,7 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints, isDaily: true}), true, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
+    poolBasal.addPlotType('basal', plotBasal(poolBasal, {
       yScale: scaleBasal,
       emitter: emitter,
       data: tidelineData.grouped.basal,
@@ -401,7 +412,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add device suspend data to basal pool
-    poolBasal.addPlotType('deviceEvent', tideline.plot.suspend(poolBasal, {
+    poolBasal.addPlotType('deviceEvent', plotSuspend(poolBasal, {
       yScale: scaleBasal,
       emitter: emitter,
       data: tidelineData.grouped.deviceEvent,
@@ -409,7 +420,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add confidential mode to Basal pool
-    poolBasal.addPlotType('deviceEvent', tideline.plot.confidentialModeEvent(poolBasal, {
+    poolBasal.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBasal, {
       yScale: scaleBolus,
       timezoneAware: chart.options.timePrefs.timezoneAware,
       data: tidelineData.confidentialEvents,
@@ -426,14 +437,14 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
+    poolMessages.addPlotType('message', plotMessage(poolMessages, {
       size: 30,
       emitter: emitter,
       timezoneAware: chart.options.timePrefs.timezoneAware,
     }), true, true);
 
     // add timechange images to messages pool
-    poolMessages.addPlotType('deviceEvent', tideline.plot.timechange(poolMessages, {
+    poolMessages.addPlotType('deviceEvent', plotTimeChange(poolMessages, {
       size: 30,
       emitter: emitter,
       timezone: chart.options.timePrefs.timezoneName,
@@ -535,4 +546,4 @@ function chartDailyFactory(el, options) {
   return create(el, options);
 }
 
-export default chartDailyFactory;
+module.exports = chartDailyFactory;

@@ -18,10 +18,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
+import i18next from 'i18next';
 
-import i18n from '../../core/language';
-
-const t = i18n.t.bind(i18n);
+const t = i18next.t.bind(i18next);
 
 function containsAll(str, letters) {
   const ll = letters.length;

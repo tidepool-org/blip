@@ -179,8 +179,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
   const logout = (): void => {
     log.info("logout");
-    if (typeof window.blipLogoutRequest === 'function') {
-      window.blipLogoutRequest();
+    if (typeof window.cleanBlipReduxStore === 'function') {
+      window.cleanBlipReduxStore();
     }
     sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);

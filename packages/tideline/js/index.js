@@ -29,6 +29,8 @@ if (_.get(i18next, 'options.returnEmptyString') === undefined) {
 
 module.exports = {
   TidelineData: require('./tidelinedata'),
+  nurseShark: require('../plugins/nurseshark'),
+  pluginsBlip: require('../plugins/blip'),
   pool: require('./pool'),
   oneDay: require('./oneday'),
   twoWeek: require('./twoweek'),
