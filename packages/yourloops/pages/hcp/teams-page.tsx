@@ -34,13 +34,14 @@ import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import Snackbar from "@material-ui/core/Snackbar";
 
 import { TypeTeamMemberRole } from "../../models/team";
 import sendMetrics from "../../lib/metrics";
 import { useTeam, Team, TeamMember } from "../../lib/team";
 import { t } from "../../lib/language";
 import { errorTextFromException } from "../../lib/utils";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import { Snackbar } from "../../components/utils/snackbar";
 
 import {
   SwitchRoleDialogContentProps,
@@ -60,21 +61,16 @@ import RemoveMemberDialog from "./team-member-remove-dialog";
 import LeaveTeamDialog from "./team-leave-dialog";
 import SwitchRoleDialog from "./team-member-switch-role-dialog";
 
-interface ApiAlert {
-  message: string;
-  severity: "error" | "warning" | "info" | "success";
-}
-
 const log = bows("TeamsListPage");
 
 /**
  * HCP page to manage teams
  */
 function TeamsPage(): JSX.Element {
+  const { openSnackbar, snackbarParams } = useSnackbar();
   const teamHook = useTeam(); // Captain
   const [loading, setLoading] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [apiAlert, setApiAlert] = React.useState<ApiAlert | null>(null);
   const [teamToEdit, setTeamToEdit] = React.useState<TeamEditModalContentProps | null>(null);
   const [teamToLeave, setTeamToLeave] = React.useState<TeamLeaveDialogContentProps | null>(null);
   const [addMember, setAddMember] = React.useState<AddMemberDialogContentProps | null>(null);
@@ -94,10 +90,6 @@ function TeamsPage(): JSX.Element {
       const errorMessage = t("error-failed-display-teams", { errorMessage: errorTextFromException(reason) });
       setErrorMessage(errorMessage);
     }
-  };
-
-  const handleCloseAlert = () => {
-    setApiAlert(null);
   };
 
   const handleShowEditTeamDialog = async (team: Team | null): Promise<void> => {
@@ -124,12 +116,12 @@ function TeamsPage(): JSX.Element {
       } else {
         await teamHook.editTeam(editedTeam as Team);
       }
-      setApiAlert({ message: t("team-page-success-edit"), severity: "success" });
+      openSnackbar({ message: t("team-page-success-edit"), severity: AlertSeverity.success });
     } catch (reason: unknown) {
       log.error("onShowEditTeamDialog", reason);
       const errorMessage = errorTextFromException(reason);
       const message = t("team-page-failed-edit", { errorMessage });
-      setApiAlert({ message, severity: "error" });
+      openSnackbar({ message, severity: AlertSeverity.error });
     }
   };
 
@@ -150,13 +142,13 @@ function TeamsPage(): JSX.Element {
         const onlyMember = !((team.members.length ?? 0) > 1);
         await teamHook.leaveTeam(team);
         const message = onlyMember ? t("team-page-success-deleted") : t("team-page-leave-success");
-        setApiAlert({ message, severity: "success" });
+        openSnackbar({ message, severity: AlertSeverity.success });
         return true;
       } catch (reason: unknown) {
         log.error("handleShowLeaveTeamDialog", reason);
         const errorMessage = errorTextFromException(reason);
         const message = t("team-page-failed-leave", { errorMessage });
-        setApiAlert({ message, severity: "error" });
+        openSnackbar({ message, severity: AlertSeverity.error });
       }
     }
     return false;
@@ -178,12 +170,12 @@ function TeamsPage(): JSX.Element {
 
     try {
       await teamHook.inviteMember(team, email, role);
-      setApiAlert({ message: t("team-page-success-invite-hcp", { email }), severity: "success" });
+      openSnackbar({ message: t("team-page-success-invite-hcp", { email }), severity: AlertSeverity.success });
     } catch (reason: unknown) {
       log.error("handleShowAddMemberDialog", reason);
       const errorMessage = errorTextFromException(reason);
       const message = t("team-page-failed-invite-hcp", { errorMessage });
-      setApiAlert({ message, severity: "error" });
+      openSnackbar({ message, severity: AlertSeverity.error });
     }
   };
 
@@ -209,7 +201,7 @@ function TeamsPage(): JSX.Element {
       log.error("handleSwitchAdminRole", reason);
       const errorMessage = errorTextFromException(reason);
       const message = t("team-page-failed-update-role", { errorMessage });
-      setApiAlert({ message, severity: "error" });
+      openSnackbar({ message, severity: AlertSeverity.error });
     }
   };
 
@@ -229,12 +221,12 @@ function TeamsPage(): JSX.Element {
       try {
         await teamHook.removeMember(member);
         const message = t("team-page-success-remove-member");
-        setApiAlert({ message, severity: "success" });
+        openSnackbar({ message, severity: AlertSeverity.success });
       } catch (reason: unknown) {
         log.error("handleShowRemoveTeamMemberDialog", reason);
         const errorMessage = errorTextFromException(reason);
         const message = t("team-page-failed-remove-member", { errorMessage });
-        setApiAlert( { message, severity: "error" });
+        openSnackbar({ message, severity: AlertSeverity.error });
       }
     }
   };
@@ -260,7 +252,6 @@ function TeamsPage(): JSX.Element {
     if (loading) {
       setLoading(false);
     }
-
   }, [teamHook.initialized, teamHook.errorMessage, loading, errorMessage]);
 
   if (loading) {
@@ -286,7 +277,7 @@ function TeamsPage(): JSX.Element {
     );
   }
 
-  const teamsItems = teamHook.getMedicalTeams().map<(JSX.Element | null)>((team: Readonly<Team>): JSX.Element | null => {
+  const teamsItems = teamHook.getMedicalTeams().map<JSX.Element | null>((team: Readonly<Team>): JSX.Element | null => {
     return (
       <Grid item xs={12} key={team.id}>
         <TeamCard
@@ -306,6 +297,7 @@ function TeamsPage(): JSX.Element {
 
   return (
     <React.Fragment>
+      <Snackbar params={snackbarParams} />
       <TeamsNavBar onShowEditTeamDialog={handleShowEditTeamDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>
@@ -318,16 +310,6 @@ function TeamsPage(): JSX.Element {
       <LeaveTeamDialog teamToLeave={teamToLeave} />
       <SwitchRoleDialog switchAdminRole={switchAdminRole} />
       <AddMemberDialog addMember={addMember} />
-
-      <Snackbar
-        open={apiAlert !== null}
-        autoHideDuration={6000}
-        onClose={handleCloseAlert}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert id="team-page-alert" onClose={handleCloseAlert} severity={apiAlert?.severity}>
-          {apiAlert?.message}
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 }

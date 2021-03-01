@@ -49,8 +49,8 @@ function testTeamPage(): void {
 
   function TestTeamsPageComponent(): JSX.Element {
     return (
-      <AuthContextProvider value={authHookHcp} >
-        <TeamContextProvider api={teamAPI} >
+      <AuthContextProvider value={authHookHcp}>
+        <TeamContextProvider api={teamAPI}>
           <TeamsPage />
         </TeamContextProvider>
       </AuthContextProvider>
@@ -146,9 +146,6 @@ function testTeamPage(): void {
       await waitTimeout(apiTimeout);
 
       expect(leaveTeamStub.calledOnce, "leaveTeam calledOnce").to.be.true;
-      const altert = document.getElementById("team-page-alert");
-      expect(altert, "#team-page-alert exists").to.be.not.null;
-      expect(altert?.innerText, "#team-page-alert message").to.be.equal("team-page-leave-success");
       expect(document.getElementById("team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.null;
     });
 
@@ -207,9 +204,6 @@ function testTeamPage(): void {
       await waitTimeout(apiTimeout);
 
       expect(leaveTeamStub.calledOnce, "leaveTeam calledOnce").to.be.true;
-      const altert = document.getElementById("team-page-alert");
-      expect(altert, "#team-page-alert exists").to.be.not.null;
-      expect(altert?.innerText, "#team-page-alert message").to.be.equal("team-page-failed-leave");
       expect(document.getElementById("team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.null;
     });
   });

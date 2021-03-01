@@ -30,20 +30,20 @@ import {
   Link,
   MenuItem,
   Select,
-  Snackbar,
   TextField,
   Toolbar,
 } from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
-import { Alert } from "@material-ui/lab";
 
 import { Units } from "../../models/generic";
 import { Preferences, Profile, UserRoles, Settings, User } from "../../models/shoreline";
 import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
 import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import HeaderBar from "../../components/header-bar";
 import { Password } from "../../components/utils/password";
+import { Snackbar } from "../../components/utils/snackbar";
 
 interface Errors {
   firstName: boolean;
@@ -52,10 +52,6 @@ interface Errors {
   password: boolean;
   passwordConfirmation: boolean;
   birthDate: boolean;
-}
-interface ApiReturnAlert {
-  message: string;
-  severity: "error" | "warning" | "info" | "success";
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -125,6 +121,7 @@ export const ProfilePage: FunctionComponent = () => {
   const classes = useStyles();
   const history = useHistory();
   const { user, setUser, updatePreferences, updateProfile, updateSettings } = useAuth();
+  const { openSnackbar, snackbarParams } = useSnackbar();
 
   const [firstName, setFirstName] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -141,7 +138,6 @@ export const ProfilePage: FunctionComponent = () => {
   const [hasProfileChanged, setHasProfileChanged] = useState<boolean>(false);
   const [haveSettingsChanged, setHaveSettingsChanged] = useState<boolean>(false);
   const [havePreferencesChanged, setHavePreferencesChanged] = useState<boolean>(false);
-  const [apiReturnAlert, setApiReturnAlert] = useState<ApiReturnAlert | null>(null);
 
   const handleUserUpdate = useCallback(
     (promises: Promise<unknown>[], newUser: User, callbacks: React.Dispatch<React.SetStateAction<boolean>>[]): void => {
@@ -149,11 +145,11 @@ export const ProfilePage: FunctionComponent = () => {
         .then(() => {
           callbacks.forEach((callback) => callback(false));
           setUser(newUser);
-          setApiReturnAlert({ message: t("profile-updated"), severity: "success" });
+          openSnackbar({ message: t("profile-updated"), severity: AlertSeverity.success });
         })
-        .catch(() => setApiReturnAlert({ message: t("profile-update-failed"), severity: "error" }));
+        .catch(() => openSnackbar({ message: t("profile-update-failed"), severity: AlertSeverity.error }));
     },
-    [t, setUser]
+    [t, openSnackbar, setUser]
   );
 
   useEffect(() => {
@@ -260,8 +256,8 @@ export const ProfilePage: FunctionComponent = () => {
       if (havePreferencesChanged) {
         if (i18n) {
           const lang = i18n.language.split("-")[0] as Preferences["displayLanguageCode"];
-          if (getCurrentLocaleName(lang) !== locale) {
-            i18n.changeLanguage(localeShortname!);
+          if (getCurrentLocaleName(lang) !== locale && localeShortname) {
+            i18n.changeLanguage(localeShortname);
           }
         }
         promises.push(updatePreferences(newUser));
@@ -298,11 +294,11 @@ export const ProfilePage: FunctionComponent = () => {
   ]);
 
   const onCancel = (): void => history.goBack();
-  const onCloseAlert = (): void => setApiReturnAlert(null);
 
   return (
     <Fragment>
       <ProfileHeader />
+      <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
           <div className={classes.title}>{t("hcp-account-preferences-title")}</div>
@@ -411,15 +407,6 @@ export const ProfilePage: FunctionComponent = () => {
           </div>
         </div>
       </Container>
-      <Snackbar
-        open={apiReturnAlert !== null}
-        autoHideDuration={6000}
-        onClose={onCloseAlert}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert onClose={onCloseAlert} severity={apiReturnAlert?.severity}>
-          {apiReturnAlert?.message}
-        </Alert>
-      </Snackbar>
     </Fragment>
   );
 };

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Lib tests
+ * Snackbar file
  *
  * All rights reserved.
  *
@@ -26,12 +26,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
-import testUseSnackbar from "./useSnackbar.test";
+import React, { useCallback } from "react";
 
-function testLib(): void {
-  describe.skip("API", _.noop);
-  describe("useSnackbar", testUseSnackbar);
+import { Snackbar as SnackbarUI } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
+
+import { ApiAlert } from "../../lib/useSnackbar";
+
+interface SnackbarsProps {
+  params: {
+    apiAlert: ApiAlert;
+    removeAlert: (apiAlertId: ApiAlert["id"]) => void;
+  };
 }
 
-export default testLib;
+export const Snackbar = ({ params: { apiAlert, removeAlert } }: SnackbarsProps): JSX.Element | null => {
+  const onCloseAlert = useCallback(
+    (id: ApiAlert["id"]) => (_: React.SyntheticEvent | MouseEvent, reason?: string) => {
+      // We don't want the snackbar to be closed by any random click on the page
+      if (reason === "clickaway") {
+        return;
+      }
+      removeAlert(id);
+    },
+    [removeAlert]
+  );
+
+  return apiAlert ? (
+    <SnackbarUI
+      key={apiAlert.id}
+      open={apiAlert !== null}
+      autoHideDuration={6000}
+      onClose={onCloseAlert(apiAlert?.id)}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+      <Alert onClose={onCloseAlert(apiAlert?.id)} severity={apiAlert?.severity}>
+        {apiAlert?.message}
+      </Alert>
+    </SnackbarUI>
+  ) : null;
+};

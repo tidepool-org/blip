@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Lib tests
+ * Snackbar hook file
  *
  * All rights reserved.
  *
@@ -25,13 +25,49 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import { uniqueId } from "lodash";
+import { useCallback, useState } from "react";
 
-import _ from "lodash";
-import testUseSnackbar from "./useSnackbar.test";
-
-function testLib(): void {
-  describe.skip("API", _.noop);
-  describe("useSnackbar", testUseSnackbar);
+export enum AlertSeverity {
+  error = "error",
+  warning = "warning",
+  info = "info",
+  success = "success",
 }
 
-export default testLib;
+export interface ApiAlert {
+  message: string;
+  severity: AlertSeverity;
+  id?: string;
+}
+
+interface UseSnackbar {
+  openSnackbar: (apiAlert: ApiAlert) => void;
+  snackbarParams: {
+    apiAlert: ApiAlert;
+    removeAlert: (apiAlertId: ApiAlert["id"]) => void;
+  };
+}
+
+export const useSnackbar = (): UseSnackbar => {
+  const [apiAlerts, setApiAlerts] = useState<ApiAlert[]>([]);
+
+  const openSnackbar = useCallback(
+    (apiAlert: ApiAlert) => {
+      const id = uniqueId();
+      setApiAlerts([...apiAlerts, { id, ...apiAlert }]);
+    },
+    [apiAlerts]
+  );
+
+  const removeAlert = useCallback(
+    (apiAlertId: ApiAlert["id"]) => {
+      if (apiAlertId) {
+        setApiAlerts(apiAlerts.filter(({ id }) => apiAlertId !== id));
+      }
+    },
+    [apiAlerts]
+  );
+
+  return { openSnackbar, snackbarParams: { apiAlert: apiAlerts[0], removeAlert } };
+};
