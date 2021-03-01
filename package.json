@@ -164,7 +164,7 @@
     "sundial": "1.6.0",
     "terser": "4.8.0",
     "terser-webpack-plugin": "2.2.1",
-    "tideline": "1.23.0-rc.3",
+    "tideline": "1.23.0-rc.4",
     "tidepool-platform-client": "0.45.0",
     "tidepool-standard-action": "0.1.1",
     "url-loader": "1.1.1",

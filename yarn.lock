@@ -18410,10 +18410,10 @@ thunky@^1.0.2:
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tideline@1.23.0-rc.3:
-  version "1.23.0-rc.3"
-  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.23.0-rc.3.tgz#f498baabbaea7284b184c29e4d81bd30adc1ffdc"
-  integrity sha512-0hBxdCoTS7sn+8AqxPiR4Eqmqh9ZqNkGIF8QogokiNYgbEz2vgmGNd6lsRPaSYAnvDiz+xNfwNHzWII3aho0Zw==
+tideline@1.23.0-rc.4:
+  version "1.23.0-rc.4"
+  resolved "https://registry.yarnpkg.com/tideline/-/tideline-1.23.0-rc.4.tgz#d9f7eae3e0654ac9d772533edbe5940a2fd5d4a9"
+  integrity sha512-dc5yhvNkIsdxeyvR2ocI6SCIqfnfu5yaCLw8uhLNO4NNzOT/oQcpGgQo2ofvSYogVu+SxvQwxX8spSXeP91+IA==
   dependencies:
     bows "1.7.0"
     classnames "2.2.6"
