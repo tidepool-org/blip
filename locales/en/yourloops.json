@@ -250,5 +250,9 @@
   "modal-switch-hcp-failure": "Impossible to switch account. Please retry later.",
   "notif-hcp-invitation": "{hcpName} invites you to join {teamName}.",
   "notif-caregiver-invitation": "{patientName} wants to share their diabetes data with you.",
-  "patient-profile": "Patient profile"
+  "patient-profile": "Patient profile",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "datashare": "wants to share their diabetes data with you.",
+  "join-group": "invites you to join"
 }
