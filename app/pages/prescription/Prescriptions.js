@@ -39,7 +39,7 @@ const Prescriptions = props => {
   );
 
   const renderDelete = ({ id }) => (
-    <Button processing={deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
+    <Button processing={deletingPrescription.prescriptionId === id && deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
   );
 
   const renderState = ({ state }) => {
