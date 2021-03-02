@@ -2,9 +2,9 @@ import React from 'react';
 import { translate } from 'react-i18next';
 import { useFormikContext } from 'formik';
 import { Box, BoxProps } from 'rebass/styled-components';
-import get from 'lodash/get';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
+import { hasCalculatorResults } from './prescriptionFormConstants';
 
 const SettingsCalculatorResults = props => {
   const { t } = props;
@@ -16,11 +16,7 @@ const SettingsCalculatorResults = props => {
 
   const bgUnits = values.initialSettings.bloodGlucoseUnits;
 
-  const hasResults = get(values, 'calculator.recommendedBasalRate')
-    && get(values, 'calculator.recommendedInsulinSensitivity')
-    && get(values, 'calculator.recommendedCarbohydrateRatio');
-
-  return hasResults ? (
+  return hasCalculatorResults(values) ? (
     <Box
       sx={{ borderLeft: '3px solid', borderLeftColor: 'purpleMedium' }}
       bg="purpleLight"

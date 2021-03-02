@@ -17,9 +17,11 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
+import SettingsCalculatorResults from './SettingsCalculatorResults';
 
 import {
   defaultValues,
+  hasCalculatorResults,
   insulinModelOptions,
   pumpRanges,
   roundValueToIncrement,
@@ -70,6 +72,21 @@ export const PatientInfo = props => {
 };
 
 PatientInfo.propTypes = fieldsetPropTypes;
+
+export const DefaultCalculatorSettings = props => {
+  const { t, pump, ...themeProps } = props;
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Paragraph2 mb={2}>
+        {t('Recommended default settings from AACE calculator:')}
+      </Paragraph2>
+      <SettingsCalculatorResults />
+    </Box>
+  );
+};
+
+DefaultCalculatorSettings.propTypes = fieldsetPropTypes;
 
 export const PatientTraining = props => {
   const { t, pump, ...themeProps } = props;
@@ -624,6 +641,7 @@ export const TherapySettings = translate()(props => {
   return (
     <Box>
       <PatientInfo mb={4} {...props} />
+      {hasCalculatorResults(values) && <DefaultCalculatorSettings mt={0} mb={4} {...props} />}
       <PatientTraining mt={0} mb={4} {...props} />
       {values.training === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
       <GlucoseSettings mt={0} mb={4} {...{ ranges, thresholds, ...props }} />
