@@ -15,6 +15,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import TextInput from '../../components/elements/TextInput';
 import { Paragraph1, Headline } from '../../components/elements/FontStyles';
+import SettingsCalculatorResults from './SettingsCalculatorResults';
 
 import {
   condensedInputStyles,
@@ -70,7 +71,6 @@ export const CalculatorMethod = translate()(props => {
 export const CalculatorInputs = translate()(props => {
   const { t, schema } = props;
   const formikContext = useFormikContext();
-  const [results, setResults] = React.useState();
 
   const {
     setFieldTouched,
@@ -78,19 +78,18 @@ export const CalculatorInputs = translate()(props => {
     values,
   } = formikContext;
 
-  React.useEffect(() => {
+  const setResults = (results) => {
     if (results) {
       setFieldValue('calculator.recommendedBasalRate', results.recommendedBasalRate, true);
       setFieldValue('calculator.recommendedInsulinSensitivity', results.recommendedInsulinSensitivity, true);
       setFieldValue('calculator.recommendedCarbohydrateRatio', results.recommendedCarbohydrateRatio, true);
     }
-  }, [results])
+  };
 
   const initialFocusedInputRef = useInitialFocusedInput();
   const method = get(values, 'calculator.method');
   const showTotalDailyDose = includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method);
   const showWeight = includes(['weight', 'totalDailyDoseAndWeight'], method);
-  const bgUnits = values.initialSettings.bloodGlucoseUnits;
 
   return (
     <Box {...fieldsetStyles}>
@@ -188,24 +187,7 @@ export const CalculatorInputs = translate()(props => {
         {t('Calculate')}
       </Button>
 
-      {results && (
-        <Box
-          mt={4}
-          sx={{ borderLeft: '3px solid', borderLeftColor: 'purpleMedium' }}
-          bg="purpleLight"
-          p={3}
-        >
-          <Paragraph1>
-            <strong>{t('Basal Rate: ')}</strong>{results.recommendedBasalRate} U/hr
-          </Paragraph1>
-          <Paragraph1>
-            <strong>{t('Insulin Sensitivity: ')}</strong>{results.recommendedInsulinSensitivity} {`${bgUnits}/U`}
-          </Paragraph1>
-          <Paragraph1>
-            <strong>{t('Carbohydrate Ratio: ')}</strong>{results.recommendedCarbohydrateRatio} g/U
-          </Paragraph1>
-        </Box>
-      )}
+      <SettingsCalculatorResults />
     </Box>
   );
 });
