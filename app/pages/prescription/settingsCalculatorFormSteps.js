@@ -187,7 +187,7 @@ export const CalculatorInputs = translate()(props => {
         {t('Calculate')}
       </Button>
 
-      <SettingsCalculatorResults />
+      <SettingsCalculatorResults mt={3} />
     </Box>
   );
 });

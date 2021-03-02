@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import { useFormikContext } from 'formik';
-import { Box } from 'rebass/styled-components';
+import { Box, BoxProps } from 'rebass/styled-components';
 import get from 'lodash/get';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
@@ -22,10 +22,10 @@ const SettingsCalculatorResults = props => {
 
   return hasResults ? (
     <Box
-      mt={4}
       sx={{ borderLeft: '3px solid', borderLeftColor: 'purpleMedium' }}
       bg="purpleLight"
       p={3}
+      {...props}
     >
       <Paragraph1>
         <strong>{t('Basal Rate: ')}</strong>{values.calculator.recommendedBasalRate} U/hr
@@ -39,5 +39,7 @@ const SettingsCalculatorResults = props => {
     </Box>
   ) : null;
 };
+
+SettingsCalculatorResults.propTypes = BoxProps;
 
 export default translate()(SettingsCalculatorResults);
