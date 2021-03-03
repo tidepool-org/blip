@@ -17,13 +17,13 @@
 import _ from 'lodash';
 import bows from 'bows';
 import moment from 'moment';
+import i18next from 'i18next';
 import React from 'react';
 import PropTypes from 'prop-types';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import * as viz from 'tidepool-viz';
 
-import i18n from '../../core/language';
 import Header from './header';
 import SubNav from './trendssubnav';
 import Stats from './stats';
@@ -32,7 +32,7 @@ import Footer from './footer';
 import { RangeDatePicker } from '../datepicker';
 import { BG_DATA_TYPES } from '../../core/constants';
 
-const t = i18n.t.bind(i18n);
+const t = i18next.t.bind(i18next);
 const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
 const FocusedRangeLabels = viz.components.FocusedRangeLabels;
 const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
@@ -44,6 +44,7 @@ const Loader = viz.components.Loader;
 
 class Trends extends React.PureComponent {
   static propTypes = {
+    canPrint: PropTypes.bool.isRequired,
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
@@ -53,6 +54,7 @@ class Trends extends React.PureComponent {
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
     patientData: PropTypes.object.isRequired,
+    permsOfLoggedInUser: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
     endpoints: PropTypes.array.isRequired,
@@ -85,6 +87,9 @@ class Trends extends React.PureComponent {
       displayCalendar: false,
     };
 
+    this.chartRef = React.createRef();
+    this.chart = null;
+
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
     this.handleClickDaily = this.handleClickDaily.bind(this);
@@ -105,10 +110,15 @@ class Trends extends React.PureComponent {
   }
 
   componentDidMount() {
-    if (this.refs.chart) {
+    this.log.debug('Mounting...');
+    if (this.chartRef.current) {
       // necessary to get a ref from the redux connect()ed TrendsContainer
-      this.chart = this.refs.chart.getWrappedInstance();
+      this.chart = this.chartRef.current.getWrappedInstance();
     }
+  }
+
+  componentWillUnmount() {
+    this.log('Unmounting...');
   }
 
   formatDate(datetime) {
@@ -120,15 +130,15 @@ class Trends extends React.PureComponent {
   getNewDomain(current, extent) {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
     const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
-    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
+    const start = moment.utc(end.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
     return dateDomain;
   }
 
   getExtendSize(domain) {
-    const startDate = moment(domain[0]);
-    const endDate = moment(domain[1]);
+    const startDate = moment.utc(domain[0]);
+    const endDate = moment.utc(domain[1]);
     return endDate.diff(startDate, 'days');
   }
 
@@ -176,7 +186,7 @@ class Trends extends React.PureComponent {
           timezone={timezone}
           begin={startDate}
           end={endDate}
-          max={moment().add(1, 'days').utc().startOf('day')}
+          max={moment.utc().add(1, 'days').utc().startOf('day')}
           minDuration={1}
           maxDuration={90}
           aboveMaxDurationMessage={t('The period must be less than {{days}} days', { days: 90 })}
@@ -199,7 +209,7 @@ class Trends extends React.PureComponent {
     );
   }
 
-  handleWindowResize(windowSize) {
+  handleWindowResize(/* windowSize */) {
     this.chart.mountData();
   }
 
@@ -422,9 +432,7 @@ class Trends extends React.PureComponent {
           showingCbg={this.props.chartPrefs.trends.showingCbg}
           showingSmbg={this.props.chartPrefs.trends.showingSmbg}
           displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
-          currentPatientInViewId={currentPatientInViewId}
-          ref='footer'
-        />
+          currentPatientInViewId={currentPatientInViewId} />
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
@@ -434,12 +442,13 @@ class Trends extends React.PureComponent {
     const title = this.getTitle();
     return (
       <Header
-        ProfileDialog={this.props.profileDialog}
+        profileDialog={this.props.profileDialog}
         chartType={this.chartType}
         patient={this.props.patient}
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         title={title}
+        canPrint={this.props.canPrint}
         trackMetric={this.props.trackMetric}
         iconBack={'icon-back'}
         iconNext={'icon-next'}
@@ -452,9 +461,7 @@ class Trends extends React.PureComponent {
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
-        onClickSettings={this.handleClickSettings}
-        ref='header'
-      />
+        onClickSettings={this.handleClickSettings} />
     );
   }
 
@@ -471,9 +478,7 @@ class Trends extends React.PureComponent {
         }}
         onClickDay={this.toggleDay}
         toggleWeekdays={this.toggleWeekdays}
-        toggleWeekends={this.toggleWeekends}
-        ref='subnav'
-      />
+        toggleWeekends={this.toggleWeekends} />
     );
   }
 
@@ -504,14 +509,14 @@ class Trends extends React.PureComponent {
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}
         onSwitchBgDataSource={this.toggleBgDataSource}
-        ref='chart'
+        ref={this.chartRef}
       />
     );
   }
 
   renderFocusedCbgDateTraceLabel() {
     const { currentPatientInViewId, trendsState } = this.props;
-    const focusedCbgDateTrace = _.get(trendsState, [currentPatientInViewId, 'focusedCbgDateTrace']);
+    const focusedCbgDateTrace = _.get(trendsState, `${currentPatientInViewId}.focusedCbgDateTrace`);
     if (focusedCbgDateTrace) {
       return <CBGDateTraceLabel focusedDateTrace={focusedCbgDateTrace} />;
     }

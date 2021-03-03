@@ -15,34 +15,32 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
-
-var legend = require('./plot/util/legend');
-
-var log = require('bows')('Pool');
-
+const d3 = require('d3');
+const _ = require('lodash');
+const bows = require('bows');
+const legend = require('./plot/util/legend');
 
 function Pool (container) {
+  let log = null;
 
+  const mainSVG = d3.select('#' + container.id());
   var id, label, labelBaseline = 4, legends = [],
     index, heightRatio, gutterWeight, hidden = false, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
-    mainSVG = d3.select('#' + container.id()),
     xScale,
     yAxis = [],
     plotTypes = [],
     annotations,
     tooltips;
 
-  this.render = function(selection, poolData) {
+  this.render = function(_selection, poolData) {
     plotTypes.forEach(function(plotType) {
       if (container.dataFill[plotType.type]) {
-        plotType.data = _.filter(poolData, {'type': plotType.type});
+        plotType.data = _.filter(poolData, { type: plotType.type });
         var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
         dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
-        if (plotType.data.length !== 0) {
+        if (plotType.data.length > 0) {
           dataGroup.call(plotType.plot);
         }
       }
@@ -51,22 +49,14 @@ function Pool (container) {
         statsGroup.enter().append('g').attr('id', id + '_stats').call(plotType.plot);
       }
       else {
-        log('WARNING: I am confused: the only plot type not classified as dataFill should be stats.');
+        log.warn('I am confused: the only plot type not classified as dataFill should be stats.');
       }
     });
 
     this.drawAxes();
     this.updateAxes();
-    if (_.get(window, 'config.DEV', false)) {
-      setTimeout(() => {
-        this.drawLabel();
-        this.drawLegend();
-      }, 250);
-    }
-    else {
-      this.drawLabel();
-      this.drawLegend();
-    }
+    this.drawLabel();
+    this.drawLegend();
   };
 
   this.clear = function() {
@@ -119,7 +109,7 @@ function Pool (container) {
           'class': 'd3-pool-label',
           'transform': 'translate(' + container.axisGutter() + ',' + (yPosition-labelBaseline) + ')'
         });
-      _.forEach(label, function(l) {
+      _.forEach(label, (l) => {
         labelGroup.append('tspan')
           .attr('class', 'main')
           .text(l.main);
@@ -128,8 +118,6 @@ function Pool (container) {
           .text(l.light);
       });
     }
-
-    return this;
   });
 
   this.drawLegend = _.once(function() {
@@ -137,7 +125,7 @@ function Pool (container) {
       return;
     }
     var w = this.width() + container.axisGutter();
-    _.forEach(legends, function(l) {
+    _.forEach(legends, (l) => {
       var legendGroup = mainSVG.select('#tidelineLabels')
         .append('g')
         .attr({
@@ -146,7 +134,6 @@ function Pool (container) {
         });
       w -= legend.draw(legendGroup, l).width + legend.SHAPE_MARGIN*2;
     });
-
   });
 
   this.drawAxes = _.once(function() {
@@ -174,6 +161,9 @@ function Pool (container) {
     if (!arguments.length) return id;
     id = x;
     group = selection.append('g').attr('id', id);
+    if (log === null) {
+      log = bows(id);
+    }
     return this;
   };
 

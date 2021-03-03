@@ -27,33 +27,9 @@
  */
 
 import _ from "lodash";
+import { AppConfig } from "../models/config";
 
 declare const BUILD_CONFIG: string;
-
-export interface AppConfig {
-  VERSION: string;
-  API_HOST: string;
-  BRANDING: string;
-  DEV: boolean;
-  TEST: boolean;
-  LATEST_TERMS?: string;
-  PASSWORD_MIN_LENGTH: number;
-  PASSWORD_MAX_LENGTH?: number;
-  ABOUT_MAX_LENGTH?: number;
-  ALLOW_SIGNUP_PATIENT?: boolean;
-  ALLOW_PATIENT_CHANGE_EMAIL?: boolean;
-  ALLOW_PATIENT_CHANGE_PASSWORD?: boolean;
-  CAN_SEE_PWD_LOGIN?: boolean;
-  SUPPORT_EMAIL_ADDRESS?: string;
-  SUPPORT_WEB_ADDRESS?: string;
-  REGULATORY_WEB_ADDRESS?: string;
-  HELP_LINK?: string | null; // TODO ++++++++++++++++++++++
-  ASSETS_URL?: string | null;
-  METRICS_SERVICE?: string | null;
-  MAX_FAILED_LOGIN_ATTEMPTS?: number;
-  DELAY_BEFORE_NEXT_LOGIN_ATTEMPT?: number;
-  TERMS_PRIVACY_DATE?: string;
-}
 
 const DUMMY_DOMAIN = "example.com";
 const DUMMY_URL = `https://${DUMMY_DOMAIN}/`;

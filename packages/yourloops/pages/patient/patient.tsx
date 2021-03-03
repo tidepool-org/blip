@@ -31,8 +31,8 @@ import { Route, RouteComponentProps } from "react-router-dom";
 import bows from "bows";
 
 import PatientNavBar from "../../components/patient-nav-bar";
+import PatientDataPage from "../../components/patient-data";
 // import PatientListPage from './patients-list';
-import PatientDataPage from "./patient-data";
 
 /**
  * Patient page

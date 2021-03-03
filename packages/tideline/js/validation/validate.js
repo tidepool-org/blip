@@ -19,24 +19,23 @@ var _ = require('lodash');
 var bows = require('bows');
 
 var schema = require('./validator/schematron');
-
+const common = require('./common');
 var log = bows('validate');
 
 var schemas = {
+  common,
   basal: require('./basal'),
   bolus: require('./bolus'),
   cbg: require('./bg'),
-  common: require('./common'),
-  deviceEvent: schema(),
+  deviceEvent: schema(common),
   food: schema(),
   message: require('./message'),
   pumpSettings: require('./pumpSettings'),
-  physicalActivity: schema(),
-  reservoirChange: schema(),
+  physicalActivity: schema(common),
+  reservoirChange: schema(common),
   smbg: require('./bg'),
   upload: require('./upload'),
   wizard: require('./wizard'),
-  zenMode: schema(),
 };
 
 module.exports = {
@@ -53,8 +52,6 @@ module.exports = {
         result.valid.push(datum);
       }
       catch(e) {
-        log('Oh noes! This is wrong:', datum);
-        log(`Error Message: [${datum.type}] ${e.message}`);
         datum.errorMessage = e.message;
         result.invalid.push(datum);
       }

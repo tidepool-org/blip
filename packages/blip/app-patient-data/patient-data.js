@@ -19,15 +19,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import sundial from '../../sundial/sundial';
 
 import i18n from '../app/core/language';
 import config from '../app/config';
 
-import constants from '../../tideline/js/data/util/constants';
-import TidelineData from '../../tideline/js/tidelinedata';
+import { TidelineData } from 'tideline';
 
 import { utils as vizUtils, createPrintPDFPackage } from '../../viz/src/index';
 import Loader from '../../viz/src/components/common/loader/Loader';
@@ -40,7 +39,7 @@ import { Header, Basics, Daily, Trends, Settings } from '../app/components/chart
 import nurseShark from '../../tideline/plugins/nurseshark';
 
 import Messages from '../app/components/messages';
-import { FETCH_PATIENT_DATA_SUCCESS } from '../app/redux/constants/actionTypes';
+import { FETCH_PATIENT_DATA_SUCCESS, LOGOUT_REQUEST } from '../app/redux/constants/actionTypes';
 
 import { MGDL_UNITS, DIABETES_DATA_TYPES } from '../app/core/constants';
 
@@ -64,17 +63,20 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
 
 /**
  * @typedef { import('redux').Store } Store
- * @typedef { import("../../yourloops/lib/api").API } API
+ * @typedef { import("./index").BlipApi } API
  * @typedef { import("../../yourloops/lib/api").PatientDataLoadedEvent } PatientDataLoadedEvent
+ * @typedef { import("../../yourloops/lib/api").PatientNotesLoadedEvent } PatientNotesLoadedEvent
  * @typedef { import("../../yourloops/models/shoreline").User } User
  * @typedef { import("../../yourloops/models/device-data").PatientData } PatientData
  * @typedef { import("../../yourloops/models/message").MessageNote } MessageNote
  *
- * @augments {React.Component<{api: API, store: Store }, {loadingState: number, processedPatientData: TidelineData, chartType: string, endpoints: string[], patient: User,
-      canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: string}>}
+ * @typedef {{ api: API, patient: User, store: Store }} PatientDataProps
+ * @typedef {{loadingState: number, processedPatientData: TidelineData, chartType: string, endpoints: string[], patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
+ *
+ * @augments {React.Component<PatientDataProps, PatientDataState>}
  */
 class PatientDataPage extends React.Component {
-  constructor(props) {
+  constructor(/** @type{PatientDataProps} */ props) {
     super(props);
     const { api } = this.props;
     this.log = bows('PatientData');
@@ -82,29 +84,34 @@ class PatientDataPage extends React.Component {
     /** @type {(eventName: string, properties?: unknown) => void} */
     this.trackMetric = api.sendMetrics.bind(api);
 
-    this.chart = null;
+    this.chartRef = React.createRef();
+
+    const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     this.state = {
       // New states info
       chartType: 'daily',
       loadingState: LOADING_STATE_NONE,
       errorMessage: null,
+      initialDatetimeLocation: new Date().toISOString(),
       endpoints: [],
       timePrefs: {
-        timezoneAware: false,
-        timezoneName: 'UTC',
+        timezoneAware: true,
+        timezoneName: browserTimezone,
       },
       bgPrefs: {
         bgUnits: MGDL_UNITS,
-        bgClasses: constants.DEFAULT_BG_BOUNDS[MGDL_UNITS],
+        bgClasses: {},
       },
       permsOfLoggedInUser: {
         view: {},
         notes: {},
       },
-      patient: null,
       canPrint: false,
       pdf: null,
+
+      // Messages
+      messageThread: null,
       createMessageDatetime: null,
 
       // Original states info
@@ -166,32 +173,12 @@ class PatientDataPage extends React.Component {
   }
 
   componentDidMount() {
-    const { api } = this.props;
-    api.addEventListener('patient-data-loading', () => {
-      this.setState({ loadingState: LOADING_STATE_INITIAL_FETCH });
-    });
-    api.addEventListener('patient-data-loaded', (/** @type {PatientDataLoadedEvent} */ ev) => {
-      const patient = ev.user;
+    this.handleRefresh();
+  }
 
-      this.setState(
-        {
-          loadingState: LOADING_STATE_INITIAL_PROCESS,
-          errorMessage: null,
-          patient,
-          chartType: 'daily',
-          createMessageDatetime: null,
-          canPrint: false,
-          pdf: null,
-        },
-        async () => {
-          try {
-            await this.processData(ev.patientData);
-          } catch (e) {
-            this.onLoadingFailure(e);
-          }
-        }
-      );
-    });
+  componentWillUnmount() {
+    // Clean-up the store
+    this.props.store.dispatch({ type: LOGOUT_REQUEST });
   }
 
   render() {
@@ -261,7 +248,7 @@ class PatientDataPage extends React.Component {
   renderNoData() {
     const header = this.renderEmptyHeader();
     const noDataText = t('{{patientName}} does not have any data yet.', {
-      patientName: personUtils.patientFullName(this.state.patient),
+      patientName: personUtils.patientFullName(this.props.patient)
     });
     const reloadBtnText = t('Click to reload.');
 
@@ -295,7 +282,8 @@ class PatientDataPage extends React.Component {
   }
 
   renderSettings() {
-    const { canPrint, patient } = this.state;
+    const { patient } = this.props;
+    const { canPrint } = this.state;
     return (
       <div>
         <div className='app-no-print'>
@@ -324,11 +312,10 @@ class PatientDataPage extends React.Component {
   }
 
   renderChart() {
-    const { store } = this.props;
-    const { canPrint, permsOfLoggedInUser, patient, loadingState } = this.state;
+    const { store, patient } = this.props;
+    const { canPrint, permsOfLoggedInUser, loadingState } = this.state;
 
     const storeState = store.getState();
-    this.log.debug(`renderChart(${this.state.chartType}): storeState = `, storeState);
     const trendState = _.get(storeState, 'viz.trends', {});
 
     switch (this.state.chartType) {
@@ -359,8 +346,8 @@ class PatientDataPage extends React.Component {
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={config.UPLOAD_API}
-          />
-        );
+            ref={this.chartRef} />
+          );
       case 'daily':
         return (
           <Daily
@@ -377,7 +364,7 @@ class PatientDataPage extends React.Component {
             permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
-            onShowMessageThread={this.handleShowMessageThread}
+            onShowMessageThread={this.handleShowMessageThread.bind(this)}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
@@ -387,11 +374,8 @@ class PatientDataPage extends React.Component {
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            ref={(c) => {
-              this.chart = c;
-            }}
-          />
-        );
+            ref={this.chartRef} />
+          );
       case 'trends':
         return (
           <Trends
@@ -427,44 +411,36 @@ class PatientDataPage extends React.Component {
   }
 
   renderMessagesContainer() {
-    const { patient } = this.state;
-    if (this.state.createMessageDatetime) {
+    const { patient, api } = this.props;
+    const { createMessageDatetime, messageThread, timePrefs } = this.state;
+    if (createMessageDatetime) {
+      const user = api.whoami;
       return (
         <Messages
-          createDatetime={this.state.createMessageDatetime}
-          user={this.props.api.whoami}
+          createDatetime={createMessageDatetime}
+          user={user}
           patient={patient}
           onClose={this.closeMessageCreation.bind(this)}
           onSave={this.handleCreateNote.bind(this)}
-          onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage}
-          timePrefs={this.state.timePrefs}
-        />
+          onNewMessage={this.handleMessageCreation.bind(this)}
+          onEdit={this.handleEditMessage.bind(this)}
+          timePrefs={timePrefs}
+          trackMetric={this.trackMetric} />
       );
-    } else if (this.props.messageThread) {
+    } else if (Array.isArray(messageThread)) {
+      const user = api.whoami;
       return (
         <Messages
-          messages={this.props.messageThread}
-          user={this.props.api.whoami}
+          messages={messageThread}
+          user={user}
           patient={patient}
-          onClose={this.closeMessageThread}
-          onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage}
-          timePrefs={this.state.timePrefs}
-        />
+          onClose={this.closeMessageThread.bind(this)}
+          onSave={this.handleReplyToMessage.bind(this)}
+          onEdit={this.handleEditMessage.bind(this)}
+          timePrefs={timePrefs}
+          trackMetric={this.trackMetric} />
       );
     }
-  }
-
-  closeMessageThread() {
-    this.chart.closeMessageThread();
-    this.trackMetric('Closed Message Thread Modal');
-  }
-
-  closeMessageCreation() {
-    this.setState({ createMessageDatetime: null });
-    this.chart.closeMessageThread();
-    this.trackMetric('Closed New Message Modal');
   }
 
   generatePDFStats(data, state) {
@@ -610,52 +586,95 @@ class PatientDataPage extends React.Component {
   /**
    *
    * @param {string[]} newEndpoints
-   * @param {() => void} cb
+   * @param {() => void} cb callback
    */
   handleChartDateRangeUpdate(newEndpoints, cb = _.noop) {
     const { endpoints } = this.state;
     if (!_.isEqual(endpoints, newEndpoints)) {
-      this.log('Update endpoints from', endpoints, 'to', newEndpoints);
       this.setState({ endpoints: newEndpoints }, cb);
+    } else if (_.isFunction(cb)) {
+      cb();
     }
   }
 
-  handleMessageCreation(message) {
-    this.chart.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.addPatientNote(message);
-    this.trackMetric('Created New Message');
+  async handleMessageCreation(message) {
+    this.log.debug('handleMessageCreation', message);
+    const shapedMessage = nurseShark.reshapeMessage(message);
+
+    this.log.debug({ message, shapedMessage });
+    await this.chartRef.current.createMessage(nurseShark.reshapeMessage(message));
+    this.trackMetric('message', { action: 'Created New Message' });
   }
 
-  handleReplyToMessage(comment, cb) {
-    var reply = this.props.onSaveComment;
-    if (reply) {
-      reply(comment, cb);
-    }
+  async handleReplyToMessage(comment) {
+    const { api } = this.props;
+    const id = await api.replyMessageThread(comment);
     this.trackMetric('Replied To Message');
+    return id;
   }
 
-  handleEditMessage(message, cb) {
-    var edit = this.props.onEditMessage;
-    if (edit) {
-      edit(message, cb);
+  /**
+   * Create a new note
+   * @param {MessageNote} message the message
+   * @returns {Promise<string>}
+   */
+  handleCreateNote(message) {
+    const { api } = this.props;
+    return api.startMessageThread(message);
+  }
+
+  /**
+   * Callback after a message is edited.
+   * @param {MessageNote} message the edited message
+   * @returns {Promise<void>}
+   */
+  async handleEditMessage(message) {
+    this.log.debug("handleEditMessage", { message });
+    const { api } = this.props;
+
+    await api.editMessage(message);
+    this.trackMetric('message', { action: 'edited' });
+
+    if (_.isEmpty(message.parentmessage)) {
+      // Daily timeline view only cares for top-level note
+      const reshapedMessage = nurseShark.reshapeMessage(message);
+      this.chartRef.current.editMessage(reshapedMessage);
     }
-    this.chart.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updatePatientNote(message);
-    this.trackMetric('Edit To Message');
   }
 
-  handleShowMessageThread(messageThread) {
-    var fetchMessageThread = this.props.onFetchMessageThread;
-    if (fetchMessageThread) {
-      fetchMessageThread(messageThread);
+  async handleShowMessageThread(messageThread) {
+    this.log.debug("handleShowMessageThread", messageThread);
+    const { api } = this.props;
+
+    const messages = await api.getMessageThread(messageThread);
+    this.setState({ messageThread: messages });
+    this.trackMetric('message', { action: 'Clicked Message Icon' });
+  }
+
+  handleShowMessageCreation(/** @type {moment.Moment | Date} */ datetime) {
+    const { endpoints, timePrefs } = this.state;
+    this.log.debug('handleShowMessageCreation', { datetime, endpoints });
+    let mDate = datetime;
+    let action = 'Create a message from background';
+    if (datetime === null) {
+      action = 'Clicked create a message';
+      const begin = moment.utc(endpoints[0]).valueOf();
+      const end = moment.utc(endpoints[1]).valueOf();
+      const timestamp = begin + (end - begin) / 2;
+      mDate = moment.utc(timestamp).tz(timePrefs.timezoneName);
     }
+    this.setState({ createMessageDatetime : mDate.toISOString() });
 
-    this.trackMetric('Clicked Message Icon');
+    this.trackMetric('message', { action, date: mDate });
   }
 
-  handleShowMessageCreation(datetime) {
-    this.setState({ createMessageDatetime: datetime });
-    this.trackMetric('Clicked Message Pool Background');
+  closeMessageThread() {
+    this.setState({ createMessageDatetime: null, messageThread: null });
+    this.trackMetric('message', { action: 'Closed Message Thread Modal' });
+  }
+
+  closeMessageCreation() {
+    this.setState({ createMessageDatetime: null, messageThread: null });
   }
 
   handleSwitchToBasics(e) {
@@ -720,7 +739,7 @@ class PatientDataPage extends React.Component {
     });
   }
 
-  handleClickPrint() {
+  handleClickPrint = () => {
     function openPDFWindow(pdf) {
       const printWindow = window.open(pdf.url);
       if (printWindow !== null) {
@@ -778,55 +797,9 @@ class PatientDataPage extends React.Component {
     this.handleRefresh();
   }
 
-  handleRefresh() {
-    const { api } = this.props;
-    const { patient } = this.state;
-
-    if (patient !== null) {
-      this.setState(
-        {
-          loadingState: LOADING_STATE_INITIAL_FETCH,
-          endpoints: [],
-          datetimeLocation: this.state.initialDatetimeLocation,
-          fetchEarlierDataCount: 0,
-          lastDatumProcessedIndex: -1,
-          lastProcessedDateTarget: null,
-          processEarlierDataCount: 0,
-          processedPatientData: null,
-          patient: null,
-          pdf: null,
-          canPrint: false,
-        },
-        async () => {
-          try {
-            await api.loadPatientData(patient.userid);
-          } catch (e) {
-            this.onLoadingFailure(e);
-          }
-        }
-      );
-    }
-  }
-
-  /**
-   * Create a new note
-   * @param {MessageNote} message the message
-   * @param {(err: Error, id: string) => void} cb callback
-   */
-  handleCreateNote(message, cb) {
-    const { api } = this.props;
-    api
-      .startMessageThread(message)
-      .then((id) => {
-        cb(null, id);
-      })
-      .catch((reason) => {
-        cb(reason, null);
-      });
-  }
-
   onLoadingFailure(err) {
-    const errorMessage = _.isError(err) ? err.message : new String(err).toString();
+    // TODO A cleaner message
+    const errorMessage = _.isError(err) ? err.message : (new String(err)).toString();
     this.log.error(errorMessage, err);
     this.setState({ loadingState: LOADING_STATE_ERROR, errorMessage });
   }
@@ -859,6 +832,7 @@ class PatientDataPage extends React.Component {
   }
 
   updateChartPrefs(updates, cb) {
+    this.log.debug('updateChartPrefs', { updates, cb });
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
@@ -1022,14 +996,42 @@ class PatientDataPage extends React.Component {
     return --targetIndex;
   }
 
+  handleRefresh() {
+    const { api, patient } = this.props;
+
+    // TODO bgUnits from api.whoami
+    this.setState({
+      loadingState: LOADING_STATE_INITIAL_FETCH,
+      endpoints: [],
+      initialDatetimeLocation: new Date().toISOString(),
+      fetchEarlierDataCount: 0,
+      lastDatumProcessedIndex: -1,
+      lastProcessedDateTarget: null,
+      processEarlierDataCount: 0,
+      processedPatientData: null,
+      pdf: null,
+      canPrint: false,
+    }, () => {
+      Promise.all([
+        api.loadPatientData(patient),
+        api.getMessages(patient.userid),
+      ]).then(([ patientData, messagesNotes ]) => {
+        const combinedData = patientData.concat(messagesNotes);
+        this.setState({ loadingState: LOADING_STATE_INITIAL_PROCESS });
+        return this.processData(combinedData);
+      }).catch((reason) => {
+        this.onLoadingFailure(reason);
+      });
+    });
+  }
+
   /**
    *
    * @param {PatientData} data
    */
   async processData(data) {
-    const { store } = this.props;
-    const { patient, timePrefs, bgPrefs } = this.state;
-    await waitTimeout(1);
+    const { store, patient } = this.props;
+    const { timePrefs, bgPrefs } = this.state;
 
     const opts = {
       timePrefs,
@@ -1038,40 +1040,47 @@ class PatientDataPage extends React.Component {
 
     console.time('process data');
     const res = nurseShark.processData(data, opts.bgUnits);
-    const tidelineData = new TidelineData(res.processedData, opts);
+    await waitTimeout(1);
+    const tidelineData = new TidelineData(opts);
+    await tidelineData.addData(res.processedData);
     console.timeEnd('process data');
 
     if (_.isEmpty(tidelineData.data)) {
       throw new Error(t('No data to display!'));
     }
 
-    const endpoints = [tidelineData.data[0].normalTime, tidelineData.data[tidelineData.data.length - 1].normalTime];
+    this.log.info('Initial endpoints:', tidelineData.endpoints);
+    this.log.info('Time prefs', tidelineData.opts.timePrefs);
 
-    this.log.info('Initial endpoints:', endpoints);
-
-    this.dataUtil = new DataUtils(tidelineData.data.concat(_.get(tidelineData, 'grouped.upload', [])), { bgPrefs, timePrefs });
-
-    this.setState(
-      {
-        processedPatientData: tidelineData,
-        loadingState: LOADING_STATE_DONE,
-        endpoints,
-      },
-      () => {
-        this.log.debug('dispatch(FETCH_PATIENT_DATA_SUCCESS)');
-        store.dispatch({
-          type: FETCH_PATIENT_DATA_SUCCESS,
-          payload: {
-            patientId: patient.userid,
-          },
-        });
-      }
+    this.dataUtil = new DataUtils(
+      tidelineData.data.concat(_.get(tidelineData, 'grouped.upload', [])),
+      { bgPrefs, timePrefs }
     );
+
+    this.setState({
+      bgPrefs: {
+        bgUnits: tidelineData.opts.bgUnits,
+        bgClasses: tidelineData.opts.bgClasses,
+      },
+      timePrefs: tidelineData.opts.timePrefs,
+      processedPatientData: tidelineData,
+      loadingState: LOADING_STATE_DONE,
+      endpoints: tidelineData.endpoints,
+      canPrint: true,
+    }, () => {
+      store.dispatch({
+        type: FETCH_PATIENT_DATA_SUCCESS,
+        payload: {
+          patientId: patient.userid,
+        },
+      });
+    });
   }
 }
 
 PatientDataPage.propTypes = {
   api: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
   store: PropTypes.object.isRequired,
   profileDialog: PropTypes.func.isRequired,
 };

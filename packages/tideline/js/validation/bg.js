@@ -28,6 +28,5 @@ module.exports = schema(
     units: schema().in([MGDL_UNITS, MMOLL_UNITS]),
     value: schema().number().positive(),
     localDate: schema().ifExists().isDate(),
-    localDayOfWeek: schema().ifExists().in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
   }
 );

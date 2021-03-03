@@ -82,7 +82,7 @@ module.exports = function(pool, opts = {}) {
   const top = opts.yScale.range()[0];
   const mainGroup = pool.parent();
 
-  const xPosition = (d) => opts.xScale(Date.parse(d.normalTime)) - halfWidth;
+  const xPosition = (d) => opts.xScale(d.epoch) - halfWidth;
   const computePathHeight = (d) => {
     const base = opts.yScale(d.extended) + opts.bolusStroke / 2;
     if (d.extended === 0) {
@@ -216,7 +216,7 @@ module.exports = function(pool, opts = {}) {
             d = commonbolus.getBolus(d);
             var rightEdge = xPosition(d) + opts.width;
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + commonbolus.getMaxDuration(d));
+            var doseEnd = opts.xScale(d.epoch + commonbolus.getMaxDuration(d));
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
@@ -233,7 +233,7 @@ module.exports = function(pool, opts = {}) {
           d: function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + commonbolus.getMaxDuration(d)) - opts.triangleSize;
+            var doseEnd = opts.xScale(d.epoch + commonbolus.getMaxDuration(d)) - opts.triangleSize;
             return extendedTriangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
@@ -259,7 +259,7 @@ module.exports = function(pool, opts = {}) {
           d: function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
-            var rightEdge = opts.xScale(Date.parse(d.normalTime) + d.duration);
+            var rightEdge = opts.xScale(d.epoch + d.duration);
             var pathEnd = rightEdge + opts.suspendMarkerWidth;
 
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + pathEnd + ' ' + doseHeight;
@@ -274,8 +274,8 @@ module.exports = function(pool, opts = {}) {
           d: function(d) {
             d = commonbolus.getBolus(d);
             var doseHeight = computePathHeight(d);
-            var pathEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) + opts.suspendMarkerWidth;
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.expectedDuration);
+            var pathEnd = opts.xScale(d.epoch + d.duration) + opts.suspendMarkerWidth;
+            var doseEnd = opts.xScale(d.epoch + d.expectedDuration);
 
             return 'M' + pathEnd + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
@@ -307,7 +307,7 @@ module.exports = function(pool, opts = {}) {
     annotations: function(data /*, selection */) {
       _.forEach(data, function(d) {
         var annotationOpts = {
-          x: opts.xScale(Date.parse(d.normalTime)),
+          x: opts.xScale(d.epoch),
           y: opts.yScale(commonbolus.getMaxValue(d)),
           xMultiplier: -2,
           yMultiplier: 1,

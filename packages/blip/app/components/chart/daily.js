@@ -15,13 +15,11 @@
  * == BSD2 LICENSE ==
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import ReactDOM from 'react-dom';
 import sundial from 'sundial';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import WindowSizeListener from 'react-window-size-listener';
 
 import i18n from '../../core/language';
@@ -30,8 +28,7 @@ import BgSourceToggle from './bgSourceToggle';
 import { BG_DATA_TYPES } from '../../core/constants';
 
 // tideline dependencies & plugins
-import tidelineBlip from 'tideline/plugins/blip';
-const chartDailyFactory = tidelineBlip.oneday;
+import chartDailyFactory from 'tideline/plugins/blip/chartdailyfactory';
 
 import { components as vizComponents } from 'tidepool-viz';
 const Loader = vizComponents.Loader;
@@ -108,44 +105,45 @@ class DailyChart extends React.Component {
     ];
 
     this.log = bows('Daily Chart');
-    this.state = this.getInitialState();
+    this.state = {
+      datetimeLocation: null
+    };
+    this.chart = null;
+    /** @type {React.RefObject} */
+    this.refNode = React.createRef();
   }
 
-  getInitialState = () => {
-    return {
-      datetimeLocation: null,
-    };
-  };
-
-  componentDidMount = () => {
+  componentDidMount() {
     this.mountChart();
     this.initializeChart(this.props.initialDatetimeLocation);
-  };
+  }
 
-  componentWillUnmount = () => {
+  componentWillUnmount() {
     this.unmountChart();
-  };
+  }
 
-  mountChart = () => {
-    this.log('Mounting...');
-    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts)).setupPools();
+  mountChart() {
+    this.log.debug('Mounting...');
+    this.chart = chartDailyFactory(this.refNode.current, _.pick(this.props, this.chartOpts))
+      .setupPools();
     this.bindEvents();
-  };
+  }
 
-  unmountChart = () => {
+  unmountChart() {
     this.log('Unmounting...');
     this.chart.destroy();
-  };
+    this.chart = null;
+  }
 
-  bindEvents = () => {
+  bindEvents() {
     this.chart.emitter.on('createMessage', this.props.onCreateMessage);
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-  };
+  }
 
-  initializeChart = (datetime) => {
+  initializeChart(datetime) {
     this.log('Initializing...');
     if (_.isEmpty(this.props.patientData)) {
       throw new Error(t('Cannot create new chart with no data'));
@@ -159,11 +157,13 @@ class DailyChart extends React.Component {
     } else {
       this.chart.locate();
     }
-  };
+  }
 
-  render = () => {
-    return <div id='tidelineContainer' className='patient-data-chart'></div>;
-  };
+  render() {
+    return (
+      <div id="tidelineContainer" className="patient-data-chart" ref={this.refNode} />
+    );
+  }
 
   // handlers
   handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
@@ -173,13 +173,13 @@ class DailyChart extends React.Component {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   };
 
-  rerenderChart = () => {
+  rerenderChart() {
     this.log('Rerendering...');
     this.unmountChart();
     this.mountChart();
     this.initializeChart();
     this.chart.emitter.emit('inTransition', false);
-  };
+  }
 
   getCurrentDay = () => {
     return this.chart.getCurrentDay().toISOString();
@@ -213,6 +213,8 @@ class DailyChart extends React.Component {
 
 class Daily extends React.Component {
   static propTypes = {
+    patient: PropTypes.object.isRequired,
+    permsOfLoggedInUser: PropTypes.object.isRequired,
     bgPrefs: PropTypes.object.isRequired,
     bgSource: PropTypes.oneOf(BG_DATA_TYPES),
     chartPrefs: PropTypes.object.isRequired,
@@ -248,37 +250,36 @@ class Daily extends React.Component {
     this.chartRef = React.createRef();
     this.chartType = 'daily';
     this.log = bows('Daily View');
-    this.state = this.getInitialState();
-  }
-
-  getInitialState = () => {
-    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
-    return {
+    this.state = {
       atMostRecent: false,
       endpoints: [],
       inTransition: false,
       title: '',
+      debouncedDateRangeUpdate: null,
     };
-  };
+    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
+  }
 
-  UNSAFE_componentWillReceiveProps = (nextProps) => {
-    if (this.props.loading && !nextProps.loading) {
+  componentDidUpdate(prevProps) {
+    const { loading } = this.props;
+    if (prevProps.loading && !loading) {
       this.chartRef.current.rerenderChart();
     }
-  };
+  }
 
-  componentWillUnmount = () => {
+  componentWillUnmount() {
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
-  };
+  }
 
-  render = () => {
+  render() {
     const { timePrefs } = this.props.patientData.opts;
+
     return (
-      <div id='tidelineMain' className='daily'>
+      <div id="tidelineMain" className="daily">
         <Header
-          ProfileDialog={this.props.profileDialog}
+          profileDialog={this.props.profileDialog}
           chartType={this.chartType}
           patient={this.props.patient}
           inTransition={this.state.inTransition}
@@ -298,12 +299,10 @@ class Daily extends React.Component {
           onClickOneDay={this.handleClickOneDay}
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.props.onClickPrint}
-          ref='header'
-        />
-        <div className='container-box-outer patient-data-content-outer'>
-          <div className='container-box-inner patient-data-content-inner'>
-            <div className='patient-data-content'>
+          onClickPrint={this.props.onClickPrint} />
+        <div className="container-box-outer patient-data-content-outer">
+          <div className="container-box-inner patient-data-content-inner">
+            <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
               <DailyChart
                 bgClasses={this.props.bgPrefs.bgClasses}
@@ -340,8 +339,8 @@ class Daily extends React.Component {
               />
             </div>
           </div>
-          <div className='container-box-inner patient-data-sidebar'>
-            <div className='patient-data-sidebar-inner'>
+          <div className="container-box-inner patient-data-sidebar">
+            <div className="patient-data-sidebar-inner">
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
@@ -360,118 +359,99 @@ class Daily extends React.Component {
             </div>
           </div>
         </div>
-        <Footer chartType={this.chartType} onClickRefresh={this.props.onClickRefresh} ref='footer' />
-        {this.state.hoveredBolus && (
-          <BolusTooltip
-            position={{
-              top: this.state.hoveredBolus.top,
-              left: this.state.hoveredBolus.left,
-            }}
-            side={this.state.hoveredBolus.side}
-            bolus={this.state.hoveredBolus.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />
-        )}
-        {this.state.hoveredSMBG && (
-          <SMBGTooltip
-            position={{
-              top: this.state.hoveredSMBG.top,
-              left: this.state.hoveredSMBG.left,
-            }}
-            side={this.state.hoveredSMBG.side}
-            smbg={this.state.hoveredSMBG.data}
-            timePrefs={timePrefs}
-            bgPrefs={this.props.bgPrefs}
-          />
-        )}
-        {this.state.hoveredCBG && (
-          <CBGTooltip
-            position={{
-              top: this.state.hoveredCBG.top,
-              left: this.state.hoveredCBG.left,
-            }}
-            side={this.state.hoveredCBG.side}
-            cbg={this.state.hoveredCBG.data}
-            timePrefs={timePrefs}
-            bgPrefs={this.props.bgPrefs}
-          />
-        )}
-        {this.state.hoveredCarb && (
-          <FoodTooltip
-            position={{
-              top: this.state.hoveredCarb.top,
-              left: this.state.hoveredCarb.left,
-            }}
-            side={this.state.hoveredCarb.side}
-            food={this.state.hoveredCarb.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />
-        )}
-        {this.state.hoveredReservoir && (
-          <ReservoirTooltip
-            position={{
-              top: this.state.hoveredReservoir.top,
-              left: this.state.hoveredReservoir.left,
-            }}
-            side={this.state.hoveredReservoir.side}
-            reservoir={this.state.hoveredReservoir.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />
-        )}
-        {this.state.hoveredPhysical && (
-          <PhysicalTooltip
-            position={{
-              top: this.state.hoveredPhysical.top,
-              left: this.state.hoveredPhysical.left,
-            }}
-            side={this.state.hoveredPhysical.side}
-            physicalActivity={this.state.hoveredPhysical.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />
-        )}
-        {this.state.hoveredParameter && (
-          <ParameterTooltip
-            position={{
-              top: this.state.hoveredParameter.top,
-              left: this.state.hoveredParameter.left,
-            }}
-            side={this.state.hoveredParameter.side}
-            parameter={this.state.hoveredParameter.data}
-            bgPrefs={this.props.bgPrefs}
-            timePrefs={timePrefs}
-          />
-        )}
-        {this.state.hoveredConfidential && (
-          <ConfidentialTooltip
-            position={{
-              top: this.state.hoveredConfidential.top,
-              left: this.state.hoveredConfidential.left,
-            }}
-            side={this.state.hoveredConfidential.side}
-            confidential={this.state.hoveredConfidential.data}
-            timePrefs={timePrefs}
-          />
-        )}
+        <Footer
+          chartType={this.chartType}
+          onClickRefresh={this.props.onClickRefresh} />
+        {this.state.hoveredBolus && <BolusTooltip
+          position={{
+            top: this.state.hoveredBolus.top,
+            left: this.state.hoveredBolus.left
+          }}
+          side={this.state.hoveredBolus.side}
+          bolus={this.state.hoveredBolus.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredSMBG && <SMBGTooltip
+          position={{
+            top: this.state.hoveredSMBG.top,
+            left: this.state.hoveredSMBG.left
+          }}
+          side={this.state.hoveredSMBG.side}
+          smbg={this.state.hoveredSMBG.data}
+          timePrefs={timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
+        {this.state.hoveredCBG && <CBGTooltip
+          position={{
+            top: this.state.hoveredCBG.top,
+            left: this.state.hoveredCBG.left
+          }}
+          side={this.state.hoveredCBG.side}
+          cbg={this.state.hoveredCBG.data}
+          timePrefs={timePrefs}
+          bgPrefs={this.props.bgPrefs}
+        />}
+        {this.state.hoveredCarb && <FoodTooltip
+          position={{
+            top: this.state.hoveredCarb.top,
+            left: this.state.hoveredCarb.left
+          }}
+          side={this.state.hoveredCarb.side}
+          food={this.state.hoveredCarb.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredReservoir && <ReservoirTooltip
+          position={{
+            top: this.state.hoveredReservoir.top,
+            left: this.state.hoveredReservoir.left
+          }}
+          side={this.state.hoveredReservoir.side}
+          reservoir={this.state.hoveredReservoir.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredPhysical && <PhysicalTooltip
+          position={{
+            top: this.state.hoveredPhysical.top,
+            left: this.state.hoveredPhysical.left
+          }}
+          side={this.state.hoveredPhysical.side}
+          physicalActivity={this.state.hoveredPhysical.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredParameter && <ParameterTooltip
+          position={{
+            top: this.state.hoveredParameter.top,
+            left: this.state.hoveredParameter.left
+          }}
+          side={this.state.hoveredParameter.side}
+          parameter={this.state.hoveredParameter.data}
+          bgPrefs={this.props.bgPrefs}
+          timePrefs={timePrefs}
+        />}
+        {this.state.hoveredConfidential && <ConfidentialTooltip
+          position={{
+            top: this.state.hoveredConfidential.top,
+            left: this.state.hoveredConfidential.left
+          }}
+          side={this.state.hoveredConfidential.side}
+          confidential={this.state.hoveredConfidential.data}
+          timePrefs={timePrefs}
+        />}
 
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );
-  };
+  }
 
-  getTitle = (datetime) => {
+  getTitle(datetime) {
     const { timePrefs } = this.props;
-    let timezone;
-    if (!timePrefs.timezoneAware) {
-      timezone = 'UTC';
-    } else {
-      timezone = timePrefs.timezoneName || 'UTC';
-    }
-    return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
-  };
+    const timezone = timePrefs.timezoneName;
+    return moment.tz(datetime, timezone).format(t('ddd, MMM D, YYYY'));
+  }
 
   // handlers
   toggleBgDataSource = (e, bgSource) => {
@@ -542,15 +522,14 @@ class Daily extends React.Component {
     }
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(endpoints);
-
     this.setState({ debouncedDateRangeUpdate });
+    debouncedDateRangeUpdate(endpoints, () => {
+      this.setState({ debouncedDateRangeUpdate: null });
+    });
   };
 
-  handleInTransition = (inTransition) => {
-    this.setState({
-      inTransition: inTransition,
-    });
+  handleInTransition = inTransition => {
+    this.setState({ inTransition });
   };
 
   handleBolusHover = (bolus) => {
@@ -758,16 +737,23 @@ class Daily extends React.Component {
     this.chartRef.current.panForward();
   };
 
-  // methods for messages
-  closeMessageThread = () => {
-    return this.chartRef.current.closeMessage();
-  };
+  // Messages:
 
-  createMessageThread = (message) => {
+  /**
+   * Update the daily view by adding the new message
+   * @param {object} message A nurseshark processed message
+   * @return {Promise<boolean>} true if the message was added
+   */
+  createMessage = (message) => {
     return this.chartRef.current.createMessage(message);
   };
 
-  editMessageThread = (message) => {
+  /**
+   * Update the daily view message
+   * @param {object} message A nurseshark processed message
+   * @return {boolean} true if the message was correctly updated
+   */
+  editMessage = (message) => {
     return this.chartRef.current.editMessage(message);
   };
 }

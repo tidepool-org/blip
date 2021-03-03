@@ -67,6 +67,11 @@ describe('Settings', function () {
             activeSchedule: ''
           }] }
         },
+        permsOfLoggedInUser: {
+          view: {},
+          notes: {},
+        },
+        currentPatientInViewId: '',
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),

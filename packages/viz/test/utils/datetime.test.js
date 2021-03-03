@@ -17,6 +17,8 @@
 
 /* eslint-disable max-len */
 import { timeParse } from 'd3-time-format';
+import { assert, expect } from 'chai';
+import sinon from 'sinon';
 
 import * as patients from '../../data/patient/profiles';
 import * as datetime from '../../src/utils/datetime';
@@ -507,7 +509,7 @@ describe('datetime', () => {
       timezoneName: null,
     };
     const datum = {
-      time: '2016-09-23T23:00:00.000Z',
+      normalTime: '2016-09-23T23:00:00.000Z',
       deviceTime: '2016-09-23T19:00:00',
     };
 
@@ -519,7 +521,7 @@ describe('datetime', () => {
       expect(datetime.getHammertimeFromDatumWithTimePrefs(datum, tzNaive)).to.equal(1474657200000);
     });
 
-    it('should return `null` if `time` is not present on datum when timezone-aware', () => {
+    it('should return `null` if `normalTime` is not present on datum when timezone-aware', () => {
       expect(datetime.getHammertimeFromDatumWithTimePrefs({}, tzAware)).to.be.null;
     });
 
@@ -527,12 +529,12 @@ describe('datetime', () => {
       expect(datetime.getHammertimeFromDatumWithTimePrefs({}, tzNaive)).to.be.null;
     });
 
-    it('should error if time/deviceTime is not string timestamp', () => {
+    it('should error if normalTime/deviceTime is not string timestamp', () => {
       const fn = () => {
-        datetime.getHammertimeFromDatumWithTimePrefs({ time: 'tuesday' }, tzAware);
+        datetime.getHammertimeFromDatumWithTimePrefs({ normalTime: 'tuesday' }, tzAware);
       };
       expect(fn).to.throw(
-        'Check your input datum; could not parse `time` or `deviceTime` with Date.parse.'
+        'Check your input datum; could not parse `normalTime` or `deviceTime` with Date.parse.'
       );
     });
   });

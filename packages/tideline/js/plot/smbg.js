@@ -15,7 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -92,7 +91,7 @@ module.exports = function(pool, opts) {
   };
 
   smbg.xPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epoch);
   };
 
   smbg.yPosition = function(d) {

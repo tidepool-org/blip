@@ -17,27 +17,25 @@
 // @ts-nocheck
 
 import i18next from 'i18next';
-var t = i18next.t.bind(i18next);
+import _ from 'lodash';
+import bows from 'bows';
+import { EventEmitter } from 'events';
 
-var _ = require('lodash');
-var bows = require('bows');
-var d3 = require('d3');
+const d3 = require('d3');
+const tideline = require('../../js');
+const { MGDL_UNITS } = require('../../js/data/util/constants');
 
-var EventEmitter = require('events').EventEmitter;
-
-var tideline = require('../../js/index');
-var fill = tideline.plot.util.fill;
-var scalesutil = tideline.plot.util.scales;
-var dt = tideline.data.util.datetime;
-var { MGDL_UNITS } = require('../../js/data/util/constants');
+const fill = tideline.plot.util.fill;
+const scalesutil = tideline.plot.util.scales;
+const dt = tideline.data.util.datetime;
+const t = i18next.t.bind(i18next);
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
-  var log = bows('Daily Factory');
-  log.info('Initializing...');
+  var log = bows('DailyFactory');
 
   options = options || {};
-  var defaults = {
+  const defaults = {
     bgUnits: MGDL_UNITS,
     labelBaseline: 4,
     timePrefs: {
@@ -47,9 +45,11 @@ function chartDailyFactory(el, options) {
   };
   _.defaults(options, defaults);
 
-  var scales = scalesutil(options);
-  var emitter = new EventEmitter();
-  var chart = tideline.oneDay(emitter, options);
+  log.debug('Initializing...', el, options);
+
+  const scales = scalesutil(options);
+  const emitter = new EventEmitter();
+  const chart = tideline.oneDay(emitter, options);
   chart.emitter = emitter;
   chart.options = options;
 
@@ -83,8 +83,8 @@ function chartDailyFactory(el, options) {
     poolXAxis = chart.newPool()
       .id('poolXAxis', chart.poolGroup())
       .label('')
-      .labelBaseline(options.labelBaseline)
-      .index(chart.pools().indexOf(poolXAxis))
+      .labelBaseline(options.labelBaseline);
+    poolXAxis.index(chart.pools().indexOf(poolXAxis))
       .heightRatio(0.65)
       .gutterWeight(0.0);
 
@@ -92,8 +92,8 @@ function chartDailyFactory(el, options) {
     poolMessages = chart.newPool()
       .id('poolMessages', chart.poolGroup())
       .label('')
-      .labelBaseline(options.labelBaseline)
-      .index(chart.pools().indexOf(poolMessages))
+      .labelBaseline(options.labelBaseline);
+    poolMessages.index(chart.pools().indexOf(poolMessages))
       .heightRatio(0.5)
       .gutterWeight(0.0);
 
@@ -108,8 +108,8 @@ function chartDailyFactory(el, options) {
         'main': ` & ${t('Events')}`
       }])
       .labelBaseline(options.labelBaseline)
-      .legend(['bg'])
-      .index(chart.pools().indexOf(poolBG))
+      .legend(['bg']);
+    poolBG.index(chart.pools().indexOf(poolBG))
       .heightRatio(2.15)
       .gutterWeight(1.0);
 
@@ -125,8 +125,8 @@ function chartDailyFactory(el, options) {
         'light': ` (${t('g')})`
       }])
       .labelBaseline(options.labelBaseline)
-      .legend(['rescuecarbs', 'carbs', 'bolus'])
-      .index(chart.pools().indexOf(poolBolus))
+      .legend(['rescuecarbs', 'carbs', 'bolus']);
+    poolBolus.index(chart.pools().indexOf(poolBolus))
       .heightRatio(1.35)
       .gutterWeight(1.0);
 
@@ -138,8 +138,8 @@ function chartDailyFactory(el, options) {
         light: ` (${t('U')}/${t('hr')})`
       }])
       .labelBaseline(options.labelBaseline)
-      .legend(['basal'])
-      .index(chart.pools().indexOf(poolBasal))
+      .legend(['basal']);
+    poolBasal.index(chart.pools().indexOf(poolBasal))
       .heightRatio(1.0)
       .gutterWeight(1.0);
 
@@ -185,7 +185,6 @@ function chartDailyFactory(el, options) {
   };
 
   chart.load = function(tidelineData) {
-    var data = tidelineData.data;
     chart.tidelineData = tidelineData;
 
     // initialize chart with data
@@ -201,7 +200,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // BG pool
-    var allBG = _.filter(data, function(d) {
+    var allBG = _.filter(tidelineData.data, function(d) {
       if ((d.type === 'cbg') || (d.type === 'smbg')) {
         return d;
       }
@@ -327,8 +326,6 @@ function chartDailyFactory(el, options) {
       bolusTickValues.push(currentMax + bolusTick);
     }
 
-    log.debug('scaleBolus domain', scaleBolus.domain(), '=> tick values', bolusTickValues);
-
     poolBolus.yAxis(d3.svg.axis()
       .scale(scaleBolus)
       .orient('left')
@@ -432,14 +429,14 @@ function chartDailyFactory(el, options) {
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
       size: 30,
       emitter: emitter,
-      timezoneAware: chart.options.timePrefs.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware,
     }), true, true);
 
     // add timechange images to messages pool
     poolMessages.addPlotType('deviceEvent', tideline.plot.timechange(poolMessages, {
       size: 30,
       emitter: emitter,
-      timezone: chart.options.timePrefs.timezoneName
+      timezone: chart.options.timePrefs.timezoneName,
     }), true, true);
 
     return chart;
@@ -505,28 +502,32 @@ function chartDailyFactory(el, options) {
     return chart.getCurrentDomain().center;
   };
 
-  chart.createMessage = function(message) {
-    log.info('New message created:', message);
-    chart.tidelineData.addData([message]);
-    chart.data(chart.tidelineData);
-    chart.emitter.emit('messageCreated', message);
-    return chart.tidelineData;
-  };
-
-  chart.editMessage = function(message) {
-    log.info('Message edited:', message);
-    // tideline only cares if the edited message was a top-level note
-    // not a comment
-    if (_.isEmpty(message.parentMessage)) {
-      chart.tidelineData.editDatum(message, 'utcTime');
-      chart.data(chart.tidelineData);
-      chart.emitter.emit('messageEdited', message);
+  chart.createMessage = async (message) => {
+    const nAdded = await chart.tidelineData.addData([message]);
+    if (nAdded > 0) {
+      // We can assume chart.tidelineData.grouped.message is an array
+      const tdMessage = chart.tidelineData.grouped.message.find((d) => d.id === message.id);
+      if (typeof tdMessage === 'object') {
+        chart.emitter.emit('messageCreated', tdMessage);
+        return true;
+      }
     }
-    return chart.tidelineData;
+    return false;
   };
 
-  chart.closeMessage = function() {
+  chart.editMessage = (message) => {
+    const updateMessage = chart.tidelineData.editMessage(message);
+    if (updateMessage !== null) {
+      chart.emitter.emit('messageEdited', updateMessage);
+      return true;
+    }
+    return false;
+  };
+
+  chart.closeMessage = () => {
     chart.poolGroup().selectAll('.d3-rect-message').classed('hidden', true);
+    const msg = document.getElementsByClassName('messages');
+    msg[0].style.display = 'none';
   };
 
   chart.type = 'daily';
@@ -534,4 +535,4 @@ function chartDailyFactory(el, options) {
   return create(el, options);
 }
 
-module.exports = chartDailyFactory;
+export default chartDailyFactory;

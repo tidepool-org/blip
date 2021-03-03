@@ -30,7 +30,6 @@ import {
   DataContext,
   DataProvider,
   DefaultDataContext,
-  PatientDataLoadedEvent,
   DataContextProvider,
   useData,
 } from "./hook";
@@ -39,7 +38,6 @@ export {
   DataContext,
   DataProvider,
   DefaultDataContext,
-  PatientDataLoadedEvent,
   DataContextProvider,
   useData,
 };

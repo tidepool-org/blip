@@ -15,57 +15,56 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from "lodash";
+import i18next from "i18next";
+import bows from "bows";
+import moment from "moment-timezone";
 
-var format = require('../data/util/format');
+const d3 = require("d3");
 
-var postItImage = require('../../img/message/post_it.svg');
-var newNoteImg = require('../../img/message/new.png');
+const format = require("../data/util/format");
+const postItImage = require("../../img/message/post_it.svg");
+const newNoteImg = require("../../img/message/new.png");
 
-var log = require('bows')('Message');
+const t = i18next.t.bind(i18next);
 
-var t = i18next.t.bind(i18next);
+const NEW_NOTE_WIDTH = 36;
+const NEW_NOTE_HEIGHT = 29;
+const NEW_NOTE_X = 0;
+const NEW_NOTE_Y = 45;
 
-var NEW_NOTE_WIDTH = 36;
-var NEW_NOTE_HEIGHT = 29;
-var NEW_NOTE_X = 0;
-var NEW_NOTE_Y = 45;
-
-module.exports = function(pool, opts) {
-
+module.exports = function (pool, opts) {
   opts = opts || {};
 
-  var defaults = {
+  const defaults = {
     previewLength: 50,
     tooltipPadding: 20,
-    highlightWidth: 4
+    highlightWidth: 4,
   };
+
+  const log = bows("TidelineMessage");
 
   _.defaults(opts, defaults);
 
-  var mainGroup = pool.group();
+  const mainGroup = pool.group();
 
   function message(selection) {
     opts.xScale = pool.xScale().copy();
 
-    selection.each(function(currentData) {
-      var messages = d3.select(this)
-        .selectAll('g.d3-message-group')
-        .data(currentData, function(d) {
-          if (d.parentMessage === '' || d.parentMessage == null) {
-            return d.id;
-          }
-        });
+    selection.each(function (currentData) {
+      const messages = d3
+        .select(this)
+        .selectAll("g.d3-message-group")
+        .data(currentData, (d) => d.id);
 
-      var messageGroups = messages.enter()
-        .append('g')
+      const messageGroups = messages
+        .enter()
+        .append("g")
         .attr({
-          'class': 'd3-message-group',
-          id: function(d) {
-            return 'message_' + d.id;
-          }
+          class: "d3-message-group",
+          id: function (d) {
+            return "message_" + d.id;
+          },
         });
 
       message.addMessageToPool(messageGroups);
@@ -74,67 +73,69 @@ module.exports = function(pool, opts) {
     });
   }
 
-  message.addMessageToPool = function(selection) {
+  message.addMessageToPool = function (selection) {
     opts.xScale = pool.xScale().copy();
 
-    selection.append('rect')
-      .attr({
-        x: message.highlightXPosition,
-        y: message.highlightYPosition,
-        width: opts.size + opts.highlightWidth * 2,
-        height: opts.size + opts.highlightWidth * 2,
-        'class': 'd3-rect-message hidden'
-      });
+    selection.append("rect").attr({
+      x: message.highlightXPosition,
+      y: message.highlightYPosition,
+      width: opts.size + opts.highlightWidth * 2,
+      height: opts.size + opts.highlightWidth * 2,
+      class: "d3-rect-message hidden",
+    });
 
-    selection.append('image')
+    selection
+      .append("image")
       .attr({
-        'xlink:href': postItImage,
-        cursor: 'pointer',
+        "xlink:href": postItImage,
+        cursor: "pointer",
         x: message.xPosition,
         y: message.yPosition,
         width: opts.size,
-        height: opts.size
+        height: opts.size,
       })
-      .classed({'d3-image': true, 'd3-message': true});
+      .classed({ "d3-image": true, "d3-message": true });
 
-    selection.on('mouseover', message._displayTooltip);
-    selection.on('mouseout', message._removeTooltip);
-    selection.on('click', function(d) {
+    selection.on("mouseover", message.displayTooltip);
+    selection.on("mouseout", message.removeTooltip);
+    selection.on("click", function clickMessage(d) {
+      log.debug("Message clicked!", d);
       d3.event.stopPropagation(); // silence the click-and-drag listener
-      opts.emitter.emit('messageThread', d.id);
-      log('Message clicked!', d.id);
-      d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
+      opts.emitter.emit("messageThread", d.id);
+      d3.select(this).selectAll(".d3-rect-message").classed("hidden", false);
     });
   };
 
-  message._displayTooltip = function(d) {
-    var elem = d3.select('#message_' + d.id + ' image');
-    var tooltips = pool.tooltips();
+  message.displayTooltip = (d) => {
+    d3.select("#message_" + d.id + " image");
 
-    var tooltip = tooltips.addForeignObjTooltip({
-      cssClass: 'svg-tooltip-message',
-      datum: _.assign(d, {type: 'message'}), // we're currently using the message pool to display the tooltip
-      shape: 'generic',
+    const tooltips = pool.tooltips();
+
+    const tooltip = tooltips.addForeignObjTooltip({
+      cssClass: "svg-tooltip-message",
+      datum: _.assign(d, { type: "message" }), // we're currently using the message pool to display the tooltip
+      shape: "generic",
       xPosition: message.xPositionCenter,
-      yPosition: message.yPositionCenter
+      yPosition: message.yPositionCenter,
     });
 
-    var foGroup = tooltip.foGroup;
-    const msgDate = format.datestamp(d.normalTime, d.displayOffset);
-    const msgTime = format.timestamp(d.normalTime, d.displayOffset);
-    const msgDateTime = `<span class="fromto">${t('{{date}} - {{time}}', {date: msgDate, time: msgTime})}</span>`;
-    tooltip.foGroup.append('p')
-      .attr('class', 'messageTooltip')
-      .append('span')
-      .attr('class', 'secondary')
-      .html(msgDateTime);
-    tooltip.foGroup.append('p')
-      .attr('class', 'messageTooltip')
-      .append('span')
-      .attr('class', 'secondary')
-      .html('<span class="value">' + format.nameForDisplay(d.user.fullName) + '</span> ' + format.textPreview(d.messageText));
+    const foGroup = tooltip.foGroup;
+    const mTime = moment.utc(d.epoch).tz(d.timezone);
+    const msgDate = format.datestamp(mTime);
+    const msgTime = format.timestamp(mTime);
+    const htmlDateTime = `<span class="message-from-to">${t("{{date}} - {{time}}", { date: msgDate, time: msgTime })}</span>`;
+    const htmlName = `<span class="message-author">${format.nameForDisplay(d.user)}:</span>`;
+    const htmlValue = `<br><span class="message-text">${format.textPreview(d.messageText)}</span>`;
 
-    var dims = tooltips.foreignObjDimensions(foGroup);
+    tooltip.foGroup.append("p").attr("class", "messageTooltip").append("span").attr("class", "secondary").html(htmlDateTime);
+    tooltip.foGroup
+      .append("p")
+      .attr("class", "messageTooltip")
+      .append("span")
+      .attr("class", "secondary")
+      .html(htmlName + htmlValue);
+
+    const dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element
     tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
@@ -143,53 +144,49 @@ module.exports = function(pool, opts) {
       x: message.xPositionCenter(d),
       y: -dims.height,
       orientation: {
-        'default': 'leftAndDown',
-        leftEdge: 'rightAndDown',
-        rightEdge: 'leftAndDown'
+        default: "leftAndDown",
+        leftEdge: "rightAndDown",
+        rightEdge: "leftAndDown",
       },
-      shape: 'generic',
-      edge: tooltip.edge
+      shape: "generic",
+      edge: tooltip.edge,
     });
   };
 
-  message._removeTooltip = function(d) {
-    var elem = d3.select('#tooltip_' + d.id).remove();
+  message.removeTooltip = (d) => {
+    d3.select("#tooltip_" + d.id).remove();
   };
 
-  message.updateMessageInPool = function(selection) {
+  message.updateMessageInPool = function (selection) {
     opts.xScale = pool.xScale().copy();
 
-    selection.select('rect.d3-rect-message')
-      .attr({
-        x: message.highlightXPosition
-      });
-
-    selection.select('image')
-      .attr({
-        x: message.xPosition
-      });
-  };
-
-  message.setUpMessageCreation = function() {
-    log('Set up message creation listeners.');
-
-    opts.emitter.on('clickTranslatesToDate', function(date) {
-      log('Creating message at', date.toISOString().slice(0,-5));
-      opts.emitter.emit('createMessage', date.toISOString());
+    selection.select("rect.d3-rect-message").attr({
+      x: message.highlightXPosition,
     });
 
-    opts.emitter.on('messageCreated', function(obj) {
-      var messageGroup = mainGroup.select('#poolMessages_message')
-        .append('g')
-        .attr('class', 'd3-message-group d3-new')
-        .attr('id', 'message_' + obj.id)
-        .datum(obj);
+    selection.select("image").attr({
+      x: message.xPosition,
+    });
+  };
+
+  message.setUpMessageCreation = function () {
+    opts.emitter.on("clickToDate", function (date) {
+      opts.emitter.emit("createMessage", date);
+    });
+
+    opts.emitter.on("messageCreated", function (d) {
+      log.info("Adding message to the timeline", d);
+      const messageGroup = mainGroup
+        .select("#poolMessages_message")
+        .append("g")
+        .attr("class", "d3-message-group d3-new")
+        .attr("id", `message_${d.id}`)
+        .datum(d);
       message.addMessageToPool(messageGroup);
     });
 
-    opts.emitter.on('messageEdited', function(obj) {
-      var messageGroup = mainGroup.select('g#message_' + obj.id)
-        .datum(obj);
+    opts.emitter.on("messageEdited", function (obj) {
+      var messageGroup = mainGroup.select("g#message_" + obj.id).datum(obj);
       message.updateMessageInPool(messageGroup);
     });
   };
@@ -197,76 +194,71 @@ module.exports = function(pool, opts) {
   /**
    * Render the affordance for adding notes through blip
    */
-  message.drawNewNoteIcon = _.once(function() {
-    if (!d3.select('#tidelineLabels .newNoteIcon').empty()) { // do not draw twice!
+  message.drawNewNoteIcon = _.once(function () {
+    if (!d3.select("#tidelineLabels .newNoteIcon").empty()) {
+      // do not draw twice!
       return;
     }
 
-    var newNote = d3.select('#tidelineLabels').append('image')
-      .attr({
-        'class': 'newNoteIcon',
-        'xlink:href': newNoteImg,
-        cursor: 'pointer',
-        x: NEW_NOTE_X,
-        y: NEW_NOTE_Y,
-        width: NEW_NOTE_WIDTH,
-        height: NEW_NOTE_HEIGHT
-      });
-
-    newNote.on('mouseover', function() {
-      d3.select('#tidelineLabels').append('text')
-      .attr({
-        'class': 'newNoteText',
-        x: NEW_NOTE_X + 1,
-        y: NEW_NOTE_Y + 43,
-      })
-      .text(t('New'));
-      d3.select('#tidelineLabels').append('text')
-      .attr({
-        'class': 'newNoteText',
-        x: NEW_NOTE_X + 1,
-        y: NEW_NOTE_Y + 56,
-      })
-      .text(t('note'));
-    });
-    newNote.on('mouseout', function() {
-      d3.selectAll('#tidelineLabels .newNoteText').remove();
+    var newNote = d3.select("#tidelineLabels").append("image").attr({
+      class: "newNoteIcon",
+      "xlink:href": newNoteImg,
+      cursor: "pointer",
+      x: NEW_NOTE_X,
+      y: NEW_NOTE_Y,
+      width: NEW_NOTE_WIDTH,
+      height: NEW_NOTE_HEIGHT,
     });
 
-    newNote.on('click', function(event) {
-      var date = new Date();
-      if (!opts.timezoneAware) {
-        var offsetMinutes = new Date(date).getTimezoneOffset();
-        date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
-        opts.emitter.emit('clickTranslatesToDate', date);
-      }
-      else {
-        opts.emitter.emit('clickTranslatesToDate', date);
-      }
+    newNote.on("mouseover", function () {
+      d3.select("#tidelineLabels")
+        .append("text")
+        .attr({
+          class: "newNoteText",
+          x: NEW_NOTE_X + 1,
+          y: NEW_NOTE_Y + 43,
+        })
+        .text(t("New"));
+      d3.select("#tidelineLabels")
+        .append("text")
+        .attr({
+          class: "newNoteText",
+          x: NEW_NOTE_X + 1,
+          y: NEW_NOTE_Y + 56,
+        })
+        .text(t("note"));
+    });
+    newNote.on("mouseout", function () {
+      d3.selectAll("#tidelineLabels .newNoteText").remove();
+    });
+
+    newNote.on("click", function () {
+      log.debug("newNode click");
+      opts.emitter.emit("clickTranslatesToDate", null);
     });
   });
 
-  message.highlightXPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - opts.highlightWidth;
+  message.highlightXPosition = (d) => {
+    return opts.xScale(d.epoch) - opts.size / 2 - opts.highlightWidth;
   };
 
-  message.highlightYPosition = function(d) {
+  message.highlightYPosition = (/* d */) => {
     return pool.height() / 2 - opts.size / 2 - opts.highlightWidth;
   };
 
-  message.xPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+  message.xPosition = (d) => {
+    return opts.xScale(d.epoch) - opts.size / 2;
   };
 
-  message.yPosition = function(d) {
+  message.yPosition = (/* d */) => {
     return pool.height() / 2 - opts.size / 2;
   };
 
-  message.xPositionCenter = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+  message.xPositionCenter = (d) => {
+    return opts.xScale(d.epoch);
   };
 
-  message.yPositionCenter = function(d) {
+  message.yPositionCenter = (/* d */) => {
     return pool.height() / 2;
   };
 

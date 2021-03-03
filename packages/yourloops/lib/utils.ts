@@ -27,6 +27,8 @@
  */
 
 import { User } from "../models/shoreline";
+import httpStatus from "./http-status-codes";
+import { t } from "./language";
 
 export const REGEX_EMAIL = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -67,6 +69,19 @@ export function errorTextFromException(reason: unknown): string {
     errorMessage = s.toString();
   }
   return errorMessage;
+}
+
+export function errorFromHttpStatus(response: Response, log?: Console): Error {
+  if (typeof log === "object") {
+    log.error("Server response in error", response.status, response.statusText);
+  }
+
+  switch (response.status) {
+  case httpStatus.StatusInternalServerError:
+    return new Error(t("error-http-500"));
+  default:
+    return new Error(t("error-http-40x"));
+  }
 }
 
 /**

@@ -28,7 +28,6 @@ const karmaConfig = {
     dir: 'coverage/',
     reporters: [
       { type: 'html' },
-      { type: 'text' },
     ],
   },
   customLaunchers: {

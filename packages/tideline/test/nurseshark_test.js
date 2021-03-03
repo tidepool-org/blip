@@ -439,7 +439,6 @@ describe('nurseshark', function() {
 
     it('should yield the message format tideline expects', function() {
       var now = new Date().toISOString();
-      var offset = new Date().getTimezoneOffset();
       var serverMessage = {
         id: 'a',
         parentmessage: null,
@@ -447,7 +446,6 @@ describe('nurseshark', function() {
         messagetext: 'Hello there!',
         user: 'foo'
       };
-      var messageTime = new Date(serverMessage.timestamp);
       var tidelineMessage = {
         id: 'a',
         parentMessage: null,
@@ -456,7 +454,8 @@ describe('nurseshark', function() {
         user: 'foo',
         type: 'message'
       };
-      expect(nurseshark.reshapeMessage(serverMessage)).to.eql(tidelineMessage);
+      const transformedMessage = nurseshark.reshapeMessage(serverMessage);
+      expect(transformedMessage, JSON.stringify({ serverMessage, tidelineMessage, transformedMessage }, null, 2)).to.eql(tidelineMessage);
     });
   });
 

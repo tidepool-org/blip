@@ -18,6 +18,7 @@
     "postbuild": "mkdir dist && mv packages/yourloops/dist dist/static",
     "gen-lambda": "node server/cloudfront-gen-lambda.js",
     "lint": "lerna run lint",
+    "test": "npm run test-tideline && npm run test-viz && npm run test-blip && npm run test-yourloops",
     "test-platform-client": "lerna --stream --scope=tidepool-platform-client run test",
     "test-sundial": "lerna --stream --scope=sundial run test",
     "test-tideline": "lerna --stream --scope=tideline run test",

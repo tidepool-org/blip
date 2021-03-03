@@ -136,7 +136,7 @@ var nurseshark = {
     }
   },
   reshapeMessage: function(d) {
-    var tidelineMessage = {
+    const msg = {
       time: d.timestamp,
       messageText: d.messagetext,
       parentMessage: d.parentmessage || null,
@@ -144,7 +144,10 @@ var nurseshark = {
       user: d.user,
       id: d.id
     };
-    return tidelineMessage;
+    if (typeof d.timezone === 'string') {
+      msg.timezone = d.timezone;
+    }
+    return msg;
   },
   processData: function(data, bgUnits) {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
@@ -152,17 +155,19 @@ var nurseshark = {
     }
     // data from the old-old data model (pre-v1 docs) doesn't have a `time` field
     function removeNoTime() {
-      var noTimeCount = 0;
-      data = _.filter(data, function(d) {
-        if (d.timestamp != null || d.time != null) {
+      const noTimeData = [];
+      data = _.filter(data, (d) => {
+        if (_.isString(d.timestamp) || _.isString(d.time)) {
           return true;
         }
         else {
-          noTimeCount += 1;
+          noTimeData.push(d);
           return false;
         }
       });
-      log(noTimeCount, 'records removed due to not having a `time` or `timestamp` field.');
+      if (noTimeData.length > 0) {
+        log.warn(`${noTimeData.length} records removed due to not having a 'time or 'timestamp field.`, noTimeData);
+      }
     }
     timeIt(removeNoTime, 'Remove No Time');
 

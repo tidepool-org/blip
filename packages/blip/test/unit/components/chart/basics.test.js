@@ -75,7 +75,7 @@ describe('Basics', () => {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
+    wrapper = shallow(<Basics {...baseProps} />);
   });
 
   afterEach(() => {
@@ -143,7 +143,7 @@ describe('Basics', () => {
           },
         },
       });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      wrapper = shallow(<Basics {...props} />);
       const toggle = wrapper.find('BgSourceToggle');
       expect(toggle.length).to.equal(1);
     });
@@ -157,7 +157,7 @@ describe('Basics', () => {
           },
         },
       });
-      wrapper = shallow(<Basics.WrappedComponent {...props} />);
+      wrapper = shallow(<Basics {...props} />);
       const stats = wrapper.find('Stats');
       expect(stats.length).to.equal(1);
     });
@@ -165,7 +165,7 @@ describe('Basics', () => {
 
   describe('getInitialState', () => {
     it('should set the initial state', () => {
-      wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
+      wrapper = shallow(<Basics {...baseProps} />);
       expect(wrapper.state('atMostRecent')).to.be.true;
       expect(wrapper.state('inTransition')).to.be.false;
       expect(wrapper.state('title')).to.be.a('string');

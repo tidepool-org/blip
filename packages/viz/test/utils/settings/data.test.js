@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+import { expect } from 'chai';
+
 import * as data from '../../../src/utils/settings/data';
 
 const multirateSettingsData = require('../../../data/pumpSettings/medtronic/multirate.json');
@@ -295,7 +297,7 @@ describe('[settings] data utils', () => {
     it('[timezone-naive] should return the serial, schedule and date uploaded device', () => {
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
-      ).to.have.property('serial').equal('0987654321');
+      ).to.have.property('serial').equal('123-45-678');
       expect(
         data.getDeviceMeta(settingsData, timePrefs)
       ).to.have.property('schedule').equal('sick');
@@ -311,7 +313,7 @@ describe('[settings] data utils', () => {
       };
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
-      ).to.have.property('serial').equal('0987654321');
+      ).to.have.property('serial').equal('123-45-678');
       expect(
         data.getDeviceMeta(settingsData, timezoneAwarePrefs)
       ).to.have.property('schedule').equal('sick');

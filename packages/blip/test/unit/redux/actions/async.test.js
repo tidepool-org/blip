@@ -63,7 +63,6 @@ describe('Actions', () => {
       it('should trigger ACCEPT_TERMS_REQUEST if the user user accepted terms in the signup form', () => {
         const acceptedDate = new Date().toISOString();
         const loggedInUserId = false;
-        const termsData = { termsAccepted: acceptedDate };
         const user = {
           id: 27,
         };
@@ -91,7 +90,6 @@ describe('Actions', () => {
       });
 
       it('[409] should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
-        let user = { id: 27 };
         let api = {
           user: {
             signup: sinon.stub().callsArgWith(1, { status: 409, body: 'Error!' }, null),
@@ -119,7 +117,6 @@ describe('Actions', () => {
       });
 
       it('[500] should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
-        let user = { id: 27 };
         let api = {
           user: {
             signup: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' }, null)
@@ -149,7 +146,6 @@ describe('Actions', () => {
 
     describe('confirmSignup', () => {
       it('should trigger CONFIRM_SIGNUP_SUCCESS and it should call confirmSignup once for a successful request', () => {
-        let user = { id: 27 };
         let api = {
           user: {
             confirmSignUp: sinon.stub().callsArgWith(1, null)
@@ -173,7 +169,6 @@ describe('Actions', () => {
       });
 
       it('should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request', () => {
-        let user = { id: 27 };
         let api = {
           user: {
             confirmSignUp: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' })
@@ -203,7 +198,6 @@ describe('Actions', () => {
       });
 
       it('[409] should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request and redirect for password creation', () => {
-        let user = { id: 27 };
         let api = {
           user: {
             confirmSignUp: sinon.stub().callsArgWith(1, { status: 409, message: 'User does not have a password' })
@@ -242,7 +236,6 @@ describe('Actions', () => {
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -268,7 +261,6 @@ describe('Actions', () => {
         let email = 'g@a.com';
         let birthday = '07/18/1988';
         let password = 'foobar01';
-        let creds = { username: email, password: password };
         let api = {
           user: {
             custodialConfirmSignUp: sinon.stub().callsArgWith(3, null),
@@ -306,7 +298,6 @@ describe('Actions', () => {
       });
 
       it('should trigger VERIFY_CUSTODIAL_FAILURE and it should call verifyCustodial once for a failed request', () => {
-        let user = { id: 27 };
         let key = 'fakeSignupKey';
         let email = 'g@a.com';
         let birthday = '07/18/1988';
@@ -401,7 +392,7 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
-        const acceptedDate = moment().format();
+        const acceptedDate = moment.utc().format();
         const loggedInUserId = 'abc';
         const termsData = { termsAccepted: acceptedDate };
         const user = {
@@ -446,7 +437,7 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician if profile not set', (done) => {
-        const acceptedDate = moment().format();
+        const acceptedDate = moment.utc().format();
         const loggedInUserId = 'abc';
         const termsData = { termsAccepted: acceptedDate };
         const user = {
@@ -498,7 +489,7 @@ describe('Actions', () => {
         }, 500);
       });
 
-      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to /patients for clinician if profile is set', () => {
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to /patients for clinician if profile is set', (done) => {
         const acceptedDate = new Date();
         const loggedInUserId = 500;
         const termsData = { termsAccepted: new Date() };
@@ -540,11 +531,19 @@ describe('Actions', () => {
         const store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
-        const actions = store.getActions();
-        expect(actions, 'actions').to.eql(expectedActions);
-        expect(api.user.acceptTerms.callCount).to.equal(1);
-        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
-        expect(api.user.get.callCount).to.equal(1);
+        setTimeout(() => {
+          try {
+            const actions = store.getActions();
+            expect(actions, 'actions').to.eql(expectedActions);
+            expect(api.user.acceptTerms.callCount).to.equal(1);
+            expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+          } catch (e) {
+            done(e);
+            return;
+          }
+          done();
+        }, 50);
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {
@@ -770,7 +769,6 @@ describe('Actions', () => {
 
       it('[400] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27 };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, { status: 400, body: 'Error!' }),
@@ -802,7 +800,6 @@ describe('Actions', () => {
 
       it('[401] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of wrong password request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27 };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, { status: 401, body: 'Wrong password!' }),
@@ -834,7 +831,6 @@ describe('Actions', () => {
 
       it('[403] should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of unverified e-mail', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27 };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, { status: 403, body: 'E-mail not verified!' }),
@@ -865,7 +861,6 @@ describe('Actions', () => {
 
       it('[500 on user fetch] should trigger LOGIN_FAILURE and it should call login and user.get once for a failed user.get request', () => {
         let creds = { username: 'bruce', password: 'wayne' };
-        let user = { id: 27 };
         let api = {
           user: {
             login: sinon.stub().callsArgWith(2, null),
@@ -1250,7 +1245,6 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let invitation = { foo: 'bar' };
         const error = { status: 409, body: 'Error!' };
         let api = {
           invitation: {
@@ -1290,7 +1284,6 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let invitation = { foo: 'bar' };
         const error = { status: 500, body: 'Error!' };
         let api = {
           invitation: {
@@ -2669,8 +2662,6 @@ describe('Actions', () => {
 
 
       it('[401] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', () => {
-        let user = { id: 306, name: 'Frankie Boyle' };
-
         let api = {
           user: {
             get: sinon.stub().callsArgWith(0, { status: 401 }, null)
@@ -2693,8 +2684,6 @@ describe('Actions', () => {
       });
 
       it('[500] should trigger FETCH_USER_FAILURE and it should call error once for a failed request', () => {
-        let user = { id: 306, name: 'Frankie Boyle' };
-
         let api = {
           user: {
             get: sinon.stub().callsArgWith(0, { status: 500, body: 'Error!' }, null)
@@ -2748,8 +2737,6 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call error once for a failed request', () => {
-        let pendingSentInvites = [1, 555, 78191];
-
         let api = {
           invitation: {
             getSent: sinon.stub().callsArgWith(0, { status: 500, body: 'Error!' }, null)
@@ -2803,8 +2790,6 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call error once for a failed request', () => {
-        let pendingReceivedInvites = [1, 555, 78191];
-
         let api = {
           invitation: {
             getReceived: sinon.stub().callsArgWith(0, { status: 500, body: 'Error!' }, null)
@@ -2921,8 +2906,6 @@ describe('Actions', () => {
       });
 
       it('[500] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
-
         let api = {
           patient: {
             get: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' }, null)
@@ -2950,7 +2933,6 @@ describe('Actions', () => {
       });
 
       it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
         let thisInitialState = Object.assign(initialState, { loggedInUserId: 58686 });
 
         let api = {
@@ -3008,10 +2990,6 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_ASSOCIATED_ACCOUNTS_FAILURE and it should call error once for a failed request', () => {
-        let patients = [
-          { id: 58686, name: 'Buddy Holly', age: 65 }
-        ];
-
         let api = {
           user: {
             getAssociatedAccounts: sinon.stub().callsArgWith(0, { status: 500, body: { status: 500, body: 'Error!' } }, null)
@@ -3820,10 +3798,6 @@ describe('Actions', () => {
       });
 
       it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request', () => {
-        let messageThread = [
-          { message: 'Foobar' }
-        ];
-
         let api = {
           team: {
             getMessageThread: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' }, null)

@@ -2,12 +2,18 @@ const dt = require('../../data/util/datetime');
 
 var utils = {
 
-  xPos: function(d, opts){
-    return opts.xScale(Date.parse(d.normalTime)) + 1;
+  xPos: function(d, opts) {
+    if (typeof d.epoch === 'number') {
+      return opts.xScale(d.epoch) + 1;
+    }
+    return opts.xScale(Date.parse(d.normalTime)) + 1; // Why +1 ?
   },
 
   // get duration in milliseconds
   getDuration: function(d) {
+    if (typeof d.epoch === 'number' && typeof d.epochEnd === 'number') {
+      return { start: d.epoch, end: d.epochEnd, duration: d.epochEnd - d.epoch };
+    }
     const start = Date.parse(d.normalTime);
     const units = d.duration.units;
     let msfactor = 1000;

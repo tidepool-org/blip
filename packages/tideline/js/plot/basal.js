@@ -20,8 +20,7 @@ const moment = require('moment-timezone');
 const d3 = require('d3');
 const _ = require('lodash');
 
-
-const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = require('../data/util/constants');
+const constants = require('../data/util/constants');
 const format = require('../data/util/format');
 const BasalUtil = require('../data/basalutil');
 
@@ -35,8 +34,6 @@ module.exports = function(pool, opts) {
     opacity: 0.6,
     opacityDelta: 0.2,
     pathStroke: 1.5,
-    timezoneAware: false,
-    timezoneName: 'UTC',
     timezoneOffset: 0,
     tooltipPadding: 20,
   };
@@ -239,11 +236,11 @@ module.exports = function(pool, opts) {
   };
 
   basal.xPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epoch);
   };
 
   basal.segmentEndXPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalEnd));
+    return opts.xScale(d.epochEnd);
   };
 
   basal.tooltipXPosition = function(d) {
@@ -258,19 +255,17 @@ module.exports = function(pool, opts) {
     return opts.yScale(d.rate) - opts.pathStroke/2;
   };
 
-  basal.invisibleRectYPosition = function(d) {
-    return 0;
-  };
+  basal.invisibleRectYPosition = _.constant(0);
 
   basal.width = function(d) {
-    return opts.xScale(Date.parse(d.normalEnd)) - opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epochEnd) - opts.xScale(d.epoch);
   };
 
   basal.height = function(d) {
     return pool.height() - opts.yScale(d.rate);
   };
 
-  basal.invisibleRectHeight = function(d) {
+  basal.invisibleRectHeight = function(/* d */) {
     return pool.height();
   };
 
@@ -289,6 +284,7 @@ module.exports = function(pool, opts) {
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     const defaultSource = _.get(window, 'config.BRANDING', 'tidepool') === 'diabeloop' ? 'Diabeloop' : 'default';
+    const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = constants;
     /** @type {string} */
     const source = _.get(datum, 'source', defaultSource);
     switch (datum.deliveryType) {
@@ -332,14 +328,9 @@ module.exports = function(pool, opts) {
     let begin = '';
     let end = '';
     if (source === 'Diabeloop') {
-      const mBegin = moment.tz(datum.normalTime, datum.timezone);
+      const mBegin = moment.tz(datum.epoch, datum.timezone);
       begin = mBegin.format(H_MM_A_FORMAT);
-      end = moment.tz(datum.normalEnd, datum.timezone).format(H_MM_A_FORMAT);
-      if (datum.timezone !== opts.timezoneName) {
-        end = `${end}<br />UTC${mBegin.format('Z')}`;
-      } else if (mBegin.utcOffset() !== opts.timezoneOffset) {
-        end = `${end}<br />UTC${mBegin.format('Z z')}`;
-      }
+      end = moment.tz(datum.epochEnd, datum.timezone).format(H_MM_A_FORMAT);
     } else {
       begin = format.timestamp(datum.normalTime, datum.displayOffset);
       end = format.timestamp(datum.normalEnd, datum.displayOffset);
@@ -361,7 +352,7 @@ module.exports = function(pool, opts) {
       datum: datum,
       shape: 'basal',
       xPosition: basal.tooltipXPosition,
-      yPosition: function() { return 0; }
+      yPosition: _.constant(0),
     });
     var foGroup = res.foGroup;
     basal.tooltipHtml(foGroup, d, showSheduledLabel);

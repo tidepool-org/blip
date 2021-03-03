@@ -110,7 +110,7 @@ class BasicsChart extends React.Component {
 
     // check that section has data within range of current view
     return _.some(basicsData.data[section].data, function(datum) {
-      return (datum.time >= basicsData.dateRange[0]);
+      return (datum.normalTime >= basicsData.dateRange[0]);
     });
   };
 
@@ -167,7 +167,7 @@ class BasicsChart extends React.Component {
   render() {
     var rightColumn = this.renderColumn('right');
     return (
-      <div>
+      <div id="chart-basics-factory">
         {rightColumn}
       </div>
     );

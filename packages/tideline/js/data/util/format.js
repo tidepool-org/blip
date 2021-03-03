@@ -20,8 +20,7 @@ import moment from 'moment-timezone';
 
 var d3 = require('d3');
 var Duration = require('duration-js');
-var { MGDL_UNITS, DDDD_MMMM_D_FORMAT, HOUR_FORMAT, MMMM_D_FORMAT } = require('./constants');
-
+const constants = require('./constants');
 const t = i18next.t.bind(i18next);
 
 var format = {
@@ -45,7 +44,7 @@ var format = {
   },
 
   tooltipBGValue: function(value, units) {
-    return units === MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
+    return units === constants.MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
   },
 
   tooltipValue: function(x) {
@@ -65,34 +64,44 @@ var format = {
     }
   },
 
-  nameForDisplay: function(name, maxWordLength) {
-    maxWordLength = maxWordLength || 22;
-    return name.split(' ').map(function(part) {
-      return (part.length <= maxWordLength) ?
-        part :
-        [part.substring(0,maxWordLength), '...'].join('');
-    }).join(' ');
+  /**
+   * Return the name to display for message tooltips
+   * @param {string|{firstName?: string, lastName?: string, fullName: string}} name A name
+   * @param {number} maxWordLength Maximum words length
+   */
+  nameForDisplay: function(name, maxWordLength = 22) {
+    let words = null;
+    if (typeof name === 'string') {
+      words = name.split(' ');
+    } else if (typeof name.firstName === 'string' && typeof name.lastName === 'string') {
+      words = [name.firstName, name.lastName];
+    } else if (typeof name.fullName === 'string') {
+      words = name.fullName.split(' ');
+    } else {
+      words = t('Anonymous user').split(' ');
+    }
+
+    return words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(' ');
   },
 
   /**
    * Function for returning a preview of a text value followed by elipsis.
+   *
    * Will return a string of max length + 3 (for elipsis). Will end preview
    * at last completed word that fits into preview.
    *
-   * @param  {String} text
-   * @param  {Number} previewLength
-   * @return {String}
+   * @param  {string} text The input text
+   * @param  {number} previewLength default = 50
+   * @return {string} return a string of max length + 3 (for elipsis).
    */
-  textPreview: function(text, previewLength) {
-    previewLength = previewLength || 50; // default length
+  textPreview: function(text, previewLength = 50) {
     if (text.length <= previewLength) {
       return text;
-    } else {
-      var substring = text.substring(0, previewLength);
-      var lastSpaceIndex = substring.lastIndexOf(' ');
-      var end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
-      return substring.substring(0, end) + '...';
     }
+    const substring = text.substring(0, previewLength);
+    const lastSpaceIndex = substring.lastIndexOf(' ');
+    const end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
+    return substring.substring(0, end) + '...';
   },
 
   capitalize: function(s) {
@@ -178,28 +187,34 @@ var format = {
    * Given a string timestamp, return a formatted date string
    * Optionally adjust the time if an offset is supplied.
    *
-   * @param  {String} timestring
-   * @param  {Number} offset
-   * @return {String} [MMMM D] e.g. August 4
+   * @param  {string|moment.Moment} time
+   * @param  {number} offset
+   * @return {string} [MMMM D] e.g. August 4
    */
-  datestamp: function(timestring, offset) {
-    var d = new Date(timestring);
+  datestamp: function(time, offset = 0) {
+    if (moment.isMoment(time)) {
+      return time.format(constants.MMMM_D_FORMAT);
+    }
+    var d = new Date(time);
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return moment.utc(d).format(MMMM_D_FORMAT);
+    return moment.utc(d).format(constants.MMMM_D_FORMAT);
   },
 
   /**
    * Given a string timestamp, return a formatted time string.
    * Optionally adjust the time if an offset is supplied.
    *
-   * @param  {String} timestring
-   * @param  {Number} offset
-   * @return {String} [%-I:%M %p] D e.g. 3:14 am
+   * @param  {string|moment.Moment} time
+   * @param  {number} offset
+   * @return {string} [%-I:%M %p] D e.g. 3:14 am
    */
-  timestamp: function(timestring, offset) {
-    var d = new Date(timestring);
+  timestamp: function(time, offset = 0) {
+    if (moment.isMoment(time)) {
+      return time.format(constants.H_MM_A_FORMAT);
+    }
+    var d = new Date(time);
     var f = t('%-I:%M %p');
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
@@ -246,8 +261,8 @@ var format = {
 
     return {
       type: type,
-      from: fromDate ? moment(fromDate).utc().format(format): undefined,
-      to: moment(toDate).utc().format(format),
+      from: fromDate ? moment.utc(fromDate).format(format): undefined,
+      to: moment.utc(toDate).format(format),
       format: format
     };
   },
@@ -257,7 +272,7 @@ var format = {
       i = new Date(i);
       i.setUTCMinutes(i.getUTCMinutes() + offset);
     }
-    return moment(i).utc().format(DDDD_MMMM_D_FORMAT);
+    return moment.utc(i).format(constants.DDDD_MMMM_D_FORMAT);
   },
 
   xAxisTickText: function(i, offset) {
@@ -265,7 +280,7 @@ var format = {
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return d3.time.format.utc(HOUR_FORMAT)(d).toLowerCase();
+    return d3.time.format.utc(constants.HOUR_FORMAT)(d).toLowerCase();
   }
 };
 

@@ -106,9 +106,11 @@ module.exports = function(pool, opts) {
             return 'd3-fill d3-rect-fill d3-fill-' + d.fillColor;
           }
         })
-        .on('click', function() {
+        .on('click', function(fillRect) {
           if (opts.emitter) {
-            opts.emitter.emit('clickInPool', d3.event.offsetX);
+            const parentContainer = document.getElementById('tidelineMain').getBoundingClientRect();
+            const offsetX = d3.event.clientX - parentContainer.left;
+            opts.emitter.emit('clickInPool', { offsetX, datum: fillRect });
           }
         });
 
@@ -159,8 +161,7 @@ module.exports = function(pool, opts) {
   };
 
   fill.width = function(d) {
-    var s = Date.parse(d.normalTime), e = Date.parse(d.normalEnd);
-    return opts.xScale(e) - opts.xScale(s);
+    return opts.xScale(d.epochEnd) - opts.xScale(d.epoch);
   };
 
   fill.drawGuidelines = function() {

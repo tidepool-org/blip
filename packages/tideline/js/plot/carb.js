@@ -29,7 +29,7 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var xPos = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epoch);
   };
 
   function carb(selection) {

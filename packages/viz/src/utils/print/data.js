@@ -41,7 +41,6 @@ export function stripDatum(d) {
       'deviceTime',
       'displayOffset',
       'guid',
-      'localDayOfWeek',
       'localDate',
       'modifiedUserId',
       'payload',

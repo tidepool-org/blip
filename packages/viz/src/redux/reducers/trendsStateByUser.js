@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 import update from 'immutability-helper';
+import bows from 'bows';
 
 import * as actionTypes from '../constants/actionTypes';
 
@@ -56,7 +57,12 @@ const initialState = {
   [TOUCHED]: false,
 };
 
+const log = bows('Viz');
+
 const trendsStateByUser = (state = {}, action) => {
+  if (action.type in actionTypes) {
+    log.debug(action.type, { state, action });
+  }
   switch (action.type) {
     case actionTypes.FETCH_PATIENT_DATA_SUCCESS: {
       const { patientId: userId } = action.payload;

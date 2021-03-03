@@ -15,19 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+const _ = require('lodash');
 
-var _ = require('lodash');
-
-var guid = require('./guid');
-var dt = require('../../js/data/util/datetime');
+const guid = require('./guid');
+const dt = require('../../js/data/util/datetime');
 
 // constants
-var { MGDL_UNITS } = require('../../js/data/util/constants');
-var MS_IN_24HRS = 86400000;
-var APPEND = '.000Z';
+const { MGDL_UNITS, MS_IN_DAY } = require('../../js/data/util/constants');
+const APPEND = '.000Z';
+const timezone = 'Europe/Paris';
 
-var common = {
+const common = {
   deviceId: 'Test Page Data - 123',
   source: 'testpage',
   conversionOffset: 0,
@@ -65,9 +63,10 @@ var Basal = function(opts) {
   var defaults = {
     deliveryType: 'scheduled',
     deviceTime: this.makeDeviceTime(),
-    duration: MS_IN_24HRS/12,
+    duration: MS_IN_DAY/12,
     rate: 0.5,
     scheduleName: 'standard',
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -94,7 +93,8 @@ var Bolus = function(opts) {
   var defaults = {
     deviceTime: this.makeDeviceTime(),
     subType: 'normal',
-    value: 5.0
+    value: 5.0,
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -121,7 +121,8 @@ var CBG = function(opts) {
     deviceId: 'DexG4Rec_XXXXXXXXX',
     deviceTime: this.makeDeviceTime(),
     units: MGDL_UNITS,
-    value: 100
+    value: 100,
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -146,7 +147,8 @@ var Message = function(opts) {
   var defaults = {
     messageText: 'This is a note.',
     parentMessage: null,
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -160,6 +162,7 @@ var Message = function(opts) {
 
   this.messageText = opts.messageText;
   this.parentMessage = opts.parentMessage;
+  this.timezone = 'UTC';
 
   this.id = guid();
 };
@@ -194,6 +197,7 @@ var Settings = function(opts) {
       bg: MGDL_UNITS
     },
     source: 'Medtronic',
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -225,7 +229,8 @@ var SMBG = function(opts) {
   var defaults = {
     deviceTime: this.makeDeviceTime(),
     units: MGDL_UNITS,
-    value: 100
+    value: 100,
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -249,7 +254,8 @@ var DeviceEvent = function(opts) {
   var defaults = {
     deviceTime: this.makeDeviceTime(),
     units: 'mg/dL',
-    value: 100
+    value: 100,
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -277,7 +283,7 @@ var Upload = function(opts) {
   opts = opts || {};
   var defaults = {
     deviceTime: this.makeDeviceTime(),
-    timezone: 'US/Eastern',
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -312,7 +318,8 @@ var Wizard = function(opts) {
     insulinCarbRatio: 15,
     insulinSensitivity: 50,
     recommended: {},
-    value: 5.0
+    value: 5.0,
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -342,7 +349,8 @@ var PhysicalActivity = function(opts) {
     duration: {
       units: 'minutes',
       value: 30.0
-    }
+    },
+    timezone,
   };
   _.defaults(opts, defaults);
 
@@ -366,17 +374,15 @@ var PhysicalActivity = function(opts) {
 
 PhysicalActivity.prototype = common;
 
-module.exports = (function() {
-  return {
-    Basal: Basal,
-    Bolus: Bolus,
-    CBG: CBG,
-    DeviceEvent: DeviceEvent,
-    Message: Message,
-    Settings: Settings,
-    SMBG: SMBG,
-    Upload: Upload,
-    Wizard: Wizard,
-    PhysicalActivity: PhysicalActivity,
-  };
-}());
+module.exports = {
+  Basal,
+  Bolus,
+  CBG,
+  DeviceEvent,
+  Message,
+  Settings,
+  SMBG,
+  Upload,
+  Wizard,
+  PhysicalActivity,
+};

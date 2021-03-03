@@ -15,80 +15,470 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import { assert, expect } from 'chai';
+// import sinon from 'sinon';
+import moment from 'moment-timezone';
 
-/* global sinon */
-/* global context */
+import constants from '../js/data/util/constants';
+import TidelineData from '../js/tidelinedata';
 
-var _ = require('lodash');
-
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var crossfilter = require('crossfilter2');
-var moment = require('moment-timezone');
-
-var types = require('../dev/testpage/types');
-var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
-
-var TidelineData = require('../js/tidelinedata');
+// import types from '../dev/testpage/types';
 
 describe('TidelineData', function() {
-  var td = new TidelineData([]);
-  var bgUnits = MGDL_UNITS;
-  var roundingAllowance = 0.0001;
-  var bgClasses = {
-    'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow - roundingAllowance},
-    low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower - roundingAllowance},
-    target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper + roundingAllowance},
-    high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh + roundingAllowance},
-    'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] }
-  };
-  it('should be a function', function() {
-    assert.isFunction(TidelineData);
+  const { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = constants;
+  const bgUnits = MGDL_UNITS;
+  const roundingAllowance = 0.0001;
+  const fixedDate = new Date('2021-02-10T09:00:00Z');
+  const fixedDateIso = fixedDate.toISOString();
+  const fixedDateValue = fixedDate.valueOf();
+  const timezoneName = 'Europe/Paris';
+
+  const properties = [
+    'data',
+    'maxDuration',
+    'grouped',
+    'diabetesData',
+    'deviceParameters',
+    'physicalActivities',
+    'zenEvents',
+    'confidentialEvents',
+    'latestPumpManufacturer',
+    'endpoints',
+    'basicsData',
+    'filterData',
+    'smbgData',
+    'cbgData',
+    'dataByDate',
+    'smbgByDate',
+    'smbgByDayOfWeek',
+    'cbgByDate',
+    'cbgByDayOfWeek',
+    'basalUtil',
+    'bolusUtil',
+    'cbgUtil',
+    'smbgUtil',
+    'timezonesList',
+  ];
+
+  describe('Init', function () {
+    const bgClasses = {
+      'very-low': { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryLow - roundingAllowance},
+      low: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetLower - roundingAllowance},
+      target: { boundary: DEFAULT_BG_BOUNDS[bgUnits].targetUpper + roundingAllowance},
+      high: { boundary: DEFAULT_BG_BOUNDS[bgUnits].veryHigh + roundingAllowance},
+      'very-high': { boundary: BG_CLAMP_THRESHOLD[bgUnits] }
+    };
+    /** @type {TidelineData} */
+    let td = null;
+
+    before(() => {
+      td = new TidelineData();
+      // const data = [new types.SMBG()];
+      // data[0].units = MMOLL_UNITS;
+      // await thisTd.addData(data);
+      // const data = [
+      //   new types.SMBG(),
+      //   new types.CBG(),
+      // ];
+      // await thisTd.addData(data);
+    });
+
+    it('should be a function', function() {
+      assert.isFunction(TidelineData);
+    });
+
+    it('should be a (newable) constructor', function() {
+      expect(td).to.exist;
+    });
+
+    it('most properties should be null', () => {
+      const nullProperties = _.difference(properties, ['data', 'maxDuration']);
+      nullProperties.forEach((prop) => {
+        expect(td[prop], prop).to.be.null;
+      });
+    });
+
+    it('should have a `data` attribute that is an array', function() {
+      assert.isArray(td.data);
+    });
+
+    it('should have a `maxDuration` attribute that is a number equal 0', function() {
+      expect(td.maxDuration).to.be.equal(0);
+    });
+
+    it('should default to mg/dL for `bgUnits` and `bgClasses`', function() {
+      const msg = JSON.stringify({ expected: bgClasses, having: td.bgClasses }, null, 2);
+      expect(td.bgClasses, msg).to.deep.eql(bgClasses);
+      expect(td.bgUnits).to.equal(MGDL_UNITS);
+    });
+
+    it('should transform `bgClasses` when `bgUnits` are mmol/L', async () => {
+      td = new TidelineData({bgUnits: MMOLL_UNITS});
+      expect(td.bgClasses).to.not.eql(bgClasses);
+      expect(td.bgUnits).to.equal(MMOLL_UNITS);
+    });
   });
 
-  it('should be a (newable) constructor', function() {
-    expect(td).to.exist;
+  describe('normalizeTime', () => {
+    it('should set normalTime and epoch values', () => {
+      const dInitial = {
+        type: 'upload',
+        time: fixedDateIso,
+      };
+      const dExpected = {
+        ...dInitial,
+        normalTime: fixedDateIso,
+        epoch: fixedDateValue,
+      };
+      const dResult = _.clone(dInitial);
+      TidelineData.prototype.normalizeTime(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
+
+    it('should set normalEnd and epochEnd for basal values', () => {
+      const dInitial = {
+        type: 'basal',
+        time: fixedDateIso,
+        duration: 5000,
+        suppressed: {
+          type: 'basal',
+          deliveryType: 'temp',
+        },
+      };
+      const dExpected = {
+        ...dInitial,
+        normalTime: fixedDateIso,
+        normalEnd: new Date(fixedDateValue + dInitial.duration).toISOString(),
+        epoch: fixedDateValue,
+        epochEnd: fixedDateValue + dInitial.duration,
+      };
+      delete dExpected.suppressed;
+      const dResult = _.clone(dInitial);
+      TidelineData.prototype.normalizeTime(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
+
+    it('should set normalEnd and epochEnd for deviceEvent/confidential values', () => {
+      const dInitial = {
+        type: 'deviceEvent',
+        subType: 'confidential',
+        time: fixedDateIso,
+        duration: {
+          value: 1,
+          units: 'hours',
+        },
+      };
+      const dExpected = {
+        ...dInitial,
+        normalTime: fixedDateIso,
+        normalEnd: new Date(fixedDateValue + dInitial.duration.value * 60 * 60 * 1000).toISOString(),
+        epoch: fixedDateValue,
+        epochEnd: fixedDateValue + dInitial.duration.value * 60 * 60 * 1000,
+      };
+      const dResult = _.clone(dInitial);
+      TidelineData.prototype.normalizeTime(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
+
+    it('should set normalEnd and epochEnd for deviceEvent/zen values', () => {
+      const dInitial = {
+        type: 'deviceEvent',
+        subType: 'zen',
+        time: fixedDateIso,
+        duration: {
+          value: 30,
+          units: 'minutes',
+        },
+      };
+      const dExpected = {
+        ...dInitial,
+        normalTime: fixedDateIso,
+        normalEnd: new Date(fixedDateValue + dInitial.duration.value * 60 * 1000).toISOString(),
+        epoch: fixedDateValue,
+        epochEnd: fixedDateValue + dInitial.duration.value * 60 * 1000,
+      };
+      const dResult = _.clone(dInitial);
+      TidelineData.prototype.normalizeTime(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
   });
 
-  it('should have a `basicsData` attribute that is an object', function() {
-    assert.isObject(td.basicsData);
+
+  describe('cleanDatum', () => {
+    const dInitial = {
+      id: 'abc',
+      type: 'cbg',
+      time: fixedDateIso,
+      deviceTime: fixedDateIso,
+      deviceId:  'ABC',
+      deviceSerialNumber: 'ABC',
+      timezoneOffset: 0,
+      clockDriftOffset: 0,
+      conversionOffset: 0,
+      createdTime: fixedDateIso,
+      _id: 'abc',
+      _userId: 'abc',
+      _schemaVersion: 3,
+    };
+
+    it('should cleanup unwanted datum fields', () => {
+      const dExpected = {
+        id: dInitial.id,
+        type: dInitial.type,
+      };
+      const dResult = _.clone(dInitial);
+      TidelineData.prototype.cleanDatum(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
+
+    it('should should keep some device information for pumpSettings', () => {
+      const dExpected = {
+        id: dInitial.id,
+        deviceTime: dInitial.deviceTime,
+        deviceId: dInitial.deviceId,
+        deviceSerialNumber: dInitial.deviceSerialNumber,
+        type: 'pumpSettings',
+      };
+      const dResult = _.clone({ ...dInitial, type: 'pumpSettings' });
+      TidelineData.prototype.cleanDatum(dResult);
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
+
+    it('should add an id if missing', () => {
+      const dResult = _.clone(dInitial);
+      delete dResult.id;
+      TidelineData.prototype.cleanDatum(dResult);
+      expect(dResult.id).to.be.a('string').not.empty;
+    });
   });
 
-  it('should have a `data` attribute that is an array', function() {
-    assert.isArray(td.data);
+  describe('createTimezoneChange', () => {
+    it('should create a valid deviceEvent/timeChange datum', () => {
+      const dExpected = {
+        epoch: fixedDateValue,
+        normalTime: fixedDateIso,
+        timezone: timezoneName,
+        displayOffset: -60,
+        type: 'deviceEvent',
+        subType: 'timeChange',
+        source: 'Diabeloop',
+        from: {
+          time: fixedDateIso,
+          timeZoneName: 'UTC',
+        },
+        to: {
+          time: fixedDateIso,
+          timeZoneName: timezoneName,
+        },
+        method: 'guessed',
+      };
+
+      const dResult = TidelineData.prototype.createTimezoneChange('UTC', timezoneName, fixedDateValue);
+      expect(dResult.id).to.be.a('string').not.empty;
+      delete dResult.id;
+
+      expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
+    });
   });
 
-  it('should have a `filterData` attribute that is a crossfilter object', function() {
-    assert.isObject(td.filterData);
+
+  describe('setTimezones', () => {
+    /** @type {TidelineData} */
+    let td = null;
+
+    beforeEach(() => {
+      td = new TidelineData({ timePrefs: { timezoneName } });
+    });
+
+    it('should set timezone/displayOffset/guessedTimezone if missing - using default timezone', () => {
+      const dInitial = {
+        id: 'abc',
+        type: 'basal',
+        epoch: fixedDateValue,
+      };
+
+      td.data = [dInitial];
+      td.setTimezones();
+
+      expect(td.data.length).to.be.equal(1);
+      expect(dInitial.timezone).to.be.equal(timezoneName);
+      expect(dInitial.guessedTimezone).to.be.true;
+      expect(dInitial.displayOffset).to.be.equal(-60);
+    });
+
+    it('should set timezone/displayOffset/guessedTimezone if missing - using first valid timezone', () => {
+      const dInitial = {
+        id: 'abc',
+        type: 'cbg',
+        epoch: fixedDateValue,
+      };
+
+      const timezone = 'America/Los_Angeles';
+      td.data = [dInitial, {...dInitial, timezone }];
+      td.setTimezones();
+
+      expect(td.data.length).to.be.equal(2);
+      expect(td.data[0].timezone).to.be.equal(timezone);
+      expect(td.data[0].guessedTimezone).to.be.true;
+      expect(td.data[0].displayOffset).to.be.equal(480);
+      expect(td.data[1].timezone).to.be.equal(timezone);
+      expect(td.data[1].guessedTimezone).to.be.undefined;
+      expect(td.data[1].displayOffset).to.be.equal(480);
+    });
+
+    it('should should set localDate and msPer24 for cbg & smbg', () => {
+      const dInitial = {
+        id: 'abc',
+        type: 'cbg',
+        epoch: fixedDateValue,
+        timezone: timezoneName,
+      };
+
+      td.data = [dInitial, { ...dInitial, type: 'smbg' }];
+      td.setTimezones();
+
+      expect(td.data.length).to.be.equal(2);
+      td.data.forEach((d) => {
+        expect(d.timezone).to.be.equal(timezoneName);
+        expect(d.guessedTimezone).to.be.undefined;
+        expect(d.displayOffset).to.be.equal(-60);
+        expect(d.localDate).to.be.equal('2021-02-10');
+        expect(d.msPer24).to.be.equal(36000000); // UTC+1 => 10h => 10 * 60 * 60 * 1000
+      });
+    });
+
+    it('should not generate a deviceEvent/timeChange event when the timezone is the synonym Etc/*', () => {
+      const synonymZone = 'Etc/GMT-1';
+      const dInitial = {
+        id: 'abc',
+        type: 'bolus',
+        epoch: fixedDateValue,
+        timezone: timezoneName,
+      };
+
+      td.data = [dInitial, { ...dInitial, timezone: synonymZone }];
+      td.setTimezones();
+
+      const onErrorMsg = JSON.stringify(td, null, 2);
+      expect(td.data.length, onErrorMsg).to.be.equal(2);
+      expect(td.data[0].timezone, onErrorMsg).to.be.equal(timezoneName);
+      expect(td.data[0].guessedTimezone, onErrorMsg).to.be.undefined;
+      expect(td.data[0].displayOffset, onErrorMsg).to.be.equal(-60);
+      expect(td.data[1].timezone, onErrorMsg).to.be.equal(synonymZone);
+      expect(td.data[1].guessedTimezone, onErrorMsg).to.be.undefined;
+      expect(td.data[1].displayOffset, onErrorMsg).to.be.equal(-60);
+
+      expect(td.opts.timePrefs, onErrorMsg).to.be.deep.equal({
+        timezoneAware: true,
+        timezoneName,
+        timezoneOffset: 60,
+      });
+      expect(td.timezonesList, onErrorMsg).to.be.deep.equal([{ time: 0, timezone: timezoneName }]);
+    });
+
+    it('should ignore "UTC", "GMT", "Etc/GMT" timezones', () => {
+      const INVALID_TIMEZONES = ['UTC', 'GMT', 'Etc/GMT'];
+      const dInitial = {
+        id: 'abc',
+        type: 'bolus',
+        epoch: fixedDateValue,
+        timezone: timezoneName,
+      };
+
+      td.data.push(dInitial);
+      INVALID_TIMEZONES.forEach((timezone) => {
+        td.data.push({ ...dInitial, timezone });
+      });
+      td.setTimezones();
+
+      const onErrorMsg = JSON.stringify(td, null, 2);
+      expect(td.data.length, onErrorMsg).to.be.equal(INVALID_TIMEZONES.length + 1);
+      expect(td.data[0].timezone, onErrorMsg).to.be.equal(timezoneName);
+      expect(td.data[0].guessedTimezone, onErrorMsg).to.be.undefined;
+      expect(td.data[0].displayOffset, onErrorMsg).to.be.equal(-60);
+      for (let i=1; i<td.data.length; i++) {
+        expect(td.data[1].timezone, onErrorMsg).to.be.equal(timezoneName);
+        expect(td.data[1].guessedTimezone, onErrorMsg).to.be.true;
+        expect(td.data[1].displayOffset, onErrorMsg).to.be.equal(-60);
+      }
+
+      expect(td.opts.timePrefs, onErrorMsg).to.be.deep.equal({
+        timezoneAware: true,
+        timezoneName,
+        timezoneOffset: 60,
+      });
+      expect(td.timezonesList, onErrorMsg).to.be.deep.equal([{ time: 0, timezone: timezoneName }]);
+    });
+
+    it('should generate a deviceEvent/timeChange on summer/winter time change', () => {
+      const summerTime = new Date('2020-10-25T00:59:00Z');
+      const winterTime = new Date('2020-10-25T01:01:00Z');
+      const dInitial = {
+        id: 'abc',
+        type: 'bolus',
+        epoch: summerTime.valueOf(),
+        normalTime: summerTime.toISOString(),
+        timezone: timezoneName,
+      };
+
+      td.data = _.cloneDeep([
+        dInitial,
+        {
+          ...dInitial,
+          type: 'wizard',
+          epoch: winterTime.valueOf(),
+          normalTime: winterTime.toISOString()
+        }
+      ]);
+      td.setTimezones();
+
+      const d0 = { ...dInitial, displayOffset: -120 };
+      const d1 = {
+        type: 'deviceEvent',
+        subType: 'timeChange',
+        method: 'guessed',
+        source: 'Diabeloop',
+        normalTime: '2020-10-25T01:00:00.000Z',
+        timezone: timezoneName,
+        displayOffset: -60,
+        epoch: 1603587600000,
+        from: {
+          time: '2020-10-25T00:59:59.999Z',
+          timeZoneName: timezoneName,
+        },
+        to: {
+          time: '2020-10-25T01:00:00.000Z',
+          timeZoneName: timezoneName,
+        },
+      };
+      const d2 = {
+        ...dInitial,
+        type: 'wizard',
+        displayOffset: -60,
+        epoch: winterTime.valueOf(),
+        normalTime: winterTime.toISOString()
+      };
+      expect(td.data.length).to.be.equal(3);
+
+      delete td.data[1].id; // generated, can't be guessed
+      const onErrorMsg = JSON.stringify({ td, d0, d1, d2 }, null, 2);
+
+      expect(td.data[0], onErrorMsg).to.be.deep.equal(d0);
+      expect(td.data[1], onErrorMsg).to.be.deep.equal(d1);
+      expect(td.data[2], onErrorMsg).to.be.deep.equal(d2);
+      expect(td.opts.timePrefs, onErrorMsg).to.be.deep.equal({
+        timezoneAware: true,
+        timezoneName,
+        timezoneOffset: 60,
+      });
+      expect(td.timezonesList, onErrorMsg).to.be.deep.equal([{ time: 0, timezone: timezoneName }]);
+    });
   });
 
-  it('should have a `smbgData` attribute that is a crossfilter object', function() {
-    assert.isObject(td.smbgData);
-  });
-
-  it('should have `bgClasses` and `bgUnits` properties', function() {
-    expect(td.bgClasses).to.exist;
-    expect(td.bgUnits).to.exist;
-  });
-
-  it('should default to mg/dL for `bgUnits` and `bgClasses`', function() {
-    expect(td.bgClasses).to.eql(bgClasses);
-    expect(td.bgUnits).to.equal(MGDL_UNITS);
-  });
-
-  it('should transform `bgClasses` when `bgUnits` are mmol/L', function() {
-    var data = [new types.SMBG()];
-    data[0].units = MMOLL_UNITS;
-    var thisTd = new TidelineData(data, {bgUnits: MMOLL_UNITS});
-    expect(thisTd.bgClasses).to.not.eql(bgClasses);
-    expect(thisTd.bgUnits).to.equal(MMOLL_UNITS);
-  });
-
-  it('should contain sorted groups of data by normalTime', function() {
-    var data = [
+/*
+  it('should contain sorted groups of data by normalTime', async () => {
+    const data = [
       {
         "_schemaVersion": 0,
         "conversionOffset": 2678355000,
@@ -146,24 +536,16 @@ describe('TidelineData', function() {
         "value": 1
       }
     ];
-    var thisTd = new TidelineData(data);
+    thisTd = new TidelineData();
+    await thisTd.addData(data);
     expect(thisTd.grouped.smbg[0].id).to.equal('1');
     expect(thisTd.grouped.smbg[1].id).to.equal('2');
     expect(thisTd.grouped.smbg[2].id).to.equal('3');
     expect(thisTd.grouped.smbg[3].id).to.equal('4');
   });
 
-  // NB: eventually we probably do want to support plotting messages only
-  // so TODO: remove this once we do
-  it('should be able to handle message data only by returning empty tidelineData', function() {
-    var now = new Date().toISOString();
-    var data = [new types.Message()];
-    var messageOnly = new TidelineData(data);
-    expect(messageOnly.data.length).to.equal(0);
-  });
-
-  it('should filter out messages with bad timestamps', function() {
-    var data = [{
+  it('should filter out messages with bad timestamps', async () => {
+    const data = [{
       time: 'Invalid date',
       messageText: 'Hi there',
       parentMessage: null,
@@ -178,52 +560,31 @@ describe('TidelineData', function() {
       normalTime: '2015-01-01T00:00:00.000Z',
       displayOffset: 0
     }];
-    var res = new TidelineData(data);
-    expect(res.grouped.message.length).to.equal(0);
+    thisTd = new TidelineData();
+    await thisTd.addData(data);
+    expect(thisTd.data.length).to.be.equal(0);
+    expect(thisTd.grouped).to.be.null;
   });
 
-  var dataTypes = {
+  const dataTypes = {
     basal: new types.Basal(),
     bolus: new types.Bolus(),
     cbg: new types.CBG(),
-    settings: new types.Settings(),
     smbg: new types.SMBG(),
     wizard: new types.Wizard()
   };
 
-  _.each(Object.keys(dataTypes), function(dType) {
-    // because one-day view doesn't involve settings
-    if (dType !== 'settings') {
-      it('should be able to handle only ' + dType + ' without error', function() {
-        var data = [dataTypes[dType]];
-        var single = new TidelineData(data);
-        expect(single.data.length).to.be.above(1);
-      });
-    }
-  });
-
-  describe('activeScheduleIsAutomated', function() {
-    it('should return `true` when the active schedule is automated', function() {
-      var data = [
-        new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
-      ];
-      var thisTD = new TidelineData(data);
-
-      expect(thisTD.activeScheduleIsAutomated()).to.be.true;
-    });
-
-    it('should return `false` when the active schedule is not automated', function() {
-      var data = [
-        new types.Settings({ activeSchedule: 'standard', source: 'Medtronic' }),
-      ];
-      var thisTD = new TidelineData(data);
-
-      expect(thisTD.activeScheduleIsAutomated()).to.be.false;
+  _.forOwn(dataTypes, (datum, dType) => {
+    it(`should be able to handle only ${dType} without error`, async () => {
+      const data = [datum];
+      thisTd = new TidelineData();
+      await thisTd.addData(data);
+      expect(thisTd.data.length).to.be.above(1);
     });
   });
 
   describe('setUtilities', function() {
-    var BaseObject = function() {
+    function BaseObject() {
       return {
         grouped: {
           bolus: [],
@@ -232,15 +593,15 @@ describe('TidelineData', function() {
           smbg: [],
         },
       };
-    };
+    }
 
-    var thisTD;
-    var baseObject;
+    let baseObject;
 
     beforeEach(function() {
-      thisTD = new TidelineData([]);
+      thisTd = new TidelineData();
       baseObject = new BaseObject();
-      thisTD.setUtilities.call(baseObject);
+      baseObject.opts = thisTd.opts;
+      thisTd.setUtilities.call(baseObject);
     });
 
     it('should set set a basal utility', function() {
@@ -260,58 +621,57 @@ describe('TidelineData', function() {
     });
   });
 
-  describe('filterDataArray', function() {
-    var diabetesData = [
-      new types.Basal({ deviceTime: '2015-10-01T00:00:00' }),
-      new types.Bolus({ deviceTime: '2015-10-04T00:00:00' }),
-    ];
+  // describe('filterDataArray', function() {
+  //   var diabetesData = [
+  //     new types.Basal({ deviceTime: '2015-10-01T00:00:00' }),
+  //     new types.Bolus({ deviceTime: '2015-10-04T00:00:00' }),
+  //   ];
 
-    var data = [
-      new types.Upload({ deviceTags: ['insulin-pump'], source: 'Insulet' }),
-      new types.Settings({ deviceTime: '2015-09-30T00:00:00' }),
-      new types.Settings({ deviceTime: '2015-10-02T00:00:00' }),
-      new types.Settings({ deviceTime: '2015-10-05T00:00:00' }),
-      new types.Message({ time: '2015-09-28T00:00:00' }),
-      new types.Message({ time: '2015-10-02T00:00:00' }),
-      new types.Message({ time: '2015-10-05T00:00:00' }),
-    ].concat(diabetesData);
+  //   var data = [
+  //     new types.Upload({ deviceTags: ['insulin-pump'], source: 'Insulet' }),
+  //     new types.Settings({ deviceTime: '2015-09-30T00:00:00' }),
+  //     new types.Settings({ deviceTime: '2015-10-02T00:00:00' }),
+  //     new types.Settings({ deviceTime: '2015-10-05T00:00:00' }),
+  //     new types.Message({ time: '2015-09-28T00:00:00' }),
+  //     new types.Message({ time: '2015-10-02T00:00:00' }),
+  //     new types.Message({ time: '2015-10-05T00:00:00' }),
+  //   ].concat(diabetesData);
 
-    var BaseObject = function(data) {
-      return {
-        data,
-        diabetesData,
-      };
-    };
+  //   var BaseObject = function(data) {
+  //     return {
+  //       data,
+  //       diabetesData,
+  //     };
+  //   };
 
-    var thisTD;
-    var baseObject;
+  //   var baseObject;
 
-    beforeEach(function() {
-      thisTD = new TidelineData([]);
-      baseObject = new BaseObject(data);
-    });
+  //   beforeEach(function() {
+  //     thisTd = new TidelineData();
+  //     baseObject = new BaseObject(data);
+  //   });
 
-    it('should filter out upload data', function() {
-      expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(1);
-      thisTD.filterDataArray.call(baseObject);
-      expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(0);
-    });
+  //   it('should filter out upload data', function() {
+  //     expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(1);
+  //     thisTd.filterDataArray.call(baseObject);
+  //     expect(_.filter(baseObject.data, { type: 'upload' }).length).to.equal(0);
+  //   });
 
-    it('should filter out message data if it is prior to the time of the earliest diabetes datum', function() {
-      expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(3);
-      thisTD.filterDataArray.call(baseObject);
-      expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(2);
-      expect(_.find(baseObject.data, { type: 'message' }).time).to.equal('2015-10-02T00:00:00');
-      expect(_.findLast(baseObject.data, { type: 'message' }).time).to.equal('2015-10-05T00:00:00');
-    });
+  //   it('should filter out message data if it is prior to the time of the earliest diabetes datum', function() {
+  //     expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(3);
+  //     thisTd.filterDataArray.call(baseObject);
+  //     expect(_.filter(baseObject.data, { type: 'message' }).length).to.equal(2);
+  //     expect(_.find(baseObject.data, { type: 'message' }).time).to.equal('2015-10-02T00:00:00');
+  //     expect(_.findLast(baseObject.data, { type: 'message' }).time).to.equal('2015-10-05T00:00:00');
+  //   });
 
-    it('should filter out settings data if it is outside diabetes data time range', function() {
-      expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(3);
-      thisTD.filterDataArray.call(baseObject);
-      expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(1);
-      expect(_.find(baseObject.data, { type: 'pumpSettings' }).time).to.equal('2015-10-02T00:00:00.000Z');
-    });
-  });
+  //   it('should filter out settings data if it is outside diabetes data time range', function() {
+  //     expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(3);
+  //     thisTd.filterDataArray.call(baseObject);
+  //     expect(_.filter(baseObject.data, { type: 'pumpSettings' }).length).to.equal(1);
+  //     expect(_.find(baseObject.data, { type: 'pumpSettings' }).time).to.equal('2015-10-02T00:00:00.000Z');
+  //   });
+  // });
 
   describe('deduplicateDataArrays', function() {
     var basal = [new types.Basal()];
@@ -335,23 +695,22 @@ describe('TidelineData', function() {
       };
     };
 
-    var thisTD;
     var baseObject;
 
     beforeEach(function() {
-      thisTD = new TidelineData([]);
+      thisTd = new TidelineData();
       baseObject = new BaseObject();
     });
 
     it('should deduplicate the data array', function() {
       expect(baseObject.data.length).to.equal(6);
-      thisTD.deduplicateDataArrays.call(baseObject);
+      thisTd.deduplicateDataArrays.call(baseObject);
       expect(baseObject.data.length).to.equal(3);
     });
 
     it('should deduplicate the diabetes data array', function() {
       expect(baseObject.diabetesData.length).to.equal(4);
-      thisTD.deduplicateDataArrays.call(baseObject);
+      thisTd.deduplicateDataArrays.call(baseObject);
       expect(baseObject.diabetesData.length).to.equal(2);
     });
 
@@ -359,7 +718,7 @@ describe('TidelineData', function() {
       expect(baseObject.grouped.basal.length).to.equal(2);
       expect(baseObject.grouped.bolus.length).to.equal(2);
       expect(baseObject.grouped.settings.length).to.equal(2);
-      thisTD.deduplicateDataArrays.call(baseObject);
+      thisTd.deduplicateDataArrays.call(baseObject);
       expect(baseObject.grouped.basal.length).to.equal(1);
       expect(baseObject.grouped.bolus.length).to.equal(1);
       expect(baseObject.grouped.settings.length).to.equal(1);
@@ -367,14 +726,15 @@ describe('TidelineData', function() {
   });
 
   describe('addData', function() {
-    it('should increase the length of the group data, diabetes data, and data by the length of the provided data array (not including extra fill data)', function() {
-      var origData = [
+    it('should increase the length of the group data, diabetes data, and data by the length of the provided data array (not including extra fill data)', async () => {
+      var data = [
         new types.Bolus({ deviceTime: '2015-09-28T00:00:00' }),
         new types.Message({ time: '2015-09-29T00:00:00.000Z' }),
         new types.Basal({ deviceTime: '2015-09-30T00:00:00' }),
       ];
 
-      var thisTD = new TidelineData(origData);
+      thisTd = new TidelineData();
+      await thisTd.addData(data);
 
       var newData = [
         new types.Bolus(),
@@ -383,15 +743,15 @@ describe('TidelineData', function() {
         new types.SMBG(),
       ];
 
-      thisTD.addData(newData);
-      var tdDataWithoutFills = _.reject(thisTD.data, { type: 'fill' });
+      thisTd.addData(newData);
+      var tdDataWithoutFills = _.reject(thisTd.data, { type: 'fill' });
       expect(tdDataWithoutFills.length).to.equal(7);
 
-      expect(thisTD.diabetesData.length).to.equal(6);
+      expect(thisTd.diabetesData.length).to.equal(6);
 
-      expect(thisTD.grouped.bolus.length).to.equal(3);
-      expect(thisTD.grouped.basal.length).to.equal(2);
-      expect(thisTD.grouped.smbg.length).to.equal(1);
+      expect(thisTd.grouped.bolus.length).to.equal(3);
+      expect(thisTd.grouped.basal.length).to.equal(2);
+      expect(thisTd.grouped.smbg.length).to.equal(1);
     });
 
     it('should only add valid data', function() {
@@ -399,7 +759,7 @@ describe('TidelineData', function() {
         new types.Bolus(),
       ];
 
-      var thisTD = new TidelineData(origData);
+      thisTd = new TidelineData(origData);
 
       var goodBolus = new types.Bolus();
 
@@ -412,15 +772,15 @@ describe('TidelineData', function() {
         badBolus,
       ];
 
-      expect(_.reject(thisTD.data, { type: 'fill' }).length).to.equal(1);
-      expect(thisTD.diabetesData.length).to.equal(1);
-      expect(thisTD.grouped.bolus.length).to.equal(1);
+      expect(_.reject(thisTd.data, { type: 'fill' }).length).to.equal(1);
+      expect(thisTd.diabetesData.length).to.equal(1);
+      expect(thisTd.grouped.bolus.length).to.equal(1);
 
-      thisTD.addData(newData);
+      thisTd.addData(newData);
 
-      expect(_.reject(thisTD.data, { type: 'fill' }).length).to.equal(2);
-      expect(thisTD.diabetesData.length).to.equal(2);
-      expect(thisTD.grouped.bolus.length).to.equal(2);
+      expect(_.reject(thisTd.data, { type: 'fill' }).length).to.equal(2);
+      expect(thisTd.diabetesData.length).to.equal(2);
+      expect(thisTd.grouped.bolus.length).to.equal(2);
     });
 
     it('should sort the data by "normalTime"', function() {
@@ -430,15 +790,15 @@ describe('TidelineData', function() {
         new types.Message({ time: '2015-10-08T00:00:00.000Z' }),
       ];
 
-      var thisTD = new TidelineData(origData);
+      thisTd = new TidelineData(origData);
 
       var newData = [
         new types.CBG({ deviceTime: '2015-10-01T00:00:00' }),
         new types.SMBG({ deviceTime: '2015-10-07T00:00:00' }),
       ];
 
-      thisTD.addData(newData);
-      var tdDataWithoutFills = _.reject(thisTD.data, { type: 'fill' });
+      thisTd.addData(newData);
+      var tdDataWithoutFills = _.reject(thisTd.data, { type: 'fill' });
 
       expect(_.findIndex(tdDataWithoutFills, {type: 'cbg'})).to.equal(0);
       expect(_.findIndex(tdDataWithoutFills, {type: 'smbg'})).to.equal(3);
@@ -446,17 +806,16 @@ describe('TidelineData', function() {
 
     it('should expand the fill data on the right if necessary', function() {
       var origData = [new types.Bolus()];
-      var thisTD = new TidelineData(origData);
-      var origFill = thisTD.grouped.fill;
+      thisTd = new TidelineData(origData);
+      var origFill = thisTd.grouped.fill;
       var lastFill = origFill[origFill.length - 1];
       var later = moment(lastFill.normalTime).add(6, 'hours').toDate();
-      thisTD.addData([new types.SMBG({deviceTime: later.toISOString().slice(0, -5)})]);
-      var newFill = thisTD.grouped.fill;
+      thisTd.addData([new types.SMBG({deviceTime: later.toISOString().slice(0, -5)})]);
+      var newFill = thisTd.grouped.fill;
       expect(moment(newFill[newFill.length - 1].normalTime).toDate()).to.be.at.least(later);
     });
 
     context('data munging', function() {
-      var thisTD;
       var filterDataArraySpy;
       var generateFillDataSpy;
       var adjustFillsForTwoWeekViewSpy;
@@ -465,17 +824,17 @@ describe('TidelineData', function() {
       var updateCrossFiltersSpy;
 
       before(() => {
-        thisTD = new TidelineData([]);
-        filterDataArraySpy = sinon.spy(thisTD, 'filterDataArray');
-        generateFillDataSpy = sinon.spy(thisTD, 'generateFillData');
-        adjustFillsForTwoWeekViewSpy = sinon.spy(thisTD, 'adjustFillsForTwoWeekView');
-        deduplicateDataArraysSpy = sinon.spy(thisTD, 'deduplicateDataArrays');
-        setUtilitiesSpy = sinon.spy(thisTD, 'setUtilities');
-        updateCrossFiltersSpy = sinon.spy(thisTD, 'updateCrossFilters');
+        thisTd = new TidelineData([]);
+        filterDataArraySpy = sinon.spy(thisTd, 'filterDataArray');
+        generateFillDataSpy = sinon.spy(thisTd, 'generateFillData');
+        adjustFillsForTwoWeekViewSpy = sinon.spy(thisTd, 'adjustFillsForTwoWeekView');
+        deduplicateDataArraysSpy = sinon.spy(thisTd, 'deduplicateDataArrays');
+        setUtilitiesSpy = sinon.spy(thisTd, 'setUtilities');
+        updateCrossFiltersSpy = sinon.spy(thisTd, 'updateCrossFilters');
       });
 
       beforeEach(() => {
-        thisTD.addData([new types.Basal()]);
+        thisTd.addData([new types.Basal()]);
       });
 
       afterEach(() => {
@@ -540,7 +899,7 @@ describe('TidelineData', function() {
     this.timeout(10000);
 
     it('should be a function', function() {
-      assert.isFunction(td.editDatum);
+      assert.isFunction(thisTd.editDatum);
     });
 
     it('should maintain the length of the group data and data', function() {
@@ -563,7 +922,8 @@ describe('TidelineData', function() {
       var toEdit = new TidelineData([smbg, message, new types.CBG()]);
       expect(message === origMessage).to.be.false;
       expect(toEdit.grouped.message[0] === message).to.be.true;
-      expect(_.omit(toEdit.grouped.message[0], 'displayOffset')).to.deep.equal(origMessage);
+      const having = _.omit(toEdit.grouped.message[0], 'displayOffset');
+      expect(having, JSON.stringify({ expected: origMessage, having }, null, 2)).to.deep.equal(origMessage);
       expect(toEdit.grouped.message[0] === origMessage).to.be.false;
       toEdit.editDatum(editedMessage, 'time');
       expect(toEdit.grouped.message[0]).to.deep.equal(editedMessage);
@@ -617,7 +977,7 @@ describe('TidelineData', function() {
     };
 
     // defaults to timezoneAware: false
-    var thisTd = new TidelineData([
+    thisTd = new TidelineData([
       upload,
       smbg,
       firstCBG,
@@ -663,11 +1023,15 @@ describe('TidelineData', function() {
   });
 
   describe('generateFillData', function() {
-    var thisTd = new TidelineData([new types.SMBG()]);
-    var fills = thisTd.grouped.fill;
+    let thisTd = null;
+    let fills = null;
+    before(() => {
+      thisTd = new TidelineData([new types.SMBG()]);
+      fills = thisTd.grouped.fill;
+    });
 
     it('should be a function', function() {
-      assert.isFunction(td.generateFillData);
+      assert.isFunction(thisTd.generateFillData);
     });
 
     it('should extend beyond extent of data on either side', function() {
@@ -696,7 +1060,7 @@ describe('TidelineData', function() {
 
     it('when timezoneAware, should produce a foreshortened interval for Spring Forward', function() {
       var start = '2014-03-08T12:00:00', end = '2014-03-09T12:00:00';
-      var thisTd = new TidelineData([
+      thisTd = new TidelineData([
         {
           type: 'smbg',
           deviceTime: start,
@@ -730,7 +1094,7 @@ describe('TidelineData', function() {
     });
 
     it('when timezoneAware, should produce a lengthened interval for Fall Back', function() {
-      var thisTd = new TidelineData([
+      thisTd = new TidelineData([
         new types.SMBG({deviceTime: '2014-11-01T12:00:00'}),
         new types.SMBG({deviceTime: '2014-11-03T12:00:00'})
       ], {timePrefs: {
@@ -748,7 +1112,7 @@ describe('TidelineData', function() {
 
   describe('adjustFillsForTwoWeekView', function() {
     it('should be a function', function() {
-      assert.isFunction(td.adjustFillsForTwoWeekView);
+      assert.isFunction(thisTd.adjustFillsForTwoWeekView);
     });
 
     it('should cover at least 14 days surrounding where smbg data exists (messages outside)', function() {
@@ -758,7 +1122,7 @@ describe('TidelineData', function() {
         new types.SMBG({deviceTime: '2014-09-16T19:00:00'}),
         new types.Message({time: '2014-09-30T12:00:00.000Z'})
       ];
-      var thisTd = new TidelineData(data);
+      thisTd = new TidelineData(data);
       expect(thisTd.twoWeekData[0].normalTime).to.equal('2014-09-03T00:00:00.000Z');
       expect(thisTd.twoWeekData[thisTd.twoWeekData.length - 1].normalTime).to.equal('2014-09-16T21:00:00.000Z');
     });
@@ -768,14 +1132,14 @@ describe('TidelineData', function() {
         new types.SMBG({deviceTime: '2014-09-13T05:00:00'}),
         new types.SMBG({deviceTime: '2014-09-14T19:00:00'})
       ];
-      var thisTd = new TidelineData(data);
+      thisTd = new TidelineData(data);
       expect(thisTd.twoWeekData[0].normalTime).to.equal('2014-09-01T00:00:00.000Z');
       expect(thisTd.twoWeekData[thisTd.twoWeekData.length - 1].normalTime).to.equal('2014-09-14T21:00:00.000Z');
     });
 
     it('when timezoneAware, it should produce appropriately shifted intervals: true story, bruh', function() {
       var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
-      var thisTd = new TidelineData([
+      thisTd = new TidelineData([
         {
           type: 'smbg',
           deviceTime: start,
@@ -805,7 +1169,7 @@ describe('TidelineData', function() {
 
     it('when timezoneAware, it should produce appropriately shifted intervals: New Zealand!', function() {
       var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
-      var thisTd = new TidelineData([
+      thisTd = new TidelineData([
         {
           type: 'smbg',
           deviceTime: start,
@@ -839,7 +1203,7 @@ describe('TidelineData', function() {
       new types.SMBG({deviceTime: '2014-09-13T05:00:00'}),
       new types.SMBG({deviceTime: '2014-09-14T19:00:00'})
     ];
-    var thisTd = new TidelineData(data);
+    thisTd = new TidelineData(data);
 
     it('should be a function', function() {
       assert.isFunction(thisTd.setBGPrefs);
@@ -861,7 +1225,7 @@ describe('TidelineData', function() {
         new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: MMOLL_UNITS}),
         new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: MMOLL_UNITS})
       ];
-      var thisTd = new TidelineData(mmolData);
+      thisTd = new TidelineData(mmolData);
       expect(thisTd.bgUnits).to.eql(MGDL_UNITS);
     });
 
@@ -870,7 +1234,7 @@ describe('TidelineData', function() {
         new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: MMOLL_UNITS}),
         new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: MMOLL_UNITS})
       ];
-      var thisTd = new TidelineData(mmolData, {bgUnits: MMOLL_UNITS});
+      thisTd = new TidelineData(mmolData, {bgUnits: MMOLL_UNITS});
       expect(thisTd.bgUnits).to.equal(MMOLL_UNITS);
     });
   });
@@ -883,7 +1247,7 @@ describe('TidelineData', function() {
           new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
           new types.Basal({ deliveryType: 'scheduled' }),
         ];
-        var thisTd = new TidelineData(data);
+        thisTd = new TidelineData(data);
         expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.equal('standard');
       });
 
@@ -893,7 +1257,7 @@ describe('TidelineData', function() {
           new types.Settings({ activeSchedule: 'Auto Mode', source: 'Medtronic' }),
           new types.Basal({ deliveryType: 'automated' }),
         ];
-        var thisTd = new TidelineData(data);
+        thisTd = new TidelineData(data);
         expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.be.undefined;
       });
     });
@@ -905,7 +1269,7 @@ describe('TidelineData', function() {
           new types.Settings({ activeSchedule: 'standard', source: 'Medtronic' }),
           new types.Basal({ deliveryType: 'scheduled' }),
         ];
-        var thisTd = new TidelineData(data);
+        thisTd = new TidelineData(data);
         expect(thisTd.grouped.pumpSettings[1].lastManualBasalSchedule).to.be.undefined;
       });
     });
@@ -913,7 +1277,7 @@ describe('TidelineData', function() {
 
   describe('createNormalTime', function() {
     var data = [new types.Basal()];
-    var thisTd = new TidelineData(data);
+    thisTd = new TidelineData(data);
 
     it('should be a function', function() {
       assert.isFunction(thisTd.createNormalTime);
@@ -930,7 +1294,7 @@ describe('TidelineData', function() {
 
     it('should apply the timezone offset of the environment (browser) to a message time when not timezoneAware', function() {
       var data = [new types.SMBG({deviceTime: '2014-01-01T00:00:00'}), new types.Message()];
-      var thisTd = new TidelineData(data);
+      thisTd = new TidelineData(data);
       var datum = _.find(thisTd.data, {type: 'message'});
       var now = new Date();
       var offset = now.getTimezoneOffset();
@@ -983,7 +1347,7 @@ describe('TidelineData', function() {
         eventId: 'PA2',
       })
     ];
-    var thisTd = new TidelineData(_.cloneDeep(data), {});
+    thisTd = new TidelineData(_.cloneDeep(data), {});
 
     it('should be a function', function() {
       assert.isFunction(thisTd.deduplicatePhysicalActivities);
@@ -1034,7 +1398,7 @@ describe('TidelineData', function() {
         subType: 'zen',
       }),
     ];
-    var thisTd = new TidelineData(_.cloneDeep(data), {});
+    thisTd = new TidelineData(_.cloneDeep(data), {});
 
     it('should be a function', function() {
       assert.isFunction(thisTd.setEvents);
@@ -1151,7 +1515,7 @@ describe('TidelineData', function() {
     });
 
   });
-  
+
   describe('addManufacturer', function() {
     const pumpManufacturer = { pump: { manufacturer: 'unknown'} };
     const oldpumpManufacturer = { pump: { manufacturer: 'too-old'} };
@@ -1177,7 +1541,7 @@ describe('TidelineData', function() {
       new types.DeviceEvent({
         inputTime: moment.utc().subtract(3, 'hours').toISOString(),
         eventId: 'Event3',
-        subType: 'reservoirChange',        
+        subType: 'reservoirChange',
       }),
       new types.Settings({
         source: 'Diabeloop',
@@ -1205,7 +1569,7 @@ describe('TidelineData', function() {
 
     it('deviceEvent should contain the manufacturer property when set in pumpSettings', function() {
       expect(thisTd.grouped.deviceEvent.length).to.equal(4);
-      _.forEach(thisTd.grouped.deviceEvent, 
+      _.forEach(thisTd.grouped.deviceEvent,
         (d) => expect(d.pump).to.deep.equal(expectedPumpManufacturer.pump)
         )
     });
@@ -1219,9 +1583,10 @@ describe('TidelineData', function() {
 
     it('deviceEvent should contain the default manufacturer property when not set in last pumpSettings', function() {
       expect(thisTd2.grouped.deviceEvent.length).to.equal(4);
-      _.forEach(thisTd2.grouped.deviceEvent, 
+      _.forEach(thisTd2.grouped.deviceEvent,
         (d) => expect(d.pump).to.deep.equal(expectedDefaultPumpManufacturer.pump)
-        )
+        );
     });
   });
+  */
 });

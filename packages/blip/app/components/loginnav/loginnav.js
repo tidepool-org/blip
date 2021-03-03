@@ -16,12 +16,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
-
-import i18n, { i18nOptions } from '../../core/language';
+import i18n from 'i18next';
 
 function LoginNav(props) {
   const { page, hideLinks, trackMetric } = props;
   const t = i18n.t.bind(i18n);
+  const i18nOptions = i18n.options;
   const [ isLangMenuOpened, setLangMenuOpened ] = useState(false);
 
   let link = null;

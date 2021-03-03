@@ -18,7 +18,8 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Trans, withTranslation } from 'react-i18next';
+import i18next from 'i18next';
+import { Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
 import * as viz from 'tidepool-viz';
@@ -27,6 +28,7 @@ import Header from './header';
 import Footer from './footer';
 
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
+const t = i18next.t.bind(i18next);
 
 class Settings extends React.Component {
   static propTypes = {
@@ -35,6 +37,8 @@ class Settings extends React.Component {
     timePrefs: PropTypes.object.isRequired,
     patient: PropTypes.object,
     patientData: PropTypes.object.isRequired,
+    permsOfLoggedInUser: PropTypes.object.isRequired,
+    currentPatientInViewId: PropTypes.string.isRequired,
     canPrint: PropTypes.bool.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onClickNoDataRefresh: PropTypes.func.isRequired,
@@ -77,8 +81,7 @@ class Settings extends React.Component {
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
           onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.props.onClickPrint}
-        ref="header" />
+          onClickPrint={this.props.onClickPrint} />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -89,18 +92,16 @@ class Settings extends React.Component {
         <Footer
          chartType={this.chartType}
          onClickRefresh={this.props.onClickRefresh}
-         onClickSettings={this.props.onSwitchToSettings}
-        ref="footer" />
+         onClickSettings={this.props.onSwitchToSettings} />
       </div>
       );
   }
 
   renderChart() {
     const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
-
-    const self = this;
-    const handleCopySettings = function() {
-      self.props.trackMetric('Clicked Copy Settings');
+    console.log('Settings.renderChart()', mostRecentSettings);
+    const handleCopySettings = () => {
+      this.props.trackMetric('Clicked Copy Settings');
     };
 
     return (
@@ -119,7 +120,7 @@ class Settings extends React.Component {
 
   renderMissingSettingsMessage() {
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data">
+      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data" t={t}>
         <p>
           The System Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like your system hasn't sent data yet.
         </p>
@@ -182,4 +183,4 @@ class Settings extends React.Component {
   };
 }
 
-export default withTranslation()(Settings);
+export default Settings;

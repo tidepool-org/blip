@@ -15,60 +15,60 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+const d3 = require('d3');
+const _ = require('lodash');
+const bows = require('bows');
+const moment = require('moment-timezone');
 
-var Pool = require('./pool');
-var annotation = require('./plot/util/annotations/annotation');
-var Tooltips = require('./plot/util/tooltips/tooltip');
-var dt = require('./data/util/datetime');
+const Pool = require('./pool');
+const annotation = require('./plot/util/annotations/annotation');
+const Tooltips = require('./plot/util/tooltips/tooltip');
+const dt = require('./data/util/datetime');
+const TidelineData = require('./tidelinedata');
 
-var log = require('bows')('One Day');
-
-module.exports = function(emitter, opts) {
-
-  opts = opts || {};
-  var defaults = {
-    timePrefs: {
-      timezoneAware: false,
-      timezoneName: dt.getBrowserTimezone(),
-    }
-  };
-  _.defaults(opts, defaults);
+module.exports = function(emitter /*, opts = {} */) {
+  const log = bows('One Day');
 
   // basic attributes
+  const nav = {
+    scrollNav: true,
+    scrollNavHeight: 50,
+    scrollGutterHeight: 20,
+    scrollThumbRadius: 24,
+    currentTranslation: 0,
+    pan: null,
+  };
+  const minHeight = 400;
+  const minWidth = 300;
+  const axisGutter = 40;
+  const minRenderDaysBuffer = 1;
+  const xScale = d3.time.scale.utc();
+
+  /** @type {TidelineData.Datum[]} */
+  let renderedData = [];
   var id,
-    minWidth = 300, minHeight = 400,
     width = minWidth, height = minHeight,
     poolScaleHeight,
-    nav = {
-      scrollNav: true,
-      scrollNavHeight: 50,
-      scrollGutterHeight: 20,
-      scrollThumbRadius: 24,
-      currentTranslation: 0
-    },
-    axisGutter = 40, gutter = 40,
-    buffer = 2,
+    gutter = 40,
     pools = [], poolGroup,
-    xScale = d3.time.scale.utc(),
-    currentCenter, data, tidelineData, renderedData = [], endpoints,
+    currentCenter,
     mainSVG, mainGroup,
     scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
 
-  container.dataFill = {};
+  let renderDaysBuffer = minRenderDaysBuffer;
+  /** @type {TidelineData} */
+  let tidelineData = null;
 
-  emitter.on('clickInPool', function(offset) {
-    var leftEdge = xScale(xScale.domain()[0]);
-    var date = xScale.invert(leftEdge + offset - container.axisGutter());
-    if (!opts.timePrefs.timezoneAware) {
-      var offsetMinutes = new Date(date).getTimezoneOffset();
-      date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
-      emitter.emit('clickTranslatesToDate', date);
-    }
-    else {
-      emitter.emit('clickTranslatesToDate', date);
-    }
+  emitter.on('clickInPool', function({ offsetX /*, datum */ }) {
+    // const timezone = _.get(opts, 'timePrefs.timezoneName', 'UTC');
+    /** @type {Date} */
+    const date = xScale.invert(offsetX - axisGutter);
+    // For some reason, d3 seems to apply the current locale date offset
+    // to this date, so we need to substract it.
+    const now = new Date();
+    const m = moment.utc(date).subtract(now.getTimezoneOffset(), 'minutes');
+    // log.debug('clickInPool', { offsetX, axisGutter, date, m, datum, offset: date.getTimezoneOffset(), iso: date.toISOString() });
+    emitter.emit('clickToDate', m);
   });
 
   function container(selection) {
@@ -108,9 +108,13 @@ module.exports = function(emitter, opts) {
       });
   }
 
+  container.endpoints = [];
+  container.initialEndpoints = [];
+  container.dataFill = {};
+
   // non-chainable methods
   container.panForward = function() {
-    log('Jumped forward a day.');
+    log.info('Jumped forward a day.');
     nav.currentTranslation -= width - axisGutter;
     var n = 0;
     emitter.emit('inTransition', true);
@@ -132,7 +136,7 @@ module.exports = function(emitter, opts) {
   };
 
   container.panBack = function() {
-    log('Jumped back a day.');
+    log.info('Jumped back a day.');
     nav.currentTranslation += width - axisGutter;
     var n = 0;
     emitter.emit('inTransition', true);
@@ -208,7 +212,7 @@ module.exports = function(emitter, opts) {
       'domain': a
     });
     emitter.emit('navigated', [currentDomain, currentDomain.center.toISOString()]);
-    if (a[1].valueOf() === endpoints[1].valueOf()) {
+    if (a[1].valueOf() === container.endpoints[1].valueOf()) {
       emitter.emit('mostRecent', true);
     }
     else {
@@ -255,7 +259,7 @@ module.exports = function(emitter, opts) {
 
     if (nav.scrollNav) {
       nav.scrollScale = d3.time.scale.utc()
-        .domain([endpoints[0], container.initialEndpoints[0]])
+        .domain([container.endpoints[0], container.initialEndpoints[0]])
         .range([axisGutter + nav.scrollThumbRadius, width - nav.scrollThumbRadius]);
     }
 
@@ -267,8 +271,8 @@ module.exports = function(emitter, opts) {
   };
 
   container.setNav = function() {
-    var maxTranslation = -xScale(endpoints[0]) + axisGutter;
-    var minTranslation = -(xScale(endpoints[1])) + width;
+    const maxTranslation = -xScale(container.endpoints[0]) + axisGutter;
+    const minTranslation = -(xScale(container.endpoints[1])) + width;
     nav.pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .x(xScale)
@@ -279,13 +283,13 @@ module.exports = function(emitter, opts) {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
           if (!mostRecent) {
-            for (var j = 0; j < pools.length; j++) {
+            for (let j = 0; j < pools.length; j++) {
               pools[j].render(poolGroup, container.renderedData());
             }
           }
           container.currentCenter(container.getCurrentDomain().center);
         }
-        var e = d3.event;
+        const e = d3.event;
         if (e.translate[0] < minTranslation) {
           e.translate[0] = minTranslation;
         }
@@ -293,7 +297,7 @@ module.exports = function(emitter, opts) {
           e.translate[0] = maxTranslation;
         }
         nav.pan.translate([e.translate[0], 0]);
-        for (var i = 0; i < pools.length; i++) {
+        for (let i = 0; i < pools.length; i++) {
           pools[i].pan(e);
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
@@ -318,7 +322,7 @@ module.exports = function(emitter, opts) {
         // because of translation adjustment on stats widget no data annotations
         container.navString(xScale.domain());
         if (!scrollHandleTrigger) {
-          mainGroup.select('.scrollThumb').attr('x', function(d) {
+          mainGroup.select('.scrollThumb').attr('x', function (/* d */) {
             return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
           });
         }
@@ -492,56 +496,60 @@ module.exports = function(emitter, opts) {
     return container;
   };
 
+  // FIXME: Delete me: not use
   container.buffer = function(x) {
-    if (!arguments.length) return buffer;
-    buffer = x;
+    if (!arguments.length) return renderDaysBuffer;
+    renderDaysBuffer = x;
     return container;
   };
 
-  container.data = function(a) {
-    if (!arguments.length) return data;
+  container.data = function(/** @type {TidelineData} */ td) {
+    if (td instanceof TidelineData) {
+      tidelineData = td;
+    } else if (tidelineData === null) {
+      return [];
+    } else {
+      return tidelineData.data;
+    }
 
-    if (! (a && Array.isArray(a.data) && a.data.length > 0)) {
-      /* jshint ignore:start */
+    if (_.isEmpty(td.data)) {
       throw new Error("Sorry, I can't render anything without /some/ data.");
-      /* jshint ignore:end */
-    }
-    else if (a.data.length === 1) {
-      /* jshint ignore:start */
+    } else if (td.data.length < 2) {
       throw new Error("Sorry, I can't render anything with only *one* datapoint.");
-      /* jshint ignore:end */
     }
 
-    tidelineData = a;
+    renderDaysBuffer = Math.max(minRenderDaysBuffer, Math.ceil(td.maxDuration / dt.MS_IN_24));
+    if (!Number.isSafeInteger(renderDaysBuffer)) {
+      renderDaysBuffer = minRenderDaysBuffer; // Safe guard
+    }
 
-    data = a.data;
+    log.debug('renderDaysBuffer', renderDaysBuffer);
 
-    var first = new Date(data[0].normalTime);
-    var lastObj = _.sortBy(data, function(d) {
-      return d.normalEnd ? d.normalEnd : d.normalTime;
-    }).reverse()[0];
-    var last = lastObj.normalEnd ? new Date(lastObj.normalEnd) : new Date(lastObj.normalTime);
+    const lastTimezone = tidelineData.getLastTimezone();
+    const first = moment.utc(tidelineData.endpoints[0]);
+    const last = moment.utc(tidelineData.endpoints[1]);
 
-    var minusOne = new Date(last);
-    minusOne.setUTCHours(minusOne.getUTCHours() - 24);
-    container.initialEndpoints = [minusOne, last];
-
-    endpoints = [first, last];
     if (last.valueOf() - first.valueOf() < dt.MS_IN_24) {
-      /* jshint ignore:start */
-      throw new Error("Sorry, I can't render anything when the endpoints of your data are less than 24 hours apart.");
-      /* jshint ignore:end */
+      log.error("The endpoints of your data are less than 24 hours apart.");
     }
-    container.endpoints = endpoints;
+
+    const minusOne = moment.utc(last).tz(lastTimezone);
+    minusOne.subtract(1, 'day');
+    // initialEndpoints ~= set the zoom (time axis) value of the displayed chart
+    container.initialEndpoints = [minusOne.toDate(), last.toDate()];
+    container.endpoints = [first.toDate(), last.toDate()];
 
     return container;
   };
 
-  container.renderedData = function(a) {
-    if (!arguments.length) return renderedData;
-    var start = new Date(dt.addDays(a[0], -buffer)).toISOString();
-    var end = new Date(dt.addDays(a[1], buffer)).toISOString();
-    var filtered = tidelineData.dataByDate.filter([start, end]);
+  container.renderedData = function rData(/** string[] */ a = null) {
+    if (a === null) {
+      return renderedData;
+    }
+
+    const start = moment.utc(a[0]).subtract(renderDaysBuffer, 'day').toISOString();
+    const end = moment.utc(a[1]).add(renderDaysBuffer, 'day').toISOString();
+    const filtered = tidelineData.dataByDate.filter([start, end]);
     renderedData = filtered.top(Infinity).reverse();
 
     return container;

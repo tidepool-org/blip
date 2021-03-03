@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
-
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -49,8 +47,7 @@ module.exports = function(pool, opts) {
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
-
-      cbg.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      cbg.addAnnotations(_.filter(currentData, 'annotations'));
 
       var allCBG = d3.select(this).selectAll('circle.d3-cbg')
         .data(currentData, function(d) {
@@ -139,7 +136,7 @@ module.exports = function(pool, opts) {
   }
 
   cbg.xPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epoch);
   };
 
   cbg.yPosition = function(d) {

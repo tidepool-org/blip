@@ -35,6 +35,9 @@ d3.chart('SMBGDay', {
     var chart = this;
 
     function getMsPer24(d) {
+      if (typeof d.msPer24 === 'number') {
+        return d.msPer24;
+      }
       return dt.getMsPer24(d.normalTime, chart.timezone());
     }
 

@@ -28,17 +28,19 @@
 
 import * as React from "react";
 import bows from "bows";
+import { useParams } from "react-router-dom";
 import Container from "@material-ui/core/Container";
 
 import Blip from "blip";
 
-import { errorTextFromException } from "../../lib/utils";
-import appConfig from "../../lib/config";
-import { useTeam } from "../../lib/team";
-import { useData } from "../../lib/data";
-import ProfileDialog from "../../components/profile-dialog";
+import { UserRoles } from "../models/shoreline";
+import appConfig from "../lib/config";
+import { useTeam, TeamUser } from "../lib/team";
+import { useData } from "../lib/data";
 
-interface PatientDataProps {
+import ProfileDialog from "./profile-dialog";
+
+interface PatientDataParam {
   patientId?: string;
 }
 
@@ -56,41 +58,49 @@ function PatientDataPageError({ msg }: PatientDataPageErrorProps): JSX.Element {
   );
 }
 
-function PatientDataPage(props: PatientDataProps): JSX.Element {
-  const { patientId } = props;
-
-  const [initialized, setInitialized] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<string | null>(null);
+function PatientDataPage(): JSX.Element | null {
+  const paramHook = useParams();
   const teamHook = useTeam();
   const dataHook = useData();
 
-  log.debug("render");
+  const [patient, setPatient] = React.useState<Readonly<TeamUser> | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const { blipApi } = dataHook;
+  const { patientId } = paramHook as PatientDataParam;
 
   React.useEffect(() => {
-    if (!initialized) {
-      setInitialized(true);
-      if (typeof patientId === "undefined") {
-        setError("Invalid patient Id");
-        return;
-      }
-      const patient = teamHook.getUser(patientId);
-      if (patient === null) {
-        setError("Patient not found");
-        return;
-      }
-      dataHook.loadPatientData(patient).catch((reason: unknown) => {
-        setError(errorTextFromException(reason));
-      });
+    if (blipApi === null) {
+      return;
     }
-  }, [patientId, initialized, dataHook, teamHook]);
+
+    if (typeof patientId === "undefined") {
+      log.error("Invalid patient Id", patientId);
+      setError("Invalid patient Id");
+      return;
+    }
+    const user = teamHook.getUser(patientId);
+    if (user === null || !user.roles?.includes(UserRoles.patient)) {
+      log.error("Patient not found");
+      setError("Patient not found");
+    } else {
+      setPatient(user);
+    }
+  }, [blipApi, patientId, teamHook]);
+
+  log.debug("render", { patientId, error });
 
   if (error !== null) {
     return <PatientDataPageError msg={error} />;
   }
 
+  if (blipApi === null || patient === null) {
+    return null;
+  }
+
   return (
     <Container maxWidth="lg">
-      <Blip config={appConfig} api={dataHook.blipApi} profileDialog={ProfileDialog} />
+      <Blip config={appConfig} api={blipApi} patient={patient} profileDialog={ProfileDialog} />
     </Container>
   );
 }

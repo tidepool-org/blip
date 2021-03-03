@@ -1,42 +1,58 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-var expect = chai.expect;
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { shallow } from 'enzyme';
 
-var Messages = require('../../../../app/components/messages/messages');
+import Messages from '../../../../app/components/messages';
 
 describe('Messages', function () {
+  before(() => {
+    sinon.stub(console, 'error').callsFake(console.log.bind(console));
+  });
+
+  after(() => {
+    sinon.restore();
+  });
+
   it('should be exposed as a module and be of type function', function() {
     expect(Messages).to.be.a('function');
   });
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      sinon.spy(console, 'error');
-      var props = {
-        timePrefs: {}
+      const props = {
+        timePrefs: {
+          timezoneName: 'UTC',
+        },
+        user: {},
+        patient: {},
+        onClose: sinon.spy(),
+        onSave: sinon.spy(),
+        onEdit: sinon.spy(),
+        trackMetric: sinon.spy(),
       };
-      var elem = React.createElement(Messages, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      expect(render).to.be.ok;
+      const elem = shallow(<Messages {...props} />);
+      expect(elem.exists('.messages')).to.be.true;
       expect(console.error.callCount).to.equal(0);
-      console.error.restore();
     });
   });
 
   describe('Initial State', function() {
     it('should equal expected initial state', function() {
-      var props = {
-        messages : []
+      const props = {
+        timePrefs: {
+          timezoneName: 'UTC',
+        },
+        user: {},
+        patient: {},
+        onClose: sinon.spy(),
+        onSave: sinon.spy(),
+        onEdit: sinon.spy(),
+        trackMetric: sinon.spy(),
+        messages : [],
       };
-      var elem = React.createElement(Messages, props);
-      var render = TestUtils.renderIntoDocument(elem);
-      var state = render.state;
-
+      const elem = shallow(<Messages {...props} />);
+      const state = elem.instance().state;
       expect(state.messages).to.deep.equal(props.messages);
     });
   });

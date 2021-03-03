@@ -55,11 +55,12 @@ class TidelineHeader extends React.Component {
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
-    ProfileDialog: PropTypes.func,
+    profileDialog: PropTypes.func,
   };
 
   static defaultProps = {
     inTransition: false,
+    profileDialog: null,
   };
 
   getPatientLink() {
@@ -185,8 +186,8 @@ class TidelineHeader extends React.Component {
     };
 
     let profileDialog = null;
-    if (this.props.ProfileDialog) {
-      const ProfileDialog = this.props.ProfileDialog;
+    if (this.props.profileDialog) {
+      const { profileDialog: ProfileDialog } = this.props;
       profileDialog = (
         <ProfileDialog user={this.props.patient} isOpen={this.state.isDialogOpen} handleClose={handleDialogClose} />
       );

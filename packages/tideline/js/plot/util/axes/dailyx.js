@@ -16,13 +16,10 @@
  */
 
 var _ = require('lodash');
-var d3 = require('d3');
 var moment = require('moment-timezone');
 
 var dt = require('../../../data/util/datetime');
 var format = require('../../../data/util/format');
-
-var log = require('bows')('DailyX');
 
 module.exports = function(pool, opts) {
 
@@ -65,10 +62,10 @@ module.exports = function(pool, opts) {
     var offset = 0, d;
     if (opts.timePrefs.timezoneAware) {
       offset = -dt.getOffset(a[0].start, opts.timePrefs.timezoneName);
-      d = moment(a[0].start).tz(opts.timePrefs.timezoneName);
+      d = moment.utc(a[0].start).tz(opts.timePrefs.timezoneName);
     }
     else {
-      d = moment(a[0].start).utc();
+      d = moment.utc(a[0].start);
     }
     // when we're close to midnight (where close = five hours on either side)
     // remove the sticky label so it doesn't overlap with the midnight-anchored day label
@@ -155,6 +152,7 @@ module.exports = function(pool, opts) {
   };
 
   dailyx.text = function(d) {
+    console.log('dailyx.text !!!', format(d.normalTime));
     return format(d.normalTime);
   };
 

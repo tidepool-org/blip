@@ -32,9 +32,24 @@ import Yourloops from "./app";
 
 import { init as i18nInit } from "../lib/language";
 
-// TODO: window.onerror
-
 i18nInit().then(() => {
+  window.onerror = (event, source, lineno, colno, error) => {
+    // FIXME: create an error modale ?
+    console.error(event, source, lineno, colno, error);
+    let div = document.getElementById("app-error");
+    if (div === null) {
+      div = document.createElement("div");
+      div.id = "app-error";
+      document.body.appendChild(div);
+    }
+    const p = document.createElement("p");
+    p.style.color = "red";
+    p.appendChild(document.createTextNode(`Error ${source}:${lineno}:${colno}: ${error}`));
+    div.appendChild(p);
+
+    return false;
+  };
+
   let div = document.getElementById("app");
   if (div === null) {
     div = document.createElement("div");

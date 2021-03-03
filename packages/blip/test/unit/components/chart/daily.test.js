@@ -1,3 +1,8 @@
+
+/**
+ * @typedef {import("enzyme").ShallowWrapper} ShallowWrapper
+ * @typedef {import("enzyme").ReactWrapper} ReactWrapper
+ */
 import _ from 'lodash';
 import React from 'react';
 import sinon from 'sinon';
@@ -10,6 +15,7 @@ import Daily from '../../../../app/components/chart/daily';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from 'tidepool-viz';
 import createReactClass from 'create-react-class';
+
 
 const { Loader } = vizComponents;
 
@@ -47,15 +53,15 @@ describe('Daily', () => {
     dataUtil: new DataUtilStub(),
     initialDateTimeLocation: '2014-03-13T12:00:00.000Z',
     loading: false,
-    onClickRefresh: () => {},
+    onClickRefresh: sinon.stub(),
     onClickPrint: sinon.stub(),
-    onCreateMessage: () => {},
-    onShowMessageThread: () => {},
-    onSwitchToBasics: () => {},
-    onSwitchToDaily: () => {},
-    onSwitchToSettings: () => {},
-    onSwitchToBgLog: () => {},
-    onSwitchToTrends: () => {},
+    onCreateMessage: sinon.stub(),
+    onShowMessageThread: sinon.stub(),
+    onSwitchToBasics: sinon.stub(),
+    onSwitchToDaily: sinon.stub(),
+    onSwitchToSettings: sinon.stub(),
+    onSwitchToBgLog: sinon.stub(),
+    onSwitchToTrends: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
     patient: {
       profile: {
@@ -69,7 +75,7 @@ describe('Daily', () => {
     patientData: {
       opts: {
         timePrefs: {
-          timezoneAware: false,
+          timezoneAware: true,
           timezoneName: 'UTC',
           timezoneOffset: 0,
         },
@@ -78,8 +84,8 @@ describe('Daily', () => {
     },
     canPrint: false,
     timePrefs: {
-      timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneAware: true,
+      timezoneName: 'UTC'
     },
     t: i18next.t.bind(i18next),
     trackMetric: sinon.stub(),
@@ -87,6 +93,7 @@ describe('Daily', () => {
     updateDatetimeLocation: sinon.stub(),
   };
 
+  /** @type {ShallowWrapper | ReactWrapper} */
   let wrapper;
   let instance;
 
@@ -106,6 +113,7 @@ describe('Daily', () => {
   describe('render', () => {
     before(() => {
       Daily.__Rewire__('DailyChart', createReactClass({
+        displayName: 'DailyChart',
         rerenderChart: sinon.stub(),
         render: () => <div className='fake-daily-chart' />,
       }));
@@ -117,6 +125,7 @@ describe('Daily', () => {
 
     after(() => {
       Daily.__ResetDependency__('DailyChart');
+      wrapper.unmount();
     });
 
     it('should have a refresh button which should call onClickRefresh when clicked', () => {
@@ -166,10 +175,10 @@ describe('Daily', () => {
 
       wrapper.setProps(props);
 
-      const loader = () => wrapper.find(Loader);
+      const loader = () => wrapper.find(Loader).last();
 
       expect(loader().length).to.equal(1);
-      expect(loader().props().show).to.be.false;
+      expect(loader().prop('show')).to.be.false;
 
       wrapper.setProps({ loading: true });
       expect(loader().props().show).to.be.true;
@@ -235,7 +244,7 @@ describe('Daily', () => {
       sinon.spy(_, 'debounce');
       sinon.assert.callCount(_.debounce, 0);
 
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.undefined;
+      expect(wrapper.state().debouncedDateRangeUpdate).to.be.null;
 
       instance.handleDatetimeLocationChange(endpoints);
 

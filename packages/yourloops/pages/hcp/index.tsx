@@ -33,8 +33,8 @@ import bows from "bows";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 import HcpNavBar from "../../components/hcp-nav-bar";
+import PatientDataPage from "../../components/patient-data";
 import PatientListPage from "./patients-list";
-import PatientDataPage from "./patient-data";
 import TeamsPage from "./teams-page";
 
 const log = bows("HcpPage");

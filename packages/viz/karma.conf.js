@@ -31,7 +31,6 @@ module.exports = function karmaConfig(config) {
       dir: 'coverage/',
       reporters: [
         { type: 'html' },
-        { type: 'text' },
       ],
     },
     customLaunchers: {

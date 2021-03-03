@@ -15,7 +15,6 @@
 
 import Basics from './basics';
 import Daily from './daily';
-import BgLog from './bgLog';
 import Trends from './trends';
 import Settings from './settings';
 import Header from './header';
@@ -24,7 +23,6 @@ import Footer from './footer';
 export {
   Basics,
   Daily,
-  BgLog,
   Trends,
   Settings,
   Header,

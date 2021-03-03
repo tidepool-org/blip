@@ -1,41 +1,55 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-var expect = chai.expect;
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import _ from 'lodash';
 
-var Message = require('../../../../app/components/messages/message');
+import Message from '../../../../app/components/messages/message';
+import { getDisplayTimestamp } from "../../../../app/components/messages/messagemixins";
 
 describe('Message', function () {
-  var timePrefs = {
+  const timePrefs = {
     timezoneAware: true,
-    timezoneName: 'Pacific/Honolulu'
+    timezoneName: 'Europe/Paris'
   };
+
+  before(() => {
+    sinon.stub(console, 'error').callsFake(console.log.bind(console));
+  });
+
+  after(() => {
+    sinon.restore();
+  });
+
+  afterEach(() => {
+    expect(console.error.callCount, 'No prop type error').to.equal(0);
+    console.error.resetHistory();
+  });
 
   describe('getInitialState', function() {
     it('should return an object with editing set to false', function() {
-      var note = {
+      const note = {
         timestamp : new Date().toISOString(),
         messagetext : 'foo',
         user : {
           fullName:'Test User'
         }
       };
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
-      expect(elem).to.be.ok;
-
-      var initialState = elem.getInitialState();
-      expect(Object.keys(initialState).length).to.equal(1);
-      expect(initialState.editing).to.equal(false);
+      const component = shallow(<Message theNote={note} timePrefs={timePrefs} trackMetric={_.noop} />);
+      const initialState = component.instance().state;
+      const expectedState = {
+        editing: false,
+        when: getDisplayTimestamp.call({ props: { timePrefs }}, note.timestamp),
+        note: note.messagetext,
+        author: note.user.fullName,
+      };
+      expect(initialState, JSON.stringify({ initialState, expectedState, note }, null, 2)).to.be.deep.equal(expectedState);
     });
   });
 
   describe('render', function() {
     it('should render a populated message', function() {
-      var note = {
+      const note = {
         timestamp : new Date().toISOString(),
         messagetext : 'foo bar',
         user : {
@@ -43,20 +57,15 @@ describe('Message', function () {
         }
       };
 
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
-      expect(elem).to.be.ok;
+      const component = shallow(<Message theNote={note} timePrefs={timePrefs} trackMetric={_.noop} />);
 
       // actual rendered text is modified version of input 'note'
-      var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'message-header');
-      expect(headerElem).to.be.ok;
+      expect(component.exists('.message-header')).to.be.true;
 
       // actual rendered text is modified version of input 'note'
-      var timestampElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'message-timestamp');
-      expect(timestampElem).to.be.ok;
-
-      var textElem = elem.refs.messageText;
-      expect(textElem).to.be.ok;
-      expect(textElem.textContent).to.equal(note.messagetext);
+      expect(component.exists('.message-timestamp')).to.be.true;
+      expect(component.exists('.message-note')).to.be.true;
+      expect(component.find('.message-note').last().text()).to.be.equal(note.messagetext);
     });
   });
 });

@@ -200,7 +200,6 @@ describe('print data utils', () => {
         deviceTime: '',
         displayOffset: '',
         guid: '',
-        localDayOfWeek: '',
         localDate: '',
         modifiedUserId: '',
         normalEnd: '',

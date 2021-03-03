@@ -23,6 +23,7 @@ var basalCommon = {
   deviceTime: schema().ifExists().isDeviceTime(),
   duration: schema().ifExists().number().min(0),
   normalEnd: schema().isISODateTime(),
+  epochEnd: schema().number(),
   rate: schema().number().min(0)
 };
 

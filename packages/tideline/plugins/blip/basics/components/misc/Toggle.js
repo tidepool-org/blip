@@ -47,7 +47,7 @@ module.exports = class extends React.PureComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if ('checked' in nextProps) {
       this.setState({ checked: !!nextProps.checked });
     }

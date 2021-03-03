@@ -88,7 +88,7 @@
     "lodash/prefer-is-nil": 1,
     "lodash/prefer-lodash-chain": 1,
     "lodash/prefer-lodash-method": 0,
-    "lodash/prefer-lodash-typecheck": 1,
+    "lodash/prefer-lodash-typecheck": "off",
     "lodash/prefer-matches": 1,
     "lodash/prefer-map": 1,
     "lodash/prefer-noop": 1,

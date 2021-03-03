@@ -15,54 +15,47 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
-const d3 = require('d3');
-const _ = require('lodash');
+import _ from "lodash";
+import i18next from "i18next";
+import moment from "moment-timezone";
 
-const moment = require('moment-timezone');
+const d3 = require("d3");
 
-const constants = require('../data/util/constants');
-const format = require('../data/util/format');
+const constants = require("../data/util/constants");
+const timeChangeImage = require("../../img/timechange/timechange.svg");
 
-const timeChangeImage = require('../../img/timechange/timechange.svg');
-
-const t = i18next.t.bind(i18next);
+/**
+ * Default configuration for this component
+ */
+const defaults = {
+  tooltipPadding: 20,
+};
 
 /**
  * Module for adding timechange markers to a chart pool
  *
- * @param  {Object} pool the chart pool
- * @param  {Object|null} opts configuration options
- * @return {Object}      time change object
+ * @param  {object} pool the chart pool
+ * @param  {typeof defaults} opts configuration options
+ * @return {object}      time change object
  */
-module.exports = function(pool, opts) {
-  opts = opts || {};
-  /**
-   * Default configuration for this component
-   */
-  var defaults = {
-    tooltipPadding: 20
-  };
-
+module.exports = function timeChange(pool, opts) {
   _.defaults(opts, defaults);
 
   function timechange(selection) {
-    selection.each(function(currentData) {
-      var filteredData = _.filter(currentData, {subType: 'timeChange'});
+    selection.each(function (currentData) {
+      const filteredData = _.filter(currentData, { subType: "timeChange" });
 
-      var timechanges = d3.select(this)
-        .selectAll('g.d3-timechange-group')
-        .data(filteredData, function(d) {
-          return d.id;
-        });
+      const timechanges = d3
+        .select(this)
+        .selectAll("g.d3-timechange-group")
+        .data(filteredData, (d) => d.id);
 
-      var timechangeGroup = timechanges.enter()
-        .append('g')
+        const timechangeGroup = timechanges
+        .enter()
+        .append("g")
         .attr({
-          'class': 'd3-timechange-group',
-          id: function(d) {
-            return 'timechange_' + d.id;
-          }
+          class: "d3-timechange-group",
+          id: d => `timechange_${d.id}`,
         });
 
       timechange.addTimeChangeToPool(timechangeGroup);
@@ -71,39 +64,33 @@ module.exports = function(pool, opts) {
     });
   }
 
-  timechange.addTimeChangeToPool = function(selection) {
+  timechange.addTimeChangeToPool = (selection) => {
     opts.xScale = pool.xScale().copy();
-    selection.append('image')
+    selection
+      .append("image")
       .attr({
-        'xlink:href': timeChangeImage,
+        "xlink:href": timeChangeImage,
         x: timechange.xPositionCorner,
         y: timechange.yPositionCorner,
         width: opts.size,
-        height: opts.size
+        height: opts.size,
       })
-      .classed({'d3-image': true, 'd3-timechange': true});
+      .classed({ "d3-image": true, "d3-timechange": true });
 
-    selection.on('mouseover', timechange._displayTooltip);
-    selection.on('mouseout', timechange._removeTooltip);
+    selection.on("mouseover", timechange.displayTooltip);
+    selection.on("mouseout", timechange.removeTooltip);
   };
 
-  timechange._removeTooltip = function(d) {
-    var elem = d3.select('#tooltip_' + d.id).remove();
+  timechange.removeTooltip = (d) => {
+    d3.select(`#tooltip_${d.id}`).remove();
   };
 
-  timechange._displayTooltip = (d) => {
-    if (d.source === 'Diabeloop') {
-      timechange._diplayDblgTooltip(d);
-    } else {
-      timechange._diplayTidepoolTooltip(d);
-    }
-  };
-
-  timechange._diplayDblgTooltip = (d) => {
+  timechange.displayTooltip = (d) => {
+    const t = i18next.t.bind(i18next);
     const mFrom = moment.tz(d.from.time, d.from.timeZoneName);
     const mTo = moment.tz(d.to.time, d.to.timeZoneName);
 
-    let format = 'h:mm a';
+    let format = "h:mm a";
     if (mFrom.year() !== mTo.year()) {
       format = constants.MMM_D_YYYY_H_MM_A_FORMAT;
     } else if (mFrom.month() !== mTo.month()) {
@@ -117,39 +104,34 @@ module.exports = function(pool, opts) {
     const fromDate = mFrom.format(format);
     const toDate = mTo.format(format);
 
+    let changeType;
+    let tzLine1 = null;
+    let tzLine2 = null;
+
+    if (d.from.timeZoneName === d.to.timeZoneName) {
+      changeType = t("Time Change");
+      tzLine1 = `<span class="fromto">${t("from")}</span> ${fromDate} <span class="fromto">${t("to")}</span> ${toDate}`;
+    } else {
+      changeType = t("Timezone Change");
+      tzLine1 = `<span class="fromto">${t("from")}</span> ${fromDate} - ${d.from.timeZoneName}`;
+      tzLine2 = `<span class="fromto">${t("to")}</span> ${toDate} - ${d.to.timeZoneName}`;
+    }
+
     const tooltips = pool.tooltips();
     const tooltip = tooltips.addForeignObjTooltip({
-      cssClass: 'svg-tooltip-timechange',
+      cssClass: "svg-tooltip-timechange",
       datum: d,
-      shape: 'generic',
+      shape: "generic",
       xPosition: timechange.xPositionCenter,
-      yPosition: timechange.yPositionCenter
+      yPosition: timechange.yPositionCenter,
     });
 
     const { foGroup } = tooltip;
-    let fromHTML = `<span class="fromto">${t('from')}</span> ${fromDate}`;
-    let toHTML = `<span class="fromto">${t('to')}</span> ${toDate}`;
-    let changeType;
-    if (d.from.timeZoneName !== d.to.timeZoneName) {
-      fromHTML = `${fromHTML} - ${d.from.timeZoneName}`;
-      toHTML = `${toHTML} - ${d.to.timeZoneName}`;
-      changeType = t('Timezone Change');
-    } else {
-      changeType = t('Time Change');
+    foGroup.append("p").append("span").attr("class", "secondary").html(tzLine1);
+    if (tzLine2) {
+      foGroup.append("p").append("span").attr("class", "secondary").html(tzLine2);
     }
-
-    foGroup.append('p')
-      .append('span')
-      .attr('class', 'secondary')
-      .html(fromHTML);
-    foGroup.append('p')
-      .append('span')
-      .attr('class', 'secondary')
-      .html(toHTML);
-    foGroup.append('p')
-      .append('span')
-      .attr('class', 'mainText')
-      .html(changeType);
+    foGroup.append("p").append("span").attr("class", "mainText").html(changeType);
 
     const dims = tooltips.foreignObjDimensions(foGroup);
 
@@ -161,131 +143,28 @@ module.exports = function(pool, opts) {
       x: timechange.xPositionCenter(d),
       y: -dims.height,
       orientation: {
-        'default': 'leftAndDown',
-        leftEdge: 'rightAndDown',
-        rightEdge: 'leftAndDown'
+        default: "leftAndDown",
+        leftEdge: "rightAndDown",
+        rightEdge: "leftAndDown",
       },
-      shape: 'generic',
-      edge: tooltip.edge
+      shape: "generic",
+      edge: tooltip.edge,
     });
   };
 
-  timechange._diplayTidepoolTooltip = (d) => {
-    // Need to check if time is coming from the current data model, or the deprecated `change` property
-    var fromTime = _.get(d, 'from.time', _.get(d, 'change.from'));
-    var toTime = _.get(d, 'to.time', _.get(d, 'change.to'));
-
-    var fromTimeZoneName = _.get(d, 'from.timeZoneName');
-    var toTimeZoneName = _.get(d, 'to.timeZoneName');
-
-    if (toTime || toTimeZoneName) {
-      var tooltips = pool.tooltips();
-
-      var tooltip = tooltips.addForeignObjTooltip({
-        cssClass: 'svg-tooltip-timechange',
-        datum: d,
-        shape: 'generic',
-        xPosition: timechange.xPositionCenter,
-        yPosition: timechange.yPositionCenter
-      });
-
-      var foGroup = tooltip.foGroup;
-
-      if (toTime) {
-        // Render time change
-        var timeChange = format.timeChangeInfo(fromTime, toTime);
-
-        if (timeChange.format === 'h:mm a' && !toTimeZoneName) {
-          // No time zone change and time change is on the same day so we display on one line.
-          /* jshint laxbreak: true */
-          var html = timeChange.from
-            ? '<span class="fromto">from</span> ' + timeChange.from + ' <span class="fromto">to</span> ' + timeChange.to
-            : '<span class="fromto">to</span> ' + timeChange.to;
-
-          tooltip.foGroup.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html(html);
-        } else {
-          // Render time change on 2 lines, appended by time zone change if present
-          var fromTimeZoneText = '';
-          var toTimeZoneText = '';
-
-          if (toTimeZoneName && toTimeZoneName !== fromTimeZoneName) {
-            fromTimeZoneText = fromTimeZoneName ? ' ' + fromTimeZoneName : '';
-            toTimeZoneText = ' ' + toTimeZoneName;
-          }
-
-          var fromHTML = '<span class="fromto">from</span> ' + timeChange.from + fromTimeZoneText;
-          var toHTML = '<span class="fromto">to</span> ' + timeChange.to + toTimeZoneText;
-
-          if (fromTime) {
-            tooltip.foGroup.append('p')
-              .append('span')
-              .attr('class', 'secondary')
-              .html(fromHTML);
-          }
-          tooltip.foGroup.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html(toHTML);
-        }
-        foGroup.append('p')
-          .append('span')
-          .attr('class', 'mainText')
-          .html(timeChange.type);
-      } else {
-        // Render time zone change
-        if (fromTimeZoneName) {
-          tooltip.foGroup.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html('<span class="fromto">from</span> ' + fromTimeZoneName);
-        }
-        tooltip.foGroup.append('p')
-          .append('span')
-          .attr('class', 'secondary')
-          .html('<span class="fromto">to</span> ' + toTimeZoneName);
-
-        foGroup.append('p')
-          .append('span')
-          .attr('class', 'mainText')
-          .html('Time Zone Change');
-      }
-
-      var dims = tooltips.foreignObjDimensions(foGroup);
-
-      // foGroup.node().parentNode is the <foreignObject> itself
-      // because foGroup is actually the top-level <xhtml:div> element
-      tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
-        w: dims.width + opts.tooltipPadding,
-        h: dims.height,
-        x: timechange.xPositionCenter(d),
-        y: -dims.height,
-        orientation: {
-          'default': 'leftAndDown',
-          leftEdge: 'rightAndDown',
-          rightEdge: 'leftAndDown'
-        },
-        shape: 'generic',
-        edge: tooltip.edge
-      });
-    }
+  timechange.xPositionCorner = (d) => {
+    return opts.xScale(d.epoch) - opts.size / 2;
   };
 
-  timechange.xPositionCorner = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
-  };
-
-  timechange.yPositionCorner = function(d) {
+  timechange.yPositionCorner = (/* d */) => {
     return pool.height() / 2 - opts.size / 2;
   };
 
-  timechange.xPositionCenter = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+  timechange.xPositionCenter = (d) => {
+    return opts.xScale(d.epoch);
   };
 
-  timechange.yPositionCenter = function(d) {
+  timechange.yPositionCenter = (/* d */) => {
     return pool.height() / 2;
   };
 

@@ -27,6 +27,7 @@
  */
 
 import _ from "lodash";
+import bows from 'bows';
 import i18n, { InitOptions, Resource, TOptions } from "i18next";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
@@ -35,7 +36,10 @@ import getLocale from "./browser-locale";
 import locales from "../../../locales/languages.json";
 import { Preferences } from "../models/shoreline";
 
+const log = bows('i18n');
+
 async function init(): Promise<void> {
+  log.info('Initializing...');
   const crowdinActive = typeof window._jipt === "object";
 
   let language = getLocale();
@@ -46,6 +50,8 @@ async function init(): Promise<void> {
       window.zE("webWidget", "setLocale", language);
     }
   }
+
+  moment.locale(language);
 
   const i18nOptions: InitOptions = {
     fallbackLng: locales.fallback,
@@ -67,6 +73,7 @@ async function init(): Promise<void> {
 
     react: {
       wait: true,
+      useSuspense: false, // Experimental features that is not yet available in a stable release.
       transSupportBasicHtmlNodes: true, // allow <br/> and simple html elements in translations
     },
     ns: locales.namespaces,
@@ -87,6 +94,7 @@ async function init(): Promise<void> {
     // FIXME Only perform the update when the locale really changed.
     // For some reason, it is call a lots of times
     if (typeof lng === "string" && language !== lng) {
+      log.debug('languageChanged', lng);
       language = lng;
 
       // FIXME: Get currently use Crowdin language, when Crowdin is active.

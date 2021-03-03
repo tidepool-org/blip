@@ -15,344 +15,367 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import i18next from "i18next";
+import bows from 'bows';
+import moment from 'moment-timezone';
 
-import React from 'react';
-import createReactClass from 'create-react-class';
-import _ from 'lodash';
-import sundial from 'sundial';
+import { isTimezoneAware, getDisplayTimestamp } from "./messagemixins";
 
-import i18n from '../../core/language';
-var MessageMixins = require('./messagemixins');
+const DATE_MASK = "YYYY-MM-DD";
+const TIME_MASK = "HH:mm";
+const t = i18next.t.bind(i18next);
 
-// Form for creating new Notes or adding Comments
-var MessageForm = createReactClass({
-  displayName: 'MessageForm',
-  mixins: [MessageMixins],
+/**
+ * Form for creating new Notes or adding Comments
+ */
+class MessageForm extends React.Component {
+  constructor(props) {
+    super(props);
 
-  propTypes: {
-    formFields: PropTypes.object,
-    messagePrompt: PropTypes.string,
-    onCancel: PropTypes.func,
-    onSubmit: PropTypes.func,
-    timePrefs: PropTypes.object.isRequired
-  },
+    this.state = this.initialState();
+    this.isTimezoneAware = isTimezoneAware.bind(this);
+    this.getDisplayTimestamp = getDisplayTimestamp.bind(this);
+    this.log = bows('MessageForm UI');
+  }
 
-  /*
+  /**
    * Declared so that we can reset them easily
    */
-  initialState: function () {
+  initialState() {
     return {
+      /** @type {string} The edited message */
       msg: '',
-      whenUtc: null,
+      /** @type {string} ISO date-time string in UTC */
+      when: null,
+      /** @type {string} The edited date */
       date: null,
+      /** @type {string} The original date (same as date but never changed when we edit the date/time) */
+      originalDate: null,
+      /** @type {string} The edited time */
       time: null,
+      /** @type {string} The original time (same as time but never changed when we edit the date/time) */
+      originaltime: null,
+      /** Are we in edition mode or 'click to add a comment' ? */
       editing: false,
+      /** Saving in progress -> Disable the buttons */
       saving: false,
-      changeDateTime: false
+      /** When true, the date & time can be changed: => renderEditableDate() */
+      changeDateTime: false,
+      rows: 1,
     };
-  },
+  }
 
-  getInitialState: function() {
-    return this.initialState();
-  },
-
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.isExistingNoteEdit()) {
       this.initEdit();
     }
-  },
+  }
 
-  getDefaultProps: function () {
-    return {
-      DATE_MASK: 'YYYY-MM-DD',
-      TIME_MASK: 'HH:mm',
-      EDITED_DATE_MASK: 'YYYY-MM-DD HH:mm'
-    };
-  },
+  getEditableDateAndTime(ts) {
+    const timezone = this.props.timePrefs.timezoneName;
+    const m = moment.utc(ts).tz(timezone);
+    const date = m.format(DATE_MASK);
+    const time = m.format(TIME_MASK);
+    // this.log('getEditableDateAndTime', { ts, date, time, m, timezone });
+    return { date, time };
+  }
 
-  getEditableDateAndTime: function(ts) {
-    var editableTime, editableDate;
-    if (this.isTimezoneAware()) {
-      var tz = this.props.timePrefs.timezoneName;
-      editableTime = sundial.formatInTimezone(ts, tz, this.props.TIME_MASK);
-      editableDate = sundial.formatInTimezone(ts, tz, this.props.DATE_MASK);
-    }
-    else {
-      var offset = sundial.getOffsetFromTime(ts) || sundial.getOffset();
-      editableTime = sundial.formatFromOffset(ts, offset, this.props.TIME_MASK);
-      editableDate = sundial.formatFromOffset(ts, offset, this.props.DATE_MASK);
-    }
-    return {
-      time: editableTime,
-      date: editableDate
-    };
-  },
+  isExistingNoteEdit() {
+    const { formFields } = this.props;
+    return formFields !== null && !_.isEmpty(formFields);
+  }
 
-  isExistingNoteEdit: function() {
-    return _.isEmpty(this.props.formFields) === false;
-  },
+  hasTextToEdit() {
+    return this.isExistingNoteEdit() && _.isString(this.props.formFields.editableText);
+  }
 
-  hasTextToEdit: function() {
-    return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableText) === false;
-  },
+  hasTimestampToEdit() {
+    return this.isExistingNoteEdit() && !_.isEmpty(this.props.formFields.editableTimestamp);
+  }
 
-  hasTimestampToEdit: function() {
-    return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableTimestamp) === false;
-  },
+  initEdit() {
+    const { formFields } = this.props;
+    const textToEdit = this.hasTextToEdit();
+    const timestampToEdit = this.hasTimestampToEdit();
 
-  initEdit: function() {
-    var editable;
-    if (this.hasTimestampToEdit()) {
-      editable = this.getEditableDateAndTime(this.props.formFields.editableTimestamp);
-    }
-    if (this.hasTextToEdit() && this.hasTimestampToEdit()) {
-      //allow editing of both the note text and timestamp
+    if (textToEdit && timestampToEdit) {
+      this.log.info('initEdit at', formFields.editableTimestamp);
+      const editable = this.getEditableDateAndTime(formFields.editableTimestamp);
+      // allow editing of both the note text and timestamp
       this.setState({
-        msg: this.props.formFields.editableText,
-        whenUtc: this.props.formFields.editableTimestamp,
+        msg: formFields.editableText,
+        when: formFields.editableTimestamp,
         editing: true,
-        changeDateTime: true,
+        changeDateTime: false,
+        date: editable.date,
         time: editable.time,
-        date: editable.date
+        originalDate: editable.date,
+        originaltime: editable.time,
       });
-    } else if (this.hasTextToEdit()) {
-      //allow editing of the note text only
+    } else if (textToEdit) {
+      // allow editing of the note text only
       this.setState({
-        msg: this.props.formFields.editableText,
-        whenUtc: this.props.formFields.displayTimestamp,
-        editing: true
+        msg: formFields.editableText,
+        when: formFields.displayTimestamp,
+        editing: true,
       });
-    } else if (this.hasTimestampToEdit()) {
-      //this is the case of a brand-new note/thread, with no text yet
-      this.setState({
-        whenUtc: this.props.formFields.editableTimestamp,
-        editing: true
-      });
+    } else {
+      this.log.error('initEdit: Wrong state', { textToEdit, timestampToEdit, props: { ...this.props }, state: { ...this.state } });
     }
-    this.refs.messageText.rows = 3;
-  },
 
-  /*
+    this.setState({ rows: 3 });
+  }
+
+  /**
+   * If we are allowing the date to be edited then
+   *  - set as the when date as will be the case for most new dates
+   *  - OR if the date has been edited then resolve the date and return
+   */
+  getUtcTimestamp() {
+    const timezone = this.props.timePrefs.timezoneName;
+    const { when, date, time } = this.state;
+
+    let messageTime = when;
+    if (_.isString(date) && _.isString(time)) {
+      const m = moment.tz(`${date}T${time}`, timezone);
+      messageTime = m.toISOString();
+    }
+
+    return messageTime;
+  }
+
+  /**
    * If there is now a message showing
    * - make sure the current datetime is set
    * - go in to `editing` mode
    *
    * Always keep the msg state current
    */
-  handleMsgChange: function(e) {
+  handleMsgChange = (e) => {
     this.setState({ msg: e.target.value });
-  },
+  };
 
-  /*
+  /**
    * Use the given onCancel handler or just
    * clear the data if there wasn't one given
    */
-  handleCancel: function(e) {
+  handleCancel = (e) => {
     if (this.props.onCancel) {
-      this.props.onCancel();
+      this.props.onCancel(e);
     } else {
-      this.refs.messageText.rows = 1;
+      this.log.debug('Cancel edit note');
       this.setState(this.initialState());
     }
-  },
+  };
 
-  handleDateChange: function(e) {
+  handleDateChange = (e) => {
     this.setState({ date: e.target.value });
-  },
+  };
 
-  handleTimeChange: function(e) {
+  handleTimeChange = (e) => {
     this.setState({ time: e.target.value });
-  },
+  };
 
-  /*
-   * If we are allowing the date to be edited then
-   *  - set as the whenUtc date as will be the case for most new dates
-   *  - OR if the date has been edited then resolve the date and return
-   *
-   */
-  getUtcTimestamp: function() {
-    var utcTimestamp = this.state.whenUtc, offset;
-
-    if (this.state.date && this.state.time) {
-      var editedTimestamp = this.state.date + 'T' + this.state.time;
-      if (this.isTimezoneAware()) {
-        editedTimestamp = sundial.applyTimezone(editedTimestamp, this.props.timePrefs.timezoneName);
-        offset = sundial.getOffsetFromZone(editedTimestamp, this.props.timePrefs.timezoneName);
-      }
-      else {
-        offset = sundial.getOffsetFromTime(editedTimestamp);
-      }
-      utcTimestamp = sundial.formatForStorage(editedTimestamp, offset);
-    }
-
-    return utcTimestamp;
-  },
-
-  handleSaving: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
+  handleSaving = async (/* e */) => {
+    const { alwaysActiveCommentForm } = this.props;
+    this.log.debug('handleSaving', { ...this.state, alwaysActiveCommentForm });
     this.setState({ saving: true });
 
-    if (this.props.onSubmit) {
-      this.props.onSubmit({
-        text: this.state.msg,
-        timestamp: this.getUtcTimestamp()
-      }, function() {
-        this.handleSaved();
-      }.bind(this));
+    try {
+      if (_.isFunction(this.props.onSubmit)) {
+        await this.props.onSubmit({ text: this.state.msg, timestamp: this.getUtcTimestamp() });
+      } else {
+        this.log.warn('handleSaving: onSubmit callback is missing');
+      }
+    } catch (err) {
+      this.log.error('handleSaving(): TODO manage error', err);
     }
-  },
 
-  handleSaved: function() {
-    this.refs.messageText.rows = 1;
-    this.setState(this.initialState());
-  },
-
-  handleGrow: function(e) {
-    if (e) {
-      e.preventDefault();
+    if (alwaysActiveCommentForm) {
+      // Only update the state when we are mounted
+      // -> After edit a comment
+      this.setState(this.initialState());
     }
-    this.refs.messageText.rows = 3;
+  };
+
+  handleFocus = (/* e */) => {
     if (this.isExistingNoteEdit() === false) {
-      this.setState({ editing: true, whenUtc: sundial.utcDateString() });
+      this.log('Starting to edit a note');
+      this.setState({ editing: true, when: moment.utc().toISOString() });
     }
-  },
+    this.setState({ rows: 3 });
+  };
 
-  /*
+  /**
    * Split the timestamp into the date and time
    * components to allow for editing
+   *
+   * callback from renderDisplayDate() when this.hasTimestampToEdit() === true
    */
-  showEditDate: function(e) {
+  handleShowEditDate = (e) => {
     if (e) {
       e.preventDefault();
     }
-    var editable = this.getEditableDateAndTime(this.state.whenUtc);
+    // const editable = this.getEditableDateAndTime(this.state.when);
     this.setState({
       changeDateTime: true,
-      time: editable.time,
-      date: editable.date
+      // time: editable.time,
+      // date: editable.date,
     });
-  },
+  }
 
-  isButtonDisabled: function() {
-    var msg = this.state.msg;
-    return !(msg && msg.length);
-  },
+  isButtonDisabled() {
+    const { formFields } = this.props;
+    const { msg, date, time, originalDate, originaltime, changeDateTime } = this.state;
 
-  /*
+    if (formFields === null) {
+      return _.isEmpty(msg);
+    }
+
+    if (changeDateTime) {
+      return formFields.editableText === msg && date === originalDate && time === originaltime;
+    }
+    return formFields.editableText === msg;
+  }
+
+  /**
    * Just displays the notes date if it is set
    */
-  renderDisplayDate: function(canEditTimestamp) {
-    var displayDate;
-    if (this.state.whenUtc) {
-      var editLink;
+  renderDisplayDate() {
+    const { when } = this.state;
+    const canEditTimestamp = this.hasTimestampToEdit();
+    let displayDate = null;
+    if (when !== null) {
+      const displayTimestamp = this.getDisplayTimestamp(when);
+      let editLink = null;
 
       if (canEditTimestamp) {
         editLink = (
-          <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>{i18n.t('Change')}</a>
+          <a className="messageform-change-datetime" href="" onClick={this.handleShowEditDate}>
+            {t("Change")}
+          </a>
         );
       }
-
-      var displayTimestamp = this.getDisplayTimestamp(this.state.whenUtc);
 
       displayDate = (
         <div>
           {editLink}
-          <label className='messageform-datetime-label'>
-            {displayTimestamp}
-          </label>
+          <label className="messageform-datetime-label">{displayTimestamp}</label>
         </div>
       );
     }
-    return displayDate;
-  },
 
-  /*
+    return displayDate;
+  }
+
+  /**
    * Enables the editing of the notes date and time components
    */
-  renderEditableDate: function() {
+  renderEditableDate() {
     return (
-      <div ref='editDateTime'>
-        <input
-          type='time'
-          ref='editMessageTime'
-          value={this.state.time}
-          className='messageform-time'
-          onChange={this.handleTimeChange} />
-        <input
-          type='date'
-          ref='editMessageDate'
-          value={this.state.date}
-          className='messageform-date'
-          onChange={this.handleDateChange} />
+      <div>
+        <input type="time" value={this.state.time} className="messageform-time" onChange={this.handleTimeChange} />
+        <input type="date" value={this.state.date} className="messageform-date" onChange={this.handleDateChange} />
       </div>
     );
-  },
+  }
 
-  renderButtons: function() {
-    const t = i18n.t.bind(i18n);
-    let saveBtnText = t('Post_submit');
+  renderButtons() {
+    const { saving: isSavingInProgress } = this.state;
 
-    if (this.state.saving) {
-      saveBtnText = t('Sending...');
+    let saveBtnText = null;
+    if (isSavingInProgress) {
+      saveBtnText = t("Sending...");
+    } else {
+      saveBtnText = t("Post_submit");
     }
 
     return (
-      <div className='messageform-buttons'>
+      <div className="messageform-buttons">
         <button
-          type='reset'
-          className='messageform-button messageform-button-cancel'
-          onClick={this.handleCancel}
-          ref='cancelBtn'>{t('Cancel')}</button>
+          type="reset"
+          disabled={isSavingInProgress}
+          className="messageform-button messageform-button-cancel"
+          onClick={this.handleCancel}>
+          {t("Cancel")}
+        </button>
         <button
-          type='submit'
-          className='messageform-button messageform-button-save'
-          disabled={this.isButtonDisabled()}
-          onClick={this.handleSaving}
-          ref='sendBtn'>{saveBtnText}</button>
+          type="button"
+          className="messageform-button messageform-button-save"
+          disabled={this.isButtonDisabled() || isSavingInProgress}
+          onClick={this.handleSaving}>
+          {saveBtnText}
+        </button>
       </div>
     );
-  },
+  }
 
-  renderTextArea: function() {
+  renderTextArea() {
+    const { rows } = this.state;
     return (
-      <div className='messageform-textarea-wrapper'>
+      <div className="messageform-textarea-wrapper">
         <textarea
-          type='textarea'
-          rows='1'
-          className='messageform-textarea'
-          ref='messageText'
+          type="textarea"
+          rows={rows}
+          className="messageform-textarea"
           placeholder={this.props.messagePrompt}
           value={this.state.msg}
-          onFocus={this.handleGrow}
-          onChange={this.handleMsgChange} />
+          onFocus={this.handleFocus}
+          onChange={this.handleMsgChange}
+        />
       </div>
     );
-  },
+  }
 
-  render: function() {
-    var date = this.renderDisplayDate(this.hasTimestampToEdit());
-    var textArea = this.renderTextArea();
-    var buttons;
+  render() {
+    const { editing, changeDateTime } = this.state;
+    const textArea = this.renderTextArea();
+    let date = null;
+    let buttons = null;
 
-    if (this.state.editing) {
+    if (editing) {
       buttons = this.renderButtons();
     }
 
-    if (this.state.changeDateTime) {
+    if (changeDateTime) {
       date = this.renderEditableDate();
+    } else {
+      date = this.renderDisplayDate();
     }
 
     return (
-      <form ref='messageForm' className='messageform'>
+      <form className="messageform">
         {date}
         {textArea}
         {buttons}
       </form>
     );
-  },
-});
+  }
+}
 
-module.exports = MessageForm;
+MessageForm.propTypes = {
+  formFields: PropTypes.shape({
+    editableText: PropTypes.string.isRequired,
+    editableTimestamp: PropTypes.string,
+    displayTimestamp: PropTypes.string,
+  }),
+  messagePrompt: PropTypes.string,
+  onCancel: PropTypes.func,
+  onSubmit: PropTypes.func,
+  alwaysActiveCommentForm: PropTypes.bool,
+  timePrefs: PropTypes.shape({
+    timezoneName: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+MessageForm.defaultProps = {
+  formFields: null,
+  onCancel: null,
+  onSubmit: null,
+  alwaysActiveCommentForm: false,
+};
+
+export default MessageForm;

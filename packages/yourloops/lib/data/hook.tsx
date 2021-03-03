@@ -27,72 +27,15 @@
  */
 
 import * as React from "react";
-import _ from "lodash";
 import bows from "bows";
 
-import { PatientData } from "models/device-data";
-import { MessageNote } from "models/message";
-import { User } from "../../models/shoreline";
-import { AuthContext, useAuth } from "../auth";
-import { t as translate } from "../language";
-import sendMetrics from "../metrics";
+import { useAuth } from "../auth";
+import { useTeam } from "../team";
 
-import {
-  loadPatientData as apiLoadPatientData,
-  startMessageThread as apiStartMessageThread,
-} from "./api";
-
-const log = bows("DataHook");
-
-export class PatientDataLoadedEvent extends Event {
-  public user: User;
-  public patientData: PatientData;
-
-  constructor(user: User, patientData: PatientData) {
-    super("patient-data-loaded");
-    this.user = user;
-    this.patientData = patientData;
-  }
-}
-class BlipApi extends EventTarget {
-  private authHook: AuthContext;
-  public sendMetrics: (eventName: string, properties?: unknown) => void;
-
-  constructor(authHook: AuthContext) {
-    super();
-    this.authHook = authHook;
-    this.sendMetrics = sendMetrics;
-  }
-
-  public get whoami(): User | null {
-    return _.cloneDeep(this.authHook.user);
-  }
-
-  public async loadPatientData(patient: User): Promise<PatientData> {
-    const { traceToken, sessionToken } = this.authHook;
-    if (traceToken !== null && sessionToken !== null) {
-      this.dispatchEvent(new Event("patient-data-loading"));
-      const patientData = await apiLoadPatientData(patient, traceToken, sessionToken);
-      this.dispatchEvent(new PatientDataLoadedEvent(patient as User, patientData));
-      return patientData;
-    }
-    return Promise.reject(new Error(translate("not-logged-in")));
-  }
-
-  public async startMessageThread(message: MessageNote): Promise<string> {
-    log.debug("startMessageThread", message.userid);
-    const { traceToken, sessionToken } = this.authHook;
-    if (traceToken !== null && sessionToken !== null) {
-      return apiStartMessageThread(message, traceToken, sessionToken);
-    }
-    return Promise.reject(new Error(translate("not-logged-in")));
-  }
-}
+import BlipApi from "./blip-api";
 
 export interface DataContext {
-  blipApi: BlipApi;
-  loadPatientData: (patient: User) => Promise<PatientData>;
-  startMessageThread: (message: MessageNote) => Promise<string>;
+  blipApi: BlipApi | null;
 }
 
 export interface DataProvider {
@@ -100,20 +43,22 @@ export interface DataProvider {
   context: () => DataContext;
 }
 
+const log = bows("DataHook");
 export function DefaultDataContext(): DataContext {
   const authHook = useAuth();
-  // const { t } = useTranslation("yourloops");
-  const [blipApi] = React.useState<BlipApi>(new BlipApi(authHook));
+  const teamHook = useTeam();
+  const [blipApi, setBlipApi] = React.useState<BlipApi | null>(null);
 
-  const loadPatientData = blipApi.loadPatientData.bind(blipApi);
-  const startMessageThread = blipApi.startMessageThread.bind(blipApi);
+  const hooksInitialized = authHook.initialized() && teamHook.initialized;
 
-  log.debug("DefaultDataContext");
-  return {
-    blipApi,
-    loadPatientData,
-    startMessageThread,
-  };
+  React.useEffect(() => {
+    if (hooksInitialized && blipApi === null) {
+      log.debug("authHook & teamHook OK: Creating BlipApi");
+      setBlipApi(new BlipApi(authHook, teamHook));
+    }
+  }, [hooksInitialized, blipApi, authHook, teamHook]);
+
+  return { blipApi };
 }
 
 const ReactDataContext = React.createContext<DataContext>({} as DataContext);
@@ -125,11 +70,7 @@ const ReactDataContext = React.createContext<DataContext>({} as DataContext);
 export function DataContextProvider(props: DataProvider): JSX.Element {
   const { context, children } = props;
   const dataContext = context();
-  return (
-    <ReactDataContext.Provider value={dataContext}>
-      {children}
-    </ReactDataContext.Provider>
-  );
+  return <ReactDataContext.Provider value={dataContext}>{children}</ReactDataContext.Provider>;
 }
 
 /**

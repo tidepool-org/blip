@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Yourloops API message-api definitions
+ * Yourloops configuration
  *
  * All rights reserved.
  *
@@ -26,26 +26,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A single message
- */
-interface MessageNote {
-  id?:string;
-  userid: string;
-  groupid: string;
-  messagetext: string;
-  timestamp: string;
-  parentmessage: string;
-  user: {
-    fullName: string;
-  }
+export interface AppConfig {
+  VERSION: string;
+  API_HOST: string;
+  BRANDING: string;
+  DEV: boolean;
+  TEST: boolean;
+  LATEST_TERMS?: string;
+  PASSWORD_MIN_LENGTH: number;
+  PASSWORD_MAX_LENGTH?: number;
+  ABOUT_MAX_LENGTH?: number;
+  ALLOW_SIGNUP_PATIENT?: boolean;
+  ALLOW_PATIENT_CHANGE_EMAIL?: boolean;
+  ALLOW_PATIENT_CHANGE_PASSWORD?: boolean;
+  CAN_SEE_PWD_LOGIN?: boolean;
+  SUPPORT_EMAIL_ADDRESS?: string;
+  SUPPORT_WEB_ADDRESS?: string;
+  REGULATORY_WEB_ADDRESS?: string;
+  HELP_LINK?: string | null; // TODO ++++++++++++++++++++++
+  ASSETS_URL?: string | null;
+  METRICS_SERVICE?: string | null;
+  MAX_FAILED_LOGIN_ATTEMPTS?: number;
+  DELAY_BEFORE_NEXT_LOGIN_ATTEMPT?: number;
+  TERMS_PRIVACY_DATE?: string;
 }
-
-/**
- * An array of messages
- */
-interface MessagesThread {
-  messages?: MessageNote[];
-}
-
-export { MessageNote, MessagesThread };

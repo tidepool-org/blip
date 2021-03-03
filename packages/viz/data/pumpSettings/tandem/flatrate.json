@@ -67,16 +67,13 @@
       }
     ]
   },
-  "clockDriftOffset": 0,
-  "conversionOffset": 0,
   "deviceId": "DevId0987654321",
   "deviceTime": "2016-07-12T23:56:43",
   "guid": "73fab33a-cd94-4dca-811d-795d519b795e",
   "id": "5bd5bfa1f1364f53b848a9e00ef23c65",
-  "time": "2016-07-13T06:56:43.251Z",
+  "normalTime": "2016-07-13T06:56:43.251Z",
   "timezoneOffset": -420,
   "uploadId": "SampleUploadId",
   "source": "Tandem",
-  "deviceSerialNumber": "123-45-678",
-  "deviceSerialNumber": "0987654321"
+  "deviceSerialNumber": "123-45-678"
 }

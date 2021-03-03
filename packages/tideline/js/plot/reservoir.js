@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
-
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -27,7 +25,7 @@ module.exports = function(pool, opts) {
   const height = pool.height() / 5 ;
   const width = 40;
 
-  const xPos = (d) => opts.xScale(Date.parse(d.normalTime));
+  const xPos = (d) => opts.xScale(d.epoch);
   const getPicto = (d) => {
     const change = _.get(SITE_CHANGE_BY_MANUFACTURER, _.get(d, 'pump.manufacturer', DEFAULT_MANUFACTURER), SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
     return change.picto;

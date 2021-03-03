@@ -103,31 +103,28 @@ var datetime = {
     return new Date(d2) - new Date(d1);
   },
 
-  findBasicsDays: function(range, timezone) {
-    timezone = timezone || 'UTC';
-    var currentDate = new Date(range[0]), days = [];
-    var dateOfUpload = moment(Date.parse(range[1])).tz(timezone).format('YYYY-MM-DD');
-    while (currentDate < moment(Date.parse(range[1])).tz(timezone).endOf('isoWeek')) {
-      var date = moment(currentDate).tz(timezone).format('YYYY-MM-DD');
-      var dateObj = {date: date};
-      if (date < dateOfUpload) {
-        dateObj.type = 'past';
-      }
-      else if (date === dateOfUpload) {
+  findBasicsDays: function(/** @type {string[]} */ range, timezone = 'UTC') {
+    const currentDate = moment.utc(range[0]).tz(timezone);
+    const dateOfUpload = moment.utc(range[1]).tz(timezone);
+    const endOfWeek = moment.utc(dateOfUpload).tz(timezone).endOf('isoWeek');
+
+    const days = [];
+    while (currentDate.isBefore(endOfWeek)) {
+      const date = currentDate.format('YYYY-MM-DD');
+      const dateObj = { date, type: 'past' };
+      if (currentDate.isSame(dateOfUpload, 'day')) {
         dateObj.type = 'mostRecent';
-      }
-      else {
+      } else if (currentDate.isAfter(dateOfUpload, 'day')) {
         dateObj.type = 'future';
       }
       days.push(dateObj);
-      currentDate = moment(currentDate).tz(timezone).add(1, 'days').toDate();
+      currentDate.add(1, 'day');
     }
     return days;
   },
 
-  findBasicsStart: function(timestamp, timezone) {
-    timezone = timezone || 'UTC';
-    return moment(Date.parse(timestamp)).tz(timezone)
+  findBasicsStart: function(/** @type {string} */ timestamp, timezone = 'UTC') {
+    return moment.utc(timestamp).tz(timezone)
       .startOf('isoWeek')
       .subtract(14, 'days')
       .toDate().toISOString();
@@ -160,7 +157,18 @@ var datetime = {
     }
   },
 
+  /**
+   * Return the number of miliseconds since midnight
+   * @param {string|moment.Moment} d a date
+   */
   getMsFromMidnight: function(d) {
+    if (moment.isMoment(d)) {
+      let val = d.hours() * 1000 * 60 * 60;
+      val += d.minutes() * 1000 * 60;
+      val += d.seconds() * 1000;
+      val += d.milliseconds();
+      return val;
+    }
     var midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
   },
@@ -171,7 +179,6 @@ var datetime = {
   getMsPer24: function(d, timezoneName) {
     timezoneName = timezoneName || 'UTC';
     var localized = moment.utc(d).tz(timezoneName);
-    var total;
     var hrsToMs = localized.hours() * 1000 * 60 * 60;
     var minToMs = localized.minutes() * 1000 * 60;
     var secToMs = localized.seconds() * 1000;
@@ -310,6 +317,7 @@ var datetime = {
 
   weekdayLookup: function(n) {
     if (n < 0 || n > 6) {
+      console.error('weekdayLookup: invalid day', n);
       return null;
     }
     var weekdays = {
@@ -322,7 +330,18 @@ var datetime = {
       6: 'saturday'
     };
     return weekdays[n];
-  }
+  },
+
+  /**
+   * setTimeout() as promised
+   * @param {number} timeout in milliseconds
+   * @returns Promise<void>
+   */
+  waitTimeout: (timeout) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    });
+  },
 };
 
 module.exports = datetime;

@@ -34,7 +34,7 @@ enzyme.configure({
 require('./datetime_test');
 require('./constants_test');
 require('./format_test');
-require('./tidelinedata_test');
+require('./tidelinedata.test');
 require('./basalutil_test');
 require('./bgutil_test');
 require('./bolusutil_test');

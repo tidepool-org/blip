@@ -15,253 +15,256 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-import React from 'react';
-import _ from 'lodash';
-import sundial from 'sundial';
+import React from "react";
+import _ from "lodash";
+import i18next from "i18next";
+import bows from 'bows';
 
-import i18n from '../../core/language';
-var Message = require('./message');
-var MessageForm = require('./messageform');
+import Message from "./message";
+import MessageForm from "./messageform";
+
+const t = i18next.t.bind(i18next);
 
 class Messages extends React.Component {
-  static propTypes = {
-    messages: PropTypes.array,
-    createDatetime: PropTypes.string,
-    user: PropTypes.object,
-    patient: PropTypes.object,
-    onClose: PropTypes.func,
-    onSave: PropTypes.func,
-    onEdit: PropTypes.func,
-    onNewMessage: PropTypes.func,
-    timePrefs: PropTypes.object.isRequired
-  };
-
-  state = {
-    messages : this.props.messages
-  };
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({messages: nextProps.messages});
+  constructor(props) {
+    super(props);
+    this.state = {
+      messages: Array.isArray(props.messages) ? props.messages : [],
+      errorMessage: null,
+    };
+    this.log = bows('Messages UI');
   }
 
-  /*
+  /**
    * Should the user be able to edit this message?
    */
-  getSaveEdit = (messageUserId) => {
-    var saveEdit;
+  getSaveEdit(messageUserId) {
+    let saveEdit = null;
     if (messageUserId === this.props.user.userid) {
       saveEdit = this.handleEditNote;
     }
     return saveEdit;
-  };
+  }
 
-  renderNote = (message) => {
+  renderNote(message) {
     return (
       <Message
         key={message.id}
         theNote={message}
-        imageSize='large'
+        imageSize="large"
         onSaveEdit={this.getSaveEdit(message.userid)}
-        timePrefs={this.props.timePrefs} />
-      );
-
-  };
-
-  renderComment = (message) => {
-    return (
-      <Message
-        key={message.id}
-        theNote={message}
-        imageSize='small'
-        onSaveEdit={this.getSaveEdit(message.userid)}
-        timePrefs={this.props.timePrefs} />
-      );
-
-  };
-
-  renderThread = () => {
-    if (this.isMessageThread()) {
-      var thread = _.map(this.state.messages, function(message) {
-        if (!message.parentmessage) {
-          return this.renderNote(message);
-        } else if (message.parentmessage) {
-          return this.renderComment(message);
-        }
-      }.bind(this));
-
-
-      return (
-        <div className='messages-thread'>{thread}</div>
-      );
-
-    }
-
-    return;
-  };
-
-  isMessageThread = () => {
-    return !_.isEmpty(this.state.messages);
-  };
-
-  renderCommentOnThreadForm = () => {
-    var submitButtonText = i18n.t('Comment_submit');
-
-    return (
-      <div className='messages-form'>
-        <MessageForm
-          messagePrompt={i18n.t('Type a comment here ...')}
-          saveBtnText={submitButtonText}
-          onSubmit={this.handleAddComment}
-          timePrefs={this.props.timePrefs} />
-      </div>
-    );
-  };
-
-  renderNewThreadForm = () => {
-    var submitButtonText = i18n.t('Post_submit');
-
-    return (
-      <div className='messages-form'>
-        <MessageForm
-          formFields={{editableTimestamp: this.props.createDatetime}}
-          messagePrompt={i18n.t('Type a new note here ...')}
-          saveBtnText={submitButtonText}
-          onSubmit={this.handleCreateNote}
-          onCancel={this.handleClose}
-          timePrefs={this.props.timePrefs} />
-      </div>
-    );
-  };
-
-  renderClose = () => {
-    return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
-
-  };
-
-  render() {
-    var thread = this.renderThread();
-    var form = this.renderNewThreadForm() ;
-    var close;
-
-    //If we are closing an existing thread then have close and render the comment form
-    if (thread) {
-      close = this.renderClose();
-      form = this.renderCommentOnThreadForm();
-    }
-
-    return (
-
-     <div className='messages'>
-      <div className='messages-inner'>
-        <div className='messages-header'>
-          {close}
-        </div>
-        <div>
-          {thread}
-          {form}
-        </div>
-      </div>
-     </div>
+        timePrefs={this.props.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
     );
   }
 
-  getParent = () => {
+  renderComment(message) {
+    return (
+      <Message
+        key={message.id}
+        theNote={message}
+        imageSize="small"
+        onSaveEdit={this.getSaveEdit(message.userid)}
+        timePrefs={this.props.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  }
+
+  renderThread() {
     if (this.isMessageThread()) {
-      return _.find(
-        this.state.messages,
-        function(message) { return !(message.parentmessage); }
-      );
+      const { messages } = this.state;
+      const thread = _.map(messages, (message) => {
+        if (_.isEmpty(message.parentmessage)) {
+          return this.renderNote(message);
+        }
+        return this.renderComment(message);
+      });
+
+      return <div className="messages-thread">{thread}</div>;
     }
-    return;
-  };
+    return null;
+  }
 
-  handleAddComment = (formValues, cb) => {
-    var self = this;
-    if (_.isEmpty(formValues) === false) {
-      var addComment = this.props.onSave;
-      var parent = this.getParent();
+  isMessageThread() {
+    return !_.isEmpty(this.state.messages);
+  }
 
-      var comment = {
+  renderCommentOnThreadForm() {
+    return (
+      <div className="messages-form">
+        <MessageForm
+          messagePrompt={t("Type a comment here ...")}
+          saveBtnText={t("Comment_submit")}
+          onSubmit={this.handleAddComment}
+          timePrefs={this.props.timePrefs}
+          alwaysActiveCommentForm={true}
+        />
+      </div>
+    );
+  }
+
+  renderNewThreadForm() {
+    var submitButtonText = t("Post_submit");
+
+    return (
+      <div className="messages-form">
+        <MessageForm
+          formFields={{ editableTimestamp: this.props.createDatetime, editableText: '' }}
+          messagePrompt={t("Type a new note here ...")}
+          saveBtnText={submitButtonText}
+          onSubmit={this.handleCreateNote}
+          onCancel={this.handleClose}
+          timePrefs={this.props.timePrefs}
+        />
+      </div>
+    );
+  }
+
+  renderClose() {
+    return <a className="messages-close" onClick={this.handleClose}>{t('Close')}</a>;
+  }
+
+  render() {
+    const { errorMessage } = this.state;
+    const thread = this.renderThread();
+    let form = null;
+    var close = null;
+
+    // If we are closing an existing thread then have close and render the comment form
+    if (thread) {
+      close = this.renderClose();
+      form = this.renderCommentOnThreadForm();
+    } else {
+      form = this.renderNewThreadForm();
+    }
+
+    let divError = null;
+    if (errorMessage !== null) {
+      divError = <div className="messages-error">{errorMessage}</div>;
+    }
+
+    return (
+      <div className="messages">
+        <div className="messages-inner">
+          <div className="messages-header">{close}</div>
+          <div>
+            {thread}
+            {form}
+          </div>
+          {divError}
+        </div>
+      </div>
+    );
+  }
+
+  getParent() {
+    if (this.isMessageThread()) {
+      return _.find(this.state.messages, (message) => _.isEmpty(message.parentmessage));
+    }
+    return null;
+  }
+
+  handleAddComment = async (formValues) => {
+    this.log.debug('handleAddComment', formValues);
+    const { onSave: addComment, user } = this.props;
+    const { messages } = this.state;
+
+    if (!_.isEmpty(formValues)) {
+      const parent = this.getParent();
+
+      const comment = {
         parentmessage: parent.id,
         userid: this.props.user.userid,
         groupid: parent.groupid,
         messagetext: formValues.text,
-        timestamp: formValues.timestamp
+        timestamp: formValues.timestamp,
       };
 
-      addComment(comment, function(err, commentId) {
-        if(cb){
-          cb();
-        }
-        comment.id = commentId ;
-        comment.user = self.props.user.profile;
-        var withReply = self.state.messages;
-        withReply.push(comment);
-        self.setState({
-          messages: withReply
+      try {
+        const commentId = await addComment(comment);
+
+        comment.id = commentId;
+        comment.user = user.profile;
+        this.setState({
+          messages: messages.concat([comment]),
+        }, () => {
+          this.log.debug('handleAddComment done', { messages: this.state.messages });
         });
-      });
-
+      } catch (reason) {
+        this.log.error('handleAddComment', reason);
+        this.setState({ errorMessage: t('An unknown error occurred') });
+      }
     }
   };
 
-  handleCreateNote = (formValues, cb) => {
-    var self = this;
-    if (_.isEmpty(formValues) === false) {
-      var createNote = this.props.onSave;
-
-      var message = {
-        userid : this.props.user.userid,
-        groupid : this.props.patient.userid,
-        messagetext : formValues.text,
-        timestamp : sundial.formatForStorage(
-          formValues.timestamp,
-          sundial.getOffsetFromTime(formValues.timestamp)
-        )
+  handleCreateNote = async (formValues) => {
+    const { onClose, onSave: createNote, onNewMessage, timePrefs, patient, user } = this.props;
+    if (!_.isEmpty(formValues)) {
+      const message = {
+        timezone: timePrefs.timezoneName,
+        userid: user.userid,
+        groupid: patient.userid,
+        messagetext: formValues.text,
+        timestamp: formValues.timestamp,
       };
 
-      createNote(message, function(err, messageId) {
-        if(cb){
-          //let the form know all is good
-          cb();
-        }
-        //set so we can display right away
-        message.id = messageId // TODO: Need to fix this too;
-        message.user = self.props.user.profile;
-        //give this message to anyone that needs it
-        self.props.onNewMessage(message);
-
-        // Close the modal if we can, else clear form and display new message
-        var close = self.props.onClose;
-        if (close) {
-          close();
-        }
-        else {
-          self.setState({
-            messages: [message]
-          });
-        }
-      });
+      try {
+        const messageId = await createNote(message);
+        // set so we can display right away
+        message.id = messageId; // TODO: Need to fix this too;
+        message.user = user.profile;
+        // give this message to anyone that needs it
+        await onNewMessage(message);
+        // Close the modal
+        onClose();
+      } catch (reason) {
+        this.log.error('handleCreateNote', reason);
+        this.setState({ errorMessage: t('An unknown error occurred') });
+      }
     }
   };
 
-  handleEditNote = (updated) => {
-    if(_.isEmpty(updated) === false){
-      this.props.onEdit(updated, function(error, details){});
+  handleEditNote = async (updated) => {
+    if (!_.isEmpty(updated)) {
+      try {
+        await this.props.onEdit(updated);
+      } catch (reason) {
+        this.log.error('handleEditNote', reason);
+        this.setState({ errorMessage: t('An unknown error occurred') });
+      }
     }
   };
 
   handleClose = (e) => {
-    if(e){
-      e.preventDefault();
-    }
-    var close = this.props.onClose;
-    if (close) {
-      close();
-    }
+    e.preventDefault();
+    const { onClose } = this.props;
+    onClose();
   };
 }
 
-module.exports = Messages;
+Messages.propTypes = {
+  messages: PropTypes.array,
+  createDatetime: PropTypes.string,
+  user: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onNewMessage: PropTypes.func,
+  timePrefs: PropTypes.shape({
+    timezoneName: PropTypes.string.isRequired,
+  }).isRequired,
+  trackMetric: PropTypes.func.isRequired,
+};
+
+Messages.defaultProps = {
+  messages: null,
+  createDatetime: null,
+  onNewMessage: null,
+};
+
+export default Messages;
