@@ -22,7 +22,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
-import * as viz from 'tidepool-viz';
+import {
+  components as vizComponents,
+  containers as vizContainers,
+  utils as vizUtils
+} from 'tidepool-viz';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -33,16 +37,18 @@ import { RangeDatePicker } from '../datepicker';
 import { BG_DATA_TYPES } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
-const CBGDateTraceLabel = viz.components.CBGDateTraceLabel;
-const FocusedRangeLabels = viz.components.FocusedRangeLabels;
-const FocusedSMBGPointLabel = viz.components.FocusedSMBGPointLabel;
-const TrendsContainer = viz.containers.TrendsContainer;
-const reshapeBgClassesToBgBounds = viz.utils.bg.reshapeBgClassesToBgBounds;
-const getTimezoneFromTimePrefs = viz.utils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = viz.utils.datetime.getLocalizedCeiling;
-const Loader = viz.components.Loader;
+const CBGDateTraceLabel = vizComponents.CBGDateTraceLabel;
+const FocusedRangeLabels = vizComponents.FocusedRangeLabels;
+const FocusedSMBGPointLabel = vizComponents.FocusedSMBGPointLabel;
+const RangeSelect = vizComponents.RangeSelect;
+const Loader = vizComponents.Loader;
 
-class Trends extends React.PureComponent {
+const TrendsContainer = vizContainers.TrendsContainer;
+const reshapeBgClassesToBgBounds = vizUtils.bg.reshapeBgClassesToBgBounds;
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+
+class Trends extends React.Component {
   static propTypes = {
     canPrint: PropTypes.bool.isRequired,
     bgPrefs: PropTypes.object.isRequired,
@@ -119,6 +125,7 @@ class Trends extends React.PureComponent {
 
   componentWillUnmount() {
     this.log('Unmounting...');
+    this.chart = null;
   }
 
   formatDate(datetime) {
@@ -162,6 +169,12 @@ class Trends extends React.PureComponent {
       e.stopPropagation();
       this.setState({ displayCalendar: true });
     };
+    const handleKeyboard = (/** @type {React.KeyboardEvent<HTMLDivElement>} */ e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter' || e.key === ' ') {
+        this.setState({ displayCalendar: true });
+      }
+    };
     const handleChange = (begin, end) => {
       const newDomain = [begin.toISOString(), end.add(1, 'days').toISOString()];
       this.setState({ displayCalendar: false }, () => {
@@ -200,7 +213,7 @@ class Trends extends React.PureComponent {
     }
 
     return (
-      <div className={divClass} onClick={handleClickTitle}>
+      <div className={divClass} onClick={handleClickTitle} onKeyPress={handleKeyboard} role="button" tabIndex={0}>
         <span>
           {displayStartDate}&nbsp;-&nbsp;{displayEndDate}
         </span>
@@ -382,7 +395,43 @@ class Trends extends React.PureComponent {
   }
 
   render() {
-    const { currentPatientInViewId } = this.props;
+    const {
+      currentPatientInViewId,
+      chartPrefs,
+      trendsState,
+    } = this.props;
+
+    const trendsChartPrefs = chartPrefs.trends;
+
+    let rightFooter = null;
+    if (trendsChartPrefs.showingSmbg) {
+      rightFooter = (
+        <div className="footer-right-options">
+          <label htmlFor="overlayCheckbox">
+            <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
+              checked={trendsChartPrefs.smbgRangeOverlay}
+              onChange={this.toggleBoxOverlay} />{t('Range & Average')}
+          </label>
+
+          <label htmlFor="groupCheckbox">
+            <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
+              checked={trendsChartPrefs.smbgGrouped}
+              onChange={this.toggleGrouping} />{t('Group')}
+          </label>
+
+          <label htmlFor="linesCheckbox">
+            <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
+              checked={trendsChartPrefs.smbgLines}
+              onChange={this.toggleLines} />{t('Lines')}
+          </label>
+        </div>
+      );
+    } else {
+      rightFooter = (
+        <RangeSelect displayFlags={trendsState[currentPatientInViewId].cbgFlags} currentPatientInViewId={currentPatientInViewId} />
+      );
+    }
+
     return (
       <div id='tidelineMain' className='trends grid'>
         {this.renderHeader()}
@@ -404,7 +453,7 @@ class Trends extends React.PureComponent {
               <BgSourceToggle
                 bgSource={this.props.dataUtil.bgSource}
                 bgSources={this.props.dataUtil.bgSources}
-                chartPrefs={this.props.chartPrefs}
+                chartPrefs={chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 onClickBgSourceToggle={this.toggleBgDataSource}
@@ -412,7 +461,7 @@ class Trends extends React.PureComponent {
               <Stats
                 bgPrefs={this.props.bgPrefs}
                 bgSource={this.props.dataUtil.bgSource}
-                chartPrefs={this.props.chartPrefs}
+                chartPrefs={chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
                 endpoints={this.props.endpoints}
@@ -420,19 +469,9 @@ class Trends extends React.PureComponent {
             </div>
           </div>
         </div>
-        <Footer
-          chartType={this.chartType}
-          onClickBoxOverlay={this.toggleBoxOverlay}
-          onClickGroup={this.toggleGrouping}
-          onClickLines={this.toggleLines}
-          onClickRefresh={this.props.onClickRefresh}
-          boxOverlay={this.props.chartPrefs.trends.smbgRangeOverlay}
-          grouped={this.props.chartPrefs.trends.smbgGrouped}
-          showingLines={this.props.chartPrefs.trends.smbgLines}
-          showingCbg={this.props.chartPrefs.trends.showingCbg}
-          showingSmbg={this.props.chartPrefs.trends.showingSmbg}
-          displayFlags={this.props.trendsState[currentPatientInViewId].cbgFlags}
-          currentPatientInViewId={currentPatientInViewId} />
+        <Footer onClickRefresh={this.props.onClickRefresh}>
+          {rightFooter}
+        </Footer>
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
     );

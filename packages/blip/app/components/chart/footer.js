@@ -17,93 +17,30 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import i18next from 'i18next';
 
-import { components } from 'tidepool-viz';
-import i18n from '../../core/language';
-
-const RangeSelect = components.RangeSelect;
-
-class TidelineFooter extends React.Component {
-  static propTypes = {
-    chartType: PropTypes.string.isRequired,
-    onClickBoxOverlay: PropTypes.func,
-    onClickGroup: PropTypes.func,
-    onClickLines: PropTypes.func,
-    onClickValues: PropTypes.func,
-    onClickRefresh: PropTypes.func,
-    boxOverlay: PropTypes.bool,
-    grouped: PropTypes.bool,
-    showingLines: PropTypes.bool,
-    showingCbg: PropTypes.bool,
-    showingSmbg: PropTypes.bool,
-    showingValues: PropTypes.bool,
-    displayFlags: PropTypes.object,
-    currentPatientInViewId: PropTypes.string,
-  };
-
-  render() {
-    const t = i18n.t.bind(i18n);
-
-    var showValues = (
-      <div className="footer-right-options">
-        <label htmlFor="valuesCheckbox">
-          <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
-            checked={this.props.showingValues}
-            onChange={this.props.onClickValues} /> {t('Values')}
-        </label>
-      </div>
-    );
-
-    var trendsOpts = (
-      <div className="footer-right-options">
-        <label htmlFor="overlayCheckbox">
-          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
-            checked={this.props.boxOverlay}
-            onChange={this.props.onClickBoxOverlay} /> {t('Range & Average')}
-        </label>
-
-        <label htmlFor="groupCheckbox">
-          <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
-            checked={this.props.grouped}
-            onChange={this.props.onClickGroup} /> {t('Group')}
-        </label>
-
-        <label htmlFor="linesCheckbox">
-          <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
-            checked={this.props.showingLines}
-            onChange={this.props.onClickLines} /> {t('Lines')}
-        </label>
-      </div>
-    );
-
-    var rightSide = null;
-
-    if (this.props.chartType === 'bgLog') {
-      rightSide = showValues;
-    }
-    if (this.props.chartType === 'trends') {
-      if (this.props.showingSmbg) {
-        rightSide = trendsOpts;
-      } else {
-        rightSide = <RangeSelect
-          displayFlags={this.props.displayFlags}
-          currentPatientInViewId={this.props.currentPatientInViewId}
-        />;
-      }
-    }
-
-    return (
-      <div className="container-box-outer patient-data-footer-outer">
-        <div className="container-box-inner patient-data-footer-inner">
-          <div className="patient-data-footer-left">
-            <button className="btn btn-chart btn-refresh" onClick={this.props.onClickRefresh}>
-              {t('Refresh')}</button>
-          </div>
-          <div className="patient-data-footer-right">{rightSide}</div>
+function TidelineFooter(props) {
+  const { children, onClickRefresh } = props;
+  return (
+    <div className="container-box-outer patient-data-footer-outer">
+      <div className="container-box-inner patient-data-footer-inner">
+        <div className="patient-data-footer-left">
+          <button className="btn btn-chart btn-refresh" onClick={onClickRefresh}>
+            {i18next.t('Refresh')}</button>
         </div>
+        <div className="patient-data-footer-right">{children}</div>
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+TidelineFooter.propTypes = {
+  children: PropTypes.node,
+  onClickRefresh: PropTypes.func.isRequired,
+};
+
+TidelineFooter.defaultProps = {
+  children: null,
+};
 
 export default TidelineFooter;

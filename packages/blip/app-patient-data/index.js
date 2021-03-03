@@ -1,3 +1,7 @@
+/**
+ * @typedef { import('redux').Store } Store
+ */
+
 import * as React from 'react';
 import PropType from 'prop-types';
 import _ from 'lodash';
@@ -16,13 +20,21 @@ import { FETCH_PATIENT_DATA_SUCCESS, LOGOUT_REQUEST } from '../app/redux/constan
 import { updateConfig } from '../app/config';
 import PatientData from './patient-data';
 
-const logger = bows('Blip');
-/** @type {import('redux').Store} */
+const log = bows('Blip');
+/** @type {Store} */
 let store = null;
+
+export function logoutRequest() {
+  if (store !== null) {
+    store.dispatch({ type: LOGOUT_REQUEST });
+  }
+  store = null;
+  delete window.blipLogoutRequest;
+}
 
 function blipReducer(state, action) {
   if ([FETCH_PATIENT_DATA_SUCCESS, LOGOUT_REQUEST].includes(action.type)) {
-    logger.debug(action.type, _.cloneDeep({ state, action }));
+    log.debug(action.type);
   }
 
   if (_.isEmpty(state)) {
@@ -48,12 +60,19 @@ function blipReducer(state, action) {
  */
 function ReduxProvider(props) {
   if (store === null) {
+    log.info('Init Redux store');
     // I love redux
     store = applyMiddleware(thunkMiddleware)(createStore)(combineReducers({ viz: vizReducers, blip: blipReducer }), {
-      viz: {},
-      blip: { currentPatientInViewId: null },
+      viz: {
+        trends: {},
+      },
+      blip: {
+        currentPatientInViewId: null,
+      },
     });
+    window.blipLogoutRequest = logoutRequest;
   }
+
   return (
     // @ts-ignore
     <Provider store={store}>
@@ -76,14 +95,14 @@ function Blip(props) {
     try {
       const { config, api, patient, profileDialog } = props;
       const blipConfig = updateConfig(config);
-      logger.info('blip config:', blipConfig);
+      log.info('blip config:', blipConfig);
 
       return <ReduxProvider api={api} patient={patient} profileDialog={profileDialog} />;
     } catch (err) {
-      logger.error(err);
+      log.error(err);
     }
   } else {
-    logger.error('Blip: Missing props');
+    log.error('Blip: Missing props');
   }
   return null;
 }

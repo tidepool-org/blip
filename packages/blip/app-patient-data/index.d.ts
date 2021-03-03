@@ -18,5 +18,10 @@ export interface BlipProperties {
   patient: User;
   profileDialog: typeof ProfileDialog;
 }
+
+// FIXME: For some reason, the yourloops auth hook
+// don't like this export.
+export function logoutRequest(): void;
+
 declare function Blip(props: BlipProperties): JSX.Element;
 export default Blip;

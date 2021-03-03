@@ -28,7 +28,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { AppConfig } from "../lib/config";
+import { AppConfig } from "../models/config";
 
 declare global {
   // var window: Window & typeof globalThis & ExtendedWindow;
@@ -37,6 +37,7 @@ declare global {
     _paq: any[];
     zE: (...args: any) => void;
     config?: AppConfig;
+    blipLogoutRequest?: () => void;
   }
   interface Navigator {
     userLanguage?: string;

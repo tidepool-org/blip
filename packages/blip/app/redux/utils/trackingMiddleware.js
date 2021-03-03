@@ -18,7 +18,6 @@
 import _ from 'lodash';
 
 import { isClinic } from '../../core/personutils';
-import * as ActionTypes from '../constants/actionTypes';
 
 const trackMetricMap = {
   LOGIN_SUCCESS: 'Logged In',
@@ -48,10 +47,10 @@ const interpretMetricMap = {
   TURN_OFF_CBG_RANGE: function(action) {
     return { eventName: `Turn off ${action.payload.range}${!_.isNaN(parseInt(action.payload.range, 10)) ? encodeURIComponent('%') : ''}` };
   }
-}
+};
 
 export default (api) => {
-  return ({ getState }) => (next) => (action) => {
+  return (/* { getState } */) => (next) => (action) => {
     if (trackMetricMap[action.type]) {
       api.metrics.track(trackMetricMap[action.type]);
     }
@@ -66,4 +65,4 @@ export default (api) => {
     }
     return next(action);
   };
-}
+};

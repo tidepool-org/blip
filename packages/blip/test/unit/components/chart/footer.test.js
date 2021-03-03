@@ -1,214 +1,51 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
-
-import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-
-import * as viz from 'tidepool-viz';
-const RangeSelect = viz.components.RangeSelect;
-
-var _ = require('lodash');
-var expect = chai.expect;
+import sinon from 'sinon';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 
 import Footer from '../../../../app/components/chart/footer';
 
 describe('Footer', function () {
+  before(() => {
+    sinon.stub(console, 'error');
+  });
+
+  after(() => {
+    sinon.restore();
+  });
+
   describe('render', function() {
     it('should render without problems', function () {
-      sinon.stub(console, 'error');
-      var props = {
-        chartType: 'Awesome',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
+      const props = {
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: true,
-        showingSmbg: false,
-        showingValues: false,
       };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
+      const wrapper = shallow(<Footer {...props} />);
+      expect(wrapper.exists('.patient-data-footer-outer')).to.be.true;
       expect(console.error.callCount).to.equal(0);
-      console.error.restore();
-    });
-
-    it('should trigger onClickBoxOverlay when trends, showingSmbg and overlayCheckbox changed', function () {
-      var props = {
-        chartType: 'trends',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
-        onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
-      };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var overlayCheckbox = TestUtils.scryRenderedDOMComponentsWithTag(elem, 'input')[0];
-      expect(overlayCheckbox.name).to.equal('overlayCheckbox');
-      expect(props.onClickBoxOverlay.callCount).to.equal(0);
-      TestUtils.Simulate.change(overlayCheckbox);
-      expect(props.onClickBoxOverlay.callCount).to.equal(1);
-    });
-
-    it('should trigger onClickGroup when trends, showingSmbg and groupCheckbox changed', function () {
-      var props = {
-        chartType: 'trends',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
-        onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
-      };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var groupCheckbox = TestUtils.scryRenderedDOMComponentsWithTag(elem, 'input')[1];
-      expect(groupCheckbox.name).to.equal('groupCheckbox');
-      expect(props.onClickGroup.callCount).to.equal(0);
-      TestUtils.Simulate.change(groupCheckbox);
-      expect(props.onClickGroup.callCount).to.equal(1);
-    });
-
-    it('should trigger onClickLines when trends, showingSmbg and linesCheckbox changed', function () {
-      var props = {
-        chartType: 'trends',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
-        onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
-      };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var linesCheckbox = TestUtils.scryRenderedDOMComponentsWithTag(elem, 'input')[2];
-      expect(linesCheckbox.name).to.equal('linesCheckbox');
-      expect(props.onClickLines.callCount).to.equal(0);
-      TestUtils.Simulate.change(linesCheckbox);
-      expect(props.onClickLines.callCount).to.equal(1);
-    });
-
-    it('should trigger onClickValues when valuesCheckbox changed', function () {
-      var props = {
-        chartType: 'bgLog',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
-        onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
-      };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var valuesCheckbox = TestUtils.scryRenderedDOMComponentsWithTag(elem, 'input')[0];
-      expect(valuesCheckbox.name).to.equal('valuesCheckbox');
-      expect(props.onClickValues.callCount).to.equal(0);
-      TestUtils.Simulate.change(valuesCheckbox);
-      expect(props.onClickValues.callCount).to.equal(1);
     });
 
     it('should trigger onClickRefresh when refresh button clicked', function () {
       var props = {
-        chartType: 'bgLog',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: false,
-        showingSmbg: true,
-        showingValues: false,
       };
-      var dailyElem = React.createElement(Footer, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'btn-refresh');
+      const wrapper = shallow(<Footer {...props} />);
       expect(props.onClickRefresh.callCount).to.equal(0);
-      TestUtils.Simulate.click(refreshButton);
+      wrapper.find('.btn-refresh').last().simulate('click');
+      wrapper.update();
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
-    it('should render a RangeSelect when trends, showingCbg', function () {
-      var props = {
-        chartType: 'trends',
-        onClickBoxOverlay: sinon.stub(),
-        onClickGroup: sinon.stub(),
-        onClickLines: sinon.stub(),
-        onClickValues: sinon.stub(),
+    it('should render children on the right when present', function () {
+      const props = {
         onClickRefresh: sinon.stub(),
-        onClickBgDataToggle: sinon.stub(),
-        boxOverlay: false,
-        grouped: true,
-        showingLines: false,
-        showingCbg: true,
-        showingSmbg: false,
-        showingValues: false,
-        displayFlags: {
-          cbg100Emabled: false,
-          cbg80Enabeled: true,
-          cbg50Enabeled: true,
-          cbgMedianEnabled: true,
-        },
-        currentPatientInViewId: 'abc123',
       };
-      // RangeSelect is a redux connect()ed component and needs a Provider/store
-      var footer = mount(
-        <Provider store={configureStore([])({})}>
-          <Footer {...props} />
-        </Provider>
-      );
 
-      expect(footer.find(RangeSelect).length).to.equal(1);
+      const wrapper = shallow(
+        <Footer {...props} >
+          <div id="right-footer-test-div" />
+        </Footer>
+      );
+      expect(wrapper.exists('#right-footer-test-div')).to.be.true;
     });
   });
 });

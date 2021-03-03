@@ -39,7 +39,7 @@ import { Header, Basics, Daily, Trends, Settings } from '../app/components/chart
 import nurseShark from '../../tideline/plugins/nurseshark';
 
 import Messages from '../app/components/messages';
-import { FETCH_PATIENT_DATA_SUCCESS, LOGOUT_REQUEST } from '../app/redux/constants/actionTypes';
+import { FETCH_PATIENT_DATA_SUCCESS } from '../app/redux/constants/actionTypes';
 
 import { MGDL_UNITS, DIABETES_DATA_TYPES } from '../app/core/constants';
 
@@ -142,6 +142,10 @@ class PatientDataPage extends React.Component {
           bgSource: 'smbg',
         },
       },
+      chartStates: {
+        trends: {
+        },
+      },
       printOpts: {
         numDays: {
           daily: 6,
@@ -170,15 +174,33 @@ class PatientDataPage extends React.Component {
     this.updateBasicsData = this.updateBasicsData.bind(this);
     this.updateDatetimeLocation = this.updateDatetimeLocation.bind(this);
     this.updateChartPrefs = this.updateChartPrefs.bind(this);
+
+    this.unsubscribeStore = null;
+  }
+
+  reduxListener() {
+    const { store } = this.props;
+    const { chartStates } = this.state;
+    const reduxState = store.getState();
+    if (!_.isEqual(reduxState.viz.trends, this.state.chartStates.trends)) {
+      this.setState({ chartStates: { ...chartStates, trends: _.cloneDeep(reduxState.viz.trends) } });
+    }
   }
 
   componentDidMount() {
+    const { store } = this.props;
+    this.log.debug('Mounting...');
+    this.unsubscribeStore = store.subscribe(this.reduxListener.bind(this));
     this.handleRefresh();
   }
 
   componentWillUnmount() {
-    // Clean-up the store
-    this.props.store.dispatch({ type: LOGOUT_REQUEST });
+    this.log.debug('Unmounting...');
+    if (typeof this.unsubscribeStore === 'function') {
+      this.log('componentWillUnmount => unsubscribeStore()');
+      this.unsubscribeStore();
+      this.unsubscribeStore = null;
+    }
   }
 
   render() {
@@ -312,19 +334,16 @@ class PatientDataPage extends React.Component {
   }
 
   renderChart() {
-    const { store, patient } = this.props;
-    const { canPrint, permsOfLoggedInUser, loadingState } = this.state;
-
-    const storeState = store.getState();
-    const trendState = _.get(storeState, 'viz.trends', {});
+    const { patient, profileDialog } = this.props;
+    const { canPrint, permsOfLoggedInUser, loadingState, chartPrefs, chartStates } = this.state;
 
     switch (this.state.chartType) {
       case 'basics':
         return (
           <Basics
-            profileDialog={this.props.profileDialog}
+            profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
-            chartPrefs={this.state.chartPrefs}
+            chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
             endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
@@ -351,9 +370,9 @@ class PatientDataPage extends React.Component {
       case 'daily':
         return (
           <Daily
-            profileDialog={this.props.profileDialog}
+            profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
-            chartPrefs={this.state.chartPrefs}
+            chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
@@ -379,9 +398,9 @@ class PatientDataPage extends React.Component {
       case 'trends':
         return (
           <Trends
-            profileDialog={this.props.profileDialog}
+            profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
-            chartPrefs={this.state.chartPrefs}
+            chartPrefs={chartPrefs}
             currentPatientInViewId={patient.userid}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
@@ -401,7 +420,7 @@ class PatientDataPage extends React.Component {
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={config.UPLOAD_API}
-            trendsState={trendState}
+            trendsState={chartStates.trends}
             endpoints={this.state.endpoints}
           />
         );
