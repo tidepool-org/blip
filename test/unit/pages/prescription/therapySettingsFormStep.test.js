@@ -25,14 +25,11 @@ const values = {
   },
 };
 
-const validateSyncAt = sinon.stub();
-validateSyncAt
-  .withArgs('goodField')
-  .returns(true);
-
-validateSyncAt
-  .withArgs('badField')
-  .throws();
+const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
+  if (_.get(values, fieldKey) === 'badField') {
+    throw('error');
+  }
+});
 
 const schema = { validateSyncAt };
 
@@ -57,17 +54,17 @@ describe('therapySettingsFormStep', function() {
 
   it('should disable the complete button for any invalid fields', () => {
     expect(therapySettingsFormStep(schema, pump, values).disableComplete).to.be.false;
-    expect(therapySettingsFormStep(invalidateValue('training')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.insulinModel')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.basalRateMaximum.value')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.bolusAmountMaximum.value')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.basalRateSchedule')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.carbohydrateRatioSchedule')).disableComplete).to.be.true;
-    expect(therapySettingsFormStep(invalidateValue('initialSettings.insulinSensitivitySchedule')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('training')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.insulinModel')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.basalRateMaximum.value')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.bolusAmountMaximum.value')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.basalRateSchedule')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.carbohydrateRatioSchedule')).disableComplete).to.be.true;
+    expect(therapySettingsFormStep(schema, pump, invalidateValue('initialSettings.insulinSensitivitySchedule')).disableComplete).to.be.true;
   });
 
   it('should not hide the back button', () => {
