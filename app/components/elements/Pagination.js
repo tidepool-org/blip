@@ -115,7 +115,7 @@ Pagination.defaultProps = {
     last: t('Last'),
     previous: t('Previous'),
     next: t('Next'),
-  }
+  },
 };
 
 export default Pagination;
