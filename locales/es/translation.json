@@ -413,7 +413,7 @@
 	"Tidepool Web works with Chrome on ": "Tidepool Web funciona solo con Google Chrome ",
 	"Tidepool will attempt to send the details to our server.": "Tidepool intentará enviar los detalles a nuestro servidor.",
 	"Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.": "Tidepool compartirá el 10% de los ingresos con las organizaciones de diabetes que elija.",
-	"to": "a",
+	"to": "hasta",
 	"To get one number that gives you a rough idea of your glucose level we add together all of the CGM glucose readings you have and then divide them by the number of glucose readings. We will only show a number if there is enough data - readings for at least 75% of the day in the one day view, and readings for at least 75% of the day for at least half of the days shown in the two week view.": "Para obtener un número que le dé una idea aproximada de su nivel de glucosa, sumamos todas las lecturas de glucosa de CGM que tiene y luego las dividimos por el número de lecturas de glucosa. Solo mostraremos un número si hay suficientes datos: lecturas de al menos el 75% del día en la vista de un día, y lecturas de al menos el 75% del día durante al menos la mitad de los días mostrados en la vista de dos semanas .",
 	"Trends": "Tendencias",
 	"Tu_Tuesday": "M",
@@ -481,6 +481,5 @@
 	"You want to manage your diabetes data. You are caring for or supporting someone with diabetes.": "Desea administrar sus datos de diabetes. Está cuidando o apoyando a alguien con diabetes.",
 	"You've been invited to Tidepool.": "Has sido invitado a Tidepool.",
 	"Your password was changed successfully. You can now log in with your new password.": "Su contraseña fue cambiada exitosamente. Ahora puede iniciar sesión con su nueva contraseña.",
-  "Post_submit": "Guardar",
-  "to": "hasta"
+  "Post_submit": "Guardar"
 }
