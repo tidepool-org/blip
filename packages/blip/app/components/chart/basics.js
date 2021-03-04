@@ -19,7 +19,6 @@ import { BG_DATA_TYPES } from '../../core/constants';
 const BasicsChart = tidelineBlip.basics;
 const Loader = vizComponents.Loader;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
-const t = i18next.t.bind(i18next);
 
 class Basics extends React.Component {
   constructor(props) {
@@ -31,20 +30,28 @@ class Basics extends React.Component {
       atMostRecent: true,
       inTransition: false,
       title: this.getTitle(),
+      endpoints: [],
     };
   }
 
   componentDidMount() {
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    this.log.debug('Mounting...');
+    const { tidelineData } = this.props;
+    const dateRange = _.get(tidelineData, 'basicsData.dateRange', false);
 
     if (dateRange) {
       const endpoints = [dateRange[0], getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString()];
-
-      this.props.onUpdateChartDateRange(endpoints);
+      this.setState({ endpoints });
+      this.log.debug(dateRange, '=>', endpoints);
     }
   }
 
+  componentWillUnmount() {
+    this.log.debug('Unmounting...');
+  }
+
   render() {
+    const { endpoints, title, inTransition } = this.state;
     return (
       <div id='tidelineMain' className='basics'>
         <Header
@@ -52,8 +59,8 @@ class Basics extends React.Component {
           chartType={this.chartType}
           patient={this.props.patient}
           atMostRecent={true}
-          inTransition={this.state.inTransition}
-          title={this.state.title}
+          inTransition={inTransition}
+          title={title}
           canPrint={this.props.canPrint}
           trackMetric={this.props.trackMetric}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -62,7 +69,6 @@ class Basics extends React.Component {
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
-          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.props.onClickPrint} />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -87,13 +93,13 @@ class Basics extends React.Component {
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
                   dataUtil={this.props.dataUtil}
-                  endpoints={this.props.endpoints}
+                  endpoints={endpoints}
                 />
               </div>
             </div>
           </div>
         </div>
-        <Footer chartType={this.chartType} onClickRefresh={this.props.onClickRefresh} />
+        <Footer onClickRefresh={this.props.onClickRefresh} />
       </div>
     );
   }
@@ -106,11 +112,9 @@ class Basics extends React.Component {
           bgUnits={this.props.bgPrefs.bgUnits}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
-          patientData={this.props.patientData}
+          tidelineData={this.props.tidelineData}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={this.props.timePrefs}
-          updateBasicsData={this.props.updateBasicsData}
-          updateBasicsSettings={this.props.updateBasicsSettings}
           trackMetric={this.props.trackMetric} />
       </div>
     );
@@ -122,7 +126,7 @@ class Basics extends React.Component {
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.basics-no-uploaded-data" t={t}>
+      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.basics-no-uploaded-data" t={i18next.t.bind(i18next)}>
         <p>The Basics view shows a summary of your recent device activity, but it looks like you haven't uploaded device data yet.</p>
         <p>To see the Basics, <a href={this.props.uploadUrl} target="_blank" onClick={handleClickUpload}>upload</a> some device data.</p>
         <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
@@ -137,18 +141,19 @@ class Basics extends React.Component {
       return '';
     }
     const timezone = timePrefs.timezoneName;
-    const basicsData = this.props.patientData.basicsData;
-    const dtMask = t('MMM D, YYYY');
+    const basicsData = this.props.tidelineData.basicsData;
+    const dtMask = i18next.t('MMM D, YYYY');
 
     return (
       sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
       ' - ' +
       sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask)
     );
-  };
+  }
 
   isMissingBasics() {
-    const basicsDataLength = _.get(this.props, 'patientData.basicsData.nData', 0);
+    const { tidelineData } = this.props;
+    const basicsDataLength = _.get(tidelineData, 'basicsData.nData', 0);
     return basicsDataLength < 1;
   }
 
@@ -177,7 +182,8 @@ class Basics extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    const { tidelineData } = this.props;
+    const dateRange = _.get(tidelineData, 'basicsData.dateRange');
     this.props.onSwitchToTrends(dateRange[1]);
   };
 
@@ -185,16 +191,9 @@ class Basics extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
+    const { tidelineData } = this.props;
+    const dateRange = _.get(tidelineData, 'basicsData.dateRange');
     this.props.onSwitchToDaily(dateRange[1]);
-  };
-
-  handleClickBgLog = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    const dateRange = _.get(this.props, 'patientData.basicsData.dateRange');
-    this.props.onSwitchToBgLog(dateRange[1]);
   };
 
   handleSelectDay = (date, title) => {
@@ -208,10 +207,9 @@ Basics.propTypes = {
   bgSource: PropTypes.oneOf(BG_DATA_TYPES),
   chartPrefs: PropTypes.object.isRequired,
   dataUtil: PropTypes.object,
-  endpoints: PropTypes.arrayOf(PropTypes.string),
   timePrefs: PropTypes.object.isRequired,
-  patient: PropTypes.object,
-  patientData: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  tidelineData: PropTypes.object.isRequired,
   permsOfLoggedInUser: PropTypes.object.isRequired,
   canPrint: PropTypes.bool.isRequired,
   onClickRefresh: PropTypes.func.isRequired,
@@ -221,11 +219,7 @@ Basics.propTypes = {
   onSwitchToTrends: PropTypes.func.isRequired,
   onClickPrint: PropTypes.func.isRequired,
   onSwitchToSettings: PropTypes.func.isRequired,
-  onSwitchToBgLog: PropTypes.func,
-  onUpdateChartDateRange: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  updateBasicsData: PropTypes.func.isRequired,
-  updateBasicsSettings: PropTypes.func.isRequired,
   updateChartPrefs: PropTypes.func.isRequired,
   uploadUrl: PropTypes.string.isRequired,
   profileDialog: PropTypes.func.isRequired,

@@ -69,7 +69,6 @@ class Trends extends React.Component {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToBgLog: PropTypes.func,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
@@ -103,7 +102,6 @@ class Trends extends React.Component {
     this.handleClickMostRecent = this.handleClickMostRecent.bind(this);
     this.handleClickSettings = this.handleClickSettings.bind(this);
     this.handleClickTrends = this.handleClickTrends.bind(this);
-    this.handleClickBgLog = this.handleClickBgLog.bind(this);
     this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.handleSelectDate = this.handleSelectDate.bind(this);
     this.toggleBgDataSource = this.toggleBgDataSource.bind(this);
@@ -291,14 +289,6 @@ class Trends extends React.Component {
     }
     // when you're on Trends view, clicking Trends does nothing
     return;
-  }
-
-  handleClickBgLog(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
-    this.props.onSwitchToBgLog(datetime);
   }
 
   handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent, cb) {
@@ -499,7 +489,6 @@ class Trends extends React.Component {
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handleClickForward}
         onClickOneDay={this.handleClickDaily}
-        onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings} />
     );
   }

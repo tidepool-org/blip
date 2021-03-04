@@ -71,7 +71,7 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @typedef { import("../../yourloops/models/message").MessageNote } MessageNote
  *
  * @typedef {{ api: API, patient: User, store: Store }} PatientDataProps
- * @typedef {{loadingState: number, processedPatientData: TidelineData, chartType: string, endpoints: string[], patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
+ * @typedef {{loadingState: number, tidelineData: TidelineData, chartType: string, endpoints: string[], patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
  *
  * @augments {React.Component<PatientDataProps, PatientDataState>}
  */
@@ -159,7 +159,7 @@ class PatientDataPage extends React.Component {
       lastDiabetesDatumProcessedIndex: -1,
       processingData: false,
       processEarlierDataCount: 0,
-      processedPatientData: null,
+      tidelineData: null,
       showUploadOverlay: false,
     };
 
@@ -171,7 +171,6 @@ class PatientDataPage extends React.Component {
     this.handleShowMessageCreation = this.handleShowMessageCreation.bind(this);
     this.handleClickRefresh = this.handleClickRefresh.bind(this);
 
-    this.updateBasicsData = this.updateBasicsData.bind(this);
     this.updateDatetimeLocation = this.updateDatetimeLocation.bind(this);
     this.updateChartPrefs = this.updateChartPrefs.bind(this);
 
@@ -295,9 +294,9 @@ class PatientDataPage extends React.Component {
 
   isInsufficientPatientData() {
     /** @type {PatientData} */
-    const diabetesData = _.get(this.state, 'processedPatientData.diabetesData', []);
+    const diabetesData = _.get(this.state, 'tidelineData.diabetesData', []);
     if (_.isEmpty(diabetesData)) {
-      this.log.error('Sorry, tideline is kind of pointless with only messages.');
+      this.log.warn('Sorry, no data to display');
       return true;
     }
     return false;
@@ -305,7 +304,7 @@ class PatientDataPage extends React.Component {
 
   renderSettings() {
     const { patient } = this.props;
-    const { canPrint } = this.state;
+    const { canPrint, tidelineData } = this.state;
     return (
       <div>
         <div className='app-no-print'>
@@ -315,7 +314,7 @@ class PatientDataPage extends React.Component {
             currentPatientInViewId={patient.userid}
             timePrefs={this.state.timePrefs}
             patient={patient}
-            patientData={this.state.processedPatientData}
+            patientData={tidelineData}
             canPrint={canPrint}
             permsOfLoggedInUser={this.state.permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
@@ -335,7 +334,14 @@ class PatientDataPage extends React.Component {
 
   renderChart() {
     const { patient, profileDialog } = this.props;
-    const { canPrint, permsOfLoggedInUser, loadingState, chartPrefs, chartStates } = this.state;
+    const {
+      canPrint,
+      permsOfLoggedInUser,
+      loadingState,
+      chartPrefs,
+      chartStates,
+      tidelineData
+    } = this.state;
 
     switch (this.state.chartType) {
       case 'basics':
@@ -345,10 +351,9 @@ class PatientDataPage extends React.Component {
             bgPrefs={this.state.bgPrefs}
             chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
-            endpoints={this.state.endpoints}
             timePrefs={this.state.timePrefs}
             patient={patient}
-            patientData={this.state.processedPatientData}
+            tidelineData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
             permsOfLoggedInUser={permsOfLoggedInUser}
@@ -359,9 +364,6 @@ class PatientDataPage extends React.Component {
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
-            updateBasicsData={this.updateBasicsData}
-            updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={config.UPLOAD_API}
@@ -377,7 +379,7 @@ class PatientDataPage extends React.Component {
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={patient}
-            patientData={this.state.processedPatientData}
+            patientData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
             permsOfLoggedInUser={permsOfLoggedInUser}
@@ -406,7 +408,7 @@ class PatientDataPage extends React.Component {
             timePrefs={this.state.timePrefs}
             initialDatetimeLocation={this.state.datetimeLocation}
             patient={patient}
-            patientData={this.state.processedPatientData}
+            patientData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
             permsOfLoggedInUser={permsOfLoggedInUser}
@@ -462,7 +464,8 @@ class PatientDataPage extends React.Component {
     }
   }
 
-  generatePDFStats(data, state) {
+  generatePDFStats(data) {
+    const { timePrefs } = this.state;
     const {
       bgBounds,
       bgUnits,
@@ -486,7 +489,7 @@ class PatientDataPage extends React.Component {
 
     const basicsDateRange = _.get(data, 'basics.dateRange');
     if (basicsDateRange) {
-      data.basics.endpoints = [basicsDateRange[0], getLocalizedCeiling(basicsDateRange[1], state.timePrefs).toISOString()];
+      data.basics.endpoints = [basicsDateRange[0], getLocalizedCeiling(basicsDateRange[1], timePrefs).toISOString()];
 
       this.dataUtil.endpoints = data.basics.endpoints;
 
@@ -506,8 +509,8 @@ class PatientDataPage extends React.Component {
         dailyDateRanges,
         _.bind(function (value, key) {
           data.daily.dataByDate[key].endpoints = [
-            getLocalizedCeiling(dailyDateRanges[key].bounds[0], state.timePrefs).toISOString(),
-            getLocalizedCeiling(dailyDateRanges[key].bounds[1], state.timePrefs).toISOString(),
+            getLocalizedCeiling(dailyDateRanges[key].bounds[0], timePrefs).toISOString(),
+            getLocalizedCeiling(dailyDateRanges[key].bounds[1], timePrefs).toISOString(),
           ];
 
           this.dataUtil.endpoints = data.daily.dataByDate[key].endpoints;
@@ -526,8 +529,8 @@ class PatientDataPage extends React.Component {
     const bgLogDateRange = _.get(data, 'bgLog.dateRange');
     if (bgLogDateRange) {
       data.bgLog.endpoints = [
-        getLocalizedCeiling(bgLogDateRange[0], state.timePrefs).toISOString(),
-        addDuration(getLocalizedCeiling(bgLogDateRange[1], state.timePrefs).toISOString(), 864e5),
+        getLocalizedCeiling(bgLogDateRange[0], timePrefs).toISOString(),
+        addDuration(getLocalizedCeiling(bgLogDateRange[1], timePrefs).toISOString(), 864e5),
       ];
 
       this.dataUtil.endpoints = data.bgLog.endpoints;
@@ -540,47 +543,42 @@ class PatientDataPage extends React.Component {
     return data;
   }
 
-  generatePDF(props, state) {
-    const data = state.processedPatientData;
-    const diabetesData = data.diabetesData;
-
-    const patientSettings = _.get(props, 'patient.settings', {});
-    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-    const pdfPatient = _.assign({}, props.patient, {
-      settings: _.assign({}, patientSettings, { siteChangeSource }),
-    });
+  generatePDF() {
+    const { patient } = this.props;
+    const { tidelineData, bgPrefs, printOpts, timePrefs } = this.state;
+    const diabetesData = tidelineData.diabetesData;
 
     const mostRecent = diabetesData[diabetesData.length - 1].normalTime;
     const opts = {
-      bgPrefs: state.bgPrefs,
-      numDays: state.printOpts.numDays,
-      patient: pdfPatient,
-      timePrefs: state.timePrefs,
+      bgPrefs,
+      numDays: printOpts.numDays,
+      patient,
+      timePrefs,
       mostRecent,
     };
 
     const dailyData = vizUtils.data.selectDailyViewData(
       mostRecent,
-      _.pick(data.grouped, ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']),
-      state.printOpts.numDays.daily,
-      state.timePrefs
+      _.pick(tidelineData.grouped, ['basal', 'bolus', 'cbg', 'food', 'message', 'smbg', 'upload', 'physicalActivity']),
+      printOpts.numDays.daily,
+      timePrefs
     );
 
     const bgLogData = vizUtils.data.selectBgLogViewData(
       mostRecent,
-      _.pick(data.grouped, ['smbg']),
-      state.printOpts.numDays.bgLog,
-      state.timePrefs
+      _.pick(tidelineData.grouped, ['smbg']),
+      printOpts.numDays.bgLog,
+      timePrefs
     );
 
     const pdfData = {
-      basics: data.basicsData,
+      basics: tidelineData.basicsData,
       daily: dailyData,
-      settings: _.last(data.grouped.pumpSettings),
+      settings: _.last(tidelineData.grouped.pumpSettings),
       bgLog: bgLogData,
     };
 
-    this.generatePDFStats(pdfData, state);
+    this.generatePDFStats(pdfData);
 
     this.log('Generating PDF with', pdfData, opts);
 
@@ -779,14 +777,14 @@ class PatientDataPage extends React.Component {
         openPDFWindow(this.state.pdf);
         resolve();
       } else {
-        const { processingData, processedPatientData, loadingState } = this.state;
+        const { processingData, tidelineData, loadingState } = this.state;
         let hasDiabetesData = false;
-        if (processedPatientData !== null) {
-          hasDiabetesData = _.get(processedPatientData, 'diabetesData.length', 0) > 0;
+        if (tidelineData !== null) {
+          hasDiabetesData = _.get(tidelineData, 'diabetesData.length', 0) > 0;
         }
 
         if (loadingState === LOADING_STATE_DONE && !processingData && hasDiabetesData) {
-          this.generatePDF(this.props, this.state)
+          this.generatePDF()
             .then((pdf) => {
               openPDFWindow(pdf);
               this.setState({ pdf });
@@ -823,47 +821,15 @@ class PatientDataPage extends React.Component {
     this.setState({ loadingState: LOADING_STATE_ERROR, errorMessage });
   }
 
-  updateBasicsData(basicsData) {
-    const { processedPatientData } = this.state;
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // only attempt to update data if there's already data present to update
-    if (processedPatientData) {
-      const patientData = _.assign(_.cloneDeep(processedPatientData), { basicsData });
-      this.setState({
-        processedPatientData: patientData,
-      });
-    }
-  }
-
-  updateBasicsSettings(patientId, settings, canUpdateSettings) {
-    this.log.warn('TODO', patientId, settings, canUpdateSettings);
-    // if (canUpdateSettings) {
-    //   this.props.updateBasicsSettings(patientId, settings);
-    // }
-
-    // // If the user makes a change to the site change source settings,
-    // // we should remove the currently generated PDF, which will trigger a rebuild of
-    // // the PDF with the updated settings.
-    // const settingsSiteChangeSource = _.get(this.props, 'patient.settings.siteChangeSource');
-    // if (settings.siteChangeSource && settings.siteChangeSource !== settingsSiteChangeSource) {
-    //   this.setState({ updatedSiteChangeSource: settings.siteChangeSource, pdf: null });
-    // }
-  }
-
-  updateChartPrefs(updates, cb) {
-    this.log.debug('updateChartPrefs', { updates, cb });
+  updateChartPrefs(updates, cb = _.noop) {
+    this.log.debug('updateChartPrefs', { updates, cb});
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
     };
 
     this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
-    this.setState(
-      {
-        chartPrefs: newPrefs,
-      },
-      cb
-    );
+    this.setState({ chartPrefs: newPrefs, }, cb);
   }
 
   updateDatetimeLocation(datetime, cb) {
@@ -1027,7 +993,7 @@ class PatientDataPage extends React.Component {
       lastDatumProcessedIndex: -1,
       lastProcessedDateTarget: null,
       processEarlierDataCount: 0,
-      processedPatientData: null,
+      tidelineData: null,
       pdf: null,
       canPrint: false,
     }, () => {
@@ -1072,7 +1038,7 @@ class PatientDataPage extends React.Component {
     this.log.info('Time prefs', tidelineData.opts.timePrefs);
 
     this.dataUtil = new DataUtils(
-      tidelineData.data.concat(_.get(tidelineData, 'grouped.upload', [])),
+      tidelineData.data.concat(tidelineData.grouped.upload),
       { bgPrefs, timePrefs }
     );
 
@@ -1082,7 +1048,7 @@ class PatientDataPage extends React.Component {
         bgClasses: tidelineData.opts.bgClasses,
       },
       timePrefs: tidelineData.opts.timePrefs,
-      processedPatientData: tidelineData,
+      tidelineData,
       loadingState: LOADING_STATE_DONE,
       endpoints: tidelineData.endpoints,
       canPrint: true,

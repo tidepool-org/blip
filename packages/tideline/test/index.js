@@ -49,7 +49,7 @@ require('./device_test');
 // ====================================
 
 /* plugins/ */
-require('./chartbasicsfactory_test');
+require('./chartbasicsfactory.test');
 require('./basics_classifiers_test');
 require('./basics_datamunger_test');
 require('./nurseshark_test');

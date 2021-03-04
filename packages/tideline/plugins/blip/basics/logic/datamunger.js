@@ -30,14 +30,12 @@ var { getLatestPumpUpload } = require('../../../../js/data/util/device');
 var basicsActions = require('./actions');
 var togglableState = require('../TogglableState');
 
-var BGUtil = require('../../../../js/data/bgutil');
 var BasalUtil = require('../../../../js/data/basalutil');
 var basalUtil = new BasalUtil();
 
 module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
   var classifiers = classifiersMkr(bgClasses, bgUnits);
-  var weightedCGMCount = new BGUtil([], { DAILY_MIN: constants.CGM_IN_DAY * 0.75 }).weightedCGMCount;
 
   return {
     getLatestPumpUploaded: function(patientData) {

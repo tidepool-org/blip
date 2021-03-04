@@ -546,7 +546,7 @@ describe('Actions', () => {
         }, 50);
       });
 
-      it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {
+      it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', (done) => {
         let acceptedDate = new Date();
         let loggedInUserId = false;
         let termsData = { termsAccepted: new Date() };
@@ -573,13 +573,20 @@ describe('Actions', () => {
         let store = mockStore(initialStateForTest);
         store.dispatch(async.acceptTerms(api, acceptedDate, user.id));
 
-        const actions = store.getActions();
+        setTimeout(() => {
+          try {
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
+            expect(api.user.acceptTerms.callCount).to.equal(1);
+            expect(_.find(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
+          } catch (e) {
+            done(e);
+            return;
+          }
+          done();
+        }, 50);
 
-        expect(actions).to.eql(expectedActions);
-        expect(api.user.acceptTerms.calledWith(termsData)).to.be.true;
-        expect(api.user.acceptTerms.callCount).to.equal(1);
-
-        expect(_.find(actions, { type: '@@router/TRANSITION' })).to.be.undefined;
       });
 
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', () => {

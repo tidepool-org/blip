@@ -15,10 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var togglableState = require('../TogglableState');
+import _ from 'lodash';
+const togglableState = require('../TogglableState');
 
-var basicsActions = {};
+const basicsActions = {
+  app: null,
+};
 
 basicsActions.bindApp = function(app) {
   this.app = app;

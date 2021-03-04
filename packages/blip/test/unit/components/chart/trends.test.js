@@ -17,15 +17,12 @@
 
 import React from 'react';
 import sinon from 'sinon';
-import chai from 'chai';
+import { expect } from 'chai';
 import Trends from '../../../../app/components/chart/trends';
 import { shallow } from 'enzyme';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from 'tidepool-viz';
-import i18next from '../../../../app/core/language';
 import DataUtilStub from '../../../helpers/DataUtil';
-
-const { expect } = chai;
 
 const { Loader } = vizComponents;
 
@@ -78,7 +75,6 @@ describe('Trends', () => {
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
-    onSwitchToBgLog: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
@@ -87,7 +83,6 @@ describe('Trends', () => {
         data: {},
       },
     },
-    t: i18next.t.bind(i18next),
     timePrefs: {
       timezoneAware: false,
       timezoneName: 'US/Pacific'

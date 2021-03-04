@@ -33,7 +33,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -64,7 +63,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -100,7 +98,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -136,7 +133,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -172,7 +168,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -208,7 +203,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -244,7 +238,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -280,7 +273,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -316,7 +308,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -352,7 +343,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };
@@ -365,42 +355,6 @@ describe('Header', function () {
       expect(props.onClickOneDay.callCount).to.equal(0);
       TestUtils.Simulate.click(dayButton);
       expect(props.onClickOneDay.callCount).to.equal(1);
-    });
-
-    it('should trigger onClickBgLog when BG Log button is clicked', function () {
-      var props = {
-        patient: {
-          profile: {
-            fullName: 'Jane Doe',
-          },
-          permissions: {
-            note: {},
-            view: {},
-          },
-        },
-        chartType: 'Awesome',
-        inTransition: false,
-        atMostRecent: false,
-        title: 'Most Awesome',
-        onClickBack: sinon.stub(),
-        onClickBasics: sinon.stub(),
-        onClickTrends: sinon.stub(),
-        onClickMostRecent: sinon.stub(),
-        onClickNext: sinon.stub(),
-        onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub(),
-        ProfileDialog: sinon.stub().returns(null),
-      };
-      var dailyElem = React.createElement(Header, props);
-      var elem = TestUtils.renderIntoDocument(dailyElem);
-      expect(elem).to.be.ok;
-
-      var bgLogButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-bgLog');
-
-      expect(props.onClickBgLog.callCount).to.equal(0);
-      TestUtils.Simulate.click(bgLogButton);
-      expect(props.onClickBgLog.callCount).to.equal(1);
     });
 
     it('should trigger onClickSettings when settings button is clicked', function () {
@@ -424,7 +378,6 @@ describe('Header', function () {
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
-        onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
         ProfileDialog: sinon.stub().returns(null),
       };

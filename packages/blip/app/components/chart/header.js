@@ -52,7 +52,6 @@ class TidelineHeader extends React.Component {
     onClickMostRecent: PropTypes.func,
     onClickNext: PropTypes.func,
     onClickOneDay: PropTypes.func,
-    onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
     profileDialog: PropTypes.func,
@@ -208,9 +207,6 @@ class TidelineHeader extends React.Component {
           </a>
           <a href='' className={dayLinkClass} onClick={this.props.onClickOneDay}>
             {t('Daily')}
-          </a>
-          <a href='' className={bgLogLinkClass} onClick={this.props.onClickBgLog}>
-            {t('BG Log')}
           </a>
           <a href='' className={trendsLinkClass} onClick={this.props.onClickTrends}>
             {t('Trends')}

@@ -19,12 +19,11 @@ import React from 'react';
 import _ from 'lodash';
 import sinon from 'sinon';
 import chai from 'chai';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
 import DataUtilStub from '../../../helpers/DataUtil';
 import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
-import i18next from '../../../../app/core/language';
 
 describe('Basics', () => {
   const { expect } = chai;
@@ -50,15 +49,24 @@ describe('Basics', () => {
     bgUnits: MGDL_UNITS,
   };
 
-  let baseProps = {
+  const baseProps = {
     bgPrefs,
     bgSource: 'cbg',
     chartPrefs: { basics: {} },
-    dataUtil: new DataUtilStub(),
+    dataUtil: new DataUtilStub([], {
+      bgPrefs: {
+        bgUnits: MGDL_UNITS,
+        bgClasses: {},
+      },
+      timePrefs: {
+        timezoneAware: true,
+        timezoneName: 'UTC',
+      },
+    }),
     onClickPrint: sinon.stub(),
-    onUpdateChartDateRange: sinon.stub(),
-    patientData: {
+    tidelineData: {
       basicsData: {
+        nData: 0,
         data: {},
       },
     },
@@ -67,27 +75,31 @@ describe('Basics', () => {
       timezoneAware: false,
       timezoneName: 'US/Pacific',
     },
-    t: i18next.t.bind(i18next),
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
     profileDialog: sinon.stub().returns(null),
   };
 
-  let wrapper;
+  /** @type {import('enzyme').ReactWrapper} */
+  let wrapper = null;
+
   beforeEach(() => {
-    wrapper = shallow(<Basics {...baseProps} />);
+    wrapper = mount(<Basics {...baseProps} />);
+    wrapper.update();
   });
 
   afterEach(() => {
     baseProps.onClickPrint.reset();
-    baseProps.onUpdateChartDateRange.reset();
     baseProps.trackMetric.reset();
     baseProps.updateChartPrefs.reset();
+    if (wrapper !== null) {
+      wrapper.unmount();
+      wrapper = null;
+    }
   });
 
   describe('render', () => {
     it('should render the missing data text if no data has been uploaded', () => {
-      wrapper = mount(<Basics {...baseProps} />);
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(1);
@@ -96,12 +108,19 @@ describe('Basics', () => {
     });
 
     it('should render the basics chart if any data is uploaded', () => {
-      wrapper.setProps({
-        patientData: {
-          basicsData: _.assign({}, baseProps.patientData.basicsData, {
+      const date1 = new Date(Date.now() - 60*60*1000);
+      const date2 = new Date();
+      const dataProps = {
+        tidelineData: {
+          basicsData: {
+            nData: 1,
+            dateRange: [date1.toISOString(), date2.toISOString()],
             data: {
               smbg: {
-                data: [{ type: 'smbg' }],
+                data: [
+                  { type: 'smbg', normalTime: date1.toISOString(), epoch: date1.valueOf() },
+                  { type: 'smbg', normalTime: date2.toISOString(), epoch: date2.valueOf() }
+                ],
               },
             },
             days: [
@@ -109,13 +128,19 @@ describe('Basics', () => {
                 type: 'mostRecent',
               },
             ],
-          }),
+          },
         },
-      });
+      };
+      _.defaults(dataProps, baseProps);
+      wrapper.unmount();
+      wrapper = null; // In case the next mount() failed...
+      wrapper = mount(<Basics {...dataProps} />);
+      wrapper.update();
+      console.info(wrapper.html());
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
-      const chart = wrapper.hostNodes('BasicsChart');
-      expect(noDataMessage.length).to.equal(0);
-      expect(chart.length).to.equal(1);
+      const chart = wrapper.find('#tidelineContainer');
+      expect(noDataMessage.length, JSON.stringify(dataProps, null, 2)).to.equal(0);
+      expect(chart.length, '#tidelineContainer').to.equal(1);
     });
 
     it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', () => {
@@ -123,9 +148,10 @@ describe('Basics', () => {
         canPrint: true,
       });
 
-      let mountedWrapper = mount(<Basics {...props} />);
+      wrapper.setProps(props);
+      wrapper.update();
 
-      var printLink = mountedWrapper.find('.printview-print-icon');
+      var printLink = wrapper.find('.printview-print-icon');
       expect(printLink.length).to.equal(1);
       expect(printLink.hasClass('patient-data-subnav-disabled')).to.be.false;
 
@@ -136,28 +162,30 @@ describe('Basics', () => {
 
     it('should render the bg toggle', () => {
       var props = _.assign({}, baseProps, {
-        patientData: {
+        tidelineData: {
           basicsData: {
             data: {},
             dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
           },
         },
       });
-      wrapper = shallow(<Basics {...props} />);
+      wrapper.setProps(props);
+      wrapper.update();
       const toggle = wrapper.find('BgSourceToggle');
       expect(toggle.length).to.equal(1);
     });
 
     it('should render the stats', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
+      const props = _.assign({}, baseProps, {
+        tidelineData: {
           basicsData: {
             data: {},
             dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
           },
         },
       });
-      wrapper = shallow(<Basics {...props} />);
+      wrapper.setProps(props);
+      wrapper.update();
       const stats = wrapper.find('Stats');
       expect(stats.length).to.equal(1);
     });
@@ -165,75 +193,29 @@ describe('Basics', () => {
 
   describe('getInitialState', () => {
     it('should set the initial state', () => {
-      wrapper = shallow(<Basics {...baseProps} />);
       expect(wrapper.state('atMostRecent')).to.be.true;
       expect(wrapper.state('inTransition')).to.be.false;
       expect(wrapper.state('title')).to.be.a('string');
+      expect(_.isEmpty(wrapper.state('endpoints'))).to.be.true;
     });
   });
 
-  describe('componentWillMount', () => {
-    it('should not call the `onUpdateChartDateRange` method when dateRange is not set', () => {
-      sinon.assert.notCalled(baseProps.onUpdateChartDateRange);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with the end set to the start of the next day when dateRange is set', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
+  describe('componentDidMount', () => {
+    it('should set the endpoint after mount', () => {
+      const props = _.assign({}, baseProps, {
+        tidelineData: {
           basicsData: {
             data: {},
-            dateRange: ['2018-01-15T00:00:00.000Z', '2018-01-30T12:46:52.000Z'],
+            dateRange: ['2018-01-15T05:00:00.000Z', '2018-01-30T03:46:52.000Z'],
           },
         },
       });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, ['2018-01-15T00:00:00.000Z', '2018-01-31T00:00:00.000Z']);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for timezone offset when present', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: ['2018-01-15T08:00:00.000Z', '2018-01-30T12:46:52.000Z'],
-          },
-        },
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        },
-      });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, ['2018-01-15T08:00:00.000Z', '2018-01-31T08:00:00.000Z']);
-    });
-
-    it('should call the `onUpdateChartDateRange` method with an endpoint accounting for DST offset when applicable', () => {
-      var props = _.assign({}, baseProps, {
-        patientData: {
-          basicsData: {
-            data: {},
-            dateRange: [
-              '2018-03-05T08:00:00.000Z',
-              '2018-03-12T12:46:52.000Z', // DST changeover was March 11
-            ],
-          },
-        },
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        },
-      });
-
-      let mountedWrapper = mount(<Basics {...props} />);
-      sinon.assert.calledOnce(baseProps.onUpdateChartDateRange);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, [
-        '2018-03-05T08:00:00.000Z',
-        '2018-03-13T07:00:00.000Z', // 7 hour offset on post-DST date
-      ]);
+      wrapper.unmount();
+      wrapper = null;
+      wrapper = mount(<Basics {...props} />);
+      wrapper.update();
+      const state = wrapper.state();
+      expect(_.isEmpty(state.endpoints)).to.be.false;
     });
   });
 

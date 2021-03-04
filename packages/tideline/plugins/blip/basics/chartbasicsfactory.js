@@ -15,24 +15,24 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
+import _ from "lodash";
+import bows from "bows";
+import i18next from "i18next";
+import PropTypes from "prop-types";
+import React from "react";
+import sizeMe from "react-sizeme";
 
-var _ = require('lodash');
-var PropTypes = require('prop-types');
-var React = require('react');
+import "./less/basics.less";
 
-require('./less/basics.less');
-var basicsState = require('./logic/state');
-var basicsActions = require('./logic/actions');
-var dataMungerMkr = require('./logic/datamunger');
-var constants = require('./logic/constants');
-var sizeMe = require('react-sizeme');
+const basicsState = require("./logic/state");
+const basicsActions = require("./logic/actions");
+const dataMungerMkr = require("./logic/datamunger");
+const constants = require("./logic/constants");
 
-var Section = require('./components/DashboardSection');
+const Section = require("./components/DashboardSection");
+const togglableState = require("./TogglableState");
 
-var togglableState = require('./TogglableState');
-
-var t = i18next.t.bind(i18next);
+const t = i18next.t.bind(i18next);
 
 class BasicsChart extends React.Component {
   static propTypes = {
@@ -40,22 +40,54 @@ class BasicsChart extends React.Component {
     bgUnits: PropTypes.string.isRequired,
     onSelectDay: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
-    patientData: PropTypes.object.isRequired,
+    tidelineData: PropTypes.object.isRequired,
     permsOfLoggedInUser: PropTypes.object.isRequired,
     size: PropTypes.object.isRequired,
     timePrefs: PropTypes.object.isRequired,
-    updateBasicsData: PropTypes.func.isRequired,
-    updateBasicsSettings: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
   };
 
-  _adjustSectionsBasedOnAvailableData = (basicsData) => {
-    var insulinDataAvailable = this._insulinDataAvailable();
-    var noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
-    var noSMBGDataMessage = t("This section requires data from a blood-glucose meter, so there's nothing to display.");
+  constructor(props) {
+    super(props);
+
+    this.log = bows("BasicsChart");
+    this.state = {
+      basicsData: null,
+      data: null,
+      sections: null,
+    };
+  }
+
+  componentDidMount() {
+    this.log.debug("Mounting...");
+
+    const { tidelineData, bgClasses, bgUnits, patient, permsOfLoggedInUser } = this.props;
+    const basicsData = _.cloneDeep(tidelineData.basicsData);
+
+    const dataMunger = dataMungerMkr(bgClasses, bgUnits);
+    const latestPump = dataMunger.getLatestPumpUploaded(this.props.tidelineData);
+    basicsData.sections = basicsState(latestPump, tidelineData.latestPumpManufacturer).sections;
+
+    dataMunger.reduceByDay(basicsData);
+
+    dataMunger.processInfusionSiteHistory(basicsData, latestPump, patient, permsOfLoggedInUser);
+
+    this.adjustSectionsBasedOnAvailableData(basicsData);
+    basicsActions.bindApp(this);
+    this.setState({ basicsData, sections: basicsData.sections, data: basicsData.data });
+  }
+
+  componentWillUnmount() {
+    this.log.debug("Unmounting...");
+    basicsActions.bindApp(null);
+  }
+
+  adjustSectionsBasedOnAvailableData(basicsData) {
+    const insulinDataAvailable = this.insulinDataAvailable(basicsData);
+    const noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
 
     if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
-      if (!this._hasSectionData(basicsData.sections.siteChanges.type)) {
+      if (!this.hasSectionData(basicsData, basicsData.sections.siteChanges.type)) {
         basicsData.sections.siteChanges.active = false;
         basicsData.sections.siteChanges.message = noPumpDataMessage;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
@@ -65,152 +97,112 @@ class BasicsChart extends React.Component {
       }
     }
 
-    if (!this._hasSectionData(basicsData.sections.boluses.type)) {
+    if (!this.hasSectionData(basicsData, basicsData.sections.boluses.type)) {
       basicsData.sections.boluses.active = false;
       basicsData.sections.boluses.message = noPumpDataMessage;
     }
 
-    if (!this._hasSectionData(basicsData.sections.basals.type)) {
+    if (!this.hasSectionData(basicsData, basicsData.sections.basals.type)) {
       basicsData.sections.basals.active = false;
       basicsData.sections.basals.message = noPumpDataMessage;
     }
 
-    if (!this._automatedBasalEventsAvailable()) {
-      var basalSection = _.find(basicsData.sections, {type: 'basal'});
+    if (!this.automatedBasalEventsAvailable(basicsData)) {
+      const basalSection = _.find(basicsData.sections, { type: "basal" });
 
-      basalSection.selectorOptions.rows.forEach(function(row) {
-        _.forEach(row, function(option) {
-          if (option.key === 'automatedStop') {
+      basalSection.selectorOptions.rows.forEach((row) => {
+        // eslint-disable-next-line lodash/prefer-filter
+        _.forEach(row, (option) => {
+          if (option.key === "automatedStop") {
             option.active = false;
           }
         });
       });
     }
-  };
+  }
 
-  _insulinDataAvailable = () => {
-    var {
-      basal,
-      bolus,
-      wizard,
-    } = _.get(this.props, 'patientData.basicsData.data', {});
-
-    if (_.get(basal, 'data.length') || _.get(bolus, 'data.length') || _.get(wizard, 'data.length')) {
+  insulinDataAvailable(basicsData) {
+    const { basal, bolus, wizard } = _.get(basicsData, "data", {});
+    if (_.get(basal, "data.length", false) || _.get(bolus, "data.length", false) || _.get(wizard, "data.length", false)) {
       return true;
     }
+
     return false;
-  };
+  }
 
-  _automatedBasalEventsAvailable = () => {
-    return _.get(this.props, 'patientData.basicsData.data.basal.summary.automatedStop.count', 0) > 0;
-  };
+  automatedBasalEventsAvailable(basicsData) {
+    return _.get(basicsData, "data.basal.summary.automatedStop.count", 0) > 0;
+  }
 
-  _hasSectionData = (section) => {
-    var basicsData = this.props.patientData.basicsData;
-
+  hasSectionData(basicsData, section) {
     // check that section has data within range of current view
-    return _.some(basicsData.data[section].data, function(datum) {
-      return (datum.normalTime >= basicsData.dateRange[0]);
+    return _.some(basicsData.data[section].data, (datum) => {
+      return datum.normalTime >= basicsData.dateRange[0];
     });
-  };
+  }
 
-  _availableDeviceData = () => {
-    var deviceTypes = [];
+  availableDeviceData() {
+    const { basicsData } = this.state;
+    const deviceTypes = [];
 
-    if (this._hasSectionData('cbg')) {
-      deviceTypes.push('CGM');
+    if (this.hasSectionData(basicsData, "cbg")) {
+      deviceTypes.push("CGM");
     }
-    if (this._hasSectionData('smbg')) {
-      deviceTypes.push('BGM');
+    if (this.hasSectionData(basicsData, "smbg")) {
+      deviceTypes.push("BGM");
     }
-    if (this._insulinDataAvailable()) {
-      deviceTypes.push('Pump');
+    if (this.insulinDataAvailable(basicsData)) {
+      deviceTypes.push("Pump");
     }
 
     return deviceTypes;
-  };
-
-  UNSAFE_componentWillMount() {
-    var basicsData = this.props.patientData.basicsData;
-    if (basicsData.sections == null) {
-      var dataMunger = dataMungerMkr(this.props.bgClasses, this.props.bgUnits);
-      var latestPump = dataMunger.getLatestPumpUploaded(this.props.patientData);
-      basicsData = _.assign({}, basicsData, basicsState(latestPump, this.props.patientData.latestPumpManufacturer));
-
-      dataMunger.reduceByDay(basicsData);
-
-      dataMunger.processInfusionSiteHistory(basicsData, latestPump, this.props.patient, this.props.permsOfLoggedInUser);
-
-      this._adjustSectionsBasedOnAvailableData(basicsData);
-    }
-    this.setState(basicsData);
-    basicsActions.bindApp(this);
-  }
-
-  componentDidMount() {
-    var availableDeviceData = this._availableDeviceData();
-
-    if (availableDeviceData.length > 0) {
-      var device = availableDeviceData.sort().join('+');
-      if (availableDeviceData.length === 1) {
-        device += ' only';
-      }
-
-      this.props.trackMetric('web - viewed basics data', { device });
-    }
-  }
-
-  componentWillUnmount() {
-    this.props.updateBasicsData(this.state);
   }
 
   render() {
-    var rightColumn = this.renderColumn('right');
-    return (
-      <div id="chart-basics-factory">
-        {rightColumn}
-      </div>
-    );
+    const { basicsData } = this.state;
+    if (basicsData === null) {
+      return null;
+    }
+
+    return <div id="chart-basics-factory">{this.renderColumn("right")}</div>;
   }
 
-  renderColumn = (columnSide) => {
-    var self = this;
-    var timePrefs = this.props.timePrefs;
-    var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
-    var sections = [];
-    for (var key in this.state.sections) {
-      var section = _.cloneDeep(self.state.sections[key]);
+  renderColumn(columnSide) {
+    const { timePrefs, bgClasses, bgUnits } = this.props;
+    const { basicsData, data, sections: basicsSections } = this.state;
+    const tz = timePrefs.timezoneName;
+    const sections = [];
+    for (let key in basicsSections) {
+      const section = _.cloneDeep(basicsSections[key]);
       section.name = key;
       sections.push(section);
     }
-    var column = _.sortBy(
-      _.filter(sections, {column: columnSide}),
-      'index'
-    );
+    const column = _.sortBy(_.filter(sections, { column: columnSide }), "index");
 
-    return _.map(column, function(section, index) {
+    return _.map(column, (section) => {
       return (
-        <Section key={section.name}
-          bgClasses={self.props.bgClasses}
-          bgUnits={self.props.bgUnits}
+        <Section
+          key={section.name}
+          bgClasses={bgClasses}
+          bgUnits={bgUnits}
           chart={section.chart}
-          chartWidth={self.props.size.width}
-          data={self.state.data}
-          days={self.state.days}
+          chartWidth={this.props.size.width}
+          data={data}
+          days={basicsData.days}
           labels={section.labels}
           name={section.name}
-          onSelectDay={self.props.onSelectDay}
+          onSelectDay={this.props.onSelectDay}
           open={section.open}
           togglable={section.togglable}
           section={section}
           title={section.title}
           settingsTogglable={section.settingsTogglable}
-          updateBasicsSettings={self.props.updateBasicsSettings}
           timezone={tz}
-          trackMetric={self.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+        />
       );
     });
-  };
+  }
 }
 
 module.exports = sizeMe({ monitorHeight: true })(BasicsChart);

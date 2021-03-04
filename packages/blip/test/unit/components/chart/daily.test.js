@@ -60,7 +60,6 @@ describe('Daily', () => {
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
-    onSwitchToBgLog: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onUpdateChartDateRange: sinon.stub(),
     patient: {

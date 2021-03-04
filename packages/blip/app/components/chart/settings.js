@@ -46,7 +46,6 @@ class Settings extends React.Component {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onSwitchToBgLog: PropTypes.func,
     onClickPrint: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired
@@ -80,7 +79,6 @@ class Settings extends React.Component {
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.handleClickSettings}
-          onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.props.onClickPrint} />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
@@ -173,13 +171,6 @@ class Settings extends React.Component {
       e.preventDefault();
     }
     return;
-  };
-
-  handleClickBgLog = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    this.props.onSwitchToBgLog();
   };
 }
 
