@@ -250,5 +250,9 @@
   "modal-switch-hcp-failure": "crwdns47410:0crwdne47410:0",
   "notif-hcp-invitation": "crwdns47412:0{hcpName}crwdnd47412:0{teamName}crwdne47412:0",
   "notif-caregiver-invitation": "crwdns47414:0{patientName}crwdne47414:0",
-  "patient-profile": "crwdns50530:0crwdne50530:0"
+  "patient-profile": "crwdns50530:0crwdne50530:0",
+  "today": "crwdns53370:0crwdne53370:0",
+  "yesterday": "crwdns53372:0crwdne53372:0",
+  "datashare": "crwdns53374:0crwdne53374:0",
+  "join-group": "crwdns53376:0crwdne53376:0"
 }
