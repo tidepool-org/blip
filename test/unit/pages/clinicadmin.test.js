@@ -1,23 +1,30 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import _ from 'lodash';
 import Button from '../../../app/components/elements/Button';
 import TextInput from '../../../app/components/elements/TextInput';
 import Table from '../../../app/components/elements/Table';
+import Popover from '../../../app/components/elements/Popover';
 import ClinicAdmin from '../../../app/pages/clinicadmin';
+import { Dialog } from '../../../app/components/elements/Dialog';
 
 /* global chai */
 /* global sinon */
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global before */
+/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('ClinicAdmin', () => {
+  let mount;
+
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -28,7 +35,16 @@ describe('ClinicAdmin', () => {
       },
     },
   };
-  let store = mockStore({
+
+  before(() => {
+    mount = createMount();
+  });
+
+  after(() => {
+    mount.cleanUp();
+  });
+
+  const blipState = {
     blip: {
       working: {
         fetchingClinics: {
@@ -38,8 +54,65 @@ describe('ClinicAdmin', () => {
         },
         fetchingCliniciansFromClinic: {
           inProgress: false,
-          complete: true,
+          completed: true,
           notification: null,
+        },
+      },
+    },
+  };
+
+  let store = mockStore(blipState);
+
+  const fetchedDataState = _.merge({}, blipState, {
+    blip: {
+      allUsersMap: {
+        clinicianUserId123: {
+          emails: ['clinic@example.com'],
+          roles: ['clinic'],
+          userid: 'clinicianUserId123',
+          username: 'clinic@example.com',
+          profile: {
+            fullName: 'Example Clinic',
+            clinic: {
+              role: 'clinic_manager',
+            },
+          },
+        },
+      },
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              permissions: ['CLINIC_MEMBER'],
+            },
+          },
+          patients: {},
+          id: 'clinicID456',
+          address: '1 Address Ln, City Zip',
+          name: 'new_clinic_name',
+          email: 'new_clinic_email_address@example.com',
+          phoneNumbers: [
+            {
+              number: '(888) 555-5555',
+              type: 'Office',
+            },
+          ],
+        },
+      },
+      loggedInUserId: 'clinicianUserId123',
+      pendingSentInvites: [],
+    },
+  });
+
+  const fetchedAdminState = _.merge({}, fetchedDataState, {
+    blip: {
+      clinics: {
+        clinicID456: {
+          clinicians: {
+            clinicianUserId123: {
+              permissions: ['CLINIC_ADMIN'],
+            },
+          },
         },
       },
     },
@@ -89,5 +162,80 @@ describe('ClinicAdmin', () => {
       .simulate('change', { target: { value: 'new search text' } });
     const table = wrapper.find(Table);
     expect(table.props().searchText).to.equal('new search text');
+  });
+
+  it('should render an empty Table with no data', () => {
+    const table = wrapper.find(Table);
+    expect(table).to.have.length(1);
+    expect(table.props().data).to.eql([]);
+    expect(table.find('tr')).to.have.length(1); // header
+  });
+
+  it('should render a Table when data is available', () => {
+    wrapper = mount(
+      <Provider store={mockStore(fetchedDataState)}>
+        <ClinicAdmin {...defaultProps} />
+      </Provider>
+    );
+
+    const table = wrapper.find(Table);
+    expect(table).to.have.length(1);
+    expect(table.find('tr')).to.have.length(2); // data + header
+    expect(table.find('td')).to.have.length(3);
+  });
+
+  describe('logged in as clinic admin', () => {
+    beforeEach(() => {
+      store = mockStore(fetchedAdminState);
+      wrapper = mount(
+        <Provider store={store}>
+          <ClinicAdmin {...defaultProps} />
+        </Provider>
+      );
+    });
+
+    it('should render Edit and "More" icon', () => {
+      const table = wrapper.find(Table);
+      expect(table).to.have.length(1);
+      expect(table.find('tr')).to.have.length(2); // data + header
+      expect(table.find('td')).to.have.length(5);
+      const editButton = table.find(Button).at(0);
+      expect(editButton.text()).to.equal('Edit');
+      expect(table.find('MoreMenu')).to.have.length(1);
+    });
+
+    it('should navigate to "/clinician-edit" when "Edit" button clicked', () => {
+      const editButton = wrapper.find(Table).find(Button).at(0);
+      editButton.simulate('click');
+      expect(store.getActions()).to.eql([
+        {
+          payload: {
+            args: [
+              '/clinician-edit',
+              {
+                clinicId: 'clinicID456',
+                clinicianId: 'clinicianUserId123',
+              },
+            ],
+            method: 'push',
+          },
+          type: '@@router/CALL_HISTORY_METHOD',
+        },
+      ]);
+    });
+
+    it('should display menu when "More" icon is clicked', () => {
+      const moreMenuIcon = wrapper.find('MoreMenu').find('Icon').at(0);
+      expect(wrapper.find(Popover).props().open).to.be.false;
+      moreMenuIcon.simulate('click');
+      expect(wrapper.find(Popover).props().open).to.be.true;
+    });
+
+    it('should display dialog when "Remove User" is clicked', () => {
+      const flex = wrapper.find('div[color="feedback.danger"]');
+      expect(wrapper.find(Dialog).props().open).to.be.false;
+      flex.simulate('click');
+      expect(wrapper.find(Dialog).props().open).to.be.true;
+    });
   });
 });

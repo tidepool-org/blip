@@ -148,7 +148,10 @@ export const ClinicianEdit = (props) => {
       my={2}
       bg="white"
       width={[1, 0.75, 0.75, 0.5]}
-      sx={{ border: baseTheme.borders.default }}
+      sx={{
+        border: baseTheme.borders.default,
+        borderRadius: baseTheme.radii.default,
+      }}
     >
       <Flex
         sx={{ borderBottom: baseTheme.borders.default }}
@@ -168,6 +171,7 @@ export const ClinicianEdit = (props) => {
       <Box px={6}>
         <RadioGroup
           id="clinician-type"
+          name="clinician-type"
           options={[
             { value: 'CLINIC_ADMIN', label: clinicAdminDesc },
             { value: 'CLINIC_MEMBER', label: clinicMemberDesc },
@@ -206,10 +210,10 @@ export const ClinicianEdit = (props) => {
           />
         </Box>
         <Flex p={4} justifyContent="flex-end">
-          <Button variant="secondary" m={2} onClick={handleBack}>
+          <Button id="back" variant="secondary" m={2} onClick={handleBack}>
             Back
           </Button>
-          <Button variant="primary" m={2} onClick={handleSave}>
+          <Button id="save" variant="primary" m={2} onClick={handleSave}>
             Save
           </Button>
         </Flex>
@@ -230,10 +234,18 @@ export const ClinicianEdit = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={handleCloseDeleteDialog}>
+          <Button
+            id="deleteDialogCancel"
+            variant="secondary"
+            onClick={handleCloseDeleteDialog}
+          >
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleConfirmDeleteDialog}>
+          <Button
+            id="deleteDialogRemove"
+            variant="danger"
+            onClick={handleConfirmDeleteDialog}
+          >
             Remove User
           </Button>
         </DialogActions>
@@ -254,10 +266,18 @@ export const ClinicianEdit = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={handleCloseConfirmDialog}>
+          <Button
+            id="confirmDialogCancel"
+            variant="secondary"
+            onClick={handleCloseConfirmDialog}
+          >
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleExitConfirmDialog}>
+          <Button
+            id="confirmDialogExit"
+            variant="danger"
+            onClick={handleExitConfirmDialog}
+          >
             Exit
           </Button>
         </DialogActions>

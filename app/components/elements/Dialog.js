@@ -123,4 +123,8 @@ Dialog.propTypes = {
   ...DialogProps,
   id: PropTypes.string.isRequired,
 };
+
+Dialog.defaultProps = {
+  keepMounted: true,
+};
 /* Dialog End */

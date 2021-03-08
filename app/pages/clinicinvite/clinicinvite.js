@@ -110,7 +110,10 @@ export const ClinicInvite = (props) => {
       my={2}
       bg="white"
       width={[1, 0.75, 0.75, 0.5]}
-      sx={{ border: baseTheme.borders.default }}
+      sx={{
+        border: baseTheme.borders.default,
+        borderRadius: baseTheme.radii.default,
+      }}
     >
       <Flex
         sx={{ borderBottom: baseTheme.borders.default }}
@@ -173,10 +176,10 @@ export const ClinicInvite = (props) => {
           />
         </Box>
         <Flex p={4} justifyContent="flex-end">
-          <Button variant="secondary" m={2} onClick={handleBack}>
+          <Button id="back" variant="secondary" m={2} onClick={handleBack}>
             Back
           </Button>
-          <Button variant="primary" m={2} onClick={handleSubmit}>
+          <Button id="next" variant="primary" m={2} onClick={handleSubmit}>
             Next
           </Button>
         </Flex>
@@ -197,10 +200,18 @@ export const ClinicInvite = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={handleDialogClose}>
+          <Button
+            id="confirmDialogCancel"
+            variant="secondary"
+            onClick={handleDialogClose}
+          >
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDialogConfirm}>
+          <Button
+            id="confirmDialogExit"
+            variant="danger"
+            onClick={handleDialogConfirm}
+          >
             Exit
           </Button>
         </DialogActions>

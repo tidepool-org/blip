@@ -75,6 +75,7 @@ Button.propTypes = {
     'paginationLight',
     'filter',
     'chip',
+    'danger',
   ]),
 };
 
