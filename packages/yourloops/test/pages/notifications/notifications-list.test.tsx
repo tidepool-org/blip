@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Web pages tests
+ * Notifications tests
  *
  * All rights reserved.
  *
@@ -26,12 +26,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testHCPPage from "./hcp";
-import testNotificationsPage from "./notifications";
+import { expect } from "chai";
 
-function testPages(): void {
-  describe("HCP", testHCPPage);
-  describe("Notifications Page", testNotificationsPage);
-}
+import { NotificationsPage } from "../../../pages/notifications/notifications-list";
 
-export default testPages;
+export const testNotifications = (): void => {
+  it("should be exported as a function", () => {
+    expect(NotificationsPage).to.be.a("function");
+  });
+};
