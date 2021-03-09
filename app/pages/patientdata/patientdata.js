@@ -1145,6 +1145,7 @@ export const PatientDataClass = createReactClass({
       vizUtils.aggregation.defineBasicsAggregations(
         bgPrefs,
         manufacturer,
+        latestPumpUpload,
       ),
       aggregationsByDate,
       this.props.patient,
