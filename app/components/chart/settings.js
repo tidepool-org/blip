@@ -106,6 +106,7 @@ const Settings = translate()(createReactClass({
         <p>To see your Device Settings, <a
             href={this.props.uploadUrl}
             target="_blank"
+            rel="noreferrer noopener"
             onClick={handleClickUpload}>upload</a> your pump.</p>
         <p>
           If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
