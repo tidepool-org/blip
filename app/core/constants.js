@@ -73,3 +73,5 @@ export const MGDL_PER_MMOLL = 18.01559;
 export const MS_IN_DAY = 864e5;
 export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;
+
+export const LBS_PER_KG = 2.2046226218;

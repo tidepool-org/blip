@@ -1,22 +1,27 @@
 import * as yup from 'yup';
 import i18next from '../../core/language';
+import get from 'lodash/get';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import moment from 'moment';
 import { MGDL_UNITS, MMOLL_UNITS, MS_IN_DAY } from '../../core/constants';
 
 import {
+  calculatorMethodOptions,
+  cgmDeviceOptions,
   dateFormat,
   defaultUnits,
-  phoneRegex,
-  revisionStates,
-  pumpDeviceOptions,
-  cgmDeviceOptions,
   insulinModelOptions,
+  phoneRegex,
+  pumpDeviceOptions,
   pumpRanges,
-  typeOptions,
+  revisionStates,
   sexOptions,
+  totalDailyDoseScaleFactorOptions,
   trainingOptions,
+  typeOptions,
   validCountryCodes,
+  weightUnitOptions,
 } from './prescriptionFormConstants';
 
 const t = i18next.t.bind(i18next);
@@ -78,6 +83,38 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
     sex: yup.string()
       .oneOf(map(sexOptions, 'value'), t('Please select a valid option'))
       .required(t('Patient gender is required')),
+    calculator: yup.object().shape({
+      method: yup.string()
+        .oneOf(map(calculatorMethodOptions, 'value')),
+      totalDailyDose: yup.mixed().notRequired().when('method', {
+        is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
+        then: yup.number()
+          .min(0)
+          .required(t('Total Daily Dose is required')),
+      }),
+      totalDailyDoseScaleFactor: yup.number()
+        .oneOf(map(totalDailyDoseScaleFactorOptions, 'value')),
+      weight: yup.mixed().notRequired().when('method', {
+        is: method => includes(['weight', 'totalDailyDoseAndWeight'], method),
+        then: yup.number()
+          .min(0)
+          .required(t('Weight is required')),
+      }),
+      weightUnits: yup.string()
+        .oneOf(map(weightUnitOptions, 'value')),
+      recommendedBasalRate: yup.mixed().notRequired().when('method', {
+        is: method => includes(map(calculatorMethodOptions, 'value'), method),
+        then: yup.number().required(),
+      }),
+      recommendedInsulinSensitivity: yup.mixed().notRequired().when('method', {
+        is: method => includes(map(calculatorMethodOptions, 'value'), method),
+        then: yup.number().required(),
+      }),
+      recommendedCarbohydrateRatio: yup.mixed().notRequired().when('method', {
+        is: method => includes(map(calculatorMethodOptions, 'value'), method),
+        then: yup.number().required(),
+      }),
+    }),
     initialSettings: yup.object().shape({
       bloodGlucoseUnits: yup.string()
         .oneOf([MGDL_UNITS, MMOLL_UNITS], t('Please set a valid blood glucose units option'))

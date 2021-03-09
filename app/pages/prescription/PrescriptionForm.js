@@ -28,6 +28,7 @@ import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
+import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
@@ -77,6 +78,13 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       },
       mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
       sex: get(props, 'prescription.latestRevision.attributes.sex'),
+      calculator: {
+        method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
+        weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
+        weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
+        totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
+        totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+      },
       initialSettings: {
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
         pumpId: selectedPumpId,
@@ -97,7 +105,6 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
@@ -150,6 +157,17 @@ export const generateTherapySettingsOrderText = (patientRows = [], therapySettin
   });
 
   return textString;
+};
+
+export const clearCalculator = setFieldValue => {
+  setFieldValue('calculator.method', undefined, false)
+  setFieldValue('calculator.totalDailyDose', undefined, false)
+  setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
+  setFieldValue('calculator.weight', undefined, false)
+  setFieldValue('calculator.weightUnits', undefined, false)
+  setFieldValue('calculator.recommendedBasalRate', undefined, false)
+  setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
+  setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
 };
 
 export const PrescriptionForm = props => {
@@ -312,6 +330,8 @@ export const PrescriptionForm = props => {
       setInitialFocusedInput(initialFocusedInput);
     },
 
+    clearCalculator: clearCalculator.bind(null, setFieldValue),
+
     generateTherapySettingsOrderText,
 
     handleCopyTherapySettingsClicked: () => {
@@ -386,6 +406,7 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
+  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
   const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 
@@ -432,6 +453,12 @@ export const PrescriptionForm = props => {
         onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
         asyncState: isSingleStepEdit ? null : stepAsyncState,
         subSteps: subStepProps(profileFormStepsProps.subSteps),
+      },
+      {
+        ...settingsCalculatorFormStepsProps,
+        onComplete: handlers.stepSubmit,
+        asyncState: stepAsyncState,
+        subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
       },
       {
         ...stepProps(therapySettingsFormStepProps),

@@ -59,7 +59,7 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  it('should export the list pump device options', function() {
+  it('should export the list of the pump device options', function() {
     const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
     expect(pumpDeviceOptions).to.be.an('array');
     expect(_.map(pumpDeviceOptions, 'value')).to.eql([
@@ -73,7 +73,7 @@ describe('prescriptionFormConstants', function() {
     })
   });
 
-  it('should export the list cgm device options', function() {
+  it('should export the list of the cgm device options', function() {
     const cgmDeviceOptions = prescriptionFormConstants.cgmDeviceOptions(devices);
     expect(cgmDeviceOptions).to.be.an('array');
     expect(_.map(cgmDeviceOptions, 'value')).to.eql([
@@ -91,9 +91,9 @@ describe('prescriptionFormConstants', function() {
     expect(prescriptionFormConstants.defaultUnits).to.eql({
       basalRate: 'Units/hour',
       bloodGlucose: 'mg/dL',
-      glucoseSafetyLimit: MGDL_UNITS,
       bolusAmount: 'Units',
       insulinCarbRatio: 'g/U',
+      weight: 'kg',
     });
   });
 
@@ -706,6 +706,46 @@ describe('prescriptionFormConstants', function() {
       });
     });
 
+    it('should return a default value for basalRate as provided by calculator', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+        calculator: {
+          recommendedBasalRate: 0.2,
+        },
+      });
+
+      expect(result.basalRate).to.equal(0.2);
+    });
+
+    it('should return a default value for basalRate when not provided by calculator', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+        calculator: {
+          recommendedBasalRate: undefined,
+        },
+      });
+
+      expect(result.basalRate).to.equal(0.05);
+    });
+
+    it('should return a default value for insulinSensitivity as provided by calculator', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+        calculator: {
+          recommendedInsulinSensitivity: 200,
+        },
+      });
+
+      expect(result.insulinSensitivity).to.equal(200);
+    });
+
+    it('should return a default value for carbohydrateRatio as provided by calculator', () => {
+      const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS, {
+        calculator: {
+          recommendedCarbohydrateRatio: 20,
+        },
+      });
+
+      expect(result.carbohydrateRatio).to.equal(20);
+    });
+
     it('should return a default value for bloodGlucoseTargetPhysicalActivity in mg/dL units', () => {
       const result = prescriptionFormConstants.defaultValues(pump, MGDL_UNITS);
 
@@ -732,6 +772,126 @@ describe('prescriptionFormConstants', function() {
 
       expect(result.bloodGlucoseTargetPreprandial.low).to.equal(4.4);
       expect(result.bloodGlucoseTargetPreprandial.high).to.equal(5.6);
+    });
+  });
+
+  describe('calculateRecommendedTherapySettings', () => {
+    context('total daily dose and tdd scale factor provided', () => {
+      const values = {
+        calculator: {
+          totalDailyDose: 10,
+          totalDailyDoseScaleFactor: 1,
+        },
+      };
+
+      it('should provide a recommended basal rate', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedBasalRate).to.equal(0.2);
+      });
+
+      it('should provide a recommended basal rate using a reduced daily dose scale factor', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
+          calculator: {
+            ...values.calculator,
+            totalDailyDoseScaleFactor: 0.5,
+          },
+        }).recommendedBasalRate).to.equal(0.1);
+      });
+
+      it('should provide a recommended carb ratio', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedCarbohydrateRatio).to.equal(45);
+      });
+
+      it('should provide a recommended insulin sensitivity in mg/dL by default', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedInsulinSensitivity).to.equal(170);
+      });
+
+      it('should provide a recommended insulin sensitivity in mmol/L when provided bgUnits are mmol/L', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
+          ...values,
+          initialSettings: {
+            bloodGlucoseUnits: MMOLL_UNITS,
+          },
+        }).recommendedInsulinSensitivity).to.equal(9.4);
+      });
+    });
+
+    context('weight and weight units provided', () => {
+      const values = {
+        calculator: {
+          weight: 30,
+          weightUnits: 'kg',
+        },
+      };
+
+      it('should provide a recommended basal rate', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedBasalRate).to.equal(0.3);
+      });
+
+      it('should provide a recommended carb ratio', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedCarbohydrateRatio).to.equal(30);
+      });
+
+      it('should provide a recommended insulin sensitivity in mg/dL by default', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings(values).recommendedInsulinSensitivity).to.equal(113);
+      });
+
+      it('should provide a recommended insulin sensitivity in mmol/L when provided bgUnits are mmol/L', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
+          ...values,
+          initialSettings: {
+            bloodGlucoseUnits: MMOLL_UNITS,
+          },
+        }).recommendedInsulinSensitivity).to.equal(6.3);
+      });
+
+      it('should provide recommended values when weight units are lbs', () => {
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
+          calculator: {
+            ...values.calculator,
+            weightUnits: 'lbs',
+          },
+        })).to.eql({
+          recommendedBasalRate: 0.15,
+          recommendedCarbohydrateRatio: 66,
+          recommendedInsulinSensitivity: 250,
+        });
+      });
+    });
+
+    context('total daily dose and weight provided', () => {
+      it('should calculate using a derived total daily dose input averaged from the provided weight and tdd values', () => {
+        const weight = 30;
+        const totalDailyDose = 10;
+
+        const expectedTDDInput = _.mean([
+          totalDailyDose,
+          weight / 2,
+        ]);
+
+        expect(expectedTDDInput).to.equal(12.5);
+
+        const expectedBasalRate = prescriptionFormConstants.roundValueToIncrement(expectedTDDInput / 2 / 24, 0.05);
+        expect(expectedBasalRate).to.equal(0.25);
+
+        const expectedCarbohydrateRatio = prescriptionFormConstants.roundValueToIncrement(450 / expectedTDDInput, 1);
+        expect(expectedCarbohydrateRatio).to.equal(36);
+
+        const expectedInsulinSensitivity = prescriptionFormConstants.roundValueToIncrement(1700 / expectedTDDInput, 1);
+        expect(expectedInsulinSensitivity).to.equal(136);
+
+        expect(prescriptionFormConstants.calculateRecommendedTherapySettings({
+          calculator: {
+            weight,
+            weightUnits: 'kg',
+            totalDailyDose,
+            totalDailyDoseScaleFactor: 1,
+          },
+        })).to.eql({
+          recommendedBasalRate: expectedBasalRate,
+          recommendedCarbohydrateRatio: expectedCarbohydrateRatio,
+          recommendedInsulinSensitivity: expectedInsulinSensitivity,
+        });
+      });
     });
   });
 
@@ -846,7 +1006,7 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
-  it('should export the list the prescription account type options', function() {
+  it('should export the list of the prescription account type options', function() {
     expect(prescriptionFormConstants.typeOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.typeOptions, 'value')).to.eql([
       'patient',
@@ -854,12 +1014,11 @@ describe('prescriptionFormConstants', function() {
     ]);
 
     _.each(prescriptionFormConstants.typeOptions, device => {
-      expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
     })
   });
 
-  it('should export the list the prescription patient sex options', function() {
+  it('should export the list of the prescription patient sex options', function() {
     expect(prescriptionFormConstants.sexOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.sexOptions, 'value')).to.eql([
       'female',
@@ -868,12 +1027,11 @@ describe('prescriptionFormConstants', function() {
     ]);
 
     _.each(prescriptionFormConstants.sexOptions, device => {
-      expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
     })
   });
 
-  it('should export the list the prescription training options', function() {
+  it('should export the list of the prescription training options', function() {
     expect(prescriptionFormConstants.trainingOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.trainingOptions, 'value')).to.eql([
       'inPerson',
@@ -881,12 +1039,11 @@ describe('prescriptionFormConstants', function() {
     ]);
 
     _.each(prescriptionFormConstants.trainingOptions, device => {
-      expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
     })
   });
 
-  it('should export the list the prescription insulin type options', function() {
+  it('should export the list of the prescription insulin type options', function() {
     expect(prescriptionFormConstants.insulinModelOptions).to.be.an('array');
     expect(_.map(prescriptionFormConstants.insulinModelOptions, 'value')).to.eql([
       'rapidAdult',
@@ -894,12 +1051,48 @@ describe('prescriptionFormConstants', function() {
     ]);
 
     _.each(prescriptionFormConstants.insulinModelOptions, device => {
-      expect(device.value).to.be.a('string');
       expect(device.label).to.be.a('string');
     })
   });
 
-  // it('should export the list of valid country codes', function() {
-  //   expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);
-  // });
+  it('should export the list of the calculator method options', function() {
+    expect(prescriptionFormConstants.calculatorMethodOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.calculatorMethodOptions, 'value')).to.eql([
+      'totalDailyDose',
+      'weight',
+      'totalDailyDoseAndWeight',
+    ]);
+
+    _.each(prescriptionFormConstants.calculatorMethodOptions, device => {
+      expect(device.label).to.be.a('string');
+    })
+  });
+
+  it('should export the list of the calculator tdd scale factor options', function() {
+    expect(prescriptionFormConstants.totalDailyDoseScaleFactorOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.totalDailyDoseScaleFactorOptions, 'value')).to.eql([
+      1,
+      0.75,
+    ]);
+
+    _.each(prescriptionFormConstants.totalDailyDoseScaleFactorOptions, device => {
+      expect(device.label).to.be.a('string');
+    })
+  });
+
+  it('should export the list of the calculator weight unit options', function() {
+    expect(prescriptionFormConstants.weightUnitOptions).to.be.an('array');
+    expect(_.map(prescriptionFormConstants.weightUnitOptions, 'value')).to.eql([
+      'kg',
+      'lbs',
+    ]);
+
+    _.each(prescriptionFormConstants.weightUnitOptions, device => {
+      expect(device.label).to.be.a('string');
+    })
+  });
+
+  it('should export the list of valid country codes', function() {
+    expect(prescriptionFormConstants.validCountryCodes).to.be.an('array').and.to.eql([1]);
+  });
 });

@@ -163,16 +163,19 @@ export default translate()(class Export extends Component {
       opened: this.state.extraExpanded,
     });
     */
+    const { t } = this.props;
 
     let errDisplay = null;
     if (this.state.error) {
       errDisplay = (
         <div className="Export-error">
-          <div className="Export-error-title">
-            An error occured attempting to export your data. This may be
-            temporary and you can try the export again. If the error continues,
-            please contact support.
-          </div>
+          <Trans i18nKey="html.export-error">
+            <div className="Export-error-title">
+              An error occurred attempting to export your data.
+              This may be temporary and you can try the export again.
+              If the error continues, please contact support.
+            </div>
+          </Trans>
           <div className="Export-error-details">
             Details:{' '}
             {this.state.error.message
@@ -186,7 +189,7 @@ export default translate()(class Export extends Component {
       <div className="Export">
         <form onSubmit={this.handleSubmit}>
           <div className="Export-dates">
-            <div>Export my data from:</div>
+            <div>{t('Export my data from:')}</div>
             <input
               name="startDate"
               type="date"
@@ -194,7 +197,7 @@ export default translate()(class Export extends Component {
               value={this.state.startDate}
               onChange={this.handleInputChange}
             />
-            <div> to </div>
+            <div> {t('to')} </div>
             <input
               name="endDate"
               type="date"
@@ -208,14 +211,14 @@ export default translate()(class Export extends Component {
             <a onClick={() => {
               this.props.trackMetric('Selected pre-determined date range');
               this.setState({ allTime: true });
-            }}>All Data</a> |
-            <a onClick={() => this.setDateRange(90)}> Last 90 Days</a> |
-            <a onClick={() => this.setDateRange(30)}> Last 30 Days</a> |
-            <a onClick={() => this.setDateRange(14)}> Last 14 Days</a>
+            }}>{t('All Data')}</a> |
+            <a onClick={() => this.setDateRange(90)}> {t('Last 90 Days')}</a> |
+            <a onClick={() => this.setDateRange(30)}> {t('Last 30 Days')}</a> |
+            <a onClick={() => this.setDateRange(14)}> {t('Last 14 Days')}</a>
           </div>
 
           <div className="Export-units">
-            Units:
+            {t('Units:')}
             <input
               name="bgUnits"
               type="radio"
@@ -235,7 +238,7 @@ export default translate()(class Export extends Component {
           </div>
 
           <div className="Export-filetype">
-            File type:
+            {t('File type:')}
             <input
               name="format"
               type="radio"
@@ -272,7 +275,7 @@ export default translate()(class Export extends Component {
           </div>
           */}
           <div className="Export-button">
-            <input className="btn btn-primary" type="submit" value="Export" />
+            <input className="btn btn-primary" type="submit" value={t('Export')} />
           </div>
         </form>
         {errDisplay}
