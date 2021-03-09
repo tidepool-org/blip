@@ -175,6 +175,7 @@ class Basics extends Component {
         <p>To see the Basics, <a
             href={this.props.uploadUrl}
             target="_blank"
+            rel="noreferrer noopener"
             onClick={handleClickUpload}>upload</a> some device data.</p>
         <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
         </p>
