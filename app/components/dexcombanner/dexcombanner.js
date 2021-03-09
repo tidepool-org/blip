@@ -74,7 +74,7 @@ export const DexcomBanner = translate()((props) => {
 
     return (
       <a
-        className="message-link" href={link.href} target={link.target} onClick={handleClickLearnMore}>
+        className="message-link" href={link.href} target={link.target} onClick={handleClickLearnMore} rel="noreferrer noopener">
         {link.text}
       </a>
     );
