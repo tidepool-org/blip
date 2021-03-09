@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.19.0-web-1137-pdf-reader-bug.1":
-  version "1.19.0-web-1137-pdf-reader-bug.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-web-1137-pdf-reader-bug.1.tgz#7a19afbb50e53fbd3f68343b6017ec8fa6761ac4"
-  integrity sha512-pYHenEDNrsVz9eZyEAqJaJCszzTqSOoJpaKxa9IR/DjaTiHpguG0bgKCJssypAGNbrJi4I0k6006nDYFfyKmgw==
+"@tidepool/viz@1.19.0-microtech-equil.1":
+  version "1.19.0-microtech-equil.1"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-microtech-equil.1.tgz#8a457b5832cdf6efbe136c3a435db083a15aa491"
+  integrity sha512-3jBckbT9QFfzhdKYR9gJnR47BuXcV/KP3pIYMDbvx+/VVs5vW6MGTOxK+WrPi7b3nGtDaJO2HKtvZC6zIsKpKg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
