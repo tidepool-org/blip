@@ -192,9 +192,32 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     setTraceToken(null);
   };
 
-  const sendPasswordResetEmail = (username: string): Promise<boolean> => {
+  /**
+   * @returns true if the email was sucessfully sent.
+   */
+  const sendPasswordResetEmail = async (username: string, language: string): Promise<boolean> => {
     log.info("sendPasswordResetEmail", username);
-    return Promise.resolve(true);
+    if (traceToken === null) {
+      throw new Error("not-yet-initialized");
+    }
+    const response = await api.requestPasswordReset(
+      username,
+      traceToken,
+      language
+    );
+
+    return response;
+  };
+
+  const resetPassword = async (key: string | null, username: string, password: string): Promise<boolean> => {
+
+    if (traceToken === null) {
+      throw new Error("not-yet-initialized");
+    }
+
+    const response = await api.resetPassword(key, username, password, traceToken);
+
+    return response;
   };
 
   const initHook = () => {
@@ -289,6 +312,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     signup,
     isLoggedIn,
     sendPasswordResetEmail,
+    resetPassword,
     flagPatient,
     setFlagPatients,
     getFlagPatients,

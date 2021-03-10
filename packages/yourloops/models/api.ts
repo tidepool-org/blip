@@ -30,6 +30,7 @@ export enum HttpHeaderKeys {
   contentType = "Content-Type",
   sessionToken = "x-tidepool-session-token",
   traceToken = "x-tidepool-trace-session",
+  language = "x-tidepool-language",
 }
 
 export enum HttpHeaderValues {

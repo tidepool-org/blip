@@ -43,6 +43,8 @@ export const authHcp: Session = {
 
 export const authApiHcp: AuthAPI = {
   login: sinon.stub().resolves(authHcp),
+  requestPasswordReset: sinon.stub().resolves(false),
+  resetPassword: sinon.stub().resolves(false),
   updatePreferences: sinon.stub().resolves(authHcp.user.preferences),
   updateProfile: sinon.stub().resolves(authHcp.user.profile),
   updateSettings: sinon.stub().resolves(authHcp.user.settings),
@@ -63,6 +65,7 @@ export const authHookHcp: AuthContext = {
   signup: sinon.stub(),
   isLoggedIn: sinon.stub().returns(true),
   sendPasswordResetEmail: sinon.stub().returns(true),
+  resetPassword: sinon.stub().returns(true),
   flagPatient: sinon.stub().resolves(),
   setFlagPatients: sinon.stub().resolves(),
   getFlagPatients: sinon.stub().returns([]),

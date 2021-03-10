@@ -127,7 +127,10 @@ async function authenticate(username: string, password: string, traceToken: stri
 }
 
 async function getProfile(auth: Readonly<Session>): Promise<Profile | null> {
-  const seagullURL = new URL(`/metadata/${auth.user.userid}/profile`, appConfig.API_HOST);
+  const seagullURL = new URL(
+    `/metadata/${auth.user.userid}/profile`,
+    appConfig.API_HOST
+  );
 
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
@@ -230,6 +233,77 @@ async function login(username: string, password: string, traceToken: string): Pr
   return auth;
 }
 
+async function requestPasswordReset(
+  username: string,
+  traceToken: string,
+  language = "en",
+  info = true
+): Promise<boolean> {
+  const confirmURL = new URL(
+    `/confirm/send/forgot/${username}${info ? "?info=ok" : ""}`,
+    appConfig.API_HOST
+  );
+  const response = await fetch(confirmURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.language]: language,
+    },
+    cache: "no-cache",
+  });
+
+  if (response.ok) {
+    return Promise.resolve(true);
+  }
+
+  log.error(response?.status, response?.statusText);
+
+  switch (response?.status) {
+    case HttpStatus.StatusServiceUnavailable:
+    case HttpStatus.StatusInternalServerError:
+      throw new Error("error-http-500");
+    default:
+      throw new Error("error-http-40x");
+  }
+}
+
+async function resetPassword(key: string | null, username: string, password: string, traceToken: string): Promise<boolean> {
+
+  if (
+    _.isEmpty(key) ||
+    _.isEmpty(username) ||
+    _.isEmpty(password)
+  ) {
+    log.error("forbidden call to reset password api, one of the required parameters is missing");
+    throw new Error("error-http-40x");
+  }
+
+  const confirmURL = new URL(`/confirm/accept/forgot`, appConfig.API_HOST);
+  const response = await fetch(confirmURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.traceToken]: traceToken,
+    },
+    body: JSON.stringify({ key: key , email: username, password: password }),
+  });
+
+  if (response.ok) {
+    return Promise.resolve(true);
+  }
+
+  log.error(response?.status, response?.statusText);
+
+  switch (response?.status) {
+    case HttpStatus.StatusServiceUnavailable:
+    case HttpStatus.StatusInternalServerError:
+      throw new Error("error-http-500");
+    default:
+      throw new Error("error-http-40x");
+  }
+}
+
 async function updateProfile(auth: Readonly<Session>): Promise<Profile> {
   const seagullURL = new URL(`/metadata/${auth.user.userid}/profile`, appConfig.API_HOST);
   const profile = auth.user.profile ?? {};
@@ -295,6 +369,8 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
 
 export default {
   login,
+  requestPasswordReset,
+  resetPassword,
   updateProfile,
   updatePreferences,
   updateSettings,

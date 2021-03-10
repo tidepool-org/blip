@@ -175,7 +175,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
         id="firstname"
         className={classes.TextField}
         margin="normal"
-        label={t("firstName")}
+        label={t("firstname")}
         variant="outlined"
         value={state.formValues?.profileFirstname}
         required
@@ -188,7 +188,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
         id="lastname"
         className={classes.TextField}
         margin="normal"
-        label={t("lastName")}
+        label={t("lastname")}
         variant="outlined"
         value={state.formValues?.profileLastname}
         required

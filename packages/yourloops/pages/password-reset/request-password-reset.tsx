@@ -29,66 +29,108 @@
 import _ from "lodash";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { RouteComponentProps } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 
 import brandingLogo from "branding/logo.png";
 import { useAuth } from "../../lib/auth";
+import { makeStyles, Theme } from "@material-ui/core/styles";
+import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
+import RequestPasswordForm from "./request-password-form";
+import RequestPassordMessage from "./request-password-message";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import { Snackbar } from "../../components/utils/snackbar";
+
+const loginStyle = makeStyles((theme: Theme) => {
+  return {
+    mainContainer: { margin: "auto" },
+    root: { minHeight: "100vh" },
+    Card: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: theme.spacing(4),
+    },
+    CardContent: {
+      textAlign: "start",
+      marginLeft: theme.spacing(4),
+      marginRight: theme.spacing(4),
+    },
+    CardActions: {
+      marginLeft: theme.spacing(4),
+      marginRight: theme.spacing(4),
+      padding: theme.spacing(2),
+      justifyContent: "flex-end",
+    },
+    TextField: {
+      marginLeft: theme.spacing(0),
+      marginRight: theme.spacing(1),
+    },
+  };
+});
 
 /**
- * Login page
+ * Request password page
  */
-function RequestPasswordResetPage(props: RouteComponentProps): JSX.Element {
-  const { t } = useTranslation("yourloops");
-
+function RequestPasswordResetPage(): JSX.Element {
+  const { t, i18n } = useTranslation("yourloops");
+  const history = useHistory();
+  const auth = useAuth();
+  const { openSnackbar, snackbarParams } = useSnackbar();
+  const classes = loginStyle();
   const [username, setUserName] = React.useState("");
   const [validateError, setValidateError] = React.useState(false);
-  const [helperTextValue, setHelperTextValue] = React.useState("");
-  //const loginFormStyles = useState(["stage-transition-container-variant"]);
-  const auth = useAuth();
-  const emptyUsername = _.isEmpty(username);
+  const [inProgress, setInProgress] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
 
-  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+
+  const onUsernameChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     setUserName(event.target.value);
   };
 
   const onBack = (): void => {
-    console.log("on back", props.history);
-    // requires two back for going to login page
-    props.history.go(-2); // eslint-disable-line no-magic-numbers
+    history.goBack();
   };
 
-  const onSendResetLink = (): void => {
-    if (_.isEmpty(username)) {
-      setValidateError(true);
-      return;
+  const validateUserName = (): boolean => {
+    const err = _.isEmpty(username.trim()) || !REGEX_EMAIL.test(username);
+    setValidateError(err);
+    return !err;
+  };
+
+  const onSendResetLink = async (): Promise<void> => {
+    if (validateUserName()) {
+      try {
+        setInProgress(true);
+        const success = await auth.sendPasswordResetEmail(username, i18n.language);
+        setSuccess(success);
+      } catch (reason: unknown) {
+        const errorMessage = errorTextFromException(reason);
+        const message = t(errorMessage);
+        openSnackbar({ message, severity: AlertSeverity.error });
+      }
+      setInProgress(false);
     }
-    setValidateError(false);
-    auth
-      .sendPasswordResetEmail(username)
-      .then(() => {
-        props.history.push("/password-reset-confirmed");
-      })
-      .catch((reason: Error) => {
-        setValidateError(true);
-        setHelperTextValue(reason.message);
-      });
   };
 
   return (
-    <Container maxWidth="sm" style={{ margin: "auto" }}>
-      <Grid container spacing={0} alignItems="center" justify="center" style={{ minHeight: "100vh" }}>
+    <Container maxWidth="sm" className={classes.mainContainer}>
+      <Grid
+        container
+        spacing={0}
+        alignItems="center"
+        justify="center"
+        className={classes.root}>
         <Grid item xs={12}>
-          <Card>
+          <Snackbar params={snackbarParams} />
+          <Card className={classes.Card}>
             <CardMedia
               style={{
                 display: "flex",
@@ -105,33 +147,22 @@ function RequestPasswordResetPage(props: RouteComponentProps): JSX.Element {
                 }}
               />
             </CardMedia>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                {t("Forgot your password?")}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                {t("Please enter your email address.")}
-              </Typography>
-              <form style={{ display: "flex", flexDirection: "column" }} noValidate autoComplete="off">
-                <TextField
-                  id="username"
-                  label={t("email")}
-                  value={username}
-                  required
-                  error={validateError || emptyUsername}
-                  onChange={onUsernameChange}
-                  helperText={helperTextValue}
-                />
-              </form>
-            </CardContent>
-            <CardActions>
-              <Button variant="contained" color="secondary" onClick={onBack}>
-                {t("common-cancel")}
-              </Button>
-              <Button variant="contained" color="primary" onClick={onSendResetLink} disabled={emptyUsername}>
-                {t("Send reset link")}
-              </Button>
-            </CardActions>
+            {success ? (
+              <RequestPassordMessage
+                header="password-request-reset-title"
+                body="password-request-reset-instructions"
+              />
+            ) : (
+              <RequestPasswordForm
+                username={username}
+                error={validateError}
+                inProgress={inProgress}
+                onBack={onBack}
+                validateUserName={validateUserName}
+                onSendResetLink={onSendResetLink}
+                onUsernameChange={onUsernameChange}
+              />
+            )}
           </Card>
         </Grid>
       </Grid>
