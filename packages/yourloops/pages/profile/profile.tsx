@@ -16,6 +16,7 @@
 
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
+import moment from "moment-timezone";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -40,6 +41,7 @@ import { Preferences, Profile, UserRoles, Settings, User } from "../../models/sh
 import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
 import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
+import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import HeaderBar from "../../components/header-bar";
 import { Password } from "../../components/utils/password";
@@ -134,7 +136,7 @@ export const ProfilePage: FunctionComponent = () => {
   const [unit, setUnit] = useState<Units>(Units.gram);
   const [role, setRole] = useState<UserRoles | null>(null);
   const [birthDate, setBirthDate] = useState<string>("");
-  const [hbA1c, setHbA1c] = useState<string>("8.5%"); // TODO
+  const [hbA1c, setHbA1c] = useState<Settings["a1c"] | null>(null);
   const [hasProfileChanged, setHasProfileChanged] = useState<boolean>(false);
   const [haveSettingsChanged, setHaveSettingsChanged] = useState<boolean>(false);
   const [havePreferencesChanged, setHavePreferencesChanged] = useState<boolean>(false);
@@ -167,6 +169,9 @@ export const ProfilePage: FunctionComponent = () => {
     }
     if (user?.settings?.units?.bg) {
       setUnit(user?.settings?.units?.bg);
+    }
+    if (user?.settings?.a1c) {
+      setHbA1c({ date: moment.utc(user.settings.a1c.date).format("L"), value: user.settings.a1c.value });
     }
     if (user?.profile?.patient?.birthday) {
       setBirthDate(user.profile.patient.birthday.split("T")[0]);
@@ -201,7 +206,7 @@ export const ProfilePage: FunctionComponent = () => {
       name: _.isEmpty(name),
       mail: !REGEX_EMAIL.test(mail),
       // eslint-disable-next-line no-magic-numbers
-      password: password.length > 0 && password.length < 10, // TODO: define rules
+      password: password.length > 0 && password.length < appConfig.PASSWORD_MIN_LENGTH,
       passwordConfirmation: passwordConfirmation !== password,
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
@@ -360,14 +365,15 @@ export const ProfilePage: FunctionComponent = () => {
                 error={errors.birthDate}
                 helperText={errors.birthDate && t("required-field")}
               />
-              <TextField
-                id="hbA1c"
-                label={t("hcp-patient-profile-hba1c")}
-                disabled
-                value={hbA1c}
-                onChange={handleChange(setHbA1c)}
-                className={classes.textField}
-              />
+              {hbA1c && (
+                <TextField
+                  id="hbA1c"
+                  label={t("hcp-patient-profile-hba1c", { hba1cDate: hbA1c?.date })}
+                  disabled
+                  value={hbA1c.value + "%"}
+                  className={classes.textField}
+                />
+              )}
             </Fragment>
           )}
           <FormControl className={classes.formControl}>

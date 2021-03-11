@@ -63,6 +63,10 @@ interface Settings {
     bg?: Units;
   };
   country?: string;
+  a1c?: {
+    date: string;
+    value: number;
+  };
 }
 
 interface Preferences {

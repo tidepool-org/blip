@@ -43,7 +43,7 @@ import {
 } from "@material-ui/core";
 
 import { Units } from "../models/generic";
-import { User } from "../models/shoreline";
+import { Settings, User } from "../models/shoreline";
 import { getUserFirstName, getUserLastName } from "../lib/utils";
 
 interface ProfileDialogProps {
@@ -79,7 +79,9 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
   const { textField, title, disabled } = useStyles();
 
   const mail = user?.emails ? user.emails[0] : "";
-  const hbA1c = "8.5%"; // TODO
+  const hbA1c: Settings["a1c"] = user?.settings?.a1c
+    ? { value: user.settings.a1c.value, date: moment.utc(user.settings.a1c.date).format("L") }
+    : undefined;
   const birthDate = moment.utc(user?.profile?.patient?.birthday).format("L");
 
   const firstName = getUserFirstName(user);
@@ -127,15 +129,17 @@ const ProfileDialog: FunctionComponent<ProfileDialogProps> = ({ user, isOpen, ha
           className={textField}
           InputProps={{ classes: { disabled } }}
         />
-        <TextField
-          fullWidth
-          disabled
-          id="hbA1c"
-          label={t("initial-hbA1c")}
-          value={hbA1c}
-          className={textField}
-          InputProps={{ classes: { disabled } }}
-        />
+        {hbA1c && (
+          <TextField
+            fullWidth
+            disabled
+            id="hbA1c"
+            label={t("hcp-patient-profile-hba1c", { hba1cDate: hbA1c?.date })}
+            value={hbA1c?.value + "%"}
+            className={textField}
+            InputProps={{ classes: { disabled } }}
+          />
+        )}
         <TextField
           fullWidth
           disabled
