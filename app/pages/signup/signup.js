@@ -326,7 +326,7 @@ export let Signup = translate()(class extends React.Component {
   renderAcceptTermsLabel = () => {
     return (
       <Trans parent="span" i18nKey="html.signup-terms-of-use">
-        I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank'>Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+        I accept the terms of the Tidepool Applications <a href={URL_TERMS_OF_USE} target='_blank' rel="noreferrer noopener">Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank' rel="noreferrer noopener">Privacy Policy</a>
       </Trans>
     );
   };

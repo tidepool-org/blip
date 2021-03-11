@@ -260,9 +260,10 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   }
 
   renderPeopleTable() {
+    const { t } = this.props;
     const columns = [
       {
-        title: 'Patient',
+        title: t('Patient'),
         field: 'profile',
         align: 'left',
         sortable: true,
@@ -272,7 +273,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         searchBy: ['fullName', 'email'],
       },
       {
-        title: 'Birthday',
+        title: t('Birthday'),
         field: 'birthday',
         align: 'left',
         sortable: true,
@@ -280,7 +281,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         render: this.renderBirthday,
       },
       {
-        title: 'Edit',
+        title: t('Edit'),
         field: 'edit',
         render: this.renderEdit,
         align: 'center',
@@ -288,7 +289,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         padding: 'checkbox',
       },
       {
-        title: 'Remove',
+        title: t('Remove'),
         field: 'remove',
         render: this.renderRemove,
         align: 'center',
