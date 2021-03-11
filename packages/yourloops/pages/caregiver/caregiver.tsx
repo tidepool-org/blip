@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Web pages tests
+ * Caregiver's main page
  *
  * All rights reserved.
  *
@@ -26,14 +26,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testCaregiverPage from "./caregiver";
-import testHCPPage from "./hcp";
-import testNotificationsPage from "./notifications";
+import React, { useEffect } from "react";
+import { Switch, useHistory } from "react-router-dom";
 
-function testPages(): void {
-  describe("HCP", testHCPPage);
-  describe("Notifications Page", testNotificationsPage);
-  describe("HCP", testCaregiverPage);
-}
+import HeaderBar from "../../components/header-bar";
+import { PrivateRoute } from "../../components/routes";
+import { TeamContextProvider } from "../../lib/team";
+import PatientListPage from "../hcp/patients-list";
 
-export default testPages;
+/**
+ * Health care professional page
+ */
+export const CaregiverPage = (): JSX.Element | null => {
+  const history = useHistory();
+
+  useEffect(() => {
+    history.push("/caregiver/patients");
+  }, [history]);
+
+  // TODO: change page to display ?
+  return (
+    <TeamContextProvider>
+      <HeaderBar />
+      <Switch>
+        <PrivateRoute path="/caregiver/patients" component={PatientListPage} />
+      </Switch>
+    </TeamContextProvider>
+  );
+};

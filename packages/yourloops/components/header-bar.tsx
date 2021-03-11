@@ -76,6 +76,8 @@ const toolbarStyles = makeStyles({
   },
   toolbarLogo: {
     height: "45px",
+    cursor: "pointer",
+    outline: "none",
   },
 });
 
@@ -83,6 +85,8 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = toolbarStyles(props);
   const auth = useAuth();
+  const history = useHistory();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -92,11 +96,14 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     setAnchorEl(event.currentTarget);
   };
 
+  const onLogoClick = (): void => {
+    history.push("/");
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const history = useHistory();
   const handleOpenProfilePage = () => {
     history.push("/account-preferences");
   };
@@ -154,7 +161,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <img className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} />
+        <input type="image" className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} onClick={onLogoClick} />
         {props.children}
         <div className={classes.toolbarRightSide}>
           {userRole && userRole !== UserRoles.patient && (

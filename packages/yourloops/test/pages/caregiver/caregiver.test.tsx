@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Web pages tests
+ * Caregiver page tests
  *
  * All rights reserved.
  *
@@ -26,14 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import testCaregiverPage from "./caregiver";
-import testHCPPage from "./hcp";
-import testNotificationsPage from "./notifications";
+import { expect } from "chai";
+import CaregiverPage from "../../../pages/caregiver";
 
-function testPages(): void {
-  describe("HCP", testHCPPage);
-  describe("Notifications Page", testNotificationsPage);
-  describe("HCP", testCaregiverPage);
+function testCaregiver(): void {
+  it("should be exported as a function", () => {
+    expect(CaregiverPage).to.be.a("function");
+  });
 }
 
-export default testPages;
+export default testCaregiver;
