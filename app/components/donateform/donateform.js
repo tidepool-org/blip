@@ -100,7 +100,7 @@ export default translate()(class DonateForm extends Component {
         text: (
           <Trans i18nKey="html.donate-form-explainer">
             You own your data. Read all the details about Tidepool's Big Data
-            Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
+            Donation project <a target="_blank" rel="noreferrer noopener" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
           </Trans>
         ),
       },

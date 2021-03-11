@@ -349,6 +349,7 @@ class BgLog extends Component {
         <p>To see your data in the BG Log view, <a
             href={this.props.uploadUrl}
             target="_blank"
+            rel="noreferrer noopener"
             onClick={handleClickUpload}>upload</a> your pump or BG meter.</p>
         <p>
           If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.

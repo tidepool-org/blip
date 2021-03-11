@@ -41,6 +41,7 @@ const StyledSelect = styled(Flex)`
 export const Select = props => {
   const {
     disabled,
+    innerRef,
     name,
     label,
     value,
@@ -74,6 +75,7 @@ export const Select = props => {
           disabled={disabled}
           value={value}
           onChange={onChange}
+          ref={innerRef}
         >
           {map(options, option => (
             <option
@@ -98,6 +100,10 @@ export const Select = props => {
 
 Select.propTypes = {
   ...SelectProps,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   disabled: PropTypes.bool,

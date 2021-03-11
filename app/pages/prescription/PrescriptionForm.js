@@ -28,6 +28,7 @@ import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
 import accountFormSteps from './accountFormSteps';
 import profileFormSteps from './profileFormSteps';
+import settingsCalculatorFormSteps from './settingsCalculatorFormSteps';
 import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
@@ -51,6 +52,10 @@ const log = bows('PrescriptionForm');
 let schema;
 
 export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
+  mapPropsToStatus: props => ({
+    hydratedValues: null,
+    isPrescriptionEditFlow: !!props.prescription,
+  }),
   mapPropsToValues: props => {
     const selectedPumpId = get(props, 'prescription.latestRevision.attributes.initialSettings.pumpId');
     const pumpId = selectedPumpId || deviceIdMap.omnipodHorizon;
@@ -73,6 +78,13 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
       },
       mrn: get(props, 'prescription.latestRevision.attributes.mrn'),
       sex: get(props, 'prescription.latestRevision.attributes.sex'),
+      calculator: {
+        method: get(props, 'prescription.latestRevision.attributes.calculator.method'),
+        weight: get(props, 'prescription.latestRevision.attributes.calculator.weight'),
+        weightUnits: get(props, 'prescription.latestRevision.attributes.calculator.weightUnits', defaultUnits.weight),
+        totalDailyDose: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDose'),
+        totalDailyDoseScaleFactor: get(props, 'prescription.latestRevision.attributes.calculator.totalDailyDoseScaleFactor', 1),
+      },
       initialSettings: {
         bloodGlucoseUnits: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose),
         pumpId: selectedPumpId,
@@ -80,11 +92,11 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         insulinModel: get(props, 'prescription.latestRevision.attributes.initialSettings.insulinModel'),
         glucoseSafetyLimit: get(props, 'prescription.latestRevision.attributes.initialSettings.glucoseSafetyLimit'),
         basalRateMaximum: {
-          value: getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateMaximum.value'),
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0)),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
@@ -93,7 +105,6 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         bloodGlucoseTargetPhysicalActivity: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPhysicalActivity'),
         bloodGlucoseTargetPreprandial: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetPreprandial'),
         basalRateSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.basalRateSchedule', [{
-          rate: getPumpGuardrail(pump, 'basalRates.defaultValue', 0.05),
           start: 0,
         }]),
         carbohydrateRatioSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.carbohydrateRatioSchedule', [{
@@ -148,6 +159,17 @@ export const generateTherapySettingsOrderText = (patientRows = [], therapySettin
   return textString;
 };
 
+export const clearCalculator = setFieldValue => {
+  setFieldValue('calculator.method', undefined, false)
+  setFieldValue('calculator.totalDailyDose', undefined, false)
+  setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
+  setFieldValue('calculator.weight', undefined, false)
+  setFieldValue('calculator.weightUnits', undefined, false)
+  setFieldValue('calculator.recommendedBasalRate', undefined, false)
+  setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
+  setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
+};
+
 export const PrescriptionForm = props => {
   const {
     t,
@@ -166,6 +188,8 @@ export const PrescriptionForm = props => {
     handleSubmit,
     resetForm,
     setFieldValue,
+    setStatus,
+    status,
     values,
   } = useFormikContext();
 
@@ -230,12 +254,31 @@ export const PrescriptionForm = props => {
     }
 
     // When a user comes to this component initially, without the active step and subStep set by the
-    // Stepper component in the url, we delete any persisted state from localStorage.
-    // As well, when editing an existing prescription, we delete it so that the current prescription
-    // values replace whatever values were previously stored
-    if (prescription || (get(localStorage, storageKey) && activeStepsParam === null)) delete localStorage[storageKey];
-    setFormPersistReady(true);
+    // Stepper component in the url, or when editing an existing prescription,
+    // we delete any persisted state from localStorage.
+    if (status.isPrescriptionEditFlow || (get(localStorage, storageKey) && activeStepsParam === null)) {
+      delete localStorage[storageKey];
+    }
+
+    // Only use the localStorage persistence for new prescriptions - not while editing an existing one.
+    setFormPersistReady(!prescription);
   }, []);
+
+  // Save whether or not we are editing a single step to the formik form status for easy reference
+  React.useEffect(() => {
+    setStatus({
+      ...status,
+      isSingleStepEdit,
+    });
+  }, [isSingleStepEdit])
+
+  // Save the hydrated localStorage values to the formik form status for easy reference
+  React.useEffect(() => {
+    if (formPersistReady) setStatus({
+      ...status,
+      hydratedValues: JSON.parse(get(localStorage, storageKey, JSON.stringify(status.hydratedValues))),
+    });
+  }, [formPersistReady]);
 
   // Handle changes to stepper async state for completed prescription creation and revision updates
   React.useEffect(() => {
@@ -286,6 +329,8 @@ export const PrescriptionForm = props => {
       setPendingStep(fromStep);
       setInitialFocusedInput(initialFocusedInput);
     },
+
+    clearCalculator: clearCalculator.bind(null, setFieldValue),
 
     generateTherapySettingsOrderText,
 
@@ -361,6 +406,7 @@ export const PrescriptionForm = props => {
 
   const accountFormStepsProps = accountFormSteps(schema, initialFocusedInput, values);
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
+  const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
   const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
 
@@ -407,6 +453,12 @@ export const PrescriptionForm = props => {
         onComplete: isSingleStepEdit ? noop : handlers.stepSubmit,
         asyncState: isSingleStepEdit ? null : stepAsyncState,
         subSteps: subStepProps(profileFormStepsProps.subSteps),
+      },
+      {
+        ...settingsCalculatorFormStepsProps,
+        onComplete: handlers.stepSubmit,
+        asyncState: stepAsyncState,
+        subSteps: subStepProps(settingsCalculatorFormStepsProps.subSteps),
       },
       {
         ...stepProps(therapySettingsFormStepProps),
