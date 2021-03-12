@@ -230,7 +230,7 @@ function plotMessage(pool, opts = {}) {
 
     newNote.on("click", function () {
       log.debug("newNode click");
-      opts.emitter.emit("clickTranslatesToDate", null);
+      opts.emitter.emit("createMessage", null);
     });
   });
 
