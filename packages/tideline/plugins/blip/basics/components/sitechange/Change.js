@@ -17,13 +17,12 @@
 
 import i18next from 'i18next';
 
-var _ = require('lodash');
-var PropTypes = require('prop-types');
-var React = require('react');
-var cx = require('classnames');
-var t = i18next.t.bind(i18next);
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import cx from 'classnames';
 
-const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } = require('../../logic/constants');
+import { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } from '../../logic/constants';
 
 class Change extends React.Component {
   static propTypes = {
@@ -37,7 +36,7 @@ class Change extends React.Component {
     var daysText = null;
     var daysSinceNum = null;
     if (!_.isNaN(this.props.daysSince)){
-      daysText = (this.props.daysSince === 1) ? t('day') : t('days');
+      daysText = (this.props.daysSince === 1) ? i18next.t('day') : i18next.t('days');
       daysSinceNum = this.props.daysSince;
     }
     var countElement = null;
@@ -72,4 +71,4 @@ class Change extends React.Component {
   }
 }
 
-module.exports = Change;
+export default Change;

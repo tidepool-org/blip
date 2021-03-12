@@ -15,12 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import { expect } from 'chai';
 
-var device = require('../js/data/util/device');
-var constants = require('../plugins/blip/basics/logic/constants');
+import * as constants from '../plugins/blip/basics/logic/constants';
+import { getLatestPumpUpload, isAutomatedBasalDevice } from '../js/data/util/device';
 
 describe('device utility functions', function() {
   describe('getLatestPumpUpload', function() {
@@ -44,7 +42,7 @@ describe('device utility functions', function() {
         },
       ];
 
-      expect(device.getLatestPumpUpload(data)).to.eql(data[2]);
+      expect(getLatestPumpUpload(data)).to.eql(data[2]);
     });
 
     it('should return `undefined` without proper data', function() {
@@ -54,8 +52,8 @@ describe('device utility functions', function() {
         },
       };
 
-      expect(device.getLatestPumpUpload(patientData)).to.equal(undefined);
-      expect(device.getLatestPumpUpload([])).to.equal(undefined);
+      expect(getLatestPumpUpload(patientData)).to.equal(undefined);
+      expect(getLatestPumpUpload([])).to.equal(undefined);
     });
   });
 
@@ -66,7 +64,7 @@ describe('device utility functions', function() {
         source: constants.MEDTRONIC,
       };
 
-      expect(device.isAutomatedBasalDevice(upload)).to.be.true;
+      expect(isAutomatedBasalDevice(upload)).to.be.true;
     });
 
     it('should return `false` for an upload record for a pump without automated basal delivery capabilities', function() {
@@ -75,7 +73,7 @@ describe('device utility functions', function() {
         source: constants.MEDTRONIC,
       };
 
-      expect(device.isAutomatedBasalDevice(upload)).to.be.false;
+      expect(isAutomatedBasalDevice(upload)).to.be.false;
     });
   });
 });

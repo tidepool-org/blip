@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var crossfilter = require('crossfilter2');
-var bows = require('bows');
+import _ from 'lodash';
+import crossfilter from 'crossfilter2';
+import bows from 'bows';
 
-var { MGDL_PER_MMOLL, MGDL_UNITS } = require('../../js/data/util/constants');
-var dt = require('../../js/data/util/datetime');
+import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../js/data/util/constants';
+import dt from '../../js/data/util/datetime';
 
 var log = bows('Nurseshark');
 
@@ -66,7 +66,7 @@ function cloneDeep(d) {
   var newObj = {}, keys = Object.keys(d);
   var numKeys = keys.length;
   for (var i = 0; i < numKeys; ++i) {
-    var key =  keys[i];
+    var key = keys[i];
     if (typeof d[key] === 'object') {
       newObj[key] = _.cloneDeep(d[key]);
     }
@@ -121,8 +121,8 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, boluses, collections) {
-    var allBoluses = collections.allBoluses, allWizards = collections.allWizards;
+  joinWizardsAndBoluses: function(wizards, _boluses, collections) {
+    var allBoluses = collections.allBoluses;
     var numWizards = wizards.length;
     var joinedWizards = {};
     for (var i = 0; i < numWizards; ++i) {
@@ -426,7 +426,7 @@ function getHandlers(bgUnits) {
       d = cloneDeep(d);
       return d;
     },
-    wizard: function(d, collections) {
+    wizard: function(d) {
       d = cloneDeep(d);
       if (bgUnits === MGDL_UNITS) {
         if (d.bgInput) {
@@ -446,4 +446,4 @@ function getHandlers(bgUnits) {
   };
 }
 
-module.exports = nurseshark;
+export default nurseshark;

@@ -15,15 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import crossfilter from 'crossfilter2';
 
-var _ = require('lodash');
-var crossfilter = require('crossfilter2');
+import datetime from './util/datetime';
+import categorizer from './util/categorize';
 
-var datetime = require('./util/datetime');
-var categorizer = require('./util/categorize');
-
-var { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, MS_IN_DAY } from '../data/util/constants';
 
 function BGUtil(data, opts) {
 
@@ -43,8 +41,7 @@ function BGUtil(data, opts) {
     throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
   }
 
-  var MS_IN_24 = 86400000;
-  var currentIndex = 0, currentData;
+  var currentData;
 
   var defaultResult = {
     low: 0,
@@ -195,7 +192,7 @@ function BGUtil(data, opts) {
 
   this.threshold = function(s, e) {
     var difference = new Date(e) - new Date(s);
-    return Math.floor(opts.DAILY_MIN * (difference/MS_IN_24));
+    return Math.floor(opts.DAILY_MIN * (difference/MS_IN_DAY));
   };
 
   this.getStats = function(s, e, opts) {
@@ -222,4 +219,4 @@ function BGUtil(data, opts) {
   }
 }
 
-module.exports = BGUtil;
+export default BGUtil;

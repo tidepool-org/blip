@@ -15,16 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-const d3 = require('d3');
-const _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
-const commonbolus = require('./util/commonbolus');
-const drawbolus = require('./util/drawbolus');
+import utils from './util/utils';
+import commonbolus from './util/commonbolus';
+import drawbolus from './util/drawbolus';
 
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
+function plotQuickBolus(pool, opts = {}) {
+  const d3 = window.d3;
   const defaults = {
     width: 12
   };
@@ -100,4 +98,6 @@ module.exports = function(pool, opts) {
   }
 
   return bolus;
-};
+}
+
+export default plotQuickBolus;

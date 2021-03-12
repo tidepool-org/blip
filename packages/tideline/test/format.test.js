@@ -16,45 +16,44 @@
  */
 
 import i18next from 'i18next';
+import { assert, expect } from 'chai';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import enTranslation from './locales/en/translation.json';
+import frTranslation from './locales/fr/translation.json';
 
-// At some time we could add test on other languages
-var i18nconf = {
-  locales        : ["en", "fr"],
-  defaultLocale : "en",
-};
-
-i18next.init({
-  fallbackLng: i18nconf.defaultLocale,
-  lng: i18nconf.defaultLocale,
-  // To allow . in keys
-  keySeparator: false,
-  // To allow : in keys
-  nsSeparator: '|',
-  // debug mode
-  debug: false,
-  // If the translation is empty, return the key instead
-  returnEmptyString: false,
-  resources: {
-    en: {
-      // Default namespace
-      translation: require('./locales/en/translation.json')
-    },
-    fr: {
-      // Default namespace
-      translation: require('./locales/fr/translation.json')
-    }
-  }
-});
-
-var fmt = require('../js/data/util/format');
-var { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } = require('../js/data/util/constants');
+import { MGDL_UNITS, MMOLL_UNITS, BG_CLAMP_THRESHOLD } from '../js/data/util/constants';
+import fmt from '../js/data/util/format';
 
 describe('format utility', function() {
-  before(() => {
+  before(async () => {
+    // At some time we could add test on other languages
+    var i18nconf = {
+      locales        : ["en", "fr"],
+      defaultLocale : "en",
+    };
+
+    await i18next.init({
+      fallbackLng: i18nconf.defaultLocale,
+      lng: i18nconf.defaultLocale,
+      // To allow . in keys
+      keySeparator: false,
+      // To allow : in keys
+      nsSeparator: '|',
+      // debug mode
+      debug: false,
+      // If the translation is empty, return the key instead
+      returnEmptyString: false,
+      resources: {
+        en: {
+          // Default namespace
+          translation: enTranslation,
+        },
+        fr: {
+          // Default namespace
+          translation: frTranslation,
+        }
+      }
+    });
     i18next.changeLanguage('en');
   });
 

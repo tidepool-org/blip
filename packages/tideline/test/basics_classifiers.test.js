@@ -15,33 +15,28 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+import { assert, expect } from 'chai';
+import { MMOLL_UNITS } from '../js/data/util/constants';
 
-var { MMOLL_UNITS } = require('../js/data/util/constants');
-
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var bgClasses = {
-  'very-low': {boundary: 10},
-  low: {boundary: 20},
-  target: {boundary: 30},
-  high: {boundary: 40},
-  'very-high': {boundary: 50}
-};
-
-var bgClassesMmoll = {
-  'very-low': {boundary: 2},
-  low: {boundary: 3},
-  target: {boundary: 4},
-  high: {boundary: 10},
-  'very-high': {boundary: 20}
-};
-
-var classifiers = require('../plugins/blip/basics/logic/classifiers');
+import classifiers from '../plugins/blip/basics/logic/classifiers';
 
 describe('basics classifiers', function() {
+  var bgClasses = {
+    'very-low': {boundary: 10},
+    low: {boundary: 20},
+    target: {boundary: 30},
+    high: {boundary: 40},
+    'very-high': {boundary: 50}
+  };
+
+  var bgClassesMmoll = {
+    'very-low': {boundary: 2},
+    low: {boundary: 3},
+    target: {boundary: 4},
+    high: {boundary: 10},
+    'very-high': {boundary: 20}
+  };
+
   it('should be a function', function() {
     assert.isFunction(classifiers);
   });

@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
 
 import { BG_DATA_TYPES } from '../../core/constants';
@@ -46,6 +45,6 @@ class BgSourceToggle extends PureComponent {
       this.props.onClickBgSourceToggle(e, bgSource);
     }
   };
-};
+}
 
 export default BgSourceToggle;

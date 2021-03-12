@@ -15,15 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-var _ = require('lodash');
+import _ from 'lodash';
+import { assert, expect } from 'chai';
 
-var BasalUtil = require('../js/data/basalutil');
-
-var dt = require('../js/data/util/datetime');
-var patterns = require('../dev/testpage/patterns');
+import BasalUtil from '../js/data/basalutil';
+import dt from '../js/data/util/datetime';
+import patterns from '../dev/testpage/patterns';
 
 var MS_IN_HOUR = 3600000;
 var MS_IN_DAY = 86400000;
@@ -54,7 +51,7 @@ describe('BasalUtil', function() {
           index: 2
         }
       };
-      var data = patterns.basal.constant({rate: 0.75, start: '2014-06-01T00:00:00'});
+      var data = patterns().basal.constant({rate: 0.75, start: '2014-06-01T00:00:00'});
       var constant = new BasalUtil(data);
       expect(constant.subtotal(endpoints)).to.equal(4.5);
     });
@@ -62,7 +59,7 @@ describe('BasalUtil', function() {
 
   describe('getEndpoints', function() {
     it('should return an endpoints object given a start and end time', function() {
-      var data = patterns.basal.constant();
+      var data = patterns().basal.constant();
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       var noGap = new BasalUtil(data);
       var expected = {
@@ -265,7 +262,7 @@ describe('BasalUtil', function() {
     });
 
     it('should return false when there is a gap between basal segments in a 24-hour period', function() {
-      var data = patterns.basal.constant();
+      var data = patterns().basal.constant();
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       data.splice(1,1);
       var gap = new BasalUtil(data);
@@ -273,7 +270,7 @@ describe('BasalUtil', function() {
     });
 
     it('should return an endpoints object when there is no gap between basal segments in a 24-hour period', function() {
-      var data = patterns.basal.constant();
+      var data = patterns().basal.constant();
       var start = data[0].normalTime, end = dt.addDuration(start, MS_IN_DAY);
       var noGap = new BasalUtil(data);
       var expected = {
@@ -411,11 +408,11 @@ describe('BasalUtil', function() {
       expect(result).to.be.an('array');
       expect(result.length).to.equal(3);
 
-      _.each(result, function(group, groupIndex) {
+      _.forEach(result, function(group, groupIndex) {
         expect(group).to.be.an('array');
 
         var expectedSubType = groupIndex === 1 ? 'scheduled' : 'automated';
-        _.each(group, function(datum) {
+        _.forEach(group, function(datum) {
           expect(datum.deliveryType).to.equal(expectedSubType);
         });
       });

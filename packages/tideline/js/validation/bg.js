@@ -15,18 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import schema from './validator/schematron.js';
+import { MGDL_UNITS, MMOLL_UNITS } from '../data/util/constants';
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
-var { MGDL_UNITS, MMOLL_UNITS } = require('../data/util/constants');
+const cbg = (common) => {
+  return schema(
+    common,
+    {
+      deviceTime: schema().ifExists().isDeviceTime(),
+      units: schema().in([MGDL_UNITS, MMOLL_UNITS]),
+      value: schema().number().positive(),
+      localDate: schema().ifExists().isDate(),
+    }
+  );
+};
 
-module.exports = schema(
-  common,
-  {
-    deviceTime: schema().ifExists().isDeviceTime(),
-    units: schema().in([MGDL_UNITS, MMOLL_UNITS]),
-    value: schema().number().positive(),
-    localDate: schema().ifExists().isDate(),
-  }
-);
+export default cbg;

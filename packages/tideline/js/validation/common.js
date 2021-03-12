@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var schema = require('./validator/schematron.js');
+import schema from './validator/schematron.js';
 
-module.exports = schema(
+const common = () => schema(
   {
     id: schema().isId(),
     normalTime: schema().isISODateTime(),
@@ -27,3 +27,5 @@ module.exports = schema(
     type: schema().string().in(['basal', 'bolus', 'cbg', 'deviceEvent', 'food', 'message', 'physicalActivity', 'pumpSettings', 'smbg', 'upload', 'wizard'])
   }
 );
+
+export default common;

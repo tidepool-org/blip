@@ -1,26 +1,10 @@
-// based on https://github.com/instructure-react/react-toggle
-// TODO: eventually will replace this with a dependency from our fork
-// but there are React dependency issues at the moment
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import classNames from 'classnames';
 
-/* jshint ignore: start */
-
-
-var _interopRequire = function (obj) { return obj && obj.__esModule ? obj['default'] : obj; };
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-/* jshint esnext:true, asi: true */
-
-var _ = _interopRequire(require('lodash'));
-var PropTypes = _interopRequire(require('prop-types'));
-var React = _interopRequire(require('react'));
-var ReactDOM = _interopRequire(require('react-dom'));
-
-var classNames = _interopRequire(require('classnames'));
-
-module.exports = class extends React.PureComponent {
-  static displayName = 'Toggle';
-
+class Toggle extends React.Component {
   static propTypes = {
     checked: PropTypes.bool,
     defaultChecked: PropTypes.bool,
@@ -115,6 +99,6 @@ module.exports = class extends React.PureComponent {
       }, _.omit(this.props, 'noImage')))
     );
   }
-};
+}
 
-/* jshint ignore: end */
+export default Toggle;

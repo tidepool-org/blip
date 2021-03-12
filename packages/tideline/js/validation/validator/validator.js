@@ -33,33 +33,27 @@ function makeValidator() {
               fns[i](e);
             }
           };
-        } else {
-          return makeValidator(Object.keys(element).map(function(key){
-            var fn = makeValidator(element[key]);
-
-            return function(e) {
-              try {
-                fn(e[key]);
-              } catch (e) {
-                e.message = '.' + key + e.message;
-                throw e;
-              }
-            };
-          }));
         }
-        break;
+        return makeValidator(Object.keys(element).map(function(key){
+          var fn = makeValidator(element[key]);
+
+          return function(e) {
+            try {
+              fn(e[key]);
+            } catch (e) {
+              e.message = '.' + key + e.message;
+              throw e;
+            }
+          };
+        }));
       default:
-        if (Array.isArray(element)) {
-        } else {
+        if (!Array.isArray(element)) {
           console.log('makeValidator given', element);
           throw new Error('makeValidator must be given an Object, function, or array');
         }
     }
-  } else {
-    return makeValidator(Array.prototype.slice.call(arguments, 0));
   }
+  return makeValidator(Array.prototype.slice.call(arguments, 0));
 }
 
-module.exports = {
-  makeValidator: makeValidator,
-};
+export default makeValidator;

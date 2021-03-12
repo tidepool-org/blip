@@ -15,18 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var bows = require('bows');
-var cx = require('classnames');
-var PropTypes = require('prop-types');
-var React = require('react');
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-var debug = bows('Section');
+import basicsActions from '../logic/actions';
+import NoDataContainer from './NoDataContainer';
 
-var basicsActions = require('../logic/actions');
-var NoDataContainer = require('./NoDataContainer');
-
-var togglableState = require('../TogglableState');
+import togglableState from '../TogglableState';
 
 class DashboardSection extends React.Component {
   static propTypes = {
@@ -48,7 +44,17 @@ class DashboardSection extends React.Component {
         PropTypes.string,
         PropTypes.func ]).isRequired,
     trackMetric: PropTypes.func.isRequired,
+    updateBasicsSettings: PropTypes.func,
+    settingsTogglable: PropTypes.oneOf([
+      togglableState.open,
+      togglableState.closed,
+      togglableState.off,
+    ]).isRequired,
   };
+
+  static defaultProps = {
+    updateBasicsSettings: _.noop,
+  }
 
   render() {
     var dataDisplay;
@@ -137,8 +143,8 @@ class DashboardSection extends React.Component {
     return (
       <div className='DashboardSection'>
         {titleContainer}
-        <div className={containerClass} ref='container'>
-          <div className='DashboardSection-content' ref='content'>
+        <div className={containerClass}>
+          <div className='DashboardSection-content'>
             {this.props.togglable !== togglableState.closed ? dataDisplay : null}
           </div>
         </div>
@@ -163,4 +169,4 @@ class DashboardSection extends React.Component {
   };
 }
 
-module.exports = DashboardSection;
+export default DashboardSection;

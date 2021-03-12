@@ -15,88 +15,67 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import { assert, expect } from 'chai';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var _ = require('lodash');
-var d3 = require('d3');
-
-var constants = require('../plugins/blip/basics/logic/constants');
-var togglableState = require('../plugins/blip/basics/TogglableState');
-
-var BasalUtil = require('../js/data/basalutil');
-
-var { MMOLL_UNITS } = require('../js/data/util/constants');
-
-var bgClasses = {
-  'very-low': {boundary: 10},
-  low: {boundary: 20},
-  target: {boundary: 30},
-  high: {boundary: 40},
-  'very-high': {boundary: 50}
-};
-var bgClassesMmoll = {
-  'very-low': {boundary: 2},
-  low: {boundary: 3},
-  target: {boundary: 4},
-  high: {boundary: 10},
-  'very-high': {boundary: 20}
-};
-var oneWeekDates = [{
-  date: '2015-09-07',
-  type: 'past'
-}, {
-  date: '2015-09-08',
-  type: 'past'
-}, {
-  date: '2015-09-09',
-  type: 'past'
-}, {
-  date: '2015-09-10',
-  type: 'past'
-}, {
-  date: '2015-09-11',
-  type: 'past'
-}, {
-  date: '2015-09-12',
-  type: 'dayOfUpload'
-}, {
-  date: '2015-09-13',
-  type: 'future'
-}];
-var countSiteChangesByDay = {
-  '2015-09-05': {count: 1},
-  '2015-09-08': {count: 1, data: 'a'},
-  '2015-09-12': {count: 2, data: 'b'}
-};
-var siteChangeSections = {
-  'siteChanges': {
-    id: 'siteChanges',
-    togglable: togglableState.off,
-    settingsTogglable: togglableState.closed,
-    selectorOptions: {
-      primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
-      rows: [
-        [
-          { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
-          { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
-        ],
-      ],
-    },
-    type: constants.SITE_CHANGE_RESERVOIR,
-  },
-};
-
-var bu = new BasalUtil([]);
-var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
-var dmMmol = require('../plugins/blip/basics/logic/datamunger')(bgClassesMmoll, MMOLL_UNITS);
-
-var types = require('../dev/testpage/types');
+import * as constants from '../plugins/blip/basics/logic/constants';
+import togglableState from '../plugins/blip/basics/TogglableState';
+import datamunger from '../plugins/blip/basics/logic/datamunger';
 
 describe('basics datamunger', function() {
+  var bgClasses = {
+    'very-low': {boundary: 10},
+    low: {boundary: 20},
+    target: {boundary: 30},
+    high: {boundary: 40},
+    'very-high': {boundary: 50}
+  };
+  var oneWeekDates = [{
+    date: '2015-09-07',
+    type: 'past'
+  }, {
+    date: '2015-09-08',
+    type: 'past'
+  }, {
+    date: '2015-09-09',
+    type: 'past'
+  }, {
+    date: '2015-09-10',
+    type: 'past'
+  }, {
+    date: '2015-09-11',
+    type: 'past'
+  }, {
+    date: '2015-09-12',
+    type: 'dayOfUpload'
+  }, {
+    date: '2015-09-13',
+    type: 'future'
+  }];
+  var countSiteChangesByDay = {
+    '2015-09-05': {count: 1},
+    '2015-09-08': {count: 1, data: 'a'},
+    '2015-09-12': {count: 2, data: 'b'}
+  };
+  var siteChangeSections = {
+    'siteChanges': {
+      id: 'siteChanges',
+      togglable: togglableState.off,
+      settingsTogglable: togglableState.closed,
+      selectorOptions: {
+        primary: { key: constants.SITE_CHANGE_RESERVOIR, label: 'Reservoir Change' },
+        rows: [
+          [
+            { key: constants.SITE_CHANGE_TUBING, label: 'Tube Primes' },
+            { key: constants.SITE_CHANGE_CANNULA, label: 'Cannula Fills' },
+          ],
+        ],
+      },
+      type: constants.SITE_CHANGE_RESERVOIR,
+    },
+  };
+
+  var dm = datamunger(bgClasses);
   it('should return an object', function() {
     assert.isObject(dm);
   });
@@ -484,7 +463,7 @@ describe('basics datamunger', function() {
         }
       };
       var summary = {total: 25};
-      _.each(['foo', 'bar'], dm._summarizeTagFn(dataObj, summary));
+      _.forEach(['foo', 'bar'], dm._summarizeTagFn(dataObj, summary));
       expect(summary).to.deep.equal({
         total: 25,
         foo: {count: 12, percentage: 0.48},

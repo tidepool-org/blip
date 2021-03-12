@@ -23,7 +23,7 @@ import moment from 'moment-timezone';
 import WindowSizeListener from 'react-window-size-listener';
 import i18next from 'i18next';
 
-import { pluginsBlip } from 'tideline';
+import { chartDailyFactory } from 'tideline';
 import { components as vizComponents } from 'tidepool-viz';
 
 import { BG_DATA_TYPES } from '../../core/constants';
@@ -41,8 +41,6 @@ const ReservoirTooltip = vizComponents.ReservoirTooltip;
 const PhysicalTooltip = vizComponents.PhysicalTooltip;
 const ParameterTooltip = vizComponents.ParameterTooltip;
 const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
-
-const { chartDailyFactory } = pluginsBlip;
 
 const t = i18next.t.bind(i18next);
 

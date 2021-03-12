@@ -15,15 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var moment = require('moment-timezone');
+import _ from 'lodash';
+import moment from 'moment-timezone';
 
-var dt = require('../../../data/util/datetime');
-var format = require('../../../data/util/format');
+import dt from '../../../data/util/datetime';
+import format from '../../../data/util/format';
 
-module.exports = function(pool, opts) {
-
-  var defaults = {
+function axesDaily(pool, opts = {}) {
+  const defaults = {
     textShiftX: 5,
     textShiftY: 5,
     tickLength: 15,
@@ -34,7 +33,7 @@ module.exports = function(pool, opts) {
     }
   };
 
-  _.defaults(opts || {}, defaults);
+  _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();
 
@@ -157,4 +156,6 @@ module.exports = function(pool, opts) {
   };
 
   return dailyx;
-};
+}
+
+export default axesDaily;

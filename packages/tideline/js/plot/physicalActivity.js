@@ -15,22 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
-var drawphysicalactivity = require('./util/drawphysicalactivity');
+import utils from './util/utils';
+import drawPhysicalActivity from './util/drawphysicalactivity';
 
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
-  var defaults = {
+function plotPhysicalActivity(pool, opts = {}) {
+  const d3 = window.d3;
+  const defaults = {
     width: 20
   };
 
   _.defaults(opts, defaults);
 
-  var drawpa = drawphysicalactivity(pool, opts);
+  const drawpa = drawPhysicalActivity(pool, opts);
 
   return function(selection) {
     opts.xScale = pool.xScale().copy();
@@ -83,4 +81,6 @@ module.exports = function(pool, opts) {
       });
     });
   };
-};
+}
+
+export default plotPhysicalActivity;

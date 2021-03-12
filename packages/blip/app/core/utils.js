@@ -513,4 +513,4 @@ utils.waitTimeout = (timeout) => {
   });
 };
 
-module.exports = utils;
+export default utils;

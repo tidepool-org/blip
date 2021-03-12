@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-const _ = require('lodash');
+import _ from 'lodash';
 
-const commonbolus = require('./commonbolus');
+import commonbolus from './commonbolus';
 
 const BolusTypes = {
   meal: 1,
@@ -60,7 +60,7 @@ function bolusClass(b, baseClass) {
     return baseClass;
 }
 
-module.exports = function(pool, opts = {}) {
+function drawBolus(pool, opts = {}) {
   const defaults = {
     width: 12,
     r: 14,
@@ -316,10 +316,12 @@ module.exports = function(pool, opts = {}) {
             up: true
           }
         };
-        if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        if (_.isEmpty(mainGroup.select('#annotation_for_' + d.id)[0][0])) {
           mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
         }
       });
     }
   };
-};
+}
+
+export default drawBolus;

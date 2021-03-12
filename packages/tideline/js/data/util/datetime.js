@@ -16,17 +16,17 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var moment = require('moment-timezone');
+import _ from 'lodash';
+import moment from 'moment-timezone';
 
-var datetime = {
+import { MS_IN_DAY } from './constants';
 
+const datetime = {
+  MS_IN_24: MS_IN_DAY,
   APPEND: 'T00:00:00.000Z',
 
-  MS_IN_24: 86400000,
-
   addDays: function(s, n) {
-    var d = moment(s);
+    var d = moment.utc(s);
     d.add(n, 'days');
     return d.toISOString();
   },
@@ -344,4 +344,4 @@ var datetime = {
   },
 };
 
-module.exports = datetime;
+export default datetime;

@@ -86,7 +86,9 @@ const babelLoaderConfiguration = {
   use: {
     loader: 'babel-loader',
     options: {
-      cacheDirectory: true,
+      rootMode: "upward",
+      configFile: path.resolve(__dirname, "../../babel.config.json"),
+      cacheDirectory: !isProduction,
     },
   },
 };

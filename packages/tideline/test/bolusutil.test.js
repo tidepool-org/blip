@@ -15,16 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import { assert, expect } from 'chai';
 
-var BolusUtil = require('../js/data/bolusutil');
-
-var dt = require('../js/data/util/datetime');
-var patterns = require('../dev/testpage/patterns');
-
-var MS_IN_DAY = 86400000;
+import BolusUtil from '../js/data/bolusutil';
+import dt from '../js/data/util/datetime';
+import patterns from '../dev/testpage/patterns';
 
 describe('BolusUtil', function() {
   var bu = new BolusUtil([]);
@@ -44,8 +39,7 @@ describe('BolusUtil', function() {
 
     it('should return b.value where b is the first bolus in the dataset and the date range is restricted to one bolus', function() {
       var start = '2014-06-01T00:00:00.000Z';
-      var nextDay = dt.addDuration(start, MS_IN_DAY);
-      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5)});
+      var bolusData = patterns().bolus.constantFour({start: start.slice(0, -5)});
       var bolus = new BolusUtil(bolusData);
       var res = bolus.subtotal(start, dt.addDuration(bolusData[1].normalTime, -1));
       expect(res).to.equal(bolusData[0].normal);
@@ -53,8 +47,7 @@ describe('BolusUtil', function() {
 
     it('should return b1.value where b1 & b2 are the first two boluses and the date range is set to their datetimes', function() {
       var start = '2014-06-01T00:00:00.000Z';
-      var nextDay = dt.addDuration(start, MS_IN_DAY);
-      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5)});
+      var bolusData = patterns().bolus.constantFour({start: start.slice(0, -5)});
       var bolus = new BolusUtil(bolusData);
       var res = bolus.subtotal(bolusData[0].normalTime, bolusData[1].normalTime);
       expect(res).to.equal(bolusData[0].normal);

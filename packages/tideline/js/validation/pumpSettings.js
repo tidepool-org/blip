@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
+import schema from './validator/schematron.js';
 
-module.exports = schema(
+const pumpSettings = (common) => schema(
   common,
   {
+    type: schema().string().in(['pumpSettings']),
     deviceTime: schema().ifExists().isDeviceTime(),
+    source: schema().string(),
   }
 );
+
+export default pumpSettings;

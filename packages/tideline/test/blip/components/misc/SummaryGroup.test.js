@@ -15,25 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import React from 'react';
+import sinon from 'sinon';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 
-/* global describe */
-/* global it */
-/* global expect */
-/* global before */
-/* global beforeEach */
-/* global afterEach */
-/* global after */
-/* global sinon */
-/* global chai */
-
-var expect = chai.expect;
-var { DEFAULT_BG_BOUNDS, MGDL_UNITS } = require('../../../../js/data/util/constants');
-
-const React = require('react');
-const _ = require('lodash');
-const { shallow } = require('enzyme');
-const SummaryGroup = require('../../../../plugins/blip/basics/components/misc/SummaryGroup');
+import { DEFAULT_BG_BOUNDS, MGDL_UNITS } from '../../../../js/data/util/constants';
+import SummaryGroup from '../../../../plugins/blip/basics/components/misc/SummaryGroup';
 
 describe('SummaryGroup', () => {
   const data = {

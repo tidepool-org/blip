@@ -30,4 +30,4 @@ var TogglableState = {
   off: 'off'
 };
 
-module.exports = TogglableState;
+export default TogglableState;

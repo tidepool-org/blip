@@ -15,11 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import { assert, expect } from 'chai';
 
-var commonbolus = require('../js/plot/util/commonbolus');
+import commonbolus from '../js/plot/util/commonbolus';
 
 describe('common bolus functions', function() {
   var fixtures = {

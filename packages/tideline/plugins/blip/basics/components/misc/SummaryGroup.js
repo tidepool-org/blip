@@ -15,51 +15,37 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var classnames = require('classnames');
-var d3 = require('d3');
-var PropTypes = require('prop-types');
-var React = require('react');
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-var createReactClass = require('create-react-class');
+import basicsActions from '../../logic/actions';
+import { getOptionValue, labelGenerator } from '../BasicsUtils';
+import format from '../../../../../js/data/util/format';
 
-var basicsActions = require('../../logic/actions');
-var BasicsUtils = require('../BasicsUtils');
-var format = require('../../../../../js/data/util/format');
+class SummaryGroup extends React.Component {
+  constructor(props) {
+    super(props);
+    this.getOptionValue = getOptionValue;
+    this.labelGenerator = labelGenerator;
+  }
 
-var SummaryGroup = createReactClass({
-  displayName: 'SummaryGroup',
-  mixins: [BasicsUtils],
-
-  propTypes: {
-    bgClasses: PropTypes.object.isRequired,
-    bgUnits: PropTypes.string.isRequired,
-    data: PropTypes.object.isRequired,
-    selectedSubtotal: PropTypes.string.isRequired,
-    selectorOptions: PropTypes.object.isRequired,
-    sectionId: PropTypes.string.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-  },
-
-  actions: basicsActions,
-
-  render: function() {
-    var self = this;
-    var primaryOption = self.props.selectorOptions.primary;
+  render() {
+    var primaryOption = this.props.selectorOptions.primary;
     var primaryElem = null;
     if (primaryOption) {
       primaryOption.primary = true; //need to have property present indicating option is primary
       primaryElem = this.renderOption(primaryOption);
 
-      if (!self.props.selectedSubtotal) {
-        self.props.selectedSubtotal = primaryOption.key;
+      if (!this.props.selectedSubtotal) {
+        this.props.selectedSubtotal = primaryOption.key;
       }
     }
 
-    var optionRows = self.props.selectorOptions.rows;
+    var optionRows = this.props.selectorOptions.rows;
 
-    var others = optionRows.map(function(row, id) {
-      var options = row.map(self.renderOption);
+    var others = optionRows.map((row, id) => {
+      var options = row.map(this.renderOption);
       return (
         <div key={'row-'+id} className="SummaryGroup-row">
           {options}
@@ -75,9 +61,9 @@ var SummaryGroup = createReactClass({
         </div>
       </div>
     );
-  },
+  }
 
-  renderOption: function(option) {
+  renderOption = (option) => {
     if (typeof option.active !== 'undefined' && !option.active) {
       return null; //(<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
@@ -180,14 +166,26 @@ var SummaryGroup = createReactClass({
         </div>
       );
     }
-  },
+  }
 
-  handleSelectSubtotal: function(selected) {
+  handleSelectSubtotal(selected) {
     if (selected.disabled) {
       return;
     }
     this.actions.selectSubtotal(this.props.sectionId, selected.key, this.props.trackMetric);
-  },
-});
+  }
+}
 
-module.exports = SummaryGroup;
+SummaryGroup.prototype.actions = basicsActions;
+
+SummaryGroup.propTypes = {
+  bgClasses: PropTypes.object.isRequired,
+  bgUnits: PropTypes.string.isRequired,
+  data: PropTypes.object.isRequired,
+  selectedSubtotal: PropTypes.string.isRequired,
+  selectorOptions: PropTypes.object.isRequired,
+  sectionId: PropTypes.string.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+};
+
+export default SummaryGroup;

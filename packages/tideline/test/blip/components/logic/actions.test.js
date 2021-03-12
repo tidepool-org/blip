@@ -15,15 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* global sinon */
+import sinon from 'sinon';
+import { expect } from 'chai';
+import _ from 'lodash';
 
-var chai = require('chai');
-var expect = chai.expect;
-var _ = require('lodash');
-
-var basicsActions = require('../../../../plugins/blip/basics/logic/actions');
-var constants = require('../../../../plugins/blip/basics/logic/constants');
-var togglableState = require('../../../../plugins/blip/basics/TogglableState');
+import basicsActions from '../../../../plugins/blip/basics/logic/actions';
+import * as constants from '../../../../plugins/blip/basics/logic/constants';
+import togglableState from '../../../../plugins/blip/basics/TogglableState';
 
 describe('actions', function() {
   var app = {

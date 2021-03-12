@@ -17,12 +17,14 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import sinon from 'sinon';
 import chai from 'chai';
+
+import { utils as vizUtils } from 'tidepool-viz';
+
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import DataUtilStub from '../../../helpers/DataUtil';
-
 import Stats from '../../../../app/components/chart/stats';
 
 const expect = chai.expect;
@@ -657,25 +659,27 @@ describe('Stats', () => {
   });
 
   describe('updateStatData', () => {
-    const getStatAnnotations = sinon.stub();
-    const getStatData = sinon.stub();
-    const getStatTitle = sinon.stub();
-
     before(() => {
-      Stats.__Rewire__('getStatAnnotations', getStatAnnotations);
-      Stats.__Rewire__('getStatData', getStatData);
-      Stats.__Rewire__('getStatTitle', getStatTitle);
+      sinon.stub(vizUtils.stat, 'getStatAnnotations');
+      sinon.stub(vizUtils.stat, 'getStatData');
+      sinon.stub(vizUtils.stat, 'getStatTitle');
     });
 
     beforeEach(() => {
-      wrapper = shallow(<Stats {...baseProps} />);
+      wrapper = mount(<Stats {...baseProps} />);
+      wrapper.update();
       instance = wrapper.instance();
     });
 
+    afterEach(() => {
+      vizUtils.stat.getStatAnnotations.resetHistory();
+      vizUtils.stat.getStatData.resetHistory();
+      vizUtils.stat.getStatTitle.resetHistory();
+      wrapper.unmount();
+    });
+
     after(() => {
-      Stats.__ResetDependency__('getStatAnnotations');
-      Stats.__ResetDependency__('getStatData');
-      Stats.__ResetDependency__('getStatTitle');
+      sinon.restore();
     });
 
     it('should update stat data, annotations, and title for each stat', () => {
@@ -686,14 +690,14 @@ describe('Stats', () => {
 
       instance.updateStatData(baseProps);
 
-      sinon.assert.callCount(getStatAnnotations, 7);
-      sinon.assert.callCount(getStatData, 7);
-      sinon.assert.callCount(getStatTitle, 7);
+      sinon.assert.callCount(vizUtils.stat.getStatAnnotations, 7);
+      sinon.assert.callCount(vizUtils.stat.getStatData, 7);
+      sinon.assert.callCount(vizUtils.stat.getStatTitle, 7);
 
       _.forEach(instance.state.stats, stat => {
-        sinon.assert.calledWith(getStatAnnotations, sinon.match.object, stat.id);
-        sinon.assert.calledWith(getStatData, sinon.match.object, stat.id);
-        sinon.assert.calledWith(getStatTitle, stat.id);
+        sinon.assert.calledWith(vizUtils.stat.getStatAnnotations, sinon.match.object, stat.id);
+        sinon.assert.calledWith(vizUtils.stat.getStatData, sinon.match.object, stat.id);
+        sinon.assert.calledWith(vizUtils.stat.getStatTitle, stat.id);
       });
 
       sinon.assert.callCount(setStateSpy, 1);

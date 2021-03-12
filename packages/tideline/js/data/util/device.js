@@ -15,19 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
 
-var _ = require('lodash');
+import { AUTOMATED_BASAL_DEVICE_MODELS } from './constants';
 
-var { AUTOMATED_BASAL_DEVICE_MODELS } = require('../../data/util/constants');
+export const getLatestPumpUpload = (uploadData = []) => {
+  return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
+};
 
-module.exports = {
-  getLatestPumpUpload: (uploadData = []) => {
-    return _.findLast(uploadData, { deviceTags: ['insulin-pump'] });
-  },
-
-  isAutomatedBasalDevice: (pumpUpload = {}) => {
-    const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, pumpUpload.source, false);
-    return (_.isBoolean(models) && models) || (_.isArray(models) && _.includes(models, pumpUpload.deviceModel));
-  },
+export const isAutomatedBasalDevice = (pumpUpload = {}) => {
+  const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, pumpUpload.source, false);
+  return (_.isBoolean(models) && models) || (_.isArray(models) && _.includes(models, pumpUpload.deviceModel));
 };

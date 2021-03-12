@@ -15,21 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import i18next from 'i18next';
-const moment = require('moment-timezone');
-const d3 = require('d3');
-const _ = require('lodash');
+import moment from 'moment-timezone';
 
-const constants = require('../data/util/constants');
-const format = require('../data/util/format');
-const BasalUtil = require('../data/basalutil');
+import * as constants from '../data/util/constants';
+import format from '../data/util/format';
+import BasalUtil from '../data/basalutil';
 
-const t = i18next.t.bind(i18next);
-const basalUtil = new BasalUtil();
-
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
+function plotBasal(pool, opts = {}) {
+  const d3 = window.d3;
   const defaults = {
     opacity: 0.6,
     opacityDelta: 0.2,
@@ -37,6 +32,9 @@ module.exports = function(pool, opts) {
     timezoneOffset: 0,
     tooltipPadding: 20,
   };
+
+  const t = i18next.t.bind(i18next);
+  const basalUtil = new BasalUtil();
 
   opts = _.defaults(opts, defaults);
 
@@ -284,7 +282,8 @@ module.exports = function(pool, opts) {
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
     const defaultSource = _.get(window, 'config.BRANDING', 'tidepool') === 'diabeloop' ? 'Diabeloop' : 'default';
-    const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS, H_MM_A_FORMAT } = constants;
+    const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = constants;
+    const H_MM_A_FORMAT = constants.dateTimeFormats.H_MM_A_FORMAT;
     /** @type {string} */
     const source = _.get(datum, 'source', defaultSource);
     switch (datum.deliveryType) {
@@ -388,4 +387,6 @@ module.exports = function(pool, opts) {
   };
 
   return basal;
-};
+}
+
+export default plotBasal;

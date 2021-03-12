@@ -21,32 +21,32 @@ import _ from 'lodash';
 import bows from 'bows';
 import { EventEmitter } from 'events';
 
-const d3 = require('d3');
-const { MGDL_UNITS } = require('../../js/data/util/constants');
+import { MGDL_UNITS } from '../../js/data/util/constants';
 
-const oneDay = require('../../js/oneday');
-const fill = require('../../js/plot/util/fill');
-const scalesutil = require('../../js/plot/util/scales');
-const axesDailyx = require('../../js/plot/util/axes/dailyx');
-const plotZenModeEvent = require('../../js/plot/zenModeEvent');
-const plotPhysicalActivity = require('../../js/plot/physicalActivity');
-const plotReservoirChange = require('../../js/plot/reservoir');
-const plotDeviceParameterChange = require('../../js/plot/deviceParameterChange');
-const plotConfidentialModeEvent = require('../../js/plot/confidentialModeEvent');
-const plotCbg = require('../../js/plot/cbg');
-const plotSmbg = require('../../js/plot/smbg');
-const plotWizard = require('../../js/plot/wizard');
-const plotCarb = require('../../js/plot/carb');
-const plotQuickbolus = require('../../js/plot/quickbolus');
-const plotBasal = require('../../js/plot/basal');
-const plotSuspend = require('../../js/plot/suspend');
-const plotMessage = require('../../js/plot/message');
-const plotTimeChange = require('../../js/plot/message');
-const dt = require('../../js/data/util/datetime');
-const t = i18next.t.bind(i18next);
+import oneDay from '../../js/oneday';
+import fill from '../../js/plot/util/fill';
+import scalesutil from '../../js/plot/util/scales';
+import axesDailyx from '../../js/plot/util/axes/dailyx';
+import plotZenModeEvent from '../../js/plot/zenModeEvent';
+import plotPhysicalActivity from '../../js/plot/physicalActivity';
+import plotReservoirChange from '../../js/plot/reservoir';
+import plotDeviceParameterChange from '../../js/plot/deviceParameterChange';
+import plotConfidentialModeEvent from '../../js/plot/confidentialModeEvent';
+import plotCbg from '../../js/plot/cbg';
+import plotSmbg from '../../js/plot/smbg';
+import plotWizard from '../../js/plot/wizard';
+import plotCarb from '../../js/plot/carb';
+import plotQuickbolus from '../../js/plot/quickbolus';
+import plotBasal from '../../js/plot/basal';
+import plotSuspend from '../../js/plot/suspend';
+import plotMessage from '../../js/plot/message';
+import plotTimeChange from '../../js/plot/timechange';
+import dt from '../../js/data/util/datetime';
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
+  const d3 = window.d3;
+  const t = i18next.t.bind(i18next);
   var log = bows('DailyFactory');
 
   options = options || {};
@@ -546,4 +546,4 @@ function chartDailyFactory(el, options) {
   return create(el, options);
 }
 
-module.exports = chartDailyFactory;
+export default chartDailyFactory;

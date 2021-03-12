@@ -1,13 +1,12 @@
 
 import i18next from 'i18next';
 
-var PropTypes = require('prop-types');
-var React = require('react');
-var moment = require('moment-timezone');
-var cx = require('classnames');
-var t = i18next.t.bind(i18next);
+import PropTypes from 'prop-types';
+import React from 'react';
+import moment from 'moment-timezone';
+import cx from 'classnames';
 
-var constants = require('../../logic/constants');
+import * as constants from '../../logic/constants';
 
 class ADay extends React.Component {
   static propTypes = {
@@ -36,7 +35,7 @@ class ADay extends React.Component {
    *
    * @return {boolean}
    */
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     if (nextProps.subtotalType !== this.props.subtotalType || nextProps.chartWidth !== this.props.chartWidth) {
       return true;
     }
@@ -77,7 +76,8 @@ class ADay extends React.Component {
   };
 
   render() {
-    var date = moment(this.props.date);
+    const t = i18next.t.bind(i18next);
+    var date = moment.utc(this.props.date);
 
     var isDisabled = (this.props.type === constants.SECTION_TYPE_UNDECLARED);
 
@@ -118,4 +118,4 @@ class ADay extends React.Component {
   }
 }
 
-module.exports = ADay;
+export default ADay;

@@ -17,15 +17,11 @@
 
 import i18next from 'i18next';
 import moment from 'moment-timezone';
+import Duration from 'duration-js';
 
-var d3 = require('d3');
-var Duration = require('duration-js');
-const constants = require('./constants');
-const t = i18next.t.bind(i18next);
+import { MGDL_UNITS, dateTimeFormats } from './constants';
 
-var format = {
-
-  MS_IN_24: 86400000,
+const format = {
 
   tooltipBG: function(d, units) {
     if (d.annotations && Array.isArray(d.annotations) && d.annotations.length > 0) {
@@ -44,7 +40,7 @@ var format = {
   },
 
   tooltipBGValue: function(value, units) {
-    return units === constants.MGDL_UNITS ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
+    return units === MGDL_UNITS ? window.d3.format('g')(Math.round(value)) : window.d3.format('.1f')(value);
   },
 
   tooltipValue: function(x) {
@@ -52,7 +48,7 @@ var format = {
       return '0.0';
     }
     else {
-      var formatted = d3.format('.3f')(x);
+      var formatted = window.d3.format('.3f')(x);
       // remove zero-padding on the right
       while (formatted[formatted.length - 1] === '0') {
         formatted = formatted.slice(0, formatted.length - 1);
@@ -78,7 +74,7 @@ var format = {
     } else if (typeof name.fullName === 'string') {
       words = name.fullName.split(' ');
     } else {
-      words = t('Anonymous user').split(' ');
+      words = i18next.t('Anonymous user').split(' ');
     }
 
     return words.map(part => part.length <= maxWordLength ? part : `${part.substring(0, maxWordLength)}...`).join(' ');
@@ -126,14 +122,14 @@ var format = {
       return '-- %';
     }
     else {
-      return d3.format('%')(f);
+      return window.d3.format('%')(f);
     }
   },
 
   millisecondsAsTimeOfDay: function(i) {
     var d = new Date(i);
-    var f = t('%-I:%M %p');
-    return d3.time.format.utc(f)(d);
+    var f = i18next.t('%-I:%M %p');
+    return window.d3.time.format.utc(f)(d);
   },
 
   timespan: function(d) {
@@ -193,13 +189,13 @@ var format = {
    */
   datestamp: function(time, offset = 0) {
     if (moment.isMoment(time)) {
-      return time.format(constants.MMMM_D_FORMAT);
+      return time.format(dateTimeFormats.MMMM_D_FORMAT);
     }
     var d = new Date(time);
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return moment.utc(d).format(constants.MMMM_D_FORMAT);
+    return moment.utc(d).format(dateTimeFormats.MMMM_D_FORMAT);
   },
 
   /**
@@ -212,14 +208,14 @@ var format = {
    */
   timestamp: function(time, offset = 0) {
     if (moment.isMoment(time)) {
-      return time.format(constants.H_MM_A_FORMAT);
+      return time.format(dateTimeFormats.H_MM_A_FORMAT);
     }
     var d = new Date(time);
-    var f = t('%-I:%M %p');
+    var f = i18next.t('%-I:%M %p');
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return d3.time.format.utc(f)(d).toLowerCase();
+    return window.d3.time.format.utc(f)(d).toLowerCase();
   },
 
   /**
@@ -272,7 +268,7 @@ var format = {
       i = new Date(i);
       i.setUTCMinutes(i.getUTCMinutes() + offset);
     }
-    return moment.utc(i).format(constants.DDDD_MMMM_D_FORMAT);
+    return moment.utc(i).format(dateTimeFormats.DDDD_MMMM_D_FORMAT);
   },
 
   xAxisTickText: function(i, offset) {
@@ -280,8 +276,8 @@ var format = {
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
-    return d3.time.format.utc(constants.HOUR_FORMAT)(d).toLowerCase();
+    return window.d3.time.format.utc(dateTimeFormats.HOUR_FORMAT)(d).toLowerCase();
   }
 };
 
-module.exports = format;
+export default format;

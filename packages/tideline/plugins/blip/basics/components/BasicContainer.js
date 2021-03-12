@@ -15,11 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var bows = require('bows');
-var cx = require('classnames');
-var PropTypes = require('prop-types');
-var React = require('react');
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class BasicContainer extends React.Component {
   static propTypes = {
@@ -47,4 +44,4 @@ class BasicContainer extends React.Component {
   }
 }
 
-module.exports = BasicContainer;
+export default BasicContainer;

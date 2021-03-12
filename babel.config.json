@@ -1,0 +1,23 @@
+{
+  "presets": [
+    "@babel/preset-react",
+    [
+      "@babel/preset-env",
+      {
+        "targets": "> 1%, not dead, Chrome 86, ChromeAndroid 86, Edge 86, Firefox 84, FirefoxAndroid 84, Firefox ESR, iOS 13, Safari 13",
+        "modules": false,
+        "useBuiltIns": false,
+        "debug": true
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-class-static-block",
+    "@babel/plugin-proposal-nullish-coalescing-operator"
+  ],
+  "compact": false,
+  "minified": false,
+  "sourceType": "unambiguous"
+}

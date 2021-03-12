@@ -15,14 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
-var categorizer = require('../../js/data/util/categorize');
-var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../../js/data/util/constants');
+import utils from './util/utils';
+import categorizer from '../data/util/categorize';
+import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../data/util/constants';
 
-module.exports = function(pool, opts) {
+function plotCbg(pool, opts) {
+  const d3 = window.d3;
 
   opts = opts || {};
 
@@ -174,4 +174,6 @@ module.exports = function(pool, opts) {
   };
 
   return cbg;
-};
+}
+
+export default plotCbg;

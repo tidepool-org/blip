@@ -1,35 +1,33 @@
+import i18next from "i18next";
 
-import i18next from 'i18next';
-
-var _ = require('lodash');
-var PropTypes = require('prop-types');
-var React = require('react');
-var t = i18next.t.bind(i18next);
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 
 class NoDataContainer extends React.Component {
   static propTypes = {
-    message: PropTypes.string.isRequired,
-    moreInfo: PropTypes.string
+    message: PropTypes.string,
+    moreInfo: PropTypes.string,
   };
 
   static defaultProps = {
-    message: t('No available data to display here, sorry!')
+    message: null,
+    moreInfo: null,
   };
 
   render() {
-    var moreInfo = null;
+    let moreInfo = null;
     if (!_.isEmpty(this.props.moreInfo)) {
-      moreInfo = (
-        <p>{this.props.moreInfo}</p>
-      );
+      moreInfo = <p>{this.props.moreInfo}</p>;
     }
+    const message = _.isEmpty(this.props.message) ? i18next.t("No available data to display here, sorry!") : this.props.message;
     return (
       <div className="NoDataContainer">
-        <p>{this.props.message}</p>
+        <p>{message}</p>
         {moreInfo}
       </div>
     );
   }
 }
 
-module.exports = NoDataContainer;
+export default NoDataContainer;

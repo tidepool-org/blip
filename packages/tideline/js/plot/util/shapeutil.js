@@ -1,26 +1,23 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-var log = require('bows')('ShapeUtil');
-
-var shapeutil = {
+const shapeutil = {
   // for polygons
   mirrorImageY: function(pointsString) {
     var points = pointsString.split(' ');
@@ -57,6 +54,7 @@ var shapeutil = {
     return x + ',' + y + ' ';
   },
   translationFromViewBox: function(group, opts) {
+    const d3 = window.d3;
     var def = group.attr('xlink:href');
     var coords = this.getViewBoxCoords(d3.select(def).attr('viewBox'));
     var x, y;
@@ -84,4 +82,4 @@ var shapeutil = {
   }
 };
 
-module.exports = shapeutil;
+export default shapeutil;

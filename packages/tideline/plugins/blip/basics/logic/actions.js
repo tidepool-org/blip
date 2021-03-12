@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash';
-const togglableState = require('../TogglableState');
+import togglableState from '../TogglableState';
 
 const basicsActions = {
   app: null,
@@ -122,4 +122,4 @@ basicsActions.setSelected = function(opts, selectedKey) {
   return opts;
 };
 
-module.exports = basicsActions;
+export default basicsActions;

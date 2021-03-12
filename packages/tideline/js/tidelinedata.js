@@ -29,15 +29,13 @@ import crossfilter from "crossfilter2";
 import moment from "moment-timezone";
 import bows from "bows";
 
-import constants from "./data/util/constants";
-import validate from "./validation/validate";
+import { MS_IN_DAY, MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, DEVICE_PARAMS_OFFSET } from "./data/util/constants";
+import { validateAll } from "./validation/validate";
 
 import BasalUtil from "./data/basalutil";
 import BolusUtil from "./data/bolusutil";
 import BGUtil from "./data/bgutil";
 import dt from "./data/util/datetime";
-
-const { MS_IN_DAY, MGDL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD, DEVICE_PARAMS_OFFSET } = constants;
 
 const RE_ISO_TIME = /^(?:[1-9]\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+|.{0})(?:Z|[+-][01]\d:[0-5]\d)$/;
 const INVALID_TIMEZONES = ['UTC', 'GMT', 'Etc/GMT'];
@@ -282,10 +280,15 @@ TidelineData.prototype.normalizeTime = function normalizeTime(d) {
  */
 TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   // Remove unneeded fields:
-  if (d.type !== "pumpSettings") {
+  if (["upload", "pumpSettings"].includes(d.type)) {
+    if (typeof d.source !== "string") {
+      d.source = "Diabeloop";
+    }
+  } else {
     delete d.deviceTime;
     delete d.deviceId;
     delete d.deviceSerialNumber;
+    delete d.source;
   }
 
   delete d.time;
@@ -298,6 +301,10 @@ TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   delete d._id;
   delete d._userId;
   delete d._schemaVersion;
+  delete d._dataState;
+  delete d._state;
+  delete d._deduplicator;
+  delete d.timeProcessing;
   /* eslint-enable no-underscore-dangle */
 
   // Be sure we have an id
@@ -987,7 +994,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   endTimer("setTimezones");
 
   startTimer("validatedData");
-  const validatedData = validate.validateAll(this.data);
+  const validatedData = validateAll(this.data);
   this.log.info(`${validatedData.valid.length} valid items`);
   if (validatedData.invalid.length > 0) {
     this.log.warn("Invalid items:", validatedData.invalid.length, validatedData.invalid);
@@ -1100,4 +1107,4 @@ TidelineData.prototype.editMessage = function editMessage(editedMessage) {
   return message;
 };
 
-module.exports = TidelineData;
+export default TidelineData;

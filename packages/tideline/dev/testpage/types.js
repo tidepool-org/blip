@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-const _ = require('lodash');
+import _ from 'lodash';
 
-const guid = require('./guid');
-const dt = require('../../js/data/util/datetime');
+import guid from './guid';
+import dt from '../../js/data/util/datetime';
 
 // constants
-const { MGDL_UNITS, MS_IN_DAY } = require('../../js/data/util/constants');
+import { MGDL_UNITS, MS_IN_DAY } from '../../js/data/util/constants';
 const APPEND = '.000Z';
 const timezone = 'Europe/Paris';
 
@@ -374,7 +374,7 @@ var PhysicalActivity = function(opts) {
 
 PhysicalActivity.prototype = common;
 
-module.exports = {
+export {
   Basal,
   Bolus,
   CBG,

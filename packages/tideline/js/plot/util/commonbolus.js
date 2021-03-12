@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-const _ = require('lodash');
+import _ from 'lodash';
 
-const format = require('../../data/util/format');
+import format from '../../data/util/format';
 
 const commonBolus = {
   getBolus: (b) => {
@@ -92,4 +92,4 @@ const commonBolus = {
   }
 };
 
-module.exports = commonBolus;
+export default commonBolus;

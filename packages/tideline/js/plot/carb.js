@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
+import utils from './util/utils';
 
-module.exports = function(pool, opts) {
+function plotCarb(pool, opts) {
+  const d3 = window.d3;
   var defaults = {
     r: 14,
     carbPadding: 4
@@ -103,4 +103,6 @@ module.exports = function(pool, opts) {
   };
 
   return carb;
-};
+}
+
+export default plotCarb;

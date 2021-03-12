@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var d3 = require('d3');
+import _ from 'lodash';
 
-var shapes = require('./shapes');
+import shapes from './shapes';
 
 function Tooltips(container, tooltipsGroup) {
+  const d3 = window.d3;
 
   var id, tooltipGroups = {}, defs = {};
 
@@ -325,11 +325,11 @@ function Tooltips(container, tooltipsGroup) {
   };
 
   // getters & setters
-  this.id = function(x) {
+  this.id = function(/* x */) {
     if (!arguments.length) return id;
     id = tooltipsGroup.attr('id');
     return this;
   };
 }
 
-module.exports = Tooltips;
+export default Tooltips;

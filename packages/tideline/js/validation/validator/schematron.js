@@ -15,13 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var util = require('util');
+import util from 'util';
+import _ from 'lodash';
 
-var _ = require('lodash');
+import makeValidator from './validator.js';
 
-var validator = require('./validator.js');
-
-function error() {
+export function error() {
   var args = Array.prototype.slice.call(arguments, 0);
   args[0] = ' ' + args[0];
   throw new Error(util.format.apply(util, args));
@@ -50,9 +49,9 @@ var isADate = matchesRegex(/^(\d{4}-[01]\d-[0-3]\d)$/);
 var isADeviceTime = matchesRegex(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)$/);
 var isoPattern = /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/;
 
-module.exports = function() {
+function schematron() {
   if (arguments.length > 0) {
-    return validator.makeValidator.apply(validator, Array.prototype.slice.call(arguments, 0));
+    return makeValidator.call(makeValidator, ...arguments);
   }
 
   var optional = false;
@@ -191,7 +190,7 @@ module.exports = function() {
       object: function() {
         fns.push(typeOf('object'));
         if (arguments.length > 0) {
-          fns.push(module.exports(arguments[0]));
+          fns.push(schematron(arguments[0]));
         }
 
         return this;
@@ -242,9 +241,9 @@ module.exports = function() {
       }
     }
   );
-};
+}
 
-module.exports.and = function(fields) {
+schematron.and = function(fields) {
   return function(e){
     var allNull = true;
     var allNotNull = true;
@@ -262,7 +261,7 @@ module.exports.and = function(fields) {
   };
 };
 
-module.exports.with = function(primaryField, fields) {
+schematron.with = function(primaryField, fields) {
   if (! Array.isArray(fields)) {
     fields = [fields];
   }
@@ -278,5 +277,4 @@ module.exports.with = function(primaryField, fields) {
   };
 };
 
-module.exports.error = error;
-
+export default schematron;

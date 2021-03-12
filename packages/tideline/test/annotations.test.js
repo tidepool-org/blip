@@ -15,17 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import { assert, expect } from 'chai';
 
-var annotations = require('../js/plot/util/annotations/annotationdefinitions');
-
-// change to true when you want to view all produced annotations
-var logging = false;
+import annotations from '../js/plot/util/annotations/annotationdefinitions';
 
 describe('annotation definitions', function() {
+  // change to true when you want to view all produced annotations
+  const logging = false;
+
   describe('main text', function() {
     Object.keys(annotations.MAIN_TEXT).forEach(function(key) {
       describe(key, function() {

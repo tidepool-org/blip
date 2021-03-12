@@ -15,12 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import { expect } from 'chai';
 
-var chai = require('chai');
-var expect = chai.expect;
-
-var constants = require('../js/data/util/constants');
+import * as constants from '../js/data/util/constants';
 
 describe('constants', function() {
   it('should export an object', function() {

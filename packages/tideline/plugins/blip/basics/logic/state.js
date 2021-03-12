@@ -15,139 +15,136 @@
  * == BSD2 LICENSE ==
  */
 
-import i18next from 'i18next';
+import i18next from "i18next";
+import _ from "lodash";
+import React from "react";
 
-var _ = require('lodash');
-var React = require('react');
+import { AUTOMATED_BASAL_LABELS } from "../../../../js/data/util/constants";
 
+import {
+  SITE_CHANGE_BY_MANUFACTURER,
+  DEFAULT_MANUFACTURER,
+  SITE_CHANGE_RESERVOIR,
+  SITE_CHANGE_CANNULA,
+  SITE_CHANGE_TUBING,
+} from "./constants";
+import CalendarContainer from "../components/CalendarContainer";
+import SummaryGroup from "../components/misc/SummaryGroup";
+import SiteChangeSelector from "../components/sitechange/Selector";
+import WrapCount from "../components/chart/WrapCount";
+import SiteChange from "../components/chart/SiteChange";
+import InfusionHoverDisplay from "../components/day/hover/InfusionHoverDisplay";
+import togglableState from "../TogglableState";
 
-// Should be initialized in calling module
-if (_.get(i18next, 'options.returnEmptyString') === undefined) {
-  // Return key if no translation is present
-  i18next.init({ returnEmptyString: false });
-}
+function basicsState(source, manufacturer) {
+  const t = i18next.t.bind(i18next);
+  const automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default));
+  const siteChangesTitle = _.get(
+    _.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]),
+    "label"
+  );
 
-var t = i18next.t.bind(i18next);
-
-
-var CalendarContainer = require('../components/CalendarContainer');
-var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
-var SiteChangeSelector = React.createFactory(require('../components/sitechange/Selector'));
-
-var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
-var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
-var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
-
-const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER, SITE_CHANGE_RESERVOIR, SITE_CHANGE_CANNULA, SITE_CHANGE_TUBING } = require('./constants');
-var { AUTOMATED_BASAL_LABELS } = require('../../../../js/data/util/constants');
-var togglableState = require('../TogglableState');
-
-var basicsState = function (source, manufacturer) {
-  var automatedLabel = t(_.get(AUTOMATED_BASAL_LABELS, source, AUTOMATED_BASAL_LABELS.default));
-  const siteChangesTitle = _.get(_.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]), 'label');
-
+  const summaryGroup = React.createFactory(SummaryGroup);
   return {
     sections: {
       basals: {
         active: true,
-        chart: WrapCount,
-        column: 'right',
+        chart: React.createFactory(WrapCount),
+        column: "right",
         container: CalendarContainer,
         hasHover: true,
-        id: 'basals',
+        id: "basals",
         index: 4,
         togglable: togglableState.off,
-        selector: SummaryGroup,
+        selector: summaryGroup,
         selectorOptions: {
-          primary: { key: 'total', label: t('Basal Events') },
+          primary: { key: "total", label: t("Basal Events") },
           rows:
-            (source === 'Diabeloop' ?
-              [
-                [
-                  // { key: 'temp', label: t('Temp Basals') },
-                  { key: 'automatedStart', label: t('{{automatedLabel}}', { automatedLabel }) },
-                  { key: 'automatedStop', label: t('{{automatedLabel}} Exited', { automatedLabel }) },
+            source === "Diabeloop"
+              ? [
+                  [
+                    // { key: 'temp', label: t('Temp Basals') },
+                    { key: "automatedStart", label: t("{{automatedLabel}}", { automatedLabel }) },
+                    { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
+                  ],
+                ]
+              : [
+                  [
+                    { key: "temp", label: t("Temp Basals") },
+                    { key: "suspend", label: t("Suspends") },
+                    { key: "automatedStop", label: t("{{automatedLabel}} Exited", { automatedLabel }) },
+                  ],
                 ],
-              ] :
-              [
-                [
-                  { key: 'temp', label: t('Temp Basals') },
-                  { key: 'suspend', label: t('Suspends') },
-                  { key: 'automatedStop', label: t('{{automatedLabel}} Exited', { automatedLabel }) },
-                ],
-              ]
-            )
         },
         settingsTogglable: togglableState.off,
-        title: t('Basals'),
-        type: 'basal'
+        title: t("Basals"),
+        type: "basal",
       },
       boluses: {
         active: true,
-        chart: WrapCount,
-        column: 'right',
+        chart: React.createFactory(WrapCount),
+        column: "right",
         container: CalendarContainer,
         hasHover: true,
-        id: 'boluses',
+        id: "boluses",
         index: 2,
         togglable: togglableState.off,
-        selector: SummaryGroup,
+        selector: summaryGroup,
         selectorOptions: {
-          primary: { key: 'total', label: t('Avg per day'), average: true },
+          primary: { key: "total", label: t("Avg per day"), average: true },
           rows:
-            (source === 'Diabeloop' ?
-              [
-                [
-                  { key: 'wizard', label: t('Calculator'), percentage: true },
-                  { key: 'manual', label: t('Micro-bolus'), percentage: true },
-                  { key: 'interrupted', label: t('Interrupted'), percentage: true }
+            source === "Diabeloop"
+              ? [
+                  [
+                    { key: "wizard", label: t("Calculator"), percentage: true },
+                    { key: "manual", label: t("Micro-bolus"), percentage: true },
+                    { key: "interrupted", label: t("Interrupted"), percentage: true },
+                  ],
                 ]
-              ] :
-              [
-                [
-                  { key: 'wizard', label: t('Calculator'), percentage: true },
-                  { key: 'correction', label: t('Correction'), percentage: true },
-                  { key: 'override', label: t('Override'), percentage: true }
+              : [
+                  [
+                    { key: "wizard", label: t("Calculator"), percentage: true },
+                    { key: "correction", label: t("Correction"), percentage: true },
+                    { key: "override", label: t("Override"), percentage: true },
+                  ],
+                  [
+                    { key: "extended", label: t("Extended"), percentage: true },
+                    { key: "interrupted", label: t("Interrupted"), percentage: true },
+                    { key: "underride", label: t("Underride"), percentage: true },
+                  ],
                 ],
-                [
-                  { key: 'extended', label: t('Extended'), percentage: true },
-                  { key: 'interrupted', label: t('Interrupted'), percentage: true },
-                  { key: 'underride', label: t('Underride'), percentage: true }
-                ]
-              ]
-            )
         },
         settingsTogglable: togglableState.off,
-        title: t('Bolusing'),
-        type: 'bolus'
+        title: t("Bolusing"),
+        type: "bolus",
       },
       siteChanges: {
         active: true,
-        chart: SiteChange,
-        column: 'right',
+        chart: React.createFactory(SiteChange),
+        column: "right",
         container: CalendarContainer,
         hasHover: true,
-        hoverDisplay: InfusionHoverDisplay,
-        id: 'siteChanges',
+        hoverDisplay: React.createFactory(InfusionHoverDisplay),
+        id: "siteChanges",
         index: 3,
-        noDataMessage: (source === 'Diabeloop') ? '' : t('Infusion site changes are not yet available for all pumps. Coming soon!'),
+        noDataMessage: source === "Diabeloop" ? "" : t("Infusion site changes are not yet available for all pumps. Coming soon!"),
         togglable: togglableState.off,
-        selector: SiteChangeSelector,
+        selector: React.createFactory(SiteChangeSelector),
         selectorOptions: {
-          primary: { key: SITE_CHANGE_RESERVOIR, label: t('Reservoir changes') },
+          primary: { key: SITE_CHANGE_RESERVOIR, label: t("Reservoir changes") },
           rows: [
             [
-              { key: SITE_CHANGE_CANNULA, label: t('Cannula Fills') },
-              { key: SITE_CHANGE_TUBING, label: t('Tube Primes') },
-            ]
-          ]
+              { key: SITE_CHANGE_CANNULA, label: t("Cannula Fills") },
+              { key: SITE_CHANGE_TUBING, label: t("Tube Primes") },
+            ],
+          ],
         },
         settingsTogglable: togglableState.closed,
         title: t(siteChangesTitle),
-        type: SITE_CHANGE_RESERVOIR
+        type: SITE_CHANGE_RESERVOIR,
       },
     },
   };
-};
+}
 
-module.exports = basicsState;
+export default basicsState;

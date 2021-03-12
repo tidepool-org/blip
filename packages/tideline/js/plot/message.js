@@ -20,22 +20,18 @@ import i18next from "i18next";
 import bows from "bows";
 import moment from "moment-timezone";
 
-const d3 = require("d3");
+import format from "../data/util/format";
+import postItImage from "../../img/message/post_it.svg";
+import newNoteImg from "../../img/message/new.png";
 
-const format = require("../data/util/format");
-const postItImage = require("../../img/message/post_it.svg");
-const newNoteImg = require("../../img/message/new.png");
+function plotMessage(pool, opts = {}) {
+  const NEW_NOTE_WIDTH = 36;
+  const NEW_NOTE_HEIGHT = 29;
+  const NEW_NOTE_X = 0;
+  const NEW_NOTE_Y = 45;
 
-const t = i18next.t.bind(i18next);
-
-const NEW_NOTE_WIDTH = 36;
-const NEW_NOTE_HEIGHT = 29;
-const NEW_NOTE_X = 0;
-const NEW_NOTE_Y = 45;
-
-module.exports = function (pool, opts) {
-  opts = opts || {};
-
+  const d3 = window.d3;
+  const t = i18next.t.bind(i18next);
   const defaults = {
     previewLength: 50,
     tooltipPadding: 20,
@@ -266,4 +262,6 @@ module.exports = function (pool, opts) {
   message.drawNewNoteIcon();
 
   return message;
-};
+}
+
+export default plotMessage;

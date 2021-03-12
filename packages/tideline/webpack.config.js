@@ -1,6 +1,5 @@
 var path = require('path');
 var webpack = require('webpack');
-const buildConfig = require('../../server/config.app');
 
 const appDirectory = path.resolve(__dirname);
 const isDev = (process.env.NODE_ENV === 'development');
@@ -29,8 +28,9 @@ const babelLoaderConfiguration = {
   use: {
     loader: 'babel-loader',
     options: {
+      rootMode: "upward",
+      configFile: path.resolve(__dirname, "../../babel.config.json"),
       cacheDirectory: true,
-      presets: ['@babel/preset-env', '@babel/preset-react'],
     },
   },
 };
@@ -139,6 +139,7 @@ const resolve = {
 module.exports = {
   devtool: 'sourcemap',
   entry: './js/index.js',
+  stats: "minimal", // See https://webpack.js.org/configuration/stats/
   output,
   mode: isDev || isTest ? 'development' : 'production',
   module: {

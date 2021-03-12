@@ -15,21 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-const _ = require('lodash');
-const sinon = require('sinon');
-const { expect } = require('chai');
-const { shallow, mount } = require('enzyme');
+import _ from 'lodash';
+import React from 'react';
+import sinon from 'sinon';
+import { expect } from 'chai';
+import { shallow, mount } from 'enzyme';
 
-const React = require('react');
+import basicsState from '../plugins/blip/basics/logic/state';
+import { BasicsChartNoSize as BasicsChart } from '../plugins/blip/basics/chartbasicsfactory';
+import TidelineData from '../js/tidelinedata';
+import * as types from '../dev/testpage/types';
 
-const basicsState = require('../plugins/blip/basics/logic/state');
-const BasicsChart = require('../plugins/blip/basics/chartbasicsfactory').inner;
-const TidelineData = require('../js/tidelinedata');
-const types = require('../dev/testpage/types');
-
-const { MGDL_UNITS } = require('../js/data/util/constants');
-
-const { CARTRIDGE_CHANGE, INFUSION_SITE_CHANGE } = require('../plugins/blip/basics/logic/constants');
+import { MGDL_UNITS } from '../js/data/util/constants';
+import { CARTRIDGE_CHANGE, INFUSION_SITE_CHANGE } from '../plugins/blip/basics/logic/constants';
 
 describe('BasicsChart', function() {
   /** @type {import('enzyme').ReactWrapper} */
@@ -63,7 +61,11 @@ describe('BasicsChart', function() {
       bgUnits: MGDL_UNITS,
       bgClasses: td.bgClasses,
       onSelectDay: sinon.stub(),
-      patient: {},
+      patient: {
+        profile: {
+          fullName: 'John Doe',
+        },
+      },
       tidelineData: td,
       permsOfLoggedInUser: {
         view: {},
@@ -285,7 +287,9 @@ describe('BasicsChart', function() {
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
-          profile: {},
+          profile: {
+            fullName: 'John Doe',
+          },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {
@@ -335,7 +339,9 @@ describe('BasicsChart', function() {
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
-          profile: {},
+          profile: {
+            fullName: 'John Doe',
+          },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {
@@ -378,7 +384,9 @@ describe('BasicsChart', function() {
         bgClasses: td.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
-          profile: {},
+          profile: {
+            fullName: 'John Doe',
+          },
         },
         permsOfLoggedInUser: { root: true },
         tidelineData: _.assign({}, td, {

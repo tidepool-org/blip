@@ -17,16 +17,13 @@
 
 import _ from 'lodash';
 import { assert, expect } from 'chai';
-// import sinon from 'sinon';
-import moment from 'moment-timezone';
 
-import constants from '../js/data/util/constants';
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } from '../js/data/util/constants';
 import TidelineData from '../js/tidelinedata';
 
 // import types from '../dev/testpage/types';
 
 describe('TidelineData', function() {
-  const { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS, BG_CLAMP_THRESHOLD } = constants;
   const bgUnits = MGDL_UNITS;
   const roundingAllowance = 0.0001;
   const fixedDate = new Date('2021-02-10T09:00:00Z');
@@ -239,6 +236,7 @@ describe('TidelineData', function() {
         deviceId: dInitial.deviceId,
         deviceSerialNumber: dInitial.deviceSerialNumber,
         type: 'pumpSettings',
+        source: 'Diabeloop',
       };
       const dResult = _.clone({ ...dInitial, type: 'pumpSettings' });
       TidelineData.prototype.cleanDatum(dResult);

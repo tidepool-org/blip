@@ -15,21 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import { expect } from 'chai';
 
-/* global describe */
-/* global context */
-/* global it */
-/* global expect */
-/* global chai */
-
-var expect = chai.expect;
-
-const BasicsUtils = require('../../../plugins/blip/basics/components/BasicsUtils');
+import * as BasicsUtils from '../../../plugins/blip/basics/components/BasicsUtils';
 
 describe('BasicsUtils', () => {
-  let util;
-
   const optionMatchingPathAndKey = {
     path: 'smbg',
     key: 'smbg',

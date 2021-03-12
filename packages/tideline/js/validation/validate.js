@@ -15,53 +15,65 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var bows = require('bows');
+import _ from 'lodash';
+import bows from 'bows';
 
-var schema = require('./validator/schematron');
-const common = require('./common');
-var log = bows('validate');
+import schema from './validator/schematron';
+import commonSchema from './common';
+import basal from './basal';
+import bolus from './bolus';
+import bg from './bg';
+import message from './message';
+import pumpSettings from './pumpSettings';
+import upload from './upload';
+import wizard from './wizard';
 
-var schemas = {
-  common,
-  basal: require('./basal'),
-  bolus: require('./bolus'),
-  cbg: require('./bg'),
-  deviceEvent: schema(common),
-  food: schema(),
-  message: require('./message'),
-  pumpSettings: require('./pumpSettings'),
-  physicalActivity: schema(common),
-  reservoirChange: schema(common),
-  smbg: require('./bg'),
-  upload: require('./upload'),
-  wizard: require('./wizard'),
+const log = bows('validate');
+
+const getSchemas = () => {
+  const common = commonSchema();
+  const cbg = bg(common);
+  return {
+    common,
+    basal: basal(common),
+    bolus: bolus(common),
+    cbg,
+    deviceEvent: schema(common),
+    food: schema(common),
+    message: message(common),
+    pumpSettings: pumpSettings(common),
+    physicalActivity: schema(common),
+    reservoirChange: schema(common),
+    smbg: cbg,
+    upload: upload(common),
+    wizard: wizard(common),
+  };
 };
 
-module.exports = {
-  validateOne: function(datum, result) {
-    result = result || {valid: [], invalid: []};
-    const handler = schemas[datum.type];
-    if (!_.isFunction(handler)) {
-      datum.errorMessage = `No schema defined for data.type[${datum.type}]`;
-      log(new Error(datum.errorMessage), datum);
+export function validateOne(datum, result, schemas = getSchemas()) {
+  result = result || {valid: [], invalid: []};
+  const handler = schemas[datum.type];
+  if (!_.isFunction(handler)) {
+    datum.errorMessage = `No schema defined for data.type[${datum.type}]`;
+    log.error(new Error(datum.errorMessage), datum);
+    result.invalid.push(datum);
+  } else {
+    try {
+      handler(datum);
+      result.valid.push(datum);
+    }
+    catch(e) {
+      datum.errorMessage = e.message;
       result.invalid.push(datum);
-    } else {
-      try {
-        handler(datum);
-        result.valid.push(datum);
-      }
-      catch(e) {
-        datum.errorMessage = e.message;
-        result.invalid.push(datum);
-      }
     }
-  },
-  validateAll: function(data) {
-    var result = {valid: [], invalid: []};
-    for (var i = 0; i < data.length; ++i) {
-      this.validateOne(data[i], result);
-    }
-    return result;
   }
-};
+}
+
+export function validateAll(data) {
+  const result = {valid: [], invalid: []};
+  const schemas = getSchemas();
+  for (let i = 0; i < data.length; ++i) {
+    validateOne(data[i], result, schemas);
+  }
+  return result;
+}

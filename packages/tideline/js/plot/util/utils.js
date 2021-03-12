@@ -1,7 +1,6 @@
-const dt = require('../../data/util/datetime');
+import dt from '../../data/util/datetime';
 
-var utils = {
-
+const utils = {
   xPos: function(d, opts) {
     if (typeof d.epoch === 'number') {
       return opts.xScale(d.epoch) + 1;
@@ -43,4 +42,4 @@ var utils = {
   },
 };
 
-module.exports = utils;
+export default utils;

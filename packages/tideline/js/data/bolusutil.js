@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var crossfilter = require('crossfilter2');
+import _ from 'lodash';
+import crossfilter from 'crossfilter2';
 
-var commonbolus = require('../plot/util/commonbolus');
-var format = require('./util/format');
+import commonbolus from '../plot/util/commonbolus';
+import format from './util/format';
 
 function BolusUtil(data) {
   var dataByDate;
@@ -48,4 +48,4 @@ function BolusUtil(data) {
   }
 }
 
-module.exports = BolusUtil;
+export default BolusUtil;

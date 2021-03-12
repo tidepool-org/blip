@@ -1,27 +1,27 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
+import _ from 'lodash';
 
 // when adding a shape from an image supplied by designer
 // viewBox attribute should be copied exactly from svg image
-var shapeutil = require('../shapeutil');
+import shapeutil from '../shapeutil';
 
-var shapes = {
+const shapes = {
   cbg: {
     fixed: true,
     els: [
@@ -228,8 +228,8 @@ var shapes = {
             return shapeutil.pointString(0,0) +
               shapeutil.pointString(offset, - (offset/ysf + y)) +
               shapeutil.pointString(offset, - ((offset/ysf) + opts.h)) +
-              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) + 
-              shapeutil.pointString(offset + opts.w, - (offset/ysf)) + 
+              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) +
+              shapeutil.pointString(offset + opts.w, - (offset/ysf)) +
               shapeutil.pointString(offset + x, - (offset/ysf)) +
               shapeutil.pointString(0,0).trim();
           }
@@ -246,8 +246,8 @@ var shapes = {
             return shapeutil.pointString(0,0) +
               shapeutil.pointString(offset, - (offset/ysf + y)) +
               shapeutil.pointString(offset, - ((offset/ysf) + opts.h)) +
-              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) + 
-              shapeutil.pointString(offset + opts.w, - (offset/ysf)) + 
+              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) +
+              shapeutil.pointString(offset + opts.w, - (offset/ysf)) +
               shapeutil.pointString(offset + x, - (offset/ysf)) +
               shapeutil.pointString(0,0).trim();
           },
@@ -273,16 +273,14 @@ var shapes = {
     offset: function(selection, opts) {
       if (!arguments.length) {
         return 40;
-      } 
+      }
       selection.attr({
         x: opts.x,
         y: opts.y
       });
     },
-    offsetY: function() {
-      return 10;
-    }
+    offsetY: _.constant(10),
   }
 };
 
-module.exports = shapes;
+export default shapes;

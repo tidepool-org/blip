@@ -15,34 +15,31 @@
  * == BSD2 LICENSE ==
  */
 
- /* jshint esversion:6 */
+import { assert, expect } from 'chai';
+import { MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } from '../js/data/util/constants';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../js/data/util/constants');
-
-var categorizer = require('../js/data/util/categorize');
-var defaultBgClasses = {
-  'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-  low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-  target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-  high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
-};
-var alternateBgClasses = {
-  'very-low': { boundary: 60 },
-  low: { boundary: 80 },
-  target: { boundary: 150 },
-  high: { boundary: 250 },
-};
-var mmollBgClasses = {
-  'very-low': { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
-  low: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
-  target: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
-  high: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
-};
+import categorizer from '../js/data/util/categorize';
 
 describe('Categorize', function() {
+  var defaultBgClasses = {
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+  };
+  var alternateBgClasses = {
+    'very-low': { boundary: 60 },
+    low: { boundary: 80 },
+    target: { boundary: 150 },
+    high: { boundary: 250 },
+  };
+  var mmollBgClasses = {
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[MMOLL_UNITS].veryHigh },
+  };
+
   var defaultCategorizer = categorizer(defaultBgClasses);
   var alternateCategorizer = categorizer(alternateBgClasses);
   var noConfigCategorizer = categorizer({});

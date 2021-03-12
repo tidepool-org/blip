@@ -16,14 +16,18 @@
  */
 
 
-const enzyme = require('enzyme');
-const Adapter = require('enzyme-adapter-react-16');
+import enzyme from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
 enzyme.configure({
   adapter: new Adapter(),
   disableLifecycleMethods: true,
 });
 
+window.d3 = require('d3');
+window.d3.chart = require('d3.chart');
+
+console.log(window.d3);
 
 // localStorage.setItem('debug', 'true');
 
@@ -31,32 +35,32 @@ enzyme.configure({
 // ====================================
 
 /* js/data/ */
-require('./datetime_test');
-require('./constants_test');
-require('./format_test');
-require('./tidelinedata.test');
-require('./basalutil_test');
-require('./bgutil_test');
-require('./bolusutil_test');
-require('./categorize_test');
+import './format.test';
+import './datetime.test';
+import './constants.test';
+import './tidelinedata.test';
+import './basalutil.test';
+import './bgutil.test';
+import './bolusutil.test';
+import './categorize.test';
 
 /* js/plot/ */
-require('./annotations_test');
-require('./commonbolus_test');
-require('./device_test');
+import './annotations.test';
+import './commonbolus.test';
+import './device.test';
 
 // DOM required
 // ====================================
 
 /* plugins/ */
-require('./chartbasicsfactory.test');
-require('./basics_classifiers_test');
-require('./basics_datamunger_test');
-require('./nurseshark_test');
+import './chartbasicsfactory.test';
+import './basics_classifiers.test';
+import './basics_datamunger.test';
+import './nurseshark.test';
 
-require('./blip/components/day/hover/InfusionHoverDisplay.test.js');
-require('./blip/components/logic/actions.test.js');
-require('./blip/components/misc/SummaryGroup.test.js');
-require('./blip/components/sitechange/Selector.test.js');
-require('./blip/components/BasicsUtils.test.js');
-require('./blip/components/CalendarContainer.test.js');
+import './blip/components/day/hover/InfusionHoverDisplay.test.js';
+import './blip/components/logic/actions.test.js';
+import './blip/components/misc/SummaryGroup.test.js';
+import './blip/components/sitechange/Selector.test.js';
+import './blip/components/BasicsUtils.test.js';
+import './blip/components/CalendarContainer.test.js';

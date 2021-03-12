@@ -15,18 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
+import bows from 'bows';
 
-var shapeutil = require('../shapeutil');
-var shapes = require('./shapes');
-var defs = require('./annotationdefinitions');
-var dt = require('../../../data/util/datetime');
+import shapeutil from '../shapeutil';
+import shapes from './shapes';
+import defs from './annotationdefinitions';
+import dt from '../../../data/util/datetime';
 
-var log = require('bows')('Annotations');
-
-module.exports = function(container, annotationsGroup) {
-
+function mkAnnotations(container, annotationsGroup) {
+  const log = bows('Annotations');
   var id, r = 8;
 
   var defaults = {
@@ -137,7 +135,7 @@ module.exports = function(container, annotationsGroup) {
 
       // append all annotation texts
       var annotations = opts.d.annotations;
-      _.each(annotations, function(annotation) {
+      _.forEach(annotations, function(annotation) {
         div.append('p')
           .html(defs.main(annotation, opts.d.source));
       });
@@ -208,4 +206,6 @@ module.exports = function(container, annotationsGroup) {
   };
 
   return annotation;
-};
+}
+
+export default mkAnnotations;

@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } = require('../../plugins/blip/basics/logic/constants');
-const utils = require('./util/utils');
+import { SITE_CHANGE_BY_MANUFACTURER, DEFAULT_MANUFACTURER } from '../../plugins/blip/basics/logic/constants';
+import utils from './util/utils';
 
-module.exports = function(pool, opts) {
+function plotReservoirChange(pool, opts) {
+  const d3 = window.d3;
   const height = pool.height() / 5 ;
   const width = 40;
 
@@ -85,4 +85,6 @@ module.exports = function(pool, opts) {
   };
 
   return reservoir;
-};
+}
+
+export default plotReservoirChange;

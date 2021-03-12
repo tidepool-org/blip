@@ -15,72 +15,66 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-var PropTypes = require('prop-types');
-var React = require('react');
-var createReactClass = require('create-react-class');
-var nestedShrinkFactor = 4;
+import PropTypes from "prop-types";
+import React from "react";
 
-var BasicsUtils = require('../BasicsUtils');
+import { getCount as fnGetCount } from "../BasicsUtils";
 
-var WrapCount = createReactClass({
-  displayName: 'WrapCount',
-  mixins: [BasicsUtils],
+const nestedShrinkFactor = 4;
 
-  propTypes: {
-    chartWidth: PropTypes.number.isRequired,
-    data: PropTypes.object,
-    date: PropTypes.string.isRequired,
-    subtotalType: PropTypes.string,
-  },
+function WrapCount(props) {
+  const getCount = fnGetCount.bind({ props });
 
-  render: function() {
-    var dots = this.renderDots();
-    return (
-      <div className='WrapCount'>
-        {dots}
-      </div>
-    );
-  },
-
-  generateDots: function(start, end, dotSize) {
-    var count = this.getCount(this.props.subtotalType);
-    var dots = [];
+  const generateDots = (start, end, dotSize) => {
+    const count = getCount(props.subtotalType);
+    const dots = [];
 
     dotSize = Math.round(dotSize);
 
-    for (var i = start; i <= end; ++i) {
+    for (let i = start; i <= end; ++i) {
       if (i <= count) {
         dots.push(
           <svg key={i} width={dotSize} height={dotSize}>
-            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2}/>
+            <circle cx={dotSize / 2} cy={dotSize / 2} r={dotSize / 2} />
           </svg>
         );
       }
     }
 
     return dots;
-  },
+  };
 
-  renderDots: function() {
-    var count = this.getCount(this.props.subtotalType);
+  const renderDots = () => {
+    var count = getCount(props.subtotalType);
     var dots = [];
 
-    if (this.props.chartWidth) {
-      var dotSize = this.props.chartWidth / 56;
+    if (props.chartWidth) {
+      var dotSize = props.chartWidth / 56;
 
       if (count > 9) {
-        dots = this.generateDots(1, 8, dotSize);
-        dots.push(<div key='nested' className='NestedCount'>
-          {this.generateDots(9, 17, dotSize / nestedShrinkFactor)}
-        </div>);
+        dots = generateDots(1, 8, dotSize);
+        dots.push(
+          <div key="nested" className="NestedCount">
+            {generateDots(9, 17, dotSize / nestedShrinkFactor)}
+          </div>
+        );
       } else {
-        dots = this.generateDots(1, 9, dotSize);
+        dots = generateDots(1, 9, dotSize);
       }
     }
 
     return dots;
-  },
-});
+  };
 
-module.exports = WrapCount;
+  const dots = renderDots();
+  return <div className="WrapCount">{dots}</div>;
+}
+
+WrapCount.propTypes = {
+  chartWidth: PropTypes.number.isRequired,
+  data: PropTypes.object,
+  date: PropTypes.string.isRequired,
+  subtotalType: PropTypes.string,
+};
+
+export default WrapCount;

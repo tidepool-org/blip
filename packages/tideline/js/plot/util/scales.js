@@ -15,16 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
 
-var d3 = require('d3');
-var _ = require('lodash');
+import commonbolus from './commonbolus';
+import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
+import format from '../../data/util/format';
 
-var commonbolus = require('./commonbolus');
-var { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } = require('../../data/util/constants');
-var format = require('../../data/util/format');
-
-var scales = function(opts) {
+function scales(opts) {
+  const d3 = window.d3;
   opts = _.assign({}, opts) || {};
 
   var bgUnits = opts.bgUnits || MGDL_UNITS;
@@ -136,6 +134,6 @@ var scales = function(opts) {
       return scale;
     }
   };
-};
+}
 
-module.exports = scales;
+export default scales;

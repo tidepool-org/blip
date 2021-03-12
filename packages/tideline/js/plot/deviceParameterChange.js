@@ -15,14 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
 
-var d3 = require('d3');
-var _ = require('lodash');
+import picto from '../../img/parameter.png';
+import utils from './util/utils';
 
-const utils = require('./util/utils');
-
-module.exports = function(pool, opts) {
+function plotDeviceParameterChange(pool, opts) {
+  const d3 = window.d3;
   var defaults = {
     r: 14,
     padding: 4
@@ -30,7 +29,6 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var picto = require('../../img/parameter.png');
   var offset = pool.height() / 5 ;
   var width = 40;
   var xPos = function(d) {
@@ -61,9 +59,7 @@ module.exports = function(pool, opts) {
           x: function(d) {
             return xPos(d);
           },
-          y: function(d) {
-            return 0;
-          },
+          y: _.constant(0),
           width,
           height: function() {
             return offset;
@@ -97,4 +93,6 @@ module.exports = function(pool, opts) {
   };
 
   return parameter;
-};
+}
+
+export default plotDeviceParameterChange;

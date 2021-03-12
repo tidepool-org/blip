@@ -17,11 +17,12 @@
 
 // You can view the full text of each annotation by running mocha test/annotations_test.js
 import i18next from 'i18next';
-var t = i18next.t.bind(i18next);
 
-var format = require('../../../data/util/format');
+import format from '../../../data/util/format';
 
-var definitions = {
+const t = i18next.t.bind(i18next);
+
+const definitions = {
   DISABLED: [
     'basal/auto',
     'bg/out-of-range',
@@ -183,4 +184,4 @@ var definitions = {
   }
 };
 
-module.exports = definitions;
+export default definitions;

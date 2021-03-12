@@ -15,25 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import React from 'react';
+import _ from 'lodash';
+import { mount }from 'enzyme';
+import sinon from 'sinon';
 
-/* global describe */
-/* global it */
-/* global expect */
-/* global before */
-/* global beforeEach */
-/* global afterEach */
-/* global after */
-/* global sinon */
-/* global chai */
-
-var expect = chai.expect;
-var { DEFAULT_BG_BOUNDS, MGDL_UNITS, BG_CLAMP_THRESHOLD } = require('../../../js/data/util/constants');
-
-const React = require('react');
-const _ = require('lodash');
-const { mount } = require('enzyme');
-const CalendarContainer = require('../../../plugins/blip/basics/components/CalendarContainer');
+import { DEFAULT_BG_BOUNDS, MGDL_UNITS, BG_CLAMP_THRESHOLD } from '../../../js/data/util/constants';
+import CalendarContainer from '../../../plugins/blip/basics/components/CalendarContainer';
 
 describe('CalendarContainer', () => {
   const data = {

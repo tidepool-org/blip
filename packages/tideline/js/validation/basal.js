@@ -15,22 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
+import schema from './validator/schematron.js';
 
-var basalCommon = {
-  deliveryType: schema().in(['scheduled', 'suspend', 'temp', 'automated']),
-  deviceTime: schema().ifExists().isDeviceTime(),
-  duration: schema().ifExists().number().min(0),
-  normalEnd: schema().isISODateTime(),
-  epochEnd: schema().number(),
-  rate: schema().number().min(0)
+const basal = (common) => {
+  const basalCommon = {
+    deliveryType: schema().in(['scheduled', 'suspend', 'temp', 'automated']),
+    deviceTime: schema().ifExists().isDeviceTime(),
+    duration: schema().ifExists().number().min(0),
+    normalEnd: schema().isISODateTime(),
+    epochEnd: schema().number(),
+    rate: schema().number().min(0)
+  };
+
+  return schema(
+    common,
+    schema(basalCommon),
+    {
+      suppressed: schema().ifExists().object(basalCommon)
+    }
+  );
 };
 
-module.exports = schema(
-  common,
-  schema(basalCommon),
-  {
-    suppressed: schema().ifExists().object(basalCommon)
-  }
-);
+export default basal;

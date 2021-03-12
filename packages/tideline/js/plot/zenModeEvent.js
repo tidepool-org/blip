@@ -15,14 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-const d3 = require('d3');
-const _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
+import utils from './util/utils';
 
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
+function plotZenMode(pool, opts = {}) {
+  const d3 = window.d3;
   const defaults = {
     r: 14,
   };
@@ -54,7 +52,7 @@ module.exports = function(pool, opts) {
       .attr({
         x: xPos,
         y: 0,
-        width: calculateWidth, 
+        width: calculateWidth,
         height,
         class: 'd3-rect-zen d3-zen',
         id: (d) => `zen_${d.id}`,
@@ -78,7 +76,9 @@ module.exports = function(pool, opts) {
 
         zenModeEvent.exit().remove();
     });
-  };
+  }
 
   return zenModeEvent;
-};
+}
+
+export default plotZenMode;

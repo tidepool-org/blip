@@ -15,17 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
-var commonbolus = require('./util/commonbolus');
-var drawbolus = require('./util/drawbolus');
+import utils from './util/utils';
+import commonbolus from './util/commonbolus';
+import drawbolus from './util/drawbolus';
 
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
-  var defaults = {
+function plotWizard(pool, opts = {}) {
+  const d3 = window.d3;
+  const defaults = {
     width: 12
   };
 
@@ -140,4 +138,6 @@ module.exports = function(pool, opts) {
       });
     });
   };
-};
+}
+
+export default plotWizard;

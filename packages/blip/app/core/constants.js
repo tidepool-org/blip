@@ -19,8 +19,6 @@
 import i18next from 'i18next';
 import config from '../config';
 
-const t = i18next.t.bind(i18next);
-
 export const URL_TIDEPOOL_MOBILE_APP_STORE = 'https://itunes.apple.com/us/app/tidepool-mobile/id1026395200?mt=8';
 export const URL_BIG_DATA_DONATION_INFO = 'https://tidepool.org/announcing-the-tidepool-big-data-donation-project';
 export const URL_DEXCOM_CONNECT_INFO = 'http://support.tidepool.org/article/73-connecting-dexcom-account-to-tidepool';
@@ -34,50 +32,50 @@ export const CONFIG = {
     support:'http://support.tidepool.org/',
     legal:'http://tidepool.org/legal/',
     termsURL: 'https://tidepool.org/terms-of-use',
-    get termsText() { return t('Tidepool Applications Terms of Use'); },
+    get termsText() { return i18next.t('Tidepool Applications Terms of Use'); },
     dataPrivacyURL: 'https://tidepool.org/privacy-policy',
-    get dataPrivacyText() { return t('Privacy Policy'); }
+    get dataPrivacyText() { return i18next.t('Privacy Policy'); }
   },
   diabeloop: {
     name: 'YourLoops',
     supportURL: 'https://www.diabeloop.com',
-    get supportText() { return t('Diabeloop'); },
+    get supportText() { return i18next.t('Diabeloop'); },
     _termsURL: `${config.ASSETS_URL}terms.pdf`,
     get termsURL() { return this._termsURL; },
     set termsURL(value) { this._termsURL = value; },
-    get termsText() { return t('Diabeloop Applications Terms of Use'); },
+    get termsText() { return i18next.t('Diabeloop Applications Terms of Use'); },
     _dataPrivacyURL: `${config.ASSETS_URL}data-privacy.pdf`,
     get dataPrivacyURL() { return this._dataPrivacyURL; },
     set dataPrivacyURL(value) { this._dataPrivacyURL = value; },
-    get dataPrivacyText() { return t('Privacy Policy'); },
+    get dataPrivacyText() { return i18next.t('Privacy Policy'); },
     _intendedUseURL: `${config.ASSETS_URL}intendedUse.pdf`,
     get intendedUseURL() { return this._intendedUseURL; },
     set intendedUseURL(value) { this._intendedUseURL = value; },
-    get intendedUseText() { return t('Regulatory Information'); },
+    get intendedUseText() { return i18next.t('Regulatory Information'); },
   }
 };
 
 export const DATA_DONATION_NONPROFITS = () => [
-  { value: 'AADE', label: t('AADE Foundation') },
-  { value: 'BT1', label: t('Beyond Type 1') },
-  { value: 'CARBDM', label: t('CarbDM') },
-  { value: 'CWD', label: t('Children with Diabetes') },
-  { value: 'CDN', label: t('College Diabetes Network') },
-  { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
-  { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
-  { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
-  { value: 'JDRF', label: t('JDRF') },
-  { value: 'NSF', label: t('Nightscout Foundation') },
-  { value: 'T1DX', label: t('T1D Exchange') },
+  { value: 'AADE', label: i18next.t('AADE Foundation') },
+  { value: 'BT1', label: i18next.t('Beyond Type 1') },
+  { value: 'CARBDM', label: i18next.t('CarbDM') },
+  { value: 'CWD', label: i18next.t('Children with Diabetes') },
+  { value: 'CDN', label: i18next.t('College Diabetes Network') },
+  { value: 'DYF', label: i18next.t('Diabetes Youth Families (DYF)') },
+  { value: 'DIABETESSISTERS', label: i18next.t('DiabetesSisters') },
+  { value: 'DIATRIBE', label: i18next.t('The diaTribe Foundation') },
+  { value: 'JDRF', label: i18next.t('JDRF') },
+  { value: 'NSF', label: i18next.t('Nightscout Foundation') },
+  { value: 'T1DX', label: i18next.t('T1D Exchange') },
 ];
 
 export const DIABETES_TYPES = () => [
-  { value: 'type1', get label() { return t('Type 1'); } },
-  { value: 'type2', get label() { return t('Type 2'); } },
-  { value: 'gestational', get label() { return t('Gestational'); } },
-  { value: 'prediabetes', get label() { return t('Pre-diabetes'); } },
-  { value: 'lada', get label() { return t('LADA (Type 1.5)'); } },
-  { value: 'other', get label() { return t('Other'); } },
+  { value: 'type1', get label() { return i18next.t('Type 1'); } },
+  { value: 'type2', get label() { return i18next.t('Type 2'); } },
+  { value: 'gestational', get label() { return i18next.t('Gestational'); } },
+  { value: 'prediabetes', get label() { return i18next.t('Pre-diabetes'); } },
+  { value: 'lada', get label() { return i18next.t('LADA (Type 1.5)'); } },
+  { value: 'other', get label() { return i18next.t('Other'); } },
 ];
 
 export const BG_DATA_TYPES = [

@@ -17,15 +17,14 @@
 // @ts-nocheck
 
 import i18next from 'i18next';
-const d3 = require('d3');
-const _ = require('lodash');
+import _ from 'lodash';
 
-const lockIcon = require('lock.svg');
-const utils = require('./util/utils');
+import lockIcon from 'lock.svg';
+import utils from './util/utils';
 
-const t = i18next.t.bind(i18next);
-
-module.exports = function (pool, options = {}) {
+function plotConfidentialMode(pool, options = {}) {
+  const d3 = window.d3;
+  const t = i18next.t.bind(i18next);
   const height = pool.height() - 2;
   const imageSize = 24;
   // 3 hours max for the tooltip
@@ -113,4 +112,6 @@ module.exports = function (pool, options = {}) {
   };
 
   return confidentialModeEvent;
-};
+}
+
+export default plotConfidentialMode;

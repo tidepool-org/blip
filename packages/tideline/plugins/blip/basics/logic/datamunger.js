@@ -15,89 +15,80 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import crossfilter from 'crossfilter2';
 
-var _ = require('lodash');
-var crossfilter = require('crossfilter2');
+import sundial from 'sundial';
 
-var sundial = require('sundial');
+import { MGDL_UNITS } from '../../../../js/data/util/constants';
+import { getLatestPumpUpload } from '../../../../js/data/util/device';
+import BasalUtil from '../../../../js/data/basalutil';
 
-var classifiersMkr = require('./classifiers');
-var constants = require('./constants');
-var { MGDL_UNITS } = require('../../../../js/data/util/constants');
-var { getLatestPumpUpload } = require('../../../../js/data/util/device');
+import classifiersMkr from './classifiers';
+import * as constants from './constants';
+import basicsActions from './actions';
+import togglableState from '../TogglableState';
 
-var basicsActions = require('./actions');
-var togglableState = require('../TogglableState');
-
-var BasalUtil = require('../../../../js/data/basalutil');
-var basalUtil = new BasalUtil();
-
-module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
-
-  var classifiers = classifiersMkr(bgClasses, bgUnits);
+function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
+  const basalUtil = new BasalUtil();
+  const classifiers = classifiersMkr(bgClasses, bgUnits);
 
   return {
     getLatestPumpUploaded: function(patientData) {
-      var latestPump = getLatestPumpUpload(patientData.grouped.upload);
-
-      if (latestPump && latestPump.hasOwnProperty('source')) {
-        return latestPump.source;
-      }
-
-      return null;
+      const lastUploadDatum = getLatestPumpUpload(patientData.grouped.upload);
+      return _.get(lastUploadDatum, 'source', null);
     },
+
     processInfusionSiteHistory: function(basicsData, latestPump, patient, permissions) {
       if (!latestPump) {
         return null;
       }
 
-      var {
-        profile: {
-          fullName,
-        },
-        settings,
-      } = patient;
-
-      var canUpdateSettings = permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
-      var hasSiteChangeSourceSettings = settings && settings.hasOwnProperty('siteChangeSource');
+      const settings = _.get(patient, 'settings', {});
+      const hasSiteChangeSourceSettings = _.get(patient, 'settings.siteChangeSource', false) !== false;
+      const fullName = _.get(patient, 'profile.fullName', null);
 
       basicsData.sections.siteChanges.selectorMetaData = {
         latestPump: latestPump,
-        canUpdateSettings,
+        canUpdateSettings: _.has(permissions, 'custodian') || _.has(permissions, 'root'),
         hasSiteChangeSourceSettings,
         patientName: fullName,
       };
 
-      if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
-        basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
-        basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
-
-        if (hasSiteChangeSourceSettings && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
-          basicsData.sections.siteChanges.type = settings.siteChangeSource;
-          basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
-        }
-        else {
-          basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
-          basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
-          basicsData.sections.siteChanges.hasHover = false;
-        }
-      }
-      else if (latestPump === constants.INSULET || latestPump === constants.DIABELOOP) {
+      if (latestPump === constants.DIABELOOP) {
         basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
 
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
         basicsData.sections.siteChanges.selector = null;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
-      }
-      // CareLink (Medtronic) or other unsupported pump
-      else {
+
+        // Keep the others below for the tests, takes too much time to update them:
+      } else if (latestPump === constants.ANIMAS || latestPump === constants.MEDTRONIC || latestPump === constants.TANDEM) {
+        basicsData.data.cannulaPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_CANNULA);
+        basicsData.data.tubingPrime.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_TUBING);
+        if (hasSiteChangeSourceSettings && ([constants.SITE_CHANGE_CANNULA, constants.SITE_CHANGE_TUBING].indexOf(settings.siteChangeSource) >= 0)) {
+          basicsData.sections.siteChanges.type = settings.siteChangeSource;
+          basicsData.sections.siteChanges.selectorOptions = basicsActions.setSelected(basicsData.sections.siteChanges.selectorOptions, settings.siteChangeSource);
+        } else {
+          basicsData.sections.siteChanges.type = constants.SECTION_TYPE_UNDECLARED;
+          basicsData.sections.siteChanges.settingsTogglable = togglableState.open;
+          basicsData.sections.siteChanges.hasHover = false;
+        }
+      } else if (latestPump === constants.INSULET) {
+        basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+
+        basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
+        basicsData.sections.siteChanges.selector = null;
+        basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
+      } else {
+        // CareLink (Medtronic) or other unsupported pump
         basicsData.data.reservoirChange = {};
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
         basicsData.sections.siteChanges.selector = null;
         basicsData.sections.siteChanges.settingsTogglable = togglableState.off;
       }
     },
+
     infusionSiteHistory: function(basicsData, type) {
       var infusionSitesPerDay = basicsData.data[type].dataByDate;
       var allDays = basicsData.days;
@@ -109,7 +100,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         return date < allDays[0].date;
       });
       var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
-      _.each(allDays, function(day) {
+      _.forEach(allDays, function(day) {
         if (day.type === 'future') {
           infusionSiteHistory[day.date] = {type: 'future'};
         }
@@ -145,7 +136,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
             var tags = classifier(v);
             if (!_.isEmpty(tags)) {
               ++p.total;
-              _.each(tags, function(tag) {
+              _.forEach(tags, function(tag) {
                 if (p.subtotals[tag]) {
                   p.subtotals[tag] += 1;
                 }
@@ -173,7 +164,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
             var tags = classifier(v);
             if (!_.isEmpty(tags)) {
               --p.total;
-              _.each(tags, function(tag) {
+              _.forEach(tags, function(tag) {
                 p.subtotals[tag] -= 1;
               });
             }
@@ -332,8 +323,8 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         }
 
         if (type === 'basal') {
-          _.each(typeObj.dataByDate, countAutomatedBasalEventsForDay);
-          _.each(typeObj.dataByDate, countDistinctSuspendsForDay);
+          _.forEach(typeObj.dataByDate, countAutomatedBasalEventsForDay);
+          _.forEach(typeObj.dataByDate, countDistinctSuspendsForDay);
         }
 
         // for basal and boluses, summarize tags and find avg events per day
@@ -347,7 +338,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
 
             var summary = {total: Object.keys(typeObj.dataByDate)
               .reduce(reduceTotalByDate(typeObj), 0)};
-            _.each(tags, this._summarizeTagFn(typeObj, summary));
+            _.forEach(tags, this._summarizeTagFn(typeObj, summary));
             summary.avgPerDay = this._averageExcludingMostRecentDay(
               typeObj,
               summary.total,
@@ -365,7 +356,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
         var fsSummary = {total: 0};
         // calculate the total events for each type that participates in the fingerstick section
         // as well as an overall total
-        _.each(['calibration', 'smbg'], function(fsCategory) {
+        _.forEach(['calibration', 'smbg'], function(fsCategory) {
           fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
             .reduce(function(p, date) {
               var dateData = fingerstickData[fsCategory].dataByDate[date];
@@ -381,7 +372,7 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
           }), 'key');
         }));
 
-        _.each(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
+        _.forEach(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
         var smbgSummary = fingerstickData.summary.smbg;
         smbgSummary.avgPerDay = this._averageExcludingMostRecentDay(
           fingerstickData.smbg,
@@ -391,4 +382,6 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
       }
     }
   };
-};
+}
+
+export default dataMunger;

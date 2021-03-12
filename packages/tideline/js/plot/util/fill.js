@@ -14,10 +14,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-const d3 = require('d3');
-const _ = require('lodash');
 
-module.exports = function(pool, opts) {
+import _ from 'lodash';
+
+function drawFill(pool, opts) {
+  const d3 = window.d3;
   const defaults = {
     classes: {
         0: 'darkest',
@@ -125,7 +126,7 @@ module.exports = function(pool, opts) {
         .enter()
         .append('rect')
         .attr({
-          x: function(d, i) {
+          x: function(d) {
             var pos;
             pos = fill.xPosition(d);
             return pos - (opts.midnightWidth/2);
@@ -181,4 +182,6 @@ module.exports = function(pool, opts) {
   };
 
   return fill;
-};
+}
+
+export default drawFill;

@@ -24,17 +24,15 @@ import sizeMe from "react-sizeme";
 
 import "./less/basics.less";
 
-const basicsState = require("./logic/state");
-const basicsActions = require("./logic/actions");
-const dataMungerMkr = require("./logic/datamunger");
-const constants = require("./logic/constants");
+import basicsState from "./logic/state";
+import basicsActions from "./logic/actions";
+import dataMungerMkr from "./logic/datamunger";
+import { SECTION_TYPE_UNDECLARED } from "./logic/constants";
 
-const Section = require("./components/DashboardSection");
-const togglableState = require("./TogglableState");
+import Section from "./components/DashboardSection";
+import togglableState from "./TogglableState";
 
-const t = i18next.t.bind(i18next);
-
-class BasicsChart extends React.Component {
+class BasicsChartNoSize extends React.Component {
   static propTypes = {
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
@@ -84,9 +82,9 @@ class BasicsChart extends React.Component {
 
   adjustSectionsBasedOnAvailableData(basicsData) {
     const insulinDataAvailable = this.insulinDataAvailable(basicsData);
-    const noPumpDataMessage = t("This section requires data from an insulin pump, so there's nothing to display.");
+    const noPumpDataMessage = i18next.t("This section requires data from an insulin pump, so there's nothing to display.");
 
-    if (basicsData.sections.siteChanges.type !== constants.SECTION_TYPE_UNDECLARED) {
+    if (basicsData.sections.siteChanges.type !== SECTION_TYPE_UNDECLARED) {
       if (!this.hasSectionData(basicsData, basicsData.sections.siteChanges.type)) {
         basicsData.sections.siteChanges.active = false;
         basicsData.sections.siteChanges.message = noPumpDataMessage;
@@ -172,7 +170,7 @@ class BasicsChart extends React.Component {
     const { basicsData, data, sections: basicsSections } = this.state;
     const tz = timePrefs.timezoneName;
     const sections = [];
-    for (let key in basicsSections) {
+    for (const key in basicsSections) {
       const section = _.cloneDeep(basicsSections[key]);
       section.name = key;
       sections.push(section);
@@ -205,5 +203,5 @@ class BasicsChart extends React.Component {
   }
 }
 
-module.exports = sizeMe({ monitorHeight: true })(BasicsChart);
-module.exports.inner = BasicsChart;
+export { BasicsChartNoSize };
+export default sizeMe({ monitorHeight: true })(BasicsChartNoSize);

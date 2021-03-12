@@ -6,7 +6,7 @@ import sundial from 'sundial';
 import i18next from 'i18next';
 import { Trans } from 'react-i18next';
 
-import { pluginsBlip } from 'tideline';
+import { BasicsChart } from 'tideline';
 import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
 
 import Stats from './stats';
@@ -15,7 +15,6 @@ import Header from './header';
 import Footer from './footer';
 import { BG_DATA_TYPES } from '../../core/constants';
 
-const BasicsChart = pluginsBlip.basics;
 const Loader = vizComponents.Loader;
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 

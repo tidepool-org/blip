@@ -20,10 +20,6 @@ import { expect } from 'chai';
 import * as Constants from '../../../../app/core/constants';
 
 describe('constants', function() {
-  it('should export an object', function() {
-    expect(Constants).to.be.an('object');
-  });
-
   it('should define correct labels for BG unit types', function() {
     expect(Constants.MGDL_UNITS).to.equal('mg/dL');
     expect(Constants.MMOLL_UNITS).to.equal('mmol/L');

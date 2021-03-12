@@ -26,6 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Polyfills for compatibility with older browsers:
+import "core-js/stable";
+
 import * as React from "react";
 import ReactDOM from "react-dom";
 import Yourloops from "./app";
@@ -35,6 +38,7 @@ import { init as i18nInit } from "../lib/language";
 i18nInit().then(() => {
   window.onerror = (event, source, lineno, colno, error) => {
     // FIXME: create an error modale ?
+    // FIXME: Add a simplier one before to detect a Javascript load error -> Browser too old specific message
     console.error(event, source, lineno, colno, error);
     let div = document.getElementById("app-error");
     if (div === null) {

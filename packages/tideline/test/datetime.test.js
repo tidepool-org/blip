@@ -15,15 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* global sinon */
+import _ from 'lodash';
+import sinon from 'sinon';
+import { assert, expect } from 'chai';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var _ = require('lodash');
-
-var dt = require('../js/data/util/datetime');
+import dt from '../js/data/util/datetime';
 
 describe('datetime utility', function() {
   describe('MS_IN_24', function() {

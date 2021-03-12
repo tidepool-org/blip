@@ -15,18 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import { assert, expect } from 'chai';
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+import dt from '../js/data/util/datetime';
+import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from '../js/data/util/constants';
 
-var _ = require('lodash');
-
-var dt = require('../js/data/util/datetime');
-var { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } = require('../js/data/util/constants');
-
-var nurseshark = require('../plugins/nurseshark');
+import nurseshark from '../plugins/nurseshark';
 
 describe('nurseshark', function() {
   describe('processData', function() {
@@ -155,9 +150,6 @@ describe('nurseshark', function() {
     });
 
     describe('suppressed handler', function() {
-      var dummyDT1 = '2014-01-01T12:00:00';
-      var dummyDT2 = '2014-01-01T11:30:00';
-      var dummyDT3 = '2014-01-01T11:00:00';
       var now = new Date();
       var minusTen = new Date(now.valueOf() - 600000);
       var minusHour = new Date(now.valueOf() - 3600000);
@@ -399,7 +391,6 @@ describe('nurseshark', function() {
     it('should return sorted data', function() {
       var now = new Date();
       var nextTime = new Date(now.valueOf() + 600000);
-      var APPEND = '.000Z';
       var data = [{
         type: 'smbg',
         units: MMOLL_UNITS,
@@ -412,7 +403,7 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }];
       var sorted = [data[1], data[0]];
-      _.each(sorted, function(d) { d.source = 'Unspecified Data Source'; });
+      _.forEach(sorted, function(d) { d.source = 'Unspecified Data Source'; });
       sorted[0].normalTime = now.toISOString();
       sorted[1].normalTime = nextTime.toISOString();
       expect(nurseshark.processData(data).processedData).to.eql(sorted);

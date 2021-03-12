@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-const d3 = require('d3');
-const _ = require('lodash');
-const bows = require('bows');
-const legend = require('./plot/util/legend');
+import _ from 'lodash';
+import bows from 'bows';
+import legend from './plot/util/legend';
 
-function Pool (container) {
+function Pool(container) {
+  const d3 = window.d3;
   let log = null;
 
   const mainSVG = d3.select('#' + container.id());
@@ -297,4 +297,4 @@ function Pool (container) {
   return this;
 }
 
-module.exports = Pool;
+export default Pool;

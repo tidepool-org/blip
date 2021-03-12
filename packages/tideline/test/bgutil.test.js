@@ -15,19 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import { assert, expect } from 'chai';
 
-var chai = require('chai');
-var _ = require('lodash');
-var assert = chai.assert;
-var expect = chai.expect;
 
-var BGUtil = require('../js/data/bgutil');
-
-var dt = require('../js/data/util/datetime');
-var patterns = require('../dev/testpage/patterns');
-
-var { MMOLL_UNITS } = require('../js/data/util/constants');
+import BGUtil from '../js/data/bgutil';
+import dt from '../js/data/util/datetime';
+import patterns from '../dev/testpage/patterns';
+import { MMOLL_UNITS } from '../js/data/util/constants';
 
 var MS_IN_DAY = 86400000;
 
@@ -109,7 +104,7 @@ describe('BGUtil', function() {
     });
 
     it('should return a non-empty array when passed a valid date range', function() {
-      var cbgData = patterns.cbg.constantFull();
+      var cbgData = patterns().cbg.constantFull();
       var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       expect(cbg.filtered(cbgData[0].normalTime, cbgData[1].normalTime).data.length).to.be.above(0);
     });
@@ -132,7 +127,7 @@ describe('BGUtil', function() {
       // b/c we strip off milliseconds when creating deviceTimes in testpage data
       now = new Date(now.setUTCMilliseconds(0)).toISOString();
       var nextDay = dt.addDuration(now, MS_IN_DAY);
-      var cbgData = patterns.cbg.constantFull({start: now.slice(0, -5)});
+      var cbgData = patterns().cbg.constantFull({start: now.slice(0, -5)});
       var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       var l1 = cbg.filter('', '').data.length;
       var l2 = cbg.filter(now, nextDay).data.length;
@@ -144,7 +139,7 @@ describe('BGUtil', function() {
       var now = new Date();
       now = new Date(now.setUTCMilliseconds(0)).toISOString();
       var nextDay = dt.addDuration(now, MS_IN_DAY);
-      var smbgData = patterns.smbg.constantFull({start: now.slice(0, -5)});
+      var smbgData = patterns().smbg.constantFull({start: now.slice(0, -5)});
       var smbg = new BGUtil(smbgData, {DAILY_MIN: smbgMin});
       var l1 = smbg.filter('', '').data.length;
       var l2 = smbg.filter(now, nextDay).data.length;
@@ -166,7 +161,7 @@ describe('BGUtil', function() {
       var d = new Date();
       d = new Date(d.setUTCMilliseconds(0)).toISOString();
       var nextDay = dt.addDuration(d, MS_IN_DAY);
-      var cbgData = patterns.cbg.constantInadequate({start: d.slice(0, -5)});
+      var cbgData = patterns().cbg.constantInadequate({start: d.slice(0, -5)});
       var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       expect(cbg.rangeBreakdown(cbg.filter(d, nextDay).data)).to.eql(cbgNaNObject);
     });
@@ -175,7 +170,7 @@ describe('BGUtil', function() {
       var d = new Date();
       d = new Date(d.setUTCMilliseconds(0)).toISOString();
       var nextDay = dt.addDuration(d, MS_IN_DAY);
-      var smbgData = patterns.smbg.constantInadequate({start: d.slice(0, -5)});
+      var smbgData = patterns().smbg.constantInadequate({start: d.slice(0, -5)});
       var smbg = new BGUtil(smbgData, {DAILY_MIN: smbgMin});
       expect(smbg.rangeBreakdown(smbg.filter(d, nextDay).data)).to.eql(smbgNaNObject);
     });
@@ -185,8 +180,8 @@ describe('BGUtil', function() {
       d1 = new Date(d1.setUTCMilliseconds(0)).toISOString();
       var d2 = dt.addDuration(d1, MS_IN_DAY);
       var end = dt.addDuration(d1, MS_IN_DAY*2);
-      var cbgFull = patterns.cbg.constantFull({start: d1.slice(0, -5)});
-      var cbgInadequate = patterns.cbg.constantInadequate({start: d2.slice(0, -5)});
+      var cbgFull = patterns().cbg.constantFull({start: d1.slice(0, -5)});
+      var cbgInadequate = patterns().cbg.constantInadequate({start: d2.slice(0, -5)});
       var cbgData = cbgFull.concat(cbgInadequate);
       var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       var excluding = cbg.filter(d1, d2).data;
@@ -213,7 +208,7 @@ describe('BGUtil', function() {
     });
 
     it('(on cbg data) should return a number value when passed a valid, long enough date range with enough data', function() {
-      var cbgData = patterns.cbg.constantJustEnough();
+      var cbgData = patterns().cbg.constantJustEnough();
       var expected = {
         value: 100,
         category: 'target'
@@ -230,7 +225,7 @@ describe('BGUtil', function() {
           target: { boundary: 10 },
         }
       });
-      var cbgData = patterns.cbg.constantJustEnoughMmoll();
+      var cbgData = patterns().cbg.constantJustEnoughMmoll();
       var expected = {
         value: '8.6',
         category: 'target'
@@ -239,7 +234,7 @@ describe('BGUtil', function() {
     });
 
     it('(on smbg data) should return a number value when passed a valid, long enough date range with enough data', function() {
-      var smbgData = patterns.smbg.constantJustEnough();
+      var smbgData = patterns().smbg.constantJustEnough();
       var expected = {
         value: 100,
         category: 'target'
@@ -256,7 +251,7 @@ describe('BGUtil', function() {
           target: { boundary: 10 },
         }
       });
-      var smbgData = patterns.smbg.constantJustEnoughMmoll();
+      var smbgData = patterns().smbg.constantJustEnoughMmoll();
       var expected = {
         value: '8.6',
         category: 'target'
@@ -269,8 +264,8 @@ describe('BGUtil', function() {
       d1 = new Date(d1.setUTCMilliseconds(0)).toISOString();
       var d2 = dt.addDuration(d1, MS_IN_DAY);
       var end = dt.addDuration(d1, MS_IN_DAY*2);
-      var cbgFull = patterns.cbg.constantFull({start: d1.slice(0, -5)});
-      var cbgInadequate = patterns.cbg.constantInadequate({start: d2.slice(0, -5)});
+      var cbgFull = patterns().cbg.constantFull({start: d1.slice(0, -5)});
+      var cbgInadequate = patterns().cbg.constantInadequate({start: d2.slice(0, -5)});
       var cbgData = cbgFull.concat(cbgInadequate);
       var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       var excluding = cbg.filter(d1, d2).data;

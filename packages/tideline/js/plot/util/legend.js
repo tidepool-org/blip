@@ -16,7 +16,7 @@
  */
 
 import i18next from 'i18next';
-const _ = require('lodash');
+import _ from 'lodash';
 
 const t = i18next.t.bind(i18next);
 
@@ -450,4 +450,4 @@ const legend = {
   }
 };
 
-module.exports = legend;
+export default legend;

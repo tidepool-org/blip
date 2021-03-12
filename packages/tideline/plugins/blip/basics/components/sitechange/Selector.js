@@ -15,45 +15,29 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import PropTypes from 'prop-types';
+import React from 'react';
+import cx from 'classnames';
 
-var _ = require('lodash');
-var PropTypes = require('prop-types');
-var React = require('react');
-var createReactClass = require('create-react-class');
-var cx = require('classnames');
+import * as constants from '../../logic/constants';
 
-var basicsActions = require('../../logic/actions');
-var BasicsUtils = require('../BasicsUtils');
+import basicsActions from '../../logic/actions';
 
-var constants = require('../../logic/constants');
+class Selector extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-var Selector = createReactClass({
-  displayName: 'Selector',
-  mixins: [BasicsUtils],
-
-  propTypes: {
-    data: PropTypes.object,
-    selectedSubtotal: PropTypes.string.isRequired,
-    selectorOptions: PropTypes.object.isRequired,
-    selectorMetaData: PropTypes.object.isRequired,
-    updateBasicsSettings: PropTypes.func.isRequired,
-    sectionId: PropTypes.string.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-  },
-
-  render: function() {
-    var self = this;
-
+  render() {
     return (
       <div className="SiteChangeSelector">
         {this.renderMessage()}
         {this.renderOptions()}
       </div>
     );
-  },
+  }
 
-  renderMessage: function() {
+  renderMessage() {
     if (!this.props.selectorMetaData.hasOwnProperty('latestPump')) {
       return;
     }
@@ -139,33 +123,31 @@ var Selector = createReactClass({
     return (
       <p className={messageClass}>{message}</p>
     );
-  },
+  }
 
-  renderOptions: function() {
-    var self = this;
-
+  renderOptions() {
     var {
       canUpdateSettings,
       hasSiteChangeSourceSettings,
-    } = self.props.selectorMetaData;
+    } = this.props.selectorMetaData;
 
     if (!canUpdateSettings && hasSiteChangeSourceSettings) {
       return;
     }
 
-    var optionRows = self.props.selectorOptions.rows;
+    var optionRows = this.props.selectorOptions.rows;
 
-    return optionRows.map(function(row, id) {
-      var options = row.map(self.renderOption);
+    return optionRows.map((row, id) => {
+      var options = row.map(this.renderOption);
       return (
         <div key={'row-'+id} className="SummaryGroup-row">
           {options}
         </div>
       );
     });
-  },
+  }
 
-  renderOption: function(option) {
+  renderOption = (option) => {
     var optionClass = cx({
       'SiteChangeSelector-option': true,
       'SiteChangeSelector-option--cannula': (option.key === constants.SITE_CHANGE_CANNULA),
@@ -184,9 +166,9 @@ var Selector = createReactClass({
         {this.subAction(latestPump, option.key)}
       </label>
     );
-  },
+  }
 
-  subAction: function(pump, action) {
+  subAction(pump, action) {
     var pumpVocabulary = {
       [constants.ANIMAS]: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Go Rewind',
@@ -224,11 +206,21 @@ var Selector = createReactClass({
     return (
       <strong key={action}>{pumpVocabulary.default[action]}</strong>
     );
-  },
+  }
 
-  handleSelectSubtotal: function(selectedSubtotal, optionLabel) {
+  handleSelectSubtotal = (selectedSubtotal, optionLabel) => {
     basicsActions.setSiteChangeEvent(this.props.sectionId, selectedSubtotal, optionLabel, this.props.trackMetric, this.props.updateBasicsSettings);
-  },
-});
+  }
+}
 
-module.exports = Selector;
+Selector.propTypes = {
+  data: PropTypes.object,
+  selectedSubtotal: PropTypes.string.isRequired,
+  selectorOptions: PropTypes.object.isRequired,
+  selectorMetaData: PropTypes.object.isRequired,
+  updateBasicsSettings: PropTypes.func.isRequired,
+  sectionId: PropTypes.string.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+};
+
+export default Selector;

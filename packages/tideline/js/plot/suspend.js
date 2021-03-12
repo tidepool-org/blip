@@ -15,19 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
-import i18next from 'i18next';
-var t = i18next.t.bind(i18next);
+import _ from 'lodash';
+import dt from '../data/util/datetime';
 
-var _ = require('lodash');
-
-var format = require('../data/util/format');
-var dt = require('../data/util/datetime');
-
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
-  var defaults = {
+function plotSuspend(pool, opts = {}) {
+  const defaults = {
     opacity: 0.4,
     opacityDelta: 0.2,
     pathStroke: 1.5,
@@ -60,7 +52,7 @@ module.exports = function(pool, opts) {
         .append('g')
         .attr('class', 'd3-basal-path-group');
 
-      _.each(filteredData, (data, index) => {
+      _.forEach(filteredData, (data) => {
         var id = data.id;
         var radius = 7;
         var xPosition = suspend.xPosition(data);
@@ -157,4 +149,6 @@ module.exports = function(pool, opts) {
   };
 
   return suspend;
-};
+}
+
+export default plotSuspend;

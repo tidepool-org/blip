@@ -15,20 +15,19 @@
  * == BSD2 LICENSE ==
  */
 import i18next from 'i18next';
-var t = i18next.t.bind(i18next);
 
-var React = require('react');
-var annotations = require('../../../../../js/plot/util/annotations/annotationdefinitions');
+import React from 'react';
+import annotations from '../../../../../js/plot/util/annotations/annotationdefinitions';
 
 class UnknownStatistic extends React.Component {
   render() {
     return (
       <p className="UnknownStatistic">
         <span className="UnknownStatistic-lead">{annotations.LEAD_TEXT['stats-insufficient-data']()} </span>
-        {t("At least three days do not have boluses, so this statistic might not be right")}.
+        {i18next.t("At least three days do not have boluses, so this statistic might not be right")}.
       </p>
     );
   }
 }
 
-module.exports = UnknownStatistic;
+export default UnknownStatistic;

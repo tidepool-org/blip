@@ -15,15 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
 
-var _ = require('lodash');
-
-var format = require('./util/format');
-var dt = require('./util/datetime');
-
-var MS_IN_HOUR = 3600000;
-var MS_IN_DAY = 86400000;
+import format from './util/format';
+import dt from './util/datetime';
+import { MS_IN_DAY, MS_IN_HOUR } from './util/constants';
 
 function BasalUtil(data) {
 
@@ -127,7 +123,7 @@ function BasalUtil(data) {
   this.getBasalPathGroups = function(basals) {
     var basalPathGroups = [];
     var currentPathType;
-    _.each(basals, datum => {
+    _.forEach(basals, datum => {
       var pathType = this.getBasalPathGroupType(datum);
       if (pathType !== currentPathType) {
         currentPathType = pathType;
@@ -147,4 +143,4 @@ function BasalUtil(data) {
   }
 }
 
-module.exports = BasalUtil;
+export default BasalUtil;

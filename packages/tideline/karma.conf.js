@@ -1,7 +1,6 @@
 const webpackConf = require('./webpack.config');
 
 webpackConf.externals = {
-  cheerio: 'window',
   'react/addons': true,
   'react/lib/ExecutionEnvironment': true,
   'react/lib/ReactContext': true,
@@ -47,7 +46,7 @@ const karmaConfig = {
   files: [
     'test/index.js',
   ],
-  frameworks: ['mocha', 'chai', 'sinon'],
+  frameworks: ['mocha'],
   logLevel: null,
   preprocessors: {
     'test/index.js': ['webpack', 'sourcemap'],

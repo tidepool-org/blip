@@ -15,18 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-const d3 = require('d3');
-const _ = require('lodash');
-const bows = require('bows');
-const moment = require('moment-timezone');
+import _ from 'lodash';
+import bows from 'bows';
+import moment from 'moment-timezone';
 
-const Pool = require('./pool');
-const annotation = require('./plot/util/annotations/annotation');
-const Tooltips = require('./plot/util/tooltips/tooltip');
-const dt = require('./data/util/datetime');
-const TidelineData = require('./tidelinedata');
+import Pool from './pool';
+import annotation from './plot/util/annotations/annotation';
+import Tooltips from './plot/util/tooltips/tooltip';
+import dt from './data/util/datetime';
+import TidelineData from './tidelinedata';
 
-module.exports = function(emitter /*, opts = {} */) {
+function oneDay(emitter /*, opts = {} */) {
+  const d3 = window.d3;
   const log = bows('One Day');
 
   // basic attributes
@@ -556,4 +556,6 @@ module.exports = function(emitter /*, opts = {} */) {
   };
 
   return container;
-};
+}
+
+export default oneDay;

@@ -19,10 +19,8 @@ import _ from "lodash";
 import i18next from "i18next";
 import moment from "moment-timezone";
 
-const d3 = require("d3");
-
-const constants = require("../data/util/constants");
-const timeChangeImage = require("../../img/timechange/timechange.svg");
+import * as constants from "../data/util/constants";
+import timeChangeImage from "../../img/timechange/timechange.svg";
 
 /**
  * Default configuration for this component
@@ -38,7 +36,8 @@ const defaults = {
  * @param  {typeof defaults} opts configuration options
  * @return {object}      time change object
  */
-module.exports = function timeChange(pool, opts) {
+function plotTimeChange(pool, opts = {}) {
+  const d3 = window.d3;
   _.defaults(opts, defaults);
 
   function timechange(selection) {
@@ -92,13 +91,13 @@ module.exports = function timeChange(pool, opts) {
 
     let format = "h:mm a";
     if (mFrom.year() !== mTo.year()) {
-      format = constants.MMM_D_YYYY_H_MM_A_FORMAT;
+      format = constants.dateTimeFormats.MMM_D_YYYY_H_MM_A_FORMAT;
     } else if (mFrom.month() !== mTo.month()) {
-      format = constants.MMM_D_H_MM_A_FORMAT;
+      format = constants.dateTimeFormats.MMM_D_H_MM_A_FORMAT;
     } else if (mFrom.date() !== mTo.date()) {
-      format = constants.DDDD_H_MM_A;
+      format = constants.dateTimeFormats.DDDD_H_MM_A;
     } else {
-      format = constants.H_MM_A_FORMAT;
+      format = constants.dateTimeFormats.H_MM_A_FORMAT;
     }
 
     const fromDate = mFrom.format(format);
@@ -169,4 +168,6 @@ module.exports = function timeChange(pool, opts) {
   };
 
   return timechange;
-};
+}
+
+export default plotTimeChange;

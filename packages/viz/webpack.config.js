@@ -50,6 +50,8 @@ const babelLoaderConfiguration = {
   use: {
     loader: 'babel-loader',
     options: {
+      rootMode: "upward",
+      configFile: path.resolve(__dirname, "../../babel.config.json"),
       cacheDirectory: true,
     },
   },
@@ -133,6 +135,7 @@ const resolve = {
 module.exports = {
   devtool: 'sourcemap',
   entry,
+  stats: "minimal", // See https://webpack.js.org/configuration/stats/
   mode: isDev || isTest ? 'development' : 'production',
   module: {
     rules: [

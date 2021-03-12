@@ -38,11 +38,14 @@ const webpackConfig = {
     main: "./app/index.tsx",
   },
   output: {
-    filename: "yourloops.[hash].js",
+    filename: isProduction ? "yourloops.[contenthash].js" : "yourloops.js",
     path: path.resolve(__dirname, "dist"),
+    chunkFilename: '[id].[chunkhash].js',
+    crossOriginLoading: 'anonymous',
   },
   target: "web",
   mode,
+  stats: "minimal", // See https://webpack.js.org/configuration/stats/
 
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",

@@ -15,15 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
+import schema from './validator/schematron.js';
 
-module.exports = schema(
-  common,
-  {
-    parentMessage: schema().oneOf(
-        schema(schema().isNull()),
-        schema(schema().isId())
-    ),
-  }
-);
+const message = (common) => {
+  return schema(
+    common,
+    {
+      parentMessage: schema().oneOf(
+          schema(schema().isNull()),
+          schema(schema().isId())
+      ),
+    }
+  );
+};
+
+export default message;

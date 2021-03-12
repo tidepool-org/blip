@@ -214,4 +214,4 @@ personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, curren
   return validationErrors;
 };
 
-module.exports = personUtils;
+export default personUtils;

@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
+import _ from 'lodash';
 
-var types = require('./types');
-var utils = require('./utils');
+import * as types from'./types';
+import { Intervaler } from'./utils';
 
-var dt = require('../../js/data/util/datetime');
+import dt from '../../js/data/util/datetime';
 
 // constants
 var MS_IN_24HRS = 86400000;
@@ -32,7 +32,7 @@ var naiveTimestamp = function() {
   return new Date().toISOString().slice(0, -5);
 };
 
-module.exports = (function() {
+function patterns() {
   return {
     basal: {
       constant: function(opts) {
@@ -46,7 +46,7 @@ module.exports = (function() {
 
         var dur = MS_IN_24HRS/4;
         var basals = [];
-        var next = new utils.Intervaler(opts.start, dur);
+        var next = new Intervaler(opts.start, dur);
         for (var i = 0; i < opts.days * 4; ++i) {
           basals.push(new types.Basal({
             rate: opts.rate,
@@ -69,7 +69,7 @@ module.exports = (function() {
 
         var dur = MS_IN_24HRS/4;
         var boluses = [];
-        var next = new utils.Intervaler(opts.start, dur);
+        var next = new Intervaler(opts.start, dur);
         for (var i = 0; i < opts.days * 4; ++i) {
           boluses.push(new types.Bolus({
             value: opts.value,
@@ -91,7 +91,7 @@ module.exports = (function() {
         _.defaults(opts, defaults);
 
         var cbgs = [];
-        var next = new utils.Intervaler(opts.start, 1000*60*5);
+        var next = new Intervaler(opts.start, 1000*60*5);
         var end = dt.addDuration(dt.addDuration(opts.start + APPEND, MS_IN_24HRS*opts.days), -1000*60*5);
         var current = opts.start;
         while (current !== end.slice(0, -5)) {
@@ -119,7 +119,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, 1000*60*5);
+          var next = new Intervaler(start, 1000*60*5);
           while (j < opts.cbgMin) {
             cbgs.push(new types.CBG({
               value: opts.value,
@@ -147,7 +147,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, 1000*60*5);
+          var next = new Intervaler(start, 1000*60*5);
           while (j < opts.cbgMin) {
             cbgs.push(new types.CBG({
               value: opts.value,
@@ -175,7 +175,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, 1000*60*5);
+          var next = new Intervaler(start, 1000*60*5);
           while (j < (opts.cbgMin - 1)) {
             cbgs.push(new types.CBG({
               value: opts.value,
@@ -200,7 +200,7 @@ module.exports = (function() {
         _.defaults(opts, defaults);
 
         var smbgs = [];
-        var next = new utils.Intervaler(opts.start, MS_IN_24HRS/4);
+        var next = new Intervaler(opts.start, MS_IN_24HRS/4);
         var end = dt.addDuration(opts.start + '.000Z', MS_IN_24HRS*opts.days);
         var current = opts.start;
         while (current !== end.slice(0, -5)) {
@@ -225,7 +225,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          var next = new Intervaler(start, MS_IN_24HRS/24);
           while (j < SMBGMIN) {
             smbgs.push(new types.SMBG({
               value: opts.value,
@@ -250,7 +250,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          var next = new Intervaler(start, MS_IN_24HRS/24);
           while (j < SMBGMIN) {
             smbgs.push(new types.SMBG({
               value: opts.value,
@@ -275,7 +275,7 @@ module.exports = (function() {
         var start = opts.start;
         for (var i = 0; i < opts.days; ++i) {
           var j = 0;
-          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          var next = new Intervaler(start, MS_IN_24HRS/24);
           while (j < SMBGMIN - 1) {
             smbgs.push(new types.SMBG({
               value: opts.value,
@@ -289,4 +289,6 @@ module.exports = (function() {
       }
     }
   };
-}());
+}
+
+export default patterns;

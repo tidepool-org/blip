@@ -8,18 +8,6 @@ import { BG_DATA_TYPES } from '../../core/constants';
 
 const { Stat } = vizComponents;
 
-const {
-  commonStats,
-  getStatAnnotations,
-  getStatData,
-  getStatDefinition,
-  getStatTitle,
-  statFetchMethods,
-} = vizUtils.stat;
-
-const { reshapeBgClassesToBgBounds } = vizUtils.bg;
-const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
-
 class Stats extends React.Component {
   static propTypes = {
     bgPrefs: PropTypes.object.isRequired,
@@ -36,7 +24,7 @@ class Stats extends React.Component {
 
     this.bgPrefs = {
       bgUnits: this.props.bgPrefs.bgUnits,
-      bgBounds: reshapeBgClassesToBgBounds(this.props.bgPrefs),
+      bgBounds: vizUtils.bg.reshapeBgClassesToBgBounds(this.props.bgPrefs),
     };
 
     this.updateDataUtilEndpoints(this.props);
@@ -113,16 +101,17 @@ class Stats extends React.Component {
       bgSource,
     } = props;
 
+    const { commonStats } = vizUtils.stat;
     const { bgBounds, bgUnits, days, latestPump } = dataUtil;
     const { manufacturer, deviceModel } = latestPump;
-    const isAutomatedBasalDevice = isAutomatedBasalDeviceCheck(manufacturer, deviceModel);
+    const isAutomatedBasalDevice = vizUtils.device.isAutomatedBasalDevice(manufacturer, deviceModel);
 
     const stats = [];
 
     const addStat = statType => {
       const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
 
-      const stat = getStatDefinition(dataUtil[statFetchMethods[statType]](), statType, {
+      const stat = vizUtils.stat.getStatDefinition(dataUtil[vizUtils.stat.statFetchMethods[statType]](), statType, {
         bgSource,
         days,
         bgPrefs: {
@@ -199,11 +188,12 @@ class Stats extends React.Component {
     const { bgSource, dataUtil } = props;
     const stats = this.state.stats;
 
+
     const { bgBounds, bgUnits, days, latestPump } = dataUtil;
     const { manufacturer } = latestPump;
 
     _.forEach(stats, (stat, i) => {
-      const data = dataUtil[statFetchMethods[stat.id]]();
+      const data = dataUtil[vizUtils.stat.statFetchMethods[stat.id]]();
       const opts = {
         bgSource: bgSource,
         bgPrefs: {
@@ -214,9 +204,9 @@ class Stats extends React.Component {
         manufacturer,
       };
 
-      stats[i].data = getStatData(data, stat.id, opts);
-      stats[i].annotations = getStatAnnotations(data, stat.id, opts);
-      stats[i].title = getStatTitle(stat.id, opts);
+      stats[i].data = vizUtils.stat.getStatData(data, stat.id, opts);
+      stats[i].annotations = vizUtils.stat.getStatAnnotations(data, stat.id, opts);
+      stats[i].title = vizUtils.stat.getStatTitle(stat.id, opts);
     });
 
     this.setState({ stats });

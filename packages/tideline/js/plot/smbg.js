@@ -15,18 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('d3');
-var _ = require('lodash');
+import _ from 'lodash';
 
-const utils = require('./util/utils');
-var bgBoundaryClass = require('./util/bgboundary');
-var categorizer = require('../data/util/categorize');
-var { MGDL_UNITS, DEFAULT_BG_BOUNDS } = require('../data/util/constants');
+import utils from './util/utils';
+import bgBoundaryClass from './util/bgboundary';
+import categorizer from '../data/util/categorize';
+import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../data/util/constants';
 
-module.exports = function(pool, opts) {
-  opts = opts || {};
-
-  var defaults = {
+function plotSmbg(pool, opts = {}) {
+  const d3 = window.d3;
+  const defaults = {
     bgUnits: MGDL_UNITS,
     classes: {
       'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
@@ -48,7 +46,7 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
 
-      smbg.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      smbg.addAnnotations(_.filter(currentData, 'annotations'));
 
       var circles = d3.select(this)
         .selectAll('circle.d3-smbg')
@@ -133,4 +131,6 @@ module.exports = function(pool, opts) {
   };
 
   return smbg;
-};
+}
+
+export default plotSmbg;

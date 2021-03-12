@@ -15,15 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/* jshint esversion:6 */
+import _ from 'lodash';
+import commonbolus from '../../../../js/plot/util/commonbolus';
+import categorizer from '../../../../js/data/util/categorize';
+import { MGDL_UNITS } from '../../../../js/data/util/constants';
 
-var _ = require('lodash');
-var commonbolus = require('../../../../js/plot/util/commonbolus');
-var categorizer = require('../../../../js/data/util/categorize');
-var { MGDL_UNITS } = require('../../../../js/data/util/constants');
-
-module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
-  var classifiers = {
+function mkClassifiers(bgClasses, bgUnits = MGDL_UNITS) {
+  const classifiers = {
     basal: function(d) {
       if (_.includes(['scheduled', 'automated'], d.deliveryType)) {
         return [];
@@ -89,4 +87,6 @@ module.exports = function(bgClasses, bgUnits = MGDL_UNITS) {
   };
 
   return classifiers;
-};
+}
+
+export default mkClassifiers;
