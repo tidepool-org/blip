@@ -52,7 +52,7 @@ export const DonateBanner = translate()((props) => {
 
     return (
       <a
-        className="message-link" href={link.href} target={link.target}>
+        className="message-link" href={link.href} target={link.target} rel="noreferrer noopener">
         {link.text}
       </a>
     );

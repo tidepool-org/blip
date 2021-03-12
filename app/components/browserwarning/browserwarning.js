@@ -71,7 +71,7 @@ export default translate()(class BrowserWarning extends Component {
 
     if (!utils.isMobile()) {
       downloadCopy = (<div>
-        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank">
+        <a href="https://www.google.com/intl/en/chrome/browser/desktop/index.html" onClick={handleClickDownload} target="_blank" rel="noreferrer noopener">
           <div className="browser-warning-chrome-image"></div>
         </a>
         {copyButton}
@@ -91,7 +91,7 @@ export default translate()(class BrowserWarning extends Component {
             {t('Tidepool Web works with Chrome on ')}
             <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
-          {downloadCopy} 
+          {downloadCopy}
           <div className="browser-warning-mobile">
             <div className="browser-warning-mobile-message">
               {t('Download Tidepool Mobile for iOS or Android to add notes and see your data on the go:')}

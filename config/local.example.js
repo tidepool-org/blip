@@ -1,6 +1,9 @@
 /**
- * Copy this file to `config/linked-packages.js` and uncomment any modules as desired to link them
- * for local development.
+ * Copy this file to `config/local.js` and update as needed
+ */
+
+/**
+ * Uncomment any linkedPackages as desired to link them for local development.
  *
  * These will be resolved as aliases in the webpack config. Note that you will need to ensure that
  * the packages are installed (via `yarn install`) in each respective folder
@@ -10,13 +13,31 @@
  *
  * You may add as other modules to this list as well.
  */
-var packages = {
+const linkedPackages = {
   // '@tidepool/viz': process.env.TIDEPOOL_DOCKER_VIZ_DIR || '../viz',
   // 'tideline': process.env.TIDEPOOL_DOCKER_TIDELINE_DIR || '../tideline',
   // 'tidepool-platform-client': process.env.TIDEPOOL_DOCKER_PLATFORM_CLIENT_DIR || '../platform-client',
 };
 
+const featureFlags = {
+  i18nEnabled: false,
+  rxEnabled: false,
+  clinicsEnabled: false,
+};
+
+const environments = {
+  dev: 'https://dev1.dev.tidepool.org',
+  qa1: 'https://qa1.development.tidepool.org',
+  qa2: 'https://qa2.development.tidepool.org',
+  int: 'https://int-app.tidepool.org',
+  prd: 'https://app.tidepool.org',
+};
+
+const apiHost = environments.dev;
+
 module.exports = {
-  list: () => console.log(Object.keys(packages).join(',')),
-  packages: packages,
+  listLinkedPackages: () => console.log(Object.keys(linkedPackages).join(',')),
+  linkedPackages,
+  featureFlags,
+  apiHost,
 }
