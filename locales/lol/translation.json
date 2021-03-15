@@ -1,6 +1,5 @@
 {
   " reports the data.": "crwdns45398:0crwdne45398:0",
-  "%-I %p": "crwdns45400:0%-Icrwdnd45400:0%pcrwdne45400:0",
   "%-I:%M %p": "crwdns45402:0%-Icrwdnd45402:0%Mcrwdnd45402:0%pcrwdne45402:0",
   "%a": "crwdns45404:0%acrwdne45404:0",
   "%b %-d": "crwdns45406:0%bcrwdnd45406:0%-dcrwdne45406:0",
@@ -210,6 +209,7 @@
   "ddd, MMM D, Y": "crwdns45814:0crwdne45814:0",
   "ddd, MMM D, YYYY": "crwdns45816:0crwdne45816:0",
   "dddd, MMMM D": "crwdns45818:0crwdne45818:0",
+  "dddd, h:mm a": "crwdns53406:0crwdne53406:0",
   "December": "crwdns45820:0crwdne45820:0",
   "Delete my account": "crwdns45822:0crwdne45822:0",
   "Delivered": "crwdns45824:0crwdne45824:0",
@@ -588,7 +588,7 @@
   "Spain": "crwdns46570:0crwdne46570:0",
   "Spring forward! You may see your data overlap. Make sure you update the time on all your devices.": "crwdns46572:0crwdne46572:0",
   "Start time": "crwdns46574:0crwdne46574:0",
-  "Std. Deviation ({{bgSourceLabel}})": "crwdns46576:0{{bgSourceLabel}}crwdne46576:0",
+  "Std. Deviation ({{bgSourceLabel}})": "crwdns46576:0crwdne46576:0",
   "Success!": "crwdns46578:0crwdne46578:0",
   "Suggested": "crwdns46580:0crwdne46580:0",
   "Suspends": "crwdns46582:0crwdne46582:0",
