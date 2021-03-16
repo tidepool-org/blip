@@ -38,6 +38,7 @@ const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;
 const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
+const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -67,6 +68,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     onCBGOut: PropTypes.func.isRequired,
     onCarbHover: PropTypes.func.isRequired,
     onCarbOut: PropTypes.func.isRequired,
+    onPumpSettingsOverrideHover: PropTypes.func.isRequired,
+    onPumpSettingsOverrideOut: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -87,6 +90,8 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onCBGOut',
       'onCarbHover',
       'onCarbOut',
+      'onPumpSettingsOverrideHover',
+      'onPumpSettingsOverrideOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -370,6 +375,15 @@ class Daily extends Component {
           bgPrefs={bgPrefs}
           timePrefs={timePrefs}
         />}
+        {this.state.hoveredPumpSettingsOverride && <PumpSettingsOverrideTooltip
+          position={{
+            top: this.state.hoveredPumpSettingsOverride.top,
+            left: this.state.hoveredPumpSettingsOverride.left
+          }}
+          side={this.state.hoveredPumpSettingsOverride.side}
+          override={this.state.hoveredPumpSettingsOverride.data}
+          timePrefs={timePrefs}
+        />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
@@ -414,6 +428,8 @@ class Daily extends Component {
         onCBGOut={this.handleCBGOut}
         onCarbHover={this.handleCarbHover}
         onCarbOut={this.handleCarbOut}
+        onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
+        onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
         ref="chart" />
     );
   }
@@ -585,6 +601,22 @@ class Daily extends Component {
   handleCBGOut = () => {
     this.setState({
       hoveredCBG: false
+    });
+  };
+
+  handlePumpSettingsOverrideHover = override => {
+    this.throttledMetric('hovered over daily settings override tooltip');
+    var rect = override.rect;
+    override.top = rect.top;
+    override.left = rect.left + (rect.width / 2);
+    this.setState({
+      hoveredPumpSettingsOverride: override
+    });
+  };
+
+  handlePumpSettingsOverrideOut = () => {
+    this.setState({
+      hoveredPumpSettingsOverride: false
     });
   };
 
