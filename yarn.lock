@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.19.0-microtech-equil.1":
-  version "1.19.0-microtech-equil.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-microtech-equil.1.tgz#8a457b5832cdf6efbe136c3a435db083a15aa491"
-  integrity sha512-3jBckbT9QFfzhdKYR9gJnR47BuXcV/KP3pIYMDbvx+/VVs5vW6MGTOxK+WrPi7b3nGtDaJO2HKtvZC6zIsKpKg==
+"@tidepool/viz@1.19.0-microtech-equil.2":
+  version "1.19.0-microtech-equil.2"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.19.0-microtech-equil.2.tgz#61483a2795a36e09a8ac032cb84f07b8c1c69bf0"
+  integrity sha512-+hI2vASd01oDUsaDNtmH6CvzY0iDkkqqVoVrjXB7dAt5q9c0zbEfNs5Otry3LgeMjr5vh8PvjmpdUWnAaHTBdg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
