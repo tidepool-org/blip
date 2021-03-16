@@ -44,9 +44,10 @@
   --input--border: #75849f;
   --input--disabled: #75849f;
   --stat--border: #75849f;
-  --stat--default: #444549;
+  --stat--default: rgba(0,0,0,0.8);
   --stat-disabled: #e7e9ee;
   --stat--dark: #27385b;
+  --stat-legend: rgba(0,0,0,0.6);
   --axis-tick: #E7E7E7;
   --bkgrnd: #F8F8F8;
   --bkgrnd-lines: #E7E7E7;

@@ -12,7 +12,16 @@ const FORM_DATE_FORMAT = 'MM/DD/YYYY';
 describe('personutils', () => {
 
   describe('fullName', () => {
-    it('should return full name if exists', () => {
+    it('should return full name if firstName/lastName exists', () => {
+      var person = {
+        profile: { firstName: 'Mary', lastName: 'Smith' },
+      };
+
+      var result = personUtils.fullName(person);
+
+      expect(result).to.equal('Mary Smith');
+    });
+    it('should return full name if firstName/lastName is missing', () => {
       var person = {
         profile: {fullName: 'Mary Smith'}
       };
@@ -33,14 +42,14 @@ describe('personutils', () => {
 
       expect(result).to.equal(person.profile.firstName);
     });
-    it('should return fullName if it doesn\'t exist', () => {
+    it('should return an empty string if it doesn\'t exist', () => {
       var person = {
         profile: {fullName: 'Mary Smith'}
       };
 
       var result = personUtils.firstName(person);
 
-      expect(result).to.equal(person.profile.fullName);
+      expect(result).to.equal('');
     });
   });
 
@@ -54,14 +63,14 @@ describe('personutils', () => {
 
       expect(result).to.equal(person.profile.lastName);
     });
-    it('should return an empty string if it doesn\'t exist', () => {
+    it('should return fullName if it doesn\'t exist', () => {
       var person = {
         profile: {fullName: 'Mary Smith'}
       };
 
       var result = personUtils.lastName(person);
 
-      expect(result).to.equal("");
+      expect(result).to.equal(person.profile.fullName);
     });
   });
 
@@ -213,7 +222,8 @@ describe('personutils', () => {
     it('should return profile name if same person', () => {
       var person = {
         profile: {
-          fullName: 'Mary Smith',
+          firstName: 'Mary',
+          lastName: 'Smith',
           patient: {diagnosisDate: '1990-01-31'}
         }
       };
@@ -221,19 +231,6 @@ describe('personutils', () => {
       var result = personUtils.patientFullName(person);
 
       expect(result).to.equal('Mary Smith');
-    });
-
-    it('should return patient info name if different person', () => {
-      var person = {
-        profile: {
-          fullName: 'Mary Smith',
-          patient: {isOtherPerson: true, fullName: 'Jessica Carter'}
-        }
-      };
-
-      var result = personUtils.patientFullName(person);
-
-      expect(result).to.equal('Jessica Carter');
     });
   });
 
@@ -364,7 +361,7 @@ describe('personutils', () => {
 
       const withoutHighTarget = _.assign({ bgTarget: { low: 3.9 } }, _.omit(settings, 'bgTarget'));
       const withoutLowTarget = _.assign({ bgTarget: { high: 10 } }, _.omit(settings, 'bgTarget'));
-      const withoutUnits =  _.assign({ units: {} }, _.omit(settings, 'units'));
+      const withoutUnits = _.assign({ units: {} }, _.omit(settings, 'units'));
 
       expect(personUtils.togglePatientBgUnits(withoutHighTarget)).to.be.false;
       expect(personUtils.togglePatientBgUnits(withoutLowTarget)).to.be.false;

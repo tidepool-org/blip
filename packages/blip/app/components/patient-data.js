@@ -263,7 +263,7 @@ class PatientDataPage extends React.Component {
   renderNoData() {
     const header = this.renderEmptyHeader();
     const noDataText = t('{{patientName}} does not have any data yet.', {
-      patientName: personUtils.patientFullName(this.props.patient)
+      patientName: personUtils.fullName(this.props.patient),
     });
     const reloadBtnText = t('Click to reload.');
 

@@ -23,6 +23,9 @@ import i18next from 'i18next';
 import Link from '@material-ui/core/Link';
 import Timeline from '@material-ui/icons/Timeline';
 import StayCurrentPortrait from '@material-ui/icons/StayCurrentPortrait';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
+import personUtils from '../../core/personutils';
 
 const t = i18next.t.bind(i18next);
 
@@ -79,7 +82,7 @@ class TidelineHeader extends React.Component {
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, chartType);
     const showHome = _.has(this.props.permsOfLoggedInUser, 'view');
-    const homeValue = _.get(this.props.patient, 'profile.fullName', t('Home'));
+    const homeValue = personUtils.fullName(this.props.patient);
     const patientLink = this.getPatientLink();
 
     const home = cx({
@@ -117,6 +120,7 @@ class TidelineHeader extends React.Component {
       'patient-data-subnav-dates-daily': chartType === 'daily',
       'patient-data-subnav-dates-bgLog': chartType === 'bgLog',
       'patient-data-subnav-dates-trends': chartType === 'trends',
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     const mostRecentClass = cx({
@@ -188,9 +192,9 @@ class TidelineHeader extends React.Component {
     return (
       <div className='grid patient-data-subnav'>
         <div className='app-no-print patient-data-subnav-left'>
-          {/* Here we can add the home icon */}
+          <AccountCircleIcon className={home} />
           <Link className={home} to={patientLink} onClick={handleClick} title={t('Profile')}>
-            <div>{homeValue}</div>
+            {homeValue}
           </Link>
           {profileDialog}
         </div>

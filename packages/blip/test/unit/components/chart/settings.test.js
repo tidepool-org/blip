@@ -62,6 +62,10 @@ describe('Settings', function () {
           timezoneName: 'UTC',
         },
         patientData: {
+          opts: {
+            defaultSource: 'Diabeloop',
+            defaultPumpManufacturer: 'default',
+          },
           grouped: { pumpSettings: [{
             source: 'diabeloop',
             activeSchedule: ''

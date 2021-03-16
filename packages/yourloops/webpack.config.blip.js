@@ -105,6 +105,19 @@ const imageLoaderConfiguration = {
   },
 };
 
+const fontLoaderConfiguration = {
+  test: /\.(eot|woff2?|ttf)$/,
+  use: {
+    loader: 'url-loader',
+    options: {
+      // Max limit to be included in the bundle js file:
+      limit: 1024,
+      name: '[contenthash].[ext]',
+      mimetype: 'application/vnd.ms-fontobject',
+    },
+  },
+};
+
 const minimizer = [
   new TerserPlugin({
     test: /\.js(\?.*)?$/i,
@@ -154,6 +167,7 @@ module.exports = {
   lessLoaderConfiguration,
   cssLoaderConfiguration,
   imageLoaderConfiguration,
+  fontLoaderConfiguration,
   resolve,
   minimizer,
 };

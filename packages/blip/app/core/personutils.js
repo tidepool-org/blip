@@ -20,21 +20,26 @@ import sundial from 'sundial';
 import config from '../config';
 import utils from './utils';
 
-const t = i18next.t.bind(i18next);
-
 import { MGDL_UNITS, MMOLL_UNITS } from './constants';
 
 const personUtils = {
-};
-
-personUtils.fullName = (person) => {
-  return _.get(person, 'profile.fullName','');
-};
-personUtils.firstName = (person) => {
-  return _.get(person, 'profile.firstName', personUtils.fullName(person));
-};
-personUtils.lastName = (person) => {
-  return _.get(person, 'profile.lastName', '');
+  /** @returns {string} */
+  fullName: (person) => {
+    const firstName = personUtils.firstName(person);
+    const lastName = personUtils.lastName(person);
+    if (firstName.length > 0) {
+      return `${firstName} ${lastName}`;
+    }
+    return lastName;
+  },
+  /** @returns {string} */
+  firstName: (person) => {
+    return person?.profile?.firstName ?? "";
+  },
+  /** @returns {string} */
+  lastName: (person) => {
+    return person?.profile?.lastName ?? person?.profile?.fullName ?? person?.username ?? "";
+  },
 };
 
 personUtils.patientInfo = (person) => {
@@ -72,9 +77,6 @@ personUtils.isDataDonationAccount = (account) => {
 };
 
 personUtils.patientFullName = (person) => {
-  if (personUtils.patientIsOtherPerson(person)) {
-    return _.get(person, 'profile.patient.fullName', personUtils.fullName(person));
-  }
   return personUtils.fullName(person);
 };
 
@@ -163,6 +165,7 @@ personUtils.togglePatientBgUnits = (settings) => {
    * @return {String|undefined} returns a string if there is an error
    */
 personUtils.validateFormValues = (formValues, isNameRequired, dateFormat, currentDateObj) => {
+  const t = i18next.t.bind(i18next);
   let validationErrors = {};
 
   const INVALID_DATE_TEXT = t('Hmm, this date doesn’t look right');

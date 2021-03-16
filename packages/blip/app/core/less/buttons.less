@@ -24,16 +24,15 @@ a.btn {
   margin: 0;
   text-align: center;
   vertical-align: middle;
-  cursor: pointer;
-  white-space: nowrap;
   background-image: none;
 
   border: 0px solid @gray-dark;
   border-radius: 4px;
 
   font-size: @font-size-small;
-  line-height: (1.5*@spacing-base) - 2*@btn-border-size;
-  padding: 7px (1.5*@spacing-base - 2*@btn-border-size);
+
+  line-height: calc(1.5*@spacing-base - 2*@btn-border-size);
+  padding: 7px calc(1.5*@spacing-base - 2*@btn-border-size);
 
   &:hover,
   &:focus {

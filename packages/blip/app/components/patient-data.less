@@ -18,6 +18,19 @@
   position: relative;
 }
 
+.patient-data-yourloops {
+  font-family: @font-family-base;
+  font-size: @font-size-base;
+  line-height: @line-height-base;
+
+  button {
+    cursor: pointer;
+    font-size: 16px;
+    font-family: @font-family-base;
+    white-space: nowrap;
+  }
+}
+
 // Subnav
 // ====================================
 
@@ -27,8 +40,6 @@
 .patient-data-subnav-inner {
   color: @black-80;
   background-color: @green-header;
-
-  font-family: Roboto;
   font-size: 16px;
   padding: 0;
 }
@@ -42,6 +53,10 @@
 
   @media (min-width: @screen-md-lg-min) {
     justify-content: space-between;
+  }
+
+  .patient-data-subnav-hidden {
+    display: none !important;
   }
 }
 
@@ -86,11 +101,6 @@
     color: @gray;
     cursor: default;
   }
-
-  // TODO: this should be removed when we support navigation across the settings history
-  &.patient-data-subnav-hidden {
-    display: none;
-  }
 }
 
 .patient-data-footer-left,
@@ -107,12 +117,13 @@ a.patient-name {
   width: 120px;
 }
 
-.js-home {
-  width: 120px;
-}
-
 a.js-home {
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 15rem;
+  align-self: center;
 }
 
 .patient-data-subnav button.patient-data-subnav-button {
@@ -134,9 +145,6 @@ a.js-home {
   &:active, &:disabled {
     color: @gray;
   }
-  &.patient-data-subnav-hidden {
-    display: none;
-  }
   svg {
     margin-right: 5px;
   }
@@ -149,6 +157,8 @@ a.js-home {
 }
 
 .patient-data-subnav-left {
+  display: flex;
+  flex-direction: row;
   padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
