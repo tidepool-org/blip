@@ -35,6 +35,7 @@ import Blip from "blip";
 
 import { UserRoles } from "../models/shoreline";
 import appConfig from "../lib/config";
+import { useAuth } from "../lib/auth";
 import { useTeam, TeamUser } from "../lib/team";
 import { useData } from "../lib/data";
 
@@ -60,6 +61,7 @@ function PatientDataPageError({ msg }: PatientDataPageErrorProps): JSX.Element {
 
 function PatientDataPage(): JSX.Element | null {
   const paramHook = useParams();
+  const authHook = useAuth();
   const teamHook = useTeam();
   const dataHook = useData();
 
@@ -67,18 +69,24 @@ function PatientDataPage(): JSX.Element | null {
   const [error, setError] = React.useState<string | null>(null);
 
   const { blipApi } = dataHook;
-  const { patientId } = paramHook as PatientDataParam;
+  const { patientId: paramPatientId = null } = paramHook as PatientDataParam;
+  const userId = authHook.user?.userid ?? null;
+
+  const initialized = authHook.initialized() && teamHook.initialized && blipApi !== null;
 
   React.useEffect(() => {
-    if (blipApi === null) {
+    log.debug("useEffect", { initialized, patient, userId, paramPatientId });
+    if (!initialized) {
       return;
     }
 
-    if (typeof patientId === "undefined") {
+    const patientId = paramPatientId ?? userId;
+    if (patientId === null) {
       log.error("Invalid patient Id", patientId);
       setError("Invalid patient Id");
       return;
     }
+
     const user = teamHook.getUser(patientId);
     if (user === null || !user.roles?.includes(UserRoles.patient)) {
       log.error("Patient not found");
@@ -86,9 +94,9 @@ function PatientDataPage(): JSX.Element | null {
     } else {
       setPatient(user);
     }
-  }, [blipApi, patientId, teamHook]);
+  }, [initialized, paramPatientId, patient, userId, teamHook]);
 
-  log.debug("render", { patientId, error });
+  log.debug("render", { userId, paramPatientId, error });
 
   if (error !== null) {
     return <PatientDataPageError msg={error} />;

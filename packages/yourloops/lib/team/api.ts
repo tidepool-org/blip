@@ -133,14 +133,14 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
   returnedTeam[0].members.push({
     teamId: "team-0",
     userId: user.userid,
-    role: TeamMemberRole.admin,
+    role: user.roles?.includes(UserRoles.patient) ? TeamMemberRole.patient : TeamMemberRole.admin,
     invitationStatus: TeamMemberStatus.accepted,
     user,
   });
   returnedTeam[1].members.push({
     teamId: "team-1",
     userId: user.userid,
-    role: TeamMemberRole.admin,
+    role: user.roles?.includes(UserRoles.patient) ? TeamMemberRole.patient : TeamMemberRole.admin,
     invitationStatus: TeamMemberStatus.accepted,
     user,
   });
@@ -207,23 +207,26 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
         patients.push(member);
       }
     }
-    // Pending invite patient
-    patients.push({
-      invitationStatus: TeamMemberStatus.pending,
-      role: TeamMemberRole.patient,
-      teamId: "team-0",
-      userId: "a0a0a0b0",
-      user: {
-        userid: "a0a0a0b0",
-        username: "gerard.dumoulin@example.com",
-        termsAccepted: "2021-01-05T15:00:00.000Z",
-        profile: {
-          firstName: "Gerard",
-          lastName: "Dumoulin",
-          fullName: "Gerard D.",
+
+    if (!user.roles?.includes(UserRoles.patient)) {
+      // Pending invite patient
+      patients.push({
+        invitationStatus: TeamMemberStatus.pending,
+        role: TeamMemberRole.patient,
+        teamId: "team-0",
+        userId: "a0a0a0b0",
+        user: {
+          userid: "a0a0a0b0",
+          username: "gerard.dumoulin@example.com",
+          termsAccepted: "2021-01-05T15:00:00.000Z",
+          profile: {
+            firstName: "Gerard",
+            lastName: "Dumoulin",
+            fullName: "Gerard D.",
+          },
         },
-      },
-    });
+      });
+    }
     // FIXME end
     return patients;
   }

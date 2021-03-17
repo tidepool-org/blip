@@ -17,7 +17,7 @@
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import moment from "moment-timezone";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
@@ -28,7 +28,6 @@ import {
   Container,
   FormControl,
   InputLabel,
-  Link,
   MenuItem,
   Select,
   TextField,
@@ -65,6 +64,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     breadcrumbLink: {
       display: "flex",
+      color: theme.palette.text.primary,
     },
     toolBar: {
       display: "grid",
@@ -107,7 +107,7 @@ const ProfileHeader = () => {
       <AppBar position="static" color="secondary">
         <Toolbar className={classes.toolBar}>
           <Breadcrumbs aria-label={t("breadcrumb")}>
-            <Link className={classes.breadcrumbLink} color="textPrimary" href="/hcp">
+            <Link className={classes.breadcrumbLink} to="/">
               <HomeIcon className={classes.homeIcon} />
               {t("menu-account-preferences")}
             </Link>

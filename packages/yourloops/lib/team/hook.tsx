@@ -360,6 +360,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
 
         loadTeams(session, api.fetchTeams, api.fetchPatients)
           .then(({ teams, flaggedNotInResult }: LoadTeams) => {
+            log.debug("Loaded teams: ", teams);
             setTeams(teams);
             if (errorMessage !== null) {
               setErrorMessage(null);
@@ -373,12 +374,14 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
             }
           })
           .catch((reason: unknown) => {
+            log.error(reason);
             const message = errorTextFromException(reason);
             if (message !== errorMessage) {
               setErrorMessage(message);
             }
           })
           .finally(() => {
+            log.debug("Initialized !");
             setInitialized(true);
             // Clear the lock
             lock = false;

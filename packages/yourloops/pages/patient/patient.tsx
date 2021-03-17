@@ -27,30 +27,41 @@
  */
 
 import * as React from "react";
-import { Route, RouteComponentProps } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import bows from "bows";
+
+import { TeamContextProvider } from "../../lib/team";
+import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 
 import PatientNavBar from "../../components/patient-nav-bar";
 import PatientDataPage from "../../components/patient-data";
-// import PatientListPage from './patients-list';
+
+const log = bows("PatientPage");
 
 /**
  * Patient page
  */
-function PatientPage(props: RouteComponentProps): JSX.Element | null {
-  const log = bows("Patient Page");
-  log.info("Patient page", props.history.location.pathname);
-  if (props.history.location.pathname === "/patient") {
-    log.info("Redirecting to the patients list", props);
-    props.history.push("/patient/data");
-    return null;
-  }
-  // log.info("Current path:", props.path);
+function PatientPage(): JSX.Element | null {
+  const historyHook = useHistory();
+  const pathname = historyHook.location.pathname;
+  log.info("Patient page", pathname);
+
+  React.useEffect(() => {
+    if (/^\/patient\/?$/.test(pathname)) {
+      log.info("Redirecting to the patients data");
+      historyHook.push("/patient/data");
+    }
+  }, [pathname, historyHook]);
+
   return (
-    <div>
-      <PatientNavBar />
-      <Route path="/patient/data" component={PatientDataPage} />
-    </div>
+    <TeamContextProvider>
+      <DataContextProvider context={DefaultDataContext}>
+        <PatientNavBar />
+        <Switch>
+          <Route exact={true} path="/patient/data" component={PatientDataPage} />
+        </Switch>
+      </DataContextProvider>
+    </TeamContextProvider>
   );
 }
 export default PatientPage;
