@@ -300,7 +300,18 @@ export const Stepper = props => {
   };
 
   const handleSkip = () => {
+    if (stepHasSubSteps(activeStep)) {
+      if (isFunction(steps[activeStep].subSteps[activeSubStep].onSkip)) {
+        steps[activeStep].subSteps[activeSubStep].onSkip();
+      }
+    }
+
+    if (isFunction(steps[activeStep].onSkip)) {
+      steps[activeStep].onSkip();
+    }
+
     if (!disableDefaultStepHandlers) advanceActiveStep();
+
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
@@ -445,6 +456,7 @@ const StepPropTypes = {
   label: PropTypes.string,
   onBack: PropTypes.func,
   onComplete: PropTypes.func,
+  onSkip: PropTypes.func,
   optional: PropTypes.bool,
   panelContent: PropTypes.node,
 };

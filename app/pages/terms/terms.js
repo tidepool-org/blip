@@ -30,11 +30,11 @@ import * as actions from '../../redux/actions';
 const t = i18next.t.bind(i18next);
 
 const ACCEPT_OF_AGE = <Trans parent="span" i18nKey="html.terms-accept-of-age">
-  I am 18 or older and I accept the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+  I am 18 or older and I accept the terms of the <a href={URL_TERMS_OF_USE} target='_blank' rel="noreferrer noopener">Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank' rel="noreferrer noopener">Privacy Policy</a>
 </Trans>;
 
 const ACCEPT_ON_BEHALF = <Trans parent="span" i18nKey="html.terms-accept-on-behalf">
-  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={URL_TERMS_OF_USE} target='_blank'>Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank'>Privacy Policy</a>
+  I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the <a href={URL_TERMS_OF_USE} target='_blank' rel="noreferrer noopener">Tidepool Applications Terms of Use</a> and <a href={URL_PRIVACY_POLICY} target='_blank' rel="noreferrer noopener">Privacy Policy</a>
 </Trans>;
 
 const TERMS_OF_USE_UPDATED = <Trans parent="span" i18nKey="html.terms-of-use-updated">
