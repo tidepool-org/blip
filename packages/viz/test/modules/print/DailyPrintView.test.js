@@ -17,6 +17,8 @@
 
 import _ from 'lodash';
 import moment from 'moment-timezone';
+// import sinon from 'sinon'; // Activate it, makes 1 test crash...
+import { expect } from 'chai';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -159,12 +161,12 @@ describe('DailyPrintView', () => {
         } },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
 
-      _.each(_.keys(data.dataByDate), date => {
+      _.forEach(_.keys(data.dataByDate), date => {
         expect(Renderer.initialChartsByDate[date]).to.eql(data.dataByDate[date]);
       });
     });
@@ -379,7 +381,7 @@ describe('DailyPrintView', () => {
     });
 
     it('should render a formatted date', () => {
-      const formattedDate = moment(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
+      const formattedDate = moment.utc(sampleDate, 'YYYY-MM-DD').format('ddd, MMM D, YYYY');
 
       sinon.assert.calledWith(Renderer.doc.text, formattedDate);
     });
@@ -581,7 +583,7 @@ describe('DailyPrintView', () => {
       Renderer.renderSmbgs(Renderer.chartsByDate[sampleDate]);
       sinon.assert.callCount(Renderer.doc.circle, smbgCount);
 
-      _.each(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
+      _.forEach(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
         const smbgLabel = formatBgValue(smbg.value, Renderer.bgPrefs);
         sinon.assert.calledWith(Renderer.doc.text, smbgLabel);
       });
@@ -598,7 +600,7 @@ describe('DailyPrintView', () => {
 
         sinon.assert.callCount(Renderer.doc.circle, smbgCount);
 
-        _.each(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
+        _.forEach(Renderer.chartsByDate[sampleDate].data.smbg, smbg => {
           const smbgLabel = formatBgValue(smbg.value, Renderer.bgPrefs);
           expect(smbgLabel.indexOf('.')).to.equal(smbgLabel.length - 2);
           sinon.assert.calledWith(Renderer.doc.text, smbgLabel);

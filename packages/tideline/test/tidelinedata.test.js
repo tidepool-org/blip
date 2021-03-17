@@ -219,13 +219,21 @@ describe('TidelineData', function() {
       _schemaVersion: 3,
     };
 
+    /** @type {TidelineData} */
+    let tidelineData = null;
+
+    before(() => {
+      tidelineData = new TidelineData();
+    });
+
     it('should cleanup unwanted datum fields', () => {
       const dExpected = {
         id: dInitial.id,
         type: dInitial.type,
+        source: 'Diabeloop',
       };
       const dResult = _.clone(dInitial);
-      TidelineData.prototype.cleanDatum(dResult);
+      tidelineData.cleanDatum(dResult);
       expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
     });
 
@@ -239,19 +247,26 @@ describe('TidelineData', function() {
         source: 'Diabeloop',
       };
       const dResult = _.clone({ ...dInitial, type: 'pumpSettings' });
-      TidelineData.prototype.cleanDatum(dResult);
+      tidelineData.cleanDatum(dResult);
       expect(dResult, JSON.stringify({ dExpected, dResult })).to.be.deep.equal(dExpected);
     });
 
     it('should add an id if missing', () => {
       const dResult = _.clone(dInitial);
       delete dResult.id;
-      TidelineData.prototype.cleanDatum(dResult);
+      tidelineData.cleanDatum(dResult);
       expect(dResult.id).to.be.a('string').not.empty;
     });
   });
 
   describe('createTimezoneChange', () => {
+    /** @type {TidelineData} */
+    let tidelineData = null;
+
+    before(() => {
+      tidelineData = new TidelineData();
+    });
+
     it('should create a valid deviceEvent/timeChange datum', () => {
       const dExpected = {
         epoch: fixedDateValue,
@@ -272,7 +287,7 @@ describe('TidelineData', function() {
         method: 'guessed',
       };
 
-      const dResult = TidelineData.prototype.createTimezoneChange('UTC', timezoneName, fixedDateValue);
+      const dResult = tidelineData.createTimezoneChange('UTC', timezoneName, fixedDateValue);
       expect(dResult.id).to.be.a('string').not.empty;
       delete dResult.id;
 

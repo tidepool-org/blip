@@ -15,24 +15,33 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('../pool').default } Pool
+ * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ */
+
 import _ from 'lodash';
 
 import utils from './util/utils';
 import commonbolus from './util/commonbolus';
 import drawbolus from './util/drawbolus';
 
-function plotWizard(pool, opts = {}) {
+const defaults = {
+  width: 12
+};
+
+/**
+ * @param {Pool} pool
+ * @param {typeof defaults} opts
+ * @returns
+ */
+function plotWizard(pool, opts = defaults) {
   const d3 = window.d3;
-  const defaults = {
-    width: 12
-  };
 
   _.defaults(opts, defaults);
 
-  var drawBolus = drawbolus(pool, opts);
-
-  return function(selection) {
-    opts.xScale = pool.xScale().copy();
+  function wizard(selection) {
+    const drawBolus = drawbolus(pool, { ...opts, yScale: pool.yScale(), xScale: pool.xScale().copy() });
 
     selection.each(function(currentData) {
       var withAnnotations = _.filter(currentData, function(d) {
@@ -137,7 +146,9 @@ function plotWizard(pool, opts = {}) {
         highlight.off();
       });
     });
-  };
+  }
+
+  return wizard;
 }
 
 export default plotWizard;

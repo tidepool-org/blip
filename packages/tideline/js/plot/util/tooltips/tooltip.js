@@ -309,7 +309,7 @@ function Tooltips(container, tooltipsGroup) {
     else {
       shape = type;
     }
-    var poolGroup = container.poolGroup().select('#' + pool.id());
+    const poolGroup = container.poolGroup.select('#' + pool.id());
     tooltipGroups[type] = tooltipsGroup.append('g')
       .attr('id', this.id() + '_' + type)
       .attr('transform', poolGroup.attr('transform'));

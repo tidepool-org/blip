@@ -24,7 +24,6 @@ export const MGDL_PER_MMOLL = 18.01559;
 const MMMM_D_FORMAT = 'MMMM D';
 const DDDD_MMMM_D_FORMAT = 'dddd, MMMM D';
 const H_MM_A_FORMAT = 'h:mm a'; // 3:25 pm
-const HOUR_FORMAT = '%-I %p';
 const DAY_SHORT_FORMAT= '%b %-d';
 const DDD_FORMAT = 'ddd';
 const DD_FORMAT = 'DD';
@@ -90,8 +89,6 @@ export const dateTimeFormats = {
   get MMM_D_YYYY_H_MM_A_FORMAT() { return i18next.t(MMM_D_YYYY_H_MM_A_FORMAT); },
   /** @returns {string} translated 'MMM D, h:mm a' format */
   get MMM_D_H_MM_A_FORMAT() { return i18next.t(MMM_D_H_MM_A_FORMAT); },
-  /** @returns {string} translated '%-I %p' format for d3.time */
-  get HOUR_FORMAT() { return i18next.t(HOUR_FORMAT); },
   /** @returns {string} translated 'dddd, h:mm a' format */
   get DDDD_H_MM_A() { return i18next.t(DDDD_H_MM_A); },
   /** @returns {string} translated 'h:mm a' format */

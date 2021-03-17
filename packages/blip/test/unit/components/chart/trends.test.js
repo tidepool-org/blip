@@ -16,12 +16,14 @@
  */
 
 import React from 'react';
+import moment from 'moment-timezone';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import Trends from '../../../../app/components/chart/trends';
-import { shallow } from 'enzyme';
-import { MGDL_UNITS } from '../../../../app/core/constants';
+import { mount, shallow } from 'enzyme';
+import { MS_IN_DAY } from 'tideline';
 import { components as vizComponents } from 'tidepool-viz';
+import { MGDL_UNITS } from '../../../../app/core/constants';
 import DataUtilStub from '../../../helpers/DataUtil';
 
 const { Loader } = vizComponents;
@@ -67,17 +69,21 @@ describe('Trends', () => {
         showingLines: false
       },
     },
-    endpoints: [],
+    epochLocation: moment.utc('2014-03-13T12:00:00.000Z').valueOf(),
+    msRange: MS_IN_DAY*7,
     currentPatientInViewId: '1234',
     dataUtil: new DataUtilStub(),
     loading: false,
+    canPrint: false,
     onClickRefresh: sinon.stub(),
     onClickNoDataRefresh: sinon.stub(),
     onSwitchToBasics: sinon.stub(),
     onSwitchToDaily: sinon.stub(),
     onSwitchToTrends: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
-    onUpdateChartDateRange: sinon.stub(),
+    onDatetimeLocationChange: sinon.stub().resolves(false),
+    updateChartPrefs: sinon.stub(),
+    trackMetric: sinon.stub(),
     patientData: {
       TrendsData: {
         data: {},
@@ -87,27 +93,47 @@ describe('Trends', () => {
       timezoneAware: false,
       timezoneName: 'US/Pacific'
     },
-    trackMetric: sinon.stub(),
     trendsState: {
       1234: {},
     },
-    updateChartPrefs: sinon.stub(),
-    updateDatetimeLocation: sinon.stub(),
+    permsOfLoggedInUser: {
+      root: true,
+    },
+    profileDialog: function ProfileDialogStub() { return <div id="profile-dialog" />; },
     uploadUrl: '',
   };
 
-  let wrapper;
+  before(() => {
+    // Avoid mounting the redux stack
+    sinon.stub(Trends.prototype, 'renderChart').returns(null);
+    sinon.stub(vizComponents, 'RangeSelect').value(
+      function RangeSelect() { return <div id="range-select" />; }
+    );
+  });
+
+  after(() => {
+    sinon.restore();
+  });
+
+  /** @type {import('enzyme').ReactWrapper} */
+  let wrapper = null;
+  /** @type {Trends} */
+  let instance = null;
   beforeEach(() => {
-    wrapper = shallow(<Trends {...baseProps} />);
+    // const store = initStore();
+    // baseProps.store = store;
+    wrapper = mount(<Trends {...baseProps} />);
+    instance = wrapper.instance();
   });
 
   afterEach(() => {
-    baseProps.onUpdateChartDateRange.reset();
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+      instance = null;
+    }
     baseProps.updateChartPrefs.reset();
-    baseProps.updateDatetimeLocation.reset();
-
-    baseProps.onUpdateChartDateRange.callsArg(1);
-    baseProps.updateDatetimeLocation.callsArg(1);
+    baseProps.onDatetimeLocationChange.resetHistory();
   });
 
   describe('render', () => {
@@ -133,21 +159,6 @@ describe('Trends', () => {
   });
 
   describe('handleDatetimeLocationChange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<Trends {...baseProps} />);
-      instance = wrapper.instance();
-    });
-
-    afterEach(() => {
-      baseProps.updateDatetimeLocation.reset();
-      baseProps.onUpdateChartDateRange.reset();
-      baseProps.onUpdateChartDateRange.callsArg(1);
-      baseProps.updateDatetimeLocation.callsArg(1);
-    });
-
     it('should set the `atMostRecent` state', () => {
       expect(wrapper.state().atMostRecent).to.be.true;
 
@@ -159,97 +170,63 @@ describe('Trends', () => {
       expect(wrapper.state().atMostRecent).to.be.false;
     });
 
-    it('should set the title', (done) => {
-      const endpoints = [
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-29T00:00:00.000Z',
-      ];
+    it('should set the title', () => {
+      const epochLocation = Date.parse('2018-01-15T00:00:00.000Z');
+      const msRange = MS_IN_DAY*10;
 
-      wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        try {
-          const title = shallow(instance.getTitle());
-          expect(title.contains(<span>Jan 15, 2018&#xA0;-&#xA0;Jan 28, 2018</span>)).to.be.true;
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
+      wrapper.setProps({ epochLocation, msRange });
+      // wrapper.update();
+      const title = shallow(instance.getTitle());
+      expect(title.text(), 'title text').to.be.equal('Jan 10, 2018 - Jan 19, 2018');
     });
 
-    it('should set the title correctly when ending on a DST changeover date', (done) => {
-      const endpoints = [
-        '2018-03-05T08:00:00.000Z',
-        '2018-03-12T07:00:00.000Z',
-      ];
+    it('should set the title correctly when ending on a DST changeover date', () => {
+      const epochLocation = Date.parse('2018-03-05T08:00:00.000Z');
+      const msRange = MS_IN_DAY*7;
       const timezoneAwareProps = {
-        ...baseProps,
+        loading: true,
         timePrefs: {
           timezoneAware: true,
           timezoneName: 'US/Pacific',
         }
       };
 
-      wrapper = shallow(<Trends { ...timezoneAwareProps } />);
-      instance = wrapper.instance();
-
+      wrapper.setProps(timezoneAwareProps);
       let title = instance.getTitle();
       expect(title).to.be.equal('Loading...');
 
-      wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        try {
-          const title = shallow(instance.getTitle());
-          expect(title.contains(<span>Mar 5, 2018&#xA0;-&#xA0;Mar 11, 2018</span>)).to.be.true;
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
+      wrapper.setProps({ epochLocation, msRange, loading: false }).update();
+      title = shallow(instance.getTitle());
+      expect(title.text(), 'title contains:').to.be.equal('Mar 1, 2018 - Mar 7, 2018');
     });
 
-    it('should set the title correctly when starting on a DST changeover date', (done) => {
-      const endpoints = [
-        '2018-03-11T08:00:00.000Z',
-        '2018-03-18T07:00:00.000Z',
-      ];
-      const timezoneAwareProps = {
-        ...baseProps,
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        }
+    it('should set the title correctly when starting on a DST changeover date', () => {
+      const epochLocation = Date.parse('2018-03-14T08:00:00.000Z');
+      const msRange = MS_IN_DAY*7;
+      const timePrefs = {
+        timezoneAware: true,
+        timezoneName: 'US/Pacific',
       };
 
-      wrapper = shallow(<Trends { ...timezoneAwareProps } />);
-      instance = wrapper.instance();
-
-      let title = instance.getTitle();
-      expect(title).to.be.equal('Loading...');
-
-      wrapper.setProps({datetimeLocation: endpoints[1], endpoints}, () => {
-        try {
-          const title = shallow(instance.getTitle());
-          expect(title.contains(<span>Mar 11, 2018&#xA0;-&#xA0;Mar 17, 2018</span>)).to.be.true;
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
+      wrapper.setProps({ epochLocation, msRange, timePrefs });
+      const title = shallow(instance.getTitle());
+      expect(title.text()).to.be.equal('Mar 10, 2018 - Mar 16, 2018');// (<span>Mar 11, 2018&#xA0;-&#xA0;Mar 17, 2018</span>)).to.be.true;
     });
 
-    it('should call the `updateDatetimeLocation` prop method', () => {
+    it('should call the `onDatetimeLocationChange` prop method', () => {
       const endpoints = [
         '2018-01-15T00:00:00.000Z',
         '2018-01-29T00:00:00.000Z',
       ];
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 0);
-      sinon.assert.callCount(baseProps.onUpdateChartDateRange, 0);
+      const start = Date.parse(endpoints[0]);
+      const msRange = Date.parse(endpoints[1]) - start;
+      const center = start + msRange / 2;
+      sinon.assert.callCount(baseProps.onDatetimeLocationChange, 0);
 
       instance.handleDatetimeLocationChange(endpoints);
 
-      sinon.assert.callCount(baseProps.onUpdateChartDateRange, 1);
-      sinon.assert.callCount(baseProps.updateDatetimeLocation, 1);
-      sinon.assert.calledWith(baseProps.onUpdateChartDateRange, endpoints);
-      sinon.assert.calledWith(baseProps.updateDatetimeLocation, endpoints[1]);
+      sinon.assert.callCount(baseProps.onDatetimeLocationChange, 1);
+      sinon.assert.calledWith(baseProps.onDatetimeLocationChange, center, msRange);
     });
   });
 

@@ -40,16 +40,115 @@ import appConfig from "../config";
 import { t } from "../language";
 import { errorFromHttpStatus } from "../utils";
 import { Session } from "../auth";
+import { GetPatientDataOptionsV0, GetPatientDataOptions } from "./models";
 
 const log = bows("data-api");
 
-export async function loadPatientData(session: Session, patient: User): Promise<PatientData> {
+/**
+ * Fetch data using tide-whisperer v0 route
+ * @param session Session information
+ * @param patient The patient (user) to fetch data
+ * @param options Request options
+ * @returns Array of patient data
+ */
+export async function getPatientDataRouteV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
   const { sessionToken, traceToken } = session;
   if (!patient.roles?.includes(UserRoles.patient)) {
     return Promise.reject(new Error(t("not-a-patient")));
   }
 
-  const dataURL = new URL(`/data/${patient.userid}`, appConfig.API_HOST);
+  const dataURL = new URL(`/data/${patient.userid}` , appConfig.API_HOST);
+
+  if (options) {
+    if (options.latest) {
+      dataURL.searchParams.set("latest", "true");
+    }
+    if (Array.isArray(options.types) && options.types.length > 0) {
+      dataURL.searchParams.append("type", options.types.join(','));
+    }
+    if (options.startDate) {
+      dataURL.searchParams.set("startDate", options.startDate);
+    }
+    if (options.endDate) {
+      dataURL.searchParams.set("endDate", options.endDate);
+    }
+  }
+
+  const response = await fetch(dataURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    const patientData = (await response.json()) as PatientData;
+    return patientData;
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
+/**
+ * Fetch data range using tide-whisperer v1 route
+ * @param session Session information
+ * @param patient The patient (user) to fetch data
+ * @returns Array [string, string] of ISO 8601 dates time
+ */
+export async function getPatientDataRange(session: Session, patient: User): Promise<string[]> {
+  const { sessionToken, traceToken } = session;
+  if (!patient.roles?.includes(UserRoles.patient)) {
+    return Promise.reject(new Error(t("not-a-patient")));
+  }
+
+  const dataURL = new URL(`/data/v1/range/${patient.userid}`, appConfig.API_HOST);
+  const response = await fetch(dataURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    const dataRange = (await response.json()) as string[];
+    if (!Array.isArray(dataRange) || dataRange.length !== 2) {
+      return Promise.reject(new Error('Invalid response'));
+    }
+    return dataRange;
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
+/**
+ * Fetch data using tide-whisperer v1 route
+ * @param session Session information
+ * @param patient The patient (user) to fetch data
+ * @param options Options to pas to the API
+ * @returns Patient data array
+ */
+export async function getPatientData(session: Session, patient: User, options?: GetPatientDataOptions): Promise<PatientData> {
+  const { sessionToken, traceToken } = session;
+  if (!patient.roles?.includes(UserRoles.patient)) {
+    return Promise.reject(new Error(t("not-a-patient")));
+  }
+
+  const dataURL = new URL(`/data/v1/data/${patient.userid}`, appConfig.API_HOST);
+
+  if (options) {
+    if (options.withPumpSettings) {
+      dataURL.searchParams.set("withPumpSettings", "true");
+    }
+    if (options.startDate) {
+      dataURL.searchParams.set("startDate", options.startDate);
+    }
+    if (options.endDate) {
+      dataURL.searchParams.set("endDate", options.endDate);
+    }
+  }
+
   const response = await fetch(dataURL.toString(), {
     method: "GET",
     headers: {
@@ -70,9 +169,19 @@ export async function loadPatientData(session: Session, patient: User): Promise<
  * Get notes of a given patient
  * @param userId ID of the patient
  */
-export async function getMessages(session: Session, userId: string): Promise<MessageNote[]> {
+export async function getMessages(session: Session, patient: User, options?: GetPatientDataOptions): Promise<MessageNote[]> {
   const { sessionToken, traceToken } = session;
-  const messagesURL = new URL(`/message/notes/${userId}`, appConfig.API_HOST);
+  const messagesURL = new URL(`/message/notes/${patient.userid}`, appConfig.API_HOST);
+
+  if (options) {
+    if (options.startDate) {
+      messagesURL.searchParams.set("starttime", options.startDate);
+    }
+    if (options.endDate) {
+      messagesURL.searchParams.set("endtime", options.endDate);
+    }
+  }
+
   const response = await fetch(messagesURL.toString(), {
     method: "GET",
     headers: {

@@ -44,13 +44,15 @@ class ReservoirTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(reservoir, 'source', 'tidepool'),
+        source: _.get(reservoir, 'source', 'Diabeloop'),
         normalTime: reservoir.normalTime,
         timezone: _.get(reservoir, 'timezone', 'UTC'),
         timePrefs,
       };
     }
-    const typeOfChange = _.get(SITE_CHANGE_BY_MANUFACTURER, reservoir.pump.manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
+
+    const manufacturer = _.get(reservoir, 'pump.manufacturer', DEFAULT_MANUFACTURER);
+    const typeOfChange = _.get(SITE_CHANGE_BY_MANUFACTURER, manufacturer, SITE_CHANGE_BY_MANUFACTURER[DEFAULT_MANUFACTURER]);
 
     return (
       <Tooltip

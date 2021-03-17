@@ -22,26 +22,24 @@ import bows from 'bows';
 import moment from 'moment-timezone';
 import i18next from 'i18next';
 
-import sundial from 'sundial';
-import { TidelineData, nurseShark } from 'tideline';
+import { TidelineData, nurseShark, MS_IN_DAY } from 'tideline';
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
 
 import config from '../config';
 import personUtils from '../core/personutils';
 import utils from '../core/utils';
-import { MGDL_UNITS, DIABETES_DATA_TYPES } from '../core/constants';
+import { MGDL_UNITS } from '../core/constants';
+import ApiUtils from '../core/api-utils';
 import { Header, Basics, Daily, Trends, Settings } from './chart';
 import Messages from './messages';
 import { FETCH_PATIENT_DATA_SUCCESS } from '../redux';
 
 const { waitTimeout } = utils;
 const { DataUtil } = vizUtils.data;
-const { addDuration, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { addDuration, getLocalizedCeiling } = vizUtils.datetime;
 const { isAutomatedBasalDevice: isAutomatedBasalDeviceCheck } = vizUtils.device;
 const { commonStats, getStatDefinition, statFetchMethods } = vizUtils.stat;
 const { Loader } = vizComponents;
-
-const DiabetesDataTypesForDatum = _.filter(DIABETES_DATA_TYPES, (t) => t !== 'food');
 
 /** @type {(s: string, p?: object) => string} */
 const t = i18next.t.bind(i18next);
@@ -57,25 +55,29 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
 /**
  * @typedef { import('redux').Store } Store
  * @typedef { import("../index").BlipApi } API
- * @typedef { import("../../../yourloops/models/shoreline").User } User
- * @typedef { import("../../../yourloops/models/device-data").PatientData } PatientData
- * @typedef { import("../../../yourloops/models/message").MessageNote } MessageNote
+ * @typedef { import("../index").User } User
+ * @typedef { import("../index").PatientData } PatientData
+ * @typedef { import("../index").MessageNote } MessageNote
+ * @typedef { import("../core/lib/partial-data-load").DateRange } DateRange
  *
  * @typedef {{ api: API, patient: User, store: Store }} PatientDataProps
- * @typedef {{loadingState: number, tidelineData: TidelineData, chartType: string, endpoints: string[], patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
- *
- * @augments {React.Component<PatientDataProps, PatientDataState>}
+ * @typedef {{loadingState: number, tidelineData: TidelineData, epochLocation: number, epochRange: number, chartType: string, patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
+ */
+
+/**
+ * Main patient data rendering page
+ * @augments {React.Component<PatientDataProps,PatientDataState>}
  */
 class PatientDataPage extends React.Component {
   constructor(/** @type{PatientDataProps} */ props) {
     super(props);
-    const { api } = this.props;
-    this.log = bows('PatientData');
+    const { api, patient } = this.props;
 
+    this.log = bows('PatientData');
     /** @type {(eventName: string, properties?: unknown) => void} */
     this.trackMetric = api.sendMetrics.bind(api);
-
     this.chartRef = React.createRef();
+    this.apiUtils = new ApiUtils(api, patient);
 
     const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -84,8 +86,10 @@ class PatientDataPage extends React.Component {
       chartType: 'daily',
       loadingState: LOADING_STATE_NONE,
       errorMessage: null,
-      initialDatetimeLocation: new Date().toISOString(),
-      endpoints: [],
+      /** Current display date (date at center) */
+      epochLocation: 0,
+      /** Current display data range in ms around epochLocation */
+      msRange: 0,
       timePrefs: {
         timezoneAware: true,
         timezoneName: browserTimezone,
@@ -143,26 +147,19 @@ class PatientDataPage extends React.Component {
           bgLog: 30,
         },
       },
-      createMessage: null,
-      datetimeLocation: null,
-      fetchEarlierDataCount: 0,
-      lastDatumProcessedIndex: -1,
-      lastDiabetesDatumProcessedIndex: -1,
-      processingData: false,
-      processEarlierDataCount: 0,
+      /** @type {TidelineData} */
       tidelineData: null,
-      showUploadOverlay: false,
     };
 
-    this.handleChartDateRangeUpdate = this.handleChartDateRangeUpdate.bind(this);
     this.handleSwitchToBasics = this.handleSwitchToBasics.bind(this);
     this.handleSwitchToDaily = this.handleSwitchToDaily.bind(this);
     this.handleSwitchToTrends = this.handleSwitchToTrends.bind(this);
     this.handleSwitchToSettings = this.handleSwitchToSettings.bind(this);
     this.handleShowMessageCreation = this.handleShowMessageCreation.bind(this);
     this.handleClickRefresh = this.handleClickRefresh.bind(this);
+    this.handleClickNoDataRefresh = this.handleClickNoDataRefresh.bind(this);
 
-    this.updateDatetimeLocation = this.updateDatetimeLocation.bind(this);
+    this.handleDatetimeLocationChange = this.handleDatetimeLocationChange.bind(this);
     this.updateChartPrefs = this.updateChartPrefs.bind(this);
 
     this.unsubscribeStore = null;
@@ -191,6 +188,8 @@ class PatientDataPage extends React.Component {
       this.unsubscribeStore();
       this.unsubscribeStore = null;
     }
+    this.chartRef = null;
+    this.apiUtils = null;
   }
 
   render() {
@@ -202,6 +201,8 @@ class PatientDataPage extends React.Component {
     let errorDisplay = null;
 
     switch (loadingState) {
+      case LOADING_STATE_EARLIER_FETCH:
+      case LOADING_STATE_EARLIER_PROCESS:
       case LOADING_STATE_DONE:
         if (chartType === 'daily') {
           messages = this.renderMessagesContainer();
@@ -211,8 +212,6 @@ class PatientDataPage extends React.Component {
       case LOADING_STATE_NONE:
         messages = <p>Please select a patient</p>;
         break;
-      case LOADING_STATE_EARLIER_FETCH:
-      case LOADING_STATE_EARLIER_PROCESS:
       case LOADING_STATE_INITIAL_FETCH:
       case LOADING_STATE_INITIAL_PROCESS:
         loader = <Loader />;
@@ -240,7 +239,11 @@ class PatientDataPage extends React.Component {
   }
 
   renderEmptyHeader() {
-    return <Header chartType={'no-data'} inTransition={false} atMostRecent={false} title={t('Data')} canPrint={false} />;
+    return <Header
+      chartType="no-data"
+      title={t('Data')}
+      canPrint={false}
+      trackMetric={this.trackMetric} />;
   }
 
   renderInitialLoading() {
@@ -293,36 +296,6 @@ class PatientDataPage extends React.Component {
     return false;
   }
 
-  renderSettings() {
-    const { patient } = this.props;
-    const { canPrint, tidelineData } = this.state;
-    return (
-      <div>
-        <div className='app-no-print'>
-          <Settings
-            bgPrefs={this.state.bgPrefs}
-            chartPrefs={this.state.chartPrefs}
-            currentPatientInViewId={patient.userid}
-            timePrefs={this.state.timePrefs}
-            patient={patient}
-            patientData={tidelineData}
-            canPrint={canPrint}
-            permsOfLoggedInUser={this.state.permsOfLoggedInUser}
-            onClickRefresh={this.handleClickRefresh}
-            onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onClickPrint={this.handleClickPrint}
-            trackMetric={this.trackMetric}
-            uploadUrl={config.UPLOAD_API}
-          />
-        </div>
-      </div>
-    );
-  }
-
   renderChart() {
     const { patient, profileDialog } = this.props;
     const {
@@ -331,6 +304,8 @@ class PatientDataPage extends React.Component {
       loadingState,
       chartPrefs,
       chartStates,
+      epochLocation,
+      msRange,
       tidelineData
     } = this.state;
 
@@ -368,9 +343,10 @@ class PatientDataPage extends React.Component {
             chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.datetimeLocation}
             patient={patient}
-            patientData={tidelineData}
+            tidelineData={tidelineData}
+            epochLocation={epochLocation}
+            msRange={msRange}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
             permsOfLoggedInUser={permsOfLoggedInUser}
@@ -382,10 +358,9 @@ class PatientDataPage extends React.Component {
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onDatetimeLocationChange={this.handleDatetimeLocationChange}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
             ref={this.chartRef} />
           );
       case 'trends':
@@ -397,7 +372,8 @@ class PatientDataPage extends React.Component {
             currentPatientInViewId={patient.userid}
             dataUtil={this.dataUtil}
             timePrefs={this.state.timePrefs}
-            initialDatetimeLocation={this.state.datetimeLocation}
+            epochLocation={epochLocation}
+            msRange={msRange}
             patient={patient}
             patientData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
@@ -408,18 +384,40 @@ class PatientDataPage extends React.Component {
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
-            onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onDatetimeLocationChange={this.handleDatetimeLocationChange}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={config.UPLOAD_API}
             trendsState={chartStates.trends}
-            endpoints={this.state.endpoints}
           />
         );
       case 'settings':
-        return this.renderSettings();
+        return (
+          <div className='app-no-print'>
+            <Settings
+              bgPrefs={this.state.bgPrefs}
+              chartPrefs={this.state.chartPrefs}
+              currentPatientInViewId={patient.userid}
+              timePrefs={this.state.timePrefs}
+              patient={patient}
+              patientData={tidelineData}
+              canPrint={canPrint}
+              permsOfLoggedInUser={this.state.permsOfLoggedInUser}
+              onClickRefresh={this.handleClickRefresh}
+              onClickNoDataRefresh={this.handleClickNoDataRefresh}
+              onSwitchToBasics={this.handleSwitchToBasics}
+              onSwitchToDaily={this.handleSwitchToDaily}
+              onSwitchToTrends={this.handleSwitchToTrends}
+              onSwitchToSettings={this.handleSwitchToSettings}
+              onClickPrint={this.handleClickPrint}
+              trackMetric={this.trackMetric}
+              uploadUrl={config.UPLOAD_API}
+            />
+          </div>
+        );
     }
+
+    return null;
   }
 
   renderMessagesContainer() {
@@ -453,6 +451,7 @@ class PatientDataPage extends React.Component {
           trackMetric={this.trackMetric} />
       );
     }
+    return null;
   }
 
   generatePDFStats(data) {
@@ -576,35 +575,6 @@ class PatientDataPage extends React.Component {
     return createPrintPDFPackage(pdfData, opts);
   }
 
-  subtractTimezoneOffset(datetime, timezoneSettings = this.state.timePrefs) {
-    const dateMoment = moment.utc(datetime);
-
-    if (dateMoment.isValid()) {
-      let timezoneOffset = 0;
-
-      if (_.get(timezoneSettings, 'timezoneAware')) {
-        timezoneOffset = sundial.getOffsetFromZone(dateMoment.toISOString(), timezoneSettings.timezoneName);
-      }
-      return dateMoment.subtract(timezoneOffset, 'minutes').toISOString();
-    }
-
-    return datetime;
-  }
-
-  /**
-   *
-   * @param {string[]} newEndpoints
-   * @param {() => void} cb callback
-   */
-  handleChartDateRangeUpdate(newEndpoints, cb = _.noop) {
-    const { endpoints } = this.state;
-    if (!_.isEqual(endpoints, newEndpoints)) {
-      this.setState({ endpoints: newEndpoints }, cb);
-    } else if (_.isFunction(cb)) {
-      cb();
-    }
-  }
-
   async handleMessageCreation(message) {
     this.log.debug('handleMessageCreation', message);
     const shapedMessage = nurseShark.reshapeMessage(message);
@@ -660,16 +630,14 @@ class PatientDataPage extends React.Component {
   }
 
   handleShowMessageCreation(/** @type {moment.Moment | Date} */ datetime) {
-    const { endpoints, timePrefs } = this.state;
-    this.log.debug('handleShowMessageCreation', { datetime, endpoints });
+    const { epochLocation, tidelineData } = this.state;
+    this.log.debug('handleShowMessageCreation', { datetime, epochLocation });
     let mDate = datetime;
     let action = 'Create a message from background';
     if (datetime === null) {
       action = 'Clicked create a message';
-      const begin = moment.utc(endpoints[0]).valueOf();
-      const end = moment.utc(endpoints[1]).valueOf();
-      const timestamp = begin + (end - begin) / 2;
-      mDate = moment.utc(timestamp).tz(timePrefs.timezoneName);
+      const timezone = tidelineData.getTimezoneAt(epochLocation);
+      mDate = moment.utc(epochLocation).tz(timezone);
     }
     this.setState({ createMessageDatetime : mDate.toISOString() });
 
@@ -686,53 +654,59 @@ class PatientDataPage extends React.Component {
   }
 
   handleSwitchToBasics(e) {
-    this.trackMetric('Clicked Switch To Basics', {
+    this.trackMetric('switch blip tab', {
       fromChart: this.state.chartType,
+      toChart: 'basics',
     });
     if (e) {
       e.preventDefault();
     }
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-    this.setState({
-      chartType: 'basics',
-    });
+    this.setState({ chartType: 'basics' });
   }
 
-  handleSwitchToDaily(datetime, title) {
-    this.trackMetric('Clicked Basics ' + title + ' calendar', {
+  /**
+   *
+   * @param {moment.Moment | Date | number} datetime The day to display
+   * @param {string} calendarName For trackmetrics: The calendar we came from
+   */
+  handleSwitchToDaily(datetime = null, calendarName = 'none') {
+    this.trackMetric('switch blip tab', {
       fromChart: this.state.chartType,
+      fromCalendar: calendarName,
+      toChart: 'daily',
     });
 
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
+    let { epochLocation } = this.state;
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf()).tz(timezone).subtract(1, 'day').hours(12).toISOString();
+    if (typeof datetime === 'number') {
+      epochLocation = datetime;
+    } else if (moment.isMoment(datetime) || datetime instanceof Date) {
+      epochLocation = datetime.valueOf();
+    }
+
+    this.log.info('Switch to daily', { date: moment.utc(epochLocation).toISOString(), epochLocation });
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
     this.setState({
       chartType: 'daily',
-      datetimeLocation,
+      epochLocation,
+      msRange: MS_IN_DAY,
     });
   }
 
-  handleSwitchToTrends(datetime) {
-    this.trackMetric('Clicked Switch To Modal', {
+  handleSwitchToTrends(e) {
+    this.trackMetric('switch blip tab', {
       fromChart: this.state.chartType,
+      toChart: 'trends',
     });
-
-    // We set the dateTimeLocation to noon so that the view 'centers' properly, showing the entire day
-    const dateCeiling = getLocalizedCeiling(datetime || this.state.endpoints[1], this.state.timePrefs);
-    const timezone = getTimezoneFromTimePrefs(this.state.timePrefs);
-
-    const datetimeLocation = moment.utc(dateCeiling.valueOf()).tz(timezone).toISOString();
+    if (e) {
+      e.preventDefault();
+    }
 
     this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
-    this.setState({
-      chartType: 'trends',
-      datetimeLocation,
-    });
+    this.setState({ chartType: 'trends' });
   }
 
   handleSwitchToSettings(e) {
@@ -742,9 +716,7 @@ class PatientDataPage extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    this.setState({
-      chartType: 'settings',
-    });
+    this.setState({ chartType: 'settings' });
   }
 
   handleClickPrint = () => {
@@ -768,13 +740,13 @@ class PatientDataPage extends React.Component {
         openPDFWindow(this.state.pdf);
         resolve();
       } else {
-        const { processingData, tidelineData, loadingState } = this.state;
+        const { tidelineData, loadingState } = this.state;
         let hasDiabetesData = false;
         if (tidelineData !== null) {
           hasDiabetesData = _.get(tidelineData, 'diabetesData.length', 0) > 0;
         }
 
-        if (loadingState === LOADING_STATE_DONE && !processingData && hasDiabetesData) {
+        if (loadingState === LOADING_STATE_DONE && hasDiabetesData) {
           this.generatePDF()
             .then((pdf) => {
               openPDFWindow(pdf);
@@ -796,13 +768,11 @@ class PatientDataPage extends React.Component {
   }
 
   handleClickRefresh(/* e */) {
-    this.trackMetric('Clicked Refresh');
-    this.handleRefresh();
+    this.handleRefresh().finally(() => this.trackMetric('Clicked Refresh'));
   }
 
   handleClickNoDataRefresh(/* e */) {
-    this.trackMetric('Clicked No Data Refresh');
-    this.handleRefresh();
+    this.handleRefresh().finally(() => this.trackMetric('Clicked No Data Refresh'));
   }
 
   onLoadingFailure(err) {
@@ -823,182 +793,97 @@ class PatientDataPage extends React.Component {
     this.setState({ chartPrefs: newPrefs, }, cb);
   }
 
-  updateDatetimeLocation(datetime, cb) {
-    this.setState(
-      {
-        datetimeLocation: datetime,
-      },
-      cb
-    );
-  }
+  /**
+   * Chart display date / range change
+   * @param {number} epochLocation datetime epoch value in ms
+   * @param {number} msRange ms around epochLocation
+   * @returns {Promise<boolean>} true if new data are loaded
+   */
+  async handleDatetimeLocationChange(epochLocation, msRange) {
+    const {
+      epochLocation: currentLocation,
+      msRange: currentRange,
+      chartType,
+      loadingState,
+    } = this.state;
 
-  updateChartEndpoints(endpoints, cb) {
-    this.setState(
-      {
-        endpoints,
-      },
-      cb
-    );
-  }
+    let dataLoaded = false;
 
-  deriveChartTypeFromLatestData(latestData, uploads) {
-    let chartType = 'basics'; // Default to 'basics'
+    // this.log.debug('handleDatetimeLocationChange()', {
+    //   currentLocation,
+    //   currentRange,
+    //   epochLocation,
+    //   msRange,
+    //   date: moment.utc(epochLocation).toISOString(),
+    //   rangeDays: msRange/MS_IN_DAY
+    // });
 
-    if (latestData && uploads) {
-      // Ideally, we determine the default view based on the device type
-      // so that, for instance, if the latest data type is cgm, but comes from
-      // an insulin-pump, we still direct them to the basics view
-      const deviceMap = _.keyBy(uploads, 'deviceId');
-      const latestDataDevice = deviceMap[latestData.deviceId];
-
-      if (latestDataDevice) {
-        const tags = deviceMap[latestData.deviceId].deviceTags;
-
-        switch (true) {
-          case _.includes(tags, 'insulin-pump'):
-            chartType = 'basics';
-            break;
-
-          case _.includes(tags, 'cgm'):
-            chartType = 'trends';
-            break;
-
-          case _.includes(tags, 'bgm'):
-            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
-            break;
-        }
-      } else {
-        // If we were unable, for some reason, to get the device tags for the
-        // latest upload, we can fall back to setting the default view by the data type
-        const type = latestData.type;
-
-        switch (type) {
-          case 'bolus':
-          case 'basal':
-          case 'wizard':
-            chartType = 'basics';
-            break;
-
-          case 'cbg':
-            chartType = 'trends';
-            break;
-
-          case 'smbg':
-            chartType = config.BRANDING === 'diabeloop' ? 'daily' : 'bgLog';
-            break;
-        }
-      }
+    if (!Number.isFinite(epochLocation) || !Number.isFinite(msRange)) {
+      throw new Error('handleDatetimeLocationChange: invalid parameters');
     }
 
-    return chartType;
-  }
+    // Don't do anything if we are currently loading
+    // And try to do something only if there is something to do !
+    if (loadingState === LOADING_STATE_DONE && (currentLocation !== epochLocation || currentRange !== msRange)) {
+      // For daily check for +/- 1 day (and not 0.5 day), for others only the displayed range
+      let msRangeDataNeeded = chartType === 'daily' ? MS_IN_DAY : msRange / 2;
 
-  fetchEarlierData(options = {}, cb) {
-    const { patient } = this.props;
-    const patientID = patient.userid;
-    // Return if we've already fetched all data, or are currently fetching
-    if (_.get(this.props, 'fetchedPatientDataRange.fetchedUntil') === 'start') {
-      if (cb) {
-        cb();
-      }
-      return;
-    }
+      /** @type {DateRange} */
+      let rangeDisplay = {
+        start: epochLocation - msRangeDataNeeded,
+        end: epochLocation + msRangeDataNeeded,
+      };
+      const rangeToLoad = this.apiUtils.partialDataLoad.getRangeToLoad(rangeDisplay);
+      if (rangeToLoad) {
+        // We need more data!
 
-    this.log('fetching');
-
-    const earliestRequestedData = _.get(this.props, 'fetchedPatientDataRange.fetchedUntil');
-
-    const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).subtract(16, 'weeks').toISOString(),
-      end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
-    };
-
-    const count = this.state.fetchEarlierDataCount + 1;
-
-    this.setState(
-      {
-        // requestedPatientDataRange,
-        // fetchEarlierDataCount: count,
-        canPrint: false,
-      },
-      () => {
-        const fetchOpts = _.defaults(options, {
-          startDate: requestedPatientDataRange.start,
-          endDate: requestedPatientDataRange.end,
-          // carelink: this.props.carelink,
-          // dexcom: this.props.dexcom,
-          // medtronic: this.props.medtronic,
-          useCache: false,
-          initial: false,
-        });
-
-        this.props.onFetchEarlierData(fetchOpts, patientID);
-
-        this.trackMetric('Fetched earlier patient data', { patientID, count });
-        if (cb) {
-          cb();
+        if (chartType === 'daily') {
+          // For daily we will load 1 week to avoid too many loading
+          msRangeDataNeeded = MS_IN_DAY * 3;
+          rangeDisplay = {
+            start: epochLocation - msRangeDataNeeded,
+            end: epochLocation + msRangeDataNeeded,
+          };
         }
-      }
-    );
-  }
 
-  getLastDatumToProcessIndex(unprocessedData, targetDatetime) {
-    let diabetesDataCount = 0;
+        this.setState({ loadingState: LOADING_STATE_EARLIER_FETCH });
+        const data = await this.apiUtils.fetchDataRange(rangeDisplay);
 
-    // First, we get the index of the first diabetes datum that falls outside of our processing window.
-    let targetIndex = _.findIndex(unprocessedData, (datum) => {
-      const isDiabetesDatum = _.includes(DiabetesDataTypesForDatum, datum.type);
+        this.setState({ loadingState: LOADING_STATE_EARLIER_PROCESS });
+        await this.processData(data);
 
-      if (isDiabetesDatum) {
-        diabetesDataCount++;
+        dataLoaded = true;
       }
 
-      return targetDatetime > datum.time && isDiabetesDatum;
-    });
-
-    if (targetIndex === -1) {
-      // If we didn't find a cutoff point (i.e. no diabetes datums beyond the cutoff time),
-      // we process all the remaining fetched, unprocessed data.
-      targetIndex = unprocessedData.length;
-      this.log('No diabetes data found beyond current processing slice.  Processing all remaining unprocessed data');
-    } else if (diabetesDataCount === 1) {
-      // If the first diabetes datum found was outside of our processing window, we need to include it.
-      targetIndex++;
-      this.log('First diabetes datum found was outside current processing slice.  Adding it to slice');
+      this.setState({ epochLocation, msRange });
     }
 
-    // Because targetIndex was set to the first one outside of our processing window, and we're
-    // looking for the last datum to process, we decrement by one and return
-    return --targetIndex;
+    return dataLoaded;
   }
 
-  handleRefresh() {
-    const { api, patient } = this.props;
-
+  async handleRefresh() {
     // TODO bgUnits from api.whoami
     this.setState({
       loadingState: LOADING_STATE_INITIAL_FETCH,
-      endpoints: [],
-      initialDatetimeLocation: new Date().toISOString(),
-      fetchEarlierDataCount: 0,
-      lastDatumProcessedIndex: -1,
-      lastProcessedDateTarget: null,
-      processEarlierDataCount: 0,
+      dataRange: null,
+      epochLocation: 0,
+      msRange: 0,
       tidelineData: null,
       pdf: null,
       canPrint: false,
-    }, () => {
-      Promise.all([
-        api.loadPatientData(patient),
-        api.getMessages(patient.userid),
-      ]).then(([ patientData, messagesNotes ]) => {
-        const combinedData = patientData.concat(messagesNotes);
-        this.setState({ loadingState: LOADING_STATE_INITIAL_PROCESS });
-        return this.processData(combinedData);
-      }).catch((reason) => {
-        this.onLoadingFailure(reason);
-      });
     });
+
+    try {
+      const data = await this.apiUtils.refresh();
+      this.setState({ loadingState: LOADING_STATE_INITIAL_PROCESS });
+      await waitTimeout(1);
+
+      // Process the data to be usable by us
+      await this.processData(data);
+
+    } catch (reason) {
+      this.onLoadingFailure(reason);
+    }
   }
 
   /**
@@ -1007,31 +892,36 @@ class PatientDataPage extends React.Component {
    */
   async processData(data) {
     const { store, patient } = this.props;
-    const { timePrefs, bgPrefs } = this.state;
+    const { timePrefs, bgPrefs, epochLocation } = this.state;
+    let { tidelineData } = this.state;
 
-    const opts = {
-      timePrefs,
-      ...bgPrefs,
-    };
+    const firstLoadOrRefresh = tidelineData === null;
 
-    console.time('process data');
-    const res = nurseShark.processData(data, opts.bgUnits);
+    const res = nurseShark.processData(data, bgPrefs.bgUnits);
     await waitTimeout(1);
-    const tidelineData = new TidelineData(opts);
+    if (firstLoadOrRefresh) {
+      const opts = {
+        timePrefs,
+        ...bgPrefs,
+        // Used by tideline oneDay to set-up the scroll range
+        // Send this information by tidelineData options
+        dataRange: this.apiUtils.dataRange,
+      };
+      tidelineData = new TidelineData(opts);
+    }
     await tidelineData.addData(res.processedData);
-    console.timeEnd('process data');
 
     if (_.isEmpty(tidelineData.data)) {
       throw new Error(t('No data to display!'));
     }
 
-    this.log.info('Initial endpoints:', tidelineData.endpoints);
-    this.log.info('Time prefs', tidelineData.opts.timePrefs);
+    this.dataUtil = new DataUtil(tidelineData.data, { bgPrefs, timePrefs, endpoints: tidelineData.endpoints });
 
-    this.dataUtil = new DataUtil(
-      tidelineData.data.concat(tidelineData.grouped.upload),
-      { bgPrefs, timePrefs }
-    );
+    let newLocation = epochLocation;
+    if (epochLocation === 0) {
+      // First loading, display the last day in the daily chart
+      newLocation = moment.utc(tidelineData.endpoints[1]).valueOf() - MS_IN_DAY/2;
+    }
 
     this.setState({
       bgPrefs: {
@@ -1040,17 +930,20 @@ class PatientDataPage extends React.Component {
       },
       timePrefs: tidelineData.opts.timePrefs,
       tidelineData,
+      epochLocation: newLocation,
+      msRange: MS_IN_DAY,
       loadingState: LOADING_STATE_DONE,
-      endpoints: tidelineData.endpoints,
       canPrint: true,
-    }, () => {
+    }, () => this.log.info('Loading finished'));
+
+    if (firstLoadOrRefresh) {
       store.dispatch({
         type: FETCH_PATIENT_DATA_SUCCESS,
         payload: {
           patientId: patient.userid,
         },
       });
-    });
+    }
   }
 }
 

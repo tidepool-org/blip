@@ -18,7 +18,7 @@
 /**
  * @typedef {'basal'|'bolus'|'cbg'|'smbg'|'deviceEvent'|'wizard'|'upload'|'pumpSettings'|'physicalActivity'|'message'|'fill'} DatumType
  * @typedef {{ type: string, time?: string, normalTime: string, normalEnd?: string, subType?: string, epoch: number, epochEnd?: number, guessedTimezone?: boolean, timezone: string, displayOffset: number }} Datum
- * @typedef {{ [x: string]: Datum[] }} Grouped
+ * @typedef {{ [x: DatumType]: Datum[] }} Grouped
  * @typedef {{ payload: { parameters: {name: string}[]} } | Datum} PumpSettings
  * @typedef {{ timezone: string, dateRange: string[], nData: number, days: {date:string,type:string}[], data:{[x:string]: {data: Datum[]}} }} BasicsData
  * @typedef {{ time: number, timezone: string}[]} TimezoneList
@@ -42,7 +42,8 @@ const INVALID_TIMEZONES = ['UTC', 'GMT', 'Etc/GMT'];
 const REQUIRED_TYPES = ["basal", "bolus", "wizard", "cbg", "message", "smbg", "pumpSettings", "physicalActivity", "deviceEvent", "upload"];
 const DIABETES_DATA_TYPES = ["basal", "bolus", "cbg", "smbg", "wizard"];
 const BASICS_TYPE = ["basal", "bolus", "cbg", "smbg", "deviceEvent", "wizard", "upload"];
-const DAILY_TYPES = ["basal", "bolus", "cbg", "message", "smbg", "physicalActivity", "deviceEvent", "wizard"];
+const DAILY_TYPES = ["basal", "bolus", "cbg", "food", "message", "smbg", "physicalActivity", "deviceEvent", "wizard"];
+
 const defaults = {
   CBG_PERCENT_FOR_ENOUGH: 0.75,
   CBG_MAX_DAILY: 288,
@@ -75,7 +76,10 @@ const defaults = {
     timezoneName: "UTC",
     timezoneOffset: 0,
   },
-  latestPumpManufacturer: "default",
+  defaultSource: "Diabeloop",
+  defaultPumpManufacturer: "default",
+  /** @type {moment.Moment[]} */
+  dataRange: null,
 };
 
 /**
@@ -177,6 +181,8 @@ function TidelineData(opts = defaults) {
     this.bgClasses.target.boundary += roundingAllowance;
     this.bgClasses.high.boundary += roundingAllowance;
   }
+
+  this.log.info("Initialized", this);
 }
 
 
@@ -237,9 +243,13 @@ function genRandomId() {
 }
 
 function getTimerFuncs() {
-  const startTimer = _.get(window, "config.DEV", false) ? (name) => console.time(name) : _.noop;
-  const endTimer = _.get(window, "config.DEV", false) ? (name) => console.timeEnd(name) : _.noop;
-  return { startTimer, endTimer };
+  // To be able to enable it when needed:
+  if (false) { // eslint-disable-line no-constant-condition
+    const startTimer = _.get(window, "config.DEV", false) ? (name) => console.time(name) : _.noop;
+    const endTimer = _.get(window, "config.DEV", false) ? (name) => console.timeEnd(name) : _.noop;
+    return { startTimer, endTimer };
+  }
+  return { startTimer: _.noop, endTimer: _.noop };
 }
 
 /**
@@ -263,7 +273,8 @@ TidelineData.prototype.normalizeTime = function normalizeTime(d) {
     mEnd.add(duration, units);
     d.normalEnd = mEnd.toISOString();
     d.epochEnd = mEnd.valueOf();
-    this.maxDuration = Math.max(this.maxDuration, mEnd.diff(mTime, "milliseconds"));
+    this.maxDuration = Math.max(this.maxDuration, d.epochEnd - d.epoch);
+
   }
 
   // Do we have this data: "suppressed" ?
@@ -280,15 +291,10 @@ TidelineData.prototype.normalizeTime = function normalizeTime(d) {
  */
 TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   // Remove unneeded fields:
-  if (["upload", "pumpSettings"].includes(d.type)) {
-    if (typeof d.source !== "string") {
-      d.source = "Diabeloop";
-    }
-  } else {
+  if (!["upload", "pumpSettings"].includes(d.type)) {
     delete d.deviceTime;
     delete d.deviceId;
     delete d.deviceSerialNumber;
-    delete d.source;
   }
 
   delete d.time;
@@ -310,6 +316,10 @@ TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   // Be sure we have an id
   if (typeof d.id !== "string") {
     d.id = genRandomId();
+  }
+  // Be sure to have a source (use in lots of places)
+  if (typeof d.source !== "string") {
+    d.source = this.opts.defaultSource;
   }
 };
 
@@ -350,7 +360,7 @@ TidelineData.prototype.createTimezoneChange = function createTimezoneChange(prev
     displayOffset,
     type: "deviceEvent",
     subType: "timeChange",
-    source: "Diabeloop",
+    source: this.opts.defaultSource,
     from: {
       time: mFrom.toISOString(),
       timeZoneName: prevTimezone,
@@ -438,9 +448,21 @@ TidelineData.prototype.setTimezones = function setTimezones() {
   }
 
   if (timezoneChanges.length > 0) {
-    this.log.info('Guessed timezone changes', timezoneChanges);
+    this.log.info('Guessed timezone changes (some may be stripped away)', timezoneChanges);
     // Concat the timezone change events:
-    Array.prototype.push.apply(this.data, timezoneChanges);
+    const isChartType = (d) => DAILY_TYPES.includes(d.type);
+    const startDatum = _.find(this.data, isChartType) ?? false;
+    const lastDatum = _.findLast(this.data, isChartType) ?? false;
+    if (startDatum && lastDatum && startDatum.id !== lastDatum.id) {
+      for (const timezoneChange of timezoneChanges) {
+        if (timezoneChange.epoch >= startDatum.epoch && timezoneChange.epoch < lastDatum.epoch) {
+          this.data.push(timezoneChange);
+        }
+      }
+    } else {
+      Array.prototype.push.apply(this.data, timezoneChanges);
+    }
+
     // And re-sort it...
     this.data.sort((a, b) => a.epoch - b.epoch);
   }
@@ -456,7 +478,7 @@ TidelineData.prototype.setTimezones = function setTimezones() {
 
 /**
  * Return the closest oldest timezone of this date
- * @param {string | Moment.moment | Date} date The date to test
+ * @param {string | number | moment.Moment | Date} date The date to test
  */
 TidelineData.prototype.getTimezoneAt = function getTimezoneAt(date) {
   if (this.timezonesList === null) {
@@ -493,6 +515,11 @@ TidelineData.prototype.getLastTimezone = function getLastTimezone(defaultTimezon
   return this.opts.timePrefs.timezoneName;
 };
 
+/**
+ * Set the endpoints, using only data we can see in the daily view
+ *
+ * *TODO: Use numbers (ms since epoch) instead of strings*
+ */
 TidelineData.prototype.setEndPoints = function setEndPoints() {
   const isChartType = (d) => DAILY_TYPES.includes(d.type);
   let chartData = _.filter(this.data, isChartType);
@@ -500,19 +527,41 @@ TidelineData.prototype.setEndPoints = function setEndPoints() {
   const first = _.head(chartData);
   const last = _.last(chartData);
 
+  /** @type {moment.Moment} */
+  let start = null;
+  /** @type {moment.Moment} */
+  let end = null;
   if (_.isObject(first) && _.isObject(last)) {
     const lastTime = typeof last.epochEnd === "number" ? last.epochEnd : last.epoch;
-    const mFirst = moment.utc(first.epoch).tz(first.timezone);
-    const mLast = moment.utc(lastTime).tz(last.timezone);
-    const start = mFirst.startOf("day").toISOString();
-    const end = mLast.endOf("day").toISOString();
-    this.endpoints = [start, end];
-    return;
+    // FIXME moment startOf/endOf works only with current browser timezone -> it use the Date() object
+    start = moment.tz(first.epoch, first.timezone).startOf("day");
+    end = moment.tz(lastTime, last.timezone).endOf("day").add(1, 'millisecond');
+  } else {
+    // Be sure to have something, we do not want to crash
+    // in some other code, and do not want to check this
+    // every times too.
+    this.log.warn("No char type data found !");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start = moment.tz(today.valueOf() - MS_IN_DAY, this.opts.timePrefs.timezoneName);
+    end = moment.tz(today.valueOf() + MS_IN_DAY, this.opts.timePrefs.timezoneName);
   }
-  this.log.warn("No char type data found !");
-  const now = new Date();
-  const yesterfay = new Date(now.valueOf() - MS_IN_DAY);
-  this.endpoints = [yesterfay.toISOString(), now.toISOString()];
+  if (Array.isArray(this.opts.dataRange)) {
+    // Take the longest range if possible
+    if (this.opts.dataRange[0].isBefore(start)) {
+      const ms = this.opts.dataRange[0].valueOf();
+      start = moment.tz(ms, this.getTimezoneAt(ms)).startOf("day");
+    }
+    if (this.opts.dataRange[1].isAfter(end)) {
+      const ms = this.opts.dataRange[1].valueOf();
+      end = moment.tz(ms, this.getTimezoneAt(ms)).endOf('day').add(1, 'millisecond');
+    }
+
+  } else {
+    this.opts.dataRange = [moment.utc(start.valueOf()), moment.utc(end.valueOf())];
+  }
+
+  this.endpoints = [start.toISOString(), end.toISOString()];
 };
 
 TidelineData.prototype.setDeviceParameters = function setDeviceParameters() {
@@ -629,7 +678,7 @@ TidelineData.prototype.deduplicatePhysicalActivities = function deduplicatePhysi
 TidelineData.prototype.setDiabetesData = function setDiabetesData() {
   const diabetesDataTypes = this.opts.diabetesDataTypes ?? DIABETES_DATA_TYPES;
   this.diabetesData = this.data.filter((d) => diabetesDataTypes.indexOf(d.type) > -1);
-  this.diabetesData = _.sortBy(this.diabetesData, "normalTime");
+  this.diabetesData = _.sortBy(this.diabetesData, "epoch");
 };
 
 /**
@@ -650,12 +699,11 @@ TidelineData.prototype.setEvents = function setEvents(filter = {}, order = ["inp
 
 TidelineData.prototype.getLastestManufacturer = function getLastestManufacturer() {
   const defaultPumpManufacturer = {
-    payload: { pump: { manufacturer: "default" } },
+    payload: { pump: { manufacturer: this.opts.defaultPumpManufacturer } },
   };
 
-  if (!Array.isArray(this.grouped.pumpSettings)) {
-    return defaultPumpManufacturer;
-  }
+  this.checkRequired(['pumpSettings']);
+
   // get latest pump manufacturer
   const lastPump = _.maxBy(this.grouped.pumpSettings, "epoch");
   const pump = _.get(_.merge({}, defaultPumpManufacturer, lastPump), "payload.pump");
@@ -739,35 +787,42 @@ TidelineData.prototype.generateFillData = function generateFillData() {
   }
 
   const { classes } = this.opts.fillOpts;
-  const { timezoneName: timezone } = this.opts.timePrefs;
-  const fillDateTime = moment.utc(this.endpoints[0]).tz(timezone).subtract(3, "hour");
-  const lastDateTime = moment.utc(this.endpoints[1]).tz(timezone);
+  const firstTimezone = this.getTimezoneAt(this.endpoints[0]);
+  const lastTimezone = this.getTimezoneAt(this.endpoints[1]);
+  const fillDateTime = moment.utc(this.endpoints[0]).tz(firstTimezone).subtract(3, "hour");
+  const lastDateTime = moment.utc(this.endpoints[1]).tz(lastTimezone);
 
   const fillData = [];
-
+  let timezone = firstTimezone;
   let prevFill = null;
   while (fillDateTime.isBefore(lastDateTime)) {
+    const epoch = fillDateTime.valueOf();
+    const timezoneAt = this.getTimezoneAt(epoch);
+    if (timezone !== timezoneAt) {
+      timezone = timezoneAt;
+      fillDateTime.tz(timezone);
+    }
+
     const hour = fillDateTime.hours();
     if (_.has(classes, hour)) {
       const isoStr = fillDateTime.toISOString();
       // Update the previous entry normalEnd value
       if (prevFill !== null) {
         prevFill.normalEnd = isoStr;
-        prevFill.epochEnd = fillDateTime.valueOf();
+        prevFill.epochEnd = epoch;
+        this.maxDuration = Math.max(this.maxDuration, epoch - prevFill.epoch);
       }
       const currentFill = {
         type: "fill",
         fillColor: classes[hour],
-        fillDate: isoStr.slice(0, 10),
-        id: `fill_${isoStr.replace(/[^\w\s]|_/g, "")}`,
-        epoch: fillDateTime.valueOf(),
-        epochEnd: fillDateTime.valueOf(),
+        id: `fill-${isoStr.replace(/[^\w\s]|_/g, "")}`,
+        epoch,
+        epochEnd: epoch, // Updated in the next loop run
         normalEnd: isoStr,
         startsAtMidnight: hour === 0,
         normalTime: isoStr,
         timezone,
         displayOffset: fillDateTime.utcOffset(),
-        twoWeekX: (hour * MS_IN_DAY) / 24,
       };
       fillData.push(currentFill);
       prevFill = currentFill;
@@ -779,6 +834,7 @@ TidelineData.prototype.generateFillData = function generateFillData() {
   if (prevFill !== null) {
     prevFill.normalEnd = lastDateTime.toISOString();
     prevFill.epochEnd = lastDateTime.valueOf();
+    this.maxDuration = Math.max(this.maxDuration, prevFill.epochEnd - prevFill.epoch);
   }
 
   const haveFillData = Array.isArray(this.grouped.fill);
@@ -907,7 +963,7 @@ TidelineData.prototype.setBasicsData = function setBasicsData() {
  * @returns The number of added data
  */
 TidelineData.prototype.addData = async function addData(newData) {
-  this.log.debug("Init", this);
+  this.log.debug("addData", newData);
   if (!Array.isArray(newData)) {
     this.log.error("Invalid parameter", { newData });
     throw new Error("Invalid parameter: newData");
@@ -917,6 +973,26 @@ TidelineData.prototype.addData = async function addData(newData) {
   const { startTimer, endTimer } = getTimerFuncs();
 
   startTimer("addData");
+
+  startTimer("filterUnwanted");
+  // Remove all unwanted data
+  // From our new data
+  if (_.get(window, "config.DEV", false)) {
+    // Dev only: display unwanted data received to the console
+    const unwantedData = newData.filter(d => !isWanted(d));
+    if (unwantedData.length > 0) {
+      this.log.warn('Unwanted data:', unwantedData);
+    }
+  }
+  newData = newData.filter(isWanted);
+  if (newData.length < 1) {
+    this.log.info('Nothing interested in theses new data');
+    endTimer("filterUnwanted");
+    endTimer("addData");
+    return 0;
+  }
+
+  // Clean-up ourselve
   this.grouped = null;
   this.diabetesData = null;
   this.deviceParameters = null;
@@ -944,22 +1020,6 @@ TidelineData.prototype.addData = async function addData(newData) {
   this.maxDuration = 0;
   this.timezonesList = null;
 
-  startTimer("filterUnwanted");
-  // Remove all unwanted data
-  // From our new data
-  if (_.get(window, "config.DEV", false)) {
-    // Dev only: display unwanted data received to the console
-    const unwantedData = newData.filter(d => !isWanted(d));
-    if (unwantedData.length > 0) {
-      this.log.warn('Unwanted data:', unwantedData);
-    }
-  }
-  newData = newData.filter(isWanted);
-  if (newData.length < 1) {
-    this.log.info('Nothing interested in theses new data');
-    endTimer("filterUnwanted");
-    return 0;
-  }
   // And our current ones too
   this.data = this.data.filter(isWanted);
   endTimer("filterUnwanted");
@@ -1066,7 +1126,7 @@ TidelineData.prototype.addData = async function addData(newData) {
 
   endTimer("addData");
 
-  this.log.info(`${this.data.length - nDataBefore} data added`);
+  this.log.info(`${this.data.length - nDataBefore} data added, ${this.data.length} total`);
   return this.data.length - nDataBefore;
 };
 
@@ -1107,4 +1167,5 @@ TidelineData.prototype.editMessage = function editMessage(editedMessage) {
   return message;
 };
 
+export { DAILY_TYPES };
 export default TidelineData;

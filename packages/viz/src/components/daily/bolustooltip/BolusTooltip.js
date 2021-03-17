@@ -238,7 +238,7 @@ class BolusTooltip extends React.Component {
     const { bolus, timePrefs } = this.props;
 
     const dateTitle = {
-      source: _.get(bolus, 'source', 'tidepool'),
+      source: _.get(bolus, 'source', 'Diabeloop'),
       normalTime: bolus.normalTime,
       timezone: _.get(bolus, 'timezone', 'UTC'),
       timePrefs,

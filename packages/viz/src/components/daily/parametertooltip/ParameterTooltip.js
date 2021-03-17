@@ -79,7 +79,7 @@ class ParameterTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(parameter, 'source', 'tidepool'),
+        source: _.get(parameter, 'source', 'Diabeloop'),
         normalTime: parameter.normalTime,
         timezone: _.get(parameter, 'timezone', 'UTC'),
         timePrefs,
@@ -127,6 +127,7 @@ ParameterTooltip.propTypes = {
         value: PropTypes.string.isRequired,
         previousValue: PropTypes.string,
         units: PropTypes.string.isRequired,
+        source: PropTypes.string,
       })).isRequired,
   }).isRequired,
   timePrefs: PropTypes.object.isRequired,

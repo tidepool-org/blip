@@ -15,29 +15,43 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('../../pool').default } Pool
+ * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ */
+
 import _ from 'lodash';
 
-function drawFill(pool, opts) {
-  const d3 = window.d3;
-  const defaults = {
-    classes: {
-        0: 'darkest',
-        3: 'dark',
-        6: 'lighter',
-        9: 'light',
-        12: 'lightest',
-        15: 'lighter',
-        18: 'dark',
-        21: 'darker'
-      },
-      duration: 3,
-      midnightWidth: 3,
-      gutter: 0,
-      fillClass: '',
-      x: function(t) { return Date.parse(t.normalTime); }
-    };
+const defaults = {
+  classes: {
+    0: 'darkest',
+    3: 'dark',
+    6: 'lighter',
+    9: 'light',
+    12: 'lightest',
+    15: 'lighter',
+    18: 'dark',
+    21: 'darker'
+  },
+  duration: 3,
+  midnightWidth: 3,
+  gutter: 0,
+  fillClass: '',
+  isDaily: false,
+  /** @type {ScaleContinuousNumeric} */
+  xScale: null,
+};
 
-  _.defaults(opts || {}, defaults);
+/**
+ *
+ * @param {Pool} pool
+ * @param {typeof defaults} opts
+ * @returns
+ */
+function drawFill(pool, opts = defaults) {
+  const d3 = window.d3;
+
+  _.defaults(opts, defaults);
 
   function fill(selection) {
     opts.xScale = pool.xScale().copy();
@@ -158,7 +172,7 @@ function drawFill(pool, opts) {
   }
 
   fill.xPosition = function(d) {
-    return opts.xScale(opts.x(d));
+    return opts.xScale(d.epoch);
   };
 
   fill.width = function(d) {
@@ -166,6 +180,7 @@ function drawFill(pool, opts) {
   };
 
   fill.drawGuidelines = function() {
+    const yScale = pool.yScale();
     var linesGroup = pool.group().selectAll('#' + pool.id() + '_guidelines').data([opts.guidelines]);
     linesGroup.enter().append('g').attr('id', pool.id() + '_guidelines');
     linesGroup.selectAll('line')
@@ -176,8 +191,8 @@ function drawFill(pool, opts) {
         'class': function(d) { return 'd3-line-guide ' + d['class']; },
         x1: opts.xScale.range()[0],
         x2: opts.xScale.range()[1],
-        y1: function(d) { return opts.yScale(d.height); },
-        y2: function(d) { return opts.yScale(d.height); }
+        y1: (d) => yScale(d.height),
+        y2: (d) => yScale(d.height),
       });
   };
 

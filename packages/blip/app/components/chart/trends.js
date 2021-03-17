@@ -16,7 +16,7 @@
  */
 import _ from 'lodash';
 import bows from 'bows';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import i18next from 'i18next';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -40,7 +40,6 @@ const t = i18next.t.bind(i18next);
 const CBGDateTraceLabel = vizComponents.CBGDateTraceLabel;
 const FocusedRangeLabels = vizComponents.FocusedRangeLabels;
 const FocusedSMBGPointLabel = vizComponents.FocusedSMBGPointLabel;
-const RangeSelect = vizComponents.RangeSelect;
 const Loader = vizComponents.Loader;
 
 const TrendsContainer = vizContainers.TrendsContainer;
@@ -57,22 +56,21 @@ class Trends extends React.Component {
     currentPatientInViewId: PropTypes.string.isRequired,
     dataUtil: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
-    initialDatetimeLocation: PropTypes.string,
+    epochLocation: PropTypes.number.isRequired,
+    msRange: PropTypes.number.isRequired,
     patient: PropTypes.object,
     patientData: PropTypes.object.isRequired,
     permsOfLoggedInUser: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
-    endpoints: PropTypes.array.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
-    onUpdateChartDateRange: PropTypes.func.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    updateDatetimeLocation: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     profileDialog: PropTypes.func.isRequired,
   };
@@ -132,6 +130,29 @@ class Trends extends React.Component {
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
+  /**
+   * @private
+   * @returns {string[]} ISO string UTC date range
+   */
+  getEndpoints() {
+    /** @type {{ epochLocation: number, msRange: number }} */
+    const { epochLocation, msRange } = this.props;
+    return [
+      (moment.utc(epochLocation - msRange / 2)).toISOString(),
+      (moment.utc(epochLocation + msRange / 2)).toISOString(),
+    ];
+  }
+
+  /**
+   * @private
+   * @returns {string} ISO string UTC
+   */
+  getInitialDatetimeLocation() {
+    /** @type {{ epochLocation: number }} */
+    const { epochLocation } = this.props;
+    return moment.utc(epochLocation).toISOString();
+  }
+
   getNewDomain(current, extent) {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
     const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
@@ -148,12 +169,14 @@ class Trends extends React.Component {
   }
 
   getTitle() {
-    const { timePrefs, endpoints } = this.props;
+    const { timePrefs, loading } = this.props;
     const { displayCalendar } = this.state;
 
-    if (endpoints.length !== 2) {
+    if (loading) {
       return t('Loading...');
     }
+
+    const endpoints = this.getEndpoints();
 
     const timezone = getTimezoneFromTimePrefs(timePrefs);
     const startDate = moment.utc(endpoints[0]).tz(timezone);
@@ -235,8 +258,7 @@ class Trends extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    const datetime = this.chart ? this.chart.getCurrentDay() : this.props.initialDatetimeLocation;
-    this.props.onSwitchToDaily(datetime);
+    this.props.onSwitchToDaily();
   }
 
   handleClickForward(e) {
@@ -291,21 +313,18 @@ class Trends extends React.Component {
     return;
   }
 
-  handleDatetimeLocationChange(datetimeLocationEndpoints, atMostRecent, cb) {
+  handleDatetimeLocationChange(endpoints, atMostRecent) {
     if (typeof atMostRecent !== 'boolean') {
       this.log.error('handleDatetimeLocationChange: Invalid parameter atMostRecent');
       atMostRecent = false;
     }
 
-    this.props.onUpdateChartDateRange(datetimeLocationEndpoints, () => {
-      this.props.updateDatetimeLocation(datetimeLocationEndpoints[1], () => {
-        this.setState({ atMostRecent }, () => {
-          if (_.isFunction(cb)) {
-            cb();
-          }
-        });
-      });
-    });
+    this.setState({ atMostRecent });
+    const start = moment.utc(endpoints[0]).valueOf();
+    const end = moment.utc(endpoints[1]).valueOf();
+    const range = end - start;
+    const center = start + range/2;
+    this.props.onDatetimeLocationChange(center, range);
   }
 
   handleSelectDate(date) {
@@ -392,6 +411,7 @@ class Trends extends React.Component {
     } = this.props;
 
     const trendsChartPrefs = chartPrefs.trends;
+    const endpoints = this.getEndpoints();
 
     let rightFooter = null;
     if (trendsChartPrefs.showingSmbg) {
@@ -417,6 +437,8 @@ class Trends extends React.Component {
         </div>
       );
     } else {
+      // Get the component here, for the tests: Avoid having redux set
+      const { RangeSelect } = vizComponents;
       rightFooter = (
         <RangeSelect displayFlags={trendsState[currentPatientInViewId].cbgFlags} currentPatientInViewId={currentPatientInViewId} />
       );
@@ -454,7 +476,7 @@ class Trends extends React.Component {
                 chartPrefs={chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.props.endpoints}
+                endpoints={endpoints}
               />
             </div>
           </div>
@@ -511,6 +533,7 @@ class Trends extends React.Component {
   }
 
   renderChart() {
+    const initialDatetimeLocation = this.getInitialDatetimeLocation();
     return (
       <TrendsContainer
         activeDays={this.props.chartPrefs.trends.activeDays}
@@ -520,7 +543,7 @@ class Trends extends React.Component {
         }}
         currentPatientInViewId={this.props.currentPatientInViewId}
         extentSize={this.props.chartPrefs.trends.extentSize}
-        initialDatetimeLocation={this.props.initialDatetimeLocation}
+        initialDatetimeLocation={initialDatetimeLocation}
         loading={this.props.loading}
         showingSmbg={this.props.chartPrefs.trends.showingSmbg}
         showingCbg={this.props.chartPrefs.trends.showingCbg}

@@ -40,15 +40,10 @@ class DataUtil {
     this.bgSources = this.getBgSources();
     this.defaultBgSource = this.getDefaultBgSource();
     this.latestPump = this.getLatestPump();
-
-    this.log('bgSource', this.bgSource);
-    this.log('timeZoneName', this.timeZoneName);
-    this.log('endpoints', this._endpoints);
-    this.log('bgPrefs', { bgBounds: this.bgBounds, bgUnits: this.bgUnits });
   }
 
   get bgSource() {
-    return _.get(this._chartPrefs, ['bgSource'], this.defaultBgSource);
+    return _.get(this._chartPrefs, 'bgSource', this.defaultBgSource);
   }
 
   set chartPrefs(chartPrefs = {}) {
@@ -178,7 +173,7 @@ class DataUtil {
   getGlucoseDataByDate = () => {
     const data = this.getAverageGlucoseData(true);
 
-    const bgDataByDate = _.groupBy(data.bgData, d => d.localDate);
+    const bgDataByDate = _.groupBy(data.bgData, 'localDate');
 
     data.bgDataByDate = bgDataByDate;
 
@@ -285,18 +280,18 @@ class DataUtil {
         insufficientData: true,
         total,
         coefficientOfVariation: Number.NaN,
-      }
+      };
     }
     return {
       coefficientOfVariation : _.meanBy(_.map(coefficientOfVariationByDate)),
       total,
-    }
+    };
   };
 
   getDailyAverageSums = data => {
     const clone = _.clone(data);
 
-    _.each(clone, (value, key) => {
+    _.forEach(clone, (value, key) => {
       if (key !== 'total') {
         clone[key] = value / this.days;
       }
@@ -309,7 +304,7 @@ class DataUtil {
     const clone = _.clone(data);
     const total = data.total || _.sum(_.values(data));
 
-    _.each(clone, (value, key) => {
+    _.forEach(clone, (value, key) => {
       if (key !== 'total') {
         clone[key] = (value / total) * MS_IN_DAY;
       }
@@ -463,7 +458,7 @@ class DataUtil {
           const standardDeviation = Math.sqrt(_.sum(squaredDiffs) / (value.length - 1));
           coefficientOfVariationByDate[key] = standardDeviation / avgGlucose * 100;
         }
-      })
+      });
     }
 
     return {

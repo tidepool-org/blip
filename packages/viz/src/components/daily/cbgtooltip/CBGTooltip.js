@@ -77,7 +77,7 @@ class CBGTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(cbg, 'source', 'tidepool'),
+        source: _.get(cbg, 'source', 'Diabeloop'),
         normalTime: cbg.normalTime,
         timezone: _.get(cbg, 'timezone', 'UTC'),
         timePrefs,

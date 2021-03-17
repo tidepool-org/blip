@@ -75,7 +75,6 @@ function PatientDataPage(): JSX.Element | null {
   const initialized = authHook.initialized() && teamHook.initialized && blipApi !== null;
 
   React.useEffect(() => {
-    log.debug("useEffect", { initialized, patient, userId, paramPatientId });
     if (!initialized) {
       return;
     }

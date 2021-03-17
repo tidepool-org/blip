@@ -18,12 +18,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import bows from 'bows';
-import sundial from 'sundial';
 import moment from 'moment-timezone';
 import WindowSizeListener from 'react-window-size-listener';
 import i18next from 'i18next';
 
-import { chartDailyFactory } from 'tideline';
+import { chartDailyFactory, MS_IN_DAY, MS_IN_HOUR } from 'tideline';
 import { components as vizComponents } from 'tidepool-viz';
 
 import { BG_DATA_TYPES } from '../../core/constants';
@@ -31,6 +30,8 @@ import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import Footer from './footer';
+
+/** @typedef {import('tideline').TidelineData} TidelineData */
 
 const Loader = vizComponents.Loader;
 const BolusTooltip = vizComponents.BolusTooltip;
@@ -42,22 +43,21 @@ const PhysicalTooltip = vizComponents.PhysicalTooltip;
 const ParameterTooltip = vizComponents.ParameterTooltip;
 const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
 
-const t = i18next.t.bind(i18next);
-
 class DailyChart extends React.Component {
   static propTypes = {
+    loading: PropTypes.bool.isRequired,
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
-    initialDatetimeLocation: PropTypes.string,
+    epochLocation: PropTypes.number.isRequired,
+    msRange: PropTypes.number.isRequired,
     patient: PropTypes.object,
-    patientData: PropTypes.object.isRequired,
+    tidelineData: PropTypes.object.isRequired,
     timePrefs: PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: PropTypes.func.isRequired,
     onShowMessageThread: PropTypes.func.isRequired,
     // other handlers
     onDatetimeLocationChange: PropTypes.func.isRequired,
-    onMostRecent: PropTypes.func.isRequired,
     onTransition: PropTypes.func.isRequired,
     onBolusHover: PropTypes.func.isRequired,
     onBolusOut: PropTypes.func.isRequired,
@@ -75,6 +75,7 @@ class DailyChart extends React.Component {
     onParameterOut: PropTypes.func.isRequired,
     onConfidentialHover: PropTypes.func.isRequired,
     onConfidentialOut: PropTypes.func.isRequired,
+    trackMetric: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -100,112 +101,127 @@ class DailyChart extends React.Component {
       'onParameterOut',
       'onConfidentialHover',
       'onConfidentialOut',
+      'trackMetric',
     ];
 
-    this.log = bows('Daily Chart');
+    this.log = bows('DailyChart');
     this.state = {
-      datetimeLocation: null
+      /** @type {function | null} */
+      chart: null,
+      windowHeight: 0,
+      windowWidth: 0,
     };
-    this.chart = null;
     /** @type {React.RefObject} */
     this.refNode = React.createRef();
   }
 
-  componentDidMount() {
-    this.mountChart();
-    this.initializeChart(this.props.initialDatetimeLocation);
+  componentDidUpdate() {
+    // Prevent the scroll drag while loading
+    const { chart } = this.state;
+    if (chart !== null) {
+      const { loading } = this.props;
+      chart.loadingInProgress = loading;
+    }
   }
 
   componentWillUnmount() {
     this.unmountChart();
   }
 
-  mountChart() {
-    this.log.debug('Mounting...');
-    this.chart = chartDailyFactory(this.refNode.current, _.pick(this.props, this.chartOpts))
-      .setupPools();
-    this.bindEvents();
+  mountChart(cb = _.noop) {
+    if (this.state.chart === null) {
+      const { tidelineData, epochLocation } = this.props;
+      this.log.debug('Mounting...');
+      const chart = chartDailyFactory(this.refNode.current, tidelineData, _.pick(this.props, this.chartOpts));
+      this.setState({ chart }, () => {
+        chart.setAtDate(epochLocation);
+        this.bindEvents();
+        cb();
+      });
+    } else {
+      cb();
+    }
   }
 
-  unmountChart() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-    this.chart = null;
+  unmountChart(cb = _.noop) {
+    const { chart } = this.state;
+    if (chart !== null) {
+      this.log('Unmounting...');
+      this.unbindEvents();
+      chart.destroy();
+      this.setState({ chart: null }, cb);
+    } else {
+      cb();
+    }
   }
 
   bindEvents() {
-    this.chart.emitter.on('createMessage', this.props.onCreateMessage);
-    this.chart.emitter.on('inTransition', this.props.onTransition);
-    this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
-    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
+    const { chart } = this.state;
+    chart.emitter.on('createMessage', this.props.onCreateMessage);
+    chart.emitter.on('inTransition', this.props.onTransition);
+    chart.emitter.on('messageThread', this.props.onShowMessageThread);
+    chart.emitter.on('navigated', this.props.onDatetimeLocationChange);
   }
 
-  initializeChart(datetime) {
-    this.log('Initializing...');
-    if (_.isEmpty(this.props.patientData)) {
-      throw new Error(t('Cannot create new chart with no data'));
-    }
-
-    this.chart.load(this.props.patientData);
-    if (datetime) {
-      this.chart.locate(datetime);
-    } else if (this.state.datetimeLocation !== null) {
-      this.chart.locate(this.state.datetimeLocation);
-    } else {
-      this.chart.locate();
-    }
+  unbindEvents() {
+    const { chart } = this.state;
+    chart.emitter.off('createMessage', this.props.onCreateMessage);
+    chart.emitter.off('inTransition', this.props.onTransition);
+    chart.emitter.off('messageThread', this.props.onShowMessageThread);
+    chart.emitter.off('navigated', this.props.onDatetimeLocationChange);
   }
 
   render() {
     return (
-      <div id="tidelineContainer" className="patient-data-chart" ref={this.refNode} />
+      <React.Fragment>
+        <div id="tidelineContainer" className="patient-data-chart" ref={this.refNode} />
+        <WindowSizeListener onResize={this.handleWindowResize} />
+      </React.Fragment>
     );
   }
 
-  // handlers
-  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
-    });
-    this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
+  handleWindowResize = ({windowHeight: height, windowWidth: width}) => {
+    const { windowHeight, windowWidth } = this.state;
+    this.log.debug('handleWindowResize', { windowHeight, windowWidth }, '=>', { height, width });
+    if (windowHeight !== height || width !== windowWidth) {
+      this.setState({ windowHeight: height, windowWidth: width }, () => {
+        this.reCreateChart();
+      });
+    }
   };
 
-  rerenderChart() {
-    this.log('Rerendering...');
-    this.unmountChart();
-    this.mountChart();
-    this.initializeChart();
-    this.chart.emitter.emit('inTransition', false);
+  reCreateChart() {
+    const { chart } = this.state;
+    this.log.info(chart === null ? 'Creating chart...' : 'Recreating chart...');
+    this.unmountChart(this.mountChart.bind(this));
   }
 
-  getCurrentDay = () => {
-    return this.chart.getCurrentDay().toISOString();
-  };
+  rerenderChartData() {
+    const { chart } = this.state;
+    if (chart !== null) {
+      this.log.info('Rerendering chart data...');
+      chart.renderPoolsData(true);
+    }
+  }
 
   goToMostRecent = () => {
-    this.chart.setAtDate(null, true);
+    this.state.chart.setAtDate(null, true);
   };
 
   panBack = () => {
-    this.chart.panBack();
+    this.state.chart.panBack();
   };
 
   panForward = () => {
-    this.chart.panForward();
-  };
-
-  // methods for messages
-  closeMessage = () => {
-    return this.chart.closeMessage();
+    this.state.chart.panForward();
   };
 
   createMessage = (message) => {
-    return this.chart.createMessage(message);
+    return this.state.chart.createMessage(message);
   };
 
   editMessage = (message) => {
-    return this.chart.editMessage(message);
+    return this.state.chart.editMessage(message);
   };
 }
 
@@ -218,8 +234,9 @@ class Daily extends React.Component {
     chartPrefs: PropTypes.object.isRequired,
     dataUtil: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
-    initialDatetimeLocation: PropTypes.string,
-    patientData: PropTypes.object.isRequired,
+    epochLocation: PropTypes.number.isRequired,
+    msRange: PropTypes.number.isRequired,
+    tidelineData: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     canPrint: PropTypes.bool.isRequired,
     // refresh handler
@@ -233,10 +250,8 @@ class Daily extends React.Component {
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToTrends: PropTypes.func.isRequired,
-    // PatientData state updaters
-    onUpdateChartDateRange: PropTypes.func.isRequired,
+    onDatetimeLocationChange: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    updateDatetimeLocation: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     profileDialog: PropTypes.func.isRequired,
   };
@@ -246,32 +261,32 @@ class Daily extends React.Component {
 
     this.chartRef = React.createRef();
     this.chartType = 'daily';
-    this.log = bows('Daily View');
+    this.log = bows('DailyView');
     this.state = {
-      atMostRecent: false,
-      endpoints: [],
+      atMostRecent: this.isAtMostRecent(),
       inTransition: false,
-      title: '',
-      debouncedDateRangeUpdate: null,
+      title: this.getTitle(props.epochLocation),
+      tooltip: null,
     };
-    this.throttledMetric = _.throttle(this.props.trackMetric, 5000);
   }
 
   componentDidUpdate(prevProps) {
-    const { loading } = this.props;
-    if (prevProps.loading && !loading) {
-      this.chartRef.current.rerenderChart();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
+    const { epochLocation } = this.props;
+    const { epochLocation: prevEpochLocation } = prevProps;
+    const { title } = this.state;
+    if (epochLocation !== prevEpochLocation) {
+      const nowTitle = this.getTitle(epochLocation);
+      if (title !== nowTitle) {
+        this.setState({ title: nowTitle, atMostRecent: this.isAtMostRecent() });
+      }
     }
   }
 
   render() {
-    const { timePrefs } = this.props.patientData.opts;
+    const { tidelineData, epochLocation, msRange, trackMetric, loading } = this.props;
+    const { inTransition, atMostRecent, tooltip, title } = this.state;
+    const { timePrefs } = tidelineData.opts;
+    const endpoints = this.getEndpoints();
 
     return (
       <div id="tidelineMain" className="daily">
@@ -279,18 +294,19 @@ class Daily extends React.Component {
           profileDialog={this.props.profileDialog}
           chartType={this.chartType}
           patient={this.props.patient}
-          inTransition={this.state.inTransition}
-          atMostRecent={this.state.atMostRecent}
-          title={this.state.title}
+          inTransition={inTransition}
+          atMostRecent={atMostRecent}
+          loading={loading}
+          title={title}
           iconBack={'icon-back'}
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           canPrint={this.props.canPrint}
-          trackMetric={this.props.trackMetric}
+          trackMetric={trackMetric}
           onClickBack={this.handlePanBack}
           onClickBasics={this.props.onSwitchToBasics}
-          onClickTrends={this.handleClickTrends}
+          onClickTrends={this.props.onSwitchToTrends}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -299,38 +315,38 @@ class Daily extends React.Component {
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <Loader show={this.props.loading} overlay={true} />
+              <Loader show={loading} overlay={true} />
               <DailyChart
+                loading={loading}
                 bgClasses={this.props.bgPrefs.bgClasses}
                 bgUnits={this.props.bgPrefs.bgUnits}
-                initialDatetimeLocation={this.props.initialDatetimeLocation}
-                patientData={this.props.patientData}
+                epochLocation={epochLocation}
+                msRange={msRange}
+                tidelineData={tidelineData}
                 timePrefs={timePrefs}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
                 // other handlers
                 onDatetimeLocationChange={this.handleDatetimeLocationChange}
-                onHideBasalSettings={this.handleHideBasalSettings}
-                onMostRecent={this.handleMostRecent}
-                onShowBasalSettings={this.handleShowBasalSettings}
                 onTransition={this.handleInTransition}
                 onBolusHover={this.handleBolusHover}
-                onBolusOut={this.handleBolusOut}
+                onBolusOut={this.handleTooltipOut}
                 onSMBGHover={this.handleSMBGHover}
-                onSMBGOut={this.handleSMBGOut}
+                onSMBGOut={this.handleTooltipOut}
                 onCBGHover={this.handleCBGHover}
-                onCBGOut={this.handleCBGOut}
+                onCBGOut={this.handleTooltipOut}
                 onCarbHover={this.handleCarbHover}
-                onCarbOut={this.handleCarbOut}
+                onCarbOut={this.handleTooltipOut}
                 onReservoirHover={this.handleReservoirHover}
-                onReservoirOut={this.handleReservoirOut}
+                onReservoirOut={this.handleTooltipOut}
                 onPhysicalHover={this.handlePhysicalHover}
-                onPhysicalOut={this.handlePhysicalOut}
+                onPhysicalOut={this.handleTooltipOut}
                 onParameterHover={this.handleParameterHover}
-                onParameterOut={this.handleParameterOut}
+                onParameterOut={this.handleTooltipOut}
                 onConfidentialHover={this.handleConfidentialHover}
-                onConfidentialOut={this.handleConfidentialOut}
+                onConfidentialOut={this.handleTooltipOut}
+                trackMetric={trackMetric}
                 ref={this.chartRef}
               />
             </div>
@@ -350,7 +366,7 @@ class Daily extends React.Component {
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
                 dataUtil={this.props.dataUtil}
-                endpoints={this.state.endpoints}
+                endpoints={endpoints}
               />
             </div>
           </div>
@@ -358,95 +374,42 @@ class Daily extends React.Component {
         <Footer
           chartType={this.chartType}
           onClickRefresh={this.props.onClickRefresh} />
-        {this.state.hoveredBolus && <BolusTooltip
-          position={{
-            top: this.state.hoveredBolus.top,
-            left: this.state.hoveredBolus.left
-          }}
-          side={this.state.hoveredBolus.side}
-          bolus={this.state.hoveredBolus.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredSMBG && <SMBGTooltip
-          position={{
-            top: this.state.hoveredSMBG.top,
-            left: this.state.hoveredSMBG.left
-          }}
-          side={this.state.hoveredSMBG.side}
-          smbg={this.state.hoveredSMBG.data}
-          timePrefs={timePrefs}
-          bgPrefs={this.props.bgPrefs}
-        />}
-        {this.state.hoveredCBG && <CBGTooltip
-          position={{
-            top: this.state.hoveredCBG.top,
-            left: this.state.hoveredCBG.left
-          }}
-          side={this.state.hoveredCBG.side}
-          cbg={this.state.hoveredCBG.data}
-          timePrefs={timePrefs}
-          bgPrefs={this.props.bgPrefs}
-        />}
-        {this.state.hoveredCarb && <FoodTooltip
-          position={{
-            top: this.state.hoveredCarb.top,
-            left: this.state.hoveredCarb.left
-          }}
-          side={this.state.hoveredCarb.side}
-          food={this.state.hoveredCarb.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredReservoir && <ReservoirTooltip
-          position={{
-            top: this.state.hoveredReservoir.top,
-            left: this.state.hoveredReservoir.left
-          }}
-          side={this.state.hoveredReservoir.side}
-          reservoir={this.state.hoveredReservoir.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredPhysical && <PhysicalTooltip
-          position={{
-            top: this.state.hoveredPhysical.top,
-            left: this.state.hoveredPhysical.left
-          }}
-          side={this.state.hoveredPhysical.side}
-          physicalActivity={this.state.hoveredPhysical.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredParameter && <ParameterTooltip
-          position={{
-            top: this.state.hoveredParameter.top,
-            left: this.state.hoveredParameter.left
-          }}
-          side={this.state.hoveredParameter.side}
-          parameter={this.state.hoveredParameter.data}
-          bgPrefs={this.props.bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredConfidential && <ConfidentialTooltip
-          position={{
-            top: this.state.hoveredConfidential.top,
-            left: this.state.hoveredConfidential.left
-          }}
-          side={this.state.hoveredConfidential.side}
-          confidential={this.state.hoveredConfidential.data}
-          timePrefs={timePrefs}
-        />}
-
-        <WindowSizeListener onResize={this.handleWindowResize} />
+        {tooltip}
       </div>
     );
   }
 
+  /**
+   * @param {number} epoch ms since epoch
+   * @returns true if we are at the most recent date
+   * @private
+   */
+  isAtMostRecent(epoch = -1) {
+    const { tidelineData, epochLocation, msRange } = this.props;
+    if (epoch < 0) {
+      epoch = epochLocation;
+    }
+    // Takes the last endpoint, substract half a day, because "epoch" is the center
+    // of the day, substract 1ms to be sure ">" work.
+    const endDate = moment.utc(tidelineData.endpoints[1]).valueOf() - 1 - msRange / 2;
+    return epoch > endDate;
+  }
+
+  getEndpoints() {
+    const { epochLocation, msRange } = this.props;
+    const start = moment.utc(epochLocation - msRange/2).toISOString();
+    const end = moment.utc(epochLocation + msRange/2).toISOString();
+    return [start, end];
+  }
+
+  /**
+   * @param {number} datetime A date to display
+   * @returns {string}
+   */
   getTitle(datetime) {
-    const { timePrefs } = this.props;
-    const timezone = timePrefs.timezoneName;
-    return moment.tz(datetime, timezone).format(t('ddd, MMM D, YYYY'));
+    /** @type {{tidelineData: TidelineData}} */
+    const { tidelineData } = this.props;
+    return moment.tz(datetime, tidelineData.getTimezoneAt(datetime)).format(i18next.t('ddd, MMM D, YYYY'));
   }
 
   // handlers
@@ -463,266 +426,212 @@ class Daily extends React.Component {
     this.props.updateChartPrefs(prefs);
   };
 
-  handleWindowResize = () => {
-    this.chartRef.current && this.chartRef.current.rerenderChart();
-  };
-
-  handleClickTrends = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    const datetime = this.chartRef.current.getCurrentDay();
-    this.props.onSwitchToTrends(datetime);
-  };
-
-  handleClickMostRecent = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    this.chartRef.current.goToMostRecent();
-  };
-
   handleClickOneDay = (e) => {
     if (e) {
       e.preventDefault();
     }
-    return;
+    return false;
   };
 
-  handleDatetimeLocationChange = (datetimeLocationEndpoints) => {
-    const endpoints = [
-      moment.utc(datetimeLocationEndpoints[0].start).toISOString(),
-      moment.utc(datetimeLocationEndpoints[0].end).toISOString(),
-    ];
-
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
-      title: this.getTitle(datetimeLocationEndpoints[1]),
-      endpoints,
-    });
-
-    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
-
-    // Update the chart date range in the patientData component.
-    // We debounce this to avoid excessive updates while panning the view.
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
+  handlePanBack = (e) => {
+    const { loading } = this.props;
+    if (e) {
+      e.preventDefault();
     }
+    if (!loading) {
+      this.chartRef.current.panBack();
+    }
+  };
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    this.setState({ debouncedDateRangeUpdate });
-    debouncedDateRangeUpdate(endpoints, () => {
-      this.setState({ debouncedDateRangeUpdate: null });
-    });
+  handlePanForward = (e) => {
+    const { loading } = this.props;
+    if (e) {
+      e.preventDefault();
+    }
+    if (!loading) {
+      this.chartRef.current.panForward();
+    }
+  };
+
+  handleClickMostRecent = (e) => {
+    const { loading } = this.props;
+    if (e) {
+      e.preventDefault();
+    }
+    if (!loading) {
+      this.chartRef.current.goToMostRecent();
+    }
+  };
+
+  /**
+   * @param {number} epoch Date displayed -> center of the daily view. In ms since epoch.
+   */
+  handleDatetimeLocationChange = (epoch) => {
+    const { loading } = this.props;
+    if (!loading) {
+
+      this.setState({ title: this.getTitle(epoch), atMostRecent: this.isAtMostRecent(epoch) });
+      this.props.onDatetimeLocationChange(epoch, MS_IN_DAY).then((dataLoaded) => {
+        if (dataLoaded && this.chartRef.current !== null) {
+          // New data available, re-render the chart so they can be displayed
+          // to the user
+          this.chartRef.current.rerenderChartData();
+        }
+      });
+    }
   };
 
   handleInTransition = inTransition => {
     this.setState({ inTransition });
   };
 
-  handleBolusHover = (bolus) => {
-    const rect = bolus.rect;
+  updateDatumHoverForTooltip(datum) {
+    /** @type {{ epochLocation: number, bgPrefs: {}, tidelineData: TidelineData }} */
+    const { epochLocation, bgPrefs, tidelineData } = this.props;
+    const rect = datum.rect;
     // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
-    bolus.top = rect.top + rect.height / 2;
+    const hoursOffset = (datum.data.epoch - epochLocation) / MS_IN_HOUR;
+    datum.top = rect.top + rect.height / 2;
     if (hoursOffset > 5) {
-      bolus.side = 'left';
-      bolus.left = rect.left;
+      datum.side = 'left';
+      datum.left = rect.left;
     } else {
-      bolus.side = 'right';
-      bolus.left = rect.left + rect.width;
+      datum.side = 'right';
+      datum.left = rect.left + rect.width;
     }
-    this.setState({
-      hoveredBolus: bolus,
-    });
+    datum.bgPrefs = bgPrefs;
+    datum.timePrefs = tidelineData.opts.timePrefs;
+    return datum;
+  }
+
+  handleTooltipOut = () => this.setState({ tooltip: null });
+
+  handleBolusHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <BolusTooltip
+        bolus={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleBolusOut = () => {
-    this.setState({
-      hoveredBolus: false,
-    });
+  handleSMBGHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <SMBGTooltip
+        smbg={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleSMBGHover = (smbg) => {
-    const rect = smbg.rect;
-    // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
-    smbg.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      smbg.side = 'left';
-      smbg.left = rect.left;
-    } else {
-      smbg.side = 'right';
-      smbg.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredSMBG: smbg,
-    });
+  handleCBGHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <CBGTooltip
+        cbg={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleSMBGOut = () => {
-    this.setState({
-      hoveredSMBG: false,
-    });
+  handleCarbHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <FoodTooltip
+        food={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleCBGHover = (cbg) => {
-    this.throttledMetric('hovered over daily cgm tooltip');
-    var rect = cbg.rect;
-    // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
-    cbg.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      cbg.side = 'left';
-      cbg.left = rect.left;
-    } else {
-      cbg.side = 'right';
-      cbg.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredCBG: cbg,
-    });
+  handleReservoirHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <ReservoirTooltip
+        reservoir={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleCBGOut = () => {
-    this.setState({
-      hoveredCBG: false,
-    });
+  handlePhysicalHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <PhysicalTooltip
+        physicalActivity={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleCarbHover = (carb) => {
-    var rect = carb.rect;
-    // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(carb.data.normalTime, this.state.datetimeLocation, 'h');
-    carb.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      carb.side = 'left';
-      carb.left = rect.left;
-    } else {
-      carb.side = 'right';
-      carb.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredCarb: carb,
-    });
+  handleParameterHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <ParameterTooltip
+        parameter={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
-  handleCarbOut = () => {
-    this.setState({
-      hoveredCarb: false,
-    });
-  };
-
-  handleReservoirHover = (reservoir) => {
-    var rect = reservoir.rect;
-    // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(reservoir.data.normalTime, this.state.datetimeLocation, 'h');
-    reservoir.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      reservoir.side = 'left';
-      reservoir.left = rect.left;
-    } else {
-      reservoir.side = 'right';
-      reservoir.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredReservoir: reservoir,
-    });
-  };
-
-  handleReservoirOut = () => {
-    this.setState({
-      hoveredReservoir: false,
-    });
-  };
-
-  handlePhysicalHover = (physical) => {
-    var rect = physical.rect;
-    // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(physical.data.normalTime, this.state.datetimeLocation, 'h');
-    physical.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      physical.side = 'left';
-      physical.left = rect.left;
-    } else {
-      physical.side = 'right';
-      physical.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredPhysical: physical,
-    });
-  };
-
-  handlePhysicalOut = () => {
-    this.setState({
-      hoveredPhysical: false,
-    });
-  };
-
-  handleParameterHover = (parameter) => {
-    const { rect } = parameter;
-    // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(parameter.data.normalTime, this.state.datetimeLocation, 'h');
-    parameter.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      parameter.side = 'left';
-      parameter.left = rect.left;
-    } else {
-      parameter.side = 'right';
-      parameter.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredParameter: parameter,
-    });
-  };
-
-  handleParameterOut = () => {
-    this.setState({
-      hoveredParameter: false,
-    });
-  };
-
-  handleConfidentialHover = (confidential) => {
-    const { rect } = confidential;
-    // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(confidential.data.normalTime, this.state.datetimeLocation, 'h');
-    confidential.top = rect.top + rect.height / 2;
-    if (hoursOffset > 5) {
-      confidential.side = 'left';
-      confidential.left = rect.left;
-    } else {
-      confidential.side = 'right';
-      confidential.left = rect.left + rect.width;
-    }
-    this.setState({
-      hoveredConfidential: confidential,
-    });
-  };
-
-  handleConfidentialOut = () => {
-    this.setState({
-      hoveredConfidential: false,
-    });
-  };
-
-  handleMostRecent = (atMostRecent) => {
-    this.setState({
-      atMostRecent: atMostRecent,
-    });
-  };
-
-  handlePanBack = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    this.chartRef.current.panBack();
-  };
-
-  handlePanForward = (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-    this.chartRef.current.panForward();
+  handleConfidentialHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <ConfidentialTooltip
+      confidential={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
   };
 
   // Messages:

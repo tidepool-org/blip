@@ -23,15 +23,17 @@ import * as constants from '../data/util/constants';
 import format from '../data/util/format';
 import BasalUtil from '../data/basalutil';
 
-function plotBasal(pool, opts = {}) {
+const defaults = {
+  opacity: 0.6,
+  opacityDelta: 0.2,
+  pathStroke: 1.5,
+  timezoneOffset: 0,
+  tooltipPadding: 20,
+  defaultSource: 'default',
+};
+
+function plotBasal(pool, opts = defaults) {
   const d3 = window.d3;
-  const defaults = {
-    opacity: 0.6,
-    opacityDelta: 0.2,
-    pathStroke: 1.5,
-    timezoneOffset: 0,
-    tooltipPadding: 20,
-  };
 
   const t = i18next.t.bind(i18next);
   const basalUtil = new BasalUtil();
@@ -246,11 +248,13 @@ function plotBasal(pool, opts = {}) {
   };
 
   basal.yPosition = function(d) {
-    return opts.yScale(d.rate);
+    const yScale = pool.yScale();
+    return yScale(d.rate);
   };
 
   basal.pathYPosition = function(d) {
-    return opts.yScale(d.rate) - opts.pathStroke/2;
+    const yScale = pool.yScale();
+    return yScale(d.rate) - opts.pathStroke/2;
   };
 
   basal.invisibleRectYPosition = _.constant(0);
@@ -260,7 +264,8 @@ function plotBasal(pool, opts = {}) {
   };
 
   basal.height = function(d) {
-    return pool.height() - opts.yScale(d.rate);
+    const yScale = pool.yScale();
+    return pool.height() - yScale(d.rate);
   };
 
   basal.invisibleRectHeight = function(/* d */) {
@@ -281,11 +286,10 @@ function plotBasal(pool, opts = {}) {
   };
 
   basal.tooltipHtml = function(group, datum, showSheduledLabel) {
-    const defaultSource = _.get(window, 'config.BRANDING', 'tidepool') === 'diabeloop' ? 'Diabeloop' : 'default';
     const { AUTOMATED_BASAL_LABELS, SCHEDULED_BASAL_LABELS } = constants;
     const H_MM_A_FORMAT = constants.dateTimeFormats.H_MM_A_FORMAT;
     /** @type {string} */
-    const source = _.get(datum, 'source', defaultSource);
+    const source = _.get(datum, 'source', opts.defaultSource);
     switch (datum.deliveryType) {
     case 'temp':
       group.append('p')
@@ -367,11 +371,12 @@ function plotBasal(pool, opts = {}) {
   };
 
   basal.addAnnotations = function(data) {
-    for (var i = 0; i < data.length; ++i) {
-      var d = data[i];
-      var annotationOpts = {
+    const yScale = pool.yScale();
+    for (let i = 0; i < data.length; ++i) {
+      const d = data[i];
+      const annotationOpts = {
         x: basal.xPosition(d),
-        y: opts.yScale(0),
+        y: yScale(0),
         xMultiplier: 2,
         yMultiplier: 1,
         orientation: {

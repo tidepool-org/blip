@@ -86,7 +86,7 @@ class SMBGTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(smbg, 'source', 'tidepool'),
+        source: _.get(smbg, 'source', 'Diabeloop'),
         normalTime: smbg.normalTime,
         timezone: _.get(smbg, 'timezone', 'UTC'),
         timePrefs,
@@ -126,6 +126,7 @@ SMBGTooltip.propTypes = {
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
   smbg: PropTypes.shape({
+    normalTime: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     units: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,

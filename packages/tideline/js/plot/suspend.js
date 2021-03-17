@@ -145,7 +145,8 @@ function plotSuspend(pool, opts = {}) {
   };
 
   suspend.yPosition = function(d) {
-    return opts.yScale(d.rate);
+    const yScale = pool.yScale();
+    return yScale(d.rate);
   };
 
   return suspend;

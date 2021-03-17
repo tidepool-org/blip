@@ -40,7 +40,6 @@ class Basics extends React.Component {
     if (dateRange) {
       const endpoints = [dateRange[0], getLocalizedCeiling(dateRange[1], this.props.timePrefs).toISOString()];
       this.setState({ endpoints });
-      this.log.debug(dateRange, '=>', endpoints);
     }
   }
 
@@ -63,7 +62,7 @@ class Basics extends React.Component {
           trackMetric={this.props.trackMetric}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickBasics={this.handleClickBasics}
-          onClickOneDay={this.handleClickOneDay}
+          onClickOneDay={this.handleClickDaily}
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
           onClickSettings={this.props.onSwitchToSettings}
@@ -181,20 +180,21 @@ class Basics extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    const { tidelineData } = this.props;
-    const dateRange = _.get(tidelineData, 'basicsData.dateRange');
-    this.props.onSwitchToTrends(dateRange[1]);
+    this.props.onSwitchToTrends();
   };
 
-  handleClickOneDay = (e) => {
+  handleClickDaily = (e) => {
     if (e) {
       e.preventDefault();
     }
-    const { tidelineData } = this.props;
-    const dateRange = _.get(tidelineData, 'basicsData.dateRange');
-    this.props.onSwitchToDaily(dateRange[1]);
+    this.props.onSwitchToDaily();
   };
 
+  /**
+   *
+   * @param {moment.Moment} date The date clicked in the calendar
+   * @param {string} title The calendar title (basals, boluses, siteChanges)
+   */
   handleSelectDay = (date, title) => {
     this.props.onSwitchToDaily(date, title);
   };

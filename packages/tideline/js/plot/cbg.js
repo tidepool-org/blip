@@ -15,31 +15,40 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('../pool').default } Pool
+ * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ */
+
 import _ from 'lodash';
 
 import utils from './util/utils';
 import categorizer from '../data/util/categorize';
 import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../data/util/constants';
 
-function plotCbg(pool, opts) {
+const defaults = {
+  bgUnits: MGDL_UNITS,
+  classes: {
+    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+  },
+  radius: 2.5,
+  /** @type {ScaleContinuousNumeric} */
+  xScale: null,
+};
+
+/**
+ *
+ * @param {Pool} pool
+ * @param {typeof defaults} opts
+ * @returns
+ */
+function plotCbg(pool, opts = defaults) {
   const d3 = window.d3;
 
-  opts = opts || {};
-
-  var defaults = {
-    bgUnits: MGDL_UNITS,
-    classes: {
-      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
-    },
-    radius: 2.5,
-  };
-
-  var classes = opts.classes;
-  classes = _.omit(classes, ['very-low', 'very-high']);
-  opts.classes = classes;
   _.defaults(opts, defaults);
+  opts.classes = _.omit(opts.classes, ['very-low', 'very-high']);
 
   var categorize = categorizer(opts.classes, opts.bgUnits);
   var mainGroup = pool.parent();
@@ -140,7 +149,8 @@ function plotCbg(pool, opts) {
   };
 
   cbg.yPosition = function(d) {
-    return opts.yScale(d.value);
+    const yScale = pool.yScale();
+    return yScale(d.value);
   };
 
   cbg.addTooltip = function(d, rect) {
@@ -154,11 +164,12 @@ function plotCbg(pool, opts) {
   };
 
   cbg.addAnnotations = function(data) {
+    const yScale = pool.yScale();
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       var annotationOpts = {
         x: cbg.xPosition(d),
-        y: opts.yScale(d.value),
+        y: yScale(d.value),
         xMultiplier: 0,
         yMultiplier: 2,
         orientation: {

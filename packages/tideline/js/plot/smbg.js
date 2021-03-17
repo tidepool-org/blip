@@ -15,6 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('../pool').default } Pool
+ * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ */
+
 import _ from 'lodash';
 
 import utils from './util/utils';
@@ -22,20 +27,27 @@ import bgBoundaryClass from './util/bgboundary';
 import categorizer from '../data/util/categorize';
 import { MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../data/util/constants';
 
-function plotSmbg(pool, opts = {}) {
+const defaults = {
+  bgUnits: MGDL_UNITS,
+  classes: {
+    'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
+    low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
+    target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
+    high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
+  },
+  size: 16,
+  timezoneAware: false,
+  tooltipPadding: 20
+};
+
+/**
+ *
+ * @param {Pool} pool
+ * @param {typeof defaults} opts
+ * @returns
+ */
+function plotSmbg(pool, opts = defaults) {
   const d3 = window.d3;
-  const defaults = {
-    bgUnits: MGDL_UNITS,
-    classes: {
-      'very-low': { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryLow },
-      low: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetLower },
-      target: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].targetUpper },
-      high: { boundary: DEFAULT_BG_BOUNDS[MGDL_UNITS].veryHigh },
-    },
-    size: 16,
-    timezoneAware: false,
-    tooltipPadding: 20
-  };
 
   _.defaults(opts, defaults);
 
@@ -93,7 +105,8 @@ function plotSmbg(pool, opts = {}) {
   };
 
   smbg.yPosition = function(d) {
-    return opts.yScale(d.value);
+    const yScale = pool.yScale();
+    return yScale(d.value);
   };
 
   smbg.id = function(d) {
@@ -111,11 +124,12 @@ function plotSmbg(pool, opts = {}) {
   };
 
   smbg.addAnnotations = function(data) {
-    for (var i = 0; i < data.length; ++i) {
-      var d = data[i];
-      var annotationOpts = {
+    const yScale = pool.yScale();
+    for (let i = 0; i < data.length; ++i) {
+      const d = data[i];
+      const annotationOpts = {
         x: smbg.xPosition(d),
-        y: opts.yScale(d.value),
+        y: yScale(d.value),
         xMultiplier: 0,
         yMultiplier: 2,
         orientation: {

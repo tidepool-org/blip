@@ -15,11 +15,16 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import("tideline").TidelineData } TidelineData
+ */
+
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import i18next from 'i18next';
 import { Trans } from 'react-i18next';
+import bows from 'bows';
 
 import utils from '../../core/utils';
 import * as viz from 'tidepool-viz';
@@ -28,7 +33,6 @@ import Header from './header';
 import Footer from './footer';
 
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
-const t = i18next.t.bind(i18next);
 
 class Settings extends React.Component {
   static propTypes = {
@@ -59,6 +63,9 @@ class Settings extends React.Component {
       title: ''
     };
     this.chartType = 'settings';
+
+    /** @type {Console} */
+    this.log = bows('ChartSettings');
   }
 
   render() {
@@ -96,8 +103,10 @@ class Settings extends React.Component {
   }
 
   renderChart() {
-    const mostRecentSettings = _.last(this.props.patientData.grouped.pumpSettings);
-    console.log('Settings.renderChart()', mostRecentSettings);
+    /** @type {{patientData: TidelineData}} */
+    const { patientData } = this.props;
+    const mostRecentSettings = _.last(patientData.grouped.pumpSettings);
+    this.log.debug('Settings.renderChart()', mostRecentSettings);
     const handleCopySettings = () => {
       this.props.trackMetric('Clicked Copy Settings');
     };
@@ -107,7 +116,7 @@ class Settings extends React.Component {
         currentPatientInViewId={this.props.currentPatientInViewId}
         copySettingsClicked={handleCopySettings}
         bgUnits={this.props.bgPrefs.bgUnits}
-        manufacturerKey={_.get(mostRecentSettings, 'source', '').toLowerCase()}
+        manufacturerKey={_.get(mostRecentSettings, 'source', patientData.opts.defaultSource).toLowerCase()}
         pumpSettings={mostRecentSettings}
         onSwitchToDaily={this.props.onSwitchToDaily}
         timePrefs={this.props.timePrefs}
@@ -117,6 +126,7 @@ class Settings extends React.Component {
   }
 
   renderMissingSettingsMessage() {
+    const t = i18next.t.bind(i18next);
     return (
       <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data" t={t}>
         <p>

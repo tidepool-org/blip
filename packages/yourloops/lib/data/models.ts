@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Yourloops API client type definition for patient-data
+ * Data API Models
  *
  * All rights reserved.
  *
@@ -26,21 +26,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-interface PatientDatum {
-  id: string;
-  /** Parent upload object id (type="upload") */
-  uploadId: string;
-  /** The user id */
-  _userId: string;
-  /** time ISO string */
-  time: string;
-  timezone?: string;
-  /** Data type */
-  type: string;
-  /** others properties */
-  [x: string]: unknown;
+/**
+ * Options to pass to the fetch data API
+ */
+export interface GetPatientDataOptions {
+  /** Start of the wanted period (ISO 8601 datetime) */
+  startDate?: string;
+  /** End of the wanted period (ISO 8601 datetime) */
+  endDate?: string;
+  /** Does the result should include the latest pumpSettings ? */
+  withPumpSettings?: boolean;
 }
 
-type PatientData = PatientDatum[];
-
-export { PatientDatum, PatientData };
+/**
+ * Options for the API v0
+ */
+export interface GetPatientDataOptionsV0 {
+  /** Type of data to search for - can be a list of types separated by commas */
+  types?: string[];
+  /** Start of the wanted period (ISO 8601 datetime) */
+  startDate?: string;
+  /** End of the wanted period (ISO 8601 datetime) */
+  endDate?: string;
+  /** To return only the most recent results for each `type` matching the results filtered by the other query parameters */
+  latest?: boolean;
+}

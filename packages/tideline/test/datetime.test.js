@@ -19,15 +19,10 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import { assert, expect } from 'chai';
 
+import { MS_IN_DAY } from '../js/data/util/constants';
 import dt from '../js/data/util/datetime';
 
 describe('datetime utility', function() {
-  describe('MS_IN_24', function() {
-    it('should equal 86400000', function() {
-      expect(dt.MS_IN_24).to.equal(24*60*60*1000);
-    });
-  });
-
   describe('addDays', function() {
     it('should be a function', function() {
       assert.isFunction(dt.addDays);
@@ -38,10 +33,10 @@ describe('datetime utility', function() {
       expect(type).to.equal('string');
     });
 
-    it('should return a datestring that parses as MS_IN_24 from the date arg', function() {
+    it('should return a datestring that parses as MS_IN_DAY from the date arg', function() {
       var d = new Date();
       var passed = new Date(dt.addDays(d, 1));
-      expect(passed - d).to.equal(dt.MS_IN_24);
+      expect(passed - d).to.equal(MS_IN_DAY);
     });
   });
 

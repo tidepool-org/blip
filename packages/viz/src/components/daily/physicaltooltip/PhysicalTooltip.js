@@ -89,7 +89,7 @@ class PhysicalTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(physicalActivity, 'source', 'tidepool'),
+        source: _.get(physicalActivity, 'source', 'Diabeloop'),
         normalTime: physicalActivity.normalTime,
         timezone: _.get(physicalActivity, 'timezone', 'UTC'),
         timePrefs,
@@ -127,6 +127,7 @@ PhysicalTooltip.propTypes = {
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
   physicalActivity: PropTypes.shape({
+    normalTime: PropTypes.string.isRequired,
     reportedIntensity: PropTypes.string.isRequired,
     duration: PropTypes.shape({
       units: PropTypes.string.isRequired,

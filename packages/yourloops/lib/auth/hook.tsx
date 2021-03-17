@@ -67,8 +67,9 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
   const session = (): Session | null => sessionToken !== null && traceToken !== null && user !== null ? { sessionToken, traceToken, user } : null;
 
   const getAuthInfos = (): Promise<Session> => {
-    if (sessionToken !== null && traceToken !== null && user !== null) {
-      return Promise.resolve({ sessionToken, traceToken, user });
+    const s = session();
+    if (s !== null) {
+      return Promise.resolve(s);
     }
     return Promise.reject(new Error(t("not-logged-in")));
   };
@@ -236,6 +237,9 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       // window.removeEventListener("storage", onStorageChange);
     };
 
+    // Prevent to set two times the trace token, when we have found one in the storage.
+    let initializedFromStorage = false;
+
     // Use traceToken to know if the API hook is initialized
     if (traceToken === null) {
       log.info("init");
@@ -270,6 +274,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
           setTraceToken(traceTokenStored);
           setUser(currentUser);
 
+          initializedFromStorage = true;
+
           if (pathname !== historyHook.location.pathname) {
             log.info("Reused session storage items, and redirect to", pathname);
             historyHook.push(pathname);
@@ -285,7 +291,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       // window.addEventListener("storage", onStorageChange);
     }
 
-    if (traceToken === null) {
+    if (traceToken === null && !initializedFromStorage) {
       // Create a trace token since, we do not have one set in
       // the DOM storage
       setTraceToken(uuidv4());

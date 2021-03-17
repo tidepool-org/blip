@@ -396,7 +396,7 @@ class DailyPrintView extends PrintView {
           return value;
         },
       };
-    }(this.doc));
+    })(this.doc);
 
     this.doc.moveTo(this.margins.left, yPos.current())
       .lineTo(this.summaryArea.rightEdge, yPos.current())

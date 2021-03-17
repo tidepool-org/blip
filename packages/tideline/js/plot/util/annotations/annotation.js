@@ -111,8 +111,9 @@ function mkAnnotations(container, annotationsGroup) {
       try {
         var edge = container.getCurrentDomain().end;
         opts.orientation.left = dt.isNearRightEdge(opts.d, edge);
+      } catch (typeError) {
+        log.debug(typeError);
       }
-      catch (TypeError) {}
 
       var fo = selection.append('foreignObject')
         .attr({

@@ -16,6 +16,7 @@
  */
 
 import i18next from 'i18next';
+import moment from 'moment-timezone';
 import { assert, expect } from 'chai';
 
 import enTranslation from './locales/en/translation.json';
@@ -384,11 +385,11 @@ describe('format utility', function() {
     });
 
     it('should return `Wednesday, January 1` on a UTC timestamp at 1 am on first day of 2014', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z')).to.equal('Wednesday, January 1');
+      expect(fmt.xAxisDayText(moment.utc('2014-01-01T01:00:00.000Z'))).to.equal('Wednesday, January 1');
     });
 
     it('should return `Tuesday, December 31` on same UTC timestamp when passed a Pacific non-DST offset', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z', -480)).to.equal('Tuesday, December 31');
+      expect(fmt.xAxisDayText(moment.tz('2014-01-01T01:00:00.000Z', 'US/Pacific'))).to.equal('Tuesday, December 31');
     });
   });
 
@@ -398,15 +399,15 @@ describe('format utility', function() {
     });
 
     it('should return return `1 am` on a UTC timestamp at 1 am', function() {
-      expect(fmt.xAxisTickText('2014-01-01T01:00:00.000Z')).to.equal('1 am');
+      expect(fmt.xAxisTickText(moment.utc('2014-01-01T01:00:00.000Z'))).to.equal('1:00 am');
     });
 
     it('should return `5 pm` on same UTC timestamp when passed a Pacific non-DST offset', function() {
-      expect(fmt.xAxisTickText('2014-01-01T01:00:00.000Z', -480)).to.equal('5 pm');
+      expect(fmt.xAxisTickText(moment.tz('2014-01-01T01:00:00.000Z', 'US/Pacific'))).to.equal('5:00 pm');
     });
 
     it('should return `6 pm` on same UTC timestamp when passed a Pacific DST offset', function() {
-      expect(fmt.xAxisTickText('2014-04-01T01:00:00.000Z', -420)).to.equal('6 pm');
+      expect(fmt.xAxisTickText(moment.tz('2014-04-01T01:00:00.000Z', 'US/Pacific'))).to.equal('6:00 pm');
     });
   });
 });

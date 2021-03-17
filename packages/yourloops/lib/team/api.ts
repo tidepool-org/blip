@@ -42,8 +42,8 @@ const log = bows("TeamAPI");
 let teams: ITeam[] | null = null;
 
 async function fetchTeams(session: Session): Promise<ITeam[]> {
-  const { sessionToken, traceToken, user } = session;
-  log.info("fetchTeams()", { traceToken, sessionToken });
+  const { user } = session;
+  log.info("fetchTeams()");
 
   // FIXME
   // Simulate the fetch() wait network call:

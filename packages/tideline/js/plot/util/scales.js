@@ -15,125 +15,205 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('d3').ScaleLinear<number, number> } ScaleLinear
+ * @typedef { import('d3').ScalePower<number, number> } ScalePower
+ * @typedef { import('d3').Axis } Axis
+ * @typedef { import('../../../js/tidelinedata').default } TidelineData
+ * @typedef { import('../../../js/tidelinedata').Datum } Datum
+ * @typedef { import('../../pool').default} Pool
+ */
+
 import _ from 'lodash';
 
 import commonbolus from './commonbolus';
-import { MGDL_PER_MMOLL, MGDL_UNITS, MMOLL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
+import { MGDL_PER_MMOLL, MGDL_UNITS, DEFAULT_BG_BOUNDS } from '../../data/util/constants';
 import format from '../../data/util/format';
 
-function scales(opts) {
-  const d3 = window.d3;
-  opts = _.assign({}, opts) || {};
-
-  var bgUnits = opts.bgUnits || MGDL_UNITS;
-
-  var defaults = {
-    bgUnits,
-    bolusRatio: 0.35,
-    MIN_CBG: 39,
-    MAX_CBG: 401,
-    TARGET_BG_BOUNDARY: DEFAULT_BG_BOUNDS[bgUnits].targetUpper,
-    carbRadius: 14
-  };
-  _.defaults(opts, defaults);
-
-  if (opts.bgUnits === MMOLL_UNITS) {
-    opts.MIN_CBG = opts.MIN_CBG/MGDL_PER_MMOLL;
-    opts.MAX_CBG = opts.MAX_CBG/MGDL_PER_MMOLL;
-  }
-
-  return {
-    MIN_CBG: opts.MIN_CBG,
-    MAX_CBG: opts.MAX_CBG,
-    bgClamped: function(domain, pool, pad) {
-      return d3.scale.linear()
-        .domain(domain)
-        .range([pool.height() - pad, pad])
-        .clamp(true);
-    },
-    bg: function(data, pool, pad) {
-      var ext = d3.extent(data, function(d) { return d.value; });
-      var targetBoundary = _.get(opts, 'bgClasses.target.boundary', opts.TARGET_BG_BOUNDARY);
-
-      // We need to ensure that the top of the bgScale is at least at the the target upper bound
-      // for proper rendering of datasets with no BG values above this mark.
-      ext[1] = _.max([ext[1], targetBoundary]);
-
-      if (ext[1] > this.MAX_CBG || ext[0] === ext[1]) {
-        return d3.scale.linear()
-          .domain([0, this.MAX_CBG])
-          .range([pool.height() - pad, pad])
-          .clamp(true);
-      }
-      else {
-        return d3.scale.linear()
-          .domain([0, ext[1]])
-          .range([pool.height() - pad, pad]);
-      }
-    },
-    bgLog: function(data, pool, pad) {
-      var ext = d3.extent(data, function(d) { return d.value; });
-      if (ext[1] > this.MAX_CBG) {
-        return d3.scale.log()
-          .domain([ext[0], this.MAX_CBG])
-          .range([pool.height() - pad, pad])
-          .clamp(true);
-      }
-      else if (ext[0] === ext[1]) {
-        return d3.scale.log()
-          .domain([this.MIN_CBG, this.MAX_CBG])
-          .range([pool.height() - pad, pad])
-          .clamp(true);
-      }
-      else {
-        return d3.scale.log()
-          .domain(ext)
-          .range([pool.height() - pad, pad]);
-      }
-    },
-    bgTicks: function(data) {
-      if ((!data) || (data.length === 0)) {
-        return [];
-      }
-      var defaultTicks = _.map(_.values(_.omit(opts.bgClasses, ['very-high', 'very-low'])), function(n) {
-        return format.tooltipBGValue(_.get(n, 'boundary'), bgUnits);
-      }).sort(function (a, b) { return a - b; });
-
-      var ext = d3.extent(data, function(d) { return d.value; });
-      if (ext[0] === ext[1]) {
-        var targetBoundary = _.get(opts, 'bgClasses.target.boundary', opts.TARGET_BG_BOUNDARY);
-        ext[1] = _.max([ext[1], targetBoundary]);
-      }
-      // if the min of our data is greater than any of the defaultTicks, remove that tick
-      defaultTicks.forEach(function(tick, i) {
-        if (ext[1] < tick) {
-          defaultTicks.pop();
-        }
-      });
-      return defaultTicks;
-    },
-    bolus: function(/**@type{object[]} */ data, /** @type{object} */ pool) {
-      const poolHeight = pool.height();
-      // for boluses the recommended can exceed the value
-      /** @type {number} */
-      const maxValue = data.reduce((/** @type{number} */ p, /** @type{object} */ c) => {
-        /** @type{number} */
-        const v = commonbolus.getProgrammed(c);
-        return Math.max(p, (Number.isFinite(v) ? v : 0));
-      }, 0);
-      const bolusDomain = [0, maxValue];
-      const bolusRange = [poolHeight, opts.bolusRatio * poolHeight];
-      return d3.scale.sqrt().domain(bolusDomain).range(bolusRange);
-    },
-    basal: function(data, pool) {
-      var scale = d3.scale.linear()
-        .domain([0, d3.max(data, (d) => {
-          return d.rate;
-        }) * 1.1])
-        .rangeRound([pool.height(), 0]);
-      return scale;
-    }
-  };
+/**
+ * @param {TidelineData} tidelineData
+ * @param {"mg/dL" | "mmol/L"} bgUnits
+ * @return {number}
+ */
+function getTargetBoundary(tidelineData, bgUnits = MGDL_UNITS) {
+  const defaultTarget = DEFAULT_BG_BOUNDS[bgUnits].targetUpper;
+  return _.get(tidelineData, 'opts.bgClasses.target.boundary', defaultTarget);
 }
 
-export default scales;
+/**
+ * Create a d3.scale
+ * @param {TidelineData} tidelineData
+ * @param {Pool} pool Parent pool
+ * @param {[number, number]} extent
+ * @param {number} pad padding
+ * @returns {ScaleLinear}
+ */
+function createScaleBG(tidelineData, pool, extent, pad) {
+  // const MIN_CBG_MGDL = 39;
+  const MAX_CBG_MGDL = 401;
+  // const MIN_CBG_MMOLL = MIN_CBG_MGDL/MGDL_PER_MMOLL;
+  const MAX_CBG_MMOLL = MAX_CBG_MGDL/MGDL_PER_MMOLL;
+
+  const d3 = window.d3;
+  /** @type {"mg/dL" | "mmol/L"} */
+  const bgUnits = _.get(tidelineData, 'opts.bgUnits', MGDL_UNITS);
+  /** @type {number} */
+  const targetBoundary = getTargetBoundary(tidelineData, bgUnits);
+  // const minCBG = bgUnits === MGDL_UNITS ? MIN_CBG_MGDL : MIN_CBG_MMOLL;
+  const maxCBG = bgUnits === MGDL_UNITS ? MAX_CBG_MGDL : MAX_CBG_MMOLL;
+
+  // We need to ensure that the top of the bgScale is at least at the the target upper bound
+  // for proper rendering of datasets with no BG values above this mark.
+  extent[1] = _.max([extent[1], targetBoundary]);
+
+  const range = [pool.height() - pad, pad];
+  const domain = [0, Math.min(extent[1], maxCBG)];
+  const scale = d3.scale.linear();
+
+  scale.domain(domain).range(range);
+
+  if (extent[1] > maxCBG || extent[0] === extent[1]) {
+    scale.clamp(true);
+  }
+
+  if (!Number.isFinite(scale(70))) {
+    console.warn('createScaleBG: scale is not well initialized', { extent, maxCBG, bgUnits, range, domain });
+  }
+
+  return scale;
+}
+
+/**
+ * @param {TidelineData} tidelineData
+ * @param {[number, number]} extent
+ * @returns {string[]} The displayed ticks
+ */
+function createTicksBG(tidelineData, extent) {
+  /** @type {"mg/dL" | "mmol/L"} */
+  const bgUnits = _.get(tidelineData, 'opts.bgUnits', MGDL_UNITS);
+  const bgValues = _.values(_.omit(tidelineData.opts.bgClasses, ['very-high', 'very-low']));
+  const ticks = _.map(bgValues, (n) => format.tooltipBGValue(_.get(n, 'boundary'), bgUnits));
+  ticks.sort((a, b) => a - b);
+  const targetBoundary = getTargetBoundary(tidelineData, bgUnits);
+
+  if (extent[0] === extent[1]) {
+    extent[1] = _.max([extent[1], targetBoundary]);
+  }
+  // if the min of our data is greater than any of the defaultTicks, remove that tick
+  ticks.forEach((tick) => {
+    if (extent[1] < tick) {
+      ticks.pop();
+    }
+  });
+  return ticks;
+}
+
+/**
+ * Create the Y-Axis SVG and scale for BG graph
+ * @param {TidelineData} tidelineData
+ * @param {Pool} pool Parent pool
+ * @returns {{ axis: Axis, scale: ScaleLinear }}
+ */
+ export function createYAxisBG(tidelineData, pool) {
+  const d3 = window.d3;
+  const SMBG_SIZE = 16;
+
+  const allBG = tidelineData.grouped.cbg.concat(tidelineData.grouped.smbg);
+  /** @type {[number, number]} */
+  const extent = d3.extent(allBG, (d) => d.value);
+  const scale = createScaleBG(tidelineData, pool, Array.from(extent), SMBG_SIZE/2);
+  const ticks = createTicksBG(tidelineData, Array.from(extent));
+  const bgTickFormat = tidelineData.opts.bgUnits === MGDL_UNITS ? 'd' : '.1f';
+
+  const axis = d3.svg.axis()
+    .scale(scale)
+    .orient('left')
+    .outerTickSize(0)
+    .tickValues(ticks)
+    .tickFormat(d3.format(bgTickFormat));
+  return { axis, scale };
+}
+
+/**
+ * @param {Datum[]} data
+ * @param {Pool} pool
+ * @returns {ScalePower}
+ */
+function createScaleBolus(data, pool) {
+  const bolusRatio = 0.35;
+  const d3 = window.d3;
+  const poolHeight = pool.height();
+  // for boluses the recommended can exceed the value
+  /** @type {number} */
+  const maxValue = data.reduce((p, c) => {
+    /** @type{number} */
+    const v = commonbolus.getProgrammed(c);
+    return Math.max(p, (Number.isFinite(v) ? v : 0));
+  }, 0);
+  const bolusDomain = [0, maxValue];
+  const bolusRange = [poolHeight, bolusRatio * poolHeight];
+  return d3.scale.sqrt().domain(bolusDomain).range(bolusRange);
+}
+
+/**
+ * Create the Y-Axis scale for bolus & carbs graph
+ * @param {TidelineData} tidelineData
+ * @param {Pool} pool Parent pool
+ * @returns {{ axis: Axis, scale: ScalePower }}
+ */
+export function createYAxisBolus(tidelineData, pool) {
+  const d3 = window.d3;
+
+  const allBolus = tidelineData.grouped.bolus.concat(tidelineData.grouped.wizard);
+  const scale = createScaleBolus(allBolus, pool);
+  // set up y-axis for bolus
+  const bolusTickValues = [0, 1, 5, 10];
+  const maxBolusValue = scale.domain()[1];
+  // Add additional legends
+  while (maxBolusValue > bolusTickValues[bolusTickValues.length - 1] && bolusTickValues.length < 7) {
+    const currentMax = bolusTickValues[bolusTickValues.length - 1];
+    const bolusTick = currentMax < 20 ? 5 : 10;
+    // [0, 5, 10, 15, 20, 30, 40]
+    bolusTickValues.push(currentMax + bolusTick);
+  }
+
+  const axis = d3.svg.axis()
+    .scale(scale)
+    .orient('left')
+    .outerTickSize(0)
+    .ticks(2)
+    .tickValues(bolusTickValues);
+
+  return { axis, scale };
+}
+
+/**
+ * @param {Datum[]} data
+ * @param {Pool} pool
+ * @returns {ScaleLinear}
+ */
+function createScaleBasal(data, pool) {
+  const d3 = window.d3;
+  const scale = d3.scale.linear();
+  scale.domain([0, d3.max(data, (d) => d.rate) * 1.1]);
+  scale.rangeRound([pool.height(), 0]);
+  return scale;
+}
+
+/**
+ * Create the Y-Axis SVG and scale for basal graph
+ * @param {TidelineData} tidelineData
+ * @param {Pool} pool Parent pool
+ * @returns {{ axis: Axis, scale: ScaleLinear }}
+ */
+export function createYAxisBasal(tidelineData, pool) {
+  const d3 = window.d3;
+  const scale = createScaleBasal(tidelineData.grouped.basal, pool);
+  const axis = d3.svg.axis()
+    .scale(scale)
+    .orient('left')
+    .outerTickSize(0)
+    .ticks(2);
+
+  return { axis, scale };
+}

@@ -1,6 +1,5 @@
 {
   " reports the data.": " reports the data.",
-  "%-I %p": "%-I %p",
   "%-I:%M %p": "%-I:%M %p",
   "%a": "%a",
   "%b %-d": "%b %-d",
@@ -210,6 +209,7 @@
   "ddd, MMM D, Y": "ddd, MMM D, Y",
   "ddd, MMM D, YYYY": "ddd, MMM D, YYYY",
   "dddd, MMMM D": "dddd, MMMM D",
+  "dddd, h:mm a": "dddd, h:mm a",
   "December": "December",
   "Delete my account": "Delete my account",
   "Delivered": "Delivered",

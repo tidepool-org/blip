@@ -16,7 +16,6 @@
  */
 
 import _ from 'lodash';
-import bows from 'bows';
 
 import schema from './validator/schematron';
 import commonSchema from './common';
@@ -27,8 +26,6 @@ import message from './message';
 import pumpSettings from './pumpSettings';
 import upload from './upload';
 import wizard from './wizard';
-
-const log = bows('validate');
 
 const getSchemas = () => {
   const common = commonSchema();
@@ -55,14 +52,12 @@ export function validateOne(datum, result, schemas = getSchemas()) {
   const handler = schemas[datum.type];
   if (!_.isFunction(handler)) {
     datum.errorMessage = `No schema defined for data.type[${datum.type}]`;
-    log.error(new Error(datum.errorMessage), datum);
     result.invalid.push(datum);
   } else {
     try {
       handler(datum);
       result.valid.push(datum);
-    }
-    catch(e) {
+    } catch (e) {
       datum.errorMessage = e.message;
       result.invalid.push(datum);
     }

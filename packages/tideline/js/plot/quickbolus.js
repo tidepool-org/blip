@@ -15,24 +15,34 @@
  * == BSD2 LICENSE ==
  */
 
+/**
+ * @typedef { import('../pool').default } Pool
+ * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
+ */
+
 import _ from 'lodash';
 
 import utils from './util/utils';
 import commonbolus from './util/commonbolus';
 import drawbolus from './util/drawbolus';
 
-function plotQuickBolus(pool, opts = {}) {
+const defaults = {
+  width: 12
+};
+
+/**
+ * @param {Pool} pool
+ * @param {typeof defaults} opts
+ * @returns
+ */
+function plotQuickBolus(pool, opts = defaults) {
   const d3 = window.d3;
-  const defaults = {
-    width: 12
-  };
 
   _.defaults(opts, defaults);
 
-  const drawBolus = drawbolus(pool, opts);
-
   function bolus(selection) {
-    opts.xScale = pool.xScale().copy();
+    const drawBolus = drawbolus(pool, { ...opts, yScale: pool.yScale(), xScale: pool.xScale().copy() });
+
     selection.each(function(data) {
       // filter out boluses with wizard
       const currentData = _.filter(data, (d) => _.isEmpty(d.wizard));

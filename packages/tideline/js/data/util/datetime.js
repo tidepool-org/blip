@@ -22,7 +22,6 @@ import moment from 'moment-timezone';
 import { MS_IN_DAY } from './constants';
 
 const datetime = {
-  MS_IN_24: MS_IN_DAY,
   APPEND: 'T00:00:00.000Z',
 
   addDays: function(s, n) {
@@ -192,7 +191,7 @@ const datetime = {
 
   getNumDays: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-    return Math.ceil((end - start)/this.MS_IN_24);
+    return Math.ceil((end - start)/MS_IN_DAY);
   },
 
   getUTCOfLocalPriorMidnight: function(d, timezoneName) {
@@ -218,7 +217,7 @@ const datetime = {
 
   isLessThanTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-    if (end - start < this.MS_IN_24) {
+    if (end - start < MS_IN_DAY) {
       return true;
     }
     else { return false; }
@@ -227,7 +226,7 @@ const datetime = {
   isNearRightEdge: function(d, edge) {
     // check if d.normalTime is within six hours before edge
     var t = new Date(d.normalTime);
-    if (edge.valueOf() - t.valueOf() < this.MS_IN_24/4) {
+    if (edge.valueOf() - t.valueOf() < MS_IN_DAY/4) {
       return true;
     }
     return false;
@@ -254,7 +253,7 @@ const datetime = {
 
   isTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-    if (end - start === this.MS_IN_24) {
+    if (end - start === MS_IN_DAY) {
       return true;
     }
     else { return false; }
@@ -278,7 +277,12 @@ const datetime = {
   },
 
   toISODateString: function(d) {
-    var date = new Date(d);
+    let date;
+    if (!(moment.isMoment(d) || d instanceof Date)) {
+      date = moment.utc(d);
+    } else {
+      date = d;
+    }
     return date.toISOString().slice(0,10);
   },
 

@@ -51,7 +51,7 @@ class FoodTooltip extends React.Component {
     const actualValue = this.getCarbs(food);
     const rows = [];
     const prescriptor = this.getPrescriptor(food);
-    if (this.isPrescribed(food) && (prescriptor !== PRESCRIPTOR_NONE) ) {      
+    if (this.isPrescribed(food) && (prescriptor !== PRESCRIPTOR_NONE) ) {
       const prescribedValue = (prescriptor === PRESCRIPTOR_MODIFIED) ? this.getPrescribedCarbs(food) : this.getCarbs(food);
       rows.push(
         <div key={'prescribed'} className={styles.prescribed}>
@@ -82,7 +82,7 @@ class FoodTooltip extends React.Component {
     let dateTitle = null;
     if (title === null) {
       dateTitle = {
-        source: _.get(food, 'source', 'tidepool'),
+        source: _.get(food, 'source', 'Diabeloop'),
         normalTime: food.normalTime,
         timezone: _.get(food, 'timezone', 'UTC'),
         timePrefs,
@@ -120,6 +120,8 @@ FoodTooltip.propTypes = {
   borderColor: PropTypes.string.isRequired,
   borderWidth: PropTypes.number.isRequired,
   food: PropTypes.shape({
+    source: PropTypes.string,
+    normalTime: PropTypes.string.isRequired,
     nutrition: PropTypes.shape({
       carbohydrate: PropTypes.shape({
         net: PropTypes.number.isRequired,

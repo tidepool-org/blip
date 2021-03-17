@@ -20,9 +20,7 @@ class HoverDay extends React.Component {
         // add 1/2 of 24 hrs in milliseconds, because the date used to switch
         // refers to the center, not the left edge, of the daily view switching to
         // but we want the left edge at midnight
-        .add(MS_IN_DAY / 2, "milliseconds")
-        .toDate()
-        .toISOString(),
+        .add(MS_IN_DAY / 2, "milliseconds"),
       this.props.title
     );
   };

@@ -24,8 +24,6 @@ import Link from '@material-ui/core/Link';
 import Timeline from '@material-ui/icons/Timeline';
 import StayCurrentPortrait from '@material-ui/icons/StayCurrentPortrait';
 
-import config from '../../config';
-
 const t = i18next.t.bind(i18next);
 
 class TidelineHeader extends React.Component {
@@ -40,12 +38,13 @@ class TidelineHeader extends React.Component {
     title: PropTypes.node.isRequired,
     chartType: PropTypes.string.isRequired,
     inTransition: PropTypes.bool,
-    atMostRecent: PropTypes.bool.isRequired,
+    atMostRecent: PropTypes.bool,
+    loading: PropTypes.bool,
     iconBack: PropTypes.string,
     iconNext: PropTypes.string,
     iconMostRecent: PropTypes.string,
     trackMetric: PropTypes.func.isRequired,
-    canPrint: PropTypes.bool.isRequired,
+    canPrint: PropTypes.bool,
     permsOfLoggedInUser: PropTypes.object,
     onClickBack: PropTypes.func,
     onClickBasics: PropTypes.func,
@@ -60,6 +59,9 @@ class TidelineHeader extends React.Component {
 
   static defaultProps = {
     inTransition: false,
+    atMostRecent: false,
+    loading: false,
+    canPrint: false,
     profileDialog: null,
   };
 
@@ -72,89 +74,80 @@ class TidelineHeader extends React.Component {
   }
 
   renderStandard() {
-    const { canPrint } = this.props;
+    const { canPrint, chartType, atMostRecent, inTransition, loading } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
-    const showPrintLink = _.includes(printViews, this.props.chartType);
+    const showPrintLink = _.includes(printViews, chartType);
     const showHome = _.has(this.props.permsOfLoggedInUser, 'view');
     const homeValue = _.get(this.props.patient, 'profile.fullName', t('Home'));
     const patientLink = this.getPatientLink();
 
     const home = cx({
       'js-home': true,
-      'patient-data-subnav-active': showHome,
       'patient-data-subnav-hidden': !showHome,
     });
 
     const basicsLinkClass = cx({
       'js-basics': true,
-      'patient-data-subnav-active': this.props.chartType === 'basics',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+      'patient-data-subnav-active': chartType === 'basics',
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     const dayLinkClass = cx({
       'js-daily': true,
-      'patient-data-subnav-active': this.props.chartType === 'daily',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+      'patient-data-subnav-active': chartType === 'daily',
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     const trendsLinkClass = cx({
       'js-trends': true,
-      'patient-data-subnav-active': this.props.chartType === 'trends',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
-    });
-
-    const bgLogLinkClass = cx({
-      'js-bgLog': true,
-      'd-none': config.BRANDING === 'diabeloop',
-      'patient-data-subnav-active': this.props.chartType === 'bgLog',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+      'patient-data-subnav-active': chartType === 'trends',
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     const dateLinkClass = cx({
       'js-date': true,
       'patient-data-subnav-text':
-        this.props.chartType === 'basics' ||
-        this.props.chartType === 'daily' ||
-        this.props.chartType === 'bgLog' ||
-        this.props.chartType === 'trends',
-      'patient-data-subnav-dates-basics': this.props.chartType === 'basics',
-      'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
-      'patient-data-subnav-dates-bgLog': this.props.chartType === 'bgLog',
-      'patient-data-subnav-dates-trends': this.props.chartType === 'trends',
+        chartType === 'basics' ||
+        chartType === 'daily' ||
+        chartType === 'bgLog' ||
+        chartType === 'trends',
+      'patient-data-subnav-disabled': inTransition || loading,
+      'patient-data-subnav-dates-basics': chartType === 'basics',
+      'patient-data-subnav-dates-daily': chartType === 'daily',
+      'patient-data-subnav-dates-bgLog': chartType === 'bgLog',
+      'patient-data-subnav-dates-trends': chartType === 'trends',
     });
 
     const mostRecentClass = cx({
       'js-most-recent': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
-      'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+      'patient-data-subnav-active': !(atMostRecent || inTransition || loading),
+      'patient-data-subnav-disabled': atMostRecent || inTransition || loading,
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     const backClass = cx({
       'js-back': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.inTransition,
-      'patient-data-subnav-disabled': this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'settings' || this.props.chartType === 'no-data',
+      'patient-data-subnav-active': !(inTransition || loading),
+      'patient-data-subnav-disabled': inTransition || loading,
+      'patient-data-subnav-hidden': chartType === 'settings' || chartType === 'no-data',
     });
 
     const nextClass = cx({
       'js-next': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
-      'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'settings' || this.props.chartType === 'no-data',
+      'patient-data-subnav-active': !(atMostRecent || inTransition || loading),
+      'patient-data-subnav-disabled': atMostRecent || inTransition || loading,
+      'patient-data-subnav-hidden': chartType === 'settings' || chartType === 'no-data',
     });
 
     const settingsLinkClass = cx({
       'patient-data-subnav-button': true,
       'js-settings': true,
-      'patient-data-subnav-right': true,
-      'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': this.props.chartType === 'settings',
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+      'patient-data-subnav-active': chartType === 'settings',
+      'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
     let printLink = null;
@@ -162,7 +155,6 @@ class TidelineHeader extends React.Component {
       const printLinkClass = cx({
         'patient-data-subnav-button': true,
         'printview-print-icon': true,
-        'patient-data-subnav-active': true,
       });
 
       printLink = (

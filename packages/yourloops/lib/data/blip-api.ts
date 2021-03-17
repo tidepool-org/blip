@@ -33,12 +33,14 @@ import { PatientData } from "models/device-data";
 import { MessageNote } from "models/message";
 import { User } from "../../models/shoreline";
 import { AuthContext } from "../auth";
-import { TeamContext } from "../team";
 import { t as translate } from "../language";
 import sendMetrics from "../metrics";
 
+import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "./models";
 import {
-  loadPatientData as apiLoadPatientData,
+  getPatientDataRouteV0 as apiGetPatientDataRouteV0,
+  getPatientDataRange as apiGetPatientDataRange,
+  getPatientData as apiGetPatientData,
   startMessageThread as apiStartMessageThread,
   getMessageThread as apiGetMessageThread,
   getMessages as apiGetMessages,
@@ -46,40 +48,16 @@ import {
   editMessage as apiEditMessage,
 } from "./api";
 
-export class PatientDataLoadedEvent extends Event {
-  public user: User;
-  public patientData: PatientData;
-
-  constructor(user: User, patientData: PatientData) {
-    super("patient-data-loaded");
-    this.user = user;
-    this.patientData = patientData;
-  }
-}
-export class PatientNotesLoadedEvent extends Event {
-  public user: User;
-  public messages: MessageNote[];
-
-  constructor(user: User, messages: MessageNote[]) {
-    super("patient-notes-loaded");
-    this.user = user;
-    this.messages = messages;
-  }
-}
-
 /**
  * Wrapper for blip v1 to be able to call the API
  */
-class BlipApi extends EventTarget {
+class BlipApi {
   private log: Console;
   private authHook: AuthContext;
-  private teamHook: TeamContext;
   public sendMetrics: (eventName: string, properties?: unknown) => void;
 
-  constructor(authHook: AuthContext, teamHook: TeamContext) {
-    super();
+  constructor(authHook: AuthContext) {
     this.authHook = authHook;
-    this.teamHook = teamHook;
     this.sendMetrics = sendMetrics;
     this.log = bows("BlipAPI");
   }
@@ -88,32 +66,43 @@ class BlipApi extends EventTarget {
     return _.cloneDeep(this.authHook.user);
   }
 
-  public async loadPatientData(patient: User): Promise<PatientData> {
-    this.log.debug("loadPatientData", { userId: patient.userid });
+  public getPatientDataRange(patient: User): Promise<string[]> {
+    this.log.debug("getPatientDataRange", { userId: patient.userid });
     const session = this.authHook.session();
     if (session !== null) {
-      this.dispatchEvent(new Event("patient-data-loading"));
-      const patientData = await apiLoadPatientData(session, patient);
-      this.dispatchEvent(new PatientDataLoadedEvent(patient as User, patientData));
-      return patientData;
+      return apiGetPatientDataRange(session, patient);
     }
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public async getMessages(userId: string): Promise<MessageNote[]> {
-    this.log.debug("getMessages", { userId });
+  public getPatientData(patient: User, options?: GetPatientDataOptions): Promise<PatientData> {
+    this.log.debug("getPatientData", { userId: patient.userid, options });
     const session = this.authHook.session();
-    const patient = this.teamHook.getUser(userId);
-    if (session !== null && patient !== null) {
-      this.dispatchEvent(new Event("patient-notes-loading"));
-      const messages = await apiGetMessages(session, userId);
-      this.dispatchEvent(new PatientNotesLoadedEvent(patient, messages));
-      return messages;
+    if (session !== null) {
+      return apiGetPatientData(session, patient, options);
     }
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public async getMessageThread(messageId: string): Promise<MessageNote[]> {
+  public getPatientDataV0(patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
+    this.log.debug("getPatientDataV0", { userId: patient.userid, options });
+    const session = this.authHook.session();
+    if (session !== null) {
+      return apiGetPatientDataRouteV0(session, patient, options);
+    }
+    return Promise.reject(new Error(translate("not-logged-in")));
+  }
+
+  public getMessages(patient: User, options?: GetPatientDataOptions): Promise<MessageNote[]> {
+    this.log.debug("getMessages", { userId: patient.userid, options });
+    const session = this.authHook.session();
+    if (session !== null) {
+      return apiGetMessages(session, patient, options);
+    }
+    return Promise.reject(new Error(translate("not-logged-in")));
+  }
+
+  public getMessageThread(messageId: string): Promise<MessageNote[]> {
     this.log.debug("getMessageThread", { messageId });
     const session = this.authHook.session();
     if (session !== null) {
@@ -122,7 +111,7 @@ class BlipApi extends EventTarget {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public async startMessageThread(message: MessageNote): Promise<string> {
+  public startMessageThread(message: MessageNote): Promise<string> {
     this.log.debug("startMessageThread", { userId: message.userid });
     const session = this.authHook.session();
     if (session !== null) {
@@ -131,7 +120,7 @@ class BlipApi extends EventTarget {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public async replyMessageThread(message: MessageNote): Promise<string> {
+  public replyMessageThread(message: MessageNote): Promise<string> {
     this.log.debug("replyMessageThread", { userId: message.userid });
     const session = this.authHook.session();
     if (session !== null) {
@@ -140,7 +129,7 @@ class BlipApi extends EventTarget {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public async editMessage(message: MessageNote): Promise<void> {
+  public editMessage(message: MessageNote): Promise<void> {
     this.log.debug("editMessage", { userId: message.userid });
     const session = this.authHook.session();
     if (session !== null) {

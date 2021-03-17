@@ -47,8 +47,12 @@
 
 .patient-data-subnav-text {
   display: inline-block;
-
   text-align: center;
+
+  &.patient-data-subnav-disabled {
+    color: @gray;
+    cursor: default;
+  }
 }
 
 .patient-data-subnav-dates-daily {
@@ -89,8 +93,12 @@
   }
 }
 
-.patient-data-footer-left a.patient-data-subnav-active {
-  font-weight: bold;
+.patient-data-footer-left,
+.patient-data-subnav-left,
+.patient-data-subnav-right {
+ a.patient-data-subnav-active, button.patient-data-subnav-active {
+    color: var(--activeValue, black) !important;
+  }
 }
 
 a.patient-name {
@@ -125,12 +133,10 @@ a.js-home {
   }
   &:active, &:disabled {
     color: @gray;
-    // color: @green-active;
   }
   &.patient-data-subnav-hidden {
     display: none;
   }
-
   svg {
     margin-right: 5px;
   }

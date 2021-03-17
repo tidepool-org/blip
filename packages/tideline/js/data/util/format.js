@@ -263,20 +263,20 @@ const format = {
     };
   },
 
-  xAxisDayText: function(i, offset) {
-    if (offset) {
-      i = new Date(i);
-      i.setUTCMinutes(i.getUTCMinutes() + offset);
-    }
-    return moment.utc(i).format(dateTimeFormats.DDDD_MMMM_D_FORMAT);
+  /**
+   * @param {moment.Moment} m The datetime (moment) to display
+   * @returns {string} The formated DDDD_MMMM_D_FORMAT datetime
+   */
+  xAxisDayText: function(m) {
+    return m.format(dateTimeFormats.DDDD_MMMM_D_FORMAT);
   },
 
-  xAxisTickText: function(i, offset) {
-    var d = new Date(i);
-    if (offset) {
-      d.setUTCMinutes(d.getUTCMinutes() + offset);
-    }
-    return window.d3.time.format.utc(dateTimeFormats.HOUR_FORMAT)(d).toLowerCase();
+  /**
+   * @param {moment.Moment} m The datetime (moment) to display
+   * @returns {string} The formated H_MM_A_FORMAT datetime
+   */
+  xAxisTickText: function(m) {
+    return m.format(dateTimeFormats.H_MM_A_FORMAT);
   }
 };
 

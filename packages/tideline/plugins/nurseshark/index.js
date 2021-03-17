@@ -150,7 +150,7 @@ var nurseshark = {
     return msg;
   },
   processData: function(data, bgUnits) {
-    if (!(data && data.length >= 0 && Array.isArray(data))) {
+    if (!Array.isArray(data)) {
       throw new Error('An array is required.');
     }
     // data from the old-old data model (pre-v1 docs) doesn't have a `time` field
@@ -189,25 +189,18 @@ var nurseshark = {
     var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
     function createUploadIDsMap() {
+      const defaultSource = "Diabeloop"; // FIXME same as in TidelineData
       var uploads = _.filter(data, {type: 'upload'});
       _.forEach(uploads, function(upload) {
-        var source = 'Unknown';
-        if (upload.hasOwnProperty('source')) {
+        let source = defaultSource;
+        if ('source' in upload && _.isString(upload.source)) {
           source = upload.source;
-        }
-        else if(upload.hasOwnProperty('deviceManufacturers') && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length) {
-          // Uploader does not specify `source` for CareLink uploads, so they incorrectly get set to `Medtronic`, which should only be used for Medtronic Direct uploads.
-          // Check if manufacturer equals Medtronic, then check pumpSettings array for uploads with that upload ID and a source of `carelink`, then override appropriately.
-          if (upload.deviceManufacturers[0] === 'Medtronic' && _.filter(data, {type: 'pumpSettings', uploadId: upload.uploadId, source: 'carelink'}).length) {
-            source = 'carelink';
-          }
-          else {
-            source = upload.deviceManufacturers[0];
-          }
+        } else if (Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) {
+          source = upload.deviceManufacturers[0];
         }
 
         uploadIDSources[upload.uploadId] = source;
-        uploadIDSerials[upload.uploadId] = upload.deviceSerialNumber ? upload.deviceSerialNumber : 'Unknown';
+        uploadIDSerials[upload.uploadId] = _.isString(upload.deviceSerialNumber) ? upload.deviceSerialNumber : 'Unknown';
       });
     }
 

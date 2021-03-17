@@ -170,8 +170,6 @@ class Stats extends React.Component {
         break;
     }
 
-    this.log('stats', stats);
-
     return stats;
   };
 
