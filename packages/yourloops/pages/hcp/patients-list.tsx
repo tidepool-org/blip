@@ -51,7 +51,6 @@ const log = bows("PatientListPage");
  * Compare two patient for sorting the patient table
  * @param a A patient
  * @param b A patient
- * @param flagged Pinned patient
  * @param orderBy Sort field
  */
 function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
@@ -71,7 +70,15 @@ function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
   return aValue.localeCompare(bValue);
 }
 
-function updatePatientList(teamHook: TeamContext, flagged: string[], filter: string, filterType: FilterType | string, orderBy: SortFields, order: SortDirection): TeamUser[] {
+function updatePatientList(
+  teamHook: TeamContext,
+  flagged: string[],
+  filter: string,
+  filterType: FilterType | string,
+  orderBy: SortFields,
+  order: SortDirection,
+  sortFlaggedFirst: boolean
+): TeamUser[] {
   const allPatients = teamHook.getPatients();
   let patients = allPatients;
   if (filter.length > 0) {
@@ -117,14 +124,16 @@ function updatePatientList(teamHook: TeamContext, flagged: string[], filter: str
 
   // Sort the patients
   patients.sort((a: TeamUser, b: TeamUser): number => {
-    const aFlagged = flagged.includes(a.userid);
-    const bFlagged = flagged.includes(b.userid);
-    // Flagged: always first
-    if (aFlagged && !bFlagged) {
-      return -1;
-    }
-    if (!aFlagged && bFlagged) {
-      return 1;
+    if (sortFlaggedFirst) {
+      const aFlagged = flagged.includes(a.userid);
+      const bFlagged = flagged.includes(b.userid);
+      // Flagged: always first
+      if (aFlagged && !bFlagged) {
+        return -1;
+      }
+      if (!aFlagged && bFlagged) {
+        return 1;
+      }
     }
 
     let c = doCompare(a, b, orderBy);
@@ -152,6 +161,7 @@ function PatientListPage(): JSX.Element {
   const [orderBy, setOrderBy] = React.useState<SortFields>(SortFields.lastname);
   const [filter, setFilter] = React.useState<string>("");
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
+  const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
 
   const flagged = authHook.getFlagPatients();
 
@@ -193,6 +203,7 @@ function PatientListPage(): JSX.Element {
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
     log.info("Sort patients", orderBy, order);
+    setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
   };
@@ -249,7 +260,7 @@ function PatientListPage(): JSX.Element {
     );
   }
 
-  const patients = updatePatientList(teamHook, flagged, filter, filterType, orderBy, order);
+  const patients = updatePatientList(teamHook, flagged, filter, filterType, orderBy, order, sortFlaggedFirst);
 
   return (
     <React.Fragment>
@@ -260,12 +271,7 @@ function PatientListPage(): JSX.Element {
         onFilterType={handleFilterType}
         onInvitePatient={handleInvitePatient}
       />
-      <Grid
-        container
-        direction="row"
-        justify="center"
-        alignItems="center"
-        style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
+      <Grid container direction="row" justify="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
       <Container id="patient-list-container" maxWidth="lg" style={{ marginBottom: "2em" }}>
