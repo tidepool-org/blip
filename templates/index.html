@@ -9,6 +9,35 @@
   <!-- End of Crowdin -->
 </head>
 <body>
+  <script>
+    window.onerror = function(event, source, lineno, colno, error) {
+      var divApp = null;
+      var p = null;
+      var span = null;
+
+      console.log(event, source, lineno, colno, error);
+
+      document.body.style.height = "100%";
+
+      divApp = document.getElementById("app");
+      divApp.style.display = "block";
+      divApp.style.textAlign = "center";
+      divApp.style.height = "100%";
+      while (divApp.firstChild) {
+        divApp.removeChild(divApp.firstChild);
+      }
+
+      p = document.createElement("p");
+      p.style.marginTop = "200px";
+      span = document.createElement("span");
+      span.style.fontWeight = "bold";
+      span.appendChild(document.createTextNode("It seems your browser is too old for YourLoops."));
+      p.appendChild(span);
+      p.appendChild(document.createElement("br"));
+      p.appendChild(document.createTextNode("Try out Google Chrome instead?"));
+      divApp.appendChild(p);
+    };
+  </script>
   <div id="app">
     <p class="loading">Loading app...</p>
   </div>
