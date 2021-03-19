@@ -76,6 +76,8 @@ const DailyChart = translate()(class DailyChart extends Component {
     super(props);
 
     this.chartOpts = [
+      'automatedBasal',
+      'automatedBolus',
       'bgClasses',
       'bgUnits',
       'bolusRatio',
@@ -394,6 +396,11 @@ class Daily extends Component {
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
     const carbUnits = ['grams'];
 
+    const {
+      isAutomatedBasalDevice,
+      isAutomatedBolusDevice,
+    } = _.get(this.props, 'data.metaData.latestPumpUpload', {});
+
     const hasCarbExchanges = _.some(
       _.get(this.props, 'data.data.combined'),
       { type: 'wizard', carbUnits: 'exchanges' }
@@ -403,6 +410,8 @@ class Daily extends Component {
 
     return (
       <DailyChart
+        automatedBasal={isAutomatedBasalDevice}
+        automatedBolus={isAutomatedBolusDevice}
         bgClasses={bgPrefs.bgClasses}
         bgUnits={bgPrefs.bgUnits}
         bolusRatio={this.props.chartPrefs.bolusRatio}
@@ -536,8 +545,9 @@ class Daily extends Component {
 
   handleBolusHover = bolus => {
     const rect = bolus.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, datetimeLocation, 'h');
     bolus.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       bolus.side = 'left';
@@ -559,8 +569,9 @@ class Daily extends Component {
 
   handleSMBGHover = smbg => {
     const rect = smbg.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       smbg.side = 'left';
@@ -583,8 +594,9 @@ class Daily extends Component {
   handleCBGHover = cbg => {
     this.throttledMetric('hovered over daily cgm tooltip');
     var rect = cbg.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
     cbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       cbg.side = 'left';
@@ -606,9 +618,23 @@ class Daily extends Component {
 
   handlePumpSettingsOverrideHover = override => {
     this.throttledMetric('hovered over daily settings override tooltip');
-    var rect = override.rect;
+    const rect = override.rect;
+    const markerLeftOffset = 7;
     override.top = rect.top;
-    override.left = rect.left + (rect.width / 2);
+    override.left = rect.left + markerLeftOffset;
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = override.left - override.chartExtents.left;
+    const rightOffset = override.left - override.chartExtents.right;
+
+    if (leftOffset < 70) {
+      override.left = override.chartExtents.left + 70 - 5;
+    }
+
+    if (rightOffset > -70) {
+      override.left = override.chartExtents.right - 70 - 5;
+    }
+
     this.setState({
       hoveredPumpSettingsOverride: override
     });
