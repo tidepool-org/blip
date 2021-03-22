@@ -27,4 +27,7 @@ interface PostalAddress {
   country: string;
 }
 
-export { PostalAddress, Units };
+/** Number of miliseconds per 24h */
+const MS_IN_DAY = 86400000;
+
+export { PostalAddress, Units, MS_IN_DAY };

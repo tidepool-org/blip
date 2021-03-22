@@ -162,8 +162,8 @@ export const ProfilePage: FunctionComponent = () => {
     if (user?.profile?.lastName) {
       setName(user.profile.lastName);
     }
-    if (user?.roles && user.roles.length) {
-      setRole(user.roles[0]);
+    if (user?.role) {
+      setRole(user.role);
     }
     if (user?.emails && user.emails.length) {
       setMail(user.emails[0]);

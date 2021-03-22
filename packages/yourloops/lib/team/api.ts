@@ -77,7 +77,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             user: {
               userid: "a0a0a0a0",
               username: "jean.dupont@chu-grenoble.fr",
-              roles: [UserRoles.hcp],
+              role: UserRoles.hcp,
               profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
             },
           },
@@ -89,7 +89,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             invitationStatus: TeamMemberStatus.pending,
             user: {
               userid: "a0a0a0a1",
-              roles: [UserRoles.hcp],
+              role: UserRoles.hcp,
               username: "michelle.dupuis@chu-grenoble.fr",
             },
           },
@@ -116,7 +116,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             invitationStatus: TeamMemberStatus.accepted,
             user: {
               userid: "b0b1b2b3",
-              roles: [UserRoles.hcp],
+              role: UserRoles.hcp,
               username: "adelheide.alvar@charite.de",
               profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
             },
@@ -131,14 +131,14 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
   returnedTeam[0].members.push({
     teamId: "team-0",
     userId: user.userid,
-    role: user.roles?.includes(UserRoles.patient) ? TeamMemberRole.patient : TeamMemberRole.admin,
+    role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
     invitationStatus: TeamMemberStatus.accepted,
     user,
   });
   returnedTeam[1].members.push({
     teamId: "team-1",
     userId: user.userid,
-    role: user.roles?.includes(UserRoles.patient) ? TeamMemberRole.patient : TeamMemberRole.admin,
+    role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
     invitationStatus: TeamMemberStatus.accepted,
     user,
   });
@@ -166,7 +166,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
     const nPatients = users.length;
     let nPrivate = 0;
     for (let i = 0; i < nPatients; i++) {
-      const user = users[i];
+      const user = { ...users[i], role: UserRoles.patient };
 
       // Randomize the teams associations
       const val = (Math.random() * 10) | 0;
@@ -186,13 +186,6 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
         teamIds.push("private");
       }
 
-      // FIXME: The API will send this data
-      if (!Array.isArray(user.roles)) {
-        user.roles = [ UserRoles.patient ];
-      } else {
-        user.roles = [ UserRoles.hcp ];
-      }
-
       // Not using teamIds.forEach(): eslint(no-loop-func)
       for (const teamId of teamIds) {
         const member: ITeamMember = {
@@ -206,7 +199,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
       }
     }
 
-    if (!user.roles?.includes(UserRoles.patient)) {
+    if (user.role === UserRoles.patient) {
       // Pending invite patient
       patients.push({
         invitationStatus: TeamMemberStatus.pending,
@@ -216,6 +209,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
         user: {
           userid: "a0a0a0b0",
           username: "gerard.dumoulin@example.com",
+          role: UserRoles.patient,
           profile: {
             firstName: "Gerard",
             lastName: "Dumoulin",
@@ -259,6 +253,7 @@ async function invitePatient(session: Session, teamId: string, username: string)
       user: {
         userid: username,
         username,
+        role: UserRoles.patient,
       },
     };
     team.members.push(iMember);
@@ -294,6 +289,7 @@ async function inviteMember(session: Session, teamId: string, username: string, 
       user: {
         userid: username,
         username,
+        role: UserRoles.hcp,
       },
     };
     team.members.push(iMember);

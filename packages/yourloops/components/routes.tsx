@@ -38,11 +38,8 @@ import { publicRoutesTheme, mainTheme } from "./theme";
 export const PublicRoute = (props: RouteProps): JSX.Element => {
   const { isLoggedIn, user } = useAuth();
 
-  // FIXME: pathname = auth.user.roles[0] ?
-  const pathname = user?.profile?.patient ? "/patient" : "/hcp";
-
   return isLoggedIn() ? (
-    <Redirect to={{ pathname, state: { from: props.location } }} />
+    <Redirect to={{ pathname: `/${user?.role}`, state: { from: props.location } }} />
   ) : (
     <ThemeProvider theme={publicRoutesTheme}>
       <CssBaseline />

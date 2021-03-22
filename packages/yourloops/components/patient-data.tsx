@@ -87,7 +87,7 @@ function PatientDataPage(): JSX.Element | null {
     }
 
     const user = teamHook.getUser(patientId);
-    if (user === null || !user.roles?.includes(UserRoles.patient)) {
+    if (user === null || user.role !== UserRoles.patient) {
       log.error("Patient not found");
       setError("Patient not found");
     } else {

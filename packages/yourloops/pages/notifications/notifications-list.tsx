@@ -14,17 +14,19 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment } from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 
 import { AppBar, Breadcrumbs, Container, createStyles, Link, List, ListItem, makeStyles, Toolbar } from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 
 import HeaderBar from "../../components/primary-header-bar";
-import { INotification, Notification, NotificationType } from "./notification";
 import { UserRoles } from "../../models/shoreline";
+import { MS_IN_DAY } from "../../models/generic";
 import { useAuth } from "../../lib/auth";
+import { INotification, Notification, NotificationType } from "./notification";
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -46,13 +48,14 @@ const useStyles = makeStyles(() =>
 
 const NotificationHeader = () => {
   const { t } = useTranslation("yourloops");
+  const historyHook = useHistory();
   const classes = useStyles();
   const { user } = useAuth();
 
-  const homePage = useMemo(() => (user?.roles?.length && user.roles[0] === UserRoles.caregiver ? "/" : "/hcp/patients"), [
-    // FIXME: set the route for caregiver
-    user,
-  ]);
+  const handleClickHome = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+    event.preventDefault();
+    historyHook.push(`/${user?.role ?? ""}`);
+  };
 
   return (
     <Fragment>
@@ -60,7 +63,7 @@ const NotificationHeader = () => {
       <AppBar position="static" color="secondary">
         <Toolbar className={classes.toolBar}>
           <Breadcrumbs aria-label={t("aria-breadcrumbs")} separator={<NavigateNextIcon fontSize="small" />}>
-            <Link className={classes.breadcrumbLink} color="textPrimary" href={homePage}>
+            <Link className={classes.breadcrumbLink} color="textPrimary" onClick={handleClickHome}>
               <HomeIcon className={classes.homeIcon} />
               {t("home")}
             </Link>
@@ -90,7 +93,7 @@ export const NotificationsPage = (): JSX.Element => {
     type: NotificationType.dataShare,
   };
   const fakeNotif3: INotification = {
-    date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday date
+    date: new Date(Date.now() - MS_IN_DAY).toISOString(), // yesterday date
     emitter: { firstName: "Bob", lastName: "L'Eponge", role: UserRoles.hcp },
     type: NotificationType.joinGroup,
     target: "Crabe croustillant",
@@ -104,7 +107,7 @@ export const NotificationsPage = (): JSX.Element => {
         <List>
           {notifs.sort(sortNotification).map(({ date, emitter, type, target }, index) => (
             <ListItem key={index} style={{ padding: "8px 0" }} divider={index !== notifs.length - 1}>
-              <Notification date={date} emitter={emitter} type={type} target={target} userRole={user?.roles && user.roles[0]} />
+              <Notification date={date} emitter={emitter} type={type} target={target} userRole={user?.role} />
             </ListItem>
           ))}
         </List>

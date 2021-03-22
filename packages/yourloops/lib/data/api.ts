@@ -115,7 +115,7 @@ function getPatientDataRouteV0(session: Session, patient: User, options?: GetPat
  * @returns Array of patient data
  */
 export async function getPatientDataV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
-  if (!patient.roles?.includes(UserRoles.patient)) {
+  if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
   }
 
@@ -131,7 +131,7 @@ export async function getPatientDataV0(session: Session, patient: User, options?
 
 function getPatientDataRangeV1(session: Session, patient: User): Promise<Response> {
   const { sessionToken, traceToken } = session;
-  if (!patient.roles?.includes(UserRoles.patient)) {
+  if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
   }
 
@@ -214,7 +214,7 @@ export async function getPatientDataRange(session: Session, patient: User): Prom
  */
 export async function getPatientData(session: Session, patient: User, options?: GetPatientDataOptions): Promise<PatientData> {
   const { sessionToken, traceToken } = session;
-  if (!patient.roles?.includes(UserRoles.patient)) {
+  if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
   }
 

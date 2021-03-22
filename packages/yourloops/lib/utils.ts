@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { User, UserRoles } from "../models/shoreline";
+import { User } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
 
@@ -96,8 +96,4 @@ export function getUserFirstName(user: User): string {
  */
 export function getUserLastName(user: User): string {
   return user.profile?.lastName ?? user.profile?.fullName ?? user.username;
-}
-
-export function isUserAPatient(user: User): boolean {
-  return user.roles?.includes(UserRoles.patient) ?? false;
 }

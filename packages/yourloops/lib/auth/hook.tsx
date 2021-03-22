@@ -34,11 +34,22 @@ import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
-import { User, Profile, Preferences, Settings } from "models/shoreline";
+import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
 import sendMetrics from "../metrics";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
 import AuthAPIImpl from "./api";
 import { SignUpFormState } from "pages/signup/signup-formstate-context";
+
+interface JwtShorelinePayload extends JwtPayload {
+  role: "hcp" | "patient" | "caregiver" | "clinic";
+  /** username: an e-mail */
+  name: string;
+  email: string;
+  /** userid */
+  usr: string;
+  /** yes for server token - we will never have that in Blip: always "no" */
+  srv: "yes" | "no";
+}
 
 const STORAGE_KEY_SESSION_TOKEN = "session-token";
 const STORAGE_KEY_TRACE_TOKEN = "trace-token";
@@ -88,14 +99,28 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     }
 
     const auth = await api.login(username, password, traceToken);
+    const tokenInfos = jwtDecode<JwtShorelinePayload>(auth.sessionToken);
+    let user: User;
+    if (tokenInfos.role === "clinic") {
+      // TODO After BDD migration this check will be useless
+      user = { ...auth.user, role: UserRoles.caregiver };
+    } else {
+      user = { ...auth.user, role: tokenInfos.role as UserRoles };
+    }
+
+    const expirationDate = tokenInfos.exp;
+    if (typeof expirationDate === "number" && Number.isSafeInteger(expirationDate)) {
+      log.info("Authenticated until ", new Date(expirationDate * 1000).toISOString());
+    }
+
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user));
-    setUser(auth.user);
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
+    setUser(user);
     setSessionToken(auth.sessionToken);
     // FIXME: Test if the user as consent
     sendMetrics("setUserId", auth.user.userid);
-    return auth.user;
+    return user;
   };
 
   const updateProfile = async (roUser: Readonly<User>): Promise<Profile> => {

@@ -33,7 +33,7 @@ import { ITeam, ITeamMember, TeamMemberRole, TeamMemberStatus, TeamType } from "
 const userHCP: User = {
   userid: "a0000000",
   username: "john.doe@example.com",
-  roles: [UserRoles.hcp],
+  role: UserRoles.hcp,
   emailVerified: true,
   profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
   preferences: { displayLanguageCode: "en" },
@@ -84,6 +84,7 @@ export const teams: ITeam[] = [
         invitationStatus: TeamMemberStatus.accepted,
         user: {
           userid: "a0a1a2a3",
+          role: UserRoles.hcp,
           username: "jean.dupont@chu-grenoble.fr",
           profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
         },
@@ -119,6 +120,7 @@ export const teams: ITeam[] = [
         user: {
           userid: "b0b1b2b3",
           username: "adelheide.alvar@charite.de",
+          role: UserRoles.hcp,
           profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
         },
       },
@@ -134,10 +136,11 @@ export const members: ITeamMember[] = [
     invitationStatus: TeamMemberStatus.pending,
     user: {
       userid: "b0b1b2b4",
+      role: UserRoles.hcp,
       username: "michelle.dufour@chu-grenoble.fr",
       profile: { firstName: "Michelle", lastName: "Dufour", fullName: "Michelle Dufour" },
     },
-  }
+  },
 ];
 
 export const patients: ITeamMember[] = [
@@ -148,6 +151,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b0",
     user: {
       userid: "a0a0a0b0",
+      role: UserRoles.patient,
       username: "josephine.dupuis@example.com",
       profile: {
         firstName: "Josephine",
@@ -163,6 +167,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b0",
     user: {
       userid: "a0a0a0b0",
+      role: UserRoles.patient,
       username: "josephine.dupuis@example.com",
       profile: {
         firstName: "Josephine",
@@ -178,6 +183,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b1",
     user: {
       userid: "a0a0a0b1",
+      role: UserRoles.patient,
       username: "michel.dupont@example.com",
       profile: {
         firstName: "Michel",
@@ -193,6 +199,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b2",
     user: {
       userid: "a0a0a0b2",
+      role: UserRoles.patient,
       username: "marivone.duplessie@example.com",
       profile: {
         firstName: "Marivone",
@@ -208,6 +215,7 @@ export const patients: ITeamMember[] = [
     userId: "a0a0a0b3",
     user: {
       userid: "a0a0a0b3",
+      role: UserRoles.patient,
       username: "gerard.dumoulin@example.com",
       profile: {
         firstName: "Gerard",

@@ -46,9 +46,11 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
+import { MS_IN_DAY } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
+import { UserRoles } from "../../models/shoreline";
 import sendMetrics from "../../lib/metrics";
-import { getUserFirstName, getUserLastName, isUserAPatient } from "../../lib/utils";
+import { getUserFirstName, getUserLastName } from "../../lib/utils";
 import { Session, useAuth } from "../../lib/auth";
 import { TeamUser, useTeam } from "../../lib/team";
 import { getPatientsDataSummary, getPatientDataRange } from "../../lib/data/api";
@@ -75,7 +77,6 @@ export interface PatientTableRowProps {
 const log = bows("PatientListTable");
 
 async function fetchSummary(session: Session, patient: TeamUser): Promise<MedicalData | null> {
-  const MS_IN_DAY = 24*60*60*1000; // eslint-disable-line no-magic-numbers
   let range: string[] | null = null;
 
   try {
@@ -178,7 +179,7 @@ function startFetchSummary() {
  * @returns The medical data (TIR/last upload data), or null if theses infos are not available, or undefined, if cancelled
  */
 function addPendingFetch(session: Session, patient: TeamUser): Promise<MedicalData | null | undefined> {
-  if (!isUserAPatient(patient)) {
+  if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error("invalid-user"));
   }
   if (patient.medicalData) {
