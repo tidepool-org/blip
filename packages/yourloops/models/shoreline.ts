@@ -44,12 +44,19 @@ enum Jobs {
   studyNurse = "study-nurse",
 }
 
+interface Consent {
+  AcceptanceDate?: string;
+  IsAccepted?: boolean;
+}
+
 interface Profile {
   fullName: string;
   firstName?: string;
   lastName?: string;
   patient?: Patient;
   job?: Jobs;
+  termsOfUse?: Consent;
+  privacyPolicy?: Consent;
 }
 
 interface Patient {
@@ -82,8 +89,6 @@ interface User {
   /*readonly*/ roles?: UserRoles[];
   /** Emails of the users */
   emails?: string[];
-  /** Date of the last accepted terms */
-  readonly termsAccepted?: string;
   /** true if the account has been verified */
   readonly emailVerified?: boolean;
   /** User profile */

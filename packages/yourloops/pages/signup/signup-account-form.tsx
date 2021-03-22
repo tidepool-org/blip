@@ -39,9 +39,12 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Button from "@material-ui/core/Button";
 
 import { useSignUpFormState } from "./signup-formstate-context";
-import { REGEX_EMAIL } from "../../lib/utils";
+import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import appConfig from "../../lib/config";
 import SignUpFormProps from "./signup-form-props";
+import { useAuth } from "../../lib/auth";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import { Snackbar } from "../../components/utils/snackbar";
 
 interface Errors {
   userName: boolean;
@@ -72,8 +75,11 @@ const formStyle = makeStyles((theme: Theme) => {
  * SignUpAccount Form
  */
 function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
-  const { t } = useTranslation("yourloops");
+  const { t, i18n } = useTranslation("yourloops");
+  const classes = formStyle();
+  const auth = useAuth();
   const { state, dispatch } = useSignUpFormState();
+  const { openSnackbar, snackbarParams } = useSnackbar();
   const { handleBack, handleNext } = props;
   const defaultErr = {
     userName: false,
@@ -84,7 +90,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  const classes = formStyle();
+  const [inProgress, setInProgress] = React.useState(false);
 
   const onChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -137,11 +143,21 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
 
   const isErrorSeen: boolean = React.useMemo(() => _.some(errors), [errors]);
 
-  const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onNext = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     if (validateUserName() && validatePassword() && validateConfirmNewPassword()) {
       // submit to api
-      handleNext();
+      try {
+        setInProgress(true);
+        state.formValues.preferencesLanguage = i18n.language;
+        await auth.signup(state);
+        setInProgress(false);
+        handleNext();
+      } catch (reason: unknown) {
+        const errorMessage = errorTextFromException(reason);
+        const message = t(errorMessage);
+        openSnackbar({ message, severity: AlertSeverity.error });
+      }
     }
   };
 
@@ -155,6 +171,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       noValidate
       autoComplete="off"
     >
+      <Snackbar params={snackbarParams} />
       <TextField
         id="username"
         className={classes.TextField}
@@ -239,7 +256,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         <Button
           variant="contained"
           color="primary"
-          disabled={isErrorSeen}
+          disabled={isErrorSeen || inProgress}
           className={classes.Button}
           onClick={onNext}
         >

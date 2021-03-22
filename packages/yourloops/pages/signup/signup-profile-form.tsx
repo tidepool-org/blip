@@ -38,7 +38,6 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 
 import { useSignUpFormState } from "./signup-formstate-context";
-import { Jobs } from "../../models/shoreline";
 import { availableCountries } from "../../lib/language";
 import SignUpFormProps from "./signup-form-props";
 import { REGEX_PHONE } from "../../lib/utils";
@@ -132,14 +131,6 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
     return !err;
   };
 
-  const validateJob = (): boolean => {
-    const err =
-      state.formValues?.accountRole === "hcp" &&
-      _.isEmpty(state.formValues?.profileJob);
-    setErrors({ ...errors, job: err });
-    return !err;
-  };
-
   const validatePhone = (): boolean => {
     const err =
       _.isEmpty(state.formValues?.profilePhone) ||
@@ -154,7 +145,6 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
       validateFirstName() &&
       validateLastName() &&
       validateCountry() &&
-      validateJob() &&
       validatePhone()
     ) {
       handleNext();
@@ -216,41 +206,13 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           onChange={(e) => onSelectChange(e, "profileCountry")}
         >
           <MenuItem key="" value="" />
-          {availableCountries.map((country) => (
-            <MenuItem key={country} value={country}>
-              {t(country)}
+          {availableCountries.map((item) => (
+            <MenuItem key={item.code} value={item.code}>
+              {t(item.name)}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-      {state.formValues?.accountRole === "hcp" && (
-        <FormControl
-          variant="outlined"
-          className={classes.TextField}
-          margin="normal"
-          required
-          error={errors.job}
-        >
-          <InputLabel id="job-selector-input-label">
-            {t("signup-job")}
-          </InputLabel>
-          <Select
-            labelId="job-selector-label"
-            label={t("signup-job")}
-            id="job-selector"
-            value={state.formValues?.profileJob}
-            onBlur={() => validateJob()}
-            onChange={(e) => onSelectChange(e, "profileJob")}
-          >
-            <MenuItem key="" value="" />
-            {Object.values(Jobs).map((jobTitle) => (
-              <MenuItem key={jobTitle} value={jobTitle}>
-                {t(jobTitle)}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
       <TextField
         id="phone"
         className={classes.TextField}

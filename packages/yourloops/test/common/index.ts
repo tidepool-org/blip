@@ -34,7 +34,6 @@ const userHCP: User = {
   userid: "a0000000",
   username: "john.doe@example.com",
   roles: [UserRoles.hcp],
-  termsAccepted: new Date().toISOString(),
   emailVerified: true,
   profile: { firstName: "John", lastName: "Doe", fullName: "John Doe" },
   preferences: { displayLanguageCode: "en" },
@@ -150,7 +149,6 @@ export const patients: ITeamMember[] = [
     user: {
       userid: "a0a0a0b0",
       username: "josephine.dupuis@example.com",
-      termsAccepted: "2021-01-05T15:00:00.000Z",
       profile: {
         firstName: "Josephine",
         lastName: "Dupuis",
@@ -166,7 +164,6 @@ export const patients: ITeamMember[] = [
     user: {
       userid: "a0a0a0b0",
       username: "josephine.dupuis@example.com",
-      termsAccepted: "2021-01-05T15:00:00.000Z",
       profile: {
         firstName: "Josephine",
         lastName: "Dupuis",
@@ -182,7 +179,6 @@ export const patients: ITeamMember[] = [
     user: {
       userid: "a0a0a0b1",
       username: "michel.dupont@example.com",
-      termsAccepted: "2021-01-05T15:00:00.000Z",
       profile: {
         firstName: "Michel",
         lastName: "Dupont",
@@ -198,7 +194,6 @@ export const patients: ITeamMember[] = [
     user: {
       userid: "a0a0a0b2",
       username: "marivone.duplessie@example.com",
-      termsAccepted: "2021-01-05T15:00:00.000Z",
       profile: {
         firstName: "Marivone",
         lastName: "Duplessie",
@@ -214,7 +209,6 @@ export const patients: ITeamMember[] = [
     user: {
       userid: "a0a0a0b3",
       username: "gerard.dumoulin@example.com",
-      termsAccepted: "2021-01-05T15:00:00.000Z",
       profile: {
         firstName: "Gerard",
         lastName: "Dumoulin",

@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { useHistory } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import _ from "lodash";
 import { useTranslation } from "react-i18next";
 
@@ -35,7 +35,6 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
-import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
 import SignUpAccountForm from "./signup-account-form";
@@ -43,6 +42,7 @@ import SignUpAccountSelector from "./signup-account-selector";
 import SignUpProfileForm from "./signup-profile-form";
 import SignUpConsent from "./signup-consent";
 import { useSignUpFormState } from "./signup-formstate-context";
+import Link from "@material-ui/core/Link";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -149,14 +149,14 @@ export default function SignUpStepper() : JSX.Element {
                 email: state.formValues.accountUsername,
               })}
             </Typography>
-            <Button
-              variant="contained"
-              color="secondary"
+            <Link
+              id="signup-gotologin"
               className={classes.button}
-              onClick={handleLogin}
-            >
-              {t("signup-steppers-back-login")}
-            </Button>
+              component={RouterLink}
+              to="/"
+              onClick={handleLogin}>
+                {t("signup-steppers-back-login")}
+            </Link>
           </div>
         ) : (
           <div>{getStepContent(activeStep)}</div>

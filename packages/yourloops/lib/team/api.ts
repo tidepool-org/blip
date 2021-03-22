@@ -77,7 +77,6 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             user: {
               userid: "a0a0a0a0",
               username: "jean.dupont@chu-grenoble.fr",
-              termsAccepted: "2019-01-25T17:47:56+01:00",
               roles: [UserRoles.hcp],
               profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
             },
@@ -119,7 +118,6 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
               userid: "b0b1b2b3",
               roles: [UserRoles.hcp],
               username: "adelheide.alvar@charite.de",
-              termsAccepted: "2019-01-25T17:47:56+01:00",
               profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
             },
           },
@@ -218,7 +216,6 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
         user: {
           userid: "a0a0a0b0",
           username: "gerard.dumoulin@example.com",
-          termsAccepted: "2021-01-05T15:00:00.000Z",
           profile: {
             firstName: "Gerard",
             lastName: "Dumoulin",

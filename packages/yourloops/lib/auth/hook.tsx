@@ -38,6 +38,7 @@ import { User, Profile, Preferences, Settings } from "models/shoreline";
 import sendMetrics from "../metrics";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
 import AuthAPIImpl from "./api";
+import { SignUpFormState } from "pages/signup/signup-formstate-context";
 
 const STORAGE_KEY_SESSION_TOKEN = "session-token";
 const STORAGE_KEY_TRACE_TOKEN = "trace-token";
@@ -76,11 +77,16 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
   // Wrap any methods we want to use making sure
   // to save the user to state.
-  const login = async (username: string, password: string): Promise<User> => {
+  const login = async (username: string, password: string, key: string | null): Promise<User> => {
     log.info("login", username);
     if (traceToken === null) {
       throw new Error("not-yet-initialized");
     }
+
+    if (key !== null) {
+      await api.accountConfirmed(key, traceToken);
+    }
+
     const auth = await api.login(username, password, traceToken);
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
@@ -131,8 +137,40 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     return settings;
   };
 
-  const signup = (username: string, password: string): void => {
-    log.info("signup", username, password);
+  const signup = async (signup: SignUpFormState): Promise<void> => {
+    log.info("signup", signup.formValues.accountUsername);
+    const now = new Date().toISOString();
+    if (traceToken === null) {
+      throw new Error("not-yet-initialized");
+    }
+    const auth = await api.signup(
+      signup.formValues.accountUsername,
+      signup.formValues.accountPassword,
+      signup.formValues.accountRole,
+      traceToken
+    );
+
+    auth.user.profile = {
+      fullName: `${signup.formValues.profileFirstname} ${signup.formValues.profileLastname}`,
+      firstName: signup.formValues.profileFirstname,
+      lastName: signup.formValues.profileLastname,
+      job: signup.formValues.profileJob,
+      termsOfUse: { AcceptanceDate: now, IsAccepted: signup.formValues.terms },
+      privacyPolicy: { AcceptanceDate: now, IsAccepted: signup.formValues.privacyPolicy },
+    };
+    auth.user.settings = { country: signup.formValues.profileCountry };
+    auth.user.preferences = { displayLanguageCode: signup.formValues.preferencesLanguage };
+
+    // Cannot Use Promise.All as Backend do not handle parrellel call
+    // correctly
+    await api.updateProfile(auth);
+    await api.updateSettings(auth);
+    await api.updatePreferences(auth);
+
+    // send confirmation signup mail
+    await api.sendAccountValidation(auth, signup.formValues.preferencesLanguage);
+
+    log.info("signup done", auth);
   };
 
   const flagPatient = async (userId: string): Promise<void> => {

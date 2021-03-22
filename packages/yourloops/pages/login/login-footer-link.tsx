@@ -63,7 +63,7 @@ const loginStyle = makeStyles((theme: Theme) => {
 });
 
 function LoginFooterLink(): JSX.Element {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation("yourloops");
   const classes = loginStyle();
   return (
     <Grid container>

@@ -132,12 +132,12 @@ export default function ResetPasswordContent(): JSX.Element {
           confirmNewPassword
         );
         setSuccess(success);
+        setInProgress(false);
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         const message = t(errorMessage);
         openSnackbar({ message, severity: AlertSeverity.error });
       }
-      setInProgress(false);
     }
   };
 

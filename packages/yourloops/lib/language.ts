@@ -35,6 +35,7 @@ import { initReactI18next } from "react-i18next";
 import getLocale from "./browser-locale";
 import locales from "../../../locales/languages.json";
 import { Preferences } from "../models/shoreline";
+import { Country } from "../models/country";
 
 const log = bows('i18n');
 
@@ -143,7 +144,9 @@ const getLocaleShortname = (locale: string): Preferences["displayLanguageCode"] 
 };
 
 const availableLocales = _.map(locales.resources, ({ name }) => name);
-const availableCountries = _.map(locales.countries, ({ name }) => name);
+const availableCountries: Country[] = _.map(locales.countries, (item, key) => {
+  return { code: key, name: item.name } as Country;
+});
 
 export { init, t, getCurrentLocaleName, getLocaleShortname, availableLocales, availableCountries };
 export default i18n;

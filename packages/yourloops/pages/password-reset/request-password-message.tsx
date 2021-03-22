@@ -27,7 +27,7 @@
 
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 
 import Typography from "@material-ui/core/Typography";
 import CardContent from "@material-ui/core/CardContent";
@@ -78,7 +78,11 @@ export default function RequestPassordMessage(props: RequestPassordMessageProps)
         </Typography>
       </CardContent>
       <CardActions className={classes.CardActions}>
-        <Link href="/" onClick={onGoToLogin}>
+        <Link
+          component={RouterLink}
+          to="/"
+          onClick={onGoToLogin}
+        >
           {t("reset-end")}
         </Link>
       </CardActions>

@@ -88,17 +88,19 @@ async function authenticate(username: string, password: string, traceToken: stri
         }
       }
       if (reason === null) {
-        reason = t("Wrong username or password");
+        reason = "Wrong username or password";
       }
       break;
-    // missing handling 403 status => email not verified
+    case HttpStatus.StatusForbidden:
+      reason = "email-not-verified";
+      break;
     default:
-      reason = t("An error occurred while logging in.");
+      reason = "An error occurred while logging in.";
       break;
     }
 
     if (reason === null) {
-      reason = t("Login Failed");
+      reason = "Login Failed";
     }
 
     // this.sendMetrics("Login failed", reason);
@@ -108,10 +110,11 @@ async function authenticate(username: string, password: string, traceToken: stri
   // this.wrongCredentialCount = 0;
   const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
   if (sessionToken === null) {
-    reason = t("An error occurred while logging in.");
+    reason = "An error occurred while logging in.";
     return Promise.reject(new Error(reason as string));
   }
-
+  //FIXME the user roles is assigned with the first value in UserRoles enum
+  // regardless of what the api sent, due to the json dezerialisation
   const user = (await response.json()) as User;
   // FIXME will be sent correctly by the API
   if (!Array.isArray(user.roles)) {
@@ -124,6 +127,74 @@ async function authenticate(username: string, password: string, traceToken: stri
   failedLoginCounter.clear();
 
   return { sessionToken, traceToken, user };
+}
+
+
+/**
+ * Perform a signup.
+ * @param {string} username Generally an email
+ * @param {string} password The account password
+ * @param {string} traceToken A generated uuidv4 trace token
+ * @return {Promise<User>} Return the logged-in user or a promise rejection.
+ */
+async function signup(username: string, password: string, role: UserRoles, traceToken: string): Promise<Session> {
+  let reason: string | null = null;
+
+  if (!_.isString(username) || _.isEmpty(username)) {
+    reason = t("no-username") as string;
+    return Promise.reject(new Error(reason));
+  }
+
+  if (!_.isString(password) || _.isEmpty(password)) {
+    reason = t("no-password") as string;
+    return Promise.reject(new Error(reason));
+  }
+
+  log.debug("login: /auth/login", appConfig.API_HOST);
+  const authURL = new URL("/auth/user", appConfig.API_HOST);
+
+  const response = await fetch(authURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.traceToken]: traceToken,
+    },
+    body: JSON.stringify({
+      username: username,
+      emails: [username],
+      password: password,
+      roles: [role],
+    }),
+  });
+
+  if (response.ok) {
+    const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
+    if (sessionToken === null) {
+      reason = "An error occurred while signup";
+      return Promise.reject(new Error(reason as string));
+    }
+
+    const user = (await response.json()) as User;
+
+    return Promise.resolve({
+      sessionToken: sessionToken,
+      traceToken,
+      user: user,
+    });
+  }
+
+  log.error(response?.status, response?.statusText);
+
+  switch (response?.status) {
+    case HttpStatus.StatusServiceUnavailable:
+    case HttpStatus.StatusInternalServerError:
+      throw new Error("error-http-500");
+    case HttpStatus.StatusConflict:
+      throw new Error("signup-error-409");
+    default:
+      throw new Error("error-http-40x");
+  }
+
 }
 
 async function getProfile(auth: Readonly<Session>): Promise<Profile | null> {
@@ -239,6 +310,12 @@ async function requestPasswordReset(
   language = "en",
   info = true
 ): Promise<boolean> {
+
+  if (_.isEmpty(username)) {
+    log.error("forbidden call to request password api, username is missing");
+    throw new Error("error-http-40x");
+  }
+
   const confirmURL = new URL(
     `/confirm/send/forgot/${username}${info ? "?info=ok" : ""}`,
     appConfig.API_HOST
@@ -268,13 +345,80 @@ async function requestPasswordReset(
   }
 }
 
-async function resetPassword(key: string | null, username: string, password: string, traceToken: string): Promise<boolean> {
+async function sendAccountValidation(auth: Readonly<Session>, language = "en"): Promise<boolean> {
 
-  if (
-    _.isEmpty(key) ||
-    _.isEmpty(username) ||
-    _.isEmpty(password)
-  ) {
+  if (_.isEmpty(auth?.user?.userid)) {
+    log.error("forbidden call to Account Validation api, user id is missing");
+    throw new Error("error-http-40x");
+  }
+
+  const confirmURL = new URL(`/confirm/send/signup/${auth?.user?.userid}`, appConfig.API_HOST);
+
+  const response = await fetch(confirmURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: auth.traceToken,
+      [HttpHeaderKeys.language]: language,
+    },
+    cache: "no-cache",
+  });
+
+  if (response.ok) {
+    return Promise.resolve(true);
+  }
+
+  log.error(response?.status, response?.statusText);
+
+  switch (response?.status) {
+    case HttpStatus.StatusServiceUnavailable:
+    case HttpStatus.StatusInternalServerError:
+      throw new Error("error-http-500");
+    default:
+      throw new Error("error-http-40x");
+  }
+}
+
+async function accountConfirmed(key: string, traceToken: string): Promise<boolean> {
+
+  if (_.isEmpty(key)) {
+    log.error("forbidden call to Account confirmation api, key is missing");
+    throw new Error("error-http-40x");
+  }
+
+  const confirmURL = new URL(`/confirm/accept/signup/${key}`, appConfig.API_HOST);
+  const response = await fetch(confirmURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.traceToken]: traceToken,
+    },
+    cache: "no-cache",
+  });
+
+  if (response.ok) {
+    return Promise.resolve(true);
+  }
+
+  log.error(response?.status, response?.statusText);
+
+  switch (response?.status) {
+    case HttpStatus.StatusServiceUnavailable:
+    case HttpStatus.StatusInternalServerError:
+      throw new Error("error-http-500");
+    default:
+      throw new Error("error-http-40x");
+  }
+}
+
+async function resetPassword(
+  key: string | null,
+  username: string,
+  password: string,
+  traceToken: string
+): Promise<boolean> {
+  if (_.isEmpty(key) || _.isEmpty(username) || _.isEmpty(password)) {
     log.error("forbidden call to reset password api, one of the required parameters is missing");
     throw new Error("error-http-40x");
   }
@@ -286,7 +430,7 @@ async function resetPassword(key: string | null, username: string, password: str
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
     },
-    body: JSON.stringify({ key: key , email: username, password: password }),
+    body: JSON.stringify({ key: key, email: username, password: password }),
   });
 
   if (response.ok) {
@@ -371,6 +515,9 @@ export default {
   login,
   requestPasswordReset,
   resetPassword,
+  signup,
+  sendAccountValidation,
+  accountConfirmed,
   updateProfile,
   updatePreferences,
   updateSettings,

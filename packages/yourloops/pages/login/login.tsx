@@ -51,6 +51,9 @@ import brandingLogo from "branding/logo.png";
 
 import { useAuth } from "../../lib/auth";
 import LoginFooterLink from "./login-footer-link";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import { Snackbar } from "../../components/utils/snackbar";
+import { errorTextFromException } from "../../lib/utils";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -89,6 +92,7 @@ const loginStyle = makeStyles((theme: Theme) => {
 function Login(props: RouteComponentProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const auth = useAuth();
+  const { openSnackbar, snackbarParams } = useSnackbar();
   const classes = loginStyle();
 
   const [username, setUserName] = React.useState("");
@@ -110,14 +114,17 @@ function Login(props: RouteComponentProps): JSX.Element {
   };
 
   const onClickShowPasswordVisibility = (): void => {
-    if (showPassword) {
-      setShowPassword(false);
-      //authApi.sendMetrics("Hide password");
-    } else {
-      setShowPassword(true);
-      // authApi.sendMetrics("Show password");
-    }
+    setShowPassword(!showPassword);
   };
+
+  const signupEmail = new URLSearchParams(location.search).get("signupEmail");
+  React.useEffect(() => {
+
+    if (signupEmail !== null && username !== signupEmail) {
+      setUserName(signupEmail);
+    }
+
+  }, [signupEmail, username]);
 
   const onClickLoginButton = async (): Promise<void> => {
     if (_.isEmpty(username) || _.isEmpty(password)) {
@@ -128,7 +135,9 @@ function Login(props: RouteComponentProps): JSX.Element {
     setHelperTextValue("");
 
     try {
-      const user = await auth.login(username, password);
+      const signupKey = new URLSearchParams(location.search).get("signupKey");
+      const user = await auth.login(username, password, signupKey);
+      log.debug("user loggued,", user?.username);
       // for now, simply read the profile
       // we will refactor by creating a class obj with IsPatient method
       if (!_.isEmpty(user?.profile?.patient)) {
@@ -137,10 +146,9 @@ function Login(props: RouteComponentProps): JSX.Element {
         props.history.push("/hcp");
       }
     } catch (reason: unknown) {
-      log.error(reason);
-      setValidateError(true);
-      const message = _.isError(reason) ? reason.message : new String(reason).toString();
-      setHelperTextValue(message);
+      const errorMessage = errorTextFromException(reason);
+      const message = t(errorMessage);
+      openSnackbar({ message, severity: AlertSeverity.error });
     }
   };
 
@@ -166,6 +174,7 @@ function Login(props: RouteComponentProps): JSX.Element {
               />
             </CardMedia>
             <CardContent className={classes.CardContent}>
+              <Snackbar params={snackbarParams} />
               <form
                 style={{
                   display: "flex",
@@ -200,7 +209,9 @@ function Login(props: RouteComponentProps): JSX.Element {
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={onClickShowPasswordVisibility}>
+                        <IconButton
+                          aria-label={t("aria-toggle-password-visibility")}
+                          onClick={onClickShowPasswordVisibility}>
                           {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>

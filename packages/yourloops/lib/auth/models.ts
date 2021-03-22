@@ -26,7 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { User, Preferences, Profile, Settings } from "../../models/shoreline";
+import { SignUpFormState } from "pages/signup/signup-formstate-context";
+import { User, Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
 
 /** Hook internal usage */
 export interface Session {
@@ -39,6 +40,9 @@ export interface AuthAPI {
   login: (username: string, password: string, traceToken: string) => Promise<Session>;
   requestPasswordReset: (username: string, traceToken: string, language?: string, info?: boolean) => Promise<boolean>;
   resetPassword: (key: string | null, username: string, password: string, traceToken: string) => Promise<boolean>;
+  signup: (username: string, password: string, role: UserRoles, traceToken: string) => Promise<Session>;
+  sendAccountValidation: (auth: Readonly<Session>, language?: string) => Promise<boolean>;
+  accountConfirmed: (key: string, traceToken: string) => Promise<boolean>;
   updateProfile: (auth: Readonly<Session>) => Promise<Profile>;
   updatePreferences: (auth: Readonly<Session>) => Promise<Preferences>;
   updateSettings: (auth: Readonly<Session>) => Promise<Settings>;
@@ -54,12 +58,12 @@ export interface AuthContext {
   initialized: () => boolean;
   session: () => Session | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  login: (username: string, password: string) => Promise<User>;
+  login: (username: string, password: string, key: string | null) => Promise<User>;
   logout: () => void;
   updateProfile: (user: Readonly<User>) => Promise<Profile>;
   updatePreferences: (user: Readonly<User>) => Promise<Preferences>;
   updateSettings: (user: Readonly<User>) => Promise<Settings>;
-  signup: (username: string, password: string) => void;
+  signup: (signup: SignUpFormState) => Promise<void>;
   isLoggedIn: () => boolean;
   sendPasswordResetEmail: (username: string, language: string) => Promise<boolean>;
   resetPassword: (key: string |null, username: string, password: string) => Promise<boolean>;
