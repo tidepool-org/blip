@@ -59,7 +59,11 @@ pipeline {
         }
         stage('Package') {
             steps {
-                pack()
+                script {
+                    withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
+                        pack()
+                    }
+                }
             }
         }
         stage('Documentation') {
