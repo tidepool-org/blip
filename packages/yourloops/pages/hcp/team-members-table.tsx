@@ -29,7 +29,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles, Theme, withStyles } from "@material-ui/core/styles";
 
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
@@ -44,7 +44,7 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
@@ -68,14 +68,54 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
       width: "100%",
       marginTop: theme.spacing(1),
     },
+    listTitle: {
+      display: "inline-block",
+      verticalAlign: "text-top",
+      height: "100%",
+      textTransform: "uppercase",
+      fontWeight: "bold",
+      color: theme.palette.primary.main,
+    },
     tableRowHeader: {
-      fontVariant: "small-caps",
+      textTransform: "uppercase",
+      fontSize: "16px",
     },
     tableRowPending: {
       backgroundColor: theme.palette.primary.light,
     },
   };
 });
+
+const teamMembersTableStyles = makeStyles(() => ({
+  root: {
+    color: "black",
+  },
+}));
+
+/**
+ * Create a custom accordion summary.
+ *
+ * With a CSS style named "ylp-member-accordion-summary"
+ */
+const MembersAccordionSummary = withStyles((theme: Theme) => ({
+  root: {
+    justifyContent: "left",
+    transition: theme.transitions.create(["background-color", "min-height"]),
+    "&:hover": {
+      backgroundColor: theme.palette.primary.light,
+    },
+  },
+  content: {
+    flexGrow: 0,
+    margin: 0,
+    display: "inline",
+    transition: undefined,
+    '&$expanded': {
+      margin: 0,
+    },
+  },
+  expanded: {},
+}), { name: "ylp-member-accordion-summary" })(AccordionSummary);
 
 function PersonRemoveIcon(props: SvgIconProps): JSX.Element {
   // For some reason this icon is not available with material-ui
@@ -94,6 +134,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;
 
   // Hooks
+  const classes = teamMembersTableStyles();
   const authContext = useAuth();
   const teamHook = useTeam();
   const { t } = useTranslation("yourloops");
@@ -123,95 +164,106 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     return ret;
   });
 
-  const rows: JSX.Element[] = members.map((member: Readonly<TeamMember>): JSX.Element => {
-    const userId = member.user.userid;
-    const email = member.user.username;
-    // Dash: U+2014
-    const firstName = member.status === TeamMemberStatus.pending ? "—" : getUserFirstName(member.user);
-    const lastName = member.status === TeamMemberStatus.pending ? "—" : getUserLastName(member.user);
-    const isAdmin = member.role === TeamMemberRole.admin;
+  const rows: JSX.Element[] = members.map(
+    (member: Readonly<TeamMember>): JSX.Element => {
+      const userId = member.user.userid;
+      const email = member.user.username;
+      // Dash: U+2014
+      const firstName = member.status === TeamMemberStatus.pending ? "—" : getUserFirstName(member.user);
+      const lastName = member.status === TeamMemberStatus.pending ? "—" : getUserLastName(member.user);
+      const isAdmin = member.role === TeamMemberRole.admin;
 
-    let checkboxElement: JSX.Element | null = null;
-    let removeMemberButton: JSX.Element | null = null;
-    let rowClassName = "";
-    let icon: JSX.Element | null = null;
+      let checkboxElement: JSX.Element | null = null;
+      let removeMemberButton: JSX.Element | null = null;
+      let rowClassName = "";
+      let icon: JSX.Element | null = null;
 
-    if (member.status === TeamMemberStatus.accepted) {
-      // Determine if the current user can change the admin role for this member
-      // - Must be an admin
-      // - Mustn't be the only admin for it's own entry
-      // - An update mustn't be in progress
-      const checkboxAdminDisabled = !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
-      if (updatingUser === userId) {
-        // Disabled while update in progress (backend api call in progress)
-        checkboxElement = (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
-            <CircularProgress disableShrink size={17} />
-          </div>
-        );
+      if (member.status === TeamMemberStatus.accepted) {
+        // Determine if the current user can change the admin role for this member
+        // - Must be an admin
+        // - Mustn't be the only admin for it's own entry
+        // - An update mustn't be in progress
+        const checkboxAdminDisabled =
+          !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
+        if (updatingUser === userId) {
+          // Disabled while update in progress (backend api call in progress)
+          checkboxElement = (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
+              <CircularProgress disableShrink size={17} />
+            </div>
+          );
+        } else {
+          const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+            const userId = event.target.name;
+            const isAdmin = event.target.checked;
+            setUpdatingUser(userId);
+            await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
+            setUpdatingUser("");
+          };
+          checkboxElement = (
+            <Checkbox
+              disabled={checkboxAdminDisabled}
+              id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
+              color="primary"
+              name={userId}
+              checked={isAdmin}
+              onChange={handleSwitchRole}
+            />
+          );
+        }
       } else {
-        const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-          const userId = event.target.name;
-          const isAdmin = event.target.checked;
-          setUpdatingUser(userId);
-          await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
-          setUpdatingUser("");
-        };
-        checkboxElement = (
-          <Checkbox
-            disabled={checkboxAdminDisabled}
-            id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
-            color="primary"
-            name={userId}
-            checked={isAdmin}
-            onChange={handleSwitchRole} />
+        rowClassName = props.classes?.tableRowPending ?? "";
+        icon = (
+          <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+            <AccessTimeIcon />
+          </Tooltip>
         );
       }
-    } else {
-      rowClassName = props.classes?.tableRowPending ?? "";
-      icon = (
-        <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-          <AccessTimeIcon />
-        </Tooltip>
+
+      if (userIsAdmin && userId !== currentUserId) {
+        const handleClickRemoveMember = async (): Promise<void> => {
+          await onShowRemoveTeamMemberDialog(member);
+        };
+        const removeText = t("team-member-remove");
+        removeMemberButton = (
+          <Tooltip title={removeText} aria-label={removeText} placement="bottom">
+            <IconButton
+              id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+              color="primary"
+              aria-label={removeText}
+              component="span"
+              onClick={handleClickRemoveMember}>
+              <PersonRemoveIcon />
+            </IconButton>
+          </Tooltip>
+        );
+      }
+
+      return (
+        <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={userId}>
+          <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
+          <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
+            {lastName}
+          </TableCell>
+          <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-firstname`}>
+            {firstName}
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
+            <Link
+              classes={{ root: classes.root }}
+              id={`team-members-list-${team.id}-row-${userId}-email-link`}
+              href={`mailto:${email}`}>
+              {email}
+            </Link>
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>{checkboxElement}</TableCell>
+          <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
+            {removeMemberButton}
+          </TableCell>
+        </TableRow>
       );
     }
-
-    if (userIsAdmin && userId !== currentUserId) {
-      const handleClickRemoveMember = async (): Promise<void> => {
-        await onShowRemoveTeamMemberDialog(member);
-      };
-      const removeText = t("team-member-remove");
-      removeMemberButton = (
-        <Tooltip title={removeText} aria-label={removeText} placement="bottom">
-          <IconButton
-            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
-            color="primary"
-            aria-label={removeText}
-            component="span"
-            onClick={handleClickRemoveMember}>
-            <PersonRemoveIcon />
-          </IconButton>
-        </Tooltip>
-      );
-    }
-
-    return (
-      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={userId}>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-lastname`}>{lastName}</TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-firstname`}>{firstName}</TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
-          <Link id={`team-members-list-${team.id}-row-${userId}-email-link`} href={`mailto:${email}`}>{email}</Link>
-        </TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>
-          {checkboxElement}
-        </TableCell>
-        <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
-          {removeMemberButton}
-        </TableCell>
-      </TableRow>
-    );
-  });
+  );
 
   return <TableBody>{rows}</TableBody>;
 }
@@ -226,14 +278,14 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
 
   return (
     <div id={`team-members-list-${team.id}`} className={classes.root}>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary
+      <Accordion elevation={0} TransitionProps={{ unmountOnExit: true }}>
+        <MembersAccordionSummary
           id={`team-members-list-${team.id}-header`}
           expandIcon={<ExpandMoreIcon />}
           aria-label={t("aria-expand-team-members")}
           aria-controls={`team-members-list-${team.id}-content`}>
-          <Typography>{t("team-members-list-header", { nMembers })}</Typography>
-        </AccordionSummary>
+          <Typography className={classes.listTitle}>{t("team-members-list-header", { nMembers })}</Typography>
+        </MembersAccordionSummary>
 
         {/* prettier-ignore */}
         <AccordionDetails>

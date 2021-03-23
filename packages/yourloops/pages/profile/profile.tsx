@@ -17,22 +17,23 @@
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import moment from "moment-timezone";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
-import {
-  AppBar,
-  Breadcrumbs,
-  Button,
-  Container,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Toolbar,
-} from "@material-ui/core";
+import AppBar from "@material-ui/core/AppBar";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import Button from "@material-ui/core/Button";
+import Container from "@material-ui/core/Container";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import TextField from "@material-ui/core/TextField";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+
 import HomeIcon from "@material-ui/icons/Home";
 
 import { Units } from "../../models/generic";
@@ -42,7 +43,7 @@ import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import HeaderBar from "../../components/header-bar";
+import HeaderBar from "../../components/primary-header-bar";
 import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
 
@@ -62,9 +63,9 @@ const useStyles = makeStyles((theme: Theme) =>
     homeIcon: {
       marginRight: "0.5em",
     },
-    breadcrumbLink: {
+    breadcrumbText: {
       display: "flex",
-      color: theme.palette.text.primary,
+      cursor: "default",
     },
     toolBar: {
       display: "grid",
@@ -80,9 +81,9 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     title: {
-      textAlign: "center",
       color: theme.palette.primary.main,
-      margin: "16px",
+      textAlign: "center",
+      width: "100%",
     },
     container: {
       backgroundColor: "white",
@@ -106,11 +107,11 @@ const ProfileHeader = () => {
       <HeaderBar />
       <AppBar position="static" color="secondary">
         <Toolbar className={classes.toolBar}>
-          <Breadcrumbs aria-label={t("breadcrumb")}>
-            <Link className={classes.breadcrumbLink} to="/">
+          <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
+            <Typography color="textPrimary" className={classes.breadcrumbText}>
               <HomeIcon className={classes.homeIcon} />
               {t("menu-account-preferences")}
-            </Link>
+            </Typography>
           </Breadcrumbs>
         </Toolbar>
       </AppBar>
@@ -306,7 +307,7 @@ export const ProfilePage: FunctionComponent = () => {
       <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
-          <div className={classes.title}>{t("hcp-account-preferences-title")}</div>
+          <DialogTitle className={classes.title}>{t("account-preferences-title")}</DialogTitle>
           <TextField
             id="firstName"
             label={t("First name")}

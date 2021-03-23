@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient nav bar
+ * Generic Secondary Header Bar
  *
  * All rights reserved.
  *
@@ -28,10 +28,40 @@
 
 import * as React from "react";
 
-import HeaderBar from "./primary-header-bar";
+import { Theme, makeStyles } from "@material-ui/core/styles";
 
-function PatientNavBar(): JSX.Element {
-  return <HeaderBar />;
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+
+interface SecondaryHeaderBarProps {
+  children?: React.ReactNode;
 }
 
-export default PatientNavBar;
+const pageBarStyles = makeStyles((theme: Theme) => {
+  return {
+    appBar: {
+      boxShadow: "0px 1px 2px #00000029",
+      borderWidth: "0px",
+    },
+    toolBar: {
+      display: "grid",
+      gridTemplateRows: "auto",
+      gridTemplateColumns: "auto auto auto",
+      paddingLeft: theme.spacing(12), // eslint-disable-line no-magic-numbers
+      paddingRight: theme.spacing(12), // eslint-disable-line no-magic-numbers
+    },
+  };
+});
+
+function SecondaryHeaderBar(props: SecondaryHeaderBarProps): JSX.Element {
+  const classes = pageBarStyles();
+  return (
+    <AppBar id="secondary-header-bar" position="static" color="secondary" variant="outlined" className={classes.appBar}>
+      <Toolbar id="secondary-toolbar" className={classes.toolBar}>
+        {props.children}
+      </Toolbar>
+    </AppBar>
+  );
+}
+
+export default SecondaryHeaderBar;

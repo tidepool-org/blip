@@ -29,38 +29,30 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
-import AppBar from "@material-ui/core/AppBar";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
-import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 
 import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
 import { Team } from "../../lib/team";
+import SecondaryHeaderBar from "../../components/secondary-header-bar";
 
 interface BarProps {
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;
 }
 
-const pageBarStyles = makeStyles((theme: Theme) => {
-  /* eslint-disable no-magic-numbers */
+const pageBarStyles = makeStyles(() => {
   return {
-    toolBar: {
-      display: "grid",
-      gridTemplateRows: "auto",
-      gridTemplateColumns: "auto auto auto",
-      paddingLeft: theme.spacing(12),
-      paddingRight: theme.spacing(12),
-    },
     toolBarRight: {
       display: "flex",
     },
-    breadcrumbLink: {
+    breadcrumbText: {
       display: "flex",
+      cursor: "default",
     },
     homeIcon: {
       marginRight: "0.5em",
@@ -71,7 +63,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
   };
 });
 
-function TeamsNavBar(props: BarProps): JSX.Element {
+function TeamsSecondaryBar(props: BarProps): JSX.Element {
   const classes = pageBarStyles();
   const { t } = useTranslation("yourloops");
 
@@ -80,31 +72,29 @@ function TeamsNavBar(props: BarProps): JSX.Element {
   };
 
   return (
-    <AppBar position="static" color="secondary">
-      <Toolbar className={classes.toolBar}>
-        <div id="teams-navbar-item-left">
-          <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-            <Typography color="textPrimary" className={classes.breadcrumbLink}>
-              <HomeIcon className={classes.homeIcon} />
-              {t("teams-navbar-breadcrumbs-title-my-teams")}
-            </Typography>
-          </Breadcrumbs>
-        </div>
-        <div id="teams-navbar-item-middle"></div>
-        <div id="teams-navbar-item-right" className={classes.toolBarRight}>
-          <Button
-            id="teams-navbar-add-team"
-            color="primary"
-            variant="contained"
-            className={classes.buttonAddTeam}
-            onClick={handleOpenModalAddTeam}>
-            <AddIcon />
-            &nbsp;{t("button-add-team")}
-          </Button>
-        </div>
-      </Toolbar>
-    </AppBar>
+    <SecondaryHeaderBar>
+      <div id="teams-navbar-item-left">
+        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
+          <Typography color="textPrimary" className={classes.breadcrumbText}>
+            <HomeIcon className={classes.homeIcon} />
+            {t("teams-navbar-breadcrumbs-title-my-teams")}
+          </Typography>
+        </Breadcrumbs>
+      </div>
+      <div id="teams-navbar-item-middle"></div>
+      <div id="teams-navbar-item-right" className={classes.toolBarRight}>
+        <Button
+          id="teams-navbar-add-team"
+          color="primary"
+          variant="contained"
+          className={classes.buttonAddTeam}
+          onClick={handleOpenModalAddTeam}>
+          <AddIcon />
+          &nbsp;{t("button-create-a-team")}
+        </Button>
+      </div>
+    </SecondaryHeaderBar>
   );
 }
 
-export default TeamsNavBar;
+export default TeamsSecondaryBar;

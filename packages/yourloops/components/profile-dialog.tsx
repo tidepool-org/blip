@@ -30,17 +30,14 @@ import moment from "moment-timezone";
 import React, { FunctionComponent } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  TextField,
-  Theme,
-} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import TextField from "@material-ui/core/TextField";
+
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { Units } from "../models/generic";
 import { Settings, User } from "../models/shoreline";

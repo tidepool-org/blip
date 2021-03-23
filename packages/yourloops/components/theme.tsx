@@ -26,9 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createMuiTheme } from "@material-ui/core/styles";
+import { createMuiTheme, Theme, darken, lighten } from "@material-ui/core/styles";
+import { PaletteOptions } from "@material-ui/core/styles/createPalette";
 
-const commonTheme = {
+const commonTheme: PaletteOptions = {
+  type: "light",
   primary: {
     main: "#109182",
     light: "#F7F7F8",
@@ -36,10 +38,11 @@ const commonTheme = {
   secondary: {
     main: "#E5F0F0",
     light: "#F5F9F9",
-    dark: "#B8B9DD",
+    dark: "#D4E6E6",
   },
   error: {
     main: "#DE514B",
+    light: "#DA3A1B",
   },
   text: {
     primary: "#000",
@@ -60,3 +63,32 @@ export const publicRoutesTheme = createMuiTheme({
     background: { default: "#F7F7F8" },
   },
 });
+
+/**
+ * For some reason, return makeStyle(...) here don't work with our theme
+ * @param theme Main theme
+ * @returns The styles for buttons
+ */
+export const makeButtonsStyles = (theme: Theme) => { // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
+  // I disabled the eslint warning here, because it's too annoying doing the type
+  const getColor = theme.palette.type === 'light' ? darken : lighten;
+  const getBackgroundColor = theme.palette.type === 'light' ? lighten : darken;
+
+  return {
+    buttonCancel: {
+      boxShadow: "none",
+    },
+    buttonOk: {
+      boxShadow: "0px 2px 2px #0000003D",
+    },
+    buttonRedAction: {
+      boxShadow: "0px 2px 2px #0000003D",
+      color: getColor("#FFFFFF", 0.0), // eslint-disable-line no-magic-numbers
+      backgroundColor: getBackgroundColor(theme.palette.error[theme.palette.type], 0.0), // eslint-disable-line no-magic-numbers
+      "&:hover": {
+        color: getColor("#FFFFFF", 0.1), // eslint-disable-line no-magic-numbers
+        backgroundColor: getBackgroundColor(theme.palette.error[theme.palette.type], 0.1), // eslint-disable-line no-magic-numbers
+      },
+    },
+  };
+};

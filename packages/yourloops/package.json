@@ -21,7 +21,7 @@
     "build-prod": "NODE_ENV=production webpack --mode=production",
     "prebuild-dev": "npm run clean",
     "build-dev": "NODE_ENV=development webpack --mode=development",
-    "start-dev": "NODE_ENV=development USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --colors --port 3001 --host 0.0.0.0",
+    "start-dev": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096' USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --colors --port 3001 --host 0.0.0.0",
     "pretest": "rm -rf coverage",
     "test": "NODE_ENV='test' NODE_OPTIONS='--max-old-space-size=4096' karma --single-run --log-level debug start"
   },

@@ -42,7 +42,7 @@ import { useAuth } from "../../lib/auth";
 import { Team, TeamContext, TeamUser, useTeam } from "../../lib/team";
 import { SortDirection, FilterType, SortFields } from "./types";
 import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
-import PatientListBar from "./patients-list-bar";
+import PatientsSecondaryBar from "./patients-secondary-bar";
 import PatientListTable from "./patients-list-table";
 
 const log = bows("PatientListPage");
@@ -253,7 +253,7 @@ function PatientListPage(): JSX.Element {
 
   return (
     <React.Fragment>
-      <PatientListBar
+      <PatientsSecondaryBar
         filter={filter}
         filterType={filterType}
         onFilter={handleFilter}

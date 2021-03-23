@@ -28,18 +28,20 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Fade from "@material-ui/core/Fade";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
+import Link from "@material-ui/core/Link";
 import Modal from "@material-ui/core/Modal";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 
 import locales from "../../../../locales/languages.json";
+import DiabeloopUrl from "../../lib/diabeloop-url";
 import { Team } from "../../lib/team";
 import { REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
@@ -69,11 +71,14 @@ const modalStyles = makeStyles((theme: Theme) => {
       borderRadius: theme.shape.borderRadius,
       width: theme.breakpoints.width("sm"),
     },
+    title: {
+      paddingLeft: theme.spacing(2),
+    },
     form: {
       display: "flex",
       flexDirection: "column",
       padding: theme.spacing(2),
-      maxHeight: "30em",
+      maxHeight: "28em",
       overflowY: "scroll",
     },
     formChild: {
@@ -88,6 +93,13 @@ const modalStyles = makeStyles((theme: Theme) => {
     divModalButtonCancel: {
       marginLeft: "auto",
       marginRight: theme.spacing(1),
+    },
+    pModalInfos: {
+      paddingLeft: theme.spacing(2),
+    },
+    divModalWarnings: {
+      display: "block",
+      paddingLeft: theme.spacing(2),
     },
   };
 });
@@ -114,7 +126,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
 
   const classes = modalStyles();
   const auth = useAuth();
-  const { t } = useTranslation("yourloops");
+  const { t, i18n } = useTranslation("yourloops");
 
   const [modalOpened, setModalOpened] = React.useState(false);
   const [teamName, setTeamName] = React.useState("");
@@ -231,11 +243,31 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
   let ariaModal = "";
   let modalTitle = "";
   let modalButtonValidate = "";
+  let infoLine = null;
+  let warningLines = null;
   if (team === null) {
     // Create a new team
-    ariaModal = t("button-add-team");
+    ariaModal = t("button-create-a-team");
     modalTitle = t("team-modal-add-title");
-    modalButtonValidate = t("create");
+    modalButtonValidate = t("button-create-team");
+    infoLine = <p id="team-edit-dialog-info-line" className={classes.pModalInfos}>{t("team-modal-create-info")}</p>;
+    const termsAndConditions = t("terms-and-conditions");
+    const linkTermsAndConditions = (
+      <Link aria-label={termsAndConditions} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
+        { termsAndConditions }
+      </Link>
+    );
+    warningLines = (
+      <div className={classes.divModalWarnings}>
+        <p id="team-edit-dialog-warning-line1">{t("team-modal-create-warning-line1")}</p>
+        <p id="team-edit-dialog-warning-line2">
+          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTermsAndConditions }} values={{ termsAndConditions }} parent={React.Fragment}>
+            By accepting our Terms And Conditions you confirm you are a registered healthcare professional in your country
+            and have the right to create a care team.
+          </Trans>
+        </p>
+      </div>
+    );
   } else {
     ariaModal = t("aria-modal-team-edit");
     modalTitle = t("modal-team-edit-title");
@@ -251,7 +283,9 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
       onClose={handleCloseModal}>
       <Fade in={modalOpened}>
         <div className={classes.divMain}>
-          <h2 id="team-edit-dialog-title">{modalTitle}</h2>
+          <h2 id="team-edit-dialog-title" className={classes.title}>{modalTitle}</h2>
+
+          {infoLine}
 
           <form noValidate autoComplete="off" className={classes.form}>
             <TextField
@@ -345,6 +379,8 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
               aria-required="false"
             />
           </form>
+
+          {warningLines}
 
           <div className={classes.divModalButtons}>
             <Button

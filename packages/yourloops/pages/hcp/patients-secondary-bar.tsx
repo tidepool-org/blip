@@ -27,12 +27,10 @@
  */
 
 import * as React from "react";
-import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
 
-import AppBar from "@material-ui/core/AppBar";
 import Backdrop from "@material-ui/core/Backdrop";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
@@ -40,7 +38,6 @@ import Fade from "@material-ui/core/Fade";
 import FormControl from "@material-ui/core/FormControl";
 import InputBase from "@material-ui/core/InputBase";
 import InputLabel from "@material-ui/core/InputLabel";
-import Link from "@material-ui/core/Link";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import MenuItem from "@material-ui/core/MenuItem";
 import { MenuProps } from "@material-ui/core/Menu";
@@ -48,7 +45,7 @@ import Modal from "@material-ui/core/Modal";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
-import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import HomeIcon from "@material-ui/icons/Home";
@@ -61,6 +58,7 @@ import { defer, REGEX_EMAIL } from "../../lib/utils";
 import { Team, useTeam } from "../../lib/team";
 import { FilterType } from "./types";
 import { MedicalServiceIcon } from "../../components/icons/MedicalServiceIcon";
+import SecondaryHeaderBar from "../../components/secondary-header-bar";
 
 export interface PatientListBarProps {
   filter: string;
@@ -73,13 +71,6 @@ export interface PatientListBarProps {
 const modalBackdropTimeout = 300;
 const pageBarStyles = makeStyles((theme: Theme) => {
   return {
-    toolBar: {
-      display: "grid",
-      gridTemplateRows: "auto",
-      gridTemplateColumns: "auto auto auto",
-      paddingLeft: "6em",
-      paddingRight: "6em",
-    },
     toolBarMiddle: {
       display: "flex",
       flexDirection: "row",
@@ -92,8 +83,9 @@ const pageBarStyles = makeStyles((theme: Theme) => {
     homeIcon: {
       marginRight: "0.5em",
     },
-    breadcrumbLink: {
+    breadcrumbText: {
       display: "flex",
+      cursor: "default",
     },
     search: {
       display: "flex",
@@ -141,25 +133,28 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       flex: "1",
       borderRadius: theme.shape.borderRadius,
       backgroundColor: theme.palette.secondary.light,
-      transition: theme.transitions.create("background-color"),
-      "&:active": {
-        backgroundColor: theme.palette.secondary.dark,
-      },
-      "&:hover": {
-        backgroundColor: theme.palette.secondary.dark,
-      },
       [theme.breakpoints.up("sm")]: {
         width: "15em",
       },
     },
     selectFilterInnerDiv: {
-      display: "inline-flex",
+      display: "flex",
       alignItems: "center",
-      paddingLeft: ".5em",
+      padding: "0px 0px 0px .5em",
+      height: "100%",
+      transition: theme.transitions.create("background-color"),
+      "&:hover": {
+        backgroundColor: theme.palette.secondary.dark,
+      },
+      "&:focus": {
+        backgroundColor: theme.palette.secondary.light,
+        "&:hover": {
+          backgroundColor: theme.palette.secondary.dark,
+        },
+      },
     },
     selectFilterIcon: {
       margin: "0 .5em 0 0",
-      alignSelf: "flex-start",
     },
     buttonAddPatient: {
       marginLeft: "auto",
@@ -195,7 +190,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
   };
 });
 
-function PatientsListBar(props: PatientListBarProps): JSX.Element {
+function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const selectMenuProps: Partial<MenuProps> = {
     anchorOrigin: {
       vertical: "bottom",
@@ -211,30 +206,25 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
   const { filter, filterType, onFilter, onFilterType, onInvitePatient } = props;
   const { t } = useTranslation("yourloops");
   const classes = pageBarStyles();
-  const history = useHistory();
   const teamHook = useTeam();
   const [modalAddPatientOpen, setModalAddPatientOpen] = React.useState(false);
   const [modalSelectedTeam, setModalSelectedTeam] = React.useState("");
   const [modalUsername, setModalUsername] = React.useState("");
   const selectFilterValues = [
     { value: "all", label: t("select-all-patients"), icon: null },
-    { value: "flagged", label: t("select-flagged-patients"), icon: <FlagIcon className={classes.selectFilterIcon} /> },
+    { value: "flagged", label: t("select-flagged-patients"), icon: <FlagIcon color="primary" className={classes.selectFilterIcon} /> },
     {
       value: TeamType.private,
       label: t("private-practice"),
-      icon: <MedicalServiceIcon className={classes.selectFilterIcon} />,
+      icon: <MedicalServiceIcon color="primary" className={classes.selectFilterIcon} />,
     },
     {
       value: "pending",
       label: t("select-pending-invitation-patients"),
-      icon: <AccessTimeIcon className={classes.selectFilterIcon} />,
+      icon: <AccessTimeIcon color="primary" className={classes.selectFilterIcon} />,
     },
   ];
 
-  const handleClickMyPatients = (e: React.MouseEvent): void => {
-    e.preventDefault();
-    history.push("/hcp/patients");
-  };
   const handleFilterPatients = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     onFilter(e.target.value);
   };
@@ -295,115 +285,113 @@ function PatientsListBar(props: PatientListBarProps): JSX.Element {
   const buttonCreateDisabled = !(REGEX_EMAIL.test(modalUsername) && modalSelectedTeam.length > 0);
 
   return (
-    <AppBar position="static" color="secondary">
-      <Toolbar className={classes.toolBar}>
-        <div id="patients-list-toolbar-item-left">
-          <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-            <Link color="textPrimary" className={classes.breadcrumbLink} href="/hcp/patients" onClick={handleClickMyPatients}>
-              <HomeIcon className={classes.homeIcon} />
-              {t("my-patients-title")}
-            </Link>
-          </Breadcrumbs>
-        </div>
-        <div id="patients-list-toolbar-item-middle" className={classes.toolBarMiddle}>
-          <FormControl color="primary" className={classes.formControl}>
-            <Select
-              id="select-patient-list-filtertype"
-              value={filterType}
-              onChange={handleFilterTeam}
-              classes={{ root: classes.selectFilterInnerDiv }}
-              className={classes.selectFilter}
-              disableUnderline
-              MenuProps={selectMenuProps}>
-              {optionsFilterCommonElements}
-              {optionsFilterTeamsElements}
-            </Select>
-          </FormControl>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder={t("placeholder-search")}
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ "aria-label": t("aria-search") }}
-              value={filter}
-              onChange={handleFilterPatients}
-            />
+    <SecondaryHeaderBar>
+      <div id="patients-list-toolbar-item-left">
+        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
+          <Typography color="textPrimary" className={classes.breadcrumbText}>
+            <HomeIcon className={classes.homeIcon} />
+            {t("my-patients-title")}
+          </Typography>
+        </Breadcrumbs>
+      </div>
+      <div id="patients-list-toolbar-item-middle" className={classes.toolBarMiddle}>
+        <FormControl color="primary" className={classes.formControl}>
+          <Select
+            id="select-patient-list-filtertype"
+            value={filterType}
+            onChange={handleFilterTeam}
+            classes={{ root: classes.selectFilterInnerDiv }}
+            className={classes.selectFilter}
+            disableUnderline
+            MenuProps={selectMenuProps}>
+            {optionsFilterCommonElements}
+            {optionsFilterTeamsElements}
+          </Select>
+        </FormControl>
+        <div className={classes.search}>
+          <div className={classes.searchIcon}>
+            <SearchIcon />
           </div>
+          <InputBase
+            placeholder={t("placeholder-search")}
+            classes={{
+              root: classes.inputRoot,
+              input: classes.inputInput,
+            }}
+            inputProps={{ "aria-label": t("aria-search") }}
+            value={filter}
+            onChange={handleFilterPatients}
+          />
         </div>
-        <div id="patients-list-toolbar-item-right" className={classes.toolBarRight}>
-          <Button
-            id="patient-list-toolbar-add-patient"
-            color="primary"
-            variant="contained"
-            className={classes.buttonAddPatient}
-            onClick={handleOpenModalAddPatient}>
-            <PersonAddIcon />
-            &nbsp;{t("add-patient")}
-          </Button>
-          <Modal
-            id="patient-list-toolbar-modal-add-patient"
-            aria-labelledby={t("add-patient")}
-            className={classes.modalAddPatient}
-            open={modalAddPatientOpen}
-            onClose={handleCloseModalAddPatient}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: modalBackdropTimeout,
-            }}>
-            <Fade in={modalAddPatientOpen}>
-              <div className={classes.divModal}>
-                <h2 id="patient-list-toolbar-modal-add-patient-title">{t("modal-add-patient")}</h2>
-                <form noValidate autoComplete="off" className={classes.formModal}>
-                  <TextField
-                    required
-                    id="patient-list-toolbar-modal-add-patient-username"
-                    onChange={handleChangeUsername}
-                    value={modalUsername}
-                    label={t("required")}
-                  />
-                  <FormControl className={classes.formControlSelectTeam}>
-                    <InputLabel htmlFor="select-patient-list-modal-team">{t("team")}</InputLabel>
-                    <NativeSelect
-                      value={modalSelectedTeam}
-                      onChange={handleChangeAddPatientTeam}
-                      inputProps={{
-                        name: "teamid",
-                        id: "select-patient-list-modal-team",
-                      }}>
-                      {optionsTeamsElements}
-                    </NativeSelect>
-                  </FormControl>
-                  <div className={classes.divModalButtons}>
-                    <Button
-                      id="patients-list-modal-button-close"
-                      className={classes.divModalButtonCancel}
-                      variant="contained"
-                      onClick={handleCloseModalAddPatient}>
-                      {t("common-cancel")}
-                    </Button>
-                    <Button
-                      id="patients-list-modal-button-create"
-                      disabled={buttonCreateDisabled}
-                      onClick={handleModalAddPatient}
-                      color="primary"
-                      variant="contained">
-                      {t("create")}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </Fade>
-          </Modal>
-        </div>
-      </Toolbar>
-    </AppBar>
+      </div>
+      <div id="patients-list-toolbar-item-right" className={classes.toolBarRight}>
+        <Button
+          id="patient-list-toolbar-add-patient"
+          color="primary"
+          variant="contained"
+          className={classes.buttonAddPatient}
+          onClick={handleOpenModalAddPatient}>
+          <PersonAddIcon />
+          &nbsp;{t("add-patient")}
+        </Button>
+        <Modal
+          id="patient-list-toolbar-modal-add-patient"
+          aria-labelledby={t("add-patient")}
+          className={classes.modalAddPatient}
+          open={modalAddPatientOpen}
+          onClose={handleCloseModalAddPatient}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: modalBackdropTimeout,
+          }}>
+          <Fade in={modalAddPatientOpen}>
+            <div className={classes.divModal}>
+              <h2 id="patient-list-toolbar-modal-add-patient-title">{t("modal-add-patient")}</h2>
+              <form noValidate autoComplete="off" className={classes.formModal}>
+                <TextField
+                  required
+                  id="patient-list-toolbar-modal-add-patient-username"
+                  onChange={handleChangeUsername}
+                  value={modalUsername}
+                  label={t("required")}
+                />
+                <FormControl className={classes.formControlSelectTeam}>
+                  <InputLabel htmlFor="select-patient-list-modal-team">{t("team")}</InputLabel>
+                  <NativeSelect
+                    value={modalSelectedTeam}
+                    onChange={handleChangeAddPatientTeam}
+                    inputProps={{
+                      name: "teamid",
+                      id: "select-patient-list-modal-team",
+                    }}>
+                    {optionsTeamsElements}
+                  </NativeSelect>
+                </FormControl>
+                <div className={classes.divModalButtons}>
+                  <Button
+                    id="patients-list-modal-button-close"
+                    className={classes.divModalButtonCancel}
+                    variant="contained"
+                    onClick={handleCloseModalAddPatient}>
+                    {t("common-cancel")}
+                  </Button>
+                  <Button
+                    id="patients-list-modal-button-create"
+                    disabled={buttonCreateDisabled}
+                    onClick={handleModalAddPatient}
+                    color="primary"
+                    variant="contained">
+                    {t("create")}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Fade>
+        </Modal>
+      </div>
+    </SecondaryHeaderBar>
   );
 }
 
-export default PatientsListBar;
+export default PatientsSecondaryBar;

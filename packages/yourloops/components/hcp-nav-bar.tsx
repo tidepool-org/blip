@@ -33,7 +33,9 @@ import { useTranslation } from "react-i18next";
 import Tab from "@material-ui/core/Tab";
 import Tabs from "@material-ui/core/Tabs";
 
-import HeaderBar from "./header-bar";
+import HeaderBar from "./primary-header-bar";
+
+const tabStyle: React.CSSProperties = { color: "black" };
 
 function HcpNavBar(): JSX.Element {
   const historyHook = useHistory();
@@ -44,8 +46,8 @@ function HcpNavBar(): JSX.Element {
   return (
     <HeaderBar>
       <Tabs value={isTeamPath ? 1 : 0} indicatorColor="primary" textColor="primary" centered>
-        <Tab label={t("Patients")} component={Link} to="/hcp/patients" />
-        <Tab label={t("Care teams")} component={Link} to="/hcp/teams" />
+        <Tab style={tabStyle} label={t("Patients")} component={Link} to="/hcp/patients" />
+        <Tab style={tabStyle} label={t("Care teams")} component={Link} to="/hcp/teams" />
       </Tabs>
     </HeaderBar>
   );

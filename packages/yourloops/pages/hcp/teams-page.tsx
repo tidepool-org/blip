@@ -51,7 +51,7 @@ import {
   TeamLeaveDialogContentProps,
 } from "./types";
 
-import TeamsNavBar from "./teams-nav-bar";
+import TeamsSecondaryBar from "./teams-secondary-bar";
 import TeamCard from "./team-card";
 import TeamMembers from "./team-members-table";
 
@@ -113,14 +113,19 @@ function TeamsPage(): JSX.Element {
     try {
       if (team === null) {
         await teamHook.createTeam(editedTeam);
+        openSnackbar({ message: t("team-page-success-create"), severity: AlertSeverity.success });
       } else {
         await teamHook.editTeam(editedTeam as Team);
+        openSnackbar({ message: t("team-page-success-edit"), severity: AlertSeverity.success });
       }
-      openSnackbar({ message: t("team-page-success-edit"), severity: AlertSeverity.success });
     } catch (reason: unknown) {
-      log.error("onShowEditTeamDialog", reason);
-      const errorMessage = errorTextFromException(reason);
-      const message = t("team-page-failed-edit", { errorMessage });
+      log.error("onShowEditTeamDialog", reason, errorTextFromException(reason));
+      let message = '';
+      if (team === null) {
+        message = t("team-page-failed-create");
+      } else {
+        message = t("team-page-failed-edit");
+      }
       openSnackbar({ message, severity: AlertSeverity.error });
     }
   };
@@ -298,7 +303,7 @@ function TeamsPage(): JSX.Element {
   return (
     <React.Fragment>
       <Snackbar params={snackbarParams} />
-      <TeamsNavBar onShowEditTeamDialog={handleShowEditTeamDialog} />
+      <TeamsSecondaryBar onShowEditTeamDialog={handleShowEditTeamDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>
           {teamsItems}

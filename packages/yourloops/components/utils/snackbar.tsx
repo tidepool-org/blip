@@ -28,8 +28,8 @@
 
 import React, { useCallback } from "react";
 
-import { Snackbar as SnackbarUI } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import SnackbarUI from "@material-ui/core/Snackbar";
+import Alert from "@material-ui/lab/Alert";
 
 import { ApiAlert } from "../../lib/useSnackbar";
 

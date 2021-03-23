@@ -71,7 +71,10 @@ const patientListStyle = makeStyles((theme: Theme) => {
       backgroundColor: "grey",
     },
     tableRowHeader: {
-      fontVariant: "small-caps",
+      textTransform: "uppercase",
+    },
+    tableCellHeader: {
+      fontSize: "14px",
     },
     flag: {
       color: theme.palette.primary.main,
@@ -84,42 +87,43 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
 
-  const patientsRows = patients.map((patient: TeamUser): JSX.Element => {
-    const userId = patient.userid;
-    const isFlagged = flagged.includes(userId);
-    const firstName = getUserFirstName(patient);
-    const lastName = getUserLastName(patient);
-    const onClickFlag = (e: React.MouseEvent): void => {
-      e.stopPropagation();
-      sendMetrics("flag-patient", { flagged: !isFlagged });
-      onFlagPatient(userId);
-    };
-    const onRowClick = (/* e: React.MouseEvent */): void => {
-      sendMetrics("show-patient-data", { flagged: isFlagged });
-      onClickPatient(patient);
-    };
-    return (
-      <TableRow
-        id={`patients-list-row-${userId}`}
-        key={userId}
-        tabIndex={-1}
-        hover
-        onClick={onRowClick}
-        className={classes.tableRow}>
-        <TableCell id={`patients-list-row-flag-${userId}`}>
-          <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
-            {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
-        <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
-        <TableCell id={`patients-list-row-tir-${userId}`}>{t("N/A")}</TableCell>
-        <TableCell id={`patients-list-row-avg-glucose-${userId}`}>{t("N/A")}</TableCell>
-        <TableCell id={`patients-list-row-tbr-${userId}`}>{t("N/A")}</TableCell>
-        <TableCell id={`patients-list-row-upload-${userId}`}>{t("N/A")}</TableCell>
-      </TableRow>
-    );
-  });
+  const patientsRows = patients.map(
+    (patient: TeamUser): JSX.Element => {
+      const userId = patient.userid;
+      const isFlagged = flagged.includes(userId);
+      const firstName = getUserFirstName(patient);
+      const lastName = getUserLastName(patient);
+      const onClickFlag = (e: React.MouseEvent): void => {
+        e.stopPropagation();
+        sendMetrics("flag-patient", { flagged: !isFlagged });
+        onFlagPatient(userId);
+      };
+      const onRowClick = (/* e: React.MouseEvent */): void => {
+        sendMetrics("show-patient-data", { flagged: isFlagged });
+        onClickPatient(patient);
+      };
+      return (
+        <TableRow
+          id={`patients-list-row-${userId}`}
+          key={userId}
+          tabIndex={-1}
+          hover
+          onClick={onRowClick}
+          className={classes.tableRow}>
+          <TableCell id={`patients-list-row-flag-${userId}`}>
+            <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
+              {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
+          <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
+          <TableCell id={`patients-list-row-tir-${userId}`}>{t("N/A")}</TableCell>
+          <TableCell id={`patients-list-row-tbr-${userId}`}>{t("N/A")}</TableCell>
+          <TableCell id={`patients-list-row-upload-${userId}`}>{t("N/A")}</TableCell>
+        </TableRow>
+      );
+    }
+  );
 
   const createSortHandler = (property: SortFields): (() => void) => {
     return (/* event: React.MouseEvent */): void => {
@@ -128,25 +132,27 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
   };
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer style={{ marginBottom: "5em" }} component={Paper}>
       <Table className={classes.table} aria-label={t("aria-table-list-patient")} stickyHeader>
         <TableHead>
           <TableRow className={classes.tableRowHeader}>
-            <TableCell id="patients-list-header-flag" />
-            <TableCell id="patients-list-header-lastname">
+            <TableCell id="patients-list-header-flag" className={classes.tableCellHeader} />
+            <TableCell id="patients-list-header-lastname" className={classes.tableCellHeader}>
               <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}
               </TableSortLabel>
             </TableCell>
-            <TableCell id="patients-list-header-firstname">
-              <TableSortLabel active={orderBy === "firstname"} direction={order} onClick={createSortHandler(SortFields.firstname)}>
+            <TableCell id="patients-list-header-firstname" className={classes.tableCellHeader}>
+              <TableSortLabel
+                active={orderBy === "firstname"}
+                direction={order}
+                onClick={createSortHandler(SortFields.firstname)}>
                 {t("firstname")}
               </TableSortLabel>
             </TableCell>
-            <TableCell id="patients-list-header-tir">{t("list-patient-tir")}</TableCell>
-            <TableCell id="patients-list-header-avg-glucose">{t("list-patient-avg-glucose")}</TableCell>
-            <TableCell id="patients-list-header-tbr">{t("list-patient-tbr")}</TableCell>
-            <TableCell id="patients-list-header-upload">{t("list-patient-upload")}</TableCell>
+            <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>{t("list-patient-tir")}</TableCell>
+            <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>{t("list-patient-tbr")}</TableCell>
+            <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>{t("list-patient-upload")}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>{patientsRows}</TableBody>

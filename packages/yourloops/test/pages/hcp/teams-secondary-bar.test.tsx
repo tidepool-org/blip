@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCP patient list bar tests
+ * HCP team 2nd nav bar tests
  *
  * All rights reserved.
  *
@@ -32,24 +32,11 @@ import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 
 import { waitTimeout } from "../../../lib/utils";
-import { AuthContextProvider } from "../../../lib/auth";
-import { TeamContextProvider } from "../../../lib/team";
-import { FilterType } from "../../../pages/hcp/types";
-import AppBarPage, { PatientListBarProps } from "../../../pages/hcp/patients-list-bar";
+import TeamsSecondaryBar from "../../../pages/hcp/teams-secondary-bar";
 
-import { authHookHcp } from "../../lib/auth/hook.test";
-import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
-
-function testAppBar(): void {
+function testTeamsSecondaryBar(): void {
   const apiTimeout = 50;
-  const defaultProps: PatientListBarProps = {
-    filter: "",
-    filterType: FilterType.all,
-    onFilter: sinon.spy(),
-    onFilterType: sinon.spy(),
-    onInvitePatient: sinon.spy(),
-  };
-
+  const onShowEditTeamDialog = sinon.stub().resolves();
   let component: ReactWrapper | null = null;
 
   afterEach(() => {
@@ -57,25 +44,25 @@ function testAppBar(): void {
       component.unmount();
       component = null;
     }
-    resetTeamAPIStubs();
+    onShowEditTeamDialog.resetHistory();
   });
 
-  it("should be exported as a function", () => {
-    expect(AppBarPage).to.be.a("function");
+  it("should display the nav bar", () => {
+    component = mount(<TeamsSecondaryBar onShowEditTeamDialog={onShowEditTeamDialog} />);
+    expect(component.exists("#teams-navbar-item-left"), "left").to.be.true;
+    expect(component.exists("#teams-navbar-item-middle"), "middle").to.be.true;
+    expect(component.exists("#teams-navbar-item-right"), "right").to.be.true;
   });
 
-  it("should be able to render", async () => {
-    component = mount(
-      <AuthContextProvider value={authHookHcp}>
-        <TeamContextProvider api={teamAPI}>
-          <AppBarPage {...defaultProps} />
-        </TeamContextProvider>
-      </AuthContextProvider>
-    );
-    // component.update();
+  it("should call onShowEditTeamDialog when clicking on the button", async () => {
+    component = mount(<TeamsSecondaryBar onShowEditTeamDialog={onShowEditTeamDialog} />);
+
+    expect(component.exists("#teams-navbar-add-team"), "button exists").to.be.true;
+    component.find("#teams-navbar-add-team").last().simulate("click");
     await waitTimeout(apiTimeout);
-    expect(component.find("#patients-list-toolbar-item-left").length).to.be.equal(1);
+    expect(onShowEditTeamDialog.calledOnce, "calledOnce").to.be.true;
+    expect(onShowEditTeamDialog.calledWith(null), "calledWith(null)").to.be.true;
   });
 }
 
-export default testAppBar;
+export default testTeamsSecondaryBar;

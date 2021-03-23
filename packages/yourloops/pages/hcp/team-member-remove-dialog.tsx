@@ -39,23 +39,25 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
+import { makeButtonsStyles } from "../../components/theme";
 import { RemoveMemberDialogContentProps } from "./types";
 
 export interface RemoveMemberDialogProps {
   userToBeRemoved: RemoveMemberDialogContentProps | null;
 }
-
+const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "YlpRemoveMemberDialogButtons" });
 const removeMemberDialogClasses = makeStyles((theme: Theme) => {
   return {
     buttonCancel: {
       marginRight: theme.spacing(2),
     },
   };
-});
+}, { name: "YlpRemoveMemberDialog" });
 
 function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
   const { userToBeRemoved } = props;
-  const classes = removeMemberDialogClasses();
+  const dialogClasses = removeMemberDialogClasses();
+  const buttonClasses = makeButtonsClasses();
   const { t } = useTranslation("yourloops");
 
   let hcpFirstName = "n/a";
@@ -116,15 +118,14 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
         <Button
           id="team-members-dialog-rmmember-button-cancel"
           onClick={handleClose}
-          className={classes.buttonCancel}
-          color="secondary"
+          className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
           variant="contained">
           {t("common-cancel")}
         </Button>
         <Button
           id="team-members-dialog-rmmember-button-remove"
           onClick={handleClickRemoveTeamMember}
-          color="primary"
+          className={buttonClasses.buttonRedAction}
           variant="contained">
           {t("team-member-remove")}
         </Button>

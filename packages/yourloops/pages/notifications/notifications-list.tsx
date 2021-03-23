@@ -21,7 +21,7 @@ import { AppBar, Breadcrumbs, Container, createStyles, Link, List, ListItem, mak
 import HomeIcon from "@material-ui/icons/Home";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 
-import HeaderBar from "../../components/header-bar";
+import HeaderBar from "../../components/primary-header-bar";
 import { INotification, Notification, NotificationType } from "./notification";
 import { UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
@@ -59,7 +59,7 @@ const NotificationHeader = () => {
       <HeaderBar />
       <AppBar position="static" color="secondary">
         <Toolbar className={classes.toolBar}>
-          <Breadcrumbs aria-label={t("breadcrumb")} separator={<NavigateNextIcon fontSize="small" />}>
+          <Breadcrumbs aria-label={t("aria-breadcrumbs")} separator={<NavigateNextIcon fontSize="small" />}>
             <Link className={classes.breadcrumbLink} color="textPrimary" href={homePage}>
               <HomeIcon className={classes.homeIcon} />
               {t("home")}

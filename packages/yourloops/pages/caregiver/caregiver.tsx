@@ -29,7 +29,7 @@
 import React, { useEffect } from "react";
 import { Switch, useHistory } from "react-router-dom";
 
-import HeaderBar from "../../components/header-bar";
+import HeaderBar from "../../components/primary-header-bar";
 import { PrivateRoute } from "../../components/routes";
 import { TeamContextProvider } from "../../lib/team";
 import PatientListPage from "../hcp/patients-list";

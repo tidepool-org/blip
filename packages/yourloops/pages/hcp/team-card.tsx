@@ -68,7 +68,7 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       backgroundColor: theme.palette.primary.light,
     },
     paperRoot: {
-      padding: "1em",
+      padding: "1em 3em",
     },
     firstRow: {
       display: "flex",
@@ -149,7 +149,9 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
       <Avatar className={classes.avatar}>{icon}</Avatar>
       <div className={classes.divLabelValue}>
         <span id={`team-card-info-${id}-${label}-label`}>{t(`team-card-label-${label}`)}</span>
-        <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>{value}</span>
+        <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>
+          {value}
+        </span>
       </div>
     </div>
   );
@@ -234,7 +236,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   }
 
   return (
-    <Paper className={classes.paper} classes={{ root: classes.paperRoot }}>
+    <Paper elevation={0} className={classes.paper} classes={{ root: classes.paperRoot }}>
       <div id={`team-card-${id}-actions`} className={classes.firstRow}>
         <h2 id={`team-card-${id}-name`} className={classes.teamName}>
           {team.name}
