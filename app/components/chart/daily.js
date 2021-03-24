@@ -628,11 +628,11 @@ class Daily extends Component {
     const rightOffset = override.left - override.chartExtents.right;
 
     if (leftOffset < 70) {
-      override.left = override.chartExtents.left + 70 - 5;
+      override.left = override.chartExtents.left + 70;
     }
 
     if (rightOffset > -70) {
-      override.left = override.chartExtents.right - 70 - 5;
+      override.left = override.chartExtents.right - 70;
     }
 
     this.setState({
