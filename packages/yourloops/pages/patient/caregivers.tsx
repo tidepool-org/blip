@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Medical Service Icon
+ * Patient care givers page
  *
  * All rights reserved.
  *
@@ -27,19 +27,15 @@
  */
 
 import * as React from "react";
+// import bows from "bows";
 
-import SvgIcon, { SvgIconProps } from "@material-ui/core/SvgIcon";
+// const log = bows("PatientCaregiversPage");
 
-const MedicalServiceIcon = (props: SvgIconProps): JSX.Element => {
-  // For some reason this icon is not available with material-ui
-  // This one come directly from material-design
-  // Source: https://material.io/resources/icons/?icon=medical_services&style=baseline
-  // prettier-ignore
-  return (
-    <SvgIcon xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" {...props}>
-      <path d="M20,6h-4V4c0-1.1-0.9-2-2-2h-4C8.9,2,8,2.9,8,4v2H4C2.9,6,2,6.9,2,8v12c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V8 C22,6.9,21.1,6,20,6z M10,4h4v2h-4V4z M16,15h-3v3h-2v-3H8v-2h3v-3h2v3h3V15z"/>
-    </SvgIcon>
-  );
-};
+/**
+ * Patient caregivers page
+ */
+function PatientCaregiversPage(): JSX.Element {
+  return <div>PatientCaregiversPage</div>;
+}
 
-export default MedicalServiceIcon;
+export default PatientCaregiversPage;

@@ -22,7 +22,7 @@ import GroupIcon from "@material-ui/icons/Group";
 import PersonIcon from "@material-ui/icons/Person";
 import { Button, createStyles, makeStyles } from "@material-ui/core";
 
-import { MedicalServiceIcon } from "../../components/icons/MedicalServiceIcon";
+import MedicalServiceIcon from "../../components/icons/MedicalServiceIcon";
 import { UserRoles } from "../../models/shoreline";
 
 export enum NotificationType {

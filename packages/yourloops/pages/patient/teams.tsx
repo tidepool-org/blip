@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient page index
+ * Patient care teams page
  *
  * All rights reserved.
  *
@@ -26,5 +26,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import PatientPage from "./patient";
-export default PatientPage;
+import * as React from "react";
+// import bows from "bows";
+
+
+// const log = bows("PatientTeamsPage");
+
+/**
+ * Patient teams page
+ */
+function PatientTeamsPage(): JSX.Element | null {
+
+  return (
+    <div>PatientTeamsPage</div>
+  );
+}
+
+export default PatientTeamsPage;

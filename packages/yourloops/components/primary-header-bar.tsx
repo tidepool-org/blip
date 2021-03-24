@@ -28,7 +28,7 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { RouteComponentProps, useHistory, withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, withStyles, Theme } from "@material-ui/core/styles";
@@ -39,16 +39,33 @@ import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Toolbar from "@material-ui/core/Toolbar";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 
+import NotificationsIcon from "@material-ui/icons/Notifications";
 import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 import brandingLogo from "branding/logo.png";
 import { useAuth } from "../lib/auth";
 import { UserRoles, User } from "../models/shoreline";
 import { getUserFirstName, getUserLastName } from "../lib/utils";
-interface HeaderProps extends RouteComponentProps {
+
+type CloseMenuCallback = () => void;
+export interface HeaderActions {
+  closeMenu: CloseMenuCallback;
+}
+
+interface HeaderProps {
   children?: JSX.Element | JSX.Element[];
+  /** Additional menu items */
+  menuItems?: JSX.Element | JSX.Element[];
+  /**
+   * Custom actions callbacks (React.useRef())
+   *
+   * Not sure with this constructions, I was trying to do a ref like action
+   * we had with class components, but I wasn't able to use the "ref" props for it.
+   */
+  actions?: {
+    current: null | HeaderActions;
+  };
 }
 
 const toolbarStyles = makeStyles((theme: Theme) => ({
@@ -79,15 +96,18 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
  *
  * With a CSS style named "ylp-button-account"
  */
-const AccountButton = withStyles((/* theme: Theme */) => ({
-  root: {
-    display: "flex",
-    flexDirection: "row",
-    color: "var(--mdc-theme-on-surface, black)",
-    textTransform: "none",
-    fontWeight: "bold",
-  },
-}), { name: "ylp-button-account" })(Button);
+const AccountButton = withStyles(
+  (/* theme: Theme */) => ({
+    root: {
+      display: "flex",
+      flexDirection: "row",
+      color: "var(--mdc-theme-on-surface, black)",
+      textTransform: "none",
+      fontWeight: "bold",
+    },
+  }),
+  { name: "ylp-button-account" }
+)(Button);
 
 function HeaderBar(props: HeaderProps): JSX.Element {
   const { t } = useTranslation("yourloops");
@@ -121,16 +141,22 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   };
 
   const handleLogout = () => {
-    const { history } = props;
     setAnchorEl(null);
     auth.logout();
     history.push("/");
   };
 
+  if (_.isObject(props.actions) && props.actions.current === null) {
+    props.actions.current = {
+      closeMenu: handleCloseAccountMenu,
+    };
+  }
+
   let accountMenu = null;
   if (auth.isLoggedIn()) {
-    const user: User = auth.user as User;
+    const user = auth.user as User;
     const name = t("user-name", { firstName: getUserFirstName(user), lastName: getUserLastName(user) });
+    const { menuItems } = props;
 
     accountMenu = (
       <React.Fragment>
@@ -158,15 +184,13 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           keepMounted={false}
           open={userMenuOpen}
           onClose={handleCloseAccountMenu}>
-          <MenuItem
-            id="menu-open-profile"
-            onClick={handleOpenProfilePage}
-            >{t("menu-account-preferences")}
+          {menuItems}
+          {_.isObject(menuItems) ? <hr id="menu-user-account-separator" /> : null}
+          <MenuItem id="menu-open-profile" onClick={handleOpenProfilePage}>
+            {t("menu-account-preferences")}
           </MenuItem>
-          <MenuItem
-            id="menu-logout-yourloops"
-            onClick={handleLogout}
-            >{t("menu-logout")}
+          <MenuItem id="menu-logout-yourloops" onClick={handleLogout}>
+            {t("menu-logout")}
           </MenuItem>
         </Menu>
       </React.Fragment>
@@ -176,12 +200,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <input
-          type="image"
-          className={classes.toolbarLogo}
-          alt={t("alt-img-logo")}
-          src={brandingLogo}
-          onClick={onLogoClick} />
+        <input type="image" className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} onClick={onLogoClick} />
         {props.children}
         <div className={classes.toolbarRightSide}>
           {userRole && userRole !== UserRoles.patient && (
@@ -196,4 +215,4 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   );
 }
 
-export default withRouter(HeaderBar);
+export default HeaderBar;

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Team card for HCPs
+ * Generic Team card
  *
  * All rights reserved.
  *
@@ -26,27 +26,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
 
-import EditIcon from "@material-ui/icons/Edit";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import EmailIcon from "@material-ui/icons/Email";
+import LocationOnIcon from "@material-ui/icons/LocationOn";
+import PhoneIcon from "@material-ui/icons/Phone";
 
-import { TeamMemberRole } from "../../models/team";
-import { Team } from "../../lib/team";
-import GenericTeamCard from "../../components/team-card";
+import VerifiedIcon from "./icons/VerifiedIcon";
+
+import locales from "../../../locales/languages.json";
+import { Team } from "../lib/team";
 
 export interface TeamCardProps {
   team: Readonly<Team>;
-  memberRole: TeamMemberRole;
-  onShowEditTeamDialog: (team: Team | null) => Promise<void>;
-  onShowLeaveTeamDialog: (team: Team) => Promise<boolean>;
-  onShowAddMemberDialog: (team: Team) => Promise<void>;
+  children?: JSX.Element | JSX.Element[] | null;
 }
 
 export interface TeamInfoProps {
@@ -141,63 +140,48 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
 }
 
 function TeamCard(props: TeamCardProps): JSX.Element {
-  const { team, memberRole, onShowEditTeamDialog, onShowLeaveTeamDialog, onShowAddMemberDialog } = props;
+  const { team, children } = props;
   const classes = teamCardStyles();
-  const { t } = useTranslation("yourloops");
-  const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
-
-  const handleClickEdit = async (): Promise<void> => {
-    setButtonsDisabled(true);
-    await onShowEditTeamDialog(team);
-    setButtonsDisabled(false);
-  };
-  const handleClickLeaveTeam = async (): Promise<void> => {
-    setButtonsDisabled(true);
-    const result = await onShowLeaveTeamDialog(team);
-    if (!result) {
-      setButtonsDisabled(false);
-    }
-  };
-  const handleClickAddMember = async (): Promise<void> => {
-    setButtonsDisabled(true);
-    await onShowAddMemberDialog(team);
-    setButtonsDisabled(false);
-  };
-
   const { id } = team;
 
-  if (memberRole === TeamMemberRole.admin) {
-    return (
-      <GenericTeamCard team={team}>
-        <Button
-          id={`team-card-${id}-button-edit`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<EditIcon color="primary" />}
-          onClick={handleClickEdit}
-          disabled={buttonsDisabled}>
-          {t("button-team-edit")}
-        </Button>
-        <Button
-          id={`team-card-${id}-button-add-member`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<PersonAddIcon color="primary" />}
-          onClick={handleClickAddMember}
-          disabled={buttonsDisabled}>
-          {t("button-team-add-member")}
-        </Button>
-        <Button
-          id={`team-card-${id}-button-leave-team`}
-          className={classes.buttonActionFirstRow}
-          startIcon={<ExitToAppIcon color="primary" />}
-          onClick={handleClickLeaveTeam}
-          disabled={buttonsDisabled}>
-          {t("button-team-leave")}
-        </Button>
-      </GenericTeamCard>
+  let address: JSX.Element | null = null;
+  const teamAddress = team.address ?? null;
+  if (teamAddress !== null) {
+    const { line1, line2, zip, city, country } = teamAddress;
+    const countryName = _.get(locales, `countries.${country}.name`, country) as string;
+    address = (
+      <React.Fragment>
+        {line1}
+        {_.isString(line2) ? (
+          <React.Fragment>
+            <br />
+            {line2}
+          </React.Fragment>
+        ) : null}
+        <br />
+        {`${zip} ${city} ${countryName}`}
+      </React.Fragment>
     );
   }
 
-  return <GenericTeamCard team={team} />;
+  return (
+    <Paper elevation={0} className={classes.paper} classes={{ root: classes.paperRoot }}>
+      <div id={`team-card-${id}-actions`} className={classes.firstRow}>
+        <h2 id={`team-card-${id}-name`} className={classes.teamName}>
+          {team.name}
+        </h2>
+        <div className={classes.divActions}>
+          {children}
+        </div>
+      </div>
+      <div id={`team-card-${id}-infos`} className={classes.secondRow}>
+        <TeamInfo id={id} label="code" value={team.code} icon={<VerifiedIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="phone" value={team.phone} icon={<PhoneIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="address" value={address} icon={<LocationOnIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="email" value={team.email} icon={<EmailIcon className={classes.teamInfoIcon} />} />
+      </div>
+    </Paper>
+  );
 }
 
 export default TeamCard;

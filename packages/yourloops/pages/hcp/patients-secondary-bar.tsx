@@ -56,9 +56,11 @@ import SearchIcon from "@material-ui/icons/Search";
 import { TeamType } from "../../models/team";
 import { defer, REGEX_EMAIL } from "../../lib/utils";
 import { Team, useTeam } from "../../lib/team";
-import { FilterType } from "./types";
-import { MedicalServiceIcon } from "../../components/icons/MedicalServiceIcon";
+
+import MedicalServiceIcon from "../../components/icons/MedicalServiceIcon";
 import SecondaryHeaderBar from "../../components/secondary-header-bar";
+
+import { FilterType } from "./types";
 
 export interface PatientListBarProps {
   filter: string;

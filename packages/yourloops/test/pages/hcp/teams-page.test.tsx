@@ -60,9 +60,9 @@ function testTeamPage(): void {
   async function createComponent(): Promise<ReactWrapper> {
     const page = mount(<TestTeamsPageComponent />, mountOptions);
 
-    expect(document.getElementById("team-page-loading-progress")).to.be.not.null;
-    expect((teamAPI.fetchPatients as sinon.SinonStub).calledOnce).to.be.true;
-    expect((teamAPI.fetchTeams as sinon.SinonStub).calledOnce).to.be.true;
+    expect(document.getElementById("team-page-loading-progress"), "team-page-loading-progress not null").to.be.not.null;
+    expect((teamAPI.fetchPatients as sinon.SinonStub).calledOnce, "fetchPatients calledOnce").to.be.true;
+    expect((teamAPI.fetchTeams as sinon.SinonStub).calledOnce, "fetchTeams calledOnce").to.be.true;
     page.update();
     await waitTimeout(apiTimeout);
     return page;
@@ -87,9 +87,9 @@ function testTeamPage(): void {
     if (component !== null) {
       component.unmount();
       component = null;
-      expect(document.getElementById("team-page-loading-progress")).to.be.null;
-      expect(document.getElementById("div-api-error-message")).to.be.null;
-      expect(document.getElementById("team-page-grid-list")).to.be.null;
+      expect(document.getElementById("team-page-loading-progress"), "team-page-loading-progress null").to.be.null;
+      expect(document.getElementById("div-api-error-message"), "div-api-error-message null").to.be.null;
+      expect(document.getElementById("team-page-grid-list"), "team-page-grid-list null").to.be.null;
     }
     resetTeamAPIStubs();
   });
@@ -101,9 +101,9 @@ function testTeamPage(): void {
     };
     (teamAPI.fetchTeams as sinon.SinonStub).returns(longWaitPromise());
     component = await createComponent();
-    await waitTimeout(2 * apiTimeout);
-    expect(document.getElementById("team-page-loading-progress")).to.be.null;
-    expect(document.getElementById("team-page-grid-list")).to.be.not.null;
+    await waitTimeout(3 * apiTimeout);
+    expect(document.getElementById("team-page-loading-progress"), "team-page-loading-progress null").to.be.null;
+    expect(document.getElementById("team-page-grid-list"), "team-page-grid-list not null").to.be.not.null;
   });
 
   it("should display an error message if loading failed", async () => {
@@ -127,7 +127,7 @@ function testTeamPage(): void {
       expect(document.getElementById("team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.null;
       expect(document.getElementById("team-page-alert"), "#team-page-alert exists").to.be.null;
 
-      let buttonId = `team-card-${teams[1].id}-button-leave-team`;
+      let buttonId = `team-card-${teams[2].id}-button-leave-team`;
       const button = document.getElementById(buttonId) as HTMLButtonElement;
       expect(button, buttonId).to.be.not.null;
 
@@ -139,7 +139,7 @@ function testTeamPage(): void {
       expect(component.exists("#team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.true;
 
       buttonId = "#team-leave-dialog-button-leave";
-      expect(component.exists(buttonId), buttonId).to.be.true;
+      expect(component.exists(buttonId), `${buttonId} exists`).to.be.true;
       component.find(buttonId).last().simulate("click");
 
       component.update();
@@ -154,7 +154,7 @@ function testTeamPage(): void {
       expect(document.getElementById("team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.null;
       expect(document.getElementById("team-page-alert"), "#team-page-alert exists").to.be.null;
 
-      let buttonId = `team-card-${teams[1].id}-button-leave-team`;
+      let buttonId = `team-card-${teams[2].id}-button-leave-team`;
       const button = document.getElementById(buttonId) as HTMLButtonElement;
       expect(button, buttonId).to.be.not.null;
 
@@ -185,7 +185,7 @@ function testTeamPage(): void {
       expect(document.getElementById("team-leave-dialog-title"), "team-leave-dialog-title exists").to.be.null;
       expect(document.getElementById("team-page-alert"), "#team-page-alert exists").to.be.null;
 
-      let buttonId = `team-card-${teams[1].id}-button-leave-team`;
+      let buttonId = `team-card-${teams[2].id}-button-leave-team`;
       const button = document.getElementById(buttonId) as HTMLButtonElement;
       expect(button, buttonId).to.be.not.null;
 

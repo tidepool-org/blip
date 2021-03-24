@@ -126,6 +126,29 @@ export const teams: ITeam[] = [
       },
     ],
   },
+  {
+    id: "team-2",
+    name: "Empty Team",
+    code: "123654789",
+    phone: "0000",
+    address: {
+      line1: "Test",
+      city: "Test",
+      zip: "00000",
+      country: "FR",
+    },
+    ownerId: loggedInUsers.hcp.userid,
+    type: TeamType.medical,
+    members: [
+      {
+        teamId: "team-1",
+        userId: loggedInUsers.hcp.userid,
+        role: TeamMemberRole.admin,
+        invitationStatus: TeamMemberStatus.accepted,
+        user: loggedInUsers.hcp,
+      },
+    ],
+  },
 ];
 
 export const members: ITeamMember[] = [

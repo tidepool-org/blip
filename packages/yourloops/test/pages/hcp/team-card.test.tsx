@@ -31,6 +31,7 @@ import { expect } from "chai";
 import { mount, shallow, ReactWrapper, ShallowWrapper } from "enzyme";
 import sinon from "sinon";
 
+import { TeamMemberRole } from "../../../models/team";
 import { Team, loadTeams } from "../../../lib/team";
 import TeamCard, { TeamCardProps, TeamInfo } from "../../../pages/hcp/team-card";
 import { authHcp } from "../../lib/auth/hook.test";
@@ -40,6 +41,7 @@ function testTeamCard(): void {
   let teams: Team[] = [];
   const defaultProps: TeamCardProps = {
     team: {} as Team,
+    memberRole: TeamMemberRole.admin,
     onShowAddMemberDialog: sinon.spy(),
     onShowEditTeamDialog: sinon.spy(),
     onShowLeaveTeamDialog: sinon.spy(),
@@ -69,8 +71,8 @@ function testTeamCard(): void {
     resetSpys();
   });
 
-  it("should be able to render - TeamCard", () => {
-    component = shallow(<TeamCard {...defaultProps} />);
+  it("should be able to render", () => {
+    component = mount(<TeamCard {...defaultProps} />);
     expect(component.find(`#team-card-${defaultProps.team.id}-actions`).length).to.be.equal(1);
     expect(component.find(`#team-card-${defaultProps.team.id}-name`).length).to.be.equal(1);
     expect(component.find(`#team-card-${defaultProps.team.id}-infos`).length).to.be.equal(1);

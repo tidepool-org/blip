@@ -34,7 +34,7 @@ import moment from "moment-timezone";
 import GroupIcon from "@material-ui/icons/Group";
 import PersonIcon from "@material-ui/icons/Person";
 
-import { MedicalServiceIcon } from "../../../components/icons/MedicalServiceIcon";
+import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
 
 import { INotification, Notification, NotificationType } from "../../../pages/notifications/notification";
 import { UserRoles } from "../../../models/shoreline";
@@ -108,7 +108,7 @@ export const testNotification = (): void => {
   describe("getDateToDisplay", () => {
     it("should display the given date", () => {
       const wrapper = mount(fakeNotification(UserRoles.hcp));
-      const expectedDate = moment(notif.date).utc().format("L");
+      const expectedDate = moment.utc(notif.date).format("L");
 
       expect(wrapper.text().includes(expectedDate)).to.be.true;
     });

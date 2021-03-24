@@ -32,8 +32,8 @@ import bows from "bows";
 
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
-import HcpNavBar from "../../components/hcp-nav-bar";
 import PatientDataPage from "../../components/patient-data";
+import PrimaryNavBar from "./primary-nav-bar";
 import PatientListPage from "./patients-list";
 import TeamsPage from "./teams-page";
 
@@ -57,7 +57,7 @@ function HcpPage(): JSX.Element | null {
 
   return (
     <TeamContextProvider>
-      <HcpNavBar />
+      <PrimaryNavBar />
       <Switch>
         <Route path="/hcp/patients" component={PatientListPage} />
         <Route path="/hcp/teams" component={TeamsPage} />

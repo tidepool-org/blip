@@ -33,15 +33,17 @@ import bows from "bows";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 
-import PatientNavBar from "../../components/patient-nav-bar";
 import PatientDataPage from "../../components/patient-data";
+import PrimaryNavBar from "./primary-nav-bar";
+import CaregiversPage from "./caregivers";
+import TeamsPage from "./teams";
 
 const log = bows("PatientPage");
 
 /**
  * Patient page
  */
-function PatientPage(): JSX.Element | null {
+function PatientPage(): JSX.Element {
   const historyHook = useHistory();
   const pathname = historyHook.location.pathname;
   log.info("Patient page", pathname);
@@ -56,12 +58,15 @@ function PatientPage(): JSX.Element | null {
   return (
     <TeamContextProvider>
       <DataContextProvider context={DefaultDataContext}>
-        <PatientNavBar />
+        <PrimaryNavBar />
         <Switch>
           <Route exact={true} path="/patient/data" component={PatientDataPage} />
+          <Route exact={true} path="/patient/caregivers" component={CaregiversPage} />
+          <Route exact={true} path="/patient/teams" component={TeamsPage} />
         </Switch>
       </DataContextProvider>
     </TeamContextProvider>
   );
 }
+
 export default PatientPage;

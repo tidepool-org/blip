@@ -37,6 +37,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { TypeTeamMemberRole } from "../../models/team";
 import sendMetrics from "../../lib/metrics";
+import { useAuth } from "../../lib/auth";
 import { useTeam, Team, TeamMember } from "../../lib/team";
 import { t } from "../../lib/language";
 import { errorTextFromException } from "../../lib/utils";
@@ -66,9 +67,10 @@ const log = bows("TeamsListPage");
 /**
  * HCP page to manage teams
  */
-function TeamsPage(): JSX.Element {
+function TeamsPage(): JSX.Element | null {
   const { openSnackbar, snackbarParams } = useSnackbar();
-  const teamHook = useTeam(); // Captain
+  const authHook = useAuth();
+  const teamHook = useTeam();
   const [loading, setLoading] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [teamToEdit, setTeamToEdit] = React.useState<TeamEditModalContentProps | null>(null);
@@ -282,11 +284,20 @@ function TeamsPage(): JSX.Element {
     );
   }
 
+  const { user } = authHook;
+  const teamUser = teamHook.getUser(user?.userid ?? "");
+
   const teamsItems = teamHook.getMedicalTeams().map<JSX.Element | null>((team: Readonly<Team>): JSX.Element | null => {
+    const member = teamUser?.members.find((tm) => tm.team.id === team.id);
+    if (typeof member === "undefined") {
+      return null;
+    }
+
     return (
       <Grid item xs={12} key={team.id}>
         <TeamCard
           team={team}
+          memberRole={member.role}
           onShowEditTeamDialog={handleShowEditTeamDialog}
           onShowLeaveTeamDialog={handleShowLeaveTeamDialog}
           onShowAddMemberDialog={handleShowAddMemberDialog}
