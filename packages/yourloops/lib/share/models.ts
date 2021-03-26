@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient care givers page
+ * Direct patient / caregivers share data models
  *
  * All rights reserved.
  *
@@ -26,16 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-// import bows from "bows";
+import { User } from "../../models/shoreline";
+import { TeamMemberStatus } from "../../models/team";
 
-// const log = bows("PatientCaregiversPage");
-
-/**
- * Patient caregivers page
- */
-function PatientCaregiversPage(): JSX.Element {
-  return <div>PatientCaregiversPage</div>;
+export interface ShareUser {
+  user: User;
+  status: TeamMemberStatus;
 }
-
-export default PatientCaregiversPage;

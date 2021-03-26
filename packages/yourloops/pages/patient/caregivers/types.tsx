@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient main page
+ * Types definitions for Typescript
  *
  * All rights reserved.
  *
@@ -26,47 +26,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
-import bows from "bows";
+import { ShareUser } from "../../../lib/share";
 
-import { TeamContextProvider } from "../../lib/team";
-import { DataContextProvider, DefaultDataContext } from "../../lib/data";
-
-import PatientDataPage from "../../components/patient-data";
-import PrimaryNavBar from "./primary-nav-bar";
-import CaregiversPage from "./caregivers/page";
-import TeamsPage from "./teams/page";
-
-const log = bows("PatientPage");
-
-/**
- * Patient page
- */
-function PatientPage(): JSX.Element {
-  const historyHook = useHistory();
-  const pathname = historyHook.location.pathname;
-  log.info("Patient page", pathname);
-
-  React.useEffect(() => {
-    if (/^\/patient\/?$/.test(pathname)) {
-      log.info("Redirecting to the patients data");
-      historyHook.push("/patient/data");
-    }
-  }, [pathname, historyHook]);
-
-  return (
-    <TeamContextProvider>
-      <DataContextProvider context={DefaultDataContext}>
-        <PrimaryNavBar />
-        <Switch>
-          <Route exact={true} path="/patient/data" component={PatientDataPage} />
-          <Route exact={true} path="/patient/caregivers" component={CaregiversPage} />
-          <Route exact={true} path="/patient/teams" component={TeamsPage} />
-        </Switch>
-      </DataContextProvider>
-    </TeamContextProvider>
-  );
+export interface AddDialogContentProps {
+  onDialogResult: (email: string | null) => void;
 }
 
-export default PatientPage;
+export interface RemoveDialogContentProps {
+  caregiver: ShareUser;
+  onDialogResult: (remove: boolean) => void;
+}
+
+export enum SortDirection {
+  asc = "asc",
+  desc = "desc",
+}
+export enum SortFields {
+  lastname = "lastname",
+  firstname = "firstname",
+}

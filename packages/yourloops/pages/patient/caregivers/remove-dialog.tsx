@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Team dialog to leave a team
+ * Patient care givers page: Remove a caregiver dialog
  *
  * All rights reserved.
  *
@@ -26,11 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
 import * as React from "react";
-import { /* Trans, */ useTranslation } from "react-i18next";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { useTranslation } from "react-i18next";
 
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -39,14 +38,16 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { makeButtonsStyles } from "../../../components/theme";
-import { LeaveTeamDialogContentProps } from "./types";
 
-export interface LeaveTeamDialogProps {
-  teamToLeave: null | LeaveTeamDialogContentProps;
+import { getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { RemoveDialogContentProps } from "./types";
+
+export interface RemoveDialogProps {
+  actions: RemoveDialogContentProps | null;
 }
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const leaveTeamDialogClasses = makeStyles(
+const removeDialogClasses = makeStyles(
   (theme: Theme) => {
     return {
       buttonCancel: {
@@ -54,64 +55,66 @@ const leaveTeamDialogClasses = makeStyles(
       },
     };
   },
-  { name: "ylp-patient-remove-team-dialog" }
+  { name: "ylp-patient-remove-caregiver-dialog" }
 );
 
-function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
+/**
+ * Remove a caregiver dialog / modale
+ */
+function RemoveDialog(props: RemoveDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const dialogClasses = leaveTeamDialogClasses();
+  const classes = removeDialogClasses();
   const buttonsClasses = makeButtonsClasses();
 
-  const { teamToLeave } = props;
-  const dialogIsOpen = !_.isEmpty(teamToLeave?.team);
-  const teamName = teamToLeave?.team?.name ?? "";
-
   const handleClose = () => {
-    teamToLeave?.onDialogResult(false);
+    props.actions?.onDialogResult(false);
   };
-  const handleLeaveTeam = () => {
-    teamToLeave?.onDialogResult(true);
+  const handleRemoveCaregiver = () => {
+    props.actions?.onDialogResult(true);
   };
+
+  const dialogIsOpen = props.actions !== null;
+  const firstName = props.actions === null ? "" : getUserFirstName(props.actions.caregiver.user);
+  const lastName = props.actions === null ? "" : getUserLastName(props.actions.caregiver.user);
 
   return (
     <Dialog
-      id="team-leave-dialog"
+      id="patient-remove-caregiver-dialog"
       open={dialogIsOpen}
-      aria-labelledby={t("aria-team-leave-dialog-title")}
-      aria-describedby={t("aria-team-leave-dialog-question", { teamName })}
+      aria-labelledby={t("modal-patient-remove-caregiver-title")}
       onClose={handleClose}>
-      <DialogTitle id="team-leave-dialog-title">
-        <strong>{t("modal-patient-remove-team-title")}</strong>
+      <DialogTitle id="patient-remove-caregiver-dialog-title">
+        <strong>{t("modal-patient-remove-caregiver-title")}</strong>
       </DialogTitle>
 
       <DialogContent>
-        <DialogContentText color="textPrimary" id="team-leave-dialog-question">
-          {t("modal-remove-info", { name: teamName })}
+        <DialogContentText>
+          {t("modal-remove-info", { name: `${firstName} ${lastName}` })}
         </DialogContentText>
-        <DialogContentText color="textPrimary" id="team-leave-dialog-consequences">
-          {t("modal-patient-remove-team-info-2")}
+        <DialogContentText>
+          {t("modal-patient-remove-caregiver-info-2")}
         </DialogContentText>
       </DialogContent>
 
       <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
         <Button
-          id="team-leave-dialog-button-cancel"
+          id="patient-remove-caregiver-dialog-button-cancel"
           onClick={handleClose}
-          className={`${dialogClasses.buttonCancel} ${buttonsClasses.buttonCancel}`}
+          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
           {t("common-cancel")}
         </Button>
         <Button
-          id="team-leave-dialog-button-leave"
-          onClick={handleLeaveTeam}
+          id="patient-remove-caregiver-dialog-button-remove"
+          onClick={handleRemoveCaregiver}
           className={buttonsClasses.buttonRedAction}
           variant="contained">
-          {t("modal-patient-remove-team-remove")}
+          {t("modal-patient-remove-caregiver-remove")}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default LeaveTeamDialog;
+export default RemoveDialog;

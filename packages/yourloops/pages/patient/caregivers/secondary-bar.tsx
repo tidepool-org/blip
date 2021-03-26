@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Teams list for Patients - Second app bar
+ * Caregivers list for Patients - Second app bar
  *
  * All rights reserved.
  *
@@ -40,12 +40,11 @@ import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
-import { Team } from "../../../lib/team";
 import SecondaryHeaderBar from "../../../components/secondary-header-bar";
 
 interface BarProps {
-  /** Add a team: Join a team in reality */
-  onShowAddTeamDialog: (team: Team | null) => Promise<void>;
+  /** Add a caregiver */
+  onShowAddCaregiverDialog: () => Promise<void>;
 }
 
 const pageBarStyles = makeStyles((theme: Theme ) => {
@@ -75,8 +74,8 @@ function SecondaryBar(props: BarProps): JSX.Element {
   const classes = pageBarStyles();
   const { t } = useTranslation("yourloops");
 
-  const handleOpenModalAddTeam = (): Promise<void> => {
-    return props.onShowAddTeamDialog(null);
+  const handleOpenAddCaregiverDialog = (): Promise<void> => {
+    return props.onShowAddCaregiverDialog();
   };
 
   return (
@@ -88,7 +87,7 @@ function SecondaryBar(props: BarProps): JSX.Element {
             {t("breadcrumb-home")}
           </Link>
           <Typography className={classes.breadcrumbText}>
-            {t("breadcrumb-patient-teams")}
+            {t("caregivers-title")}
           </Typography>
         </Breadcrumbs>
       </div>
@@ -99,9 +98,9 @@ function SecondaryBar(props: BarProps): JSX.Element {
           color="primary"
           variant="contained"
           className={classes.buttonAddTeam}
-          onClick={handleOpenModalAddTeam}>
+          onClick={handleOpenAddCaregiverDialog}>
           <AddIcon />
-          &nbsp;{t("button-add-team")}
+          &nbsp;{t("button-add-caregiver")}
         </Button>
       </div>
     </SecondaryHeaderBar>

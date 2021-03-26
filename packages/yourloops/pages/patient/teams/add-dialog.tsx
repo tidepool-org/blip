@@ -67,7 +67,7 @@ export interface DisplayErrorMessageProps {
   handleClose: () => void;
 }
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "YlpLeaveTeamDialogButtons" });
+const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
 const leaveTeamDialogClasses = makeStyles(
   (theme: Theme) => {
     return {
@@ -76,7 +76,7 @@ const leaveTeamDialogClasses = makeStyles(
       },
     };
   },
-  { name: "YlpLeaveTeamDialog" }
+  { name: "ylp-patient-join-team-dialog" }
 );
 
 function DisplayErrorMessage(props: DisplayErrorMessageProps): JSX.Element {

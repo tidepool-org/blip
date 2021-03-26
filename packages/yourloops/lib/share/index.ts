@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient main page
+ * Direct patient / caregivers share
  *
  * All rights reserved.
  *
@@ -26,47 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
-import bows from "bows";
+import { ShareUser } from "./models";
+import API from "./api";
 
-import { TeamContextProvider } from "../../lib/team";
-import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+const { addDirectShare, getDirectShares, removeDirectShare } = API;
 
-import PatientDataPage from "../../components/patient-data";
-import PrimaryNavBar from "./primary-nav-bar";
-import CaregiversPage from "./caregivers/page";
-import TeamsPage from "./teams/page";
+export {
+  ShareUser,
+  addDirectShare,
+  getDirectShares,
+  removeDirectShare,
+};
 
-const log = bows("PatientPage");
-
-/**
- * Patient page
- */
-function PatientPage(): JSX.Element {
-  const historyHook = useHistory();
-  const pathname = historyHook.location.pathname;
-  log.info("Patient page", pathname);
-
-  React.useEffect(() => {
-    if (/^\/patient\/?$/.test(pathname)) {
-      log.info("Redirecting to the patients data");
-      historyHook.push("/patient/data");
-    }
-  }, [pathname, historyHook]);
-
-  return (
-    <TeamContextProvider>
-      <DataContextProvider context={DefaultDataContext}>
-        <PrimaryNavBar />
-        <Switch>
-          <Route exact={true} path="/patient/data" component={PatientDataPage} />
-          <Route exact={true} path="/patient/caregivers" component={CaregiversPage} />
-          <Route exact={true} path="/patient/teams" component={TeamsPage} />
-        </Switch>
-      </DataContextProvider>
-    </TeamContextProvider>
-  );
-}
-
-export default PatientPage;
+export default API;
