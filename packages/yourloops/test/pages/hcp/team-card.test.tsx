@@ -33,7 +33,8 @@ import sinon from "sinon";
 
 import { TeamMemberRole } from "../../../models/team";
 import { Team, loadTeams } from "../../../lib/team";
-import TeamCard, { TeamCardProps, TeamInfo } from "../../../pages/hcp/team-card";
+import { TeamInfo } from "../../../components/team-card"; // TODO move theses tests
+import TeamCard, { TeamCardProps } from "../../../pages/hcp/team-card";
 import { authHcp } from "../../lib/auth/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 

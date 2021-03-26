@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient care teams page
+ * Types definitions for Typescript
  *
  * All rights reserved.
  *
@@ -26,20 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-// import bows from "bows";
+import { Team } from "../../../lib/team";
 
-
-// const log = bows("PatientTeamsPage");
-
-/**
- * Patient teams page
- */
-function PatientTeamsPage(): JSX.Element | null {
-
-  return (
-    <div>PatientTeamsPage</div>
-  );
+export interface LeaveTeamDialogContentProps {
+  team: Readonly<Team> | null;
+  onDialogResult: (leave: boolean) => void;
 }
 
-export default PatientTeamsPage;
+export interface AddTeamDialogContentProps {
+  onDialogResult: (teamId: string | null) => void;
+}

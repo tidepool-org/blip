@@ -35,8 +35,8 @@ import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 
 import PatientDataPage from "../../components/patient-data";
 import PrimaryNavBar from "./primary-nav-bar";
-import CaregiversPage from "./caregivers";
-import TeamsPage from "./teams";
+import CaregiversPage from "./caregivers-page";
+import TeamsPage from "./teams/page";
 
 const log = bows("PatientPage");
 

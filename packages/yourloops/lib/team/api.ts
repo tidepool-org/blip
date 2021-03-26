@@ -40,6 +40,7 @@ import { t } from "../language";
 
 const log = bows("TeamAPI");
 let teams: ITeam[] | null = null;
+let teamToJoin: ITeam | null = null;
 
 async function fetchTeams(session: Session): Promise<ITeam[]> {
   const { user } = session;
@@ -456,6 +457,56 @@ async function changeMemberRole(session: Session, teamId: string, userId: string
   await waitTimeout(500 + Math.random() * 200);
 }
 
+async function getTeamFromCode(session: Session, code: string): Promise<ITeam | null> {
+  if (code.match(/^[0-9]{9}$/) === null) {
+    return Promise.resolve(null);
+  }
+  if (code[0] === "0") {
+    // To test an error
+    return Promise.resolve(null);
+  }
+
+  const team = {
+    id: `team-${code}`,
+    name: `Test Code Team`,
+    code,
+    ownerId: session.traceToken,
+    type: TeamType.medical,
+    address: {
+      line1: "Avenue to be defined",
+      zip: "002255",
+      city: "Somewhere",
+      country: "FR",
+    },
+    phone: `+33 (0) ${code}`,
+    members: [],
+  };
+
+  teamToJoin = team;
+
+  await waitTimeout(10);
+  return team;
+}
+
+async function joinTeam(session: Session, teamId: string): Promise<void> {
+  await waitTimeout(100);
+  log.info("joinTeam", { teamId });
+
+  if (teamId === teamToJoin?.id) {
+    teamToJoin.members = [{
+      invitationStatus: TeamMemberStatus.accepted,
+      role: TeamMemberRole.patient,
+      teamId,
+      userId: session.user.userid,
+      user: session.user,
+    }];
+    teams?.push(teamToJoin);
+    teamToJoin = null;
+  } else {
+    Promise.reject(new Error("Invalid team id"));
+  }
+}
+
 export default {
   fetchTeams,
   fetchPatients,
@@ -466,4 +517,6 @@ export default {
   leaveTeam,
   removeMember,
   changeMemberRole,
+  getTeamFromCode,
+  joinTeam,
 };

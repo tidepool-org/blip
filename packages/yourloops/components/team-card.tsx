@@ -126,11 +126,19 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
     return null;
   }
 
+  let infoLabel;
+  if (label === "email") {
+    // email key is common, so we can't use generic code here
+    infoLabel = t("email");
+  } else {
+    infoLabel = t(`team-card-label-${label}`);
+  }
+
   return (
     <div id={`team-card-info-${id}-${label}`} className={classes.card}>
       <Avatar className={classes.avatar}>{icon}</Avatar>
       <div className={classes.divLabelValue}>
-        <span id={`team-card-info-${id}-${label}-label`}>{t(`team-card-label-${label}`)}</span>
+        <span id={`team-card-info-${id}-${label}-label`}>{infoLabel}</span>
         <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>
           {value}
         </span>

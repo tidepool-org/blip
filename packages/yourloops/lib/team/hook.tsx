@@ -349,6 +349,21 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     }
   };
 
+  const getTeamFromCode = async (code: string): Promise<Readonly<Team> | null> => {
+    const session = authHook.session() as Session;
+    const iTeam = await api.getTeamFromCode(session, code);
+    if (iTeam === null) {
+      return null;
+    }
+    const team: Team = { ...iTeam, members: [] };
+    return team;
+  };
+
+  const joinTeam = async (teamId: string): Promise<void> => {
+    const session = authHook.session() as Session;
+    await api.joinTeam(session, teamId);
+  };
+
   const initHook = () => {
     if (!authInitialized) {
       if (teams.length > 0) {
@@ -431,6 +446,8 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     removeMember,
     changeMemberRole,
     setPatientMedicalData,
+    getTeamFromCode,
+    joinTeam,
   };
 }
 

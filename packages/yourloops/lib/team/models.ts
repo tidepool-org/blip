@@ -73,6 +73,8 @@ export interface TeamAPI {
   leaveTeam: (session: Session, teamId: string) => Promise<void>;
   removeMember: (session: Session, teamId: string, userId: string) => Promise<void>;
   changeMemberRole: (session: Session, teamId: string, userId: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
+  getTeamFromCode: (session: Session, code: string) => Promise<ITeam | null>;
+  joinTeam: (session: Session, teamId: string) => Promise<void>;
 }
 
 export interface TeamContext {
@@ -180,6 +182,15 @@ export interface TeamContext {
    * @param medicalData The medical data to set
    */
   setPatientMedicalData(userId: string, medicalData: MedicalData | null): void;
+  /**
+   * Retreive a team from it's 9 digit code.
+   * Used by patient users to join a team
+   */
+  getTeamFromCode: (code: string) => Promise<Readonly<Team> | null>;
+  /**
+   * Join a specific team.
+   */
+  joinTeam: (teamId: string) => Promise<void>;
 }
 
 export interface TeamProvider {

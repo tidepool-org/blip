@@ -127,8 +127,8 @@ export const teams: ITeam[] = [
     ],
   },
   {
-    id: "team-2",
-    name: "Empty Team",
+    id: "team-2-empty",
+    name: "Empty Team 2",
     code: "123654789",
     phone: "0000",
     address: {
@@ -150,6 +150,22 @@ export const teams: ITeam[] = [
     ],
   },
 ];
+
+export const emptyTeam3: ITeam = {
+  id: "team-3-empty",
+  name: "Empty Team 3",
+  phone: "33 33 33 33",
+  code: "333333333",
+  address: {
+    line1: "Empty street 3",
+    city: "City Three",
+    zip: "33333",
+    country: "FR",
+  },
+  ownerId: "33333333",
+  type: TeamType.medical,
+  members: [],
+};
 
 export const members: ITeamMember[] = [
   {

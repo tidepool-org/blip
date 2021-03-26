@@ -32,6 +32,7 @@ import {
   teams,
   members,
   patients,
+  emptyTeam3,
 } from "../../common";
 
 export const teamAPI: TeamAPI = {
@@ -44,6 +45,8 @@ export const teamAPI: TeamAPI = {
   invitePatient: sinon.stub().resolves(patients[4]),
   leaveTeam: sinon.stub().resolves(),
   removeMember: sinon.stub().resolves(),
+  getTeamFromCode: sinon.stub().resolves(emptyTeam3),
+  joinTeam: sinon.stub().resolves(),
 };
 
 export function resetTeamAPIStubs(): void {

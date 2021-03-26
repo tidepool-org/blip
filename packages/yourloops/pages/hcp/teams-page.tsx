@@ -62,7 +62,7 @@ import RemoveMemberDialog from "./team-member-remove-dialog";
 import LeaveTeamDialog from "./team-leave-dialog";
 import SwitchRoleDialog from "./team-member-switch-role-dialog";
 
-const log = bows("TeamsListPage");
+const log = bows("HCPTeamsPage");
 
 /**
  * HCP page to manage teams
