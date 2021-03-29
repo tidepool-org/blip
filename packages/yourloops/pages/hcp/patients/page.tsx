@@ -36,14 +36,17 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
-import { t } from "../../lib/language";
-import sendMetrics from "../../lib/metrics";
-import { useAuth } from "../../lib/auth";
-import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
-import { Team, TeamContext, TeamUser, useTeam } from "../../lib/team";
-import { SortDirection, FilterType, SortFields } from "./types";
-import PatientsSecondaryBar from "./patients-secondary-bar";
-import PatientListTable from "./patients-list-table";
+import { t } from "../../../lib/language";
+import sendMetrics from "../../../lib/metrics";
+import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
+import { Snackbar } from "../../../components/utils/snackbar";
+import { useAuth } from "../../../lib/auth";
+import { errorTextFromException, getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
+import { SortDirection, FilterType, SortFields, AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
+import PatientsSecondaryBar from "./secondary-bar";
+import PatientListTable from "./table";
+import AddPatientDialog from "./add-dialog";
 
 const log = bows("PatientListPage");
 
@@ -80,20 +83,24 @@ function updatePatientList(
   sortFlaggedFirst: boolean
 ): TeamUser[] {
   const allPatients = teamHook.getPatients();
-  let patients = allPatients;
+
+  let patients: Readonly<TeamUser>[];
+  if (filterType !== FilterType.pending) {
+    // Do not display pending invitation if not requested
+    patients = allPatients.filter((patient) => !teamHook.isOnlyPendingInvitation(patient));
+  } else {
+    patients = allPatients.filter((patient) => teamHook.isOnlyPendingInvitation(patient));
+  }
+
   if (filter.length > 0) {
     const searchText = filter.toLocaleLowerCase();
-    patients = allPatients.filter((patient: TeamUser): boolean => {
+    patients = patients.filter((patient: TeamUser): boolean => {
       switch (filterType) {
-      case "all":
+      case FilterType.all:
+      case FilterType.pending:
         break;
-      case "flagged":
+      case FilterType.flagged:
         if (!flagged.includes(patient.userid)) {
-          return false;
-        }
-        break;
-      case "pending":
-        if (!teamHook.isInvitationPending(patient)) {
           return false;
         }
         break;
@@ -114,12 +121,10 @@ function updatePatientList(
       }
       return false;
     });
-  } else if (filterType === "flagged") {
-    patients = allPatients.filter((patient: TeamUser): boolean => flagged.includes(patient.userid));
-  } else if (filterType === "pending") {
-    patients = allPatients.filter((patient) => teamHook.isInvitationPending(patient));
-  } else if (filterType !== "all") {
-    patients = allPatients.filter((patient: TeamUser): boolean => teamHook.isInTeam(patient, filterType));
+  } else if (filterType === FilterType.flagged) {
+    patients = patients.filter((patient: TeamUser): boolean => flagged.includes(patient.userid));
+  } else if (filterType !== FilterType.all && filterType !== FilterType.pending) {
+    patients = patients.filter((patient: TeamUser): boolean => teamHook.isInTeam(patient, filterType));
   }
 
   // Sort the patients
@@ -145,7 +150,7 @@ function updatePatientList(
         c = doCompare(a, b, SortFields.firstname);
       }
     }
-    return order === "asc" ? c : -c;
+    return order === SortDirection.asc ? c : -c;
   });
 
   return patients;
@@ -155,6 +160,7 @@ function PatientListPage(): JSX.Element {
   const historyHook = useHistory();
   const authHook = useAuth();
   const teamHook = useTeam();
+  const { openSnackbar, snackbarParams } = useSnackbar();
   const [loading, setLoading] = React.useState<boolean>(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [order, setOrder] = React.useState<SortDirection>(SortDirection.asc);
@@ -162,6 +168,7 @@ function PatientListPage(): JSX.Element {
   const [filter, setFilter] = React.useState<string>("");
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
   const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
+  const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
 
   const flagged = authHook.getFlagPatients();
 
@@ -188,17 +195,32 @@ function PatientListPage(): JSX.Element {
     await authHook.flagPatient(userId);
   };
 
-  const handleInvitePatient = async (team: Team, username: string): Promise<void> => {
-    log.info("handleInvitePatient", username, team);
-    setLoading(true);
-    setErrorMessage(null);
-    try {
-      await teamHook.invitePatient(team, username);
-    } catch (reason: unknown) {
-      const errorMessage = errorTextFromException(reason);
-      setErrorMessage(errorMessage);
+  const handleInvitePatient = async (): Promise<void> => {
+    const getPatientEmailAndTeam = (): Promise<AddPatientDialogResult | null> => {
+      const teams = teamHook.getMedicalTeams();
+      return new Promise((resolve: (value: AddPatientDialogResult | null) => void) => {
+        setPatientToAdd({ onDialogResult: resolve, teams });
+      });
+    };
+
+    const result = await getPatientEmailAndTeam();
+    setPatientToAdd(null); // Close the dialog
+
+    if (result !== null) {
+      try {
+        const { email, teamId } = result;
+        const team = teamHook.getTeam(teamId);
+        await teamHook.invitePatient(team as Team, email);
+        openSnackbar({ message: t("modal-hcp-add-patient-success"), severity: AlertSeverity.success });
+        sendMetrics("hcp-add-patient", { added: true });
+      } catch (reason) {
+        log.error(reason);
+        openSnackbar({ message: t("modal-hcp-add-patient-failure"), severity: AlertSeverity.error });
+        sendMetrics("hcp-add-patient", { added: true, failed: errorTextFromException(reason) });
+      }
+    } else {
+      sendMetrics("hcp-add-patient", { added: false });
     }
-    setLoading(false);
   };
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
@@ -264,6 +286,7 @@ function PatientListPage(): JSX.Element {
 
   return (
     <React.Fragment>
+      <Snackbar params={snackbarParams} />
       <PatientsSecondaryBar
         filter={filter}
         filterType={filterType}
@@ -285,6 +308,7 @@ function PatientListPage(): JSX.Element {
           onSortList={handleSortList}
         />
       </Container>
+      <AddPatientDialog actions={patientToAdd} />
     </React.Fragment>
   );
 }

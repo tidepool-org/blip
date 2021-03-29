@@ -31,7 +31,7 @@ import { expect } from "chai";
 import { shallow } from "enzyme";
 import sinon from "sinon";
 
-import PatientListTable, { PatientListTableProps } from "../../../pages/hcp/patients-list-table";
+import PatientListTable, { PatientListTableProps } from "../../../pages/hcp/patients/table";
 import { SortDirection, SortFields } from "../../../pages/hcp//types";
 
 function testPatientListTable(): void {
@@ -51,7 +51,7 @@ function testPatientListTable(): void {
 
   it("should be able to render", () => {
     const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-header-flag").length).to.be.equal(1);
+    expect(bar.find("#patients-list-table").length).to.be.equal(1);
   });
 }
 

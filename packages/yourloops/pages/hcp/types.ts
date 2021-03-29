@@ -44,6 +44,16 @@ export enum FilterType {
   private = "private",
 }
 
+export interface AddPatientDialogResult {
+  email: string;
+  teamId: string;
+}
+
+export interface AddPatientDialogContentProps {
+  teams: Readonly<Team>[];
+  onDialogResult: (value: AddPatientDialogResult | null) => void;
+}
+
 export interface SwitchRoleDialogContentProps {
   member: Readonly<TeamMember>;
   role: Exclude<TypeTeamMemberRole, "patient">;

@@ -250,6 +250,10 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     const tm = user.members.find((tm) => tm.status === TeamMemberStatus.pending);
     return typeof tm === "object";
   };
+  const isOnlyPendingInvitation = (user: TeamUser): boolean => {
+    const tm = user.members.find((tm) => tm.status !== TeamMemberStatus.pending);
+    return typeof tm === "undefined";
+  };
 
   const isInTeam = (user: TeamUser, teamId: string): boolean => {
     const tm = user.members.find((tm) => tm.team.id === teamId);
@@ -437,6 +441,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     isUserAdministrator,
     isUserTheOnlyAdministrator,
     isInvitationPending,
+    isOnlyPendingInvitation,
     isInTeam,
     invitePatient,
     inviteMember,

@@ -31,20 +31,14 @@ import { useTranslation } from "react-i18next";
 
 import { Theme, makeStyles } from "@material-ui/core/styles";
 
-import Backdrop from "@material-ui/core/Backdrop";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
-import Fade from "@material-ui/core/Fade";
 import FormControl from "@material-ui/core/FormControl";
 import InputBase from "@material-ui/core/InputBase";
-import InputLabel from "@material-ui/core/InputLabel";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import MenuItem from "@material-ui/core/MenuItem";
 import { MenuProps } from "@material-ui/core/Menu";
-import Modal from "@material-ui/core/Modal";
-import NativeSelect from "@material-ui/core/NativeSelect";
 import Select from "@material-ui/core/Select";
-import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
@@ -53,24 +47,22 @@ import FlagIcon from "@material-ui/icons/Flag";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import SearchIcon from "@material-ui/icons/Search";
 
-import { TeamType } from "../../models/team";
-import { defer, REGEX_EMAIL } from "../../lib/utils";
-import { Team, useTeam } from "../../lib/team";
+import { TeamType } from "../../../models/team";
+import { useTeam } from "../../../lib/team";
 
-import MedicalServiceIcon from "../../components/icons/MedicalServiceIcon";
-import SecondaryHeaderBar from "../../components/secondary-header-bar";
+import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
+import SecondaryHeaderBar from "../../../components/secondary-header-bar";
 
-import { FilterType } from "./types";
+import { FilterType } from "../types";
 
 export interface PatientListBarProps {
   filter: string;
   filterType: FilterType | string;
   onFilter: (text: string) => void;
   onFilterType: (filterType: FilterType | string) => void;
-  onInvitePatient: (team: Team, username: string) => void;
+  onInvitePatient: () => Promise<void>;
 }
 
-const modalBackdropTimeout = 300;
 const pageBarStyles = makeStyles((theme: Theme) => {
   return {
     toolBarMiddle: {
@@ -177,9 +169,6 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexDirection: "column",
     },
-    formControlSelectTeam: {
-      marginTop: "1.5em",
-    },
     divModalButtons: {
       display: "inline-flex",
       flexDirection: "row",
@@ -209,9 +198,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = pageBarStyles();
   const teamHook = useTeam();
-  const [modalAddPatientOpen, setModalAddPatientOpen] = React.useState(false);
-  const [modalSelectedTeam, setModalSelectedTeam] = React.useState("");
-  const [modalUsername, setModalUsername] = React.useState("");
   const selectFilterValues = [
     { value: "all", label: t("select-all-patients"), icon: null },
     { value: "flagged", label: t("select-flagged-patients"), icon: <FlagIcon color="primary" className={classes.selectFilterIcon} /> },
@@ -233,26 +219,8 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const handleFilterTeam = (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>): void => {
     onFilterType(e.target.value as string);
   };
-  const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setModalUsername(e.target.value);
-  };
-  const handleChangeAddPatientTeam = (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>): void => {
-    setModalSelectedTeam(e.target.value as string);
-  };
   const handleOpenModalAddPatient = (): void => {
-    setModalAddPatientOpen(true);
-  };
-  const handleCloseModalAddPatient = (): void => {
-    defer(() => setModalUsername(""), modalBackdropTimeout);
-    defer(() => setModalSelectedTeam(""), modalBackdropTimeout);
-    setModalAddPatientOpen(false);
-  };
-  const handleModalAddPatient = (): void => {
-    setModalAddPatientOpen(false);
-    const team = teamHook.getTeam(modalSelectedTeam);
-    if (team) {
-      onInvitePatient(team, modalUsername);
-    }
+    onInvitePatient();
   };
 
   const optionsFilterCommonElements: JSX.Element[] = [];
@@ -283,8 +251,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
       );
     }
   }
-
-  const buttonCreateDisabled = !(REGEX_EMAIL.test(modalUsername) && modalSelectedTeam.length > 0);
 
   return (
     <SecondaryHeaderBar>
@@ -336,61 +302,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
           <PersonAddIcon />
           &nbsp;{t("add-patient")}
         </Button>
-        <Modal
-          id="patient-list-toolbar-modal-add-patient"
-          aria-labelledby={t("add-patient")}
-          className={classes.modalAddPatient}
-          open={modalAddPatientOpen}
-          onClose={handleCloseModalAddPatient}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: modalBackdropTimeout,
-          }}>
-          <Fade in={modalAddPatientOpen}>
-            <div className={classes.divModal}>
-              <h2 id="patient-list-toolbar-modal-add-patient-title">{t("modal-add-patient")}</h2>
-              <form noValidate autoComplete="off" className={classes.formModal}>
-                <TextField
-                  required
-                  id="patient-list-toolbar-modal-add-patient-username"
-                  onChange={handleChangeUsername}
-                  value={modalUsername}
-                  label={t("required")}
-                />
-                <FormControl className={classes.formControlSelectTeam}>
-                  <InputLabel htmlFor="select-patient-list-modal-team">{t("team")}</InputLabel>
-                  <NativeSelect
-                    value={modalSelectedTeam}
-                    onChange={handleChangeAddPatientTeam}
-                    inputProps={{
-                      name: "teamid",
-                      id: "select-patient-list-modal-team",
-                    }}>
-                    {optionsTeamsElements}
-                  </NativeSelect>
-                </FormControl>
-                <div className={classes.divModalButtons}>
-                  <Button
-                    id="patients-list-modal-button-close"
-                    className={classes.divModalButtonCancel}
-                    variant="contained"
-                    onClick={handleCloseModalAddPatient}>
-                    {t("common-cancel")}
-                  </Button>
-                  <Button
-                    id="patients-list-modal-button-create"
-                    disabled={buttonCreateDisabled}
-                    onClick={handleModalAddPatient}
-                    color="primary"
-                    variant="contained">
-                    {t("create")}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </Fade>
-        </Modal>
       </div>
     </SecondaryHeaderBar>
   );

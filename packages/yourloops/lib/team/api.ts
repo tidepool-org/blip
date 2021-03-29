@@ -200,7 +200,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
       }
     }
 
-    if (user.role === UserRoles.patient) {
+    if (user.role !== UserRoles.patient) {
       // Pending invite patient
       patients.push({
         invitationStatus: TeamMemberStatus.pending,

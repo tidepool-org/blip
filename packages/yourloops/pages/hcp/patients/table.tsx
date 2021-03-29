@@ -42,19 +42,21 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
+import Tooltip from "@material-ui/core/Tooltip";
 
+import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
-import { MS_IN_DAY } from "../../models/generic";
-import { MedicalData } from "../../models/device-data";
-import { UserRoles } from "../../models/shoreline";
-import sendMetrics from "../../lib/metrics";
-import { getUserFirstName, getUserLastName } from "../../lib/utils";
-import { Session, useAuth } from "../../lib/auth";
-import { TeamUser, useTeam } from "../../lib/team";
-import { getPatientsDataSummary, getPatientDataRange } from "../../lib/data/api";
-import { SortDirection, SortFields } from "./types";
+import { MS_IN_DAY } from "../../../models/generic";
+import { MedicalData } from "../../../models/device-data";
+import { UserRoles } from "../../../models/shoreline";
+import sendMetrics from "../../../lib/metrics";
+import { getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { Session, useAuth } from "../../../lib/auth";
+import { TeamUser, useTeam } from "../../../lib/team";
+import { getPatientsDataSummary, getPatientDataRange } from "../../../lib/data/api";
+import { SortDirection, SortFields } from "../types";
 
 export interface PatientListTableProps {
   patients: TeamUser[];
@@ -225,8 +227,8 @@ const patientListStyle = makeStyles((theme: Theme) => {
       cursor: "pointer",
     },
     tableRowPending: {
-      cursor: "pointer",
-      backgroundColor: "grey",
+      cursor: "default",
+      backgroundColor: theme.palette.primary.light,
     },
     tableRowHeader: {
       textTransform: "uppercase",
@@ -288,9 +290,10 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
 
   const rowId = `patients-list-row-${userId}`;
   const session = authHook.session();
+  const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
   React.useEffect(() => {
     const observedElement = rowRef.current;
-    if (session !== null && observedElement !== null && typeof medicalData === "undefined") {
+    if (session !== null && observedElement !== null && typeof medicalData === "undefined" && !isPendingInvitation) {
       /** If unmounted, we want to discard the result, react don't like to udated an unmounted component */
       let componentMounted = true;
       const observer = new IntersectionObserver((entries) => {
@@ -323,11 +326,28 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
       };
     }
     return _.noop;
-  }, [medicalData, patient, session, teamHook, rowRef]);
+  }, [medicalData, patient, session, isPendingInvitation, teamHook, rowRef]);
+
+  if (isPendingInvitation) {
+    return (
+      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending}`} ref={rowRef}>
+        <TableCell id={`patients-list-row-icon-${userId}`}>
+          <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+            <AccessTimeIcon />
+          </Tooltip>
+        </TableCell>
+        <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
+        <TableCell id={`patients-list-row-firstname-${userId}`}>{firstName}</TableCell>
+        <TableCell id={`patients-list-row-tir-${userId}`}>{tir}</TableCell>
+        <TableCell id={`patients-list-row-tbr-${userId}`}>{tbr}</TableCell>
+        <TableCell id={`patients-list-row-upload-${userId}`}>{lastUpload}</TableCell>
+      </TableRow>
+    );
+  }
 
   return (
     <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={classes.tableRow} ref={rowRef}>
-      <TableCell id={`patients-list-row-flag-${userId}`}>
+      <TableCell id={`patients-list-row-icon-${userId}`}>
         <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
           {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
         </IconButton>
@@ -369,10 +389,10 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
 
   return (
     <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label={t("aria-table-list-patient")} stickyHeader>
+      <Table id="patients-list-table" className={classes.table} aria-label={t("aria-table-list-patient")} stickyHeader>
         <TableHead>
           <TableRow className={classes.tableRowHeader}>
-            <TableCell id="patients-list-header-flag" className={classes.tableCellHeader} />
+            <TableCell id="patients-list-header-icon" className={classes.tableCellHeader} />
             <TableCell id="patients-list-header-lastname" className={classes.tableCellHeader}>
               <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}

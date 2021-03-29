@@ -132,6 +132,11 @@ export interface TeamContext {
    */
   isInvitationPending: (user: TeamUser) => boolean;
   /**
+   * @param user The user to test
+   * @returns {boolean} True if all members status is pending
+   */
+  isOnlyPendingInvitation: (user: TeamUser) => boolean;
+  /**
    * Return true if this user is in a specific team
    * @param user The user to test
    * @param teamId A team id

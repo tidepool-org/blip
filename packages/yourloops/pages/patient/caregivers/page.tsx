@@ -69,7 +69,6 @@ function PatientCaregiversPage(): JSX.Element {
 
     const email = await getCaregiverEmail();
     setCaregiverToAdd(null); // Close the dialog
-    sendMetrics("patient-add-caregiver", { added: email !== null });
 
     if (email !== null && session !== null) {
       try {

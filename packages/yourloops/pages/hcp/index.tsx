@@ -34,7 +34,7 @@ import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 import PatientDataPage from "../../components/patient-data";
 import PrimaryNavBar from "./primary-nav-bar";
-import PatientListPage from "./patients-list";
+import PatientListPage from "./patients/page";
 import TeamsPage from "./teams-page";
 
 const log = bows("HcpPage");
