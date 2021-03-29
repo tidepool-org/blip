@@ -40,6 +40,8 @@ export SUPPORT_EMAIL_ADDRESS='support@example.com'
 export SUPPORT_WEB_ADDRESS='https://example.com/'
 # Crowdin translation service (enabled / disabled):
 export CROWDIN='disabled'
+# Stonly service https://stonly.com/ (enabled / disabled):
+export STONLY='disabled'
 
 # Environement for CloudFront config:
 export TARGET_ENVIRONMENT='dev'

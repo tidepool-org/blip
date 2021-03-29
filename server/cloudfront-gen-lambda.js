@@ -26,6 +26,7 @@ const reTrackerUrl = /const u = '(.*)';/;
 const reTrackerSiteId = /const id = ([0-9]);/;
 const reMatomoJs = /(^\s+<!-- Start of Tracker Code -->\n)(.*\n)*(^\s+<!-- End of Tracker Code -->)/m;
 const reCrowdin = /(^\s+<!-- Start of Crowdin -->\n)(.*\n)*(^\s+<!-- End of Crowdin -->)/m;
+const reStonly = /(^\s+<!-- Start of stonly-widget -->\n)(.*\n)*(^\s+<!-- End of stonly-widget -->)/m;
 const reCrowdinBranding = /BRANDING/;
 
 const reUrl = /(^https?:\/\/[^/]+).*/;
@@ -145,6 +146,17 @@ function genContentSecurityPolicy() {
     contentSecurityPolicy.fontSrc.push(crowdinCDN, 'https://fonts.gstatic.com');
     contentSecurityPolicy.objectSrc.push("'self'");
     contentSecurityPolicy.frameSrc.push(crowdinCDN, crowdinURL, 'https://accounts.crowdin.com');
+  }
+
+  if (process.env.STONLY === 'enabled') {
+    console.log('Stonly enabled');
+    const stonlyURL = 'https://stonly.com/';
+    // TODO check what is needed here:
+    contentSecurityPolicy.scriptSrc.push(stonlyURL);
+    contentSecurityPolicy.imgSrc.push(stonlyURL);
+    contentSecurityPolicy.connectSrc.push(stonlyURL);
+    contentSecurityPolicy.fontSrc.push(stonlyURL);
+    contentSecurityPolicy.frameSrc.push(stonlyURL);
   }
 
   let csp = '';
@@ -413,6 +425,26 @@ if (process.env.CROWDIN === 'enabled') {
 } else {
   console.info('- Crowdin is disabled');
   indexHtml = indexHtml.replace(reCrowdin, '$1  <!-- disabled -->\n$3');
+}
+
+// ** Stonly **
+if (process.env.STONLY === 'enabled') {
+  console.info('- Enable stonly...');
+  const stonlyJs = fs.readFileSync(`${templateDir}/stonly.js`, 'utf8');
+  const fileHash = getHash(stonlyJs);
+  const integrity = getIntegrity(stonlyJs);
+  const fileName = `stonly.${fileHash}.js`;
+  fs.writeFileSync(`${distDir}/static/${fileName}`, stonlyJs);
+
+  const stonlyScript = `  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>`;
+  if (!reStonly.test(indexHtml)) {
+    console.error(`/!\\ Can't find stonly pattern in index.html: ${reStonly.source} /!\\`);
+    process.exit(1);
+  }
+  indexHtml = indexHtml.replace(reStonly, `$1${stonlyScript}\n$3`);
+} else {
+  console.info('- Stonly is disabled');
+  indexHtml = indexHtml.replace(reStonly, '$1  <!-- disabled -->\n$3');
 }
 
 fs.readdir(`${distDir}/static`, withFilesList);
