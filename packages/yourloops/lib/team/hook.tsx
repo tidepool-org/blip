@@ -29,9 +29,10 @@
 import * as React from "react";
 import bows from "bows";
 
+import { UserInvitationStatus } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { UserRoles } from "../../models/shoreline";
-import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, TeamMemberStatus, ITeamMember } from "../../models/team";
+import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, ITeamMember } from "../../models/team";
 
 import { errorTextFromException } from "../utils";
 import { useAuth, Session } from "../auth";
@@ -247,11 +248,11 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const isInvitationPending = (user: TeamUser): boolean => {
-    const tm = user.members.find((tm) => tm.status === TeamMemberStatus.pending);
+    const tm = user.members.find((tm) => tm.status === UserInvitationStatus.pending);
     return typeof tm === "object";
   };
   const isOnlyPendingInvitation = (user: TeamUser): boolean => {
-    const tm = user.members.find((tm) => tm.status !== TeamMemberStatus.pending);
+    const tm = user.members.find((tm) => tm.status !== UserInvitationStatus.pending);
     return typeof tm === "undefined";
   };
 

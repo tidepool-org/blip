@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Patient list bar for HCPs
+ * Patient list bar for Caregivers
  *
  * All rights reserved.
  *
@@ -33,7 +33,6 @@ import { Theme, makeStyles } from "@material-ui/core/styles";
 
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
-import ListSubheader from "@material-ui/core/ListSubheader";
 import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
 
@@ -43,10 +42,6 @@ import FlagIcon from "@material-ui/icons/Flag";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 
 import { FilterType } from "../../../models/generic";
-import { TeamType } from "../../../models/team";
-import { useTeam } from "../../../lib/team";
-
-import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
 import SecondaryHeaderBar from "../../../components/header-bars/secondary";
 import PatientFilters from "../../../components/header-bars/patient-filters";
 
@@ -108,20 +103,19 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       marginRight: theme.spacing(1),
     },
   };
-});
+}, { name: "ylp-caregiver-patients-secondarybar" });
 
 function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const { filter, filterType, onFilter, onFilterType, onInvitePatient } = props;
   const { t } = useTranslation("yourloops");
   const classes = pageBarStyles();
-  const teamHook = useTeam();
+
   const selectFilterValues = [
     { value: "all", label: t("select-all-patients"), icon: null },
-    { value: "flagged", label: t("select-flagged-patients"), icon: <FlagIcon color="primary" className={classes.selectFilterIcon} /> },
     {
-      value: TeamType.private,
-      label: t("private-practice"),
-      icon: <MedicalServiceIcon color="primary" className={classes.selectFilterIcon} />,
+      value: "flagged",
+      label: t("select-flagged-patients"),
+      icon: <FlagIcon color="primary" className={classes.selectFilterIcon} />,
     },
     {
       value: "pending",
@@ -144,18 +138,6 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
     );
   }
 
-  const teams = teamHook.getMedicalTeams();
-  if (teams.length > 0) {
-    optionsFilterElements.push(<ListSubheader key="team-sub-header">{t("teams")}</ListSubheader>);
-    for (const team of teams) {
-      optionsFilterElements.push(
-        <MenuItem value={team.id} key={team.id} aria-label={team.name}>
-          {team.name}
-        </MenuItem>
-      );
-    }
-  }
-
   return (
     <SecondaryHeaderBar>
       <div id="patients-list-toolbar-item-left">
@@ -167,7 +149,13 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
         </Breadcrumbs>
       </div>
       <div id="patients-list-toolbar-item-middle" className={classes.toolBarMiddle}>
-        <PatientFilters filter={filter} filterType={filterType} onFilter={onFilter} onFilterType={onFilterType} optionsFilterElements={optionsFilterElements} />
+        <PatientFilters
+          filter={filter}
+          filterType={filterType}
+          onFilter={onFilter}
+          onFilterType={onFilterType}
+          optionsFilterElements={optionsFilterElements}
+        />
       </div>
       <div id="patients-list-toolbar-item-right" className={classes.toolBarRight}>
         <Button

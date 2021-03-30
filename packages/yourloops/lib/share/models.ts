@@ -26,10 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { UserInvitationStatus } from "../../models/generic";
 import { User } from "../../models/shoreline";
-import { TeamMemberStatus } from "../../models/team";
 
 export interface ShareUser {
   user: User;
-  status: TeamMemberStatus;
+  status: UserInvitationStatus;
 }

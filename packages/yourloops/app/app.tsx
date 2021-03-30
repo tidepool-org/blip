@@ -27,22 +27,23 @@
  */
 
 import * as React from "react";
-import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import "@fontsource/roboto";
 import "branding/theme-base.css";
 import "branding/theme.css";
 
 import { PrivateRoute, PublicRoute } from "../components/routes";
+import InvalidRoute from "../components/invalid-route";
 import LoginPage from "../pages/login";
 import { SignUpPage } from "../pages/signup";
 import NotificationsPage from "../pages/notifications";
 import HcpPage from "../pages/hcp";
+import CaregiverPage from "../pages/caregiver";
 import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 import { AuthContextProvider } from "../lib/auth";
 import { ProfilePage } from "../pages/profile/profile";
-import CaregiverPage from "../pages/caregiver";
 
 const Yourloops: React.FunctionComponent = () => (
   <Router>
@@ -59,6 +60,7 @@ const Yourloops: React.FunctionComponent = () => (
         <PrivateRoute path="/patient" component={PatientPage} />
         <PrivateRoute path="/account-preferences" component={ProfilePage} />
         <PrivateRoute path="/notifications" component={NotificationsPage} />
+        <Route component={InvalidRoute} />
       </Switch>
     </AuthContextProvider>
   </Router>

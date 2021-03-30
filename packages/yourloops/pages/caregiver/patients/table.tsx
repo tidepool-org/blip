@@ -48,29 +48,30 @@ import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
 
-import { SortDirection, SortFields } from "../../../models/generic";
+import { SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
+import { User } from "../../../models/shoreline";
 import sendMetrics from "../../../lib/metrics";
 import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { useAuth } from "../../../lib/auth";
-import { TeamUser, useTeam } from "../../../lib/team";
+import { ShareUser } from "../../../lib/share";
 import { addPendingFetch, removePendingFetch } from "../../../lib/data";
 
 export interface PatientListTableProps {
-  patients: TeamUser[];
+  patients: ShareUser[];
   flagged: string[];
   order: SortDirection;
   orderBy: SortFields;
-  onClickPatient: (user: TeamUser) => void;
+  onClickPatient: (user: User) => void;
   onFlagPatient: (userId: string) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
 }
 
 export interface PatientTableRowProps {
   na: string;
-  patient: TeamUser;
+  shareUser: ShareUser;
   flagged: string[];
-  onClickPatient: (user: TeamUser) => void;
+  onClickPatient: (user: User) => void;
   onFlagPatient: (userId: string) => Promise<void>;
 }
 
@@ -98,17 +99,17 @@ const patientListStyle = makeStyles((theme: Theme) => {
       color: theme.palette.primary.main,
     },
   };
-}, { name: "ylp-hcp-patients-table" });
+}, { name: "ylp-caregiver-patients-table" });
 
 function PatientRow(props: PatientTableRowProps): JSX.Element {
-  const { na, patient, flagged, onClickPatient, onFlagPatient } = props;
+  const { na, shareUser, flagged, onClickPatient, onFlagPatient } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
-  const teamHook = useTeam();
   const classes = patientListStyle();
-  const [medicalData, setMedicalData] = React.useState<MedicalData | null | undefined>(patient.medicalData);
+  const [medicalData, setMedicalData] = React.useState<MedicalData | null | undefined>(shareUser.user.medicalData);
   const rowRef = React.createRef<HTMLTableRowElement>();
 
+  const patient = shareUser.user;
   const userId = patient.userid;
   const isFlagged = flagged.includes(userId);
   const firstName = getUserFirstName(patient);
@@ -148,7 +149,7 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
 
   const rowId = `patients-list-row-${userId}`;
   const session = authHook.session();
-  const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
+  const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
   React.useEffect(() => {
     const observedElement = rowRef.current;
     if (session !== null && observedElement !== null && typeof medicalData === "undefined" && !isPendingInvitation) {
@@ -158,15 +159,17 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
         const rowDisplayed = entries[0];
         if (rowDisplayed.intersectionRatio > 0) {
           // Displayed: queue the fetch
-          addPendingFetch(session, patient).then((md) => {
-            if (typeof md !== "undefined") {
-              teamHook.setPatientMedicalData(patient.userid, md);
-              if (componentMounted) setMedicalData(md);
-            }
-          }).catch(() => {
-            teamHook.setPatientMedicalData(patient.userid, null);
-            if (componentMounted) setMedicalData(null);
-          });
+          addPendingFetch(session, patient)
+            .then((md) => {
+              if (typeof md !== "undefined") {
+                patient.medicalData = md;
+                if (componentMounted) setMedicalData(md);
+              }
+            })
+            .catch(() => {
+              patient.medicalData = null;
+              if (componentMounted) setMedicalData(null);
+            });
         } else {
           // No longer displayed, cancel the fetch
           removePendingFetch(patient);
@@ -184,7 +187,7 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
       };
     }
     return _.noop;
-  }, [medicalData, patient, session, isPendingInvitation, teamHook, rowRef]);
+  }, [medicalData, patient, session, isPendingInvitation, rowRef]);
 
   if (isPendingInvitation) {
     return (
@@ -227,11 +230,11 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
   const na = t("N/A");
 
   const patientsRows = patients.map(
-    (patient: TeamUser): JSX.Element => (
+    (patient: ShareUser): JSX.Element => (
       <PatientRow
-        key={patient.userid}
+        key={patient.user.userid}
         na={na}
-        patient={patient}
+        shareUser={patient}
         flagged={flagged}
         onClickPatient={onClickPatient}
         onFlagPatient={onFlagPatient}
@@ -264,9 +267,15 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
                 {t("firstname")}
               </TableSortLabel>
             </TableCell>
-            <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>{t("list-patient-tir")}</TableCell>
-            <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>{t("list-patient-tbr")}</TableCell>
-            <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>{t("list-patient-upload")}</TableCell>
+            <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>
+              {t("list-patient-tir")}
+            </TableCell>
+            <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>
+              {t("list-patient-tbr")}
+            </TableCell>
+            <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>
+              {t("list-patient-upload")}
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>{patientsRows}</TableBody>

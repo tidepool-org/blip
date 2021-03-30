@@ -22,7 +22,7 @@ import { AppBar, Breadcrumbs, Container, createStyles, Link, List, ListItem, mak
 import HomeIcon from "@material-ui/icons/Home";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 
-import HeaderBar from "../../components/primary-header-bar";
+import HeaderBar from "../../components/header-bars/primary";
 import { UserRoles } from "../../models/shoreline";
 import { MS_IN_DAY } from "../../models/generic";
 import { useAuth } from "../../lib/auth";

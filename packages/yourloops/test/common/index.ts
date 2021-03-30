@@ -26,9 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { Units } from "../../models/generic";
+import { Units, UserInvitationStatus } from "../../models/generic";
 import { User, UserRoles } from "../../models/shoreline";
-import { ITeam, ITeamMember, TeamMemberRole, TeamMemberStatus, TeamType } from "../../models/team";
+import { ITeam, ITeamMember, TeamMemberRole, TeamType } from "../../models/team";
 
 const userHCP: User = {
   userid: "a0000000",
@@ -74,14 +74,14 @@ export const teams: ITeam[] = [
         teamId: "team-0",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.admin,
-        invitationStatus: TeamMemberStatus.accepted,
+        invitationStatus: UserInvitationStatus.accepted,
         user: loggedInUsers.hcp,
       },
       {
         teamId: "team-0",
         userId: "a0a1a2a3",
         role: TeamMemberRole.viewer,
-        invitationStatus: TeamMemberStatus.accepted,
+        invitationStatus: UserInvitationStatus.accepted,
         user: {
           userid: "a0a1a2a3",
           role: UserRoles.hcp,
@@ -109,14 +109,14 @@ export const teams: ITeam[] = [
         teamId: "team-1",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.viewer,
-        invitationStatus: TeamMemberStatus.accepted,
+        invitationStatus: UserInvitationStatus.accepted,
         user: loggedInUsers.hcp,
       },
       {
         teamId: "team-1",
         userId: "b0b1b2b3",
         role: TeamMemberRole.admin,
-        invitationStatus: TeamMemberStatus.accepted,
+        invitationStatus: UserInvitationStatus.accepted,
         user: {
           userid: "b0b1b2b3",
           username: "adelheide.alvar@charite.de",
@@ -144,7 +144,7 @@ export const teams: ITeam[] = [
         teamId: "team-1",
         userId: loggedInUsers.hcp.userid,
         role: TeamMemberRole.admin,
-        invitationStatus: TeamMemberStatus.accepted,
+        invitationStatus: UserInvitationStatus.accepted,
         user: loggedInUsers.hcp,
       },
     ],
@@ -172,7 +172,7 @@ export const members: ITeamMember[] = [
     teamId: "team-0",
     userId: "b0b1b2b4",
     role: TeamMemberRole.admin,
-    invitationStatus: TeamMemberStatus.pending,
+    invitationStatus: UserInvitationStatus.pending,
     user: {
       userid: "b0b1b2b4",
       role: UserRoles.hcp,
@@ -184,7 +184,7 @@ export const members: ITeamMember[] = [
 
 export const patients: ITeamMember[] = [
   {
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: "team-0",
     userId: "a0a0a0b0",
@@ -200,7 +200,7 @@ export const patients: ITeamMember[] = [
     },
   },
   {
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: "team-1",
     userId: "a0a0a0b0",
@@ -216,7 +216,7 @@ export const patients: ITeamMember[] = [
     },
   },
   {
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: "team-1",
     userId: "a0a0a0b1",
@@ -232,7 +232,7 @@ export const patients: ITeamMember[] = [
     },
   },
   {
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     role: TeamMemberRole.patient,
     teamId: TeamType.private,
     userId: "a0a0a0b2",
@@ -248,7 +248,7 @@ export const patients: ITeamMember[] = [
     },
   },
   {
-    invitationStatus: TeamMemberStatus.pending,
+    invitationStatus: UserInvitationStatus.pending,
     role: TeamMemberRole.patient,
     teamId: "team-0",
     userId: "a0a0a0b3",

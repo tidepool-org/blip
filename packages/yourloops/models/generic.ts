@@ -18,6 +18,25 @@ enum Units {
   mole = "mmol/L",
   gram = "mg/dL",
 }
+enum FilterType {
+  all = "all",
+  flagged = "flagged",
+  pending = "pending",
+  private = "private",
+}
+enum SortDirection {
+  asc = "asc",
+  desc = "desc",
+}
+enum SortFields {
+  lastname = "lastname",
+  firstname = "firstname",
+}
+enum UserInvitationStatus {
+  pending = "pending",
+  accepted = "accepted",
+  rejected = "rejected",
+}
 
 interface PostalAddress {
   line1: string;
@@ -30,4 +49,12 @@ interface PostalAddress {
 /** Number of miliseconds per 24h */
 const MS_IN_DAY = 86400000;
 
-export { PostalAddress, Units, MS_IN_DAY };
+export {
+  PostalAddress,
+  Units,
+  FilterType,
+  SortDirection,
+  SortFields,
+  UserInvitationStatus,
+  MS_IN_DAY,
+};

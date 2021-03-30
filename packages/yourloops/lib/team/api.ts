@@ -30,8 +30,9 @@ import _ from "lodash";
 import bows from "bows";
 
 import { HttpHeaderKeys } from "../../models/api";
+import { UserInvitationStatus } from "../../models/generic";
 import { User, UserRoles } from "../../models/shoreline";
-import { TeamType, ITeam, ITeamMember, TeamMemberRole, TypeTeamMemberRole, TeamMemberStatus } from "../../models/team";
+import { TeamType, ITeam, ITeamMember, TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
 import { waitTimeout } from "../../lib/utils";
 import { Session } from "../auth";
 import appConfig from "../config";
@@ -74,7 +75,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             teamId: "team-0",
             userId: "a0a0a0a0",
             role: TeamMemberRole.viewer,
-            invitationStatus: TeamMemberStatus.accepted,
+            invitationStatus: UserInvitationStatus.accepted,
             user: {
               userid: "a0a0a0a0",
               username: "jean.dupont@chu-grenoble.fr",
@@ -87,7 +88,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             teamId: "team-0",
             userId: "a0a0a0a1",
             role: TeamMemberRole.viewer,
-            invitationStatus: TeamMemberStatus.pending,
+            invitationStatus: UserInvitationStatus.pending,
             user: {
               userid: "a0a0a0a1",
               role: UserRoles.hcp,
@@ -114,7 +115,7 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
             teamId: "team-1",
             userId: "b0b1b2b3",
             role: TeamMemberRole.admin,
-            invitationStatus: TeamMemberStatus.accepted,
+            invitationStatus: UserInvitationStatus.accepted,
             user: {
               userid: "b0b1b2b3",
               role: UserRoles.hcp,
@@ -133,14 +134,14 @@ async function fetchTeams(session: Session): Promise<ITeam[]> {
     teamId: "team-0",
     userId: user.userid,
     role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     user,
   });
   returnedTeam[1].members.push({
     teamId: "team-1",
     userId: user.userid,
     role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
-    invitationStatus: TeamMemberStatus.accepted,
+    invitationStatus: UserInvitationStatus.accepted,
     user,
   });
 
@@ -190,7 +191,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
       // Not using teamIds.forEach(): eslint(no-loop-func)
       for (const teamId of teamIds) {
         const member: ITeamMember = {
-          invitationStatus: TeamMemberStatus.accepted,
+          invitationStatus: UserInvitationStatus.accepted,
           role: TeamMemberRole.patient,
           teamId,
           userId: user.userid,
@@ -203,7 +204,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
     if (user.role !== UserRoles.patient) {
       // Pending invite patient
       patients.push({
-        invitationStatus: TeamMemberStatus.pending,
+        invitationStatus: UserInvitationStatus.pending,
         role: TeamMemberRole.patient,
         teamId: "team-0",
         userId: "a0a0a0b0",
@@ -247,7 +248,7 @@ async function invitePatient(session: Session, teamId: string, username: string)
   const team = teams?.find(t => t.id === teamId);
   if (typeof team === "object") {
     const iMember = {
-      invitationStatus: TeamMemberStatus.pending,
+      invitationStatus: UserInvitationStatus.pending,
       role: TeamMemberRole.patient,
       teamId,
       userId: username,
@@ -283,7 +284,7 @@ async function inviteMember(session: Session, teamId: string, username: string, 
   const team = teams?.find(t => t.id === teamId);
   if (typeof team === "object") {
     const iMember: ITeamMember = {
-      invitationStatus: TeamMemberStatus.pending,
+      invitationStatus: UserInvitationStatus.pending,
       role: role as TeamMemberRole,
       teamId,
       userId: username,
@@ -333,7 +334,7 @@ async function createTeam(session: Session, team: Partial<ITeam>): Promise<ITeam
     ownerId: "00000",
     type: TeamType.medical,
     members: [{
-      invitationStatus: TeamMemberStatus.accepted,
+      invitationStatus: UserInvitationStatus.accepted,
       role: TeamMemberRole.admin,
       teamId,
       userId: user.userid,
@@ -494,7 +495,7 @@ async function joinTeam(session: Session, teamId: string): Promise<void> {
 
   if (teamId === teamToJoin?.id) {
     teamToJoin.members = [{
-      invitationStatus: TeamMemberStatus.accepted,
+      invitationStatus: UserInvitationStatus.accepted,
       role: TeamMemberRole.patient,
       teamId,
       userId: session.user.userid,

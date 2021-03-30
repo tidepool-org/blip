@@ -97,3 +97,11 @@ export function getUserFirstName(user: User): string {
 export function getUserLastName(user: User): string {
   return user.profile?.lastName ?? user.profile?.fullName ?? user.username;
 }
+
+/**
+ * @param user The user to have firstName / lastName
+ * @returns The object for "user-name" translation string
+ */
+export function getUserFirstLastName(user: User): { firstName: string, lastName: string; } {
+  return { firstName: getUserFirstName(user), lastName: getUserLastName(user) };
+}

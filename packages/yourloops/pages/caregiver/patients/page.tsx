@@ -1,0 +1,231 @@
+/**
+ * Copyright (c) 2021, Diabeloop
+ * Patient list for caregivers
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+import * as React from "react";
+import bows from "bows";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
+
+import { Theme, makeStyles } from "@material-ui/core/styles";
+import Alert from "@material-ui/lab/Alert";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
+
+import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
+import { User, UserRoles } from "../../../models/shoreline";
+import { getUserFirstName, getUserLastName } from "../../../lib/utils";
+import sendMetrics from "../../../lib/metrics";
+import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
+import { useAuth } from "../../../lib/auth";
+import { useSharedUser, ShareUser } from "../../../lib/share";
+import { Snackbar } from "../../../components/utils/snackbar";
+import PatientsSecondaryBar from "./secondary-bar";
+import PatientListTable from "./table";
+
+const log = bows("PatientListPage");
+
+const pageStyles = makeStyles(
+  (theme: Theme) => {
+    return {
+      gridAlertComputed: {
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+      },
+    };
+  },
+  { name: "ylp-caregiver-patients-page" }
+);
+
+/**
+ * Compare two patient for sorting the patient table
+ * @param a A patient
+ * @param b A patient
+ * @param orderBy Sort field
+ */
+function doCompare(a: ShareUser, b: ShareUser, orderBy: SortFields): number {
+  let aValue: string;
+  let bValue: string;
+  switch (orderBy) {
+  case SortFields.firstname:
+    aValue = getUserFirstName(a.user);
+    bValue = getUserFirstName(b.user);
+    break;
+  case SortFields.lastname:
+    aValue = getUserLastName(a.user);
+    bValue = getUserLastName(b.user);
+    break;
+  }
+
+  return aValue.localeCompare(bValue);
+}
+
+function updatePatientList(
+  shares: ShareUser[],
+  flagged: string[],
+  filter: string,
+  filterType: FilterType | string,
+  orderBy: SortFields,
+  order: SortDirection,
+  sortFlaggedFirst: boolean
+): ShareUser[] {
+  let patients = shares;
+  if (filterType === FilterType.pending) {
+    patients = shares.filter((p) => p.status === UserInvitationStatus.pending && p.user.role === UserRoles.patient);
+  } else if (filterType === FilterType.flagged) {
+    patients = shares.filter(
+      (p) => p.status !== UserInvitationStatus.pending && p.user.role === UserRoles.patient && flagged.includes(p.user.userid)
+    );
+  } else {
+    patients = shares.filter((p) => p.status !== UserInvitationStatus.pending && p.user.role === UserRoles.patient);
+  }
+
+  if (filter.length > 0) {
+    const searchText = filter.toLocaleLowerCase();
+    patients = patients.filter((patient) => {
+      const firstName = getUserFirstName(patient.user);
+      if (firstName.toLocaleLowerCase().includes(searchText)) {
+        return true;
+      }
+      const lastName = getUserLastName(patient.user);
+      if (lastName.toLocaleLowerCase().includes(searchText)) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  // Sort the patients
+  patients.sort((a: ShareUser, b: ShareUser): number => {
+    if (sortFlaggedFirst) {
+      const aFlagged = flagged.includes(a.user.userid);
+      const bFlagged = flagged.includes(b.user.userid);
+      // Flagged: always first
+      if (aFlagged && !bFlagged) {
+        return -1;
+      }
+      if (!aFlagged && bFlagged) {
+        return 1;
+      }
+    }
+
+    let c = doCompare(a, b, orderBy);
+    if (c === 0) {
+      // In case of equality: choose another field
+      if (orderBy === SortFields.lastname) {
+        c = doCompare(a, b, SortFields.lastname);
+      } else {
+        c = doCompare(a, b, SortFields.firstname);
+      }
+    }
+    return order === SortDirection.asc ? c : -c;
+  });
+
+  return patients;
+}
+
+function PatientListPage(): JSX.Element {
+  const historyHook = useHistory();
+  const { t } = useTranslation("yourloops");
+  const { openSnackbar, snackbarParams } = useSnackbar();
+  const authHook = useAuth();
+  const classes = pageStyles();
+  const [sharedUsersContext, sharedUsersDispatch] = useSharedUser();
+  const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
+  const [order, setOrder] = React.useState<SortDirection>(SortDirection.asc);
+  const [orderBy, setOrderBy] = React.useState<SortFields>(SortFields.lastname);
+  const [filter, setFilter] = React.useState<string>("");
+  const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
+
+  const flagged = authHook.getFlagPatients();
+  const shares = sharedUsersContext.sharedUsers ?? [];
+
+  const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
+    log.info("Sort patients", orderBy, order);
+    setSortFlaggedFirst(false);
+    setOrder(order);
+    setOrderBy(orderBy);
+  };
+  const handleSelectPatient = (user: User): void => {
+    sendMetrics("caregiver-select-patient");
+    historyHook.push(`/caregiver/patient/${user.userid}`);
+  };
+  const handleFlagPatient = async (userId: string): Promise<void> => {
+    await authHook.flagPatient(userId);
+  };
+  const handleFilter = (filter: string): void => {
+    log.info("Filter patients name", filter);
+    setFilter(filter);
+  };
+  const handleFilterType = (filterType: FilterType | string): void => {
+    log.info("Filter patients with", filterType);
+    setFilterType(filterType);
+  };
+  const handleInvitePatient = async (): Promise<void> => {
+    openSnackbar({ message: "TODO", severity: AlertSeverity.info });
+    sharedUsersDispatch({ type: "add", email: "test@diabeloop.fr" });
+    await Promise.resolve();
+  };
+
+  React.useEffect(() => {
+    document.title = `${t("my-patients-title")} - ${t("brand-name")}`;
+    log.info("Set document title to", document.title);
+  }, [t]);
+
+  const patients = updatePatientList(shares, flagged, filter, filterType, orderBy, order, sortFlaggedFirst);
+
+  log.info({ filter, filterType, orderBy, order, sortFlaggedFirst });
+
+  return (
+    <React.Fragment>
+      <Snackbar params={snackbarParams} />
+      <PatientsSecondaryBar
+        filter={filter}
+        filterType={filterType}
+        onFilter={handleFilter}
+        onFilterType={handleFilterType}
+        onInvitePatient={handleInvitePatient}
+      />
+      <Grid container direction="row" justify="center" alignItems="center" className={classes.gridAlertComputed}>
+        <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
+      </Grid>
+      <Container id="patient-list-container" maxWidth="lg">
+        <PatientListTable
+          patients={patients}
+          flagged={flagged}
+          order={order}
+          orderBy={orderBy}
+          onClickPatient={handleSelectPatient}
+          onFlagPatient={handleFlagPatient}
+          onSortList={handleSortList}
+        />
+      </Container>
+    </React.Fragment>
+  );
+}
+
+export default PatientListPage;

@@ -19,7 +19,7 @@
  */
 
 import { User } from "./shoreline";
-import { PostalAddress } from "models/generic";
+import { UserInvitationStatus, PostalAddress } from "./generic";
 
 export enum TeamType {
   medical = "medical",
@@ -37,12 +37,6 @@ export enum TeamMemberRole {
 
 export type TypeTeamMemberRole = keyof typeof TeamMemberRole;
 
-export enum TeamMemberStatus {
-  pending = "pending",
-  accepted = "accepted",
-  rejected = "rejected",
-}
-
 /**
  * Team member (API view)
  */
@@ -50,7 +44,7 @@ export interface ITeamMember {
   userId: string;
   teamId: string;
   role: TeamMemberRole;
-  invitationStatus: TeamMemberStatus;
+  invitationStatus: UserInvitationStatus;
   user: User;
 }
 

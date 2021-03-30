@@ -31,8 +31,8 @@ import { expect } from "chai";
 import { shallow } from "enzyme";
 import sinon from "sinon";
 
+import { SortDirection, SortFields } from "../../../models/generic";
 import PatientListTable, { PatientListTableProps } from "../../../pages/hcp/patients/table";
-import { SortDirection, SortFields } from "../../../pages/hcp//types";
 
 function testPatientListTable(): void {
   const defaultProps: PatientListTableProps = {

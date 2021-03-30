@@ -28,6 +28,7 @@
 
 import * as React from "react";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import Alert from "@material-ui/lab/Alert";
@@ -36,14 +37,14 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
-import { t } from "../../../lib/language";
+import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import sendMetrics from "../../../lib/metrics";
 import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { Snackbar } from "../../../components/utils/snackbar";
 import { useAuth } from "../../../lib/auth";
 import { errorTextFromException, getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
-import { SortDirection, FilterType, SortFields, AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
+import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";
 import AddPatientDialog from "./add-dialog";
@@ -158,6 +159,7 @@ function updatePatientList(
 
 function PatientListPage(): JSX.Element {
   const historyHook = useHistory();
+  const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
   const { openSnackbar, snackbarParams } = useSnackbar();
@@ -261,7 +263,7 @@ function PatientListPage(): JSX.Element {
     if (loading) {
       setLoading(false);
     }
-  }, [teamHook.initialized, teamHook.errorMessage, errorMessage, loading]);
+  }, [teamHook.initialized, teamHook.errorMessage, errorMessage, loading, t]);
 
   if (loading) {
     return (

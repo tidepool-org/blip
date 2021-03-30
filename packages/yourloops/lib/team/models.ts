@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { PostalAddress } from "../../models/generic";
+import { UserInvitationStatus, PostalAddress } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { User } from "../../models/shoreline";
 import {
@@ -35,7 +35,6 @@ import {
   TeamType,
   TeamMemberRole,
   TypeTeamMemberRole,
-  TeamMemberStatus,
 } from "../../models/team";
 import { Session } from "../auth";
 
@@ -46,7 +45,7 @@ export interface TeamUser extends User {
 export interface TeamMember {
   team: Team;
   role: TeamMemberRole;
-  status: TeamMemberStatus;
+  status: UserInvitationStatus;
   user: TeamUser;
 }
 

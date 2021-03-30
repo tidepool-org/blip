@@ -30,7 +30,6 @@ import * as React from "react";
 import bows from "bows";
 
 import { useAuth } from "../auth";
-import { useTeam } from "../team";
 
 import BlipApi from "./blip-api";
 
@@ -46,10 +45,9 @@ export interface DataProvider {
 const log = bows("DataHook");
 export function DefaultDataContext(): DataContext {
   const authHook = useAuth();
-  const teamHook = useTeam();
   const [blipApi, setBlipApi] = React.useState<BlipApi | null>(null);
 
-  const hooksInitialized = authHook.initialized() && teamHook.initialized;
+  const hooksInitialized = authHook.initialized();
 
   React.useEffect(() => {
     if (hooksInitialized && blipApi === null) {

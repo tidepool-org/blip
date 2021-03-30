@@ -50,7 +50,8 @@ import Typography from "@material-ui/core/Typography";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import { TeamMemberRole, TypeTeamMemberRole, TeamMemberStatus } from "../../models/team";
+import { UserInvitationStatus } from "../../models/generic";
+import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { Team, TeamMember, useTeam } from "../../lib/team";
@@ -149,7 +150,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   members.sort((a: Readonly<TeamMember>, b: Readonly<TeamMember>): number => {
     let ret = 0;
     if (a.status !== b.status) {
-      ret = a.status === TeamMemberStatus.pending ? 1 : -1;
+      ret = a.status === UserInvitationStatus.pending ? 1 : -1;
     }
     if (ret === 0) {
       const aln = getUserLastName(a.user);
@@ -169,8 +170,8 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
       const userId = member.user.userid;
       const email = member.user.username;
       // Dash: U+2014
-      const firstName = member.status === TeamMemberStatus.pending ? "—" : getUserFirstName(member.user);
-      const lastName = member.status === TeamMemberStatus.pending ? "—" : getUserLastName(member.user);
+      const firstName = member.status === UserInvitationStatus.pending ? "—" : getUserFirstName(member.user);
+      const lastName = member.status === UserInvitationStatus.pending ? "—" : getUserLastName(member.user);
       const isAdmin = member.role === TeamMemberRole.admin;
 
       let checkboxElement: JSX.Element | null = null;
@@ -178,7 +179,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
       let rowClassName = "";
       let icon: JSX.Element | null = null;
 
-      if (member.status === TeamMemberStatus.accepted) {
+      if (member.status === UserInvitationStatus.accepted) {
         // Determine if the current user can change the admin role for this member
         // - Must be an admin
         // - Mustn't be the only admin for it's own entry

@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import MenuItem from "@material-ui/core/MenuItem";
-import HeaderBar, { HeaderActions } from "../../components/primary-header-bar";
+import HeaderBar, { HeaderActions } from "../../components/header-bars/primary";
 
 function PatientNavBar(): JSX.Element {
   const { t } = useTranslation("yourloops");

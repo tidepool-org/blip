@@ -44,9 +44,10 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 import brandingLogo from "branding/logo.png";
-import { useAuth } from "../lib/auth";
-import { UserRoles, User } from "../models/shoreline";
-import { getUserFirstName, getUserLastName } from "../lib/utils";
+
+import { UserRoles, User } from "../../models/shoreline";
+import { useAuth } from "../../lib/auth";
+import { getUserFirstName, getUserLastName } from "../../lib/utils";
 
 type CloseMenuCallback = () => void;
 export interface HeaderActions {
@@ -64,8 +65,10 @@ interface HeaderProps {
    * we had with class components, but I wasn't able to use the "ref" props for it.
    */
   actions?: {
-    current: null | HeaderActions;
+    current: null | HeaderActions,
   };
+  /** Redirect route when clicking on the logo */
+  headerLogoURL?: string;
 }
 
 const toolbarStyles = makeStyles((theme: Theme) => ({
@@ -125,7 +128,13 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   };
 
   const onLogoClick = (): void => {
-    history.push("/");
+    if (props.headerLogoURL) {
+      history.push(props.headerLogoURL);
+    } else if (userRole) {
+      history.push(`/${userRole}`);
+    } else {
+      history.push("/");
+    }
   };
 
   const handleCloseAccountMenu = () => {

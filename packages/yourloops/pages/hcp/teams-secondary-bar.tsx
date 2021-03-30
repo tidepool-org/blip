@@ -39,7 +39,7 @@ import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
 import { Team } from "../../lib/team";
-import SecondaryHeaderBar from "../../components/secondary-header-bar";
+import SecondaryHeaderBar from "../../components/header-bars/secondary";
 
 interface BarProps {
   onShowEditTeamDialog: (team: Team | null) => Promise<void>;

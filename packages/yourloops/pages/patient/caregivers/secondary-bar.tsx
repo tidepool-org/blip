@@ -40,7 +40,7 @@ import Typography from "@material-ui/core/Typography";
 import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
-import SecondaryHeaderBar from "../../../components/secondary-header-bar";
+import SecondaryHeaderBar from "../../../components/header-bars/secondary";
 
 interface BarProps {
   /** Add a caregiver */

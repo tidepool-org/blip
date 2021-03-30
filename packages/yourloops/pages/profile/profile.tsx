@@ -43,7 +43,7 @@ import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import HeaderBar from "../../components/primary-header-bar";
+import HeaderBar from "../../components/header-bars/primary";
 import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
 interface Errors {

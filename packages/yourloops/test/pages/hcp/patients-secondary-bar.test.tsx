@@ -31,10 +31,10 @@ import { expect } from "chai";
 import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 
+import { FilterType } from "../../../models/generic";
 import { waitTimeout } from "../../../lib/utils";
 import { AuthContextProvider } from "../../../lib/auth";
 import { TeamContextProvider } from "../../../lib/team";
-import { FilterType } from "../../../pages/hcp/types";
 import PatientsSecondaryBar, { PatientListBarProps } from "../../../pages/hcp/patients/secondary-bar";
 
 import { authHookHcp } from "../../lib/auth/hook.test";

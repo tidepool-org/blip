@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Caregiver page index
+ * 404 page
  *
  * All rights reserved.
  *
@@ -26,5 +26,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { CaregiverPage } from "./caregiver";
-export default CaregiverPage;
+import React from "react";
+import { useHistory } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+import Grid from "@material-ui/core/Grid";
+
+interface InvalidRouteProps {
+  /** The message to display (default to "page-not-found") */
+  message?: string;
+  /** Redirect URL (default to "/") */
+  defaultURL?: string;
+}
+
+function InvalidRoute(props: InvalidRouteProps): JSX.Element {
+  const { t } = useTranslation("yourloops");
+  const historyHook = useHistory();
+  const { defaultURL, message } = props;
+
+  const handleRedirect = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    historyHook.push(defaultURL ?? "/");
+  };
+
+  document.title = t("brand-name");
+
+  return (
+    <Grid container direction="column" justify="center" alignItems="center" style={{ flexGrow: 1 }}>
+      <p>{message ?? t("page-not-found")}</p>
+      <p>
+        <a href={defaultURL} onClick={handleRedirect}>
+          {t("breadcrumb-home")}
+        </a>
+      </p>
+    </Grid>
+  );
+}
+
+export default InvalidRoute;

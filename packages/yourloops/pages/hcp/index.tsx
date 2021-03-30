@@ -42,7 +42,7 @@ const log = bows("HcpPage");
 /**
  * Health care professional page
  */
-function HcpPage(): JSX.Element | null {
+function HcpPage(): JSX.Element {
   const historyHook = useHistory();
   const pathname = historyHook.location.pathname;
 

@@ -44,7 +44,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import DeleteIcon from "@material-ui/icons/Delete";
 
-import { TeamMemberStatus } from "../../../models/team";
+import { UserInvitationStatus } from "../../../models/generic";
 import { ShareUser } from "../../../lib/share";
 import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 
@@ -88,14 +88,14 @@ const tableStyles = makeStyles(
 function compareUserShare(orderBy: SortFields, order: SortDirection, a: ShareUser, b: ShareUser): number {
   let value = 0;
 
-  if (a.status === TeamMemberStatus.pending && b.status === TeamMemberStatus.pending) {
+  if (a.status === UserInvitationStatus.pending && b.status === UserInvitationStatus.pending) {
     value = a.user.username.localeCompare(b.user.username);
     if (order === SortDirection.desc) {
       value = -value;
     }
-  } else if (a.status === TeamMemberStatus.pending) {
+  } else if (a.status === UserInvitationStatus.pending) {
     value = 1;
-  } else if (b.status === TeamMemberStatus.pending) {
+  } else if (b.status === UserInvitationStatus.pending) {
     value = -1;
   } else {
     switch (orderBy) {
@@ -142,7 +142,7 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
     };
     const removeAction = t("modal-patient-remove-caregiver-remove");
 
-    if (us.status === TeamMemberStatus.pending) {
+    if (us.status === UserInvitationStatus.pending) {
       return (
         <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`} className={classes.tableRowPending}>
           <TableCell id={`patient-caregivers-table-row-${userId}-status`}>

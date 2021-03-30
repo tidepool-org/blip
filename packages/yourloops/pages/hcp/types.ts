@@ -29,21 +29,6 @@
 import { TypeTeamMemberRole } from "../../models/team";
 import { Team, TeamMember } from "../../lib/team";
 
-export enum SortDirection {
-  asc = "asc",
-  desc = "desc",
-}
-export enum SortFields {
-  lastname = "lastname",
-  firstname = "firstname",
-}
-export enum FilterType {
-  all = "all",
-  flagged = "flagged",
-  pending = "pending",
-  private = "private",
-}
-
 export interface AddPatientDialogResult {
   email: string;
   teamId: string;

@@ -129,6 +129,10 @@ function Login(props: RouteComponentProps): JSX.Element {
 
   }, [signupEmail, username]);
 
+  React.useEffect(() => {
+    document.title = t("brand-name");
+  }, [t]);
+
   const onClickLoginButton = async (): Promise<void> => {
     if (_.isEmpty(username) || _.isEmpty(password)) {
       setValidateError(true);
