@@ -1633,7 +1633,7 @@ describe('PrintView', () => {
 
       sinon.assert.calledWith(
         Renderer.doc.text,
-        'Questions or feedback? Please email support@tidepool.org or visit support.tidepool.org.'
+        'pdf-footer-center-text'
       );
     });
 

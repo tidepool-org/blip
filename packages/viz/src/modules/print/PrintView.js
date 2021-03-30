@@ -851,8 +851,7 @@ class PrintView {
   renderFooter() {
     this.doc.fontSize(this.footerFontSize);
 
-    const helpText = t('Questions or feedback? Please email support@tidepool.org' +
-    ' or visit support.tidepool.org.');
+    const helpText = t('pdf-footer-center-text', { appURL: `${window.location.protocol}//${window.location.hostname}/` });
 
     const printDateText = t('Printed on: ') + formatCurrentDate();
     const printDateWidth = this.doc.widthOfString(printDateText);
