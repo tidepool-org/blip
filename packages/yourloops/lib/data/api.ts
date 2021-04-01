@@ -33,6 +33,7 @@ import _ from "lodash";
 import { PatientData } from "models/device-data";
 import { MessageNote, MessagesThread } from "models/message";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
+import { ComputedTIR } from "../../models/device-data";
 import { User, UserRoles } from "../../models/shoreline";
 
 import HttpStatus from "../http-status-codes";
@@ -43,20 +44,43 @@ import { Session } from "../auth";
 import { GetPatientDataOptionsV0, GetPatientDataOptions } from "./models";
 
 const log = bows("data-api");
+/** true if the v1 routes of tide-whisperer are available, default to true */
+let routeV1Available = true;
 
-/**
- * Fetch data using tide-whisperer v0 route
- * @param session Session information
- * @param patient The patient (user) to fetch data
- * @param options Request options
- * @returns Array of patient data
- */
-export async function getPatientDataRouteV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
-  const { sessionToken, traceToken } = session;
-  if (!patient.roles?.includes(UserRoles.patient)) {
-    return Promise.reject(new Error(t("not-a-patient")));
+export async function getPatientsDataSummary(session: Session, userId: string, options?: GetPatientDataOptionsV0): Promise<ComputedTIR> {
+  const dataURL = new URL(`/compute/tir` , appConfig.API_HOST);
+  dataURL.searchParams.set("userIds", userId);
+
+  if (options) {
+    if (options.startDate) {
+      dataURL.searchParams.set("startDate", options.startDate);
+    }
+    if (options.endDate) {
+      dataURL.searchParams.set("endDate", options.endDate);
+    }
   }
 
+  const { sessionToken, traceToken } = session;
+  const response = await fetch(dataURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    const result = await response.json() as ComputedTIR[];
+    if (Array.isArray(result) && result.length > 0) {
+      return result[0];
+    }
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
+function getPatientDataRouteV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<Response> {
+  const { sessionToken, traceToken } = session;
   const dataURL = new URL(`/data/${patient.userid}` , appConfig.API_HOST);
 
   if (options) {
@@ -74,13 +98,28 @@ export async function getPatientDataRouteV0(session: Session, patient: User, opt
     }
   }
 
-  const response = await fetch(dataURL.toString(), {
+  return fetch(dataURL.toString(), {
     method: "GET",
     headers: {
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
     },
   });
+}
+
+/**
+ * Fetch data using tide-whisperer v0 route
+ * @param session Session information
+ * @param patient The patient (user) to fetch data
+ * @param options Request options
+ * @returns Array of patient data
+ */
+export async function getPatientDataV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
+  if (!patient.roles?.includes(UserRoles.patient)) {
+    return Promise.reject(new Error(t("not-a-patient")));
+  }
+
+  const response = await getPatientDataRouteV0(session, patient, options);
 
   if (response.ok) {
     const patientData = (await response.json()) as PatientData;
@@ -90,6 +129,22 @@ export async function getPatientDataRouteV0(session: Session, patient: User, opt
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
+function getPatientDataRangeV1(session: Session, patient: User): Promise<Response> {
+  const { sessionToken, traceToken } = session;
+  if (!patient.roles?.includes(UserRoles.patient)) {
+    return Promise.reject(new Error(t("not-a-patient")));
+  }
+
+  const dataURL = new URL(`/data/v1/range/${patient.userid}`, appConfig.API_HOST);
+  return fetch(dataURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+}
+
 /**
  * Fetch data range using tide-whisperer v1 route
  * @param session Session information
@@ -97,29 +152,57 @@ export async function getPatientDataRouteV0(session: Session, patient: User, opt
  * @returns Array [string, string] of ISO 8601 dates time
  */
 export async function getPatientDataRange(session: Session, patient: User): Promise<string[]> {
-  const { sessionToken, traceToken } = session;
-  if (!patient.roles?.includes(UserRoles.patient)) {
-    return Promise.reject(new Error(t("not-a-patient")));
-  }
-
-  const dataURL = new URL(`/data/v1/range/${patient.userid}`, appConfig.API_HOST);
-  const response = await fetch(dataURL.toString(), {
-    method: "GET",
-    headers: {
-      [HttpHeaderKeys.traceToken]: traceToken,
-      [HttpHeaderKeys.sessionToken]: sessionToken,
-    },
-  });
-
-  if (response.ok) {
-    const dataRange = (await response.json()) as string[];
-    if (!Array.isArray(dataRange) || dataRange.length !== 2) {
-      return Promise.reject(new Error('Invalid response'));
+  let response: Response | null = null;
+  if (routeV1Available) {
+    response = await getPatientDataRangeV1(session, patient);
+    if (response.ok) {
+      const dataRange = (await response.json()) as string[];
+      if (!Array.isArray(dataRange) || dataRange.length !== 2) {
+        return Promise.reject(new Error("Invalid response"));
+      }
+      return dataRange;
+    } else if (response.status === HttpStatus.StatusNotFound) {
+      routeV1Available = false;
     }
-    return dataRange;
   }
 
-  return Promise.reject(errorFromHttpStatus(response, log));
+  if (!routeV1Available) {
+    // Fetch the latest data of all types & uploads (we must have the oldest data in the uploads)
+    const [ responseUpload, responseLatest ] = await Promise.all([
+      getPatientDataRouteV0(session, patient, { latest: true }),
+      getPatientDataRouteV0(session, patient, { types: ["upload"] }),
+    ]);
+
+    if (responseUpload.ok && responseLatest.ok) {
+      const latests = (await responseLatest.json()) as { time: string; type: string; timeProcessing: number; }[];
+      const uploads = (await responseUpload.json()) as { time: string; type: string; timeProcessing: number; }[];
+      if (Array.isArray(latests) && Array.isArray(uploads) && latests.length > 0 && uploads.length > 0) {
+        const data = latests.concat(uploads);
+        data.forEach((d) => {
+          d.timeProcessing = Date.parse(d.time);
+        });
+        data.sort((a, b) => a.timeProcessing - b.timeProcessing);
+        const startDate = new Date(data[0].timeProcessing).toISOString();
+
+        // For the last datum, use only the cbg if present
+        let lastDatum = data.find((d) => d.type === "cbg");
+        if (lastDatum === undefined) {
+          lastDatum = data[data.length - 1];
+        }
+        const endDate = new Date(lastDatum.timeProcessing).toISOString();
+        return [startDate, endDate];
+      }
+      return Promise.reject(new Error("Invalid response"));
+    }
+
+    response = responseUpload;
+  }
+
+  if (response) {
+    return Promise.reject(errorFromHttpStatus(response, log));
+  }
+
+  return Promise.reject(new Error("Logic error"));
 }
 
 /**

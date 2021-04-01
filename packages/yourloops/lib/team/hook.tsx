@@ -29,9 +29,10 @@
 import * as React from "react";
 import bows from "bows";
 
+import { MedicalData } from "../../models/device-data";
 import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, TeamMemberStatus, ITeamMember } from "../../models/team";
 
-import { errorTextFromException } from "../utils";
+import { errorTextFromException, isUserAPatient } from "../utils";
 import { useAuth, Session } from "../auth";
 import { LoadTeams, Team, TeamAPI, TeamContext, TeamMember, TeamProvider, TeamUser } from "./models";
 import TeamAPIImpl from "./api";
@@ -156,7 +157,7 @@ export async function loadTeams(
 
 function TeamContextImpl(api: TeamAPI): TeamContext {
   // hooks (private or public variables)
-
+  // TODO: Transform the React.useState with React.useReducer
   const [teams, setTeams] = React.useState<Team[]>([]);
   const [initialized, setInitialized] = React.useState<boolean>(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -340,6 +341,13 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     setTeams(teams);
   };
 
+  const setPatientMedicalData = (userId: string, medicalData: MedicalData | null): void => {
+    const user = getUser(userId);
+    if (user !== null && isUserAPatient(user)) {
+      user.medicalData = medicalData;
+    }
+  };
+
   const initHook = () => {
     if (!authInitialized) {
       if (teams.length > 0) {
@@ -421,6 +429,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     leaveTeam,
     removeMember,
     changeMemberRole,
+    setPatientMedicalData,
   };
 }
 

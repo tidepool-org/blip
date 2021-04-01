@@ -38,7 +38,7 @@ import sendMetrics from "../metrics";
 
 import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "./models";
 import {
-  getPatientDataRouteV0 as apiGetPatientDataRouteV0,
+  getPatientDataV0 as apiGetPatientDataV0,
   getPatientDataRange as apiGetPatientDataRange,
   getPatientData as apiGetPatientData,
   startMessageThread as apiStartMessageThread,
@@ -88,7 +88,7 @@ class BlipApi {
     this.log.debug("getPatientDataV0", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
-      return apiGetPatientDataRouteV0(session, patient, options);
+      return apiGetPatientDataV0(session, patient, options);
     }
     return Promise.reject(new Error(translate("not-logged-in")));
   }

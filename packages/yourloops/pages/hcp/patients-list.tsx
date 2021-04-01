@@ -39,9 +39,9 @@ import Grid from "@material-ui/core/Grid";
 import { t } from "../../lib/language";
 import sendMetrics from "../../lib/metrics";
 import { useAuth } from "../../lib/auth";
+import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
 import { Team, TeamContext, TeamUser, useTeam } from "../../lib/team";
 import { SortDirection, FilterType, SortFields } from "./types";
-import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
 import PatientsSecondaryBar from "./patients-secondary-bar";
 import PatientListTable from "./patients-list-table";
 
@@ -268,7 +268,7 @@ function PatientListPage(): JSX.Element {
         style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
-      <Container maxWidth="lg" style={{ marginBottom: "2em" }}>
+      <Container id="patient-list-container" maxWidth="lg" style={{ marginBottom: "2em" }}>
         <PatientListTable
           patients={patients}
           flagged={flagged}

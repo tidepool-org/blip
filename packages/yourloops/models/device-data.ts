@@ -43,4 +43,40 @@ interface PatientDatum {
 
 type PatientData = PatientDatum[];
 
-export { PatientDatum, PatientData };
+interface ComputedTIR {
+  count: {
+    high: number;
+    low: number;
+    target: number;
+    veryHigh: number;
+    veryLow: number;
+  },
+  lastCbgTime: string;
+  lastTime: {
+    high: string | null;
+    low: string | null;
+    target: string | null;
+    veryLow: string | null;
+    veryHigh: string | null;
+  },
+  totalTime: {
+    high: number;
+    low: number;
+    target: number;
+    veryHigh: number;
+    veryLow: number;
+  },
+  userId: string;
+}
+
+interface MedicalData {
+  data?: PatientData;
+  range?: {
+    startDate: string;
+    endDate: string;
+  };
+  computedTir?: ComputedTIR;
+}
+
+
+export { PatientDatum, PatientData, ComputedTIR, MedicalData };

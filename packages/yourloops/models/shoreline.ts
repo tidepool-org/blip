@@ -27,6 +27,7 @@
  */
 
 import { Units } from "./generic";
+import { MedicalData } from "./device-data";
 
 enum UserRoles {
   hcp = "hcp",
@@ -80,6 +81,7 @@ interface Preferences {
   displayLanguageCode?: "en" | "de" | "es" | "fr" | "it" | "nl";
   patientsStarred?: string[];
 }
+
 interface User {
   /** The user id */
   readonly userid: string;
@@ -97,6 +99,8 @@ interface User {
   settings?: Settings;
   /** User preferences */
   preferences?: Preferences;
+  /** Patient medical data. undefined means not fetched, null if the fetch failed */
+  medicalData?: MedicalData | null;
 }
 
 export { User, Profile, Settings, Preferences, UserRoles, Jobs };

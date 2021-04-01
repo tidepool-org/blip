@@ -27,6 +27,7 @@
  */
 
 import { PostalAddress } from "../../models/generic";
+import { MedicalData } from "../../models/device-data";
 import { User } from "../../models/shoreline";
 import {
   ITeam,
@@ -173,6 +174,12 @@ export interface TeamContext {
    * @param role The new role
    */
   changeMemberRole(member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void>;
+  /**
+   * Update a patient medical data
+   * @param userId Patient's userId
+   * @param medicalData The medical data to set
+   */
+  setPatientMedicalData(userId: string, medicalData: MedicalData | null): void;
 }
 
 export interface TeamProvider {
