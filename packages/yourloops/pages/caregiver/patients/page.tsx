@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import * as React from "react";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
@@ -38,16 +39,20 @@ import Grid from "@material-ui/core/Grid";
 
 import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { User, UserRoles } from "../../../models/shoreline";
-import { getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { getUserFirstName, getUserLastName, errorTextFromException } from "../../../lib/utils";
 import sendMetrics from "../../../lib/metrics";
 import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { useAuth } from "../../../lib/auth";
-import { useSharedUser, ShareUser } from "../../../lib/share";
-import { Snackbar } from "../../../components/utils/snackbar";
+import { useSharedUser, ShareUser, addDirectShare } from "../../../lib/share";
+import { AddPatientDialogContentProps, AddPatientDialogResult } from "./types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";
+import AddPatientDialog from "./add-dialog";
 
 const log = bows("PatientListPage");
+
+// eslint-disable-next-line no-magic-numbers
+const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
 
 const pageStyles = makeStyles(
   (theme: Theme) => {
@@ -93,6 +98,9 @@ function updatePatientList(
   order: SortDirection,
   sortFlaggedFirst: boolean
 ): ShareUser[] {
+
+  log.info("update-patient-list", { filter, filterType, orderBy, order, sortFlaggedFirst });
+
   let patients = shares;
   if (filterType === FilterType.pending) {
     patients = shares.filter((p) => p.status === UserInvitationStatus.pending && p.user.role === UserRoles.patient);
@@ -151,7 +159,7 @@ function updatePatientList(
 function PatientListPage(): JSX.Element {
   const historyHook = useHistory();
   const { t } = useTranslation("yourloops");
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const { openSnackbar } = useSnackbar();
   const authHook = useAuth();
   const classes = pageStyles();
   const [sharedUsersContext, sharedUsersDispatch] = useSharedUser();
@@ -160,8 +168,10 @@ function PatientListPage(): JSX.Element {
   const [orderBy, setOrderBy] = React.useState<SortFields>(SortFields.lastname);
   const [filter, setFilter] = React.useState<string>("");
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
+  const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
 
   const flagged = authHook.getFlagPatients();
+  const session = authHook.session();
   const shares = sharedUsersContext.sharedUsers ?? [];
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
@@ -179,16 +189,41 @@ function PatientListPage(): JSX.Element {
   };
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
+    throttledMetrics("caregiver-filter-patient", { type: "by-name" });
     setFilter(filter);
   };
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
+    sendMetrics("caregiver-filter-patient", { type: filterType });
     setFilterType(filterType);
   };
   const handleInvitePatient = async (): Promise<void> => {
-    openSnackbar({ message: "TODO", severity: AlertSeverity.info });
-    sharedUsersDispatch({ type: "add", email: "test@diabeloop.fr" });
-    await Promise.resolve();
+    const getPatientEmailAndTeam = (): Promise<AddPatientDialogResult | null> => {
+      return new Promise((resolve: (value: AddPatientDialogResult | null) => void) => {
+        setPatientToAdd({ onDialogResult: resolve });
+      });
+    };
+
+    const result = await getPatientEmailAndTeam();
+    setPatientToAdd(null); // Close the dialog
+
+    if (result !== null && session !== null) {
+      try {
+        const { email } = result;
+        await addDirectShare(session, email);
+        setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
+        // TODO: rename translation key to "modal-add-patient-success"
+        openSnackbar({ message: t("modal-hcp-add-patient-success"), severity: AlertSeverity.success });
+        sendMetrics("caregiver-add-patient", { added: true });
+      } catch (reason) {
+        log.error(reason);
+        // TODO: rename translation key to "modal-add-patient-failure"
+        openSnackbar({ message: t("modal-hcp-add-patient-failure"), severity: AlertSeverity.error });
+        sendMetrics("caregiver-add-patient", { added: true, failed: errorTextFromException(reason) });
+      }
+    } else {
+      sendMetrics("caregiver-add-patient", { added: false });
+    }
   };
 
   React.useEffect(() => {
@@ -196,13 +231,23 @@ function PatientListPage(): JSX.Element {
     log.info("Set document title to", document.title);
   }, [t]);
 
-  const patients = updatePatientList(shares, flagged, filter, filterType, orderBy, order, sortFlaggedFirst);
-
-  log.info({ filter, filterType, orderBy, order, sortFlaggedFirst });
+  // Here we can't have "shares" & "flagged" in the exhaustive deps,
+  // because they change at every render, even if the content is the same.
+  // This makes the useMemo() function useless.
+  // As a workaround, we use the number of elements in each arrays
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const patients = React.useMemo(() => updatePatientList(shares, flagged, filter, filterType, orderBy, order, sortFlaggedFirst), [
+    shares.length,
+    flagged.length,
+    filter,
+    filterType,
+    orderBy,
+    order,
+    sortFlaggedFirst,
+  ]);
 
   return (
     <React.Fragment>
-      <Snackbar params={snackbarParams} />
       <PatientsSecondaryBar
         filter={filter}
         filterType={filterType}
@@ -224,6 +269,7 @@ function PatientListPage(): JSX.Element {
           onSortList={handleSortList}
         />
       </Container>
+      <AddPatientDialog actions={patientToAdd} />
     </React.Fragment>
   );
 }

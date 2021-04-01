@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Snackbar hook file
+ * Types definitions for Typescript
  *
  * All rights reserved.
  *
@@ -25,52 +25,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { uniqueId } from "lodash";
-import { useCallback, useState } from "react";
 
-export enum AlertSeverity {
-  error = "error",
-  warning = "warning",
-  info = "info",
-  success = "success",
+export interface AddPatientDialogResult {
+  email: string;
 }
 
-export interface ApiAlert {
-  message: string;
-  severity: AlertSeverity;
-  id?: string;
+export interface AddPatientDialogContentProps {
+  onDialogResult: (value: AddPatientDialogResult | null) => void;
 }
-
-interface UseSnackbar {
-  openSnackbar: (apiAlert: ApiAlert) => void;
-  snackbarParams: {
-    apiAlert: ApiAlert;
-    removeAlert: (apiAlertId: ApiAlert["id"]) => void;
-  };
-}
-
-/**
- * FIXME: Can't be use from one page to another (see caregiver pages)
- */
-export const useSnackbar = (): UseSnackbar => {
-  const [apiAlerts, setApiAlerts] = useState<ApiAlert[]>([]);
-
-  const openSnackbar = useCallback(
-    (apiAlert: ApiAlert) => {
-      const id = uniqueId();
-      setApiAlerts([...apiAlerts, { id, ...apiAlert }]);
-    },
-    [apiAlerts]
-  );
-
-  const removeAlert = useCallback(
-    (apiAlertId: ApiAlert["id"]) => {
-      if (apiAlertId) {
-        setApiAlerts(apiAlerts.filter(({ id }) => apiAlertId !== id));
-      }
-    },
-    [apiAlerts]
-  );
-
-  return { openSnackbar, snackbarParams: { apiAlert: apiAlerts[0], removeAlert } };
-};

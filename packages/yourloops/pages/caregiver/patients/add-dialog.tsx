@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Add a patient for an HCP - Dialog
+ * Add a patient for an Caregiver - Dialog
  *
  * All rights reserved.
  *
@@ -36,16 +36,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
-import NativeSelect from "@material-ui/core/NativeSelect";
 import TextField from "@material-ui/core/TextField";
 
 import { REGEX_EMAIL } from "../../../lib/utils";
 import DiabeloopUrl from "../../../lib/diabeloop-url";
 import { makeButtonsStyles } from "../../../components/theme";
-import { AddPatientDialogContentProps } from "../types";
+import { AddPatientDialogContentProps } from "./types";
 
 export interface AddDialogProps {
   actions: AddPatientDialogContentProps | null;
@@ -73,7 +70,7 @@ const dialogStyles = makeStyles(
       },
     };
   },
-  { name: "ylp-hcp-add-patient-dialog" }
+  { name: "ylp-caregiver-patients-add-dialog" }
 );
 
 function AddDialog(props: AddDialogProps): JSX.Element {
@@ -81,14 +78,12 @@ function AddDialog(props: AddDialogProps): JSX.Element {
   const classes = dialogStyles();
   const { t, i18n } = useTranslation("yourloops");
   const [email, setEmail] = React.useState<string>("");
-  const [teamId, setTeamId] = React.useState<string>("");
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const isValidEmail = (mail = email): boolean => mail.length > 0 && REGEX_EMAIL.test(mail);
   const resetDialog = () => {
     setTimeout(() => {
       setEmail("");
-      setTeamId("");
       setErrorMessage(null);
     }, 100);
   };
@@ -97,8 +92,8 @@ function AddDialog(props: AddDialogProps): JSX.Element {
     resetDialog();
   };
   const handleClickAdd = () => {
-    if (isValidEmail() && teamId.length > 0) {
-      props.actions?.onDialogResult({ email, teamId });
+    if (isValidEmail()) {
+      props.actions?.onDialogResult({ email });
       resetDialog();
     } else {
       setErrorMessage(t("invalid-email"));
@@ -116,23 +111,9 @@ function AddDialog(props: AddDialogProps): JSX.Element {
     }
     setEmail(inputEmail);
   };
-  const handleChangeTeam = (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>): void => {
-    setTeamId(e.target.value as string);
-  };
 
   const dialogIsOpen = props.actions !== null;
-  const buttonAddDisabled = errorMessage !== null || !isValidEmail() || teamId.length < 1;
-  const optionsTeamsElements: JSX.Element[] = [
-    <option id="patient-list-dialog-add-team-option-none" aria-label={t("aria-none")} value="" key="none" />,
-  ];
-  const teams = props.actions?.teams ?? [];
-  for (const team of teams) {
-    optionsTeamsElements.push(
-      <option id={`patient-list-dialog-add-team-option-${team.id}`} value={team.id} key={team.id} aria-label={team.name}>
-        {team.name}
-      </option>
-    );
-  }
+  const buttonAddDisabled = errorMessage !== null || !isValidEmail();
 
   const termsOfUse = t("terms-and-conditions");
   const linkTerms = (
@@ -160,20 +141,6 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           onChange={handleChangeEmail}
           helperText={errorMessage}
         />
-        <FormControl className={classes.formControlSelectTeam}>
-          <InputLabel id="patient-list-dialog-add-team-label" htmlFor="patient-list-dialog-add-team-input">
-            {t("team")}
-          </InputLabel>
-          <NativeSelect
-            value={teamId}
-            onChange={handleChangeTeam}
-            inputProps={{
-              name: "teamid",
-              id: "patient-list-dialog-add-team-input",
-            }}>
-            {optionsTeamsElements}
-          </NativeSelect>
-        </FormControl>
         <Trans
           id="patient-list-dialog-add-warning"
           i18nKey="modal-add-patient-warning"

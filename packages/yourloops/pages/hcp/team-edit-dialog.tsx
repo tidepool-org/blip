@@ -251,17 +251,17 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     modalTitle = t("team-modal-add-title");
     modalButtonValidate = t("button-create-team");
     infoLine = <p id="team-edit-dialog-info-line" className={classes.pModalInfos}>{t("team-modal-create-info")}</p>;
-    const termsAndConditions = t("terms-and-conditions");
+    const termsOfUse = t("terms-and-conditions");
     const linkTermsAndConditions = (
-      <Link aria-label={termsAndConditions} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
-        { termsAndConditions }
+      <Link aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
+        { termsOfUse }
       </Link>
     );
     warningLines = (
       <div className={classes.divModalWarnings}>
         <p id="team-edit-dialog-warning-line1">{t("team-modal-create-warning-line1")}</p>
         <p id="team-edit-dialog-warning-line2">
-          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTermsAndConditions }} values={{ termsAndConditions }} parent={React.Fragment}>
+          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTermsAndConditions }} values={{ termsAndConditions: termsOfUse }} parent={React.Fragment}>
             By accepting our Terms And Conditions you confirm you are a registered healthcare professional in your country
             and have the right to create a care team.
           </Trans>

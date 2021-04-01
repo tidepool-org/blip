@@ -38,9 +38,17 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
-import { ShareUser, SharedUserContextProvider, getDirectShares, sharedUserInitialState, sharedUserReducer } from "../../lib/share";
+import {
+  ShareUser,
+  SharedUserContextProvider,
+  getDirectShares,
+  sharedUserInitialState,
+  sharedUserReducer,
+} from "../../lib/share";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
+import { useSnackbar } from "../../lib/useSnackbar";
 import InvalidRoute from "../../components/invalid-route";
+import { Snackbar } from "../../components/utils/snackbar";
 import PrimaryNavBar from "../../components/header-bars/primary";
 import PatientDataPage from "./patient-data";
 import PatientListPage from "./patients/page";
@@ -61,6 +69,19 @@ const pageStyles = makeStyles(
   { name: "ylp-caregiver-page" }
 );
 
+const CaregiverRoutes = (): JSX.Element => {
+  return (
+    <Switch>
+      <Route path={defaultURL} exact={true} component={PatientListPage} />
+      <Route path="/caregiver/patient/:patientId" component={PatientDataPage} />
+      <Route path="/caregiver" exact={true} />
+      <Route>
+        <InvalidRoute defaultURL={defaultURL} />
+      </Route>
+    </Switch>
+  );
+};
+
 /**
  * Health care professional page
  */
@@ -68,6 +89,7 @@ const CaregiverPage = (): JSX.Element => {
   const { t } = useTranslation("yourloops");
   const historyHook = useHistory();
   const authHook = useAuth();
+  const { snackbarParams } = useSnackbar();
   const classes = pageStyles();
   const [loading, setLoading] = React.useState(false);
   const [sharedUsersState, sharedUsersDispatch] = React.useReducer(sharedUserReducer, sharedUserInitialState);
@@ -94,7 +116,6 @@ const CaregiverPage = (): JSX.Element => {
     } else if (sharedUsers === null && session !== null && errorMessage === null && loading === false) {
       document.title = t("brand-name");
       setLoading(true);
-      sharedUsersDispatch({ type: "set-session", session });
       getDirectShares(session)
         .then((result: ShareUser[]): void => {
           sharedUsersDispatch({ type: "set-users", sharedUsers: result });
@@ -102,14 +123,16 @@ const CaregiverPage = (): JSX.Element => {
         .catch((reason: unknown) => {
           log.error(reason);
           sharedUsersDispatch({ type: "set-error", message: t("error-failed-display-patients") });
-        }).finally(() => {
+        })
+        .finally(() => {
           setLoading(false);
         });
     }
   }, [pathname, historyHook, userRole, session, t, errorMessage, sharedUsers, sharedUsersState, loading]);
 
+  let content: JSX.Element;
   if (errorMessage !== null) {
-    return (
+    content = (
       <div id="div-api-error-message" className="api-error-message">
         <Alert id="alert-api-error-message" severity="error" style={{ marginBottom: "1em" }}>
           {errorMessage}
@@ -119,24 +142,18 @@ const CaregiverPage = (): JSX.Element => {
         </Button>
       </div>
     );
-  }
-
-  if (session === null || sharedUsersState.sharedUsers === null || loading) {
-    return <CircularProgress disableShrink className={classes.loadingProgress} />;
+  } else if (session === null || sharedUsersState.sharedUsers === null || loading) {
+    content = <CircularProgress disableShrink className={classes.loadingProgress} />;
+  } else {
+    content = <CaregiverRoutes />;
   }
 
   return (
     <SharedUserContextProvider value={[sharedUsersState, sharedUsersDispatch]}>
       <DataContextProvider context={DefaultDataContext}>
+        <Snackbar params={snackbarParams} />
         <PrimaryNavBar headerLogoURL={defaultURL} />
-        <Switch>
-          <Route path={defaultURL} exact={true} component={PatientListPage} />
-          <Route path="/caregiver/patient/:patientId" component={PatientDataPage} />
-          <Route path="/caregiver" exact={true} />
-          <Route>
-            <InvalidRoute defaultURL={defaultURL} />
-          </Route>
-        </Switch>
+        {content}
       </DataContextProvider>
     </SharedUserContextProvider>
   );
