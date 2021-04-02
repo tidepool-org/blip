@@ -119,7 +119,7 @@
   "email": "Correo electrónico",
   "firstname": "Nombre",
   "invalid-email": "Dirección de correo electrónico no válida.",
-  "email-not-verified": "you need to activate your account first",
+  "email-not-verified": "Please verify your email first",
   "lastname": "Apellido",
   "language": "Idioma",
   "is-required": "este campo es obligatorio",
@@ -266,5 +266,9 @@
   "today": "Hoy",
   "yesterday": "Ayer",
   "datashare": "quiere compartir sus datos de diabetes con usted.",
-  "join-group": "le invita a unirse"
+  "join-group": "le invita a unirse",
+  "footer-link-url-intended-use": "Regulatory Information",
+  "footer-link-url-privacy-policy": "Política de confidencialidad",
+  "footer-link-url-support": "Diabeloop",
+  "footer-link-url-terms": "Diabeloop Applications Terms of Use"
 }

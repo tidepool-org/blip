@@ -119,7 +119,7 @@
   "email": "E-mail",
   "firstname": "Voornaam",
   "invalid-email": "Ongeldig e-mailadres.",
-  "email-not-verified": "you need to activate your account first",
+  "email-not-verified": "Please verify your email first",
   "lastname": "Achternaam",
   "language": "Taal",
   "is-required": "Vereist",
@@ -266,5 +266,9 @@
   "today": "Vandaag",
   "yesterday": "Gisteren",
   "datashare": "wil zijn/haar diabetesgegevens met je delen.",
-  "join-group": "nodigt je uit om je aan te sluiten bij"
+  "join-group": "nodigt je uit om je aan te sluiten bij",
+  "footer-link-url-intended-use": "Regulatory Information",
+  "footer-link-url-privacy-policy": "Privacybeleid",
+  "footer-link-url-support": "Diabeloop",
+  "footer-link-url-terms": "Diabeloop Applications Terms of Use"
 }

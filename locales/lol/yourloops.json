@@ -129,7 +129,7 @@
   "role": "crwdns47446:0crwdne47446:0",
   "menu-profile": "crwdns47246:0crwdne47246:0",
   "required": "crwdns47248:0crwdne47248:0",
-  "new-password": "crwdns47448:0crwdne47448:0",
+  "new-password": "crwdns53478:0crwdne53478:0",
   "Forgot your password?": "crwdns47450:0crwdne47450:0",
   "Please enter your email address.": "crwdns47452:0crwdne47452:0",
   "Send reset link": "crwdns47454:0crwdne47454:0",
@@ -266,5 +266,9 @@
   "today": "crwdns53370:0crwdne53370:0",
   "yesterday": "crwdns53372:0crwdne53372:0",
   "datashare": "crwdns53374:0crwdne53374:0",
-  "join-group": "crwdns53376:0crwdne53376:0"
+  "join-group": "crwdns53376:0crwdne53376:0",
+  "footer-link-url-intended-use": "crwdns53480:0crwdne53480:0",
+  "footer-link-url-privacy-policy": "crwdns53482:0crwdne53482:0",
+  "footer-link-url-support": "crwdns53484:0crwdne53484:0",
+  "footer-link-url-terms": "crwdns53486:0crwdne53486:0"
 }
