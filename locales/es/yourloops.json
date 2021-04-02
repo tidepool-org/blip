@@ -129,7 +129,7 @@
   "role": "cargo",
   "menu-profile": "Perfil",
   "required": "Obligatorio",
-  "New Password": "Contraseña nueva",
+  "new-password": "Contraseña nueva",
   "Forgot your password?": "¿Ha olvidado la contraseña?",
   "Please enter your email address.": "Introduzca su dirección de correo electrónico.",
   "Send reset link": "Enviar enlace para restablecer",

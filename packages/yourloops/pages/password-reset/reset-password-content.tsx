@@ -180,7 +180,7 @@ export default function ResetPasswordContent(): JSX.Element {
                 id="password"
                 className={classes.TextField}
                 margin="normal"
-                label={t("New password")}
+                label={t("new-password")}
                 variant="outlined"
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}

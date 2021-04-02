@@ -14,9 +14,14 @@ body {
 }
 
 :global(#app) {
+	min-height: 100vh;
   display: flex;
   flex-direction: column;
-	height: 100vh;
+  justify-content: center;
+}
+:global(p.loading) {
+  text-align: center;
+  font-family: "Basis";
 }
 
 :global(div.api-error-message) {

@@ -26,19 +26,21 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
 import brandingLogo from "branding/logo.png";
+
+import LanguageSelector from "../../components/language-select";
+
 import SignUpStepper from "./signup-stepper";
-import { useTranslation } from "react-i18next";
-import CardContent from "@material-ui/core/CardContent";
 import { SignUpFormStateProvider } from "./signup-formstate-context";
-import LoginFooterLink from "../login/login-footer-link";
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
@@ -61,8 +63,13 @@ const formStyle = makeStyles((theme: Theme) => {
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
     },
+    gridLangSelector: {
+      padding: theme.spacing(2),
+      textAlign: "center",
+      fontSize: "small",
+    },
   };
-});
+}, { name: "signup-page-styles" });
 
 /**
  * Signup page
@@ -73,13 +80,7 @@ function SignUpPage(): JSX.Element {
 
   return (
     <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid
-        container
-        spacing={0}
-        alignItems="center"
-        justify="center"
-        style={{ minHeight: "100vh" }}
-      >
+      <Grid container spacing={0} alignItems="center" justify="center">
         <Grid item xs={12}>
           <SignUpFormStateProvider>
             <Card className={classes.Card}>
@@ -88,8 +89,7 @@ function SignUpPage(): JSX.Element {
                   display: "flex",
                   paddingTop: "1em",
                   paddingBottom: "1em",
-                }}
-              >
+                }}>
                 <img
                   src={brandingLogo}
                   style={{
@@ -104,8 +104,10 @@ function SignUpPage(): JSX.Element {
                 <SignUpStepper />
               </CardContent>
             </Card>
-            <LoginFooterLink />
           </SignUpFormStateProvider>
+        </Grid>
+        <Grid item xs={12} className={classes.gridLangSelector}>
+          <LanguageSelector />
         </Grid>
       </Grid>
     </Container>

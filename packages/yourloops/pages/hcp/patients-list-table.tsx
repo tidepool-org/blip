@@ -368,7 +368,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
   };
 
   return (
-    <TableContainer style={{ marginBottom: "5em" }} component={Paper}>
+    <TableContainer component={Paper}>
       <Table className={classes.table} aria-label={t("aria-table-list-patient")} stickyHeader>
         <TableHead>
           <TableRow className={classes.tableRowHeader}>

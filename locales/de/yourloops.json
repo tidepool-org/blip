@@ -129,7 +129,7 @@
   "role": "Rolle",
   "menu-profile": "Profil",
   "required": "Erforderlich",
-  "New Password": "Neues Passwort",
+  "new-password": "Neues Passwort",
   "Forgot your password?": "Passwort vergessen?",
   "Please enter your email address.": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
   "Send reset link": "Reset-Link senden",

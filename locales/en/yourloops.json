@@ -129,7 +129,7 @@
   "role": "role",
   "menu-profile": "Profile",
   "required": "Required",
-  "New Password": "New password",
+  "new-password": "New password",
   "Forgot your password?": "Forgot your password?",
   "Please enter your email address.": "Please enter your email address.",
   "Send reset link": "Send reset link",
@@ -266,5 +266,10 @@
   "today": "Today",
   "yesterday": "Yesterday",
   "datashare": "wants to share their diabetes data with you.",
-  "join-group": "invites you to join"
+  "join-group": "invites you to join",
+  "footer-link-url-intended-use": "Regulatory Information",
+  "footer-link-url-privacy-policy": "Privacy Policy",
+  "footer-link-url-support": "Diabeloop",
+  "footer-link-url-terms": "Diabeloop Applications Terms of Use"
+
 }

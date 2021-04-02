@@ -50,15 +50,13 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import brandingLogo from "branding/logo.png";
 
 import { useAuth } from "../../lib/auth";
-import LoginFooterLink from "./login-footer-link";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import { Snackbar } from "../../components/utils/snackbar";
+import LanguageSelector from "../../components/language-select";
 import { errorTextFromException } from "../../lib/utils";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
-    mainContainer: { margin: "auto" },
-    root: { minHeight: "100vh" },
     loginButton: {
       marginLeft: "auto !important",
     },
@@ -83,8 +81,13 @@ const loginStyle = makeStyles((theme: Theme) => {
       marginLeft: theme.spacing(0),
       marginRight: theme.spacing(1),
     },
+    gridLangSelector: {
+      padding: theme.spacing(2),
+      textAlign: "center",
+      fontSize: "small",
+    },
   };
-});
+}, { name: "login-page-styles" });
 
 /**
  * Login page
@@ -147,8 +150,8 @@ function Login(props: RouteComponentProps): JSX.Element {
   };
 
   return (
-    <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid container spacing={0} alignItems="center" justify="center" className={classes.root}>
+    <Container maxWidth="sm">
+      <Grid container spacing={0} alignItems="center" justify="center">
         <Grid item xs={12}>
           <Card className={classes.Card}>
             <CardMedia
@@ -231,7 +234,9 @@ function Login(props: RouteComponentProps): JSX.Element {
               </Button>
             </CardActions>
           </Card>
-          <LoginFooterLink />
+        </Grid>
+        <Grid item xs={12} className={classes.gridLangSelector}>
+          <LanguageSelector />
         </Grid>
       </Grid>
     </Container>

@@ -31,24 +31,33 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
 
 import brandingLogo from "branding/logo.png";
+
 import { useAuth } from "../../lib/auth";
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
-import RequestPasswordForm from "./request-password-form";
-import RequestPassordMessage from "./request-password-message";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import { Snackbar } from "../../components/utils/snackbar";
+import LanguageSelector from "../../components/language-select";
+
+import RequestPasswordForm from "./request-password-form";
+import RequestPassordMessage from "./request-password-message";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
-    mainContainer: { margin: "auto" },
-    root: { minHeight: "100vh" },
+    container: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    divLanguageSelector: {
+      marginLeft: "auto",
+      marginRight: "auto",
+      padding: "16px",
+    },
     Card: {
       display: "flex",
       flexDirection: "column",
@@ -88,10 +97,7 @@ function RequestPasswordResetPage(): JSX.Element {
   const [inProgress, setInProgress] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
 
-
-  const onUsernameChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ): void => {
+  const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setUserName(event.target.value);
   };
 
@@ -121,51 +127,42 @@ function RequestPasswordResetPage(): JSX.Element {
   };
 
   return (
-    <Container maxWidth="sm" className={classes.mainContainer}>
-      <Grid
-        container
-        spacing={0}
-        alignItems="center"
-        justify="center"
-        className={classes.root}>
-        <Grid item xs={12}>
-          <Snackbar params={snackbarParams} />
-          <Card className={classes.Card}>
-            <CardMedia
-              style={{
-                display: "flex",
-                paddingTop: "1em",
-                paddingBottom: "1em",
-              }}>
-              <img
-                src={brandingLogo}
-                alt={t("Login Branding Logo")}
-                style={{
-                  height: "60px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-              />
-            </CardMedia>
-            {success ? (
-              <RequestPassordMessage
-                header="password-request-reset-title"
-                body="password-request-reset-instructions"
-              />
-            ) : (
-              <RequestPasswordForm
-                username={username}
-                error={validateError}
-                inProgress={inProgress}
-                onBack={onBack}
-                validateUserName={validateUserName}
-                onSendResetLink={onSendResetLink}
-                onUsernameChange={onUsernameChange}
-              />
-            )}
-          </Card>
-        </Grid>
-      </Grid>
+    <Container className={classes.container} maxWidth="sm">
+      <Snackbar params={snackbarParams} />
+      <Card className={classes.Card}>
+        <CardMedia
+          style={{
+            display: "flex",
+            paddingTop: "1em",
+            paddingBottom: "1em",
+          }}>
+          <img
+            src={brandingLogo}
+            alt={t("Login Branding Logo")}
+            style={{
+              height: "60px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          />
+        </CardMedia>
+        {success ? (
+          <RequestPassordMessage header="password-request-reset-title" body="password-request-reset-instructions" />
+        ) : (
+          <RequestPasswordForm
+            username={username}
+            error={validateError}
+            inProgress={inProgress}
+            onBack={onBack}
+            validateUserName={validateUserName}
+            onSendResetLink={onSendResetLink}
+            onUsernameChange={onUsernameChange}
+          />
+        )}
+      </Card>
+      <div className={classes.divLanguageSelector}>
+        <LanguageSelector />
+      </div>
     </Container>
   );
 }

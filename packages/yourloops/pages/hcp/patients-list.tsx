@@ -274,7 +274,7 @@ function PatientListPage(): JSX.Element {
       <Grid container direction="row" justify="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
-      <Container id="patient-list-container" maxWidth="lg" style={{ marginBottom: "2em" }}>
+      <Container id="patient-list-container" maxWidth="lg">
         <PatientListTable
           patients={patients}
           flagged={flagged}

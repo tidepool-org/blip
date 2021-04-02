@@ -45,16 +45,8 @@ class DiabeloopUrl {
     this.supportUrL = "https://www.diabeloop.com";
   }
 
-  get Support(): string {
-    return "Diabeloop";
-  }
-
   get SupportUrl(): string {
     return this.supportUrL;
-  }
-
-  get Terms(): string {
-    return "Diabeloop Applications Terms of Use";
   }
 
   getTermsUrL(currentLangue: string): string {
@@ -62,17 +54,9 @@ class DiabeloopUrl {
     return this.termsUrl;
   }
 
-  get PrivacyPolicy(): string {
-    return "Privacy Policy";
-  }
-
   getPrivacyPolicyUrL(currentLangue: string): string {
     this.privacyPolicyUrl = `${this.rootPathName}data-privacy.${currentLangue}.pdf`;
     return this.privacyPolicyUrl;
-  }
-
-  get IntendedUse(): string {
-    return "Regulatory Information";
   }
 
   getIntendedUseUrL(currentLangue: string): string {

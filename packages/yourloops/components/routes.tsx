@@ -34,6 +34,7 @@ import { ThemeProvider } from "@material-ui/core/styles";
 
 import { useAuth } from "../lib/auth";
 import { publicRoutesTheme, mainTheme } from "./theme";
+import FooterLinks from "./footer-links";
 
 export const PublicRoute = (props: RouteProps): JSX.Element => {
   const { isLoggedIn, user } = useAuth();
@@ -44,6 +45,7 @@ export const PublicRoute = (props: RouteProps): JSX.Element => {
     <ThemeProvider theme={publicRoutesTheme}>
       <CssBaseline />
       <Route {...props} />
+      <FooterLinks />
     </ThemeProvider>
   );
 };
@@ -55,6 +57,7 @@ export const PrivateRoute = (props: RouteProps): JSX.Element => {
     <ThemeProvider theme={mainTheme}>
       <CssBaseline />
       <Route {...props} />
+      <FooterLinks atBottom />
     </ThemeProvider>
   ) : (
     <Redirect to={{ pathname: "/", state: { from: props.location } }} />

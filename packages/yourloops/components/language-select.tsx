@@ -42,10 +42,6 @@ function LanguageSelect(): JSX.Element {
     setVal(lang);
   };
 
-  const iconComponent = () => {
-    return <ArrowDropDownIcon />;
-  };
-
   const langs = [];
   for (const lang in i18n.options.resources) {
     if (Object.prototype.hasOwnProperty.call(i18n.options.resources, lang)) {
@@ -62,7 +58,7 @@ function LanguageSelect(): JSX.Element {
     <FormControl>
       <Select
         disableUnderline
-        IconComponent={iconComponent}
+        IconComponent={ArrowDropDownIcon}
         value={val}
         onChange={handleChange}
       >

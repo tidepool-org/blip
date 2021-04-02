@@ -129,7 +129,7 @@
   "role": "rol",
   "menu-profile": "Profiel",
   "required": "Vereist",
-  "New Password": "Nieuw wachtwoord",
+  "new-password": "Nieuw wachtwoord",
   "Forgot your password?": "Wachtwoord vergeten?",
   "Please enter your email address.": "Voer je e-mailadres in.",
   "Send reset link": "Reset link verzenden",

@@ -36,12 +36,20 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 
 import brandingLogo from "branding/logo.png";
+import LanguageSelector from "../../components/language-select";
 import ResetPasswordContent from "./reset-password-content";
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
-    mainContainer: { margin: "auto" },
-    root: { minHeight: "100vh" },
+    mainContainer: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    divLanguageSelector: {
+      marginLeft: "auto",
+      marginRight: "auto",
+      padding: "16px",
+    },
     Card: {
       display: "flex",
       flexDirection: "column",
@@ -65,8 +73,7 @@ function ConfirmPasswordResetPage(): JSX.Element {
         container
         spacing={0}
         alignItems="center"
-        justify="center"
-        className={classes.root}>
+        justify="center">
         <Grid item xs={12}>
           <Card className={classes.Card}>
             <CardMedia
@@ -89,6 +96,9 @@ function ConfirmPasswordResetPage(): JSX.Element {
           </Card>
         </Grid>
       </Grid>
+      <div className={classes.divLanguageSelector}>
+        <LanguageSelector />
+      </div>
     </Container>
   );
 }
