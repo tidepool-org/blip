@@ -157,12 +157,12 @@ async function removeDirectShare(session: Session, userId: string): Promise<void
 
   await waitTimeout(100);
 
-  const idx = directShares.findIndex((sh) => sh.user.userid === userId);
+  const idx = directSharesDummy.findIndex((sh) => sh.user.userid === userId);
   if (idx < 0) {
     return Promise.reject(new Error("User not found"));
   }
 
-  directShares.splice(idx, 1);
+  directSharesDummy.splice(idx, 1);
   return Promise.resolve();
 }
 

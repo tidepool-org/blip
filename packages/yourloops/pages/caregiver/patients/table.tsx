@@ -47,11 +47,11 @@ import Tooltip from "@material-ui/core/Tooltip";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import FlagIcon from "@material-ui/icons/Flag";
 import FlagOutlineIcon from "@material-ui/icons/FlagOutlined";
+import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
 
 import { SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { MedicalData } from "../../../models/device-data";
 import { User } from "../../../models/shoreline";
-import sendMetrics from "../../../lib/metrics";
 import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { useAuth } from "../../../lib/auth";
 import { ShareUser } from "../../../lib/share";
@@ -62,8 +62,9 @@ export interface PatientListTableProps {
   flagged: string[];
   order: SortDirection;
   orderBy: SortFields;
-  onClickPatient: (user: User) => void;
-  onFlagPatient: (userId: string) => Promise<void>;
+  onClickPatient: (user: User, flagged: boolean) => void;
+  onFlagPatient: (userId: string, flagged: boolean) => Promise<void>;
+  onRemovePatient: (user: User, flagged: boolean, isPendingInvitation: boolean) => Promise<void>;
   onSortList: (field: SortFields, direction: SortDirection) => void;
 }
 
@@ -71,8 +72,9 @@ export interface PatientTableRowProps {
   na: string;
   shareUser: ShareUser;
   flagged: string[];
-  onClickPatient: (user: User) => void;
-  onFlagPatient: (userId: string) => Promise<void>;
+  onClickPatient: (user: User, flagged: boolean) => void;
+  onFlagPatient: (userId: string, flagged: boolean) => Promise<void>;
+  onRemovePatient: (user: User, flagged: boolean, isPendingInvitation: boolean) => Promise<void>;
 }
 
 // const log = bows("PatientListTable");
@@ -102,7 +104,7 @@ const patientListStyle = makeStyles((theme: Theme) => {
 }, { name: "ylp-caregiver-patients-table" });
 
 function PatientRow(props: PatientTableRowProps): JSX.Element {
-  const { na, shareUser, flagged, onClickPatient, onFlagPatient } = props;
+  const { na, shareUser, flagged, onClickPatient, onRemovePatient, onFlagPatient } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const classes = patientListStyle();
@@ -114,15 +116,20 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   const isFlagged = flagged.includes(userId);
   const firstName = getUserFirstName(patient);
   const lastName = getUserLastName(patient);
+  const rowId = `patients-list-row-${userId}`;
+  const session = authHook.session();
+  const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
 
-  const onClickFlag = (e: React.MouseEvent): void => {
+  const handleFlagPatient = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
-    sendMetrics("flag-patient", { flagged: !isFlagged });
-    onFlagPatient(userId);
+    onFlagPatient(userId, !isFlagged);
   };
-  const onRowClick = (/* e: React.MouseEvent */): void => {
-    sendMetrics("show-patient-data", { flagged: isFlagged });
-    onClickPatient(patient);
+  const handleSelectPatient = (/* e: React.MouseEvent */): void => {
+    onClickPatient(patient, isFlagged);
+  };
+  const handleClickRemoveMember = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation();
+    onRemovePatient(patient, isFlagged, isPendingInvitation);
   };
 
   let tir = "-";
@@ -147,9 +154,6 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
     }
   }
 
-  const rowId = `patients-list-row-${userId}`;
-  const session = authHook.session();
-  const isPendingInvitation = shareUser.status === UserInvitationStatus.pending;
   React.useEffect(() => {
     const observedElement = rowRef.current;
     if (session !== null && observedElement !== null && typeof medicalData === "undefined" && !isPendingInvitation) {
@@ -189,6 +193,18 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
     return _.noop;
   }, [medicalData, patient, session, isPendingInvitation, rowRef]);
 
+  const removeText = t("remove-patient");
+  const removeMemberButton = (
+    <Tooltip title={removeText} aria-label={removeText} placement="bottom">
+      <IconButton
+        id={`patients-list-row-action-remove-${userId}`}
+        color="primary"
+        aria-label={removeText}
+        onClick={handleClickRemoveMember}>
+        <PersonRemoveIcon />
+      </IconButton>
+    </Tooltip>
+  );
   if (isPendingInvitation) {
     return (
       <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending}`} ref={rowRef}>
@@ -202,14 +218,15 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
         <TableCell id={`patients-list-row-tir-${userId}`}>{tir}</TableCell>
         <TableCell id={`patients-list-row-tbr-${userId}`}>{tbr}</TableCell>
         <TableCell id={`patients-list-row-upload-${userId}`}>{lastUpload}</TableCell>
+        <TableCell id={`patients-list-row-actions-${userId}`}>{removeMemberButton}</TableCell>
       </TableRow>
     );
   }
 
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={classes.tableRow} ref={rowRef}>
+    <TableRow id={rowId} tabIndex={-1} hover onClick={handleSelectPatient} className={classes.tableRow} ref={rowRef}>
       <TableCell id={`patients-list-row-icon-${userId}`}>
-        <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
+        <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={handleFlagPatient}>
           {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
         </IconButton>
       </TableCell>
@@ -218,12 +235,13 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
       <TableCell id={`patients-list-row-tir-${userId}`}>{tir}</TableCell>
       <TableCell id={`patients-list-row-tbr-${userId}`}>{tbr}</TableCell>
       <TableCell id={`patients-list-row-upload-${userId}`}>{lastUpload}</TableCell>
+      <TableCell id={`patients-list-row-actions-${userId}`}>{removeMemberButton}</TableCell>
     </TableRow>
   );
 }
 
 function PatientListTable(props: PatientListTableProps): JSX.Element {
-  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList } = props;
+  const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onRemovePatient, onSortList } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
 
@@ -238,6 +256,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
         flagged={flagged}
         onClickPatient={onClickPatient}
         onFlagPatient={onFlagPatient}
+        onRemovePatient={onRemovePatient}
       />
     )
   );
@@ -276,6 +295,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
             <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>
               {t("list-patient-upload")}
             </TableCell>
+            <TableCell id="patients-list-header-actions" className={classes.tableCellHeader} />
           </TableRow>
         </TableHead>
         <TableBody>{patientsRows}</TableBody>

@@ -38,7 +38,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
-import SvgIcon, { SvgIconProps } from "@material-ui/core/SvgIcon";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -49,6 +48,7 @@ import Typography from "@material-ui/core/Typography";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import PersonRemoveIcon from "../../components/icons/PersonRemoveIcon";
 
 import { UserInvitationStatus } from "../../models/generic";
 import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
@@ -117,19 +117,6 @@ const MembersAccordionSummary = withStyles((theme: Theme) => ({
   },
   expanded: {},
 }), { name: "ylp-member-accordion-summary" })(AccordionSummary);
-
-function PersonRemoveIcon(props: SvgIconProps): JSX.Element {
-  // For some reason this icon is not available with material-ui
-  // This one come directly from material-design
-  // Source: https://material.io/resources/icons/?icon=person_remove&style=baseline
-  // prettier-ignore
-  return (
-    <SvgIcon xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" {...props}>
-      <g><rect fill="none" height="24" width="24"/></g>
-      <g><path d="M14,8c0-2.21-1.79-4-4-4S6,5.79,6,8s1.79,4,4,4S14,10.21,14,8z M17,10v2h6v-2H17z M2,18v2h16v-2c0-2.66-5.33-4-8-4 S2,15.34,2,18z"/></g>
-    </SvgIcon>
-  );
-}
 
 function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;

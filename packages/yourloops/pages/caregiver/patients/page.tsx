@@ -43,7 +43,8 @@ import { getUserFirstName, getUserLastName, errorTextFromException } from "../..
 import sendMetrics from "../../../lib/metrics";
 import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { useAuth } from "../../../lib/auth";
-import { useSharedUser, ShareUser, addDirectShare } from "../../../lib/share";
+import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
+import RemovePatientDialog, { RemovePatientDialogContentProps } from "../../../components/remove-patient-dialog";
 import { AddPatientDialogContentProps, AddPatientDialogResult } from "./types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";
@@ -169,6 +170,7 @@ function PatientListPage(): JSX.Element {
   const [filter, setFilter] = React.useState<string>("");
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
   const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
+  const [patientToRemove, setPatientToRemove] = React.useState<RemovePatientDialogContentProps | null>(null);
 
   const flagged = authHook.getFlagPatients();
   const session = authHook.session();
@@ -180,12 +182,18 @@ function PatientListPage(): JSX.Element {
     setOrder(order);
     setOrderBy(orderBy);
   };
-  const handleSelectPatient = (user: User): void => {
-    sendMetrics("caregiver-select-patient");
+  const handleSelectPatient = (user: User, flagged: boolean): void => {
+    sendMetrics("caregiver-show-patient-data", { flagged });
     historyHook.push(`/caregiver/patient/${user.userid}`);
   };
-  const handleFlagPatient = async (userId: string): Promise<void> => {
-    await authHook.flagPatient(userId);
+  const handleFlagPatient = async (userId: string, flagged: boolean): Promise<void> => {
+    try {
+      await authHook.flagPatient(userId);
+      sendMetrics("caregiver-flag-patient", { flagged });
+    } catch (reason) {
+      const message = errorTextFromException(reason);
+      sendMetrics("caregiver-flag-patient", { flagged, error: message });
+    }
   };
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
@@ -225,6 +233,32 @@ function PatientListPage(): JSX.Element {
       sendMetrics("caregiver-add-patient", { added: false });
     }
   };
+  const handleRemovePatient = async (patient: User, flagged: boolean, isPendingInvitation: boolean): Promise<void> => {
+    const getConfirmation = (): Promise<boolean> => {
+      return new Promise((resolve: (value: boolean) => void) => {
+        setPatientToRemove({ onDialogResult: resolve, patient });
+      });
+    };
+
+    const result = await getConfirmation();
+    setPatientToRemove(null);
+
+    if (result && session !== null) {
+      try {
+        await removeDirectShare(session, patient.userid);
+        setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
+        sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation });
+        openSnackbar({ message: t("modal-remove-patient-success"), severity: AlertSeverity.success });
+      } catch (reason) {
+        log.error(reason);
+        openSnackbar({ message: t("modal-delete-patient-failure"), severity: AlertSeverity.error });
+        sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation, failed: errorTextFromException(reason) });
+      }
+    } else {
+      sendMetrics("caregiver-remove-patient", { removed: false, flagged, isPendingInvitation });
+    }
+    await Promise.resolve();
+  };
 
   React.useEffect(() => {
     document.title = `${t("my-patients-title")} - ${t("brand-name")}`;
@@ -255,7 +289,7 @@ function PatientListPage(): JSX.Element {
         onFilterType={handleFilterType}
         onInvitePatient={handleInvitePatient}
       />
-      <Grid container direction="row" justify="center" alignItems="center" className={classes.gridAlertComputed}>
+      <Grid id="patient-list-alert-data-computed" container direction="row" justify="center" alignItems="center" className={classes.gridAlertComputed}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
       <Container id="patient-list-container" maxWidth="lg">
@@ -267,9 +301,11 @@ function PatientListPage(): JSX.Element {
           onClickPatient={handleSelectPatient}
           onFlagPatient={handleFlagPatient}
           onSortList={handleSortList}
+          onRemovePatient={handleRemovePatient}
         />
       </Container>
       <AddPatientDialog actions={patientToAdd} />
+      <RemovePatientDialog actions={patientToRemove} />
     </React.Fragment>
   );
 }

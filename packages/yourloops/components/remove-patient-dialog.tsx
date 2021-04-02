@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Team dialog to leave a team
+ * Remove patient dialog for HCP / Caregivers
  *
  * All rights reserved.
  *
@@ -26,11 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
 import * as React from "react";
-import { /* Trans, */ useTranslation } from "react-i18next";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { useTranslation } from "react-i18next";
 
+import { Theme, makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -38,80 +37,86 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { makeButtonsStyles } from "../../../components/theme";
-import { LeaveTeamDialogContentProps } from "./types";
+import { User } from "../models/shoreline";
+import { getUserFirstLastName } from "../lib/utils";
+import { makeButtonsStyles } from "./theme";
 
-export interface LeaveTeamDialogProps {
-  teamToLeave: null | LeaveTeamDialogContentProps;
+export interface RemovePatientDialogContentProps {
+  patient: User;
+  onDialogResult: (confirmed: boolean) => void;
 }
 
-const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const leaveTeamDialogClasses = makeStyles(
+export interface RemovePatientDialogProps {
+  actions: RemovePatientDialogContentProps | null;
+}
+
+const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-remove-patient-dialog-buttons" });
+const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
+      dialog: {
+        display: "flex",
+        flexDirection: "column",
+        width: "25rem",
+      },
       buttonCancel: {
         marginRight: theme.spacing(2),
       },
     };
   },
-  { name: "ylp-patient-remove-team-dialog" }
+  { name: "ylp-dialog-remove-patient-dialog" }
 );
 
-function LeaveTeamDialog(props: LeaveTeamDialogProps): JSX.Element {
-  const { t } = useTranslation("yourloops");
-  const dialogClasses = leaveTeamDialogClasses();
+function RemovePatientDialog(props: RemovePatientDialogProps): JSX.Element {
   const buttonsClasses = makeButtonsClasses();
+  const classes = dialogStyles();
+  const { t } = useTranslation("yourloops");
 
-  const { teamToLeave } = props;
-  const dialogIsOpen = !_.isEmpty(teamToLeave?.team);
-  const teamName = teamToLeave?.team?.name ?? "";
+  const dialogIsOpen = props.actions !== null;
+  const userName = props.actions !== null ? getUserFirstLastName(props.actions.patient) : { firstName: "", lastName: "" };
+  const name = t("user-name", userName);
 
   const handleClose = () => {
-    teamToLeave?.onDialogResult(false);
+    props.actions?.onDialogResult(false);
   };
-  const handleLeaveTeam = () => {
-    teamToLeave?.onDialogResult(true);
+  const handleClickRemove = () => {
+    props.actions?.onDialogResult(true);
   };
 
   return (
-    <Dialog
-      id="team-leave-dialog"
-      open={dialogIsOpen}
-      aria-labelledby={t("aria-team-leave-dialog-title")}
-      aria-describedby={t("aria-team-leave-dialog-question", { teamName })}
-      onClose={handleClose}>
-      <DialogTitle id="team-leave-dialog-title">
-        <strong>{t("modal-patient-remove-team-title")}</strong>
+    <Dialog id="patient-list-dialog-remove" aria-labelledby={t("remove-patient")} open={dialogIsOpen} onClose={handleClose}>
+      <DialogTitle id="patient-list-dialog-remove-title">
+        <strong>{t("remove-patient")}</strong>
       </DialogTitle>
 
-      <DialogContent>
-        <DialogContentText color="textPrimary" id="team-leave-dialog-question">
-          {t("modal-remove-team-question", { name: teamName })}
+      <DialogContent id="patient-list-dialog-remove-content" className={classes.dialog}>
+        <DialogContentText id="patient-list-dialog-remove-question">
+          {t("modal-remove-patient-question", { name })}
         </DialogContentText>
-        <DialogContentText color="textPrimary" id="team-leave-dialog-consequences">
-          {t("modal-patient-remove-team-info-2")}
+        <DialogContentText id="patient-list-dialog-remove-consequences">
+          {t("modal-remove-patient-info-2")}
         </DialogContentText>
       </DialogContent>
 
       <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
         <Button
-          id="team-leave-dialog-button-cancel"
+          id="patient-list-dialog-remove-button-cancel"
           onClick={handleClose}
-          className={`${dialogClasses.buttonCancel} ${buttonsClasses.buttonCancel}`}
+          className={`${classes.buttonCancel} ${buttonsClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
           {t("common-cancel")}
         </Button>
         <Button
-          id="team-leave-dialog-button-leave"
-          onClick={handleLeaveTeam}
+          id="patient-list-dialog-remove-button-remove"
+          onClick={handleClickRemove}
           className={buttonsClasses.buttonRedAction}
           variant="contained">
-          {t("modal-patient-remove-team-remove")}
+          {t("remove-patient")}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default LeaveTeamDialog;
+export default RemovePatientDialog;

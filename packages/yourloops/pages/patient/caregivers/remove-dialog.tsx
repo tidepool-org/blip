@@ -39,7 +39,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { makeButtonsStyles } from "../../../components/theme";
 
-import { getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { getUserFirstLastName } from "../../../lib/utils";
 import { RemoveDialogContentProps } from "./types";
 
 export interface RemoveDialogProps {
@@ -74,8 +74,8 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
   };
 
   const dialogIsOpen = props.actions !== null;
-  const firstName = props.actions === null ? "" : getUserFirstName(props.actions.caregiver.user);
-  const lastName = props.actions === null ? "" : getUserLastName(props.actions.caregiver.user);
+  const userName = props.actions !== null ? getUserFirstLastName(props.actions.caregiver.user) : { firstName: "", lastName: "" };
+  const name = t("user-name", userName);
 
   return (
     <Dialog
@@ -89,7 +89,7 @@ function RemoveDialog(props: RemoveDialogProps): JSX.Element {
 
       <DialogContent>
         <DialogContentText>
-          {t("modal-remove-info", { name: `${firstName} ${lastName}` })}
+          {t("modal-remove-caregiver-question", { name })}
         </DialogContentText>
         <DialogContentText>
           {t("modal-patient-remove-caregiver-info-2")}
