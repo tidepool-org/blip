@@ -100,7 +100,7 @@ const webpackConfig = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      BUILD_CONFIG: `'${JSON.stringify({ DEV: isDev, TEST: isTest })}'`,
+      BUILD_CONFIG: isTest || isProduction ? `'${JSON.stringify({ DEV: isDev, TEST: isTest })}'` : `'${JSON.stringify(buildConfig)}'`,
     }),
     new MiniCssExtractPlugin({
       filename: isDev ? 'style.css' : 'style.[contenthash].css',

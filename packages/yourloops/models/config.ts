@@ -40,7 +40,6 @@ export interface AppConfig {
   ALLOW_PATIENT_CHANGE_EMAIL?: boolean;
   ALLOW_PATIENT_CHANGE_PASSWORD?: boolean;
   CAN_SEE_PWD_LOGIN?: boolean;
-  SUPPORT_EMAIL_ADDRESS?: string;
   SUPPORT_WEB_ADDRESS?: string;
   REGULATORY_WEB_ADDRESS?: string;
   HELP_LINK?: string | null; // TODO ++++++++++++++++++++++

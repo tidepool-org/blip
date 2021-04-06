@@ -46,6 +46,7 @@ import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 import brandingLogo from "branding/logo.png";
 
 import { UserRoles, User } from "../../models/shoreline";
+import config from "../../lib/config";
 import { useAuth } from "../../lib/auth";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
 
@@ -65,7 +66,7 @@ interface HeaderProps {
    * we had with class components, but I wasn't able to use the "ref" props for it.
    */
   actions?: {
-    current: null | HeaderActions,
+    current: null | HeaderActions;
   };
   /** Redirect route when clicking on the logo */
   headerLogoURL?: string;
@@ -149,6 +150,11 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     history.push("/notifications");
   };
 
+  const handleOpenSupport = () => {
+    window.open(config.SUPPORT_WEB_ADDRESS, "_blank");
+    setAnchorEl(null);
+  };
+
   const handleLogout = () => {
     setAnchorEl(null);
     auth.logout();
@@ -195,10 +201,13 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           onClose={handleCloseAccountMenu}>
           {menuItems}
           {_.isObject(menuItems) ? <hr id="menu-user-account-separator" /> : null}
-          <MenuItem id="menu-open-profile" onClick={handleOpenProfilePage}>
+          <MenuItem id="menu-user-account-profile" onClick={handleOpenProfilePage}>
             {t("menu-account-preferences")}
           </MenuItem>
-          <MenuItem id="menu-logout-yourloops" onClick={handleLogout}>
+          <MenuItem id="menu-user-account-support" onClick={handleOpenSupport}>
+            {t("menu-contact-support")}
+          </MenuItem>
+          <MenuItem id="menu-user-account-logout" onClick={handleLogout}>
             {t("menu-logout")}
           </MenuItem>
         </Menu>
