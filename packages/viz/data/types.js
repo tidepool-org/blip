@@ -355,7 +355,7 @@ export class Food extends Common {
     this.nutrition = opts.nutrition;
 
     this.prescriptor = (opts.prescribedNutrition) ? opts.prescriptor : undefined;
-    this.prescribedNutrition = (opts.prescribedNutrition) ? opts.prescribedNutrition : undefined; 
+    this.prescribedNutrition = (opts.prescribedNutrition) ? opts.prescribedNutrition : undefined;
 
     this.time = this.makeTime();
     this.normalTime = this.makeNormalTime();
@@ -384,7 +384,7 @@ export class PumpSettings extends Common {
             'level': 1
           },
         ]
-      }
+      };
   }
 }
 
@@ -401,5 +401,3 @@ export const types = {
   Upload,
   Wizard,
 };
-
-export default types;

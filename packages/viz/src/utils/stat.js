@@ -28,6 +28,7 @@ export const statTypes = {
   barHorizontal: 'barHorizontal',
   barBg: 'barBg',
   noBar: 'noBar',
+  lines: 'lines',
   wheel: 'wheel',
   input: 'input',
   simple: 'simple',
@@ -241,7 +242,20 @@ export const getStatData = (data, type, opts = {}) => {
     case commonStats.carbs:
       statData.data = [
         {
-          value: ensureNumeric(data.carbs),
+          id: 'total-carbs',
+          value: data.totalCarbsPerDay,
+          valueString: formatDecimalNumber(data.totalCarbsPerDay),
+          units: t('g'),
+          name: 'title', // Not use, to make propstype happy
+          displayLine: false,
+        },
+        {
+          id: 'food',
+          value: data.foodCarbsPerDay,
+          valueString: formatDecimalNumber(data.foodCarbsPerDay),
+          units: t('g'),
+          name: t('Rescuecarbs'),
+          displayLine: true, // Display in Lines widget
         },
       ];
 
@@ -540,7 +554,8 @@ export const getStatDefinition = (data, type, opts = {}) => {
       stat.dataFormat = {
         summary: statFormats.carbs,
       };
-      stat.type = statTypes.simple;
+      stat.type = statTypes.lines;
+      stat.alwaysShowSummary = true;
       break;
 
     case commonStats.coefficientOfVariation:

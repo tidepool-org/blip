@@ -1,7 +1,8 @@
 import _ from 'lodash';
-
+import sinon from 'sinon';
+import { expect } from 'chai';
 import DataUtil from '../../src/utils/data';
-import Types from '../../data/types';
+import * as Types from '../../data/types';
 import { MGDL_UNITS, MS_IN_DAY, MS_IN_HOUR, MS_IN_MIN, MMOLL_UNITS } from '../../src/utils/constants';
 
 /* eslint-disable max-len, no-underscore-dangle */
@@ -251,7 +252,7 @@ describe('DataUtil', () => {
     new Types.PumpSettings({
       deviceTime: '2018-02-03T04:00:00'
     })
-  ]
+  ];
 
   const data = [
     ...basalData,
@@ -786,18 +787,35 @@ describe('DataUtil', () => {
   describe('getCarbsData', () => {
     it('should return the total carbs from wizard and food data when viewing 1 day', () => {
       dataUtil.endpoints = dayEndpoints;
-      expect(dataUtil.getCarbsData()).to.eql({
-        carbs: 22,
+      const carbsData = dataUtil.getCarbsData();
+      const expected = {
+        nDays: 1,
+        wizardCarbs: 6,
+        foodCarbs: 16,
+        totalCarbs: 22,
+        totalCarbsPerDay: 22,
+        foodCarbsPerDay: 16,
+        wizardCarbsPerDay: 6,
         total: 5,
-      });
+      };
+
+      expect(carbsData, JSON.stringify({ carbsData, expected })).to.eql(expected);
     });
 
     it('should return the avg daily carbs from wizard and food data when viewing more than 1 day', () => {
       dataUtil.endpoints = twoDayEndpoints;
-      expect(dataUtil.getCarbsData()).to.eql({
-        carbs: 22.5,
+      const carbsData = dataUtil.getCarbsData();
+      const expected = {
+        nDays: 2,
+        wizardCarbs: 16,
+        foodCarbs: 29,
+        totalCarbs: 45,
+        totalCarbsPerDay: 22.5,
+        foodCarbsPerDay: 14.5,
+        wizardCarbsPerDay: 8,
         total: 7,
-      });
+      };
+      expect(carbsData, JSON.stringify({ carbsData, expected })).to.eql(expected);
     });
   });
 
@@ -1112,7 +1130,7 @@ describe('DataUtil', () => {
     it('should return the average glucose and standard deviation for cbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'cbg' };
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 132, 
+        averageGlucose: 132,
         insufficientData: false,
         total: 5,
         standardDeviation: 90.38805230781334,
@@ -1123,7 +1141,7 @@ describe('DataUtil', () => {
     it('should return the average glucose, standard deviation and cv by date for cbg data', () => {
       dataUtil.chartPrefs = { bgSource: 'cbg' };
       expect(dataUtil.getStandardDevData(true)).to.eql({
-        averageGlucose: 132, 
+        averageGlucose: 132,
         insufficientData: false,
         total: 5,
         standardDeviation: 90.38805230781334,
@@ -1137,7 +1155,7 @@ describe('DataUtil', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
       dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 136, 
+        averageGlucose: 136,
         insufficientData: false,
         total: 5,
         standardDeviation: 93.96807968666806,
@@ -1150,7 +1168,7 @@ describe('DataUtil', () => {
       dataUtil.chartPrefs = { bgSource: 'smbg' };
       dataUtil.endpoints = twoDayEndpoints;
       expect(dataUtil.getStandardDevData(true)).to.eql({
-        averageGlucose: 136, 
+        averageGlucose: 136,
         insufficientData: false,
         total: 5,
         standardDeviation: 93.96807968666806,
@@ -1163,7 +1181,7 @@ describe('DataUtil', () => {
     it('should return true for insufficientData when less than 3 datums available', () => {
       dataUtil = new DataUtil(smbgData.slice(0, 2), opts({ chartPrefs: { bgSource: 'smbg' } }));
       expect(dataUtil.getStandardDevData()).to.eql({
-        averageGlucose: 65, 
+        averageGlucose: 65,
         insufficientData: true,
         total: 2,
         standardDeviation: NaN,

@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 import moment from 'moment-timezone';
-import types from '../types';
+import * as types from '../types';
 import { THREE_HRS } from '../../src/utils/datetime';
 
 const days = [

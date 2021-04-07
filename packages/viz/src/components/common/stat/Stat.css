@@ -286,3 +286,28 @@ svg.statWheelTimeInAuto .offEllipse {
 .nobar-totalInsulin-bolus {
   color: var(--bolus-meal);
 }
+
+/* Simple widget with name / values only */
+.statLines {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.5em;
+  pointer-events: none;
+  color: var(--stat--default);
+}
+.statLines .statLineRowName {
+  font-weight: normal;
+  margin-right: auto;
+}
+.statLines .statLineRowValue {
+  display: inline;
+}
+.statLines .statLineRowValue .statLineRowValueString {
+  font-size: 24px;
+}
+.statLines .statLineRowUnits {
+  font-size: 12px;
+}
+.statLines .stats-line-carbs-food .statLineRowValueString {
+  color:rgb(114, 115, 117);
+}

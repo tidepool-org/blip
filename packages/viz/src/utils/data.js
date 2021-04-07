@@ -256,14 +256,16 @@ class DataUtil {
       0
     );
 
-    let carbs = wizardCarbs + foodCarbs;
-
-    if (this.days > 1) {
-      carbs = carbs / this.days;
-    }
+    const totalCarbs = wizardCarbs + foodCarbs;
 
     return {
-      carbs,
+      nDays: this.days,
+      wizardCarbs,
+      foodCarbs,
+      totalCarbs,
+      totalCarbsPerDay: totalCarbs / this.days,
+      foodCarbsPerDay: foodCarbs / this.days,
+      wizardCarbsPerDay: wizardCarbs / this.days,
       total: wizardData.length + foodData.length,
     };
   };

@@ -10,7 +10,6 @@ import sinon from 'sinon';
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import Stat from '../../../../src/components/common/stat/Stat';
 import StatLegend from '../../../../src/components/common/stat/StatLegend';
-import InputGroup from '../../../../src/components/common//controls/InputGroup';
 import styles from '../../../../src/components/common/stat/Stat.css';
 import colors from '../../../../src/styles/colors.css';
 import { statFormats, statTypes } from '../../../../src/utils/stat';
@@ -530,7 +529,7 @@ describe('Stat', () => {
       expect(collapseWrapper.dive().html()).to.include('fake renderer');
     });
   });
-  
+
   describe('renderCalculatedOutput', () => {
     let outputWrapper;
 
@@ -2090,11 +2089,16 @@ describe('Stat', () => {
 
     context('carbs format', () => {
       it('should return correctly formatted data when `value >= 0`', () => {
-        expect(instance.formatDatum({
+        const formatted = instance.formatDatum({
           value: 84.645,
-        }, statFormats.carbs)).to.include({
+          valueString: '85',
+          units: 'g',
+          id: 'carbs',
+        }, statFormats.carbs);
+        expect(formatted, JSON.stringify({ formatted })).to.include({
           suffix: 'g',
           value: '85',
+          id: 'carbs',
         });
       });
 

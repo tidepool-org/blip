@@ -21,6 +21,7 @@ import HoverBar from './HoverBar';
 import HoverBarLabel from './HoverBarLabel';
 import BgBar from './BgBar';
 import BgBarLabel from './BgBarLabel';
+import Lines from './Lines';
 import NoBar from './NoBar';
 import WheelPercent from './Wheel';
 import StatTooltip from '../tooltips/StatTooltip';
@@ -666,6 +667,13 @@ class Stat extends React.Component {
         chartProps.animate = false;
         break;
 
+      case 'lines':
+        chartProps.renderer = Lines;
+        chartProps.data = data.data;
+        chartProps.id = props.id;
+        chartProps.animate = false;
+        break;
+
       case 'simple':
       case 'input':
         break;
@@ -767,8 +775,8 @@ class Stat extends React.Component {
 
       case statFormats.carbs:
         if (value >= 0) {
-          value = formatDecimalNumber(value);
-          suffix = 'g';
+          value = datum.valueString;
+          suffix = datum.units;
         } else {
           disableStat();
         }

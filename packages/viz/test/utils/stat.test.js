@@ -37,6 +37,7 @@ describe('stat', () => {
         barHorizontal: 'barHorizontal',
         barBg: 'barBg',
         noBar: 'noBar',
+        lines: 'lines',
         wheel: 'wheel',
         input: 'input',
         simple: 'simple',
@@ -503,16 +504,36 @@ describe('stat', () => {
 
     it('should format and return `carbs` data', () => {
       const data = {
-        carbs: 30,
+        nDays: 1,
+        wizardCarbs: 6,
+        foodCarbs: 16,
+        totalCarbs: 22,
+        totalCarbsPerDay: 22,
+        foodCarbsPerDay: 16,
+        wizardCarbsPerDay: 6,
+        total: 5,
       };
 
       const statData = stat.getStatData(data, commonStats.carbs, opts);
-
-      expect(statData.data).to.eql([
+      const expected = [
         {
-          value: 30,
+          id: 'total-carbs',
+          value: 22,
+          valueString: '22',
+          units: 'g',
+          name: 'title',
+          displayLine: false,
         },
-      ]);
+        {
+          id: 'food',
+          value: 16,
+          valueString: '16',
+          units: 'g',
+          name: 'Rescuecarbs',
+          displayLine: true,
+        },
+      ];
+      expect(statData.data, JSON.stringify({ value: statData.data, expected })).to.eql(expected);
 
       expect(statData.dataPaths).to.eql({
         summary: 'data.0',
@@ -925,10 +946,20 @@ describe('stat', () => {
     });
 
     it('should define the `carbs` stat', () => {
+      const data = {
+        nDays: 1,
+        wizardCarbs: 6,
+        foodCarbs: 16,
+        totalCarbs: 22,
+        totalCarbsPerDay: 22,
+        foodCarbsPerDay: 16,
+        wizardCarbsPerDay: 6,
+        total: 5,
+      };
       const def = stat.getStatDefinition(data, commonStats.carbs, opts);
       expect(def).to.include.all.keys(commonStatProperties);
       expect(def.id).to.equal(commonStats.carbs);
-      expect(def.type).to.equal(statTypes.simple);
+      expect(def.type).to.equal(statTypes.lines);
       expect(def.dataFormat).to.eql({
         summary: statFormats.carbs,
       });

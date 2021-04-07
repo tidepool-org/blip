@@ -18,9 +18,10 @@
 /* eslint-disable max-len */
 
 import _ from 'lodash';
+import { expect } from 'chai';
 import { utcDay } from 'd3-time';
 import * as dataUtils from '../../../src/utils/basics/data';
-import Types from '../../../data/types';
+import * as Types from '../../../data/types';
 
 import {
   NO_CGM,
