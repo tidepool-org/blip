@@ -51,6 +51,8 @@ export const authApiHcp: AuthAPI = {
   updatePreferences: sinon.stub().resolves(authHcp.user.preferences),
   updateProfile: sinon.stub().resolves(authHcp.user.profile),
   updateSettings: sinon.stub().resolves(authHcp.user.settings),
+  updateUser: sinon.stub().resolves(),
+  refreshToken: sinon.stub().resolves(""),
 };
 
 export const authHookHcp: AuthContext = {
@@ -72,6 +74,7 @@ export const authHookHcp: AuthContext = {
   flagPatient: sinon.stub().resolves(),
   setFlagPatients: sinon.stub().resolves(),
   getFlagPatients: sinon.stub().returns([]),
+  switchRoleToHCP: sinon.stub().resolves(),
 };
 
 export function resetStubs(user: Readonly<User>, api: AuthAPI | null = null, context: AuthContext | null = null): void {

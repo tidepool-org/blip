@@ -33,6 +33,7 @@ import { APIErrorResponse } from "models/error";
 import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 
+import { errorFromHttpStatus } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
 import HttpStatus from "../http-status-codes";
@@ -375,7 +376,6 @@ async function sendAccountValidation(auth: Readonly<Session>, language = "en"): 
 }
 
 async function accountConfirmed(key: string, traceToken: string): Promise<boolean> {
-
   if (_.isEmpty(key)) {
     log.error("forbidden call to Account confirmation api, key is missing");
     throw new Error("error-http-40x");
@@ -505,6 +505,51 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
   throw new Error(t(responseBody.reason));
 }
 
+async function updateUser(auth: Readonly<Session>, updates: Partial<User>): Promise<void> {
+  const updateURL = new URL("/auth/user", appConfig.API_HOST);
+
+  log.debug("updateUser:", updateURL.toString());
+  const response = await fetch(updateURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.traceToken]: auth.traceToken,
+      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+    },
+    body: JSON.stringify({ updates }),
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
+async function refreshToken(auth: Readonly<Session>): Promise<string> {
+  const refreshURL = new URL("/auth/login", appConfig.API_HOST);
+
+  log.debug("refreshToken", refreshURL.toString());
+  const response = await fetch(refreshURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: auth.traceToken,
+      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
+    if (sessionToken === null) {
+      log.error("Token not found in response header!");
+      return Promise.reject(new Error("missing-token"));
+    }
+    return sessionToken;
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
 export default {
   login,
   requestPasswordReset,
@@ -515,4 +560,6 @@ export default {
   updateProfile,
   updatePreferences,
   updateSettings,
+  updateUser,
+  refreshToken,
 };

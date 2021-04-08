@@ -28,6 +28,7 @@ import Container from "@material-ui/core/Container";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
+import Link from "@material-ui/core/Link";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
@@ -39,13 +40,18 @@ import HomeIcon from "@material-ui/icons/Home";
 import { Units } from "../../models/generic";
 import { Preferences, Profile, UserRoles, Settings, User } from "../../models/shoreline";
 import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
-import { REGEX_BIRTHDATE, REGEX_EMAIL } from "../../lib/utils";
+import { REGEX_BIRTHDATE, REGEX_EMAIL, errorTextFromException } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import sendMetrics from "../../lib/metrics";
 import HeaderBar from "../../components/header-bars/primary";
 import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
+
+import SwitchRoleConsequencesDialog from "./switch-role-consequences-dialog";
+import SwitchRoleConsentDialog from "./switch-role-consent-dialog";
+
 interface Errors {
   firstName: boolean;
   name: boolean;
@@ -55,9 +61,18 @@ interface Errors {
   birthDate: boolean;
 }
 
+enum SwitchRoleToHcpSteps {
+  none,
+  consequences,
+  consent,
+  update, // Update in progress => backend API call
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    button: { margin: "2em 1em" },
+    button: {
+      marginLeft: "1em",
+    },
     formControl: { marginTop: "1em", minWidth: 120 },
     homeIcon: {
       marginRight: "0.5em",
@@ -122,7 +137,7 @@ export const ProfilePage: FunctionComponent = () => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const history = useHistory();
-  const { user, setUser, updatePreferences, updateProfile, updateSettings } = useAuth();
+  const { user, setUser, updatePreferences, updateProfile, updateSettings, switchRoleToHCP } = useAuth();
   const { openSnackbar, snackbarParams } = useSnackbar();
 
   const [firstName, setFirstName] = useState<string>("");
@@ -134,12 +149,18 @@ export const ProfilePage: FunctionComponent = () => {
   const [password, setPassword] = useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const [unit, setUnit] = useState<Units>(Units.gram);
-  const [role, setRole] = useState<UserRoles | null>(null);
   const [birthDate, setBirthDate] = useState<string>("");
   const [hbA1c, setHbA1c] = useState<Settings["a1c"] | null>(null);
   const [hasProfileChanged, setHasProfileChanged] = useState<boolean>(false);
   const [haveSettingsChanged, setHaveSettingsChanged] = useState<boolean>(false);
   const [havePreferencesChanged, setHavePreferencesChanged] = useState<boolean>(false);
+  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(SwitchRoleToHcpSteps.none);
+
+  if (user === null) {
+    throw new Error("User must be looged-in");
+  }
+
+  const role = user.role;
 
   const handleUserUpdate = useCallback(
     (promises: Promise<unknown>[], newUser: User, callbacks: React.Dispatch<React.SetStateAction<boolean>>[]): void => {
@@ -160,9 +181,6 @@ export const ProfilePage: FunctionComponent = () => {
     }
     if (user?.profile?.lastName) {
       setName(user.profile.lastName);
-    }
-    if (user?.role) {
-      setRole(user.role);
     }
     if (user?.emails && user.emails.length) {
       setMail(user.emails[0]);
@@ -198,6 +216,42 @@ export const ProfilePage: FunctionComponent = () => {
     }>
   ): void => {
     setUnit(event.target.value as Units);
+  };
+
+  const handleSwitchRoleToConsequences = () => {
+    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consequences });
+    setSwitchRoleStep(SwitchRoleToHcpSteps.consequences);
+  };
+  const handleSwitchRoleToConditions = (accept: boolean): void => {
+    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consent, cancel: !accept });
+    if (accept) {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.consent);
+    } else {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
+    }
+  };
+  const handleSwitchRoleToUpdate = (accept: boolean): void => {
+    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.update, cancel: !accept });
+    if (accept) {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.update);
+
+      switchRoleToHCP()
+        .then(() => {
+          sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.update, success: true });
+        })
+        .catch((reason: unknown) => {
+          openSnackbar({ message: t("modal-switch-hcp-failure"), severity: AlertSeverity.error });
+          sendMetrics("user-switch-role", {
+            from: role,
+            to: "hcp",
+            step: SwitchRoleToHcpSteps.update,
+            success: false,
+            error: errorTextFromException(reason),
+          });
+        });
+    } else {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
+    }
   };
 
   const errors: Errors = useMemo(
@@ -256,7 +310,7 @@ export const ProfilePage: FunctionComponent = () => {
               fullName: firstName + " " + name,
               firstName,
               lastName: name,
-              patient: { birthday: birthDate }
+              patient: { birthday: birthDate },
             }
           : user.profile,
       };
@@ -309,11 +363,11 @@ export const ProfilePage: FunctionComponent = () => {
       <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
-          <DialogTitle className={classes.title} id="account-preferences-title">
+          <DialogTitle className={classes.title} id="profile-title">
             {t("hcp-account-preferences-title")}
           </DialogTitle>
           <TextField
-            id="firstName"
+            id="profile-textfield-firstname"
             label={t("First name")}
             value={firstName}
             onChange={handleChange(setFirstName)}
@@ -322,7 +376,7 @@ export const ProfilePage: FunctionComponent = () => {
             className={classes.textField}
           />
           <TextField
-            id="lastName"
+            id="profile-textfield-lastname"
             label={t("Last name")}
             value={name}
             onChange={handleChange(setName)}
@@ -334,7 +388,7 @@ export const ProfilePage: FunctionComponent = () => {
           {role !== UserRoles.patient ? (
             <Fragment>
               <TextField
-                id="mail"
+                id="profile-textfield-mail"
                 label={t("Email")}
                 value={mail}
                 disabled
@@ -344,7 +398,7 @@ export const ProfilePage: FunctionComponent = () => {
                 className={classes.textField}
               />
               <Password
-                id="password"
+                id="profile-textfield-password"
                 label="password"
                 value={password}
                 error={errors.password}
@@ -352,7 +406,7 @@ export const ProfilePage: FunctionComponent = () => {
                 setState={setPassword}
               />
               <Password
-                id="passwordConfirmation"
+                id="profile-textfield-password-confirmation"
                 label="confirm-password"
                 value={passwordConfirmation}
                 error={errors.passwordConfirmation}
@@ -363,7 +417,7 @@ export const ProfilePage: FunctionComponent = () => {
           ) : (
             <Fragment>
               <TextField
-                id="birthDate"
+                id="profile-textfield-birthdate"
                 label={t("hcp-patient-profile-birthdate")}
                 value={birthDate}
                 onChange={handleChange(setBirthDate)}
@@ -382,30 +436,30 @@ export const ProfilePage: FunctionComponent = () => {
             </Fragment>
           )}
           <FormControl className={classes.formControl}>
-            <InputLabel id="units-input-label">{t("units")}</InputLabel>
+            <InputLabel id="profile-units-input-label">{t("units")}</InputLabel>
             <Select
               disabled={role === UserRoles.patient}
               labelId="unit-selector"
-              id="unit-selector"
+              id="profile-units-selector"
               value={unit}
               onChange={handleUnitChange}>
-              <MenuItem value={Units.mole}>{Units.mole}</MenuItem>
-              <MenuItem value={Units.gram}>{Units.gram}</MenuItem>
+              <MenuItem id="profile-units-mmoll" value={Units.mole}>{Units.mole}</MenuItem>
+              <MenuItem id="profile-units-mgdl" value={Units.gram}>{Units.gram}</MenuItem>
             </Select>
           </FormControl>
           <FormControl className={classes.formControl}>
-            <InputLabel id="language-input-label">{t("Language")}</InputLabel>
-            <Select labelId="locale-selector" id="locale-selector" value={locale} onChange={handleLocaleChange}>
+            <InputLabel id="profile-language-input-label">{t("Language")}</InputLabel>
+            <Select labelId="locale-selector" id="profile-locale-selector" value={locale} onChange={handleLocaleChange}>
               {availableLocales.map((locale) => (
-                <MenuItem key={locale} value={locale}>
+                <MenuItem id={`profile-locale-item-${locale}`} key={locale} value={locale}>
                   {locale}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", margin: "2em 0em" }}>
             <Button
-              id="button-cancel-profile"
+              id="profile-button-cancel"
               variant="contained"
               color="secondary"
               onClick={onCancel}
@@ -413,7 +467,7 @@ export const ProfilePage: FunctionComponent = () => {
               {t("common-cancel")}
             </Button>
             <Button
-              id="button-save-profile"
+              id="profile-button-save"
               variant="contained"
               disabled={(!hasProfileChanged && !haveSettingsChanged && !havePreferencesChanged) || isAnyError}
               color="primary"
@@ -422,8 +476,18 @@ export const ProfilePage: FunctionComponent = () => {
               {t("save")}
             </Button>
           </div>
+          {UserRoles.caregiver === role ? (
+            <Link id="profile-link-switch-role" component="button" onClick={handleSwitchRoleToConsequences}>
+              {t("modal-switch-hcp-title")}
+            </Link>
+          ) : null}
         </div>
       </Container>
+      <SwitchRoleConsequencesDialog
+        open={switchRoleStep === SwitchRoleToHcpSteps.consequences}
+        onResult={handleSwitchRoleToConditions}
+      />
+      <SwitchRoleConsentDialog open={switchRoleStep === SwitchRoleToHcpSteps.consent} onResult={handleSwitchRoleToUpdate} />
     </Fragment>
   );
 };

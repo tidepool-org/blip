@@ -46,6 +46,8 @@ export interface AuthAPI {
   updateProfile: (auth: Readonly<Session>) => Promise<Profile>;
   updatePreferences: (auth: Readonly<Session>) => Promise<Preferences>;
   updateSettings: (auth: Readonly<Session>) => Promise<Settings>;
+  updateUser: (auth: Readonly<Session>, updates: Partial<User>) => Promise<void>;
+  refreshToken: (auth: Readonly<Session>) => Promise<string>;
 }
 
 /**
@@ -72,6 +74,8 @@ export interface AuthContext {
   /** Set the flagged patient */
   setFlagPatients: (userIds: string[]) => Promise<void>;
   getFlagPatients: () => string[];
+  /** Switch user role from caregiver to hcp */
+  switchRoleToHCP: () => Promise<void>;
 }
 
 export interface AuthProvider {

@@ -273,15 +273,34 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     return response;
   };
 
-  const resetPassword = async (key: string | null, username: string, password: string): Promise<boolean> => {
-
+  const resetPassword = (key: string | null, username: string, password: string): Promise<boolean> => {
     if (traceToken === null) {
       throw new Error("not-yet-initialized");
     }
+    return api.resetPassword(key, username, password, traceToken);
+  };
 
-    const response = await api.resetPassword(key, username, password, traceToken);
+  const switchRoleToHCP = async (): Promise<void> => {
+    const authInfo = await getAuthInfos();
+    if (authInfo.user.role !== UserRoles.caregiver) {
+      throw new Error("invalid-user-role");
+    }
 
-    return response;
+    await api.updateUser(authInfo, { role: UserRoles.hcp });
+
+    // Ask for a new token with the updated role
+    const newToken = await api.refreshToken(authInfo);
+    const tokenInfos = jwtDecode<JwtShorelinePayload>(newToken);
+    // Check we have the new role
+    if (tokenInfos.role !== UserRoles.hcp) {
+      throw new Error("Role change is not effective");
+    }
+    // Refresh our data:
+    const updatedUser: User = { ...authInfo.user, role: UserRoles.hcp };
+    sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, newToken);
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    setSessionToken(newToken);
   };
 
   const initHook = () => {
@@ -385,6 +404,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     flagPatient,
     setFlagPatients,
     getFlagPatients,
+    switchRoleToHCP,
   };
 }
 
