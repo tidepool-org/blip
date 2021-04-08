@@ -461,6 +461,7 @@
   "Passwords don't match.": "Las contraseñas no coinciden.",
   "Patient List": "Lista de pacientes",
   "Personal Account": "Cuenta personal",
+  "pdf-footer-center-text": "Diabeloop - {{appURL}}",
   "Physical Activity": "Actividad física",
   "Physician Assistant": "Asistente",
   "Please choose a preferred site change source from the 'Basics' web view to view this data.": "Please choose a preferred site change source from the 'Basics' web view to view this data.",

@@ -461,6 +461,7 @@
   "Passwords don't match.": "Wachtwoorden komen niet overeen.",
   "Patient List": "Patiëntenlijst",
   "Personal Account": "Persoonlijk account",
+  "pdf-footer-center-text": "Diabeloop - {{appURL}}",
   "Physical Activity": "Sportactiviteit",
   "Physician Assistant": "Assistent",
   "Please choose a preferred site change source from the 'Basics' web view to view this data.": "Please choose a preferred site change source from the 'Basics' web view to view this data.",
