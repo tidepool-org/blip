@@ -1128,8 +1128,8 @@ export const PatientDataClass = createReactClass({
     return _.get(this.props, `data.data.current.${path}`, emptyValue);
   },
 
-  getMetaData: function(path, emptyValue = {}) {
-    return _.get(this.props, `data.metaData.${path}`, emptyValue);
+  getMetaData: function(path, emptyValue = {}, props = this.props) {
+    return _.get(props, `data.metaData.${path}`, emptyValue);
   },
 
   getBasicsAggregations: function() {
@@ -1309,6 +1309,7 @@ export const PatientDataClass = createReactClass({
     const defaultQuery = {
       metaData: [
         'bgSources',
+        'excludedDevices',
         'latestDatumByType',
         'latestPumpUpload',
         'patientId',
@@ -1412,8 +1413,9 @@ export const PatientDataClass = createReactClass({
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
           timePrefs,
+          excludedDevices: undefined,
           bgPrefs,
         });
       }
@@ -1542,7 +1544,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices',
+      metaData: 'bgSources,devices,excludedDevices',
     });
 
     if (this.state.queryingData) return;
@@ -1683,6 +1685,7 @@ export const PatientDataClass = createReactClass({
     const uploads = _.get(props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
+    const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
@@ -1712,6 +1715,7 @@ export const PatientDataClass = createReactClass({
         basics: { ...this.state.chartPrefs.basics, bgSource },
         daily: { ...this.state.chartPrefs.daily, bgSource },
         trends: { ...this.state.chartPrefs.trends, bgSource },
+        excludedDevices,
       }, false);
 
       this.updateChart(chartType, datetimeLocation, endpoints);
