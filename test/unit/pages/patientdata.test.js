@@ -2291,7 +2291,8 @@ describe('PatientData', function () {
                 select: 'id,deviceId,deviceTags',
               },
             },
-            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+            excludedDevices: undefined,
             timePrefs: sinon.match.object,
             bgPrefs: sinon.match.object,
           });
@@ -2683,7 +2684,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {

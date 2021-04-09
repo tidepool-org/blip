@@ -1414,8 +1414,8 @@ export const PatientDataClass = createReactClass({
             },
           },
           metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
-          timePrefs,
           excludedDevices: undefined,
+          timePrefs,
           bgPrefs,
         });
       }
