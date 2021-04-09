@@ -114,7 +114,7 @@ function TeamCodeDialog(props: TeamCodeDialogProps): JSX.Element {
           id="patient-list-dialog-team-code-button-ok"
           onClick={onClose}
           className={buttonsClasses.buttonCancel}
-          color="secondary"
+          color="primary"
           variant="contained">
           {t("common-ok")}
         </Button>

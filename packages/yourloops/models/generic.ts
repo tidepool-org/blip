@@ -31,6 +31,7 @@ enum SortDirection {
 enum SortFields {
   lastname = "lastname",
   firstname = "firstname",
+  email = "email",
 }
 enum UserInvitationStatus {
   pending = "pending",

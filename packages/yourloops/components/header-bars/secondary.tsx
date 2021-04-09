@@ -46,7 +46,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
     toolBar: {
       display: "grid",
       gridTemplateRows: "auto",
-      gridTemplateColumns: "auto auto auto",
+      gridTemplateColumns: "1fr 1fr 1fr",
       paddingLeft: theme.spacing(12), // eslint-disable-line no-magic-numbers
       paddingRight: theme.spacing(12), // eslint-disable-line no-magic-numbers
     },

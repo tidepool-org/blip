@@ -43,6 +43,8 @@ export interface PatientFiltersProps {
   filter: string;
   filterType: FilterType | string;
   optionsFilterElements: JSX.Element[];
+  /** If true the filter drop down menu is not displayed */
+  noFilter?: boolean;
   onFilter: (text: string) => void;
   onFilterType: (filterType: FilterType | string) => void;
 }
@@ -138,7 +140,7 @@ const filtersStyles = makeStyles((theme: Theme) => {
 function PatientFilters(props: PatientFiltersProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const classes = filtersStyles();
-  const { filter, filterType, optionsFilterElements, onFilter, onFilterType } = props;
+  const { filter, filterType, optionsFilterElements, noFilter, onFilter, onFilterType } = props;
 
   const handleFilterPatients = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     onFilter(e.target.value);
@@ -147,8 +149,9 @@ function PatientFilters(props: PatientFiltersProps): JSX.Element {
     onFilterType(e.target.value as string);
   };
 
-  return (
-    <React.Fragment>
+  let filterForm = null;
+  if (noFilter !== true) {
+    filterForm = (
       <FormControl color="primary" className={classes.formControl}>
         <Select
           id="select-patient-list-filtertype"
@@ -161,6 +164,12 @@ function PatientFilters(props: PatientFiltersProps): JSX.Element {
           {optionsFilterElements}
         </Select>
       </FormControl>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      {filterForm}
       <div className={classes.search}>
         <div className={classes.searchIcon}>
           <SearchIcon />

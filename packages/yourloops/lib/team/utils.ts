@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Teams management & helpers
+ * Teams utility functions
  *
  * All rights reserved.
  *
@@ -25,38 +25,23 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import {
-  Team,
-  TeamAPI,
-  TeamContext,
-  TeamMember,
-  TeamProvider,
-  TeamUser,
-  TEAM_CODE_LENGTH,
-  REGEX_TEAM_CODE,
-  REGEX_TEAM_CODE_DISPLAY,
-} from "./models";
 
-import {
-  TeamContextProvider,
-  loadTeams,
-  useTeam,
-} from "./hook";
+import { TEAM_CODE_LENGTH } from "./models";
 
-import { getDisplayTeamCode } from "./utils";
-
-export {
-  Team,
-  TeamAPI,
-  TeamUser,
-  TeamMember,
-  TeamContext,
-  TeamProvider,
-  TeamContextProvider,
-  loadTeams,
-  useTeam,
-  getDisplayTeamCode,
-  TEAM_CODE_LENGTH,
-  REGEX_TEAM_CODE,
-  REGEX_TEAM_CODE_DISPLAY,
-};
+/**
+ * Get the team code for display - Can be use with partial code.
+ * @param code 9 digit string team code
+ * @returns `123 - 456 - 789`
+ */
+export function getDisplayTeamCode(code: string): string {
+  const SEP_POS = [2, 5]; // eslint-disable-line no-magic-numbers
+  let displayCode = "";
+  const codeLen = Math.min(code.length, TEAM_CODE_LENGTH);
+  for (let i = 0 | 0; i < codeLen; i++) {
+    displayCode += code[i];
+    if (SEP_POS.includes(i) && i + 1 < codeLen) {
+      displayCode += " - ";
+    }
+  }
+  return displayCode;
+}

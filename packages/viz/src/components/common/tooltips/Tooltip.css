@@ -42,8 +42,13 @@
 
 .titleContent {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: flex-start;
+  width: 100%;
+}
+.titleDate {
+  margin-right: auto;
 }
 
 .tail {

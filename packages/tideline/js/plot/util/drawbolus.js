@@ -129,9 +129,7 @@ function drawBolus(pool, opts = {}) {
           r: (d) => yScaleCarbs(d.carbInput),
           'stroke-width': 0,
           'class': 'd3-circle-carbs d3-carbs',
-          id: function(d) {
-            return 'carbs_' + d.id;
-          }
+          id: (d) => `carbs_circle_${d.id}`,
         });
 
       carbs.append('text')
@@ -139,7 +137,8 @@ function drawBolus(pool, opts = {}) {
         .attr({
           x: xPos,
           y: yPos,
-          'class': 'd3-carbs-text'
+          'class': 'd3-carbs-text',
+          id: (d) => `carbs_text_${d.id}`,
         });
     },
     bolus: function(boluses) {
@@ -156,7 +155,7 @@ function drawBolus(pool, opts = {}) {
           },
           height: (d) => top - opts.yScale(commonbolus.getDelivered(d)),
           'class': (b) => bolusClass(b, 'd3-bolus d3-rect-bolus'),
-          id: (d) => `bolus_${commonbolus.getBolus(d)}`,
+          id: (d) => `bolus_${commonbolus.getBolus(d).id}`,
         });
     },
     undelivered: function(undelivered) {

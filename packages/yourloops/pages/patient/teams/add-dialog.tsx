@@ -32,17 +32,20 @@ import { Trans, useTranslation } from "react-i18next";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import FormControl from "@material-ui/core/FormControl";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import InputLabel from "@material-ui/core/InputLabel";
 import Link from "@material-ui/core/Link";
 import TextField from "@material-ui/core/TextField";
 
-import { useTeam, Team } from "../../../lib/team";
+import { useTeam, Team, getDisplayTeamCode, REGEX_TEAM_CODE_DISPLAY } from "../../../lib/team";
 import diabeloopUrl from "../../../lib/diabeloop-url";
 import { makeButtonsStyles } from "../../../components/theme";
 import { AddTeamDialogContentProps } from "./types";
@@ -68,11 +71,37 @@ export interface DisplayErrorMessageProps {
 }
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-buttons" });
-const leaveTeamDialogClasses = makeStyles(
+const addTeamDialogClasses = makeStyles(
   (theme: Theme) => {
     return {
+      dialogCodeContent: {
+        display: "flex",
+        flexDirection: "column",
+        marginBottom: theme.spacing(4),
+        marginTop: theme.spacing(2),
+        width: "22rem",
+      },
+      dialogCodeTitle: {
+        textAlign: "center",
+      },
       buttonCancel: {
         marginRight: theme.spacing(2),
+      },
+      formControl: {
+        marginBottom: theme.spacing(2),
+      },
+      labelTeamCode: {
+        marginBottom: theme.spacing(2),
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
+      divTeamCodeField: {
+        marginLeft: "auto",
+        marginRight: "auto",
+        width: "8em",
+      },
+      checkboxPrivacy: {
+        marginBottom: "auto",
       },
     };
   },
@@ -108,13 +137,11 @@ function DisplayErrorMessage(props: DisplayErrorMessageProps): JSX.Element {
 }
 
 export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JSX.Element {
-  const MAX_CODE_LEN = 9;
-  const SEP_POS = [2, 5]; // eslint-disable-line no-magic-numbers
   const { t } = useTranslation("yourloops");
-  const dialogClasses = leaveTeamDialogClasses();
+  const classes = addTeamDialogClasses();
   const buttonClasses = makeButtonsClasses();
+  const inputRef = React.createRef<HTMLInputElement>();
   const [idCode, setIdCode] = React.useState("");
-  const reIdCode = /^[0-9]{3} - [0-9]{3} - [0-9]{3}$/;
 
   const getNumericCode = (value: string): string => {
     let numericCode = "";
@@ -128,14 +155,7 @@ export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JS
 
   const handleChangeCode = (event: React.ChangeEvent<HTMLInputElement>) => {
     const numericCode = getNumericCode(event.target.value);
-    let displayCode = "";
-    const codeLen = Math.min(numericCode.length, MAX_CODE_LEN);
-    for (let i = 0 | 0; i < codeLen; i++) {
-      displayCode += numericCode[i];
-      if (SEP_POS.includes(i) && i + 1 < codeLen) {
-        displayCode += " - ";
-      }
-    }
+    const displayCode = getDisplayTeamCode(numericCode);
     setIdCode(displayCode);
   };
 
@@ -143,26 +163,34 @@ export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JS
     props.handleSetIdCode(getNumericCode(idCode));
   };
 
-  const buttonJoinDisabled = idCode.match(reIdCode) === null;
+  const buttonJoinDisabled = idCode.match(REGEX_TEAM_CODE_DISPLAY) === null;
+
+  React.useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [inputRef]);
 
   return (
     <React.Fragment>
-      <DialogTitle id="team-add-dialog-title">
+      <DialogTitle id="team-add-dialog-title" className={classes.dialogCodeTitle}>
         <strong>{t("modal-add-medical-team")}</strong>
       </DialogTitle>
 
-      <DialogContent>
-        <InputLabel color="primary" id="team-add-dialog-label-code" htmlFor="team-add-dialog-field-code">
+      <DialogContent id="team-add-dialog-content" className={classes.dialogCodeContent}>
+        <InputLabel color="primary" id="team-add-dialog-label-code" htmlFor="team-add-dialog-field-code" className={classes.labelTeamCode}>
           {t("modal-add-medical-team-code")}
         </InputLabel>
-        <TextField id="team-add-dialog-field-code" value={idCode} onChange={handleChangeCode} />
+        <div id="team-add-dialog-field-code-parent" className={classes.divTeamCodeField}>
+          <TextField id="team-add-dialog-field-code" value={idCode} onChange={handleChangeCode} fullWidth inputRef={inputRef}/>
+        </div>
       </DialogContent>
 
       <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
         <Button
           id="team-add-dialog-button-cancel"
           onClick={props.handleClose}
-          className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
+          className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
           {t("common-cancel")}
@@ -172,7 +200,8 @@ export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JS
           onClick={handleClickJoinTeam}
           disabled={buttonJoinDisabled}
           className={buttonClasses.buttonOk}
-          variant="contained">
+          variant="contained"
+          color="primary">
           {t("button-add-team")}
         </Button>
       </DialogActions>
@@ -182,8 +211,9 @@ export function EnterIdentificationCode(props: EnterIdentificationCodeProps): JS
 
 export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
   const { t, i18n } = useTranslation("yourloops");
-  const dialogClasses = leaveTeamDialogClasses();
+  const classes = addTeamDialogClasses();
   const buttonClasses = makeButtonsClasses();
+  const [privacyAccepted, setPrivacyAccepted] = React.useState(false);
 
   const { address } = props.team;
   let teamAddress: JSX.Element | null = null;
@@ -200,11 +230,25 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
     );
   }
 
+  const handleChange = (/* event: React.ChangeEvent<HTMLInputElement> */) => {
+    setPrivacyAccepted(!privacyAccepted);
+  };
+
   const privacyPolicy = t("footer-link-url-privacy-policy");
   const linkPrivacyPolicy = (
     <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
       {privacyPolicy}
     </Link>
+  );
+  const checkboxPrivacy = (
+    <Checkbox
+      id="team-add-dialog-confirm-team-privacy-checkbox-policy"
+      checked={privacyAccepted}
+      onChange={handleChange}
+      name="policy"
+      color="primary"
+      className={classes.checkboxPrivacy}
+    />
   );
 
   return (
@@ -228,9 +272,14 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
           <strong>{t("modal-patient-team-warning")}</strong>
         </DialogContentText>
 
-        <DialogContentText id="team-add-dialog-confirm-team-privacy" color="textPrimary">
-          {t("modal-patient-share-team-privacy")}
-        </DialogContentText>
+        <FormControl className={classes.formControl}>
+          <FormControlLabel
+            id="team-add-dialog-confirm-team-privacy"
+            control={checkboxPrivacy}
+            label={t("modal-patient-share-team-privacy")}
+            color="textPrimary"
+          />
+        </FormControl>
 
         <DialogContentText id="team-add-dialog-config-team-privacy-read-link" color="textPrimary">
           <Trans
@@ -248,16 +297,18 @@ export function ConfirmTeam(props: ConfirmTeamProps): JSX.Element {
         <Button
           id="team-add-dialog-confirm-team-button-cancel"
           onClick={props.handleClose}
-          className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
+          className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
           color="secondary"
           variant="contained">
           {t("common-cancel")}
         </Button>
         <Button
           id="team-add-dialog-confirm-team-button-add-team"
+          disabled={!privacyAccepted}
           onClick={props.handleAccept}
           className={buttonClasses.buttonOk}
-          variant="contained">
+          variant="contained"
+          color="primary">
           {t("button-add-medical-team")}
         </Button>
       </DialogActions>

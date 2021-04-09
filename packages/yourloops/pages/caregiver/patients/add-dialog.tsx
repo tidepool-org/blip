@@ -166,7 +166,8 @@ function AddDialog(props: AddDialogProps): JSX.Element {
           onClick={handleClickAdd}
           disabled={buttonAddDisabled}
           className={buttonsClasses.buttonOk}
-          variant="contained">
+          variant="contained"
+          color="primary">
           {t("button-invite")}
         </Button>
       </DialogActions>

@@ -162,30 +162,19 @@ class Tooltip extends React.PureComponent {
       renderedTitle =<span>{title}</span>;
     }
     if (dateTitle) {
-      let titleNode = null;
+      let dateValue = null;
       if (dateTitle.source === 'Diabeloop') {
         // For diabeloop device, use the timezone of the object
         const { timezoneName } = dateTitle.timePrefs;
-        const mNormalTime = moment.tz(dateTitle.normalTime, dateTitle.timezone);
-        const mNormalTimeGlobalTimezone = moment.tz(dateTitle.normalTime, timezoneName);
-        // const timelineTimezone = getTimezoneFromTimePrefs(dateTitle.timePrefs);
-        let displayOffset = null;
-        if (mNormalTimeGlobalTimezone.utcOffset() !== mNormalTime.utcOffset()) {
-          // Not the same offset than the current one
-          displayOffset = ` UTC${mNormalTime.format('Z')}`;
-        }
-        titleNode = (
-          <React.Fragment>
-            {mNormalTime.format(getHourMinuteFormat())}
-            {displayOffset}
-          </React.Fragment>
-        );
+        const { timezone: datumTimezone } = dateTitle;
+        const mNormalTime = moment.tz(dateTitle.normalTime, datumTimezone === 'UTC' ? timezoneName : datumTimezone);
+        dateValue = mNormalTime.format(getHourMinuteFormat());
       } else {
         // eslint-disable-next-line max-len
         const time = formatLocalizedFromUTC(dateTitle.normalTime, dateTitle.timePrefs, getHourMinuteFormat());
-        titleNode = time;
+        dateValue = time;
       }
-      renderedDateTitle = <span>{titleNode}</span>;
+      renderedDateTitle = <span className={styles.titleDate}>{dateValue}</span>;
     }
 
     if (renderedDateTitle === null && renderedTitle === null) {

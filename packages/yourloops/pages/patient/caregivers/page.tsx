@@ -75,6 +75,7 @@ function PatientCaregiversPage(): JSX.Element {
         await addDirectShare(session, email);
         openSnackbar({ message: t("modal-patient-add-caregiver-success"), severity: AlertSeverity.success });
         sendMetrics("patient-add-caregiver", { added: true });
+        setCaregivers(null); // Refresh the list
       } catch (reason) {
         log.error(reason);
         openSnackbar({ message: t("modal-patient-add-caregiver-failure"), severity: AlertSeverity.error });
@@ -100,6 +101,7 @@ function PatientCaregiversPage(): JSX.Element {
         await removeDirectShare(session, us.user.userid);
         openSnackbar({ message: t("modal-patient-remove-caregiver-success"), severity: AlertSeverity.success });
         sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid });
+        setCaregivers(null); // Refresh the list
       } catch (reason) {
         log.error(reason);
         openSnackbar({ message: t("modal-patient-remove-caregiver-failure"), severity: AlertSeverity.error });

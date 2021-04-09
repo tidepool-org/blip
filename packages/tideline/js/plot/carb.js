@@ -62,9 +62,7 @@ function plotCarb(pool, opts) {
         },
         'stroke-width': 0,
         class: 'd3-circle-rescuecarbs',
-        id: function(d) {
-          return 'carbs_' + d.id;
-        }
+        id: (d) => `carbs_circle_${d.id}`,
       });
 
       carbGroup
@@ -75,7 +73,8 @@ function plotCarb(pool, opts) {
         .attr({
           x: xPos,
           y: yPos,
-          class: 'd3-carbs-text'
+          class: 'd3-carbs-text',
+          id: (d) => `carbs_text_${d.id}`,
         });
 
       allCarbs.exit().remove();

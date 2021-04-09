@@ -38,6 +38,10 @@ import {
 } from "../../models/team";
 import { Session } from "../auth";
 
+export const TEAM_CODE_LENGTH = 9;
+export const REGEX_TEAM_CODE = /^[0-9]{9}$/;
+export const REGEX_TEAM_CODE_DISPLAY = /^[0-9]{3} - [0-9]{3} - [0-9]{3}$/;
+
 export interface TeamUser extends User {
   members: TeamMember[];
 }

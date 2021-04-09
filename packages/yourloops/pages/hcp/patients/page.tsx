@@ -42,7 +42,7 @@ import sendMetrics from "../../../lib/metrics";
 import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { Snackbar } from "../../../components/utils/snackbar";
 import { useAuth } from "../../../lib/auth";
-import { errorTextFromException, getUserFirstName, getUserLastName } from "../../../lib/utils";
+import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../../lib/utils";
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
 import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
@@ -69,6 +69,10 @@ function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
   case SortFields.lastname:
     aValue = getUserLastName(a);
     bValue = getUserLastName(b);
+    break;
+  case SortFields.email: // Not used for HCP, but to make typescript happy
+    aValue = getUserEmail(a);
+    bValue = getUserEmail(b);
     break;
   }
 

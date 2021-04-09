@@ -42,7 +42,7 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
-import DeleteIcon from "@material-ui/icons/Delete";
+import PersonRemoveIcon from "../../../components/icons/PersonRemoveIcon";
 
 import { UserInvitationStatus } from "../../../models/generic";
 import { ShareUser } from "../../../lib/share";
@@ -155,7 +155,7 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
           <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
             <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
               <IconButton aria-label={removeAction} size="small" onClick={handleClickDelete}>
-                <DeleteIcon color="primary" />
+                <PersonRemoveIcon color="primary" />
               </IconButton>
             </Tooltip>
           </TableCell>
@@ -170,7 +170,7 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
         <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
           <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
             <IconButton aria-label={removeAction} size="small" onClick={handleClickDelete}>
-              <DeleteIcon color="primary" />
+              <PersonRemoveIcon color="primary" />
             </IconButton>
           </Tooltip>
         </TableCell>

@@ -39,7 +39,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { User, UserRoles } from "../../../models/shoreline";
-import { getUserFirstName, getUserLastName, errorTextFromException } from "../../../lib/utils";
+import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException } from "../../../lib/utils";
 import sendMetrics from "../../../lib/metrics";
 import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { useAuth } from "../../../lib/auth";
@@ -84,6 +84,10 @@ function doCompare(a: ShareUser, b: ShareUser, orderBy: SortFields): number {
   case SortFields.lastname:
     aValue = getUserLastName(a.user);
     bValue = getUserLastName(b.user);
+    break;
+  case SortFields.email:
+    aValue = getUserEmail(a.user);
+    bValue = getUserEmail(b.user);
     break;
   }
 

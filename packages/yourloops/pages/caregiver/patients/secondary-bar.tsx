@@ -76,6 +76,7 @@ const pageBarStyles = makeStyles((theme: Theme) => {
     },
     buttonAddPatient: {
       marginLeft: "auto",
+      display: "none", // For now caregivers can't invite a patient
     },
     modalAddPatient: {
       display: "flex",
@@ -154,6 +155,7 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
           filterType={filterType}
           onFilter={onFilter}
           onFilterType={onFilterType}
+          noFilter={true}
           optionsFilterElements={optionsFilterElements}
         />
       </div>

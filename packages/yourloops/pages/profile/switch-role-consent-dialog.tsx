@@ -46,6 +46,9 @@ const dialogStyles = makeStyles(
         marginBottom: theme.spacing(2),
         color: theme.palette.text.secondary,
       },
+      checkbox: {
+        marginBottom: "auto",
+      },
       buttonCancel: {
         marginRight: theme.spacing(2),
       },
@@ -86,6 +89,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
   const checkboxPolicy = (
     <Checkbox
       id="switch-role-consequences-dialog-checkbox-policy"
+      className={classes.checkbox}
       checked={policyAccepted}
       onChange={handleChange}
       name="policy"
@@ -95,6 +99,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
   const checkboxTerms = (
     <Checkbox
       id="switch-role-consequences-dialog-checkbox-terms"
+      className={classes.checkbox}
       checked={termsAccepted}
       onChange={handleChange}
       name="terms"
@@ -172,6 +177,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
           onClick={handleAccept}
           className={buttonsClasses.buttonOk}
           variant="contained"
+          color="primary"
           disabled={!(policyAccepted && termsAccepted)}>
           {t("button-accept")}
         </Button>

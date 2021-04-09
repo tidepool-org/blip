@@ -504,7 +504,7 @@ class Daily extends React.Component {
     return datum;
   }
 
-  handleTooltipOut = () => this.setState({ tooltip: null });
+  handleTooltipOut = () => this.setState({ tooltip: null }); // Tips for debug use: _.noop;
 
   handleBolusHover = (datum) => {
     this.updateDatumHoverForTooltip(datum);

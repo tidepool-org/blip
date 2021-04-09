@@ -69,7 +69,7 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleDialogProps): JSX.Element
         <DialogContentText id="modal-switch-hcp-info-2">
           <strong>{t("modal-switch-hcp-info-2")}</strong>
         </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-list-3" component={'div'}>
+        <DialogContentText id="modal-switch-hcp-info-list-3" component={"div"}>
           <span id="modal-switch-hcp-info-3">{t("modal-switch-hcp-info-3")}</span>
           <ul className={classes.switchList}>
             <li id="modal-switch-hcp-list-1">{t("modal-switch-hcp-list-1")}</li>
@@ -89,7 +89,12 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleDialogProps): JSX.Element
           variant="contained">
           {t("common-cancel")}
         </Button>
-        <Button id="switch-role-consequences-dialog-button-ok" onClick={handleAccept} className={buttonsClasses.buttonOk} variant="contained">
+        <Button
+          id="switch-role-consequences-dialog-button-ok"
+          onClick={handleAccept}
+          className={buttonsClasses.buttonOk}
+          variant="contained"
+          color="primary">
           {t("modal-switch-hcp-action")}
         </Button>
       </DialogActions>

@@ -152,7 +152,7 @@ function LeaveTeamDialogContent(props: LeaveTeamDialogElementsProps): JSX.Elemen
 
 function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Element | null {
   const { team, onlyMember, userIsTheOnlyAdministrator, buttonsDisabled, handleClose, handleLeaveTeam } = props;
-  const dialogClasses = leaveTeamDialogClasses();
+  const classes = leaveTeamDialogClasses();
   const buttonClasses = makeButtonsClasses();
 
   const { t } = useTranslation("yourloops");
@@ -180,7 +180,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         id="team-leave-dialog-button-cancel"
         onClick={handleClose}
         disabled={buttonsDisabled}
-        className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
+        className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
         color="secondary"
         variant="contained">
         {t("common-cancel")}
@@ -201,7 +201,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
   } else {
     buttonOK = (
       <Button
-        className={buttonClasses.buttonOk}
+        className={buttonClasses.buttonRedAction}
         id="team-leave-dialog-button-leave"
         onClick={handleLeaveTeam}
         disabled={buttonsDisabled}
@@ -215,7 +215,7 @@ function LeaveTeamDialogActions(props: LeaveTeamDialogElementsProps): JSX.Elemen
         id="team-leave-dialog-button-cancel"
         onClick={handleClose}
         disabled={buttonsDisabled}
-        className={`${dialogClasses.buttonCancel} ${buttonClasses.buttonCancel}`}
+        className={`${classes.buttonCancel} ${buttonClasses.buttonCancel}`}
         color="secondary"
         variant="contained">
         {t("common-cancel")}

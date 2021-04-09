@@ -41,7 +41,7 @@ import PhoneIcon from "@material-ui/icons/Phone";
 import VerifiedIcon from "./icons/VerifiedIcon";
 
 import locales from "../../../locales/languages.json";
-import { Team } from "../lib/team";
+import { Team, getDisplayTeamCode } from "../lib/team";
 
 export interface TeamCardProps {
   team: Readonly<Team>;
@@ -68,15 +68,19 @@ const teamCardStyles = makeStyles((theme: Theme) => {
     firstRow: {
       display: "flex",
       flexDirection: "row",
-      marginBottom: theme.spacing(2), // eslint-disable-line no-magic-numbers
+      marginBottom: theme.spacing(4),
+      marginTop: theme.spacing(2),
     },
     secondRow: {
       display: "flex",
       flexDirection: "row",
       justifyContent: "flex-start",
+      marginBottom: theme.spacing(2),
     },
     teamName: {
       minWidth: "8em",
+      marginTop: "auto",
+      marginBottom: "auto",
     },
     teamInfoIcon: {
       fill: "#2e2e2e",
@@ -172,6 +176,8 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     );
   }
 
+  const teamCode = getDisplayTeamCode(team.code);
+
   return (
     <Paper elevation={0} className={classes.paper} classes={{ root: classes.paperRoot }}>
       <div id={`team-card-${id}-actions`} className={classes.firstRow}>
@@ -183,7 +189,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         </div>
       </div>
       <div id={`team-card-${id}-infos`} className={classes.secondRow}>
-        <TeamInfo id={id} label="code" value={team.code} icon={<VerifiedIcon className={classes.teamInfoIcon} />} />
+        <TeamInfo id={id} label="code" value={teamCode} icon={<VerifiedIcon className={classes.teamInfoIcon} />} />
         <TeamInfo id={id} label="phone" value={team.phone} icon={<PhoneIcon className={classes.teamInfoIcon} />} />
         <TeamInfo id={id} label="address" value={address} icon={<LocationOnIcon className={classes.teamInfoIcon} />} />
         <TeamInfo id={id} label="email" value={team.email} icon={<EmailIcon className={classes.teamInfoIcon} />} />
