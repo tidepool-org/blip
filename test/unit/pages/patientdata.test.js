@@ -1760,6 +1760,21 @@ describe('PatientData', function () {
           'bgExtents',
         ]);
       });
+
+      it('should add appropriate stats when a settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInOverride',
+          'carbs',
+          'averageDailyDose',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
     });
 
     context('daily', () => {
@@ -1797,6 +1812,18 @@ describe('PatientData', function () {
           'averageGlucose',
           'totalInsulin',
           'timeInAuto',
+          'carbs',
+        ]);
+      });
+
+      it('should add appropriate stats when settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInOverride',
           'carbs',
         ]);
       });
@@ -1840,6 +1867,19 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
+
+      it('should add appropriate stats when settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'timeInOverride',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',
@@ -2251,7 +2291,8 @@ describe('PatientData', function () {
                 select: 'id,deviceId,deviceTags',
               },
             },
-            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+            excludedDevices: undefined,
             timePrefs: sinon.match.object,
             bgPrefs: sinon.match.object,
           });
@@ -2643,7 +2684,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {

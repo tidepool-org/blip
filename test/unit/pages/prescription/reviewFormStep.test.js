@@ -26,6 +26,16 @@ const values = {
   mrn: 'goodField',
   sex: 'goodField',
   training: 'goodField',
+  calculator: {
+    method: 'goodField',
+    totalDailyDose: 'goodField',
+    totalDailyDoseScaleFactor: 'goodField',
+    weight: 'goodField',
+    weightUnits: 'goodField',
+    recommendedBasalRate: 'goodField',
+    recommendedInsulinSensitivity: 'goodField',
+    recommendedCarbohydrateRatio: 'goodField',
+  },
   initialSettings: {
     pumpId: 'goodField',
     cgmId: 'goodField',
@@ -43,14 +53,11 @@ const values = {
   therapySettingsReviewed: 'goodField',
 };
 
-const validateSyncAt = sinon.stub();
-validateSyncAt
-  .withArgs('goodField')
-  .returns(true);
-
-validateSyncAt
-  .withArgs('badField')
-  .throws();
+const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
+  if (_.get(values, fieldKey) === 'badField') {
+    throw('error');
+  }
+});
 
 const schema = { validateSyncAt };
 
@@ -88,31 +95,39 @@ describe('reviewFormStep', function() {
 
   it('should disable the complete button if the any of the prescriptions fields are invalid', () => {
     expect(reviewFormStep(schema, pump, handlers, values).disableComplete).to.be.false;
-    expect(reviewFormStep(invalidateValue('accountType')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('firstName')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('lastName')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('birthday')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('caregiverFirstName')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('caregiverLastName')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('email')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('emailConfirm')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('phoneNumber.number')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('mrn')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('sex')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('training')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.pumpId')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.cgmId')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.insulinModel')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.basalRateMaximum')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.bolusAmountMaximum')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.basalRateSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.carbohydrateRatioSchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('initialSettings.insulinSensitivitySchedule')).disableComplete).to.be.true;
-    expect(reviewFormStep(invalidateValue('therapySettingsReviewed')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('accountType')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('firstName')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('lastName')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('birthday')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('caregiverFirstName')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('caregiverLastName')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('email')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('emailConfirm')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('phoneNumber.number')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('mrn')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('sex')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.method')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.totalDailyDose')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.totalDailyDoseScaleFactor')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.weight')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.weightUnits')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedBasalRate')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedInsulinSensitivity')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('calculator.recommendedCarbohydrateRatio')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('training')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.pumpId')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.cgmId')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.glucoseSafetyLimit')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.insulinModel')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.basalRateMaximum')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bolusAmountMaximum')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetSchedule')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetPhysicalActivity')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.bloodGlucoseTargetPreprandial')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.basalRateSchedule')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.carbohydrateRatioSchedule')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('initialSettings.insulinSensitivitySchedule')).disableComplete).to.be.true;
+    expect(reviewFormStep(schema, pump, handlers, invalidateValue('therapySettingsReviewed')).disableComplete).to.be.true;
   });
 
   it('should not hide the back button', () => {

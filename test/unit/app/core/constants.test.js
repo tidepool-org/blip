@@ -43,6 +43,10 @@ describe('constants', function() {
     expect(Constants.MGDL_PER_MMOLL).to.equal(18.01559);
   });
 
+  it('should define the lbs per kg conversion factor as 2.2046226218', function() {
+    expect(Constants.LBS_PER_KG).to.equal(2.2046226218);
+  });
+
   it('should define the tidepool big data donation account email', function() {
     expect(Constants.TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL).to.equal('bigdata@tidepool.org');
   });

@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 
 import {
+  clearCalculator,
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
@@ -11,6 +12,7 @@ import {
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 import { withFormik } from 'formik';
+import { set } from 'lodash';
 
 /* global chai */
 /* global sinon */
@@ -59,14 +61,15 @@ describe('PrescriptionForm', () => {
     expect(stepper).to.have.length(1);
 
     const steps = stepper.find('.MuiStep-root');
-    expect(steps).to.have.length(4);
+    expect(steps).to.have.length(5);
 
     expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
     expect(steps.at(0).hasClass('active')).to.be.true;
 
     expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
+    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
+    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {
@@ -78,6 +81,22 @@ describe('PrescriptionForm', () => {
 
     const backButton = actions.find('button.step-back').hostNodes();
     expect(backButton).to.have.length(0);
+  });
+
+  describe('clearCalculator', () => {
+    const setFieldValue = sinon.stub();
+
+    it('should clear all calculator values', () => {
+      clearCalculator(setFieldValue);
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.method', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDose', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDoseScaleFactor', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weight', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weightUnits', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+    });
   });
 
   describe('generateTherapySettingsOrderText', () => {
@@ -142,7 +161,7 @@ describe('PrescriptionForm', () => {
     let wrapper;
     let reviewStepProps = {
       ...defaultProps,
-      location: { search: '?prescription-form-steps-step=3,0' },
+      location: { search: '?prescription-form-steps-step=4,0' },
     };
 
     beforeEach(() => {

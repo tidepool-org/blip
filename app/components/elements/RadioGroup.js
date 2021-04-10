@@ -118,8 +118,8 @@ export const RadioGroup = (props) => {
             id={`${name}-${i}`}
             key={option.value}
             name={name}
-            value={option.value}
-            checked={value === option.value}
+            value={String(option.value)}
+            checked={String(value) === String(option.value)}
             onChange={onChange}
             label={option.label}
             error={error}
@@ -145,7 +145,10 @@ RadioGroup.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   disabled: PropTypes.bool,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
   onChange: PropTypes.func.isRequired,
   variant: PropTypes.oneOf(['horizontal', 'vertical', 'verticalBordered']),
   options: PropTypes.arrayOf(

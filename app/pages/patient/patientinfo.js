@@ -516,9 +516,10 @@ var PatientInfo = translate()(class extends React.Component {
   };
 
   renderExport = () => {
+    const { t } = this.props;
     return (
       <div className="PatientPage-export">
-        <div className="PatientPage-sectionTitle">Export My Data</div>
+        <div className="PatientPage-sectionTitle">{t('Export My Data')}</div>
         <div className="PatientInfo-content">
           <Export
             api={this.props.api}
