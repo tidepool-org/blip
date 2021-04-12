@@ -1217,6 +1217,7 @@ export const PatientDataClass = createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
         isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
         stats.push(commonStats.standardDev);

@@ -1873,6 +1873,19 @@ describe('PatientData', function () {
         ]);
       });
 
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'timeInAuto',
+          'standardDev',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
+
       it('should add appropriate stats when settings-overridable device is detected', () => {
         wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
         wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
