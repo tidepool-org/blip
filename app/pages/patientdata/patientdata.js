@@ -1145,6 +1145,7 @@ export const PatientDataClass = createReactClass({
       vizUtils.aggregation.defineBasicsAggregations(
         bgPrefs,
         manufacturer,
+        latestPumpUpload,
       ),
       aggregationsByDate,
       this.props.patient,
@@ -1172,6 +1173,7 @@ export const PatientDataClass = createReactClass({
     const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
     const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
 
     let stats = [];
 
@@ -1183,6 +1185,7 @@ export const PatientDataClass = createReactClass({
         cbgSelected && stats.push(commonStats.sensorUsage);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
@@ -1196,6 +1199,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.averageGlucose);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         cbgSelected && stats.push(commonStats.standardDev);
         cbgSelected && stats.push(commonStats.coefficientOfVariation);
@@ -1213,6 +1217,7 @@ export const PatientDataClass = createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
