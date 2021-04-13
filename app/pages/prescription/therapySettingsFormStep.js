@@ -12,7 +12,7 @@ import max from 'lodash/max';
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
-import { Paragraph2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
+import { Paragraph2, Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
@@ -75,13 +75,19 @@ PatientInfo.propTypes = fieldsetPropTypes;
 
 export const DefaultCalculatorSettings = props => {
   const { t, pump, ...themeProps } = props;
+  const { values } = useFormikContext();
+  const totalDailyDose = get(values, 'calculator.totalDailyDose');
+  const weight = get(values, 'calculator.weight');
+  const weightUnits = get(values, 'calculator.weightUnits');
 
   return (
     <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
-      <Paragraph2 mb={2}>
+      <Body2 mb={3}>
         {t('Recommended default settings from AACE calculator:')}
-      </Paragraph2>
-      <SettingsCalculatorResults />
+      </Body2>
+      {totalDailyDose && <Text mb={1}><strong>{t('Total Daily Dose:')}</strong> {totalDailyDose} {t('U')}</Text>}
+      {weight && <Text mb={1}><strong>{t('Weight:')}</strong> {weight} {weightUnits}</Text>}
+      <SettingsCalculatorResults mt={3} />
     </Box>
   );
 };
