@@ -83,7 +83,7 @@ function SignUpPage(): JSX.Element {
       <Grid container spacing={0} alignItems="center" justify="center">
         <Grid item xs={12}>
           <SignUpFormStateProvider>
-            <Card className={classes.Card}>
+            <Card id="card-signup" className={classes.Card}>
               <CardMedia
                 style={{
                   display: "flex",

@@ -121,9 +121,11 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           {t(helperText)}
         </FormHelperText>
         <FormControlLabel
+          id="signup-consent-privacy-ctl"
           className={classes.FormControlLabel}
           control={
             <Checkbox
+              id="signup-consent-privacy-check"
               checked={state.formValues.privacyPolicy}
               onChange={(e) => handleChange(e, "privacyPolicy")}
               color="default"
@@ -138,10 +140,12 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           )}
         />
         <FormControlLabel
+          id="signup-consent-terms-ctl"
           className={classes.FormControlLabel}
           control={
             <Checkbox
-              checked={state.formValues.terms}
+            id="checkbox-signup-consent-terms"
+            checked={state.formValues.terms}
               onChange={(e) => handleChange(e, "terms")}
               color="default"
               inputProps={{
@@ -151,12 +155,13 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           }
           label={t(
             `signup-consent-${state.formValues.accountRole}-terms-condition`,
-            { terms: "Terms or Use" }
+            { terms: t("terms-and-conditions") }
           )}
           labelPlacement="end"
         />
         <div id="signup-consent-button-group">
           <Button
+            id="button-signup-steppers-back"
             variant="contained"
             color="secondary"
             disabled={props.activeStep === 0}
@@ -166,6 +171,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
             {t("signup-steppers-back")}
           </Button>
           <Button
+            id="button-signup-steppers-next"
             variant="contained"
             color="primary"
             className={classes.Button}

@@ -173,6 +173,7 @@ function Login(props: RouteComponentProps): JSX.Element {
             <CardContent className={classes.CardContent}>
               <Snackbar params={snackbarParams} />
               <form
+                id="form-login"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -216,7 +217,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                   }}
                 />
               </form>
-              <Link component={RouterLink} to="/request-password-reset">
+              <Link id="link-password-reset" component={RouterLink} to="/request-password-reset">
                 {t("Forgot your password?")}
               </Link>
             </CardContent>
@@ -225,6 +226,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                 {t("signup-steppers-create-account")}
               </Link>
               <Button
+                id="login-button"
                 variant="contained"
                 color="primary"
                 onClick={onClickLoginButton}

@@ -47,7 +47,7 @@ function LanguageSelect(): JSX.Element {
     if (Object.prototype.hasOwnProperty.call(i18n.options.resources, lang)) {
       const language = i18n.options.resources[lang].name;
       langs.push(
-        <MenuItem key={lang} value={lang}>
+        <MenuItem id={lang} key={lang} value={lang}>
           {language}
         </MenuItem>
       );
@@ -57,6 +57,7 @@ function LanguageSelect(): JSX.Element {
   return (
     <FormControl>
       <Select
+        id="language-selector"
         disableUnderline
         IconComponent={ArrowDropDownIcon}
         value={val}

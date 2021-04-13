@@ -59,7 +59,10 @@ export const Snackbar = ({ params: { apiAlert, removeAlert } }: SnackbarsProps):
       autoHideDuration={6000}
       onClose={onCloseAlert(apiAlert?.id)}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-      <Alert onClose={onCloseAlert(apiAlert?.id)} severity={apiAlert?.severity}>
+      <Alert
+        id="alert-message"
+        onClose={onCloseAlert(apiAlert?.id)}
+        severity={apiAlert?.severity}>
         {apiAlert?.message}
       </Alert>
     </SnackbarUI>

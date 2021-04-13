@@ -46,7 +46,6 @@ import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import HeaderBar from "../../components/primary-header-bar";
 import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
-
 interface Errors {
   firstName: boolean;
   name: boolean;
@@ -232,6 +231,7 @@ export const ProfilePage: FunctionComponent = () => {
         fullName: firstName + " " + name,
         firstName,
         lastName: name,
+        patient: { birthday: birthDate }
       };
       setHasProfileChanged(!_.isEqual(user.profile, newProfile));
     } else {
@@ -239,7 +239,7 @@ export const ProfilePage: FunctionComponent = () => {
       setHavePreferencesChanged(false);
       setHasProfileChanged(false);
     }
-  }, [firstName, name, unit, locale, user]);
+  }, [firstName, name, birthDate, unit, locale, user]);
 
   const onSave = useCallback(() => {
     if (user) {
@@ -256,6 +256,7 @@ export const ProfilePage: FunctionComponent = () => {
               fullName: firstName + " " + name,
               firstName,
               lastName: name,
+              patient: { birthday: birthDate }
             }
           : user.profile,
       };
@@ -290,6 +291,7 @@ export const ProfilePage: FunctionComponent = () => {
     hasProfileChanged,
     firstName,
     name,
+    birthDate,
     locale,
     i18n,
     unit,
@@ -307,7 +309,9 @@ export const ProfilePage: FunctionComponent = () => {
       <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
-          <DialogTitle className={classes.title}>{t("account-preferences-title")}</DialogTitle>
+          <DialogTitle className={classes.title} id="account-preferences-title">
+            {t("hcp-account-preferences-title")}
+          </DialogTitle>
           <TextField
             id="firstName"
             label={t("First name")}
@@ -400,10 +404,16 @@ export const ProfilePage: FunctionComponent = () => {
             </Select>
           </FormControl>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button variant="contained" color="secondary" onClick={onCancel} className={classes.button}>
+            <Button
+              id="button-cancel-profile"
+              variant="contained"
+              color="secondary"
+              onClick={onCancel}
+              className={classes.button}>
               {t("common-cancel")}
             </Button>
             <Button
+              id="button-save-profile"
               variant="contained"
               disabled={(!hasProfileChanged && !haveSettingsChanged && !havePreferencesChanged) || isAnyError}
               color="primary"

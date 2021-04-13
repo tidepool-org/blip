@@ -45,8 +45,8 @@ import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 import brandingLogo from "branding/logo.png";
 import { useAuth } from "../lib/auth";
-import { UserRoles } from "../models/shoreline";
-
+import { UserRoles, User } from "../models/shoreline";
+import { getUserFirstName, getUserLastName } from "../lib/utils";
 interface HeaderProps extends RouteComponentProps {
   children?: JSX.Element | JSX.Element[];
 }
@@ -129,7 +129,9 @@ function HeaderBar(props: HeaderProps): JSX.Element {
 
   let accountMenu = null;
   if (auth.isLoggedIn()) {
-    const user = auth.user;
+    const user: User = auth.user as User;
+    const name = t("user-name", { firstName: getUserFirstName(user), lastName: getUserLastName(user) });
+
     accountMenu = (
       <React.Fragment>
         <AccountButton
@@ -139,7 +141,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           aria-haspopup="true"
           endIcon={<ArrowDropDown className={classes.accountMenuIcon} />}
           onClick={handleOpenAccountMenu}>
-          {`${user?.profile?.firstName} ${user?.profile?.lastName}`}
+          {name}
         </AccountButton>
         <Menu
           id="menu-user-account-appbar"
@@ -156,8 +158,16 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           keepMounted={false}
           open={userMenuOpen}
           onClose={handleCloseAccountMenu}>
-          <MenuItem onClick={handleOpenProfilePage}>{t("menu-account-preferences")}</MenuItem>
-          <MenuItem onClick={handleLogout}>{t("menu-logout")}</MenuItem>
+          <MenuItem
+            id="menu-open-profile"
+            onClick={handleOpenProfilePage}
+            >{t("menu-account-preferences")}
+          </MenuItem>
+          <MenuItem
+            id="menu-logout-yourloops"
+            onClick={handleLogout}
+            >{t("menu-logout")}
+          </MenuItem>
         </Menu>
       </React.Fragment>
     );
@@ -166,7 +176,12 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <input type="image" className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} onClick={onLogoClick} />
+        <input
+          type="image"
+          className={classes.toolbarLogo}
+          alt={t("alt-img-logo")}
+          src={brandingLogo}
+          onClick={onLogoClick} />
         {props.children}
         <div className={classes.toolbarRightSide}>
           {userRole && userRole !== UserRoles.patient && (
