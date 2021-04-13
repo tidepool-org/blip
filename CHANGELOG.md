@@ -7,6 +7,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-441 Change glucose level colors
 - YLP-423 Add Dexcom branding to the glucose graph
 ### Fixed
+- YLP-266 Hour format isn't updated on daily view when language is changed
 - YLP-511 Wrong string used for "serial number"
 - YLP-454 The Number of Login validation does not make the count for a single account
 ### Engineering Use
