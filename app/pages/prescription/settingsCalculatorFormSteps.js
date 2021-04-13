@@ -105,7 +105,7 @@ export const CalculatorInputs = translate()(props => {
         <Box mb={3}>
           <FastField
             as={TextInput}
-            label={t('Total Daily Dose')}
+            label={t('Total Daily Dose (U)')}
             placeholder={t('Enter Patient\'s Total Daily Dose')}
             type="number"
             id="calculator.totalDailyDose"
