@@ -1263,7 +1263,6 @@ export const PatientDataClass = createReactClass({
           'bolus',
           'cbg',
           'deviceEvent',
-          'pumpSettings',
           'smbg',
           'wizard',
         ]);
