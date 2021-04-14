@@ -46,8 +46,8 @@ function HcpNavBar(): JSX.Element {
   return (
     <HeaderBar>
       <Tabs value={isTeamPath ? 1 : 0} indicatorColor="primary" textColor="primary" centered>
-        <Tab style={tabStyle} label={t("Patients")} component={Link} to="/hcp/patients" />
-        <Tab style={tabStyle} label={t("Care teams")} component={Link} to="/hcp/teams" />
+        <Tab style={tabStyle} label={t("hcp-tab-patients")} component={Link} to="/hcp/patients" />
+        <Tab style={tabStyle} label={t("hcp-tab-teams")} component={Link} to="/hcp/teams" />
       </Tabs>
     </HeaderBar>
   );
