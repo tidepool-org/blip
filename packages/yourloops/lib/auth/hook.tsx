@@ -36,6 +36,7 @@ import { useHistory } from "react-router-dom";
 
 import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
 import sendMetrics from "../metrics";
+import { zendeskLogin, zendeskLogout, zendeskAllowCookie } from "../zendesk";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
 import AuthAPIImpl from "./api";
 import { SignUpFormState } from "pages/signup/signup-formstate-context";
@@ -118,7 +119,10 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
     setUser(user);
     setSessionToken(auth.sessionToken);
+
     // FIXME: Test if the user as consent
+    zendeskAllowCookie(true);
+    zendeskLogin();
     sendMetrics("setUserId", auth.user.userid);
     return user;
   };
@@ -250,6 +254,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
     sessionStorage.removeItem(STORAGE_KEY_USER);
     sendMetrics("resetUserId");
+    zendeskLogout();
 
     setUser(null);
     setSessionToken(null);
@@ -335,6 +340,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
         sessionStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
         sessionStorage.removeItem(STORAGE_KEY_TRACE_TOKEN);
         sessionStorage.removeItem(STORAGE_KEY_USER);
+        zendeskLogout();
       } else {
         try {
           // FIXME check storage items validity
@@ -357,6 +363,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
           setUser(currentUser);
 
           initializedFromStorage = true;
+
+          zendeskLogin();
 
           if (pathname !== historyHook.location.pathname) {
             log.info("Reused session storage items, and redirect to", pathname);

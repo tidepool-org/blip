@@ -4,7 +4,7 @@ window.zESettings = {
       jwtFn: (/** @type{(token: string) => void} */ callback) => {
         /** @type {string} */
         const url = `${config.API_HOST}/auth/ext-token/zendesk`;
-        const token = window.sessionStorage.getItem('authToken');
+        const token = window.sessionStorage.getItem('session-token');
         fetch(url, {
           method: 'POST',
           headers: {

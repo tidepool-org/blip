@@ -32,10 +32,11 @@ import i18n, { InitOptions, Resource, TOptions } from "i18next";
 import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
 
-import getLocale from "./browser-locale";
 import locales from "../../../locales/languages.json";
 import { Preferences } from "../models/shoreline";
 import { Country } from "../models/country";
+import getLocale from "./browser-locale";
+import { zendeskLocale } from "./zendesk";
 
 const log = bows('i18n');
 
@@ -46,10 +47,7 @@ async function init(): Promise<void> {
   let language = getLocale();
   if (self.localStorage && self.localStorage.lang) {
     language = self.localStorage.lang;
-
-    if (typeof window.zE === "function") {
-      window.zE("webWidget", "setLocale", language);
-    }
+    zendeskLocale(language);
   }
 
   moment.locale(language);
@@ -101,10 +99,7 @@ async function init(): Promise<void> {
       // FIXME: Get currently use Crowdin language, when Crowdin is active.
       moment.locale(lng);
 
-      // Zendesk locale
-      if (typeof window.zE === "function") {
-        window.zE("webWidget", "setLocale", language);
-      }
+      zendeskLocale(language);
 
       // Save locale for future load
       if (self.localStorage) {
