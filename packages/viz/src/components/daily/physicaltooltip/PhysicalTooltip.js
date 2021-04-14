@@ -53,7 +53,7 @@ class PhysicalTooltip extends React.Component {
     const d = this.getDurationInMinutes();
     const rows = [
       <div key={'title'} className={styles.pa}>
-        <div className={styles.label}>{t('Physical Activity')}</div>
+        <div id="tooltip-physical-activity-title" className={styles.title}>{t('Physical Activity')}</div>
       </div>,
       <div key={'physical'} className={styles.pa}>
         <div className={styles.label}>{t('Intensity')}</div>

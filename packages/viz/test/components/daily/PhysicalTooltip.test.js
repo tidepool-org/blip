@@ -16,7 +16,7 @@
  */
 
 import React from 'react';
-
+import { expect } from 'chai';
 import { mount } from 'enzyme';
 
 import { formatClassesAsSelector } from '../../helpers/cssmodules';
@@ -67,8 +67,8 @@ const props = {
 };
 
 const timePrefsUtc = {
-  timezoneAware: true, 
-  timezoneName: "UTC", 
+  timezoneAware: true,
+  timezoneName: "UTC",
   timezoneOffset: 0
 };
 
@@ -79,7 +79,7 @@ describe('PhysicalTooltip', () => {
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
       .at(0)
-      .find(formatClassesAsSelector(styles.label))
+      .find('#tooltip-physical-activity-title')
       .text()).to.equal('Physical Activity');
     expect(wrapper
       .find(formatClassesAsSelector(styles.pa))
@@ -105,9 +105,9 @@ describe('PhysicalTooltip', () => {
     // eslint-disable-next-line max-len
     it('should return 10 for a 600 seconds physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normal} />);
-      const d  = { 
-        units: 'minutes', 
-        value: 10 
+      const d = {
+        units: 'minutes',
+        value: 10
       };
       expect(wrapper.instance().getDurationInMinutes(normal)).to.deep.equal(d);
       expect(wrapper
@@ -118,9 +118,9 @@ describe('PhysicalTooltip', () => {
     });
     it('should return 60 for a 60 minutes physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalMinutes} />);
-      const d  = { 
-        units: 'minutes', 
-        value: 60 
+      const d = {
+        units: 'minutes',
+        value: 60
       };
       expect(wrapper.instance().getDurationInMinutes(normalMinutes)).to.deep.equal(d);
       expect(wrapper
@@ -131,9 +131,9 @@ describe('PhysicalTooltip', () => {
     });
     it('should return 90 for a 1.5 hours physical activity', () => {
       const wrapper = mount(<PhysicalTooltip {...props} physicalActivity={normalHours} />);
-      const d  = { 
-        units: 'minutes', 
-        value: 90 
+      const d = {
+        units: 'minutes',
+        value: 90
       };
       expect(wrapper.instance().getDurationInMinutes(normalHours)).to.deep.equal(d);
       expect(wrapper

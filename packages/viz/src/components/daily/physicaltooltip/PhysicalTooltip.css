@@ -33,9 +33,13 @@
   line-height: 20px;
 }
 
+.title {
+  flex-grow: 0;
+  font-weight: bold;
+}
+
 .label {
   flex-grow: 1;
-  font-weight: bold;
 }
 
 .value {
