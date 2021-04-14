@@ -48,6 +48,7 @@ import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
 import PatientListTable from "./table";
 import AddPatientDialog from "./add-dialog";
+import TeamCodeDialog from "./team-code-dialog";
 
 const log = bows("PatientListPage");
 
@@ -171,6 +172,7 @@ function PatientListPage(): JSX.Element {
   const [filterType, setFilterType] = React.useState<FilterType | string>(FilterType.all);
   const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
   const [patientToAdd, setPatientToAdd] = React.useState<AddPatientDialogContentProps | null>(null);
+  const [teamCodeToDisplay, setTeamCodeToDisplay] = React.useState<Team | null>(null);
 
   const flagged = authHook.getFlagPatients();
 
@@ -215,8 +217,12 @@ function PatientListPage(): JSX.Element {
         await teamHook.invitePatient(team as Team, email);
         openSnackbar({ message: t("modal-hcp-add-patient-success"), severity: AlertSeverity.success });
         sendMetrics("hcp-add-patient", { added: true });
+        setTeamCodeToDisplay(team);
       } catch (reason) {
         log.error(reason);
+        // TODO Errors:
+        // - "modal-hcp-add-patient-failure-already-in-team"
+        // - "modal-hcp-add-patient-failure-already-invited"
         openSnackbar({ message: t("modal-hcp-add-patient-failure"), severity: AlertSeverity.error });
         sendMetrics("hcp-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
@@ -240,6 +246,10 @@ function PatientListPage(): JSX.Element {
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
     setFilterType(filterType);
+  };
+
+  const handleCloseTeamCodeDialog = (): void => {
+    setTeamCodeToDisplay(null);
   };
 
   React.useEffect(() => {
@@ -311,6 +321,11 @@ function PatientListPage(): JSX.Element {
         />
       </Container>
       <AddPatientDialog actions={patientToAdd} />
+      <TeamCodeDialog
+        onClose={handleCloseTeamCodeDialog}
+        code={teamCodeToDisplay?.code ?? ""}
+        name={teamCodeToDisplay?.name ?? ""}
+      />
     </React.Fragment>
   );
 }
