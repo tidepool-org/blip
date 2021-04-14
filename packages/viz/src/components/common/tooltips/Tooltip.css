@@ -34,14 +34,16 @@
   box-sizing: border-box;
 }
 
-.content span {
-  width: 100%;
-}
-
 .title {
   composes: mediumContrastText from '../../../styles/typography.css';
   composes: content;
   background-color: var(--tooltip-title-bg);
+}
+
+.titleContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .tail {

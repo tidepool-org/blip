@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/* global requestAnimationFrame */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -155,18 +153,15 @@ class Tooltip extends React.PureComponent {
   renderTitle() {
     const { title, dateTitle, tail, content } = this.props;
     let renderedTitle = null;
+    let renderedDateTitle = null;
     let tailNode = null;
     if (tail && content === null) {
       tailNode = this.renderTail(styles.tooltipTitleBg);
     }
     if (title) {
-      renderedTitle = (
-        <div className={styles.title}>
-          <span>{title}</span>
-          {tailNode}
-        </div>
-      );
-    } else if (dateTitle) {
+      renderedTitle =<span>{title}</span>;
+    }
+    if (dateTitle) {
       let titleNode = null;
       if (dateTitle.source === 'Diabeloop') {
         // For diabeloop device, use the timezone of the object
@@ -180,28 +175,32 @@ class Tooltip extends React.PureComponent {
           displayOffset = ` UTC${mNormalTime.format('Z')}`;
         }
         titleNode = (
-          <div className={styles.title}>
+          <React.Fragment>
             {mNormalTime.format(getHourMinuteFormat())}
             {displayOffset}
-          </div>
+          </React.Fragment>
         );
       } else {
         // eslint-disable-next-line max-len
         const time = formatLocalizedFromUTC(dateTitle.normalTime, dateTitle.timePrefs, getHourMinuteFormat());
-        titleNode = (
-          <div className={styles.title}>
-            {time}
-          </div>
-        );
+        titleNode = time;
       }
-      renderedTitle = (
-        <div className={styles.title}>
-          <span>{titleNode}</span>
-          {tailNode}
-        </div>
-      );
+      renderedDateTitle = <span>{titleNode}</span>;
     }
-    return renderedTitle;
+
+    if (renderedDateTitle === null && renderedTitle === null) {
+      return null;
+    }
+
+    return (
+      <div id="tooltip-daily-title" className={styles.title}>
+        <div id="tooltip-daily-title-content" className={styles.titleContent}>
+          {renderedDateTitle}
+          {renderedTitle}
+        </div>
+        {tailNode}
+      </div>
+    );
   }
 
   renderContent() {
