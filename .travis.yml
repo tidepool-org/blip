@@ -25,6 +25,7 @@ before_install:
   - docker version
   - docker pull docker.io/docker/dockerfile:experimental
   - docker pull docker.io/library/node:10.14.2-alpine
+  - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 install:
   - yarn install --frozen-lockfile
