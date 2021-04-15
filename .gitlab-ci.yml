@@ -1,0 +1,23 @@
+# You can override the included template(s) by including variable overrides
+# See https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#priority-of-environment-variables
+stages:
+- build
+- test
+- deploy
+- review
+- dast
+- staging
+- canary
+- production
+- incremental rollout 10%
+- incremental rollout 25%
+- incremental rollout 50%
+- incremental rollout 100%
+- performance
+- cleanup
+sast:
+  stage: test
+include:
+- template: Auto-DevOps.gitlab-ci.yml
