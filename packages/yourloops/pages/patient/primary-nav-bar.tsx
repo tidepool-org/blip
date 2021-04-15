@@ -33,27 +33,34 @@ import { useHistory } from "react-router-dom";
 import MenuItem from "@material-ui/core/MenuItem";
 import HeaderBar, { HeaderActions } from "../../components/header-bars/primary";
 
-function PatientNavBar(): JSX.Element {
+interface PrimaryNavBarProps {
+  prefixURL: string;
+}
+
+function PatientNavBar(props: PrimaryNavBarProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const history = useHistory();
   const refHeaderBar = React.useRef<HeaderActions>(null);
+
+  const caregiversURL = `${props.prefixURL}/caregivers`;
+  const teamURL = `${props.prefixURL}/teams`;
 
   const handleOpenCaregiversPage = () => {
     if (refHeaderBar.current) {
       refHeaderBar.current.closeMenu();
     }
-    history.push("/patient/caregivers");
+    history.push(caregiversURL);
   };
 
   const handleOpenMedicalTeamsPage = () => {
     if (refHeaderBar.current) {
       refHeaderBar.current.closeMenu();
     }
-    history.push("/patient/teams");
+    history.push(teamURL);
   };
 
-  const menuCaregiverDisabled = history.location.pathname === "/patient/caregivers";
-  const menuTeamsDisabled = history.location.pathname === "/patient/teams";
+  const menuCaregiverDisabled = history.location.pathname === caregiversURL;
+  const menuTeamsDisabled = history.location.pathname === teamURL;
 
   const menuItems = [
     <MenuItem id="menu-caregivers" key="menu-caregivers" disabled={menuCaregiverDisabled} onClick={handleOpenCaregiversPage}>

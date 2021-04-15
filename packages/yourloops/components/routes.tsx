@@ -33,6 +33,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 
 import { useAuth } from "../lib/auth";
+import { getURLPrefixFromUser } from "../lib/diabeloop-url";
 import { publicRoutesTheme, mainTheme } from "./theme";
 import FooterLinks from "./footer-links";
 
@@ -40,7 +41,7 @@ export const PublicRoute = (props: RouteProps): JSX.Element => {
   const { isLoggedIn, user } = useAuth();
 
   return isLoggedIn() ? (
-    <Redirect to={{ pathname: `/${user?.role}`, state: { from: props.location } }} />
+    <Redirect to={{ pathname: getURLPrefixFromUser(user), state: { from: props.location } }} />
   ) : (
     <ThemeProvider theme={publicRoutesTheme}>
       <CssBaseline />

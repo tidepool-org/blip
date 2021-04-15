@@ -38,6 +38,7 @@ interface BlipProperties {
   config: AppConfig;
   api: BlipApi;
   patient: User;
+  prefixURL: string;
   profileDialog: typeof ProfileDialog;
 }
 

@@ -60,11 +60,20 @@ export default class HistoryTable extends Table {
     if (!content) {
       content = '&nbsp;';
     }
+    const handleSwitchToDaily = () => {
+      onSwitchToDaily(rowData.mLatestDate, 'Diabeloop parameters history');
+    };
     return (
-      <tr key={rowKey} className={styles.spannedRow}>
+      <tr id={`parameters-history-${rowData.mLatestDate.toISOString()}`} key={rowKey} className={styles.spannedRow}>
         <td colSpan={normalizedColumns.length}>
           {content}
-          <i className={`${switchToDailyIconClass} ${styles.clickableIcon}`} onClick={onSwitchToDaily.bind(this, rowData.isoDate, 'Diabeloop parameters history')} />
+          <i
+            id={`parameters-history-${rowData.mLatestDate.toISOString()}-link-daily`}
+            role="button" tabIndex={0}
+            className={`${switchToDailyIconClass} ${styles.clickableIcon}`}
+            onClick={handleSwitchToDaily}
+            onKeyPress={handleSwitchToDaily}
+          />
         </td>
       </tr>);
   }
@@ -101,7 +110,9 @@ export default class HistoryTable extends Table {
     return (
       <span>
         {icon}
-        <span className={styles.parameterHistory}>{t(`params|${parameter.name}`)}</span>
+        <span id={`parameters-history-${parameter.name}-${parameter.changeType}-${parameter.effectiveDate}`} className={styles.parameterHistory}>
+          {t(`params|${parameter.name}`)}
+        </span>
       </span>
     );
   }
@@ -233,7 +244,7 @@ export default class HistoryTable extends Table {
           rows.push({
             isSpanned: true,
             spannedContent: mLatestDate.format(dateFormat),
-            isoDate: mLatestDate.toISOString(),
+            mLatestDate,
           });
         }
       }

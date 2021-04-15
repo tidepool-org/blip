@@ -14,6 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import { ProfilePage } from "./profile";
+import ProfilePage from "./profile";
 
 export default ProfilePage;

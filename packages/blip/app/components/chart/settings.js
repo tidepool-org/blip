@@ -113,14 +113,12 @@ class Settings extends React.Component {
 
     return (
       <PumpSettingsContainer
-        currentPatientInViewId={this.props.currentPatientInViewId}
         copySettingsClicked={handleCopySettings}
-        bgUnits={this.props.bgPrefs.bgUnits}
         manufacturerKey={_.get(mostRecentSettings, 'source', patientData.opts.defaultSource).toLowerCase()}
         pumpSettings={mostRecentSettings}
-        onSwitchToDaily={this.props.onSwitchToDaily}
         timePrefs={this.props.timePrefs}
-        view='display'
+        onSwitchToDaily={this.props.onSwitchToDaily}
+        bgUnits={this.props.bgPrefs.bgUnits}
       />
     );
   }

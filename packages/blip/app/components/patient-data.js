@@ -21,6 +21,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import moment from 'moment-timezone';
 import i18next from 'i18next';
+import { Switch, Route /*, Redirect */ } from 'react-router-dom';
 
 import { TidelineData, nurseShark, MS_IN_DAY } from 'tideline';
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
@@ -53,6 +54,7 @@ const LOADING_STATE_EARLIER_PROCESS = LOADING_STATE_EARLIER_FETCH + 1;
 const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
 
 /**
+ * @typedef { import('history').History } History
  * @typedef { import('redux').Store } Store
  * @typedef { import("../index").BlipApi } API
  * @typedef { import("../index").User } User
@@ -60,8 +62,8 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @typedef { import("../index").MessageNote } MessageNote
  * @typedef { import("../core/lib/partial-data-load").DateRange } DateRange
  *
- * @typedef {{ api: API, patient: User, store: Store }} PatientDataProps
- * @typedef {{loadingState: number, tidelineData: TidelineData, epochLocation: number, epochRange: number, chartType: string, patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
+ * @typedef {{ api: API, patient: User, store: Store, prefixURL: string, history: History }} PatientDataProps
+ * @typedef {{loadingState: number, tidelineData: TidelineData, epochLocation: number, epochRange: number, patient: User, canPrint: boolean, pdf: object, chartPrefs: object, createMessageDatetime: moment.Moment | null, messageThread: MessageNote[] | null}} PatientDataState
  */
 
 /**
@@ -82,8 +84,6 @@ class PatientDataPage extends React.Component {
     const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     this.state = {
-      // New states info
-      chartType: 'daily',
       loadingState: LOADING_STATE_NONE,
       errorMessage: null,
       /** Current display date (date at center) */
@@ -178,7 +178,27 @@ class PatientDataPage extends React.Component {
     const { store } = this.props;
     this.log.debug('Mounting...');
     this.unsubscribeStore = store.subscribe(this.reduxListener.bind(this));
-    this.handleRefresh();
+    this.handleRefresh().then(() => {
+      const locationChart = this.getChartType();
+      this.log.debug('Mouting', { locationChart });
+      switch (locationChart) {
+        case 'overview':
+          this.handleSwitchToBasics();
+          break;
+        case 'daily':
+          this.handleSwitchToDaily();
+          break;
+        case 'settings':
+          this.handleSwitchToSettings();
+          break;
+        case 'trends':
+          this.handleSwitchToTrends();
+          break;
+        default:
+          this.handleSwitchToDaily();
+          break;
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -193,8 +213,8 @@ class PatientDataPage extends React.Component {
   }
 
   render() {
-    const { loadingState, chartType, errorMessage } = this.state;
-
+    const { loadingState, errorMessage } = this.state;
+    const chartType = this.getChartType();
     let loader = null;
     let messages = null;
     let patientData = null;
@@ -297,7 +317,7 @@ class PatientDataPage extends React.Component {
   }
 
   renderChart() {
-    const { patient, profileDialog } = this.props;
+    const { patient, profileDialog, prefixURL } = this.props;
     const {
       canPrint,
       permsOfLoggedInUser,
@@ -306,12 +326,12 @@ class PatientDataPage extends React.Component {
       chartStates,
       epochLocation,
       msRange,
-      tidelineData
+      tidelineData,
     } = this.state;
 
-    switch (this.state.chartType) {
-      case 'basics':
-        return (
+    return (
+      <Switch>
+        <Route path={`${prefixURL}/overview`}>
           <Basics
             profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
@@ -333,10 +353,10 @@ class PatientDataPage extends React.Component {
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={config.UPLOAD_API}
-            ref={this.chartRef} />
-          );
-      case 'daily':
-        return (
+            ref={this.chartRef}
+          />
+        </Route>
+        <Route path={`${prefixURL}/daily`}>
           <Daily
             profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
@@ -361,10 +381,10 @@ class PatientDataPage extends React.Component {
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            ref={this.chartRef} />
-          );
-      case 'trends':
-        return (
+            ref={this.chartRef}
+          />
+        </Route>
+        <Route path={`${prefixURL}/trends`}>
           <Trends
             profileDialog={profileDialog}
             bgPrefs={this.state.bgPrefs}
@@ -390,9 +410,8 @@ class PatientDataPage extends React.Component {
             uploadUrl={config.UPLOAD_API}
             trendsState={chartStates.trends}
           />
-        );
-      case 'settings':
-        return (
+        </Route>
+        <Route path={`${prefixURL}/settings`}>
           <div className='app-no-print'>
             <Settings
               bgPrefs={this.state.bgPrefs}
@@ -414,10 +433,9 @@ class PatientDataPage extends React.Component {
               uploadUrl={config.UPLOAD_API}
             />
           </div>
-        );
-    }
-
-    return null;
+        </Route>
+      </Switch>
+    );
   }
 
   renderMessagesContainer() {
@@ -450,6 +468,22 @@ class PatientDataPage extends React.Component {
           timePrefs={timePrefs}
           trackMetric={this.trackMetric} />
       );
+    }
+    return null;
+  }
+
+  getChartType() {
+    const { history, prefixURL } = this.props;
+
+    switch (history.location.pathname) {
+    case `${prefixURL}/overview`:
+      return "overview";
+    case `${prefixURL}/daily`:
+      return "daily";
+    case `${prefixURL}/trends`:
+      return "trends";
+    case `${prefixURL}/settings`:
+      return "settings";
     }
     return null;
   }
@@ -654,16 +688,18 @@ class PatientDataPage extends React.Component {
   }
 
   handleSwitchToBasics(e) {
-    this.trackMetric('switch blip tab', {
-      fromChart: this.state.chartType,
-      toChart: 'basics',
-    });
+    const { prefixURL, history } = this.props;
+    const fromChart = this.getChartType();
+    const toChart = 'overview';
     if (e) {
       e.preventDefault();
     }
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['basics'];
-    this.setState({ chartType: 'basics' });
+    this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
+    if (fromChart !== toChart) {
+      history.push(`${prefixURL}/${toChart}`);
+      this.trackMetric('switch-blip-view', { fromChart, toChart });
+    }
   }
 
   /**
@@ -672,11 +708,9 @@ class PatientDataPage extends React.Component {
    * @param {string} calendarName For trackmetrics: The calendar we came from
    */
   handleSwitchToDaily(datetime = null, calendarName = 'none') {
-    this.trackMetric('switch blip tab', {
-      fromChart: this.state.chartType,
-      fromCalendar: calendarName,
-      toChart: 'daily',
-    });
+    const { prefixURL, history } = this.props;
+    const fromChart = this.getChartType();
+    const toChart = 'daily';
 
     let { epochLocation } = this.state;
 
@@ -688,35 +722,48 @@ class PatientDataPage extends React.Component {
 
     this.log.info('Switch to daily', { date: moment.utc(epochLocation).toISOString(), epochLocation });
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['daily'];
+    this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
     this.setState({
-      chartType: 'daily',
       epochLocation,
       msRange: MS_IN_DAY,
+    }, () => {
+      if (fromChart !== toChart) {
+        history.push(`${prefixURL}/${toChart}`);
+        this.trackMetric('switch-blip-view', {
+          fromChart,
+          fromCalendar: calendarName,
+          toChart,
+        });
+      }
     });
   }
 
   handleSwitchToTrends(e) {
-    this.trackMetric('switch blip tab', {
-      fromChart: this.state.chartType,
-      toChart: 'trends',
-    });
+    const { prefixURL, history } = this.props;
+    const fromChart = this.getChartType();
+    const toChart = 'trends';
     if (e) {
       e.preventDefault();
     }
 
-    this.dataUtil.chartPrefs = this.state.chartPrefs['trends'];
-    this.setState({ chartType: 'trends' });
+    this.dataUtil.chartPrefs = this.state.chartPrefs[toChart];
+    if (fromChart !== toChart) {
+      history.push(`${prefixURL}/${toChart}`);
+      this.trackMetric('switch-blip-view', { fromChart, toChart });
+    }
   }
 
   handleSwitchToSettings(e) {
-    this.trackMetric('Clicked Switch To Settings', {
-      fromChart: this.state.chartType,
-    });
+    const { prefixURL, history } = this.props;
+    const fromChart = this.getChartType();
+    const toChart = 'settings';
     if (e) {
       e.preventDefault();
     }
-    this.setState({ chartType: 'settings' });
+    if (fromChart !== toChart) {
+      history.push(`${prefixURL}/${toChart}`);
+      this.trackMetric('switch-blip-view', { fromChart, toChart });
+    }
   }
 
   handleClickPrint = () => {
@@ -731,7 +778,7 @@ class PatientDataPage extends React.Component {
     }
 
     this.trackMetric('Clicked Print', {
-      fromChart: this.state.chartType,
+      fromChart: this.getChartType(),
     });
 
     // Return a promise for the tests
@@ -789,8 +836,11 @@ class PatientDataPage extends React.Component {
       ...updates,
     };
 
-    this.dataUtil.chartPrefs = newPrefs[this.state.chartType];
-    this.setState({ chartPrefs: newPrefs, }, cb);
+    const fromChart = this.getChartType();
+    if (fromChart) {
+      this.dataUtil.chartPrefs = newPrefs[fromChart];
+      this.setState({ chartPrefs: newPrefs, }, cb);
+    }
   }
 
   /**
@@ -800,18 +850,11 @@ class PatientDataPage extends React.Component {
    * @returns {Promise<boolean>} true if new data are loaded
    */
   async handleDatetimeLocationChange(epochLocation, msRange) {
-    const {
-      epochLocation: currentLocation,
-      msRange: currentRange,
-      chartType,
-      loadingState,
-    } = this.state;
-
+    const { loadingState } = this.state;
+    const chartType = this.getChartType();
     let dataLoaded = false;
 
     // this.log.debug('handleDatetimeLocationChange()', {
-    //   currentLocation,
-    //   currentRange,
     //   epochLocation,
     //   msRange,
     //   date: moment.utc(epochLocation).toISOString(),
@@ -823,8 +866,7 @@ class PatientDataPage extends React.Component {
     }
 
     // Don't do anything if we are currently loading
-    // And try to do something only if there is something to do !
-    if (loadingState === LOADING_STATE_DONE && (currentLocation !== epochLocation || currentRange !== msRange)) {
+    if (loadingState === LOADING_STATE_DONE) {
       // For daily check for +/- 1 day (and not 0.5 day), for others only the displayed range
       let msRangeDataNeeded = chartType === 'daily' ? MS_IN_DAY : msRange / 2;
 
@@ -952,6 +994,8 @@ PatientDataPage.propTypes = {
   patient: PropTypes.object.isRequired,
   store: PropTypes.object.isRequired,
   profileDialog: PropTypes.func.isRequired,
+  prefixURL: PropTypes.string.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default PatientDataPage;

@@ -134,7 +134,11 @@ class BasicsChartNoSize extends React.Component {
 
   hasSectionData(basicsData, section) {
     // check that section has data within range of current view
-    return _.some(basicsData.data[section].data, (datum) => {
+    const data = _.get(basicsData, `data[${section}].data`);
+    if (_.isEmpty(data)) {
+      return false;
+    }
+    return _.some(data, (datum) => {
       return datum.normalTime >= basicsData.dateRange[0];
     });
   }

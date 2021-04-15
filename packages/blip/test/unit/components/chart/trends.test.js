@@ -94,7 +94,9 @@ describe('Trends', () => {
       timezoneName: 'US/Pacific'
     },
     trendsState: {
-      1234: {},
+      1234: {
+        userid: "1234",
+      },
     },
     permsOfLoggedInUser: {
       root: true,

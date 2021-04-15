@@ -25,7 +25,37 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+import { User, UserRoles } from "../models/shoreline";
 import config from "./config";
+
+export const urlPrefixFromUserRole = {
+  patient: "/patient",
+  hcp: "/professional",
+  caregiver: "/caregiver",
+};
+
+export function getURLPrefixFromUser(user: Readonly<User> | null, suffix?: string): string {
+  let path = "/";
+  if (user) {
+    switch (user.role) {
+    case UserRoles.caregiver:
+      path = urlPrefixFromUserRole.caregiver;
+      break;
+    case UserRoles.hcp:
+      path = urlPrefixFromUserRole.hcp;
+      break;
+    case UserRoles.patient:
+      path = `${urlPrefixFromUserRole.patient}/${user.userid}`;
+      break;
+    }
+  }
+  if (suffix) {
+    path = `/${path}/${suffix}`;
+    path = path.replace(/\/+/g, "/");
+  }
+  return path;
+}
 
 /**
  * Class containing all URLs related to Diableloop

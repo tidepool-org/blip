@@ -51,9 +51,10 @@ import brandingLogo from "branding/logo.png";
 
 import { useAuth } from "../../lib/auth";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import { errorTextFromException } from "../../lib/utils";
+import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
 import { Snackbar } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
-import { errorTextFromException } from "../../lib/utils";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -144,8 +145,8 @@ function Login(props: RouteComponentProps): JSX.Element {
     try {
       const signupKey = new URLSearchParams(location.search).get("signupKey");
       const user = await auth.login(username, password, signupKey);
-      log.debug("user loggued,", user?.username);
-      props.history.push(`/${user.role}`);
+      log.debug("user loggued,", user.username);
+      props.history.push(getURLPrefixFromUser(user));
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
       const message = t(errorMessage);

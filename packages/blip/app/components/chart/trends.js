@@ -244,7 +244,9 @@ class Trends extends React.Component {
   }
 
   handleWindowResize(/* windowSize */) {
-    this.chart.mountData();
+    if (this.chart !== null) {
+      this.chart.mountData();
+    }
   }
 
   handleClickBack(e) {
@@ -409,6 +411,10 @@ class Trends extends React.Component {
       chartPrefs,
       trendsState,
     } = this.props;
+
+    if (_.isEmpty(_.get(trendsState, currentPatientInViewId))) {
+      return <Loader />;
+    }
 
     const trendsChartPrefs = chartPrefs.trends;
     const endpoints = this.getEndpoints();
@@ -581,13 +587,18 @@ class Trends extends React.Component {
         trends: { showingCbg, showingSmbg },
       },
     } = this.props;
-    if (showingCbg) {
+
+    const userTrendsState = _.get(trendsState, currentPatientInViewId);
+
+    if (_.isEmpty(userTrendsState)) {
+      return null;
+    } else if (showingCbg) {
       return (
         <FocusedRangeLabels
           bgPrefs={this.props.bgPrefs}
           dataType={'cbg'}
-          focusedKeys={trendsState[currentPatientInViewId].focusedCbgSliceKeys}
-          focusedSlice={trendsState[currentPatientInViewId].focusedCbgSlice}
+          focusedKeys={userTrendsState.focusedCbgSliceKeys}
+          focusedSlice={userTrendsState.focusedCbgSlice}
           timePrefs={this.props.timePrefs}
         />
       );
@@ -596,7 +607,7 @@ class Trends extends React.Component {
         <FocusedRangeLabels
           bgPrefs={this.props.bgPrefs}
           dataType={'smbg'}
-          focusedRange={trendsState[currentPatientInViewId].focusedSmbgRangeAvg}
+          focusedRange={userTrendsState.focusedSmbgRangeAvg}
           timePrefs={this.props.timePrefs}
         />
       );
@@ -608,14 +619,20 @@ class Trends extends React.Component {
     if (!this.props.chartPrefs.trends.showingSmbg) {
       return null;
     }
-    const { currentPatientInViewId } = this.props;
+    const { currentPatientInViewId, trendsState } = this.props;
+    const userTrendsState = _.get(trendsState, currentPatientInViewId);
+
+    if (_.isEmpty(userTrendsState)) {
+      return null;
+    }
+
     return (
       <FocusedSMBGPointLabel
         bgPrefs={this.props.bgPrefs}
         timePrefs={this.props.timePrefs}
         grouped={this.props.chartPrefs.trends.smbgGrouped}
         lines={this.props.chartPrefs.trends.smbgLines}
-        focusedPoint={this.props.trendsState[currentPatientInViewId].focusedSmbg}
+        focusedPoint={userTrendsState.focusedSmbg}
       />
     );
   }

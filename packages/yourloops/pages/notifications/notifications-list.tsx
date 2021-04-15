@@ -14,71 +14,26 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Fragment } from "react";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import * as React from "react";
 
-import { AppBar, Breadcrumbs, Container, createStyles, Link, List, ListItem, makeStyles, Toolbar } from "@material-ui/core";
-import HomeIcon from "@material-ui/icons/Home";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import Container from "@material-ui/core/Container";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
 
-import HeaderBar from "../../components/header-bars/primary";
 import { UserRoles } from "../../models/shoreline";
 import { MS_IN_DAY } from "../../models/generic";
 import { useAuth } from "../../lib/auth";
+import SecondaryHeaderBar from "./secondary-bar";
 import { INotification, Notification, NotificationType } from "./notification";
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    homeIcon: {
-      marginRight: "0.5em",
-    },
-    breadcrumbLink: {
-      display: "flex",
-    },
-    toolBar: {
-      display: "grid",
-      gridTemplateRows: "auto",
-      gridTemplateColumns: "auto auto auto",
-      paddingLeft: "6em",
-      paddingRight: "6em",
-    },
-  })
-);
-
-const NotificationHeader = () => {
-  const { t } = useTranslation("yourloops");
-  const historyHook = useHistory();
-  const classes = useStyles();
-  const { user } = useAuth();
-
-  const handleClickHome = (event: React.MouseEvent<HTMLAnchorElement>): void => {
-    event.preventDefault();
-    historyHook.push(`/${user?.role ?? ""}`);
-  };
-
-  return (
-    <Fragment>
-      <HeaderBar />
-      <AppBar position="static" color="secondary">
-        <Toolbar className={classes.toolBar}>
-          <Breadcrumbs aria-label={t("aria-breadcrumbs")} separator={<NavigateNextIcon fontSize="small" />}>
-            <Link className={classes.breadcrumbLink} color="textPrimary" onClick={handleClickHome}>
-              <HomeIcon className={classes.homeIcon} />
-              {t("home")}
-            </Link>
-            <div>{t("notifications")}</div>
-          </Breadcrumbs>
-        </Toolbar>
-      </AppBar>
-    </Fragment>
-  );
-};
+interface NotificationsPageProps {
+  defaultURL: string;
+}
 
 const sortNotification = (notifA: INotification, notifB: INotification): number =>
   Date.parse(notifB.date) - Date.parse(notifA.date);
 
-export const NotificationsPage = (): JSX.Element => {
+export const NotificationsPage = (props: NotificationsPageProps): JSX.Element => {
   const { user } = useAuth();
 
   const fakeNotif1: INotification = {
@@ -101,8 +56,8 @@ export const NotificationsPage = (): JSX.Element => {
   const notifs: INotification[] = [fakeNotif1, fakeNotif2, fakeNotif3];
 
   return (
-    <Fragment>
-      <NotificationHeader />
+    <React.Fragment>
+      <SecondaryHeaderBar defaultURL={props.defaultURL} />
       <Container maxWidth="lg" style={{ marginTop: "1em" }}>
         <List>
           {notifs.sort(sortNotification).map(({ date, emitter, type, target }, index) => (
@@ -112,6 +67,6 @@ export const NotificationsPage = (): JSX.Element => {
           ))}
         </List>
       </Container>
-    </Fragment>
+    </React.Fragment>
   );
 };

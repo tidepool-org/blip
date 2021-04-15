@@ -33,10 +33,14 @@ import bows from "bows";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 import PatientDataPage from "../../components/patient-data";
+import InvalidRoute from "../../components/invalid-route";
+import ProfilePage from "../profile";
+import NotificationsPage from "../notifications";
 import PrimaryNavBar from "./primary-nav-bar";
 import PatientListPage from "./patients/page";
 import TeamsPage from "./teams-page";
 
+const defaultURL = "/professional/patients";
 const log = bows("HcpPage");
 
 /**
@@ -47,9 +51,9 @@ function HcpPage(): JSX.Element {
   const pathname = historyHook.location.pathname;
 
   React.useEffect(() => {
-    if (/^\/hcp\/?$/.test(pathname)) {
+    if (/^\/professional\/?$/.test(pathname)) {
       log.info("Redirecting to the patients list");
-      historyHook.push("/hcp/patients");
+      historyHook.push(defaultURL);
     }
   }, [pathname, historyHook]);
 
@@ -59,11 +63,19 @@ function HcpPage(): JSX.Element {
     <TeamContextProvider>
       <PrimaryNavBar />
       <Switch>
-        <Route path="/hcp/patients" component={PatientListPage} />
-        <Route path="/hcp/teams" component={TeamsPage} />
+        <Route path={defaultURL} component={PatientListPage} />
+        <Route path="/professional/teams" component={TeamsPage} />
+        <Route path="/professional/preferences" exact={true} component={() => <ProfilePage defaultURL={defaultURL} />} />
+        <Route path="/professional/notifications" exact={true} component={() => <NotificationsPage defaultURL={defaultURL} />} />
         <DataContextProvider context={DefaultDataContext}>
-          <Route path="/hcp/patient/:patientId" component={PatientDataPage} />
+          <Route path="/professional/patient/:patientId">
+            <PatientDataPage prefixURL="/professional/patient" />
+          </Route>
         </DataContextProvider>
+        <Route path="/professional" exact={true} />
+        <Route>
+          <InvalidRoute defaultURL={defaultURL} />
+        </Route>
       </Switch>
     </TeamContextProvider>
   );

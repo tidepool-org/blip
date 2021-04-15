@@ -113,6 +113,7 @@ const Diabeloop = (props) => {
   return (
     <div>
       <ClipboardButton
+        id="button-settings-copy-as-text"
         className={styles.copyButton}
         button-title={t('For email or notes')}
         data-clipboard-target="#copySettingsText"
@@ -200,7 +201,6 @@ Diabeloop.propTypes = {
     timezoneAware: PropTypes.bool.isRequired,
     timezoneName: PropTypes.string,
   }).isRequired,
-  user: PropTypes.object.isRequired,
   handleClickHistory: PropTypes.func.isRequired,
 };
 export default Diabeloop;

@@ -14,15 +14,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import moment from "moment-timezone";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -32,10 +30,6 @@ import Link from "@material-ui/core/Link";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-
-import HomeIcon from "@material-ui/icons/Home";
 
 import { Units } from "../../models/generic";
 import { Preferences, Profile, UserRoles, Settings, User } from "../../models/shoreline";
@@ -45,12 +39,16 @@ import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import sendMetrics from "../../lib/metrics";
-import HeaderBar from "../../components/header-bars/primary";
 import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
 
+import SecondaryHeaderBar from "./secondary-bar";
 import SwitchRoleConsequencesDialog from "./switch-role-consequences-dialog";
 import SwitchRoleConsentDialog from "./switch-role-consent-dialog";
+
+interface ProfilePageProps {
+  defaultURL: string;
+}
 
 interface Errors {
   firstName: boolean;
@@ -112,28 +110,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const ProfileHeader = () => {
-  const { t } = useTranslation("yourloops");
-  const classes = useStyles();
-
-  return (
-    <Fragment>
-      <HeaderBar />
-      <AppBar position="static" color="secondary">
-        <Toolbar className={classes.toolBar}>
-          <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-            <Typography color="textPrimary" className={classes.breadcrumbText}>
-              <HomeIcon className={classes.homeIcon} />
-              {t("menu-account-preferences")}
-            </Typography>
-          </Breadcrumbs>
-        </Toolbar>
-      </AppBar>
-    </Fragment>
-  );
-};
-
-export const ProfilePage: FunctionComponent = () => {
+const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const history = useHistory();
@@ -359,12 +336,12 @@ export const ProfilePage: FunctionComponent = () => {
 
   return (
     <Fragment>
-      <ProfileHeader />
+      <SecondaryHeaderBar defaultURL={props.defaultURL} />
       <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
           <DialogTitle className={classes.title} id="profile-title">
-            {t("hcp-account-preferences-title")}
+            {t("menu-account-preferences")}
           </DialogTitle>
           <TextField
             id="profile-textfield-firstname"
@@ -491,3 +468,5 @@ export const ProfilePage: FunctionComponent = () => {
     </Fragment>
   );
 };
+
+export default ProfilePage;

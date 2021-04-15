@@ -102,7 +102,14 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     const auth = await api.login(username, password, traceToken);
     const tokenInfos = jwtDecode<JwtShorelinePayload>(auth.sessionToken);
     let user: User;
-    if (tokenInfos.role === "clinic") {
+    if (!_.isString(tokenInfos.role)) {
+      // old API support
+      let role = _.get(auth.user, 'roles[0]', UserRoles.patient);
+      if (role === "clinic") {
+        role = UserRoles.caregiver;
+      }
+      user = { ...auth.user, role };
+    } else if (tokenInfos.role === "clinic") {
       // TODO After BDD migration this check will be useless
       user = { ...auth.user, role: UserRoles.caregiver };
     } else {

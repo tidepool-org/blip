@@ -46,12 +46,16 @@ import AddCaregiveDialog from "./add-dialog";
 import RemoveCaregiverDialog from "./remove-dialog";
 import CaregiverTable from "./table";
 
+interface PatientCaregiversPageProps {
+  defaultURL: string;
+}
+
 const log = bows("PatientCaregiversPage");
 
 /**
  * Patient caregivers page
  */
-function PatientCaregiversPage(): JSX.Element {
+function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const { openSnackbar, snackbarParams } = useSnackbar();
   const authHook = useAuth();
@@ -137,7 +141,7 @@ function PatientCaregiversPage(): JSX.Element {
   return (
     <React.Fragment>
       <Snackbar params={snackbarParams} />
-      <SecondaryBar onShowAddCaregiverDialog={handleShowAddCaregiverDialog} />
+      <SecondaryBar defaultURL={props.defaultURL} onShowAddCaregiverDialog={handleShowAddCaregiverDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <CaregiverTable userShares={caregivers} onRemoveCaregiver={handleRemoveCaregiver} />
       </Container>

@@ -50,11 +50,13 @@ import { useSnackbar } from "../../lib/useSnackbar";
 import InvalidRoute from "../../components/invalid-route";
 import { Snackbar } from "../../components/utils/snackbar";
 import PrimaryNavBar from "../../components/header-bars/primary";
+import ProfilePage from "../profile";
+import NotificationsPage from "../notifications";
 import PatientDataPage from "./patient-data";
 import PatientListPage from "./patients/page";
 
-const log = bows("CaregiverPage");
 const defaultURL = "/caregiver/patients";
+const log = bows("CaregiverPage");
 
 const pageStyles = makeStyles(
   (/* theme: Theme */) => {
@@ -73,6 +75,8 @@ const CaregiverRoutes = (): JSX.Element => {
   return (
     <Switch>
       <Route path={defaultURL} exact={true} component={PatientListPage} />
+      <Route path="/caregiver/preferences" exact={true} component={() => <ProfilePage defaultURL={defaultURL} />} />
+      <Route path="/caregiver/notifications" exact={true} component={() => <NotificationsPage defaultURL={defaultURL} />} />
       <Route path="/caregiver/patient/:patientId" component={PatientDataPage} />
       <Route path="/caregiver" exact={true} />
       <Route>

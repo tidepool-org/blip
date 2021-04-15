@@ -33,7 +33,12 @@ import bows from "bows";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 
+import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
+import { useAuth } from "../../lib/auth";
 import PatientDataPage from "../../components/patient-data";
+import InvalidRoute from "../../components/invalid-route";
+import ProfilePage from "../profile";
+import NotificationsPage from "../notifications";
 import PrimaryNavBar from "./primary-nav-bar";
 import CaregiversPage from "./caregivers/page";
 import TeamsPage from "./teams/page";
@@ -45,24 +50,47 @@ const log = bows("PatientPage");
  */
 function PatientPage(): JSX.Element {
   const historyHook = useHistory();
+  const { user } = useAuth();
   const pathname = historyHook.location.pathname;
-  log.info("Patient page", pathname);
+
+  if (user === null) {
+    throw new Error("User not logged-in");
+  }
+
+  const prefixURL = React.useMemo(() => getURLPrefixFromUser(user), [user]);
+  const defaultURL = `${prefixURL}/data`;
 
   React.useEffect(() => {
     if (/^\/patient\/?$/.test(pathname)) {
-      log.info("Redirecting to the patients data");
-      historyHook.push("/patient/data");
+      log.info(`Redirecting to ${defaultURL}`);
+      historyHook.push(defaultURL);
     }
-  }, [pathname, historyHook]);
+  }, [pathname, historyHook, defaultURL]);
 
   return (
     <TeamContextProvider>
       <DataContextProvider context={DefaultDataContext}>
-        <PrimaryNavBar />
+        <PrimaryNavBar prefixURL={prefixURL} />
         <Switch>
-          <Route exact={true} path="/patient/data" component={PatientDataPage} />
-          <Route exact={true} path="/patient/caregivers" component={CaregiversPage} />
-          <Route exact={true} path="/patient/teams" component={TeamsPage} />
+          <Route path={defaultURL}>
+            <PatientDataPage prefixURL={defaultURL} />
+          </Route>
+          <Route exact={true} path={`${prefixURL}/caregivers`}>
+            <CaregiversPage defaultURL={defaultURL} />
+          </Route>
+          <Route exact={true} path={`${prefixURL}/teams`}>
+            <TeamsPage defaultURL={defaultURL} />
+          </Route>
+          <Route exact={true} path={`${prefixURL}/preferences`}>
+            <ProfilePage defaultURL={defaultURL} />
+          </Route>
+          <Route exact={true} path={`${prefixURL}/notifications`}>
+            <NotificationsPage defaultURL={defaultURL} />
+          </Route>
+          <Route path="/patient" exact={true} />
+          <Route>
+            <InvalidRoute defaultURL={defaultURL} />
+          </Route>
         </Switch>
       </DataContextProvider>
     </TeamContextProvider>

@@ -31,10 +31,10 @@
  */
 
 import * as React from 'react';
-import PropType from 'prop-types';
+import PropTypes from 'prop-types';
 import bows from 'bows';
-
 import { Provider } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 import '../../viz/src/styles/colors.css';
 import '../../tideline/css/tideline.less';
@@ -51,18 +51,20 @@ const log = bows('Blip');
  */
 function ReduxProvider(props) {
   const store = initStore();
+  const historyHook = useHistory();
   return (
     // @ts-ignore
     <Provider store={store}>
-      <PatientData api={props.api} store={store} patient={props.patient} profileDialog={props.profileDialog} />
+      <PatientData api={props.api} store={store} patient={props.patient} profileDialog={props.profileDialog} prefixURL={props.prefixURL} history={historyHook} />
     </Provider>
   );
 }
 
 ReduxProvider.propTypes = {
-  api: PropType.object.isRequired,
-  patient: PropType.object.isRequired,
-  profileDialog: PropType.func.isRequired,
+  api: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  profileDialog: PropTypes.func.isRequired,
+  prefixURL: PropTypes.string.isRequired,
 };
 
 /**
@@ -71,11 +73,10 @@ ReduxProvider.propTypes = {
 function Blip(props) {
   if (typeof props === 'object') {
     try {
-      const { config, api, patient, profileDialog } = props;
-      const blipConfig = updateConfig(config);
-      log.info('blip config:', blipConfig);
+      const { config, api, patient, profileDialog, prefixURL } = props;
+      updateConfig(config);
 
-      return <ReduxProvider api={api} patient={patient} profileDialog={profileDialog} />;
+      return <ReduxProvider api={api} patient={patient} profileDialog={profileDialog} prefixURL={prefixURL} />;
     } catch (err) {
       log.error(err);
     }
@@ -86,10 +87,11 @@ function Blip(props) {
 }
 
 Blip.propTypes = {
-  config: PropType.object.isRequired,
-  api: PropType.object.isRequired,
-  patient: PropType.object.isRequired,
-  profileDialog: PropType.func.isRequired,
+  config: PropTypes.object.isRequired,
+  api: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  profileDialog: PropTypes.func.isRequired,
+  prefixURL: PropTypes.string.isRequired,
 };
 
 export { cleanStore };

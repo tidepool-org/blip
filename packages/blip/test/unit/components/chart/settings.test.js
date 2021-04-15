@@ -68,7 +68,36 @@ describe('Settings', function () {
           },
           grouped: { pumpSettings: [{
             source: 'diabeloop',
-            activeSchedule: ''
+            type: "pumpSettings",
+            deviceId: "123456789-ID",
+            deviceTime: "2021-01-31T10:26:04",
+            payload: {
+              device: {
+                deviceId: "123456789-ID",
+                imei: "123456789-IMEI",
+                manufacturer: "Diabeloop",
+                name: "DBLG1",
+                swVersion: "1.1.0",
+              },
+              cgm: {
+                apiVersion: "1.0.0",
+                endOfLifeTransmitterDate: "2021-03-31T08:21:00.000Z",
+                expirationDate: "2021-03-31T08:21:00.000Z",
+                manufacturer: "Dexcom",
+                name: "G6",
+                swVersionTransmitter: "1.0.0",
+                transmitterId: "123456789",
+              },
+              pump: {
+                expirationDate: "2021-03-30T17:47:32.000Z",
+                manufacturer: "Roche",
+                name: "Pump0001",
+                serialNumber: "123456789",
+                swVersion: "1.0.0",
+              },
+              history: [],
+              parameters: [],
+            },
           }] }
         },
         permsOfLoggedInUser: {

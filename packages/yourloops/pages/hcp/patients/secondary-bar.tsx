@@ -58,57 +58,60 @@ export interface PatientListBarProps {
   onInvitePatient: () => Promise<void>;
 }
 
-const pageBarStyles = makeStyles((theme: Theme) => {
-  return {
-    toolBarMiddle: {
-      display: "flex",
-      flexDirection: "row",
-      marginRight: "auto",
-      marginLeft: "auto",
-    },
-    toolBarRight: {
-      display: "flex",
-    },
-    homeIcon: {
-      marginRight: "0.5em",
-    },
-    breadcrumbText: {
-      display: "flex",
-      cursor: "default",
-    },
-    selectFilterIcon: {
-      margin: "0 .5em 0 0",
-    },
-    buttonAddPatient: {
-      marginLeft: "auto",
-    },
-    modalAddPatient: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    divModal: {
-      backgroundColor: theme.palette.background.paper,
-      borderRadius: theme.shape.borderRadius,
-      boxShadow: theme.shadows[5], // eslint-disable-line no-magic-numbers
-      padding: theme.spacing(2, 4, 3), // eslint-disable-line no-magic-numbers
-      width: "25em",
-    },
-    formModal: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    divModalButtons: {
-      display: "inline-flex",
-      flexDirection: "row",
-      marginTop: "2.5em",
-    },
-    divModalButtonCancel: {
-      marginLeft: "auto",
-      marginRight: theme.spacing(1),
-    },
-  };
-});
+const pageBarStyles = makeStyles(
+  (theme: Theme) => {
+    return {
+      toolBarMiddle: {
+        display: "flex",
+        flexDirection: "row",
+        marginRight: "auto",
+        marginLeft: "auto",
+      },
+      toolBarRight: {
+        display: "flex",
+      },
+      homeIcon: {
+        marginRight: "0.5em",
+      },
+      breadcrumbText: {
+        display: "flex",
+        cursor: "default",
+      },
+      selectFilterIcon: {
+        margin: "0 .5em 0 0",
+      },
+      buttonAddPatient: {
+        marginLeft: "auto",
+      },
+      modalAddPatient: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      divModal: {
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: theme.shape.borderRadius,
+        boxShadow: theme.shadows[5], // eslint-disable-line no-magic-numbers
+        padding: theme.spacing(2, 4, 3), // eslint-disable-line no-magic-numbers
+        width: "25em",
+      },
+      formModal: {
+        display: "flex",
+        flexDirection: "column",
+      },
+      divModalButtons: {
+        display: "inline-flex",
+        flexDirection: "row",
+        marginTop: "2.5em",
+      },
+      divModalButtonCancel: {
+        marginLeft: "auto",
+        marginRight: theme.spacing(1),
+      },
+    };
+  },
+  { name: "ylp-hcp-patients-secondary-bar" }
+);
 
 function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const { filter, filterType, onFilter, onFilterType, onInvitePatient } = props;
@@ -117,7 +120,11 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const teamHook = useTeam();
   const selectFilterValues = [
     { value: "all", label: t("select-all-patients"), icon: null },
-    { value: "flagged", label: t("select-flagged-patients"), icon: <FlagIcon color="primary" className={classes.selectFilterIcon} /> },
+    {
+      value: "flagged",
+      label: t("select-flagged-patients"),
+      icon: <FlagIcon color="primary" className={classes.selectFilterIcon} />,
+    },
     {
       value: TeamType.private,
       label: t("private-practice"),
@@ -167,7 +174,13 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
         </Breadcrumbs>
       </div>
       <div id="patients-list-toolbar-item-middle" className={classes.toolBarMiddle}>
-        <PatientFilters filter={filter} filterType={filterType} onFilter={onFilter} onFilterType={onFilterType} optionsFilterElements={optionsFilterElements} />
+        <PatientFilters
+          filter={filter}
+          filterType={filterType}
+          onFilter={onFilter}
+          onFilterType={onFilterType}
+          optionsFilterElements={optionsFilterElements}
+        />
       </div>
       <div id="patients-list-toolbar-item-right" className={classes.toolBarRight}>
         <Button

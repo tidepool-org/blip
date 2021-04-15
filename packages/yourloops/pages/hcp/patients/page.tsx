@@ -196,7 +196,7 @@ function PatientListPage(): JSX.Element {
 
   const handleSelectPatient = (user: TeamUser): void => {
     sendMetrics("hcp-select-patient");
-    historyHook.push(`/hcp/patient/${user.userid}`);
+    historyHook.push(`/professional/patient/${user.userid}`);
   };
 
   const handleFlagPatient = async (userId: string): Promise<void> => {

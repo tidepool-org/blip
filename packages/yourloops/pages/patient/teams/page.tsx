@@ -49,12 +49,16 @@ import TeamCard from "./team-card";
 import AddTeamDialog from "./add-dialog";
 import LeaveTeamDialog from "./leave-dialog";
 
+interface PatientTeamsPageProps {
+  defaultURL: string;
+}
+
 const log = bows("PatientTeamsPage");
 
 /**
  * Patient teams page
  */
-function PatientTeamsPage(): JSX.Element | null {
+function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
   const { openSnackbar, snackbarParams } = useSnackbar();
   // const authHook = useAuth();
   const teamHook = useTeam();
@@ -193,7 +197,7 @@ function PatientTeamsPage(): JSX.Element | null {
   return (
     <React.Fragment>
       <Snackbar params={snackbarParams} />
-      <SecondaryBar onShowAddTeamDialog={handleShowAddTeamDialog} />
+      <SecondaryBar defaultURL={props.defaultURL} onShowAddTeamDialog={handleShowAddTeamDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>
           {teamsItems}

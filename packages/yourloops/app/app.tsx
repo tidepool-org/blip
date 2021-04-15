@@ -37,13 +37,11 @@ import { PrivateRoute, PublicRoute } from "../components/routes";
 import InvalidRoute from "../components/invalid-route";
 import LoginPage from "../pages/login";
 import { SignUpPage } from "../pages/signup";
-import NotificationsPage from "../pages/notifications";
 import HcpPage from "../pages/hcp";
 import CaregiverPage from "../pages/caregiver";
 import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 import { AuthContextProvider } from "../lib/auth";
-import { ProfilePage } from "../pages/profile/profile";
 
 const Yourloops: React.FunctionComponent = () => (
   <Router>
@@ -56,10 +54,8 @@ const Yourloops: React.FunctionComponent = () => (
         <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
         <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
         <PrivateRoute path="/caregiver" component={CaregiverPage} />
-        <PrivateRoute path="/hcp" component={HcpPage} />
+        <PrivateRoute path="/professional" component={HcpPage} />
         <PrivateRoute path="/patient" component={PatientPage} />
-        <PrivateRoute path="/account-preferences" component={ProfilePage} />
-        <PrivateRoute path="/notifications" component={NotificationsPage} />
         <Route component={InvalidRoute} />
       </Switch>
     </AuthContextProvider>

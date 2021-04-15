@@ -113,18 +113,26 @@ describe('Basics', () => {
     it('should render the basics chart if any data is uploaded', () => {
       const date1 = new Date(Date.now() - 60*60*1000);
       const date2 = new Date();
+      const smbgs = [
+        { type: 'smbg', normalTime: date1.toISOString(), epoch: date1.valueOf() },
+        { type: 'smbg', normalTime: date2.toISOString(), epoch: date2.valueOf() }
+      ];
       const dataProps = {
+        patient: { userid: "1234" },
         tidelineData: {
+          grouped: {
+            smbg: smbgs,
+            cbg: [],
+          },
+          data: smbgs,
           basicsData: {
             nData: 1,
             dateRange: [date1.toISOString(), date2.toISOString()],
             data: {
               smbg: {
-                data: [
-                  { type: 'smbg', normalTime: date1.toISOString(), epoch: date1.valueOf() },
-                  { type: 'smbg', normalTime: date2.toISOString(), epoch: date2.valueOf() }
-                ],
+                data: smbgs,
               },
+              cbg: [],
             },
             days: [
               {

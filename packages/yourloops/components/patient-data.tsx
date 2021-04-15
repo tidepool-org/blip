@@ -41,6 +41,10 @@ import { useData } from "../lib/data";
 
 import ProfileDialog from "./profile-dialog";
 
+interface PatientDataPageProps {
+  prefixURL: string;
+}
+
 interface PatientDataParam {
   patientId?: string;
 }
@@ -59,7 +63,7 @@ function PatientDataPageError({ msg }: PatientDataPageErrorProps): JSX.Element {
   );
 }
 
-function PatientDataPage(): JSX.Element | null {
+function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
   const paramHook = useParams();
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -71,6 +75,7 @@ function PatientDataPage(): JSX.Element | null {
   const { blipApi } = dataHook;
   const { patientId: paramPatientId = null } = paramHook as PatientDataParam;
   const userId = authHook.user?.userid ?? null;
+  const prefixURL = authHook.user?.role === UserRoles.patient ? props.prefixURL : `${props.prefixURL}/${paramPatientId}`;
 
   const initialized = authHook.initialized() && teamHook.initialized && blipApi !== null;
 
@@ -107,7 +112,7 @@ function PatientDataPage(): JSX.Element | null {
 
   return (
     <Container maxWidth="lg">
-      <Blip config={appConfig} api={blipApi} patient={patient} profileDialog={ProfileDialog} />
+      <Blip config={appConfig} api={blipApi} patient={patient} profileDialog={ProfileDialog} prefixURL={prefixURL} />
     </Container>
   );
 }

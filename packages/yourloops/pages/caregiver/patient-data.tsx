@@ -108,7 +108,7 @@ function PatientDataPage(): JSX.Element | null {
 
   return (
     <Container maxWidth="lg">
-      <Blip config={appConfig} api={blipApi} patient={patient.user} profileDialog={ProfileDialog} />
+      <Blip config={appConfig} api={blipApi} patient={patient.user} profileDialog={ProfileDialog} prefixURL={`/caregiver/patient/${paramPatientId}`} />
     </Container>
   );
 }

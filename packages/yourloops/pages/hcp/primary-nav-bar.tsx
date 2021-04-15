@@ -40,14 +40,20 @@ const tabStyle: React.CSSProperties = { color: "black" };
 function HcpNavBar(): JSX.Element {
   const historyHook = useHistory();
   const { t } = useTranslation("yourloops");
+  const location = historyHook.location.pathname;
 
-  const isTeamPath = historyHook.location.pathname.startsWith("/hcp/teams");
+  let currentTab: number | boolean = false;
+  if (location.startsWith("/professional/patients")) {
+    currentTab = 0;
+  } else if (location.startsWith("/professional/teams")) {
+    currentTab = 1;
+  }
 
   return (
     <HeaderBar>
-      <Tabs value={isTeamPath ? 1 : 0} indicatorColor="primary" textColor="primary" centered>
-        <Tab style={tabStyle} label={t("hcp-tab-patients")} component={Link} to="/hcp/patients" />
-        <Tab style={tabStyle} label={t("hcp-tab-teams")} component={Link} to="/hcp/teams" />
+      <Tabs value={currentTab} indicatorColor="primary" textColor="primary" centered>
+        <Tab style={tabStyle} label={t("hcp-tab-patients")} component={Link} to="/professional/patients" />
+        <Tab style={tabStyle} label={t("hcp-tab-teams")} component={Link} to="/professional/teams" />
       </Tabs>
     </HeaderBar>
   );

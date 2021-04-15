@@ -68,14 +68,6 @@ class TidelineHeader extends React.Component {
     profileDialog: null,
   };
 
-  getPatientLink() {
-    const { patient } = this.props;
-    if (!patient || !patient.userid) {
-      return '/hcp/patients';
-    }
-    return `/hcp/profile/${patient.userid}`;
-  }
-
   renderStandard() {
     const { canPrint, chartType, atMostRecent, inTransition, loading } = this.props;
 
@@ -83,7 +75,6 @@ class TidelineHeader extends React.Component {
     const showPrintLink = _.includes(printViews, chartType);
     const showHome = _.has(this.props.permsOfLoggedInUser, 'view');
     const homeValue = personUtils.fullName(this.props.patient);
-    const patientLink = this.getPatientLink();
 
     const home = cx({
       'js-home': true,
@@ -170,7 +161,7 @@ class TidelineHeader extends React.Component {
     }
 
     /** @type {(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void} */
-    const handleClick = (/* e */) => {
+    const handleShowPatientProfile = (/* e */) => {
       // e.preventDefault();
       // FIXME: Find a way to use the react-router-dom
       this.props.trackMetric('Clicked Navbar Name');
@@ -193,7 +184,7 @@ class TidelineHeader extends React.Component {
       <div className='grid patient-data-subnav'>
         <div className='app-no-print patient-data-subnav-left'>
           <AccountCircleIcon className={home} />
-          <Link className={home} to={patientLink} onClick={handleClick} title={t('Profile')}>
+          <Link className={home} onClick={handleShowPatientProfile} title={t('Profile')}>
             {homeValue}
           </Link>
           {profileDialog}

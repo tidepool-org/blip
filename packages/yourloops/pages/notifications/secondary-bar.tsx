@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Teams list for HCPs - Second app bar
+ * Notifications - Second app bar
  *
  * All rights reserved.
  *
@@ -28,25 +28,23 @@
 
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core/styles";
-
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 
-import AddIcon from "@material-ui/icons/Add";
 import HomeIcon from "@material-ui/icons/Home";
 
-import { Team } from "../../lib/team";
 import SecondaryHeaderBar from "../../components/header-bars/secondary";
 
-interface BarProps {
-  onShowEditTeamDialog: (team: Team | null) => Promise<void>;
+interface SecondaryBarProps {
+  defaultURL: string;
 }
 
 const pageBarStyles = makeStyles(
-  () => {
+  (theme: Theme) => {
     return {
       toolBarRight: {
         display: "flex",
@@ -54,6 +52,11 @@ const pageBarStyles = makeStyles(
       breadcrumbText: {
         display: "flex",
         cursor: "default",
+        color: theme.palette.text.disabled,
+      },
+      breadcrumbLink: {
+        display: "flex",
+        color: theme.palette.text.primary,
       },
       homeIcon: {
         marginRight: "0.5em",
@@ -63,41 +66,28 @@ const pageBarStyles = makeStyles(
       },
     };
   },
-  { name: "ylp-hcp-teams-secondary-bar" }
+  { name: "ylp-notifications-secondary-bar" }
 );
 
-function TeamsSecondaryBar(props: BarProps): JSX.Element {
+function SecondaryBar(props: SecondaryBarProps): JSX.Element {
   const classes = pageBarStyles();
   const { t } = useTranslation("yourloops");
 
-  const handleOpenModalAddTeam = async (): Promise<void> => {
-    await props.onShowEditTeamDialog(null);
-  };
-
   return (
     <SecondaryHeaderBar>
-      <div id="teams-navbar-item-left">
+      <div id="notifications-navbar-item-left">
         <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-          <Typography color="textPrimary" className={classes.breadcrumbText}>
+          <Link component={RouterLink} to={props.defaultURL} className={classes.breadcrumbLink}>
             <HomeIcon className={classes.homeIcon} />
-            {t("teams-navbar-breadcrumbs-title-my-teams")}
-          </Typography>
+            {t("breadcrumb-home")}
+          </Link>
+          <Typography className={classes.breadcrumbText}>{t("breadcrumb-notifications")}</Typography>
         </Breadcrumbs>
       </div>
-      <div id="teams-navbar-item-middle"></div>
-      <div id="teams-navbar-item-right" className={classes.toolBarRight}>
-        <Button
-          id="teams-navbar-add-team"
-          color="primary"
-          variant="contained"
-          className={classes.buttonAddTeam}
-          onClick={handleOpenModalAddTeam}>
-          <AddIcon />
-          &nbsp;{t("button-create-a-team")}
-        </Button>
-      </div>
+      <div id="notifications-navbar-item-middle"></div>
+      <div id="notifications-navbar-item-right" className={classes.toolBarRight} />
     </SecondaryHeaderBar>
   );
 }
 
-export default TeamsSecondaryBar;
+export default SecondaryBar;
