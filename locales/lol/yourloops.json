@@ -69,7 +69,7 @@
   "team-leave-dialog-and-del-consequences": "crwdns47080:0crwdne47080:0",
   "team-modal-create-info": "crwdns47200:0crwdne47200:0",
   "team-modal-create-warning-line1": "crwdns53422:0crwdne53422:0",
-  "team-modal-create-warning-line2": "crwdns53424:0{{termsAndConditions}}crwdne53424:0",
+  "team-modal-create-warning-line2": "crwdns53424:0{{terms}}crwdne53424:0",
   "team-page-failed-create": "crwdns53426:0crwdne53426:0",
   "team-page-failed-edit": "crwdns47128:0crwdne47128:0",
   "team-page-failed-remove-member": "crwdns47130:0crwdne47130:0",
@@ -195,7 +195,7 @@
   "col-sending-date": "crwdns47256:0crwdne47256:0",
   "modal-add-patient-email-descr": "crwdns47258:0crwdne47258:0",
   "modal-add-patient-team-descr": "crwdns47260:0crwdne47260:0",
-  "modal-add-patient-legal-placeholder": "crwdns47262:0crwdne47262:0",
+  "modal-add-patient-legal-placeholder": "crwdns47262:0{{terms}}crwdnd47262:0{{privacyPolicy}}crwdne47262:0",
   "modal-team-code-descr-placeholder": "crwdns47264:0crwdne47264:0",
   "modal-team-code-descr-placeholder-2": "crwdns47266:0crwdne47266:0",
   "team-member-pending": "crwdns47268:0crwdne47268:0",
@@ -226,7 +226,7 @@
   "button-add-team": "crwdns53508:0crwdne53508:0",
   "caregivers-title": "crwdns47318:0crwdne47318:0",
   "caregivers-pending": "crwdns47320:0crwdne47320:0",
-  "modal-add-patient-warning": "crwdns53510:0{{termsOfUse}}crwdne53510:0",
+  "modal-add-patient-warning": "crwdns53510:0{{terms}}crwdnd53510:0{{privacyPolicy}}crwdne53510:0",
   "modal-hcp-add-patient-success": "crwdns53512:0crwdne53512:0",
   "modal-hcp-add-patient-failure": "crwdns53514:0crwdne53514:0",
   "modal-hcp-add-patient-failure-already-in-team": "crwdns53588:0crwdne53588:0",
@@ -291,5 +291,5 @@
   "footer-link-url-intended-use": "crwdns53480:0crwdne53480:0",
   "footer-link-url-privacy-policy": "crwdns53482:0crwdne53482:0",
   "footer-link-url-support": "crwdns53484:0crwdne53484:0",
-  "footer-link-url-terms": "crwdns53486:0crwdne53486:0"
+  "footer-link-url-terms": "crwdns53486:0{{terms}}crwdne53486:0"
 }

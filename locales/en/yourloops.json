@@ -25,6 +25,7 @@
   "common-ok": "Ok",
   "breadcrumb-home": "Home",
   "breadcrumb-patient-teams": "My Care Teams",
+  "breadcrumb-notifications": "Notifications",
   "button-refresh-page-on-error": "Refresh",
   "button-team-edit": "Edit",
   "button-team-add-member": "Add healthcare professional",
@@ -290,6 +291,5 @@
   "join-group": "invites you to join",
   "footer-link-url-intended-use": "Regulatory Information",
   "footer-link-url-privacy-policy": "Privacy Policy",
-  "footer-link-url-support": "Diabeloop",
-  "footer-link-url-terms": "<linkTerms>{{terms}}</linkTerms>"
+  "footer-link-url-support": "Diabeloop"
 }

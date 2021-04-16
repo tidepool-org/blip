@@ -226,7 +226,7 @@
   "button-add-team": "Add team",
   "caregivers-title": "Mis cuidadores",
   "caregivers-pending": "Invitaciones pendientes",
-  "modal-add-patient-warning": "By inviting a patient, you recognize that you have the right to do so per our <linkTerms>{{termsOfUse}}</linkTerms>",
+  "modal-add-patient-warning": "By inviting this patient to share their data with me and their care team, I declare under my professional responsibility that I am part of this patient’s care team and, as such, have the right to access the patient’s personal data according to the applicable regulations.\nRead our <linkTerms>{{terms}}</linkTerms> and <linkPrivacyPolicy>{{privacyPolicy}}</linkPrivacyPolicy>.",
   "modal-hcp-add-patient-success": "Invitation sent!",
   "modal-hcp-add-patient-failure": "Impossible to add a patient. Please try again later.",
   "modal-hcp-add-patient-failure-already-in-team": "This patient already shared their data with the team.",
@@ -291,5 +291,5 @@
   "footer-link-url-intended-use": "Regulatory Information",
   "footer-link-url-privacy-policy": "Política de confidencialidad",
   "footer-link-url-support": "Diabeloop",
-  "footer-link-url-terms": "Diabeloop Applications Terms of Use"
+  "footer-link-url-terms": "<linkTerms>{{terms}}</linkTerms>"
 }
