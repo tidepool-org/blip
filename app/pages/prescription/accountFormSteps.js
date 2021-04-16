@@ -34,6 +34,7 @@ export const AccountType = translate()(props => {
         options={typeOptions}
         error={getFieldError('accountType', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );

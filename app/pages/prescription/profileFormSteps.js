@@ -1,6 +1,6 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { FastField, useFormikContext } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import bows from 'bows';
 import get from 'lodash/get';
@@ -121,6 +121,7 @@ export const PatientGender = translate()(props => {
         options={sexOptions}
         error={getFieldError('sex', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
@@ -131,12 +132,14 @@ export const PatientDevices = translate()(props => {
   const formikContext = useFormikContext();
 
   const {
+    setFieldTouched,
     setFieldValue,
     values,
   } = formikContext;
 
   const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
+  const [hasInitialFocus, setHasInitialFocus] = React.useState(true);
 
   return (
     <Box {...fieldsetStyles}>
@@ -144,7 +147,7 @@ export const PatientDevices = translate()(props => {
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>
-            <FastField
+            <Field
               as={Checkbox}
               id="initialSettings.pumpId"
               name="initialSettings.pumpId"
@@ -152,10 +155,15 @@ export const PatientDevices = translate()(props => {
               checked={!isEmpty(get(values, 'initialSettings.pumpId', ''))}
               label={device.label}
               onChange={e => {
-                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
+                setFieldTouched('initialSettings.pumpId');
+                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '', true)
               }}
               error={getFieldError('initialSettings.pumpId', formikContext)}
               innerRef={initialFocusedInputRef}
+              onBlur={e => {
+                setFieldTouched('initialSettings.pumpId', true, !hasInitialFocus);
+                setHasInitialFocus(false);
+              }}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>

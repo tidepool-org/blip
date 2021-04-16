@@ -114,6 +114,7 @@ export const PatientTraining = props => {
         options={trainingOptions}
         error={getFieldError('training', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
