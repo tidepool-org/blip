@@ -1,5 +1,5 @@
 {
-  "brand-name": "Yourloops",
+  "brand-name": "YourLoops",
   "alt-img-logo": "Logo del marchio",
   "aria-breadcrumbs": "Percorso di navigazione",
   "aria-current-user-account": "Account utente corrente",
@@ -19,12 +19,13 @@
   "error-failed-display-patients": "Impossible to display your patient list. Please try again later.",
   "button-accept": "Accetta",
   "add-patient": "Aggiungi paziente",
-  "button-create-team": "Create team",
+  "button-create-team": "Creare team",
   "button-create-a-team": "Creare un team",
   "button-decline": "Rifiuta",
   "common-ok": "Accetta",
   "breadcrumb-home": "Home",
   "breadcrumb-patient-teams": "My Care Teams",
+  "breadcrumb-notifications": "Notifications",
   "button-refresh-page-on-error": "Aggiorna",
   "button-team-edit": "Modifica",
   "button-team-add-member": "Aggiungi operatore sanitario",
@@ -139,7 +140,7 @@
   "Forgot your password?": "Password dimenticata?",
   "Please enter your email address.": "Immetta il suo indirizzo e-mail.",
   "Send reset link": "Invia link di reimpostazione",
-  "sending reset link": "Sending reset link",
+  "sending reset link": "Invia link di reimpostazione",
   "page-not-found": "Page not found",
   "patient-not-found": "Patient not found",
   "password-dont-match": "Le password non corrispondono.",
@@ -288,8 +289,7 @@
   "yesterday": "Ieri",
   "datashare": "vuole condividere con lei i propri dati sul diabete.",
   "join-group": "vi invita a unirvi",
-  "footer-link-url-intended-use": "Regulatory Information",
+  "footer-link-url-intended-use": "Uso previsto",
   "footer-link-url-privacy-policy": "Informativa sulla privacy",
-  "footer-link-url-support": "Diabeloop",
-  "footer-link-url-terms": "<linkTerms>{{terms}}</linkTerms>"
+  "footer-link-url-support": "Diabeloop"
 }
