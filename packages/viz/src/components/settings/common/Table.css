@@ -25,6 +25,12 @@
   composes: secondaryLeftPadding from '../settings.css';
 }
 
+.secondaryLabelWithMainBold {
+  composes: lightText from '../../../styles/typography.css';
+  composes: secondaryLeftPadding from '../settings.css';
+  font-weight: bold;
+}
+
 @media print {
   .secondaryLabelWithMain {
     composes: lightText largeSize from '../../../styles/typography.css';

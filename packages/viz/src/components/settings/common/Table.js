@@ -49,6 +49,14 @@ class Table extends React.PureComponent {
             </th>
           );
         }
+        if (column.className) {
+          return (
+            <th key={key} className={column.className}>
+              {label}
+            </th>
+          );
+
+        }
         return (
           <th key={key} className={styles.secondaryLabelAlone}>
             {label}
@@ -61,7 +69,12 @@ class Table extends React.PureComponent {
 
   renderRow(normalizedColumns, rowKey, rowData) {
     const cells = _.map(normalizedColumns,
-      (column) => <td key={column.key}>{column.cell(rowData, column.key)}</td>
+      (column) => {
+        const classname = (column.className) ? `styles.secondaryLabelWithMain` : "styles.secondaryLabelWithMain";
+
+        return <td key={column.key} className={classname}>{column.cell(rowData, column.key)}</td>;
+
+      }
     );
     return (<tr key={rowKey}>{cells}</tr>);
   }
