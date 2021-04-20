@@ -31,11 +31,24 @@
 import { AppConfig } from "../models/config";
 
 declare global {
+  interface CookiesComplete {
+    zendesk?: boolean;
+    matomo?: boolean;
+    stonly?: boolean;
+  }
+  interface AxeptIO {
+    on: (event: string, callback: (c: CookiesComplete) => void) => void;
+  }
+
   // var window: Window & typeof globalThis & ExtendedWindow;
   interface Window {
-    _jipt: any;
-    _paq: any[];
-    zE: (...args: any) => void;
+    _jipt: any; // Zendesk
+    _paq: any[]; // Matomo
+    _axcb: { // Axeptio
+      push: (f: (a: AxeptIO) => void) => void;
+    };
+    loadStonlyWidget: () => void;
+    zE: (...args: any) => void; // Zendesk API
     config?: AppConfig;
     cleanBlipReduxStore?: () => void;
   }

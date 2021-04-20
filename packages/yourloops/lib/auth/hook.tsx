@@ -36,7 +36,7 @@ import { useHistory } from "react-router-dom";
 
 import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
 import sendMetrics from "../metrics";
-import { zendeskLogin, zendeskLogout, zendeskAllowCookie } from "../zendesk";
+import { zendeskLogin, zendeskLogout } from "../zendesk";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
 import AuthAPIImpl from "./api";
 import { SignUpFormState } from "pages/signup/signup-formstate-context";
@@ -127,8 +127,6 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     setUser(user);
     setSessionToken(auth.sessionToken);
 
-    // FIXME: Test if the user as consent
-    zendeskAllowCookie(true);
     zendeskLogin();
     sendMetrics("setUserId", auth.user.userid);
     return user;

@@ -36,16 +36,13 @@ export interface AppConfig {
   PASSWORD_MIN_LENGTH: number;
   PASSWORD_MAX_LENGTH?: number;
   ABOUT_MAX_LENGTH?: number;
-  ALLOW_SIGNUP_PATIENT?: boolean;
-  ALLOW_PATIENT_CHANGE_EMAIL?: boolean;
-  ALLOW_PATIENT_CHANGE_PASSWORD?: boolean;
-  CAN_SEE_PWD_LOGIN?: boolean;
   SUPPORT_WEB_ADDRESS?: string;
-  REGULATORY_WEB_ADDRESS?: string;
-  HELP_LINK?: string | null; // TODO ++++++++++++++++++++++
   ASSETS_URL?: string | null;
   METRICS_SERVICE?: string | null;
+  METRICS_FORCED: boolean;
   MAX_FAILED_LOGIN_ATTEMPTS?: number;
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT?: number;
   TERMS_PRIVACY_DATE?: string;
+  STONLY_WID: string;
+  COOKIE_BANNER_CLIENT_ID: string;
 }

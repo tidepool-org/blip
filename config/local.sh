@@ -4,17 +4,6 @@ export WEBPACK_DEVTOOL='source-map'
 export PORT='3001'
 
 # Diabeloop specific
-export I18N_ENABLED='true'
-export ALLOW_CHANGE_PASSWORD='false'
-export ALLOW_SIGNUP_PATIENT='false'
-export ALLOW_PATIENT_CHANGE_EMAIL='false'
-export ALLOW_PATIENT_CHANGE_PASSWORD='false'
-export ALLOW_PATIENT_CHANGE_NAME='true'
-export ALLOW_SELECT_COUNTRY='true'
-export HIDE_DONATE='true'
-export HIDE_DEXCOM_BANNER='true'
-export HIDE_UPLOAD_LINK='true'
-export CAN_SEE_PWD_LOGIN='true'
 export BRANDING='diabeloop'
 export PASSWORD_MIN_LENGTH='10'
 export PASSWORD_MAX_LENGTH='72'
@@ -39,8 +28,9 @@ export MATOMO_TRACKER_SITEID='0'
 export SUPPORT_WEB_ADDRESS='https://example.com/'
 # Crowdin translation service (enabled / disabled):
 export CROWDIN='disabled'
-# Stonly service https://stonly.com/ (enabled / disabled):
-export STONLY='disabled'
-
+# Stonly service https://stonly.com/ (Stonly ID / disabled):
+export STONLY_WID='disabled'
+# axeptio.eu cookie banner
+export COOKIE_BANNER_CLIENT_ID='disabled'
 # Environement for CloudFront config:
 export TARGET_ENVIRONMENT='dev'

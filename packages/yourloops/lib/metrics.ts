@@ -29,9 +29,22 @@
 import _ from "lodash";
 import bows from "bows";
 
-import appConfig from "./config";
+import config from "./config";
 
 const log = bows("Metrics");
+let metricsEnabled = false;
+
+const logDisabledMetricsConfiguration = _.once(() => {
+  log.info("Metrics service is disabled by configuration");
+});
+
+const logUnknownMetricsConfiguration = _.once(() => {
+  log.error("Unknown metrics service", config.METRICS_SERVICE);
+});
+
+const logWrongMetricsConfiguration = _.once(() => {
+  log.error("Matomo do not seems to be available, wrong configuration");
+});
 
 /**
  * Record something for the tracking metrics
@@ -41,15 +54,31 @@ const log = bows("Metrics");
 function sendMetrics(eventName: string, properties?: unknown): void {
   let matomoPaq: unknown[] | null = null;
   log.info(eventName, properties);
-  switch (appConfig.METRICS_SERVICE) {
+
+  if (eventName === "metrics") {
+    metricsEnabled = config.METRICS_FORCED || _.get(properties, "enabled", false) as boolean;
+  } else if (!metricsEnabled) {
+    return;
+  }
+
+  switch (config.METRICS_SERVICE) {
   case "matomo":
     matomoPaq = window._paq;
     if (!_.isObject(matomoPaq)) {
-      log.error("Matomo do not seems to be available, wrong configuration");
+      logWrongMetricsConfiguration();
       return;
     }
-    if (eventName === "CookieConsent") {
-      matomoPaq.push(["setConsentGiven", properties]);
+    if (eventName === "metrics") {
+      if (metricsEnabled) {
+        matomoPaq.push(["setConsentGiven"]);
+        // Do it another time, since only one time seems to not be always enough:
+        matomoPaq.push(["setConsentGiven"]);
+        // Clear the do not track default check
+        matomoPaq.push(['setDoNotTrack', false]);
+      } else {
+        window._paq.push(['forgetConsentGiven']);
+        matomoPaq.push(['setDoNotTrack', true]);
+      }
     } else if (eventName === "setCustomUrl") {
       matomoPaq.push(["setCustomUrl", properties]);
     } else if (eventName === "setUserId") {
@@ -64,6 +93,11 @@ function sendMetrics(eventName: string, properties?: unknown): void {
       matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
     }
     break;
+  case "disabled":
+    logDisabledMetricsConfiguration();
+    break;
+  default:
+    logUnknownMetricsConfiguration();
   }
 }
 

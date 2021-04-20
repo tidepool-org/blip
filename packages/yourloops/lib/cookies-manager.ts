@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Main App file
+ * Yourloops API client: Cookie manager
  *
  * All rights reserved.
  *
@@ -26,43 +26,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Polyfills for compatibility with older browsers:
-import "core-js/stable";
+import _ from "lodash";
+import bows from "bows";
 
-import * as React from "react";
-import ReactDOM from "react-dom";
-import Yourloops from "./app";
+import config from "./config";
+import sendMetrics from "./metrics";
+import { zendeskAllowCookies } from "./zendesk";
 
-import { init as i18nInit } from "../lib/language";
-import initCookiesConcentListener from "../lib/cookies-manager";
+const log = bows("Cookies");
 
-i18nInit().then(() => {
-  window.onerror = (event, source, lineno, colno, error) => {
-    // FIXME: create an error modale ?
-    // FIXME: Add a simplier one before to detect a Javascript load error -> Browser too old specific message
-    console.error(event, source, lineno, colno, error);
-    let div = document.getElementById("app-error");
-    if (div === null) {
-      div = document.createElement("div");
-      div.id = "app-error";
-      document.body.appendChild(div);
-    }
-    const p = document.createElement("p");
-    p.style.color = "red";
-    p.appendChild(document.createTextNode(`Error ${source}:${lineno}:${colno}: ${error}`));
-    div.appendChild(p);
+function acceptCookiesListener(choices: CookiesComplete): void {
+  log.info("User choices:", choices);
 
-    return false;
-  };
-
-  let div = document.getElementById("app");
-  if (div === null) {
-    div = document.createElement("div");
-    div.id = "app";
-    document.body.appendChild(div);
+  if (choices.matomo === true) {
+    sendMetrics("metrics", { enabled: true });
+  } else {
+    sendMetrics("metrics", { enabled: false });
   }
+  if (choices.stonly === true && typeof window.loadStonlyWidget === "function") {
+    window.loadStonlyWidget();
+  }
+  if (choices.zendesk === true) {
+    zendeskAllowCookies(true);
+  } else {
+    zendeskAllowCookies(false);
+  }
+}
 
-  initCookiesConcentListener();
+function initCookiesConcentListener(): void {
+  // eslint-disable-next-line no-underscore-dangle
+  const axeptioCb = window._axcb;
+  log.debug("Waiting for acceptation", axeptioCb);
+  if (config.COOKIE_BANNER_CLIENT_ID === "disabled") {
+    acceptCookiesListener({ matomo: true, stonly: true, zendesk: true });
+  } else if (_.isFunction(_.get(axeptioCb, "push"))) {
+    axeptioCb.push((axeptio: AxeptIO) => {
+      axeptio.on("cookies:complete", acceptCookiesListener);
+    });
+  }
+}
 
-  ReactDOM.render(<Yourloops />, div);
-});
+export default initCookiesConcentListener;

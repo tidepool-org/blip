@@ -26,6 +26,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import bows from "bows";
+
+const log = bows("Zendesk");
+let allowCookies = false;
+
 /**
  * @returns true if zendesk is active
  */
@@ -39,7 +44,8 @@ export function isZendeskActive(): boolean {
  * Login routine is implemented in `templates/zendesk.js`
  */
 export function zendeskLogin(): void {
-  if (isZendeskActive()) {
+  if (allowCookies && isZendeskActive()) {
+    log.info("reauthenticate");
     window.zE("webWidget", "helpCenter:reauthenticate");
   }
 }
@@ -49,6 +55,7 @@ export function zendeskLogin(): void {
  */
 export function zendeskLogout(): void {
   if (isZendeskActive()) {
+    log.info("logout");
     window.zE("webWidget", "logout");
     window.zE("webWidget", "clear");
     window.zE("webWidget", "reset");
@@ -58,9 +65,15 @@ export function zendeskLogout(): void {
 /**
  * @param allow true if zendesk can use cookies
  */
-export function zendeskAllowCookie(allow: boolean): void {
+export function zendeskAllowCookies(allow: boolean): void {
+  allowCookies = allow;
   if (isZendeskActive()) {
+    log.info("Allow cookies");
     window.zE('webWidget', 'updateSettings', { cookies: allow });
+
+    if (!allowCookies) {
+      zendeskLogout();
+    }
   }
 }
 

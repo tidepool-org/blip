@@ -15,18 +15,18 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const _ = require('lodash');
 const handlebars = require('handlebars');
 const blipConfig = require('./config.app');
 
-const _ = require('lodash');
-
 const reTitle = /<title>([^<]*)<\/title>/;
-const reZendesk = /(^\s+<!-- Start of support Zendesk Widget script -->\n)(.*\n)?(^\s+<!-- End of support Zendesk Widget script -->)/m;
+const reZendesk = /(^\s+<!-- Start of support Zendesk Widget script -->\n)(.*\n)*(^\s+<!-- End of support Zendesk Widget script -->)/m;
 const reTrackerUrl = /const u = '(.*)';/;
 const reTrackerSiteId = /const id = ([0-9]);/;
 const reMatomoJs = /(^\s+<!-- Start of Tracker Code -->\n)(.*\n)*(^\s+<!-- End of Tracker Code -->)/m;
 const reCrowdin = /(^\s+<!-- Start of Crowdin -->\n)(.*\n)*(^\s+<!-- End of Crowdin -->)/m;
 const reStonly = /(^\s+<!-- Start of stonly-widget -->\n)(.*\n)*(^\s+<!-- End of stonly-widget -->)/m;
+const reCookieBanner = /(^\s+<!-- Start of cookie-banner -->\n)(.*\n)*(^\s+<!-- End of cookie-banner -->)/m;
 const reCrowdinBranding = /BRANDING/;
 
 const reUrl = /(^https?:\/\/[^/]+).*/;
@@ -117,7 +117,6 @@ function afterGenOutputFile(err) {
 function genContentSecurityPolicy() {
   if (zendeskEnabled) {
     // Assume Zendesk
-    console.log('Zendesk is enabled');
     const helpUrl = blipConfig.HELP_SCRIPT_URL.replace(reUrl, '$1');
     contentSecurityPolicy.scriptSrc.push(helpUrl);
     contentSecurityPolicy.connectSrc.push(helpUrl);
@@ -128,7 +127,6 @@ function genContentSecurityPolicy() {
 
   const metricsUrl = process.env.MATOMO_TRACKER_URL;
   if (blipConfig.METRICS_SERVICE === 'matomo' && reUrl.test(metricsUrl)) {
-    console.log('Matomo enabled');
     const matomoUrl = metricsUrl.replace(reUrl, '$1');
     contentSecurityPolicy.scriptSrc.push(matomoUrl);
     contentSecurityPolicy.imgSrc.push(matomoUrl);
@@ -136,7 +134,6 @@ function genContentSecurityPolicy() {
   }
 
   if (process.env.CROWDIN === 'enabled') {
-    console.log('Crowdin enabled');
     const crowdinURL = 'https://crowdin.com';
     const crowdinCDN = 'https://cdn.crowdin.com/';
     contentSecurityPolicy.scriptSrc.push("'unsafe-inline'", crowdinCDN, crowdinURL);
@@ -148,15 +145,20 @@ function genContentSecurityPolicy() {
     contentSecurityPolicy.frameSrc.push(crowdinCDN, crowdinURL, 'https://accounts.crowdin.com');
   }
 
-  if (process.env.STONLY === 'enabled') {
-    console.log('Stonly enabled');
-    const stonlyURL = 'https://stonly.com/';
+  if (blipConfig.STONLY_WID !== 'disabled') {
+    const stonlyURL = 'https://stonly.com';
     // TODO check what is needed here:
     contentSecurityPolicy.scriptSrc.push(stonlyURL);
     contentSecurityPolicy.imgSrc.push(stonlyURL);
     contentSecurityPolicy.connectSrc.push(stonlyURL);
     contentSecurityPolicy.fontSrc.push(stonlyURL);
     contentSecurityPolicy.frameSrc.push(stonlyURL);
+  }
+
+  if (blipConfig.COOKIE_BANNER_CLIENT_ID !== 'disabled') {
+    contentSecurityPolicy.scriptSrc.push('https://static.axept.io');
+    contentSecurityPolicy.connectSrc.push('https://api.axept.io', 'https://client.axept.io');
+    contentSecurityPolicy.imgSrc.push('https://axeptio.imgix.net', 'https://www.google.com');
   }
 
   let csp = '';
@@ -329,7 +331,7 @@ if (zendeskEnabled) {
 } else {
   console.info('- Help link is disabled');
 }
-indexHtml = indexHtml.replace(reZendesk, `$1  ${helpLink}\n$3`);
+indexHtml = indexHtml.replace(reZendesk, `$1${helpLink}\n$3`);
 
 // *** Matomo ***
 if (!reMatomoJs.test(indexHtml)) {
@@ -428,13 +430,14 @@ if (process.env.CROWDIN === 'enabled') {
 }
 
 // ** Stonly **
-if (process.env.STONLY === 'enabled') {
+if (blipConfig.STONLY_WID !== 'disabled') {
   console.info('- Enable stonly...');
-  const stonlyJs = fs.readFileSync(`${templateDir}/stonly.js`, 'utf8');
-  const fileHash = getHash(stonlyJs);
-  const integrity = getIntegrity(stonlyJs);
+  let jsScript = fs.readFileSync(`${templateDir}/stonly.js`, 'utf8');
+  jsScript = jsScript.replace(/__STONLY_WID__/g, process.env.STONLY_WID);
+  const fileHash = getHash(jsScript);
+  const integrity = getIntegrity(jsScript);
   const fileName = `stonly.${fileHash}.js`;
-  fs.writeFileSync(`${distDir}/static/${fileName}`, stonlyJs);
+  fs.writeFileSync(`${distDir}/static/${fileName}`, jsScript);
 
   const stonlyScript = `  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>`;
   if (!reStonly.test(indexHtml)) {
@@ -445,6 +448,37 @@ if (process.env.STONLY === 'enabled') {
 } else {
   console.info('- Stonly is disabled');
   indexHtml = indexHtml.replace(reStonly, '$1  <!-- disabled -->\n$3');
+}
+
+// ** Cookie Banner **
+if (blipConfig.COOKIE_BANNER_CLIENT_ID !== 'disabled') {
+  let siteName = "yourloops-base";
+  if (typeof process.env.AXEPTIO_CONFIGURATION === 'string') {
+    siteName = process.env.AXEPTIO_CONFIGURATION;
+  }
+
+  console.info(`- Enable cookie banner for ${siteName}...`);
+
+  let jsScript = fs.readFileSync(`${templateDir}/cookie-banner.js`, 'utf8');
+  jsScript = jsScript.replace(/__AXEPTIO_CLIENT_ID__/g, blipConfig.COOKIE_BANNER_CLIENT_ID);
+  jsScript = jsScript.replace(/__AXEPTIO_SITE_NAME__/g, siteName);
+  const fileHash = getHash(jsScript);
+  const integrity = getIntegrity(jsScript);
+  const fileName = `cookie-banner.${fileHash}.js`;
+  fs.writeFileSync(`${distDir}/static/${fileName}`, jsScript);
+
+  const cookieBannerScripts = `\
+  <script type="text/javascript" defer src="${fileName}" integrity="sha512-${integrity}" crossorigin="anonymous"></script>
+  <script type="text/javascript" defer src="https://static.axept.io/sdk-slim.js" async="true"></script>`;
+
+  if (!reCookieBanner.test(indexHtml)) {
+    console.error(`/!\\ Can't find cookie banner pattern in index.html: ${reCookieBanner.source} /!\\`);
+    process.exit(1);
+  }
+  indexHtml = indexHtml.replace(reCookieBanner, `$1${cookieBannerScripts}\n$3`);
+} else {
+  console.info('- Cookie banner is disabled');
+  indexHtml = indexHtml.replace(reCookieBanner, '$1  <!-- disabled -->\n$3');
 }
 
 fs.readdir(`${distDir}/static`, withFilesList);

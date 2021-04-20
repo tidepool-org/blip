@@ -27,12 +27,13 @@
  */
 
 import * as React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 
 import "@fontsource/roboto";
 import "branding/theme-base.css";
 import "branding/theme.css";
 
+import sendMetrics from "../lib/metrics";
 import { PrivateRoute, PublicRoute } from "../components/routes";
 import InvalidRoute from "../components/invalid-route";
 import LoginPage from "../pages/login";
@@ -43,23 +44,34 @@ import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 import { AuthContextProvider } from "../lib/auth";
 
-const Yourloops: React.FunctionComponent = () => (
-  <Router>
-    <AuthContextProvider>
-      <Switch>
-        <PublicRoute exact path="/" component={LoginPage} />
-        {/* this route is required because some backend service generate URL with it */}
-        <PublicRoute exact path="/login" component={LoginPage} />
-        <PublicRoute exact path="/signup" component={SignUpPage} />
-        <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
-        <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
-        <PrivateRoute path="/caregiver" component={CaregiverPage} />
-        <PrivateRoute path="/professional" component={HcpPage} />
-        <PrivateRoute path="/patient" component={PatientPage} />
-        <Route component={InvalidRoute} />
-      </Switch>
-    </AuthContextProvider>
-  </Router>
-);
+function MetricsLocationListener() {
+  const location = useLocation();
+  React.useEffect(() => {
+    sendMetrics("setCustomUrl", location.pathname);
+  }, [location]);
+  return null;
+}
+
+const Yourloops = (): JSX.Element => {
+  return (
+    <Router>
+      <MetricsLocationListener />
+      <AuthContextProvider>
+        <Switch>
+          <PublicRoute exact path="/" component={LoginPage} />
+          {/* this route is required because some backend service generate URL with it */}
+          <PublicRoute exact path="/login" component={LoginPage} />
+          <PublicRoute exact path="/signup" component={SignUpPage} />
+          <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
+          <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
+          <PrivateRoute path="/caregiver" component={CaregiverPage} />
+          <PrivateRoute path="/professional" component={HcpPage} />
+          <PrivateRoute path="/patient" component={PatientPage} />
+          <Route component={InvalidRoute} />
+        </Switch>
+      </AuthContextProvider>
+    </Router>
+  );
+};
 
 export default Yourloops;

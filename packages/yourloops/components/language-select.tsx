@@ -32,12 +32,15 @@ import FormControl from "@material-ui/core/FormControl";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { useTranslation } from "react-i18next";
 
+import sendMetrics from "../lib/metrics";
+
 function LanguageSelect(): JSX.Element {
   const { i18n } = useTranslation();
   const [val, setVal] = useState(i18n.language);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const lang = event.target.value as string;
+    sendMetrics("change-language", { userLogout: true, previous: val, current: lang });
     i18n.changeLanguage(lang);
     setVal(lang);
   };
