@@ -2,6 +2,10 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
+## Unreleased
+### Engineering Use
+- YLP-699 Add CodeQL Analysis
+
 ## 1.7.3-rc1 2021-02-22
 ### Engineering Use
 - Fix init Jenkins pipeline
