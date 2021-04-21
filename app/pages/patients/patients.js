@@ -348,6 +348,7 @@ export function getFetchers(dispatchProps, stateProps, api) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  fetchers.push(dispatchProps.fetchPatientSummaryStatsForClinic.bind(null, api));
   return fetchers;
 }
 
@@ -417,6 +418,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removeMembershipInOtherCareTeam,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
+  fetchPatientSummaryStatsForClinic: actions.async.fetchPatientSummaryStatsForClinic,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   clearPatientInView: actions.sync.clearPatientInView,
   showWelcomeMessage: actions.sync.showWelcomeMessage,

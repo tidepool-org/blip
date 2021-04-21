@@ -905,6 +905,10 @@ api.clinics.getPatientsForClinic = function(clinicId, cb) {
   return tidepool.getPatientsForClinic(clinicId, cb);
 };
 
+api.clinics.getPatientSummaryStatsForClinic = function(clinicId, summaryRequest, cb) {
+  return tidepool.getPatientSummaryStatsForClinic(clinicId || tidepool.getUserId(), summaryRequest, cb);
+};
+
 api.clinics.addPatientToClinic = function(clinicId, patient, cb) {
   return tidepool.addPatientToClinic(clinicId, patient, cb);
 };

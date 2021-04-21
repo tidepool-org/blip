@@ -1863,6 +1863,56 @@ export function fetchPatientsForClinic(api, clinicId) {
 }
 
 /**
+ * Fetch Patient Summary Stats for Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchPatientSummaryStatsForClinic(api, clinicId, summaryRequest) {
+  if (!summaryRequest) summaryRequest = {
+    units: 'mg/dl',
+    quantiles: [
+      {
+        name: 'veryHigh',
+        threshold: 250,
+      },
+      {
+        name: 'high',
+        threshold: 180,
+      },
+      {
+        name: 'low',
+        threshold: 70,
+      },
+      {
+        name: 'veryLow',
+        threshold: 54,
+      },
+    ],
+    period: {
+      length: 'week',
+      numPeriods: 14,
+    },
+  };
+
+  return (dispatch) => {
+    // dispatch(sync.fetchPatientsForClinicRequest());
+
+    api.clinics.getPatientSummaryStatsForClinic(clinicId, summaryRequest, (err, summary) => {
+      if (err) {
+        console.log('err', err);
+        // dispatch(sync.fetchPatientsForClinicFailure(
+        //   createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
+        // ));
+      } else {
+        console.log('summary', summary);
+        // dispatch(sync.fetchPatientsForClinicSuccess(summary));
+      }
+    });
+  };
+}
+
+/**
  * Add Patient to Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper
