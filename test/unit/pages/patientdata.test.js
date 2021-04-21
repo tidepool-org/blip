@@ -1760,6 +1760,21 @@ describe('PatientData', function () {
           'bgExtents',
         ]);
       });
+
+      it('should add appropriate stats when a settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInOverride',
+          'carbs',
+          'averageDailyDose',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
     });
 
     context('daily', () => {
@@ -1797,6 +1812,18 @@ describe('PatientData', function () {
           'averageGlucose',
           'totalInsulin',
           'timeInAuto',
+          'carbs',
+        ]);
+      });
+
+      it('should add appropriate stats when settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'totalInsulin',
+          'timeInOverride',
           'carbs',
         ]);
       });
@@ -1840,6 +1867,19 @@ describe('PatientData', function () {
         expect(instance.getStatsByChartType()).to.eql([
           'readingsInRange',
           'averageGlucose',
+          'standardDev',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
+
+      it('should add appropriate stats when settings-overridable device is detected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'timeInOverride',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',

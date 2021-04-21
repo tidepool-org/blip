@@ -276,7 +276,7 @@ export const PatientDataClass = createReactClass({
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
           <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>
-          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
+          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
           <p className="patient-no-data-help">
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
             <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
@@ -1145,6 +1145,7 @@ export const PatientDataClass = createReactClass({
       vizUtils.aggregation.defineBasicsAggregations(
         bgPrefs,
         manufacturer,
+        latestPumpUpload,
       ),
       aggregationsByDate,
       this.props.patient,
@@ -1172,6 +1173,7 @@ export const PatientDataClass = createReactClass({
     const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
     const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
 
     let stats = [];
 
@@ -1183,6 +1185,7 @@ export const PatientDataClass = createReactClass({
         cbgSelected && stats.push(commonStats.sensorUsage);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
@@ -1196,6 +1199,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.averageGlucose);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         cbgSelected && stats.push(commonStats.standardDev);
         cbgSelected && stats.push(commonStats.coefficientOfVariation);
@@ -1213,6 +1217,7 @@ export const PatientDataClass = createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
@@ -1258,7 +1263,6 @@ export const PatientDataClass = createReactClass({
           'bolus',
           'cbg',
           'deviceEvent',
-          'pumpSettings',
           'smbg',
           'wizard',
         ]);
