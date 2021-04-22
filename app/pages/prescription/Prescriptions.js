@@ -23,6 +23,7 @@ const Prescriptions = props => {
 
   const data = map(prescriptions, prescription => ({
     id: get(prescription, 'id'),
+    patientUserId: get(prescription, 'patientUserId', prescription.id === '607846c36b119c2bad8e5a5d' ? '676404ec56' : undefined), // TODO: remove debugging fallback
     ...get(prescription, 'latestRevision.attributes', {}),
   }));
 
@@ -40,6 +41,15 @@ const Prescriptions = props => {
 
   const renderDelete = ({ id }) => (
     <Button processing={deletingPrescription.prescriptionId === id && deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
+  );
+
+  const renderName = ({ firstName, lastName, patientUserId }) => (
+    <>
+     {patientUserId
+      ? <Button variant="textPrimary" onClick={() => props.history.push(`/patients/${patientUserId}/data`)}>{`${firstName} ${lastName}`}</Button>
+      : `${firstName} ${lastName}`
+     }
+    </>
   );
 
   const renderState = ({ state }) => {
@@ -67,8 +77,7 @@ const Prescriptions = props => {
   };
 
   const columns = [
-    { title: t('First Name'), field: 'firstName', align: 'left', sortable: true, searchable: true },
-    { title: t('Last Name'), field: 'lastName', align: 'left', sortable: true, searchable: true },
+    { title: t('Name'), field: 'patient', align: 'left', sortable: true, sortBy: 'firstName', render: renderName, searchable: true, searchBy: ['firstName', 'lastName'] },
     { title: t('MRN #'), field: 'mrn', align: 'left', searchable: true },
     { title: t('State'), field: 'state', render: renderState, align: 'left', sortable: true},
     { title: t('Edit'), field: 'edit', render: renderEdit, align: 'left' },
