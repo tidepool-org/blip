@@ -31,6 +31,7 @@ import plotPhysicalActivity from '../../js/plot/physicalActivity';
 import plotReservoirChange from '../../js/plot/reservoir';
 import plotDeviceParameterChange from '../../js/plot/deviceParameterChange';
 import plotConfidentialModeEvent from '../../js/plot/confidentialModeEvent';
+import plotWarmUp from '../../js/plot/warmup';
 import plotCbg from '../../js/plot/cbg';
 import plotSmbg from '../../js/plot/smbg';
 import plotWizard from '../../js/plot/wizard';
@@ -254,26 +255,32 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   poolBG.addPlotType('physicalActivity', plotPhysicalActivity(poolBG, {
     onPhysicalHover: options.onPhysicalHover,
-    onPhysicalOut: options.onPhysicalOut,
+    onPhysicalOut: options.onTooltipOut,
     tidelineData,
   }), true, true);
 
   poolBG.addPlotType('deviceEvent', plotReservoirChange(poolBG, {
     onReservoirHover: options.onReservoirHover,
-    onReservoirOut: options.onReservoirOut,
+    onReservoirOut: options.onTooltipOut,
   }), true, true);
 
   poolBG.addPlotType('deviceEvent', plotDeviceParameterChange(poolBG, {
     tidelineData,
     onParameterHover: options.onParameterHover,
-    onParameterOut: options.onParameterOut,
+    onParameterOut: options.onTooltipOut,
+  }), true, true);
+
+  poolBG.addPlotType('deviceEvent', plotWarmUp(poolBG, {
+    tidelineData,
+    onWarmUpHover: options.onWarmUpHover,
+    onWarmUpOut: options.onTooltipOut,
   }), true, true);
 
   // add confidential mode to BG pool
   poolBG.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBG, {
     tidelineData,
     onConfidentialHover: options.onConfidentialHover,
-    onConfidentialOut: options.onConfidentialOut,
+    onConfidentialOut: options.onTooltipOut,
   }), true, true);
 
   // add CBG data to BG pool
@@ -282,7 +289,7 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
     classes: chart.options.bgClasses,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onCBGHover: options.onCBGHover,
-    onCBGOut: options.onCBGOut,
+    onCBGOut: options.onTooltipOut,
   }), true, true);
 
   // add SMBG data to BG pool
@@ -291,7 +298,7 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
     classes: chart.options.bgClasses,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onSMBGHover: options.onSMBGHover,
-    onSMBGOut: options.onSMBGOut,
+    onSMBGOut: options.onTooltipOut,
   }), true, true);
 
   // setup axis & main y scale
@@ -307,13 +314,13 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
-    onBolusOut: options.onBolusOut,
+    onBolusOut: options.onTooltipOut,
   }), true, true);
 
   poolBolus.addPlotType('food', plotCarb(poolBolus, {
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onCarbHover: options.onCarbHover,
-    onCarbOut: options.onCarbOut,
+    onCarbOut: options.onTooltipOut,
   }), true, true);
 
   // quick bolus data to wizard pool
@@ -321,14 +328,14 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
-    onBolusOut: options.onBolusOut,
+    onBolusOut: options.onTooltipOut,
   }), true, true);
 
   // add confidential mode to Bolus pool
   poolBolus.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBolus, {
     tidelineData,
     onConfidentialHover: options.onConfidentialHover,
-    onConfidentialOut: options.onConfidentialOut,
+    onConfidentialOut: options.onTooltipOut,
   }), false, true);
 
   // setup axis & main y scale
@@ -348,7 +355,7 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   poolBasal.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBasal, {
     tidelineData,
     onConfidentialHover: options.onConfidentialHover,
-    onConfidentialOut: options.onConfidentialOut,
+    onConfidentialOut: options.onTooltipOut,
   }), false, true);
 
   // messages pool

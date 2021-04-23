@@ -681,6 +681,8 @@
   "Values": "Values",
   "View data for:": "View data for:",
   "View": "View",
+  "sensor-warmup": "Sensor warmup",
+  "sensor-warmup-session-end": "Session end",
   "Waiting for confirmation": "Waiting for confirmation",
   "Waiting to import data": "Waiting to import data",
   "We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but {{source}} did not directly provide us with these rate changes.": "We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but {{source}} did not directly provide us with these rate changes.",

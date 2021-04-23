@@ -29,6 +29,7 @@ const alias = {
   'cartridge.png': path.resolve(__dirname, '../../branding/sitechange/cartridge.png'),
   'infusion.png': path.resolve(__dirname, '../../branding/sitechange/infusion.png'),
   'cartridge-vicentra.png': path.resolve(__dirname, '../../branding/sitechange/cartridge-vicentra.png'),
+  'warmup-dexcom.svg': path.resolve(__dirname, '../../branding/warmup/warmup-dexcom.svg'),
   ...blipWebpack.resolve.alias,
 };
 // needed to remove type to have dev part enable

@@ -71,9 +71,7 @@ function plotDeviceParameterChange(pool, opts) {
 
       parameterGroup.append('image')
         .attr({
-          x: function(d) {
-            return xPos(d);
-          },
+          x: xPos,
           y: _.constant(0),
           width,
           height: function() {

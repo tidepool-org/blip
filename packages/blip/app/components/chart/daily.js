@@ -42,6 +42,7 @@ const ReservoirTooltip = vizComponents.ReservoirTooltip;
 const PhysicalTooltip = vizComponents.PhysicalTooltip;
 const ParameterTooltip = vizComponents.ParameterTooltip;
 const ConfidentialTooltip = vizComponents.ConfidentialTooltip;
+const WarmUpTooltip = vizComponents.WarmUpTooltip;
 
 class DailyChart extends React.Component {
   static propTypes = {
@@ -60,21 +61,15 @@ class DailyChart extends React.Component {
     onDatetimeLocationChange: PropTypes.func.isRequired,
     onTransition: PropTypes.func.isRequired,
     onBolusHover: PropTypes.func.isRequired,
-    onBolusOut: PropTypes.func.isRequired,
     onSMBGHover: PropTypes.func.isRequired,
-    onSMBGOut: PropTypes.func.isRequired,
     onCBGHover: PropTypes.func.isRequired,
-    onCBGOut: PropTypes.func.isRequired,
     onCarbHover: PropTypes.func.isRequired,
-    onCarbOut: PropTypes.func.isRequired,
     onReservoirHover: PropTypes.func.isRequired,
-    onReservoirOut: PropTypes.func.isRequired,
     onPhysicalHover: PropTypes.func.isRequired,
-    onPhysicalOut: PropTypes.func.isRequired,
     onParameterHover: PropTypes.func.isRequired,
-    onParameterOut: PropTypes.func.isRequired,
+    onWarmUpHover: PropTypes.func.isRequired,
     onConfidentialHover: PropTypes.func.isRequired,
-    onConfidentialOut: PropTypes.func.isRequired,
+    onTooltipOut: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
   };
 
@@ -86,21 +81,15 @@ class DailyChart extends React.Component {
       'bgUnits',
       'timePrefs',
       'onBolusHover',
-      'onBolusOut',
       'onSMBGHover',
-      'onSMBGOut',
       'onCBGHover',
-      'onCBGOut',
       'onCarbHover',
-      'onCarbOut',
       'onReservoirHover',
-      'onReservoirOut',
       'onPhysicalHover',
-      'onPhysicalOut',
       'onParameterHover',
-      'onParameterOut',
       'onConfidentialHover',
-      'onConfidentialOut',
+      'onWarmUpHover',
+      'onTooltipOut',
       'trackMetric',
     ];
 
@@ -333,21 +322,15 @@ class Daily extends React.Component {
                 onDatetimeLocationChange={this.handleDatetimeLocationChange}
                 onTransition={this.handleInTransition}
                 onBolusHover={this.handleBolusHover}
-                onBolusOut={this.handleTooltipOut}
                 onSMBGHover={this.handleSMBGHover}
-                onSMBGOut={this.handleTooltipOut}
                 onCBGHover={this.handleCBGHover}
-                onCBGOut={this.handleTooltipOut}
                 onCarbHover={this.handleCarbHover}
-                onCarbOut={this.handleTooltipOut}
                 onReservoirHover={this.handleReservoirHover}
-                onReservoirOut={this.handleTooltipOut}
                 onPhysicalHover={this.handlePhysicalHover}
-                onPhysicalOut={this.handleTooltipOut}
                 onParameterHover={this.handleParameterHover}
-                onParameterOut={this.handleTooltipOut}
+                onWarmUpHover={this.handleWarmUpHover}
                 onConfidentialHover={this.handleConfidentialHover}
-                onConfidentialOut={this.handleTooltipOut}
+                onTooltipOut={this.handleTooltipOut}
                 trackMetric={trackMetric}
                 ref={this.chartRef}
               />
@@ -608,6 +591,22 @@ class Daily extends React.Component {
     const tooltip = (
       <ParameterTooltip
         parameter={datum.data}
+        position={{
+          top: datum.top,
+          left: datum.left
+        }}
+        side={datum.side}
+        bgPrefs={datum.bgPrefs}
+        timePrefs={datum.timePrefs}
+      />);
+    this.setState({ tooltip });
+  };
+
+  handleWarmUpHover = (datum) => {
+    this.updateDatumHoverForTooltip(datum);
+    const tooltip = (
+      <WarmUpTooltip
+        datum={datum.data}
         position={{
           top: datum.top,
           left: datum.left

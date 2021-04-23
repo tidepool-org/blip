@@ -38,6 +38,7 @@ import PhysicalTooltip from './components/daily/physicaltooltip/PhysicalTooltip'
 import ReservoirTooltip from './components/daily/reservoirtooltip/ReservoirTooltip';
 import ParameterTooltip from './components/daily/parametertooltip/ParameterTooltip';
 import ConfidentialTooltip from './components/daily/confidentialtooltip/ConfidentialTooltip';
+import WarmUpTooltip from './components/daily/warmuptooltip/WarmUpTooltip';
 
 import reducers from './redux/reducers/';
 
@@ -81,6 +82,7 @@ const components = {
   ReservoirTooltip,
   ParameterTooltip,
   ConfidentialTooltip,
+  WarmUpTooltip,
 };
 
 const containers = {

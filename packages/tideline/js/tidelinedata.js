@@ -119,6 +119,8 @@ function TidelineData(opts = defaults) {
   this.zenEvents = null;
   /** @type {Datum[]} */
   this.confidentialEvents = null;
+  /** @type {Datum[]} */
+  this.warmUpEvents = null;
   /** @type {string} */
   this.latestPumpManufacturer = null;
   /** @type {[string, string]} */
@@ -253,7 +255,12 @@ function isObjectWithStandardDuration(d) {
   case "physicalActivity":
     return true;
   case "deviceEvent":
-    return d.subType === "confidential" || d.subType === "zen";
+    switch (d.subType) {
+    case "confidential":
+    case "zen":
+    case "warmup":
+      return true;
+    }
   }
   return false;
 }
@@ -1005,6 +1012,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   this.physicalActivities = null;
   this.zenEvents = null;
   this.confidentialEvents = null;
+  this.warmUpEvents = null;
   this.latestPumpManufacturer = null;
   this.endpoints = null;
   this.basicsData = null;
@@ -1105,6 +1113,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   startTimer("setEvents");
   this.zenEvents = this.setEvents({ type: "deviceEvent", subType: "zen" }, ["inputTime"]);
   this.confidentialEvents = this.setEvents({ type: "deviceEvent", subType: "confidential" }, ["inputTime"]);
+  this.warmUpEvents = this.setEvents({ type: "deviceEvent", subType: "warmup" }, ["inputTime"]); 
   endTimer("setEvents");
 
   startTimer("deduplicatePhysicalActivities");
