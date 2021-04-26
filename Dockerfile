@@ -1,5 +1,10 @@
 # This part contains the deployment source code only
-FROM node:12.18.3-alpine as deployment
+FROM node:12-alpine3.12 as base
+RUN apk --no-cache update && \
+    apk --no-cache upgrade && \
+    npm install -g npm@latest
+
+FROM base as deployment
 WORKDIR /cloudfront-dist
 COPY ./cloudfront-dist/deployment/bin ./deployment/bin
 COPY ./cloudfront-dist/deployment/lib ./deployment/lib
@@ -13,24 +18,21 @@ COPY ./cloudfront-dist/deploy.sh ./deploy.sh
 RUN cd deployment && npm install
 
 # this part contains the site content
-FROM node:12.18.3-alpine as content
+FROM base as content
 WORKDIR /content
 COPY ./dist/static ./static-dist/
 COPY ./templates ./templates
 
 # this part contains the aws lambda middleware
-FROM node:12.18.3-alpine as lambda
-RUN apk --no-cache update && \
-  apk --no-cache upgrade && \
-  apk add --no-cache openssl
+FROM base as lambda
+RUN apk add --no-cache openssl
 WORKDIR /server
 COPY ./server .
 RUN openssl req -nodes -new -x509 -keyout blip.key -out blip.cert -subj "/C=FR/ST=France/L=Grenoble/O=Diabeloop/OU=Platforms/CN=platforms@diabeloop.fr"
 RUN npm install
 
-FROM node:12.18.3-alpine as final
-RUN apk --no-cache update && \
-  apk --no-cache upgrade && \
+FROM base as final
+RUN \
   apk add --no-cache --virtual .user-deps shadow && \
   usermod -u 10669 node && groupmod -g 10669 node && \
   apk del .user-deps
@@ -49,6 +51,9 @@ ENV TARGET_ENVIRONMENT=
 ENV API_HOST=
 ENV DIST_DIR=/dist
 WORKDIR /dist
+RUN \
+  chown -v node:node /dist && \
+  chmod -v 750 /dist
 COPY --from=lambda --chown=node:node /server ./server
 COPY --from=deployment --chown=node:node /cloudfront-dist ./cloudfront-dist
 COPY --from=deployment --chown=node:node /cloudfront-dist/deploy.sh ./deploy.sh

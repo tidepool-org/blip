@@ -101,8 +101,8 @@ pipeline {
             when {
                 expression {
                     env.GIT_BRANCH == "dblp" || env.CHANGE_BRANCH == "engineering/team-managment-v1"
-                    }
                 }
+            }
             steps {
                 script {
                     env.target = "preview"

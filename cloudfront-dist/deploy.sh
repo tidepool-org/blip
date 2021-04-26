@@ -2,6 +2,7 @@
 set -eu
 # WORK ONLY with the docker images !
 # Require TARGET_ENVIRONMENT=test
+echo "Current user: $(whoami)"
 cd server
 npm run gen-lambda
 cd ..
