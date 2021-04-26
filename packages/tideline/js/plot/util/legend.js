@@ -354,12 +354,10 @@ const legend = {
           });
       },
       type: 'text'
-    }
-  ].reverse(),
-  rescuecarbs: [
+    },
     {
       create: function(opts) {
-        opts.widths.push(opts.SHAPE_WIDTH);
+        opts.widths.push(opts.SHAPE_WIDTH * 1.5);
         return opts.selection.append('circle')
           .attr({
             'class': 'd3-circle-rescuecarbs-legend'
@@ -380,7 +378,7 @@ const legend = {
           });
       },
       type: 'text'
-    }
+    },
   ].reverse(),
   cumWidth: function(a, i) {
     var b = a.slice();

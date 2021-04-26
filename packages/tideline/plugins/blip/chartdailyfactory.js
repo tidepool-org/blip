@@ -21,6 +21,7 @@ import { EventEmitter } from 'events';
 
 import { MGDL_UNITS } from '../../js/data/util/constants';
 
+import Pool from '../../js/pool';
 import oneDay from '../../js/oneday';
 import fill from '../../js/plot/util/fill';
 import { createYAxisBG, createYAxisBolus, createYAxisBasal } from '../../js/plot/util/scales';
@@ -89,70 +90,91 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // top x-axis pool
   /** @type {Pool} */
-  const poolXAxis = chart.newPool()
-    .id('poolXAxis', chart.poolGroup)
-    .label('')
-    .labelBaseline(options.labelBaseline);
-  poolXAxis.index(chart.pools.indexOf(poolXAxis))
+  const poolXAxis = new Pool(chart);
+  chart.addPool(poolXAxis);
+  poolXAxis.id('poolXAxis', chart.poolGroup)
     .heightRatio(0.65)
     .gutterWeight(0.0);
 
   // messages pool
   /** @type {Pool} */
-  const poolMessages = chart.newPool()
-    .id('poolMessages', chart.poolGroup)
-    .label('')
-    .labelBaseline(options.labelBaseline);
-  poolMessages.index(chart.pools.indexOf(poolMessages))
+  const poolMessages = new Pool(chart);
+  chart.addPool(poolMessages);
+  poolMessages.id('poolMessages', chart.poolGroup)
     .heightRatio(0.5)
     .gutterWeight(0.0);
 
   // blood glucose data pool
   /** @type {Pool} */
-  const poolBG = chart.newPool()
-    .id('poolBG', chart.poolGroup)
-    .label([{
-      'main': t('Glucose'),
-      'light': ` (${t(chart.options.bgUnits)})`
-    },
-    {
-      'main': ` & ${t('Events')}`
+  const poolBG = new Pool(chart);
+  chart.addPool(poolBG);
+  poolBG.id('poolBG', chart.poolGroup)
+    .labels([{
+      spans: [{
+        text: t('Glucose'),
+        className: 'label-main',
+      }, {
+        text: ` (${t(chart.options.bgUnits)})`,
+        className: 'label-light',
+      }, {
+        text: ` & ${t('Events')}`,
+        className: 'label-main',
+      }],
+      baseline: options.labelBaseline,
     }])
-    .labelBaseline(options.labelBaseline)
-    .legend(['bg']);
-  poolBG.index(chart.pools.indexOf(poolBG))
+    .legends([{ name: 'bg', baseline: options.labelBaseline }])
     .heightRatio(2.15)
     .gutterWeight(1.0);
 
   // carbs and boluses data pool
   /** @type {Pool} */
-  const poolBolus = chart.newPool()
-    .id('poolBolus', chart.poolGroup)
-    .label([{
-      'main': t('Bolus'),
-      'light': ` (${t('U')})`
-    },
-    {
-      'main': ` & ${t('Carbohydrates')}`,
-      'light': ` (${t('g')})`
+  const poolBolus = new Pool(chart);
+  chart.addPool(poolBolus);
+  poolBolus.id('poolBolus', chart.poolGroup)
+    .labels([{
+      spans: [{
+        text: t('Bolus'),
+        className: 'label-main',
+      }, {
+        text: ` (${t('U')})`,
+        className: 'label-light',
+      }, {
+        text: ` & ${t('Carbohydrates')}`,
+        className: 'label-main',
+      }, {
+        text: ` (${t('g')})`,
+        className: 'label-light',
+      }],
+      baseline: options.labelBaseline,
     }])
-    .labelBaseline(options.labelBaseline)
-    .legend(['rescuecarbs', 'carbs', 'bolus']);
-  poolBolus.index(chart.pools.indexOf(poolBolus))
-    .heightRatio(1.35)
-    .gutterWeight(1.0);
+    .legends([{
+      name: 'carbs',
+      baseline: options.labelBaseline + 18,
+    }, {
+      name: 'bolus',
+      baseline: options.labelBaseline,
+    }])
+    .heightRatio(1.5)
+    .gutterWeight(1.5);
 
   // basal data pool
   /** @type {Pool} */
-  const poolBasal = chart.newPool()
-    .id('poolBasal', chart.poolGroup)
-    .label([{
+  const poolBasal = new Pool(chart);
+  chart.addPool(poolBasal);
+  poolBasal.id('poolBasal', chart.poolGroup)
+    .labels([{
       main: t('Basal Rates'),
-      light: ` (${t('U')}/${t('hr')})`
+      light: ` (${t('U')}/${t('hr')})`,
+      spans: [{
+        text: t('Basal Rates'),
+        className: 'label-main',
+      }, {
+        text: ` (${t('U')}/${t('hr')})`,
+        className: 'label-light',
+      }],
+      baseline: options.labelBaseline,
     }])
-    .labelBaseline(options.labelBaseline)
-    .legend(['basal']);
-  poolBasal.index(chart.pools.indexOf(poolBasal))
+    .legends([{ name: 'basal', baseline: options.labelBaseline }])
     .heightRatio(1.0)
     .gutterWeight(1.0);
 

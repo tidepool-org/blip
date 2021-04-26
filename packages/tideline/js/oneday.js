@@ -18,6 +18,7 @@
 /**
  * @typedef {import('./tidelinedata').Datum} Datum
  * @typedef {{ trackMetric: (s: string, p: object) => void }} OneDayOptions
+ * @typedef {import('./pool').default} Pool
  */
 
 import _ from 'lodash';
@@ -25,7 +26,6 @@ import bows from 'bows';
 import moment from 'moment-timezone';
 
 import { MS_IN_DAY } from './data/util/constants';
-import Pool from './pool';
 import mkAnnotation from './plot/util/annotations/annotation';
 import Tooltips from './plot/util/tooltips/tooltip';
 import TidelineData from './tidelinedata';
@@ -248,12 +248,14 @@ function oneDay(emitter, options = {}) {
   };
 
   /**
-   * @returns {Pool}
+   *
+   * @param {Pool} pool
+   * @returns {number} Pool index position
    */
-  container.newPool = function() {
-    const p = new Pool(container);
-    container.pools.push(p);
-    return p;
+  container.addPool = function addPool(pool) {
+    const idx = container.pools.length;
+    container.pools.push(pool);
+    return idx;
   };
 
   container.poolScaleHeight = function(pools) {

@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 
-import legend from './plot/util/legend';
+import legendDefs from './plot/util/legend';
 
 /**
  * @typedef {import('./tidelinedata').default} TidelineData
@@ -26,6 +26,8 @@ import legend from './plot/util/legend';
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  *
  * @typedef {(tidelineData: TidelineData, pool: Pool) => { axis: Axis, scale: ScaleContinuousNumeric }} AxisScaleFunc
+ * @typedef {{ spans: { text: string; className: string; }[]; baseline: number}[]} Labels
+ * @typedef {{ name: string; baseline: number }[]} Legends
  */
 
 /**
@@ -39,12 +41,18 @@ function Pool(container) {
   const maxHeight = 300;
 
   let mainSVG = d3.select('#' + container.id());
-  var id, labelBaseline = 4, legends = [],
-    index, heightRatio, gutterWeight, hidden = false, yPosition,
-    group;
+  let id = '';
+  let yPosition = 0;
+  let gutterWeight = 0;
+  /** @type {Labels} Chart name for the user */
+  let labels = null;
+  /** @type {Legends} */
+  let legends = null;
+  let heightRatio = 0;
+  let hidden = false;
+  let group = null;
 
   let height = minHeight;
-  let label = null;
   /** @type {ScaleContinuousNumeric} */
   let xScale = null;
   let yScale = null;
@@ -64,6 +72,7 @@ function Pool(container) {
       }
     });
     mainSVG = null;
+    labels = null;
     legends = null;
     group = null;
     xScale = null;
@@ -134,37 +143,42 @@ function Pool(container) {
 
   // only once methods
   this.drawLabel = _.once(function() {
-    if (Array.isArray(label) && label.length > 0) {
-      var labelGroup = mainSVG.select('#tidelineLabels').append('text')
-        .attr({
-          id: id + '_label',
-          'class': 'd3-pool-label',
-          'transform': 'translate(' + container.axisGutter() + ',' + (yPosition-labelBaseline) + ')'
-        });
-      _.forEach(label, (l) => {
-        labelGroup.append('tspan')
-          .attr('class', 'main')
-          .text(l.main);
-        labelGroup.append('tspan')
-          .attr('class', 'light')
-          .text(l.light);
-      });
+    if (!Array.isArray(labels) || labels.length < 1) {
+      return;
     }
+
+    const x = container.axisGutter().toString(10);
+    labels.forEach((label, labelIndex) => {
+      const y = (yPosition - label.baseline).toString(10);
+      const labelGroup = mainSVG.select('#tidelineLabels').append('text');
+      labelGroup.attr({
+        id: `${id}_label_${labelIndex}`,
+        'class': 'd3-pool-label',
+        transform: `translate(${x},${y})`
+      });
+      label.spans.forEach((tspan, spanIndex) => {
+        labelGroup.append('tspan')
+          .attr('class', tspan.className)
+          .attr('id', `${id}_label_${labelIndex}_span_${spanIndex}`)
+          .text(tspan.text);
+      });
+    });
   });
 
   this.drawLegend = _.once(function() {
-    if (legends.length === 0) {
+    if (!Array.isArray(legends) || legends.length < 1) {
       return;
     }
-    var w = this.width() + container.axisGutter();
-    _.forEach(legends, (l) => {
-      var legendGroup = mainSVG.select('#tidelineLabels')
+    legends.forEach((legend) => {
+      const x = (this.width() + container.axisGutter()).toString(10);
+      const y = (yPosition - legend.baseline).toString(10);
+      const legendGroup = mainSVG.select('#tidelineLabels')
         .append('g')
         .attr({
-          'id': id + '_legend_' + l,
-          'transform': 'translate(' + w + ',' + (yPosition-labelBaseline) + ')'
+          id: `${id}_legend_${legend.name}`,
+          transform: `translate(${x},${y})`,
         });
-      w -= legend.draw(legendGroup, l).width + legend.SHAPE_MARGIN*2;
+      legendDefs.draw(legendGroup, legend.name);
     });
   });
 
@@ -194,27 +208,15 @@ function Pool(container) {
     return this;
   };
 
-  this.label = function(o) {
-    if (!arguments.length) return label;
-    label = o;
+  this.labels = function(/** @type {Labels} */ l) {
+    if (!arguments.length) return labels;
+    labels = l;
     return this;
   };
 
-  this.labelBaseline = function(x) {
-    if (!arguments.length) return labelBaseline;
-    labelBaseline = x;
-    return this;
-  };
-
-  this.legend = function(a) {
+  this.legends = function(a) {
     if (!arguments.length) return legends;
     legends = a;
-    return this;
-  };
-
-  this.index = function(x) {
-    if (!arguments.length) return index;
-    index = x;
     return this;
   };
 
