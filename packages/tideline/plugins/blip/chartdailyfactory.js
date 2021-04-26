@@ -223,18 +223,18 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // x-axis pools
   // add ticks to top x-axis pool
-  poolXAxis.addPlotType('fill', axesDailyx(poolXAxis, {
+  poolXAxis.addPlotType({ type: 'fill' }, axesDailyx(poolXAxis, {
     'class': 'd3-top',
     emitter,
     leftEdge: chart.axisGutter(),
     timePrefs: chart.options.timePrefs,
     tidelineData,
-  }), true, true);
+  }));
 
   // setup axis & main y scale
   poolBG.axisScaleFn(createYAxisBG);
   // add background fill rectangles to BG pool
-  poolBG.addPlotType('fill', fill(poolBG, {
+  poolBG.addPlotType({ type: 'fill' }, fill(poolBG, {
     endpoints: chart.endpoints,
     isDaily: true,
     guidelines: [
@@ -247,135 +247,135 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
         'height': chart.options.bgClasses.target.boundary
       }
     ],
-  }), true, true);
+  }));
 
-  poolBG.addPlotType('deviceEvent', plotZenModeEvent(poolBG, {
+  poolBG.addPlotType({ type: 'deviceEvent' }, plotZenModeEvent(poolBG, {
     tidelineData,
-  }), false, true);
+  }));
 
-  poolBG.addPlotType('physicalActivity', plotPhysicalActivity(poolBG, {
+  poolBG.addPlotType({ type: 'physicalActivity' }, plotPhysicalActivity(poolBG, {
     onPhysicalHover: options.onPhysicalHover,
     onPhysicalOut: options.onTooltipOut,
     tidelineData,
-  }), true, true);
+  }));
 
-  poolBG.addPlotType('deviceEvent', plotReservoirChange(poolBG, {
+  poolBG.addPlotType({ type: 'deviceEvent' }, plotReservoirChange(poolBG, {
     onReservoirHover: options.onReservoirHover,
     onReservoirOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
-  poolBG.addPlotType('deviceEvent', plotDeviceParameterChange(poolBG, {
+  poolBG.addPlotType({ type: 'deviceEvent' }, plotDeviceParameterChange(poolBG, {
     tidelineData,
     onParameterHover: options.onParameterHover,
     onParameterOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
-  poolBG.addPlotType('deviceEvent', plotWarmUp(poolBG, {
+  poolBG.addPlotType({ type: 'deviceEvent' }, plotWarmUp(poolBG, {
     tidelineData,
     onWarmUpHover: options.onWarmUpHover,
     onWarmUpOut: options.onTooltipOut,
-  }), true, true);
-
-  // add confidential mode to BG pool
-  poolBG.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBG, {
-    tidelineData,
-    onConfidentialHover: options.onConfidentialHover,
-    onConfidentialOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
   // add CBG data to BG pool
-  poolBG.addPlotType('cbg', plotCbg(poolBG, {
+  poolBG.addPlotType({ type: 'cbg' }, plotCbg(poolBG, {
     bgUnits: chart.options.bgUnits,
     classes: chart.options.bgClasses,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onCBGHover: options.onCBGHover,
     onCBGOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
   // add SMBG data to BG pool
-  poolBG.addPlotType('smbg', plotSmbg(poolBG, {
+  poolBG.addPlotType({ type: 'smbg' }, plotSmbg(poolBG, {
     bgUnits: chart.options.bgUnits,
     classes: chart.options.bgClasses,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onSMBGHover: options.onSMBGHover,
     onSMBGOut: options.onTooltipOut,
-  }), true, true);
+  }));
+
+  // Add confidential mode to BG pool: Must be the last in the pool to mask stuff below
+  poolBG.addPlotType({ type: 'deviceEvent', name: 'confidential' }, plotConfidentialModeEvent(poolBG, {
+    tidelineData,
+    onConfidentialHover: options.onConfidentialHover,
+    onConfidentialOut: options.onTooltipOut,
+  }));
 
   // setup axis & main y scale
   poolBolus.axisScaleFn(createYAxisBolus);
   // add background fill rectangles to bolus pool
-  poolBolus.addPlotType('fill', fill(poolBolus, {
+  poolBolus.addPlotType({ type: 'fill' }, fill(poolBolus, {
     endpoints: chart.endpoints,
     isDaily: true,
-  }), true, true);
+  }));
 
   // add wizard data to wizard pool
-  poolBolus.addPlotType('wizard', plotWizard(poolBolus, {
+  poolBolus.addPlotType({ type: 'wizard' }, plotWizard(poolBolus, {
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
     onBolusOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
-  poolBolus.addPlotType('food', plotCarb(poolBolus, {
+  poolBolus.addPlotType({ type: 'food' }, plotCarb(poolBolus, {
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onCarbHover: options.onCarbHover,
     onCarbOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
   // quick bolus data to wizard pool
-  poolBolus.addPlotType('bolus', plotQuickbolus(poolBolus, {
+  poolBolus.addPlotType({ type: 'bolus' }, plotQuickbolus(poolBolus, {
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
     onBolusOut: options.onTooltipOut,
-  }), true, true);
+  }));
 
-  // add confidential mode to Bolus pool
-  poolBolus.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBolus, {
+  // Add confidential mode to BG pool: Must be the last in the pool to mask stuff below
+  poolBolus.addPlotType({ type: 'deviceEvent', name: 'confidential' }, plotConfidentialModeEvent(poolBolus, {
     tidelineData,
     onConfidentialHover: options.onConfidentialHover,
     onConfidentialOut: options.onTooltipOut,
-  }), false, true);
+  }));
 
   // setup axis & main y scale
   poolBasal.axisScaleFn(createYAxisBasal);
   // add background fill rectangles to basal pool
-  poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints, isDaily: true}), true, true);
+  poolBasal.addPlotType({ type: 'fill' }, fill(poolBasal, {endpoints: chart.endpoints, isDaily: true}));
 
   // add basal data to basal pool
-  poolBasal.addPlotType('basal', plotBasal(poolBasal, {
+  poolBasal.addPlotType({ type: 'basal' }, plotBasal(poolBasal, {
     defaultSource: tidelineData.opts.defaultSource,
-  }), true, true);
+  }));
 
   // add device suspend data to basal pool
-  poolBasal.addPlotType('deviceEvent', plotSuspend(poolBasal, {}), true, true);
+  poolBasal.addPlotType({ type: 'deviceEvent' }, plotSuspend(poolBasal, {}), true, true);
 
-  // add confidential mode to Basal pool
-  poolBasal.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBasal, {
+  // Add confidential mode to BG pool: Must be the last in the pool to mask stuff below
+  poolBasal.addPlotType({ type: 'deviceEvent', name: 'confidential' }, plotConfidentialModeEvent(poolBasal, {
     tidelineData,
     onConfidentialHover: options.onConfidentialHover,
     onConfidentialOut: options.onTooltipOut,
-  }), false, true);
+  }));
 
   // messages pool
   // add background fill rectangles to messages pool
-  poolMessages.addPlotType('fill', fill(poolMessages, {
+  poolMessages.addPlotType({ type: 'fill' }, fill(poolMessages, {
     emitter,
     isDaily: true,
     cursor: 'cell'
-  }), true, true);
+  }));
 
   // add message images to messages pool
-  poolMessages.addPlotType('message', plotMessage(poolMessages, {
+  poolMessages.addPlotType({ type: 'message' }, plotMessage(poolMessages, {
     size: 30,
     emitter,
-  }), true, true);
+  }));
 
   // add timechange images to messages pool
-  poolMessages.addPlotType('deviceEvent', plotTimeChange(poolMessages, {
+  poolMessages.addPlotType({ type: 'deviceEvent' }, plotTimeChange(poolMessages, {
     size: 30,
-  }), true, true);
+  }));
 
   return chart;
 }

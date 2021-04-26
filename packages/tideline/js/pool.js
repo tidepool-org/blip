@@ -22,7 +22,7 @@ import legendDefs from './plot/util/legend';
 /**
  * @typedef {import('./tidelinedata').default} TidelineData
  * @typedef {import('./tidelinedata').Datum} Datum
- * @typedef {{ type: string, plot: function, panBoolean: boolean }} PlotType
+ * @typedef {{ type: string, name: string, plot: function, pan: boolean, data: any[] }} PlotType
  * @typedef { import('d3').Axis } Axis
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
  *
@@ -92,16 +92,17 @@ function Pool(container) {
       yAxis = axisScale.axis;
     }
 
-    plotTypes.forEach(function(plotType) {
-      if (plotType.type in container.dataFill) {
-        plotType.data = _.filter(poolData, { type: plotType.type });
-        var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
-        dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
+    plotTypes.forEach((plotType) => {
+      const { type, name } = plotType;
+      if (type in container.dataFill) {
+        plotType.data = _.filter(poolData, { type });
+        const dataGroup = group.selectAll(`#${id}_${name}`).data([plotType.data]);
+        dataGroup.enter().append('g').attr('id', `${id}_${name}`);
         if (plotType.data.length > 0) {
           dataGroup.call(plotType.plot);
         }
       } else {
-        console.warn(`Pool: ${plotType.type} not in dataFill`, { plotType, dataFill: container.dataFill});
+        console.warn(`Pool: ${type} not in dataFill`, { type, name, dataFill: container.dataFill });
       }
     });
 
@@ -112,19 +113,19 @@ function Pool(container) {
   };
 
   this.clear = function() {
-    plotTypes.forEach(function(plotType) {
-      if (container.dataFill[plotType.type]) {
-        group.select('#' + id + '_' + plotType.type).remove();
+    plotTypes.forEach(({ type, name }) => {
+      if (container.dataFill[type]) {
+        group.select(`#${id}_${name}`).remove();
       }
     });
-    group.select('#' + id + '_guidelines').remove();
+    group.select(`#${id}_guidelines`).remove();
   };
 
   // non-chainable methods
   this.pan = function(translateX) {
-    plotTypes.forEach(function(plotType) {
-      if (plotType.panBoolean) {
-        mainSVG.select('#' + id + '_' + plotType.type).attr('transform', `translate(${translateX},0)`);
+    plotTypes.forEach(({ pan, name }) => {
+      if (pan) {
+        mainSVG.select(`#${id}_${name}`).attr('transform', `translate(${translateX},0)`);
       }
     });
   };
@@ -313,16 +314,21 @@ function Pool(container) {
     return defaultAxisScaleFn;
   };
 
-  this.addPlotType = function (dataType, plotFunction, dataFillBoolean, panBoolean) {
+  /**
+   * @param {{ type: string, name?: string, dataFill?: boolean, pan?: boolean }} plotOptions
+   * by default the plot name is the data type. pan & dataFill set to true
+   * @param { (pool: Pool, opts?: object) => () => void } plotFunction
+   */
+  this.addPlotType = function addPlotType({ type, name, dataFill = true, pan = true }, plotFunction) {
     plotTypes.push({
-      type: dataType,
+      type,
+      name: name ?? type,
       plot: plotFunction,
-      panBoolean: panBoolean
+      pan,
     });
-    if (dataFillBoolean) {
-      container.dataFill[dataType] = true;
+    if (dataFill) {
+      container.dataFill[type] = true;
     }
-    return this;
   };
 
   this.highlight = function(background, opts) {
