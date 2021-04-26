@@ -22,22 +22,6 @@ describe('clinics', () => {
     });
   });
 
-  describe('addClinicianToClinicSuccess', () => {
-    it('should add clinician to state', () => {
-      let initialStateForTest = { one: { clinicians: {} } };
-      let clinician = { id: 'clinicianId' };
-      let action = actions.sync.addClinicianToClinicSuccess(clinician, 'one');
-      let state = reducer(initialStateForTest, action);
-      expect(state).to.eql({
-        one: {
-          clinicians: {
-            clinicianId: clinician,
-          },
-        },
-      });
-    });
-  });
-
   describe('getClinicsSuccess', () => {
     it('should set clinics to state for clinician', () => {
       let initialStateForTest = {};
@@ -55,6 +39,7 @@ describe('clinics', () => {
         },
       });
     });
+
     it('should set clinics to state for patient', () => {
       let initialStateForTest = {};
       let clinics = [{ id: 'clinicId' }];

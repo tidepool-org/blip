@@ -1439,13 +1439,13 @@ export function updateClinicPatientRequest() {
   };
 }
 
-export function updateClinicPatientSuccess(clinicId, patientId, updates) {
+export function updateClinicPatientSuccess(clinicId, patientId, patient) {
   return {
     type: ActionTypes.UPDATE_CLINIC_PATIENT_SUCCESS,
     payload: {
       patientId,
       clinicId,
-      updates
+      patient
     },
   };
 }
@@ -1470,7 +1470,7 @@ export function sendClinicianInviteSuccess(clinician) {
   return {
     type: ActionTypes.SEND_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      clinician: clinician,
+      clinician,
     },
   };
 }
