@@ -8,7 +8,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     height: 'auto',
 
     '.icon': {
-      fontSize: `${fontSizes[3]}px`,
+      fontSize: '1em',
     },
   };
 
