@@ -22,11 +22,12 @@ const StyledIcon = styled(Box)`
 `;
 
 export const Icon = props => {
-  const { icon: IconElement, innerRef, label, variant, ...buttonProps } = props;
+  const { icon: IconElement, innerRef, label, variant, active, ...buttonProps } = props;
   const as = props.variant === 'icons.button' ? 'button' : 'span';
 
   const classNames = cx({
     disabled: props.disabled,
+    active,
   });
 
   return (
@@ -46,6 +47,7 @@ export const Icon = props => {
 
 Icon.propTypes = {
   ...BoxProps,
+  active: PropTypes.bool,
   disabled: PropTypes.bool,
   icon: PropTypes.elementType.isRequired,
   innerRef: PropTypes.oneOfType([
