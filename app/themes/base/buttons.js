@@ -8,7 +8,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     height: 'auto',
 
     '.icon': {
-      fontSize: '1em',
+      fontSize: '1.125em',
     },
   };
 
@@ -29,6 +29,30 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       backgroundColor: colors.lightestGrey,
       borderColor: colors.lightestGrey,
       color: colors.text.primaryDisabled,
+    },
+  };
+
+  const textButtonStyles = {
+    border: 0,
+    borderRadius: 0,
+    paddingLeft: 2,
+    paddingRight: 2,
+    backgroundColor: 'transparent',
+    '&:disabled': {
+      color: colors.text.primaryDisabled,
+    },
+  };
+
+  const actionListItemStyles = {
+    ...textButtonStyles,
+    backgroundColor: colors.white,
+    width: '100%',
+    padding: 3,
+    paddingRight: 5,
+    fontSize: 2,
+    borderBottom: borders.divider,
+    '&:last-child': {
+      borderBottom: 'none',
     },
   };
 
@@ -70,32 +94,36 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     tertiary: tertiaryStyles,
     textPrimary: {
       ...defaultStyles,
-      backgroundColor: colors.white,
+      ...textButtonStyles,
       color: colors.purpleMedium,
-      border: 0,
-      borderRadius: 0,
-      paddingLeft: 2,
-      paddingRight: 2,
       '&:hover,&:active': {
         color: colors.text.primary,
-      },
-      '&:disabled': {
-        color: colors.text.primaryDisabled,
       },
     },
     textSecondary: {
       ...defaultStyles,
-      backgroundColor: colors.white,
+      ...textButtonStyles,
       color: colors.text.primarySubdued,
-      border: 0,
-      borderRadius: 0,
-      paddingLeft: 2,
-      paddingRight: 2,
       '&:hover,&:active': {
         color: colors.text.primary,
       },
-      '&:disabled': {
-        color: colors.text.primaryDisabled,
+    },
+    actionListItem: {
+      ...defaultStyles,
+      ...actionListItemStyles,
+      color: colors.text.primary,
+      '&:hover,&:active': {
+        color: colors.text.primary,
+        backgroundColor: colors.lightestGrey,
+      },
+    },
+    actionListItemDanger: {
+      ...defaultStyles,
+      ...actionListItemStyles,
+      color: colors.feedback.danger,
+      '&:hover,&:active': {
+        color: colors.feedback.danger,
+        backgroundColor: colors.lightestGrey,
       },
     },
     pagination: {
