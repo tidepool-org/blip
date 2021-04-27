@@ -115,6 +115,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         }]),
       },
       training: get(props, 'prescription.latestRevision.attributes.training'),
+      therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
       therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
     };
   },
