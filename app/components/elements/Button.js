@@ -83,6 +83,7 @@ Button.propTypes = {
     'actionListItem',
     'actionListItemDanger',
     'pagination',
+    'paginationLight',
     'filter',
     'chip',
   ]),
