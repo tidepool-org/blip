@@ -23,6 +23,7 @@ import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
+import { Box, Flex, Text } from 'rebass/styled-components';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -33,9 +34,12 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
+import Button from '../../components/elements/Button';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 import { useToasts } from '../../providers/ToastProvider';
+import { Headline } from '../../components/elements/FontStyles';
+import { borders } from '../../themes/baseTheme';
 
 import {
   defaultUnits,
@@ -226,7 +230,8 @@ export const PrescriptionForm = props => {
   const [initialFocusedInput, setInitialFocusedInput] = React.useState();
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
-  let isLastStep = activeStep === stepValidationFields.length - 1;
+  const isLastStep = activeStep === stepValidationFields.length - 1;
+  const isNewPrescription = isEmpty(get(prescription, 'id'));
 
   React.useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
@@ -397,10 +402,10 @@ export const PrescriptionForm = props => {
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
       prescriptionAttributes.state = 'draft';
 
-      if (values.id) {
-        createPrescriptionRevision(prescriptionAttributes, values.id);
-      } else {
+      if (isNewPrescription) {
         createPrescription(prescriptionAttributes);
+      } else {
+        createPrescriptionRevision(prescriptionAttributes, values.id);
       }
     },
   };
@@ -474,11 +479,7 @@ export const PrescriptionForm = props => {
     ],
     themeProps: {
       wrapper: {
-        mx: 3,
-        my: 2,
-        px: 2,
-        py: 4,
-        bg: 'white',
+        padding: 4,
       },
       panel: {
         padding: 3,
@@ -489,12 +490,50 @@ export const PrescriptionForm = props => {
     },
   };
 
+  const title = isNewPrescription ? t('Create New Prescription') : t('Prescription: {{name}}', {
+    name: [values.firstName, values.lastName].join(' '),
+  });
+
   return (
-    <form id="prescription-form" onSubmit={handleSubmit}>
+    <Box
+      as='form'
+      id="prescription-form"
+      onSubmit={handleSubmit}
+      mb={5}
+      mx={3}
+      bg="white"
+    >
+      <Flex
+        id="prescription-form-header"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        px={4}
+        py={3}
+        sx={{
+          borderBottom: borders.divider
+        }}
+      >
+        <Button
+          id="back-to-prescriptions"
+          variant="primary"
+          onClick={() => props.history.push('/prescriptions')}
+          mr={5}
+        >
+          {t('Back To Prescriptions')}
+        </Button>
+
+        <Text as={Headline} textAlign="center">{title}</Text>
+
+        <Text sx={{ textTransform: 'capitalize' }}>
+          {t('Status: {{state}}', { state: get(prescription, 'state', 'draft') })}
+        </Text>
+      </Flex>
+
       <FastField type="hidden" name="id" />
       {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
-    </form>
+    </Box>
   );
 };
 
