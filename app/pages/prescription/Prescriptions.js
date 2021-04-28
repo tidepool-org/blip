@@ -1,6 +1,7 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
@@ -47,7 +48,7 @@ const Prescriptions = props => {
 
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
 
-  const [searchText, setSearchText] = React.useState();
+  const [searchText, setSearchText] = React.useState('');
 
   const [activeStates, setActiveStates] = React.useState(reduce(prescriptionStateOptions, (result, { value }) => {
     result[value] = true;
@@ -73,6 +74,10 @@ const Prescriptions = props => {
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
+  }
+
+  function clearSearchText() {
+    setSearchText('');
   }
 
   const handleAddNew = () => props.history.push('/prescriptions/new');
@@ -141,8 +146,6 @@ const Prescriptions = props => {
     { title: t('Date of birth'), field: 'birthday', align: 'left', sortable: true, searchable: true },
     { title: t('Status'), field: 'state', render: renderState, align: 'left', sortable: true },
     { title: '', field: 'more', render: renderMore, align: 'left' },
-    // { title: t('Edit'), field: 'edit', render: renderEdit, align: 'left' },
-    // { title: t('Delete'), field: 'delete', render: renderDelete, align: 'left' },
   ];
 
   const popupFilterState = usePopupState({
@@ -215,9 +218,12 @@ const Prescriptions = props => {
                 minWidth: '250px',
               }}
               placeholder={t('Search Entries')}
-              icon={SearchIcon}
+              icon={searchText ? CloseRoundedIcon : SearchIcon}
+              iconLabel="search"
+              onClickIcon={searchText ? clearSearchText : null}
               name="search-prescriptions"
               onChange={handleSearchChange}
+              value={searchText}
               variant="condensed"
             />
           </Flex>
@@ -225,7 +231,7 @@ const Prescriptions = props => {
       </Flex>
       <Table
         fontSize={1}
-        label="Sample clinician list"
+        label="Prescription List"
         id="prescriptions-table"
         data={data}
         columns={columns}
