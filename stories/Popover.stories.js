@@ -194,7 +194,7 @@ export const ActionList = () => {
   return (
     <PopoverMenu
       ml="200px"
-      id="action menu"
+      id="action-menu"
       items={items}
     />
   );
