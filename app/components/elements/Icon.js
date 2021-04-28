@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { transitions } from '../../themes/baseTheme';
 
 const StyledIcon = styled(Box)`
-  cursor: pointer;
+  cursor: ${({ cursor }) => cursor};
   transition: ${transitions.easeOut};
   position: relative;
   display: inline-flex;
@@ -22,7 +22,16 @@ const StyledIcon = styled(Box)`
 `;
 
 export const Icon = props => {
-  const { icon: IconElement, innerRef, label, variant, active, ...buttonProps } = props;
+  const {
+    active,
+    cursor = 'pointer',
+    icon: IconElement,
+    innerRef,
+    label,
+    variant,
+    ...buttonProps
+  } = props;
+
   const as = props.variant === 'icons.button' ? 'button' : 'span';
 
   const classNames = cx({
@@ -35,6 +44,7 @@ export const Icon = props => {
       as={as}
       aria-label={label}
       className={classNames}
+      cursor={cursor}
       variant={`icons.${variant}`}
       onKeyPress={(e) => (buttonProps.onClick && e.key === 'Enter' ? buttonProps.onClick(e) : null)}
       ref={innerRef}
