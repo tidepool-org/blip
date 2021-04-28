@@ -186,7 +186,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         color: colors.purpleBright,
 
         '&:disabled': {
-          backgroundColor: colors.blueGreyLight,
+          backgroundColor: colors.blues[0],
         },
       },
     },
