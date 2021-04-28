@@ -6,6 +6,7 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
+import VisibilityRoundedIcon from '@material-ui/icons/VisibilityRounded';
 import { Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
@@ -81,38 +82,55 @@ const Prescriptions = props => {
   }
 
   const handleAddNew = () => props.history.push('/prescriptions/new');
-  const handleEdit = id => () => props.history.push(`/prescriptions/${id}/edit`);
-  const handleDelete = id => () => deletePrescription(id);
+  const handleUpdatePrescription = id => () => props.history.push(`/prescriptions/${id}/edit`);
+  const handleViewPrescription = id => () => props.history.push(`/prescriptions/${id}/edit?prescription-form-steps-step=4,0`);
+  const handleDeletePrescription = id => () => deletePrescription(id);
 
-  const actionMenuItems = ({id, state}) => [
-    {
-      icon: EditRoundedIcon,
-      iconLabel: 'Edit',
-      iconPosition: 'left',
-      id: 'edit',
-      onClick: handleEdit(id),
-      text: 'Edit prescription',
-      variant: 'actionListItem',
-      disabled: !includes(['draft', 'pending'], state),
-    },
-    {
+  function handleRowClick({id, state}) {
+    const isEditable = includes(['draft', 'pending'], state);
+    return isEditable ? handleUpdatePrescription(id)() : handleViewPrescription(id)();
+  }
+
+  const actionMenuItems = ({id, state}) => {
+    const isEditable = includes(['draft', 'pending'], state);
+
+    const items = [
+      {
+        icon: isEditable ? EditRoundedIcon : VisibilityRoundedIcon,
+        iconLabel: isEditable ? t('Update') : t('View'),
+        iconPosition: 'left',
+        id: isEditable ? 'update' : 'view',
+        onClick: isEditable ? handleUpdatePrescription(id) : handleViewPrescription(id),
+        text: isEditable ? t('Update prescription') : t('View Prescription'),
+        variant: 'actionListItem',
+      },
+    ];
+
+    if (isEditable) items.push({
       icon: DeleteForeverRoundedIcon,
       iconLabel: 'Delete',
       iconPosition: 'left',
       id: 'delete',
-      onClick: handleDelete(id),
+      onClick: handleDeletePrescription(id),
       text: 'Delete prescription',
       variant: 'actionListItemDanger',
-      disabled: !includes(['draft', 'pending'], state),
-    },
-  ];
+      disabled: !isEditable,
+    });
+
+    return items;
+  };
 
   const renderMore = (prescription) => (
-    <PopoverMenu
-      id="more-prescription-actions"
-      label="More actions"
-      items={actionMenuItems(prescription)}
-    />
+    <Box onClick={e => {
+      // Prevent clicks from propogating up to the table row click handlers
+      e.stopPropagation();
+    }}>
+      <PopoverMenu
+        id="more-prescription-actions"
+        label="More actions"
+        items={actionMenuItems(prescription)}
+      />
+    </Box>
   );
 
   const openPatientData = (patientUserId) => {
@@ -133,7 +151,13 @@ const Prescriptions = props => {
         icon={OpenInNewRoundedIcon}
         iconLabel="Open patient data in new tab"
         variant="textPrimary"
-        onClick={() => openPatientData(patientUserId)}>{`${firstName} ${lastName}`}
+        onClick={(e) => {
+          // Prevent clicks from propogating up to the table row click handlers
+          e.stopPropagation();
+          openPatientData(patientUserId);
+        }}
+      >
+        {`${firstName} ${lastName}`}
       </Button> : `${firstName} ${lastName}`
      }
     </>
@@ -156,7 +180,7 @@ const Prescriptions = props => {
   const [filterStateActive, setFilterStateActive] = React.useState(false);
 
   return (
-    <Box mx={3} my={2} px={2} py={4} bg='white'>
+    <Box mx={3} mb={5} px={4} py={4} bg='white'>
       <Flex my={3} justifyContent="space-between">
         <Box alignSelf="flex-end">
           <Flex>
@@ -237,6 +261,7 @@ const Prescriptions = props => {
         columns={columns}
         rowsPerPage={3}
         searchText={searchText}
+        onClickRow={handleRowClick}
         orderBy="createdTime"
         order="desc"
         pagination
