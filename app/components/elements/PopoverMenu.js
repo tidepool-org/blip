@@ -52,6 +52,7 @@ const PopoverMenu = props => {
       >
         {map(items, item => (
           <Button
+            disabled={item.disabled}
             icon={item.icon}
             iconLabel={item.iconLabel}
             iconPosition={item.iconPosition}
@@ -77,6 +78,7 @@ PopoverMenu.propTypes = {
   iconLabel: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   items: PropTypes.arrayOf(PropTypes.shape({
+    disabled: PropTypes.bool,
     icon: PropTypes.elementType,
     iconLabel: PropTypes.string,
     iconPosition: PropTypes.oneOf(['left', 'right']).isRequired,
