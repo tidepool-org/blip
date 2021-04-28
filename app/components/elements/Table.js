@@ -241,7 +241,7 @@ Table.propTypes = {
 };
 
 Table.defaultProps = {
-  emptyText: t('There are no results to show'),
+  emptyText: t('There are no results to show.'),
   order: 'asc',
   rowHover: true,
   variant: 'default',
