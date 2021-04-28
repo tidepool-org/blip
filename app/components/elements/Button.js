@@ -46,7 +46,8 @@ export const Button = props => {
     right: isLeftIcon ? 2 : 0,
   };
 
-  const justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
+  let justifyContent = 'center';
+  if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
     <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
