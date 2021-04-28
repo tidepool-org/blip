@@ -123,8 +123,8 @@ const Prescriptions = props => {
      {patientUserId ? <Button
         p={0}
         m={0}
-        color="text.primary"
-        fontSize={0}
+        color="text.link"
+        fontSize={1}
         icon={OpenInNewRoundedIcon}
         iconLabel="Open patient data in new tab"
         variant="textPrimary"
@@ -168,9 +168,11 @@ const Prescriptions = props => {
               active={filterStateActive}
               {...bindTrigger(popupFilterState)}
               icon={KeyboardArrowDownRoundedIcon}
-              iconLabel="Filter By Status"
+              iconLabel="Filter by status"
+              mr={2}
+              fontSize={1}
             >
-              {t('Filter By Status')}
+              {t('Status')}
             </Button>
 
             <Popover width="15em" {...bindPopover(popupFilterState)}>
@@ -187,7 +189,7 @@ const Prescriptions = props => {
               </DialogContent>
               <DialogActions justifyContent="space-between" p={1}>
                 <Button
-                  fontSize={0}
+                  fontSize={1}
                   variant="textSecondary"
                   onClick={() => {
                     setPendingActiveStates(transform(pendingActiveStates, function(result, value, key) {
@@ -214,7 +216,6 @@ const Prescriptions = props => {
               }}
               placeholder={t('Search Entries')}
               icon={SearchIcon}
-              label={t('Search Prescriptions')}
               name="search-prescriptions"
               onChange={handleSearchChange}
               variant="condensed"
@@ -223,11 +224,12 @@ const Prescriptions = props => {
         </Box>
       </Flex>
       <Table
+        fontSize={1}
         label="Sample clinician list"
         id="prescriptions-table"
         data={data}
         columns={columns}
-        rowsPerPage={10}
+        rowsPerPage={3}
         searchText={searchText}
         orderBy="createdTime"
         order="desc"
