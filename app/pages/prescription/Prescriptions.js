@@ -1,10 +1,11 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 import SearchIcon from '@material-ui/icons/Search';
+import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Box, Flex } from 'rebass/styled-components';
 import map from 'lodash/map';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
@@ -24,8 +25,8 @@ import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
 import { DialogContent, DialogActions } from '../../components/elements/Dialog';
-import Icon from '../../components/elements/Icon';
 import Popover from '../../components/elements/Popover';
+import PopoverMenu from '../../components/elements/PopoverMenu';
 import TextInput from '../../components/elements/TextInput';
 import { Headline } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
@@ -78,16 +79,35 @@ const Prescriptions = props => {
   const handleEdit = id => () => props.history.push(`/prescriptions/${id}/edit`);
   const handleDelete = id => () => deletePrescription(id);
 
-  const renderEdit = ({ id }) => (
-    <Button p={0} fontSize="inherit" variant="textPrimary" onClick={handleEdit(id)}>{t('Edit')}</Button>
-  );
+  const actionMenuItems = ({id, state}) => [
+    {
+      icon: EditRoundedIcon,
+      iconLabel: 'Edit',
+      iconPosition: 'left',
+      id: 'edit',
+      onClick: handleEdit(id),
+      text: 'Edit prescription',
+      variant: 'actionListItem',
+      disabled: !includes(['draft', 'pending'], state),
+    },
+    {
+      icon: DeleteForeverRoundedIcon,
+      iconLabel: 'Delete',
+      iconPosition: 'left',
+      id: 'delete',
+      onClick: handleDelete(id),
+      text: 'Delete prescription',
+      variant: 'actionListItemDanger',
+      disabled: !includes(['draft', 'pending'], state),
+    },
+  ];
 
-  const renderDelete = ({ id }) => (
-    <Button processing={deletingPrescription.prescriptionId === id && deletingPrescription.inProgress} p={0} fontSize="inherit" variant="textPrimary" onClick={handleDelete(id)}>{t('Delete')}</Button>
-  );
-
-  const renderMore = ({ firstName }) => (
-    <Icon variant="button" icon={MoreHorizRoundedIcon} label="More actions" onClick={() => console.log(`"More actions" called for ${firstName}`)} />
+  const renderMore = (prescription) => (
+    <PopoverMenu
+      id="more-prescription-actions"
+      label="More actions"
+      items={actionMenuItems(prescription)}
+    />
   );
 
   const openPatientData = (patientUserId) => {
