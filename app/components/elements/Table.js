@@ -6,7 +6,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'rebass/styled-components';
 import Pagination from './Pagination';
 import map from 'lodash/map';
 import get from 'lodash/get';
@@ -17,6 +17,9 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
 import styled from 'styled-components';
+
+import i18next from '../../core/language';
+const t = i18next.t.bind(i18next);
 
 function descendingComparator(a, b, orderBy) {
   const compA = get(a, orderBy);
@@ -82,6 +85,7 @@ export const Table = props => {
   const {
     columns,
     data,
+    emptyText,
     id,
     label,
     onFilter,
@@ -187,6 +191,9 @@ export const Table = props => {
           ))}
         </TableBody>
       </Box>
+
+      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" textAlign="center">{emptyText}</Text>}
+
       {pagination && <Pagination
         id={`${id}-pagination`}
         page={page}
@@ -218,6 +225,7 @@ Table.propTypes = {
     padding: PropTypes.string,
   })).isRequired,
   data: PropTypes.array.isRequired,
+  emptyText: PropTypes.string,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   onFilter: PropTypes.func,
@@ -233,6 +241,7 @@ Table.propTypes = {
 };
 
 Table.defaultProps = {
+  emptyText: t('There are no results to show'),
   order: 'asc',
   rowHover: true,
   variant: 'default',
