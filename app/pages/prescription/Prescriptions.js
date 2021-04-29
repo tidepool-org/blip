@@ -13,9 +13,11 @@ import filter from 'lodash/filter';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keyBy from 'lodash/keyBy';
+import keys from 'lodash/keys';
 import reduce from 'lodash/reduce';
 import transform from 'lodash/transform';
 import values from 'lodash/values';
+import without from 'lodash/without';
 
 import {
   bindPopover,
@@ -43,18 +45,17 @@ const Prescriptions = props => {
     prescriptions = [],
   } = props;
 
-
-  console.log('props', props);
-  console.log('prescriptions', prescriptions);
-
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
 
   const [searchText, setSearchText] = React.useState('');
+  const [filterStateActive, setFilterStateActive] = React.useState(false);
 
   const [activeStates, setActiveStates] = React.useState(reduce(prescriptionStateOptions, (result, { value }) => {
     result[value] = true;
     return result;
   }, {}));
+
+  const activeStatesCount = without(values(activeStates), false).length;
 
   const [pendingActiveStates, setPendingActiveStates] = React.useState(activeStates);
   const togglePendingActiveState = (value) => setPendingActiveStates({ ...pendingActiveStates, [value]: !pendingActiveStates[value] })
@@ -177,8 +178,6 @@ const Prescriptions = props => {
     popupId: 'filterState',
   });
 
-  const [filterStateActive, setFilterStateActive] = React.useState(false);
-
   return (
     <Box mx={3} mb={5} px={4} py={4} bg='white'>
       <Flex my={3} justifyContent="space-between">
@@ -199,7 +198,9 @@ const Prescriptions = props => {
               mr={2}
               fontSize={1}
             >
-              {t('Status')}
+              {t('Status{{count}}', {
+                count: activeStatesCount < keys(prescriptionStates).length ? ` (${activeStatesCount})` : '',
+              })}
             </Button>
 
             <Popover width="15em" {...bindPopover(popupFilterState)}>
@@ -219,12 +220,14 @@ const Prescriptions = props => {
                   fontSize={1}
                   variant="textSecondary"
                   onClick={() => {
+                    const active = without(values(pendingActiveStates), false).length < keys(prescriptionStates).length;
+
                     setPendingActiveStates(transform(pendingActiveStates, function(result, value, key) {
-                      result[key] = true;
+                      result[key] = active;
                     }, {}));
                   }}
                 >
-                  {(filter(values(pendingActiveStates), true).length === 0) ? t('Select All') : t('Deselect All')}
+                  {(without(values(pendingActiveStates), false).length < keys(prescriptionStates).length) ? t('Select All') : t('Deselect All')}
                 </Button>
                 <Button fontSize={0} variant="textPrimary" onClick={() => {
                   setActiveStates(pendingActiveStates);
