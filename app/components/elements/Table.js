@@ -79,6 +79,10 @@ const StyledTable = styled(Base)`
   .MuiTableSortLabel-root {
     color: inherit;
   }
+
+  .MuiTableRow-root {
+    cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
+  }
 `;
 
 export const Table = props => {
@@ -89,7 +93,6 @@ export const Table = props => {
     id,
     label,
     onFilter,
-    onClickRow,
     rowHover,
     rowsPerPage,
     searchText,
@@ -119,6 +122,10 @@ export const Table = props => {
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleRowClick = (event, datum) => {
+    if (isFunction(tableProps.onClickRow)) tableProps.onClickRow(datum);
   };
 
   const sortedData = stableSort(data, getComparator(order, orderBy));
@@ -174,7 +181,7 @@ export const Table = props => {
               id={`${id}-row-${rowIndex}`}
               key={`${id}-row-${rowIndex}`}
               hover={rowHover}
-              onClick={() => onClickRow(d)}
+              onClick={e => handleRowClick(e, d)}
             >
               {map(columns, (col, index) => (
                 <TableCell
@@ -230,7 +237,7 @@ Table.propTypes = {
   emptyText: PropTypes.string,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  onClickRow: PropTypes.func.isRequired,
+  onClickRow: PropTypes.func,
   onFilter: PropTypes.func,
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
@@ -247,7 +254,6 @@ Table.defaultProps = {
   emptyText: t('There are no results to show.'),
   order: 'asc',
   rowHover: true,
-  onClickRow: noop,
   variant: 'default',
   paginationProps: {
     style: { fontSize: '14px' },
