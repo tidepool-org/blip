@@ -294,6 +294,7 @@ export const PatientInfo = props => {
   const {
     t,
     handlers: { activeStepUpdate },
+    isEditable,
     ...themeProps
   } = props;
 
@@ -317,14 +318,14 @@ export const PatientInfo = props => {
       <Body1>{label}</Body1>
       <Box>
         <Flex alignItems="center">
-          <Body1 mr={3} color={error ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
-          <Icon
+          <Body1 mr={3} color={(isEditable && error) ? 'feedback.danger' : 'text.primary'}>{value}</Body1>
+          {isEditable && <Icon
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit {{label}}', { label })}
             title={t('Edit {{label}}', { label })}
             onClick={() => activeStepUpdate(step, currentStep, initialFocusedInput)}
-          />
+          />}
         </Flex>
       </Box>
     </Flex>
@@ -333,15 +334,15 @@ export const PatientInfo = props => {
   return (
     <Box {...themeProps}>
       <Flex mb={4} alignItems="center" justifyContent="space-between">
-        <Headline color={(firstName && lastName) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
-        <Icon
-            variant="button"
-            icon={EditRoundedIcon}
-            label={t('Edit Patient Name')}
-            title={t('Edit Patient Name')}
-            onClick={() => activeStepUpdate(nameStep, currentStep)}
-            innerRef={initialFocusedInputRef}
-          />
+        <Headline color={((firstName && lastName) || !isEditable) ? 'text.primary' : 'feedback.danger'} mr={2}>{patientName}</Headline>
+        {isEditable && <Icon
+          variant="button"
+          icon={EditRoundedIcon}
+          label={t('Edit Patient Name')}
+          title={t('Edit Patient Name')}
+          onClick={() => activeStepUpdate(nameStep, currentStep)}
+          innerRef={initialFocusedInputRef}
+        />}
       </Flex>
       {map(rows, (row, index) => <Row {...row} key={index} />)}
     </Box>
@@ -354,6 +355,7 @@ export const TherapySettings = props => {
   const {
     t,
     handlers: { activeStepUpdate, generateTherapySettingsOrderText, handleCopyTherapySettingsClicked },
+    isEditable,
     pump,
     ...themeProps
   } = props;
@@ -387,7 +389,7 @@ export const TherapySettings = props => {
         py={3}
         sx={{
           borderTop: index === 0 ? 'default' : 'none',
-          borderBottom: 'default',
+          borderBottom: isEditable || (index < rows.length - 1) ? 'default' : 'none',
         }}
         alignItems="flex-start"
       >
@@ -425,10 +427,16 @@ export const TherapySettings = props => {
     );
   };
 
+  const title = isEditable ? t('Confirm Therapy Settings') : t('Therapy Settings');
+
+  const subtitle = isEditable
+    ? t('Are you sure you want to start {{patientName}} with the below therapy settings order?', { patientName })
+    : t('The following therapy settings order has been submitted for {{patientName}}', { patientName });
+
   return (
     <Box {...themeProps}>
       <Flex mb={3} alignItems="center" justifyContent="space-between">
-        <Headline mr={2}>{t('Confirm Therapy Settings')}</Headline>
+        <Headline mr={2}>{title}</Headline>
         <Box
           theme={baseTheme}
           sx={{
@@ -451,13 +459,13 @@ export const TherapySettings = props => {
             },
           }}
         >
-          <Icon
+          {isEditable && <Icon
             variant="button"
             icon={EditRoundedIcon}
             label={t('Edit therapy settings')}
             title={t('Edit therapy settings')}
             onClick={() => activeStepUpdate(therapySettingsStep, currentStep)}
-          />
+          />}
 
           <ClipboardButton
             buttonTitle={t('Copy therapy settings order as text')}
@@ -482,13 +490,13 @@ export const TherapySettings = props => {
         </Box>
       </Flex>
 
-      <Box mb={4} as={Body1}>{t('Are you sure you want to start {{patientName}} with the below therapy settings order?', { patientName })}</Box>
+      <Box mb={4} as={Body1}>{subtitle}</Box>
 
       <Box mb={4}>
         {map(rows, (row, index) => <Row {...row} index={index} key={index} />)}
       </Box>
 
-      <Box mb={4}>
+      {isEditable && <Box mb={4}>
         <FastField
           as={Checkbox}
           id="therapySettingsReviewed"
@@ -498,7 +506,7 @@ export const TherapySettings = props => {
           label={t('I have confirmed the therapy settings order for this patient')}
           {...checkboxStyles}
         />
-      </Box>
+      </Box>}
     </Box>
   );
 };
@@ -539,7 +547,7 @@ export const PrescriptionReview = translate()(props => {
         mb={4}
         pr={[4, 4, 0, 0]}
         pl={[4, 4, 5, 7]}
-        py={3}
+        pb={3}
         width={[1, 1, 0.55, 0.65]}
         {...props}
       />
@@ -547,11 +555,11 @@ export const PrescriptionReview = translate()(props => {
   );
 });
 
-const reviewFormStep = (schema, pump, handlers, values) => ({
+const reviewFormStep = (schema, pump, handlers, values, isEditable) => ({
   label: t('Review and Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   completeText: t('Save Prescription'), // TODO: [Save | Send] depending on clinician role once implemented in backend
   disableComplete: !fieldsAreValid(flattenDeep(stepValidationFields), schema, values),
-  panelContent: <PrescriptionReview pump={pump} handlers={handlers} />
+  panelContent: <PrescriptionReview pump={pump} handlers={handlers} isEditable={isEditable} />
 });
 
 export default reviewFormStep;

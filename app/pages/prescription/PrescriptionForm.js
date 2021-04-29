@@ -204,6 +204,8 @@ export const PrescriptionForm = props => {
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
+  const prescriptionState = get(prescription, 'state', 'draft');
+  const isEditable = includes(['draft', 'pending'], prescriptionState);
 
   React.useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update
@@ -235,7 +237,7 @@ export const PrescriptionForm = props => {
 
   React.useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
-    if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
+    if (isEditable && (isUndefined(activeStep) || isUndefined(activeSubStep))) {
       let firstInvalidStep;
       let firstInvalidSubStep;
       let currentStep = 0;
@@ -255,7 +257,7 @@ export const PrescriptionForm = props => {
         currentSubStep = 0;
       }
 
-      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 4);
       setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
 
@@ -414,7 +416,7 @@ export const PrescriptionForm = props => {
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
   const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable);
 
   const stepProps = step => ({
     ...step,
@@ -498,7 +500,7 @@ export const PrescriptionForm = props => {
     <Box
       as='form'
       id="prescription-form"
-      onSubmit={handleSubmit}
+      onSubmit={isEditable ? handleSubmit : noop}
       mb={5}
       mx={3}
       bg="white"
@@ -526,12 +528,19 @@ export const PrescriptionForm = props => {
         <Text as={Headline} textAlign="center">{title}</Text>
 
         <Text sx={{ textTransform: 'capitalize' }}>
-          {t('Status: {{state}}', { state: get(prescription, 'state', 'draft') })}
+          {t('Status: {{state}}', { state: prescriptionState })}
         </Text>
       </Flex>
 
+      {isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
+
+      {!isEditable && (
+        <Box px={4}>
+          {reviewFormStepProps.panelContent}
+        </Box>
+      )}
+
       <FastField type="hidden" name="id" />
-      {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
     </Box>
   );
