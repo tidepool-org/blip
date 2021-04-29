@@ -378,11 +378,14 @@ export const TherapySettings = props => {
     let rowValues = isArray(value) ? value : [value];
     if (isEmpty(rowValues)) rowValues = [emptyValueText];
 
-    const warnings = compact(isArray(warning) ? warning : [warning]);
-    const errors = compact(isArray(error) ? error : [error]);
+    const warnings = isArray(warning) ? warning : [warning];
+    const errors = isArray(error) ? error : [error];
 
-    let valueColor = 'text.primary';
-    if (errors.length || warnings.length) valueColor = errors.length ? 'feedback.danger' : 'feedback.warning';
+    let valueColor = (i) => {
+      let color = 'text.primary';
+      if (errors[i] || warnings[i]) color = errors[i] ? 'feedback.danger' : 'feedback.warning';
+      return color;
+    }
 
     return (
       <Flex
@@ -397,14 +400,14 @@ export const TherapySettings = props => {
         <Box flex="1">
           {map(rowValues, (val, i) => (
             <Flex key={i}>
-              <Body1 color={valueColor} key={i} flexGrow={1}>{val}</Body1>
+              <Body1 color={valueColor(i)} key={i} flexGrow={1}>{val}</Body1>
               {errors[i] && (
                 <PopoverLabel
                   id={`${id}-${i}`}
                   width="auto"
                   popoverContent={(
                     <Box p={3}>
-                      {map(isArray(errors[i]) ? errors[i] : errors, (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
+                      {map(compact(isArray(errors[i]) ? errors[i] : [errors[i]]), (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
                     </Box>
                   )}
                 />
@@ -415,7 +418,7 @@ export const TherapySettings = props => {
                   width="auto"
                   popoverContent={(
                     <Box p={3}>
-                      {map(isArray(warnings[i]) ? warnings[i] : warnings, (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
+                      {map(compact(isArray(warnings[i]) ? warnings[i] : [warnings[i]]), (message, i) => <Paragraph1 key={i}>{message}</Paragraph1>)}
                     </Box>
                   )}
                 />
