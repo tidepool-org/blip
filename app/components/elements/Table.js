@@ -106,10 +106,6 @@ export const Table = props => {
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
   const [page, setPage] = React.useState(1);
 
-  useEffect(() => {
-    setPage(1);
-  }, [searchText]);
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -145,6 +141,10 @@ export const Table = props => {
   const pagedData = rowsPerPage && rowsPerPage < filteredData.length
     ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage)
     : filteredData;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchText, filteredData.length, rowsPerPage]);
 
   return (
     <>
