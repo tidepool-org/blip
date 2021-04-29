@@ -83,13 +83,11 @@ const Prescriptions = props => {
   }
 
   const handleAddNew = () => props.history.push('/prescriptions/new');
-  const handleUpdatePrescription = id => () => props.history.push(`/prescriptions/${id}/edit`);
-  const handleViewPrescription = id => () => props.history.push(`/prescriptions/${id}/edit?prescription-form-steps-step=4,0`);
+  const handleOpenPrescription = id => () => props.history.push(`/prescriptions/${id}`);
   const handleDeletePrescription = id => () => deletePrescription(id);
 
-  function handleRowClick({id, state}) {
-    const isEditable = includes(['draft', 'pending'], state);
-    return isEditable ? handleUpdatePrescription(id)() : handleViewPrescription(id)();
+  function handleRowClick({ id }) {
+    return handleOpenPrescription(id)();
   }
 
   const actionMenuItems = ({id, state}) => {
@@ -101,7 +99,7 @@ const Prescriptions = props => {
         iconLabel: isEditable ? t('Update') : t('View'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
-        onClick: isEditable ? handleUpdatePrescription(id) : handleViewPrescription(id),
+        onClick: handleOpenPrescription(id),
         text: isEditable ? t('Update prescription') : t('View Prescription'),
         variant: 'actionListItem',
       },
