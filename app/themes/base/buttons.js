@@ -6,6 +6,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     fontFamily: fonts.default,
     padding: `${space[2]}px ${space[3]}px`,
     height: 'auto',
+    cursor: 'pointer',
 
     '.icon': {
       fontSize: '1.125em',
@@ -184,9 +185,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       '&.selected': {
         backgroundColor: colors.blues[0],
         color: colors.purpleBright,
+        cursor: 'auto',
 
         '&:disabled': {
-          backgroundColor: colors.blues[0],
+          color: colors.text.primaryDisabled,
+          backgroundColor: colors.lightGrey,
         },
       },
     },

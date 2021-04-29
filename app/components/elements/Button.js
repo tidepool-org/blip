@@ -9,7 +9,6 @@ import Icon from './Icon';
 import baseTheme, { transitions } from '../../themes/baseTheme';
 
 const StyledButton = styled(Base)`
-  cursor: pointer;
   transition: ${transitions.easeOut};
   position: relative;
 
