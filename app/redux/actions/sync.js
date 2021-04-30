@@ -1259,11 +1259,11 @@ export function fetchCliniciansFromClinicRequest() {
   };
 }
 
-export function fetchCliniciansFromClinicSuccess(clinicians) {
+export function fetchCliniciansFromClinicSuccess(results) {
   return {
     type: ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
     payload: {
-      clinicians: clinicians,
+      results: results,
     },
   };
 }

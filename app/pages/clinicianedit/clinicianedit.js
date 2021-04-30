@@ -38,29 +38,29 @@ export const ClinicianEdit = (props) => {
     dispatch(push('/clinic-admin'));
   }
 
-  const selectedClinician = useSelector((state) =>
+  const selectedClinicianUser = useSelector((state) =>
     _.get(state, ['blip', 'allUsersMap', selectedClinicianId])
   );
   const selectedClinic = _.get(location, 'state.clinicId', false);
-  const selectedClinicianPermissions = useSelector((state) =>
+  const selectedClinician = useSelector((state)=>
     _.get(state, [
       'blip',
       'clinics',
       selectedClinic,
       'clinicians',
-      selectedClinicianId,
-      'permissions',
+      selectedClinicianId
     ])
   );
+  const selectedClinicianRoles = _.get(selectedClinician, 'roles');
   const [prescriberPermission, setPrescriberPermission] = useState(
-    _.includes(selectedClinicianPermissions, 'PRESCRIBER' ? true : false)
+    _.includes(selectedClinicianRoles, 'PRESCRIBER') ? true : false
   );
   const [selectedType, setSelectedType] = useState(
-    _.includes(selectedClinicianPermissions, 'CLINIC_ADMIN')
+    _.includes(selectedClinicianRoles, 'CLINIC_ADMIN')
       ? 'CLINIC_ADMIN'
       : 'CLINIC_MEMBER'
   );
-  const fullName = personUtils.fullName(selectedClinician);
+  const fullName = personUtils.fullName(selectedClinicianUser);
 
   useEffect(() => {
     if (trackMetric) {
@@ -95,12 +95,12 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleConfirmDeleteDialog() {
-    // TODO: dispatch(actions.async.deleteClinicianFromClinic(api,selectedClinic,selectedClinicianId))
     console.log(
       'deleteClinicianFromClinic',
       selectedClinic,
       selectedClinicianId
     );
+    // TODO: dispatch(actions.async.deleteClinicianFromClinic(api,selectedClinic,selectedClinicianId))
     dispatch(push('/clinic-admin'));
   }
 
@@ -113,12 +113,12 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleSave() {
-    const updatedPermissions = [];
-    updatedPermissions.push(selectedType);
-    if (prescriberPermission) updatedPermissions.push('PRESCRIBER');
-    const updates = { permissions: updatedPermissions };
-    // TODO: dispatch(actions.async.updateClinician(api,selectedClinic,selectedClinician,updates));
-    console.log('updateClinician', selectedClinic, selectedClinician, updates);
+    const updatedClinician = _.cloneDeep(selectedClinician);
+    const updatedRoles = [];
+    updatedRoles.push(selectedType);
+    if (prescriberPermission) updatedRoles.push('PRESCRIBER');
+    updatedClinician.roles = updatedRoles;
+    dispatch(actions.async.updateClinician(api, selectedClinic, updatedClinician.id, updatedClinician));
     dispatch(push('/clinic-admin'));
   }
 
@@ -162,7 +162,7 @@ export const ClinicianEdit = (props) => {
       >
         <Box flexGrow={1}>
           <Text fontWeight="medium">{fullName}</Text>
-          <Text>{_.get(selectedClinician, 'emails[0]') || '\u00A0'}</Text>
+          <Text>{_.get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
         </Box>
         <Text color="feedback.danger" onClick={() => handleClickDelete()}>
           Remove User

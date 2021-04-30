@@ -55,7 +55,7 @@ export const notification = (state = initialState.notification, action) => {
     case types.CONNECT_DATA_SOURCE_FAILURE:
     case types.DISCONNECT_DATA_SOURCE_FAILURE:
     case types.ADD_CLINICIAN_TO_CLINIC_FAILURE:
-    case types.ADD_PATIENT_TO_CLINIC_FAILURE:
+    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
     case types.CREATE_CLINIC_FAILURE:
       const err = _.get(action, 'error', null);
       if (err) {
@@ -645,23 +645,29 @@ export const clinics = (state = initialState.clinics, action) => {
       return update(state, {
         [clinic.id]: { $set: { clinicians: {}, patients: {} } },
       });
-    case types.ADD_CLINICIAN_TO_CLINIC_SUCCESS:
-      clinicId = _.get(action.payload, 'clinicId', {});
-      clinician = _.get(action.payload, 'clinician', {});
-      return update(state, {
-        [clinicId]: {
-          clinicians: {
-            [clinician.id]: { $set: clinician },
-          },
-        },
-      });
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS: {
-      const clinicians = _.get(action.payload, 'clinicians', []);
+      const clinicians = _.get(action.payload, 'results.clinicians', []);
+      const clinicId = _.get(action.payload, 'results.clinicId', '');
       const newClinics = _.cloneDeep(state);
       _.forEach(clinicians, (clinician) => {
-        _.set(newClinics, [clinician.clinicId, 'clinicians', clinician.clinicianId, 'permissions'], clinician.permissions);
+        _.set(newClinics, [clinicId, 'clinicians', clinician.id || clinician.inviteId], clinician);
       });
       return newClinics;
+    }
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS: {
+      const clinics = _.get(action.payload, 'clinics');
+      const newClinics = _.reduce(
+        clinics,
+        (newSet, clinic) => {
+          newSet[clinic.clinic.id] = {
+            ...clinic.clinic,
+            clinicians: { [clinic.clinician.id]: clinic.clinician },
+          };
+          return newSet;
+        },
+        {}
+      );
+      return _.merge({}, state, newClinics);
     }
     case types.GET_CLINICS_SUCCESS:
       clinics = _.get(action.payload, 'clinics', []);
@@ -685,6 +691,12 @@ export const clinics = (state = initialState.clinics, action) => {
         {}
       );
       return _.merge({}, state, newClinics);
+    case types.UPDATE_CLINICIAN_SUCCESS:
+      clinician = _.get(action.payload, 'clinician');
+      clinicId = _.get(action.payload, 'clinicId');
+      return update(state, {
+        [clinicId]: { clinicians: { [clinician.id]: { $set: clinician } } },
+      });
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:

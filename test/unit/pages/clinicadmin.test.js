@@ -47,7 +47,7 @@ describe('ClinicAdmin', () => {
   const blipState = {
     blip: {
       working: {
-        fetchingClinics: {
+        fetchingClinicsForClinician: {
           inProgress: false,
           completed: true,
           notification: null,
@@ -83,7 +83,9 @@ describe('ClinicAdmin', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
-              permissions: ['CLINIC_MEMBER'],
+              email: 'clinic@example.com',
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
             },
           },
           patients: {},
@@ -110,7 +112,7 @@ describe('ClinicAdmin', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
-              permissions: ['CLINIC_ADMIN'],
+              roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
             },
           },
         },

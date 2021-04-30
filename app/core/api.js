@@ -881,12 +881,12 @@ api.clinics.get = function(clinicId, cb) {
   return tidepool.getClinic(clinicId, cb);
 };
 
-api.clinics.update = function(clinicId, updates, cb) {
-  return tidepool.updateClinic(clinicId, updates, cb);
+api.clinics.update = function(clinicId, clinic, cb) {
+  return tidepool.updateClinic(clinicId, clinic, cb);
 };
 
-api.clinics.getCliniciansFromClinic = function(clinicId, cb) {
-  return tidepool.getCliniciansFromClinic(clinicId, cb);
+api.clinics.getCliniciansFromClinic = function(clinicId, options, cb) {
+  return tidepool.getCliniciansFromClinic(clinicId, options, cb);
 };
 
 api.clinics.getClinician = function(clinicId, clinicianId, cb) {
@@ -901,8 +901,8 @@ api.clinics.deleteClinicianFromClinic = function(clinicId, clinicianId, cb) {
   return tidepool.deleteClinicianFromClinic(clinicId, clinicianId, cb);
 };
 
-api.clinics.getPatientsForClinic = function(clinicId, cb) {
-  return tidepool.getPatientsForClinic(clinicId, cb);
+api.clinics.getPatientsForClinic = function(clinicId, options, cb) {
+  return tidepool.getPatientsForClinic(clinicId, options, cb);
 };
 
 api.clinics.createCustodialAccount = function(clinicId, patient, cb) {
@@ -913,8 +913,8 @@ api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {
   return tidepool.getPatientFromClinic(clinicId, patientId, cb);
 };
 
-api.clinics.updateClinicPatient = function(clinicId, patientId, updates, cb) {
-  return tidepool.updateClinicPatient(clinicId, patientId, updates, cb);
+api.clinics.updateClinicPatient = function(clinicId, patientId, patient, cb) {
+  return tidepool.updateClinicPatient(clinicId, patientId, patient, cb);
 };
 
 api.clinics.inviteClinician = function(clinicId, clinician, cb) {

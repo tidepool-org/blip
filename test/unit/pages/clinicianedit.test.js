@@ -28,7 +28,7 @@ describe('ClinicianEdit', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
-        //getAll: sinon.stub().callArgWith(1, null, [{id:'12345'}])
+        updateClinician: sinon.stub().callsArgWith(3, null, {}),
       },
     },
   };
@@ -84,7 +84,8 @@ describe('ClinicianEdit', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
-              permissions: ['CLINIC_MEMBER'],
+              id:'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
             },
           },
           patients: {},
@@ -111,7 +112,7 @@ describe('ClinicianEdit', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
-              permissions: ['CLINIC_ADMIN'],
+              roles: ['CLINIC_ADMIN'],
             },
           },
         },
@@ -241,6 +242,18 @@ describe('ClinicianEdit', () => {
       wrapper.find('Button#save').simulate('click');
       //TODO: test that API call is executed when implemented
       expect(store.getActions()).to.eql([
+        { type: 'UPDATE_CLINICIAN_REQUEST' },
+        {
+          type: 'UPDATE_CLINICIAN_SUCCESS',
+          payload: {
+            'clinicId': 'clinicID456',
+            'clinicianId': 'clinicianUserId123',
+            'clinician': {
+              'id': 'clinicianUserId123',
+              'roles': ['CLINIC_ADMIN']
+            }
+          }
+        },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {

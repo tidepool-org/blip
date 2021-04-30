@@ -4240,7 +4240,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'FETCH_CLINICIANS_FROM_CLINIC_REQUEST' },
           { type: 'FETCH_CLINICIANS_FROM_CLINIC_SUCCESS', payload: {
-            clinicians: {
+            results: {
               clinicId,
               clinicians
             }

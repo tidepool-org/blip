@@ -19,7 +19,7 @@ import Checkbox from '../../../app/components/elements/Checkbox';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicInvite', () => {
+describe('ClinicInvite', () => {
   let mount;
 
   let wrapper;
@@ -28,7 +28,7 @@ describe.only('ClinicInvite', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
-        //getAll: sinon.stub().callArgWith(1, null, [{id:'12345'}])
+        inviteClinician: sinon.stub().callsArgWith(2, null, {inviteReturn:'success'})
       },
     },
   };
@@ -81,7 +81,8 @@ describe.only('ClinicInvite', () => {
         clinicID456: {
           clinicians: {
             clinicianUserId123: {
-              permissions: ['CLINIC_MEMBER'],
+              id: 'clinicianUserId123',
+              roles: ['CLINIC_MEMBER'],
             },
           },
           patients: {},
@@ -229,6 +230,13 @@ describe.only('ClinicInvite', () => {
       wrapper.find('Button#next').simulate('click');
       //TODO: test that API call is executed when implemented
       expect(store.getActions()).to.eql([
+        { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
+        {
+          type: 'SEND_CLINICIAN_INVITE_SUCCESS',
+          payload: {
+            'clinician': {inviteReturn:'success'}
+          }
+        },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {

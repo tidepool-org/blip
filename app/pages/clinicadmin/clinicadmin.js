@@ -139,8 +139,8 @@ export const ClinicAdmin = (props) => {
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
-  const fetchingClinics = useSelector(
-    (state) => state.blip.working.fetchingClinics
+  const fetchingClinicsForClinician = useSelector(
+    (state) => state.blip.working.fetchingClinicsForClinician
   );
   const fetchingCliniciansFromClinic = useSelector(
     (state) => state.blip.working.fetchingCliniciansFromClinic
@@ -152,18 +152,17 @@ export const ClinicAdmin = (props) => {
   const clinicians = _.get(clinics, selectedClinic, 'clinicians', []);
 
   // NB: this will change heavily as the clinics API gets updated
-  // TODO: dispatch fetching clinics if not inProgress or completed
   useEffect(() => {
     if (
-      !fetchingClinics.inProgress &&
-      !fetchingClinics.completed &&
-      !fetchingClinics.notification
+      !fetchingClinicsForClinician.inProgress &&
+      !fetchingClinicsForClinician.completed &&
+      !fetchingClinicsForClinician.notification
     ) {
       dispatch(
-        actions.async.getAllClinics(api, { clinicianId: loggedInUserId })
+        actions.async.getClinicsForClinician(api, loggedInUserId)
       );
     } else {
-      if (_.keys(clinics).length === 1) {
+      if (_.keys(clinics).length) {
         setSelectedClinic(_.keys(clinics)[0]);
       }
       if (
@@ -176,34 +175,34 @@ export const ClinicAdmin = (props) => {
         });
       }
     }
-  }, [loggedInUserId, fetchingClinics, fetchingCliniciansFromClinic]);
+  }, [loggedInUserId, fetchingClinicsForClinician, fetchingCliniciansFromClinic]);
 
   const clinicianArray = _.map(
     _.get(clinics, [selectedClinic, 'clinicians'], {}),
-    (clinician, clinicianId) => {
-      const { permissions } = clinician;
+    (clinician) => {
+      const { roles, email, id:clinicianId } = clinician;
       const user = _.get(allUsers, clinicianId, {});
-      const role = _.includes(permissions, 'CLINIC_ADMIN')
+      const role = _.includes(roles, 'CLINIC_ADMIN')
         ? 'Clinic Admin'
-        : _.includes(permissions, 'CLINIC_MEMBER')
+        : _.includes(roles, 'CLINIC_MEMBER')
         ? 'Clinic Member'
         : '';
       return {
         fullName: personUtils.fullName(user),
         fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
         role,
-        prescriberPermission: _.includes(permissions, 'CLINIC_PRESCRIBER'),
+        prescriberPermission: _.includes(roles, 'PRESCRIBER'),
         userid: clinicianId,
         inviteSent: _.includes(pendingSentInvites, clinicianId),
-        email: _.get(user, 'emails[0]'),
-        permissions,
+        email,
+        roles,
       };
     }
   );
 
-  const userPermissionsInClinic = _.get(
+  const userRolesInClinic = _.get(
     _.find(clinicianArray, { userid: loggedInUserId }),
-    'permissions',
+    'roles',
     []
   );
 
@@ -319,7 +318,7 @@ export const ClinicAdmin = (props) => {
     },
   ];
 
-  if (_.includes(userPermissionsInClinic, 'CLINIC_ADMIN')) {
+  if (_.includes(userRolesInClinic, 'CLINIC_ADMIN')) {
     columns.push(
       {
         title: '',

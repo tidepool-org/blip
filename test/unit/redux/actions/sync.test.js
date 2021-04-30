@@ -2433,16 +2433,16 @@ describe('Actions', () => {
     });
 
     describe('fetchCliniciansFromClinicSuccess', () => {
-      let clinicians = ['clinician1','clinician2'];
+      let results = {clinicians: ['clinician1','clinician2'], clinicId:'clinicId'};
       it('should be a TSA', () => {
-        let action = sync.fetchCliniciansFromClinicSuccess(clinicians);
+        let action = sync.fetchCliniciansFromClinicSuccess(results);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_CLINICIANS_FROM_CLINIC_SUCCESS', () => {
-        let action = sync.fetchCliniciansFromClinicSuccess(clinicians);
+        let action = sync.fetchCliniciansFromClinicSuccess(results);
         expect(action.type).to.equal('FETCH_CLINICIANS_FROM_CLINIC_SUCCESS');
-        expect(action.payload.clinicians).to.equal(clinicians);
+        expect(action.payload.results).to.equal(results);
       });
     });
 

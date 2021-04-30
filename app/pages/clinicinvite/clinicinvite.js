@@ -73,14 +73,14 @@ export const ClinicInvite = (props) => {
   }
 
   function handleSubmit() {
-    // TODO: API is not finalized for clinician invite send/resend
+    const roles = [selectedType];
+    if(prescriberPermission) { roles.push('PRESCRIBER') }
     console.log(
       'handleSubmit',
       selectedClinic,
-      email,
-      selectedType,
-      prescriberPermission
+      {email, roles}
     );
+    dispatch(actions.async.sendClinicianInvite(api, selectedClinic, {email, roles}))
     dispatch(push('/clinic-admin'));
   }
 

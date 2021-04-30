@@ -625,8 +625,9 @@ describe('api', () => {
       it('should call tidepool.getCliniciansFromClinic with the appropriate args', () => {
         const cb = sinon.stub();
         const clinicId = 'clinicId';
-        api.clinics.getCliniciansFromClinic(clinicId, cb);
-        sinon.assert.calledWith(tidepool.getCliniciansFromClinic, clinicId, cb);
+        const options = {};
+        api.clinics.getCliniciansFromClinic(clinicId, options, cb);
+        sinon.assert.calledWith(tidepool.getCliniciansFromClinic, clinicId, options, cb);
       });
     });
     describe('getClinician', () => {
