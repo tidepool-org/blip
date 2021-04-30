@@ -42,6 +42,7 @@ import TextInput from '../../components/elements/TextInput';
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
+import { useToasts } from '../../providers/ToastProvider';
 
 const Prescriptions = props => {
   const {
@@ -51,6 +52,8 @@ const Prescriptions = props => {
     history,
     prescriptions = [],
   } = props;
+
+  const { set: setToast } = useToasts();
 
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
 
@@ -208,11 +211,27 @@ const Prescriptions = props => {
   ];
 
   React.useEffect(() => {
-    if (deletingPrescription.completed && deleteDialog.open) {
-      closeDeleteDialog();
-      deleteDialog.closeParentPopover();
+    const { inProgress, completed, notification } = deletingPrescription;
+
+    if (!inProgress && completed) {
+      if (deleteDialog.open) {
+        deleteDialog.closeParentPopover();
+        closeDeleteDialog();
+      }
+
+      setToast({
+        message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction: 'deleted' }),
+        variant: 'success',
+      });
     }
-  }, [deletingPrescription.completed])
+
+    if (!inProgress && completed === false) {
+      setToast({
+        message: get(notification, 'message'),
+        variant: 'danger',
+      });
+    }
+  }, [deletingPrescription]);
 
   return (
     <Box mx={3} mb={5} px={4} py={4} bg='white'>
