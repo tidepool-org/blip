@@ -14,6 +14,7 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
+import noop from 'lodash/noop';
 import reduce from 'lodash/reduce';
 import transform from 'lodash/transform';
 import values from 'lodash/values';
@@ -25,14 +26,20 @@ import {
   usePopupState,
 } from 'material-ui-popup-state/hooks';
 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '../../components/elements/Dialog';
+
 import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
-import { DialogContent, DialogActions } from '../../components/elements/Dialog';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import TextInput from '../../components/elements/TextInput';
-import { Headline } from '../../components/elements/FontStyles';
+import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 
@@ -46,6 +53,23 @@ const Prescriptions = props => {
   } = props;
 
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
+
+  const popupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'filterState',
+  });
+
+  const initialDeleteDialogState = {
+    closeParentPopover: noop,
+    open: false,
+    prescription: {},
+  };
+
+  const [deleteDialog, setDeleteDialog] = React.useState(initialDeleteDialogState);
+
+  function closeDeleteDialog() {
+    setDeleteDialog(initialDeleteDialogState);
+  }
 
   const [searchText, setSearchText] = React.useState('');
   const [filterStateActive, setFilterStateActive] = React.useState(false);
@@ -83,15 +107,25 @@ const Prescriptions = props => {
   }
 
   const handleAddNew = () => props.history.push('/prescriptions/new');
-  const handleOpenPrescription = id => () => props.history.push(`/prescriptions/${id}`);
-  const handleDeletePrescription = id => () => deletePrescription(id);
 
-  function handleRowClick({ id }) {
-    return handleOpenPrescription(id)();
+  const handleOpenPrescription = prescription => popupState => {
+    props.history.push(`/prescriptions/${prescription.id}`);
+  };
+
+  const handleDeletePrescription = prescription => popupState => {
+    setDeleteDialog({
+      closeParentPopover: popupState.close,
+      open: true,
+      prescription,
+    });
   }
 
-  const actionMenuItems = ({id, state}) => {
-    const isEditable = includes(['draft', 'pending'], state);
+  function handleRowClick(prescription) {
+    return handleOpenPrescription(prescription)();
+  }
+
+  const actionMenuItems = prescription => {
+    const isEditable = includes(['draft', 'pending'], prescription.state);
 
     const items = [
       {
@@ -99,7 +133,7 @@ const Prescriptions = props => {
         iconLabel: isEditable ? t('Update') : t('View'),
         iconPosition: 'left',
         id: isEditable ? 'update' : 'view',
-        onClick: handleOpenPrescription(id),
+        onClick: handleOpenPrescription(prescription),
         text: isEditable ? t('Update prescription') : t('View Prescription'),
         variant: 'actionListItem',
       },
@@ -110,7 +144,7 @@ const Prescriptions = props => {
       iconLabel: 'Delete',
       iconPosition: 'left',
       id: 'delete',
-      onClick: handleDeletePrescription(id),
+      onClick: handleDeletePrescription(prescription),
       text: 'Delete prescription',
       variant: 'actionListItemDanger',
       disabled: !isEditable,
@@ -140,9 +174,11 @@ const Prescriptions = props => {
     window.open(href, '_blank');
   }
 
-  const renderName = ({ firstName, lastName, patientUserId }) => (
+  const patientNameFromPrescription = ({ firstName, lastName }) => `${firstName} ${lastName}`;
+
+  const renderName = prescription => (
     <>
-     {patientUserId ? <Button
+     {prescription.patientUserId ? <Button
         p={0}
         m={0}
         color="text.link"
@@ -153,11 +189,11 @@ const Prescriptions = props => {
         onClick={(e) => {
           // Prevent clicks from propogating up to the table row click handlers
           e.stopPropagation();
-          openPatientData(patientUserId);
+          openPatientData(prescription.patientUserId);
         }}
       >
-        {`${firstName} ${lastName}`}
-      </Button> : `${firstName} ${lastName}`
+        {patientNameFromPrescription(prescription)}
+      </Button> : patientNameFromPrescription(prescription)
      }
     </>
   );
@@ -171,10 +207,12 @@ const Prescriptions = props => {
     { title: '', field: 'more', render: renderMore, align: 'left' },
   ];
 
-  const popupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'filterState',
-  });
+  React.useEffect(() => {
+    if (deletingPrescription.completed && deleteDialog.open) {
+      closeDeleteDialog();
+      deleteDialog.closeParentPopover();
+    }
+  }, [deletingPrescription.completed])
 
   return (
     <Box mx={3} mb={5} px={4} py={4} bg='white'>
@@ -267,6 +305,33 @@ const Prescriptions = props => {
         order="desc"
         pagination
       />
+      <Dialog
+        id={'prescription-delete'}
+        aria-labelledby="dialog-title"
+        open={deleteDialog.open}
+        onClose={closeDeleteDialog}
+      >
+        <DialogTitle onClose={closeDeleteDialog}>
+          <MediumTitle id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            Are you sure you want to delete this prescription for {patientNameFromPrescription(deleteDialog.prescription)}?
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={closeDeleteDialog}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            processing={deletingPrescription.inProgress}
+            onClick={() => deletePrescription(deleteDialog.prescription.id)}
+          >
+            Delete Prescription
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
