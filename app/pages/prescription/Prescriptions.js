@@ -41,6 +41,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import TextInput from '../../components/elements/TextInput';
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
+import withAssociatedAccounts from './withAssociatedAccounts';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
@@ -52,6 +53,7 @@ const Prescriptions = props => {
     deletingPrescription,
     history,
     prescriptions = [],
+    membershipPermissionsInOtherCareTeams = {},
   } = props;
 
   const isFirstRender = useIsFirstRender();
@@ -190,7 +192,7 @@ const Prescriptions = props => {
 
   const renderName = prescription => (
     <>
-     {prescription.patientUserId ? <Button
+     {prescription.patientUserId && get(membershipPermissionsInOtherCareTeams, [prescription.patientUserId, 'view']) ? <Button
         p={0}
         m={0}
         color="text.link"
@@ -368,4 +370,4 @@ const Prescriptions = props => {
   );
 };
 
-export default withPrescriptions(translate()(Prescriptions));
+export default withPrescriptions(withAssociatedAccounts(translate()(Prescriptions)));
