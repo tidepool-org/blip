@@ -335,7 +335,7 @@ const Prescriptions = props => {
         </DialogTitle>
         <DialogContent>
           <Body1>
-            Are you sure you want to delete this prescription for {patientNameFromPrescription(deleteDialog.prescription)}?
+            Are you sure you want to delete this prescription?
           </Body1>
         </DialogContent>
         <DialogActions>
