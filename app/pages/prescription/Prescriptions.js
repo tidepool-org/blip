@@ -43,6 +43,7 @@ import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyl
 import withPrescriptions from './withPrescriptions';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 import { useToasts } from '../../providers/ToastProvider';
+import { useIsFirstRender } from '../../core/hooks';
 
 const Prescriptions = props => {
   const {
@@ -53,6 +54,7 @@ const Prescriptions = props => {
     prescriptions = [],
   } = props;
 
+  const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
 
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
@@ -71,7 +73,14 @@ const Prescriptions = props => {
   const [deleteDialog, setDeleteDialog] = React.useState(initialDeleteDialogState);
 
   function closeDeleteDialog() {
-    setDeleteDialog(initialDeleteDialogState);
+    setDeleteDialog({
+      ...deleteDialog,
+      open: false,
+    });
+
+    // We fully reset the dialog after it's had time to close, so that we don't see the patient name
+    // in the delete dialog disappear before it closes.
+    setTimeout(() => setDeleteDialog(initialDeleteDialogState), 100);
   }
 
   const [searchText, setSearchText] = React.useState('');
@@ -177,7 +186,7 @@ const Prescriptions = props => {
     window.open(href, '_blank');
   }
 
-  const patientNameFromPrescription = ({ firstName, lastName }) => `${firstName} ${lastName}`;
+  const patientNameFromPrescription = ({ firstName = '', lastName = '' }) => [firstName, lastName].join(' ');
 
   const renderName = prescription => (
     <>
@@ -210,29 +219,33 @@ const Prescriptions = props => {
     { title: '', field: 'more', render: renderMore, align: 'left' },
   ];
 
+  // Handle successful or failed deletion attempts
   React.useEffect(() => {
     const { inProgress, completed, notification } = deletingPrescription;
 
-    if (!inProgress && completed) {
-      if (deleteDialog.open) {
-        deleteDialog.closeParentPopover();
-        closeDeleteDialog();
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
+        if (deleteDialog.open) {
+          deleteDialog.closeParentPopover();
+          closeDeleteDialog();
+        }
+
+        setToast({
+          message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction: 'deleted' }),
+          variant: 'success',
+        });
       }
 
-      setToast({
-        message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction: 'deleted' }),
-        variant: 'success',
-      });
-    }
-
-    if (!inProgress && completed === false) {
-      setToast({
-        message: get(notification, 'message'),
-        variant: 'danger',
-      });
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
     }
   }, [deletingPrescription]);
 
+  // Render
   return (
     <Box mx={3} mb={5} px={4} py={4} bg='white'>
       <Flex my={3} justifyContent="space-between">
@@ -331,7 +344,7 @@ const Prescriptions = props => {
         onClose={closeDeleteDialog}
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
+          <MediumTitle mr={2} id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>

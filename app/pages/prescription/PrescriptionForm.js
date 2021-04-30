@@ -40,6 +40,7 @@ import i18next from '../../core/language';
 import { useToasts } from '../../providers/ToastProvider';
 import { Headline } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
+import { useIsFirstRender } from '../../core/hooks';
 
 import {
   defaultUnits,
@@ -198,6 +199,7 @@ export const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
+  const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
 
   const stepperId = 'prescription-form-steps';
@@ -296,28 +298,30 @@ export const PrescriptionForm = props => {
 
     if (prescriptionId) setFieldValue('id', prescriptionId);
 
-    if (!inProgress && completed) {
-      setStepAsyncState(asyncStates.completed);
-      if (isLastStep) {
-        let messageAction = 'sent';
-        if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
+        setStepAsyncState(asyncStates.completed);
+        if (isLastStep) {
+          let messageAction = 'sent';
+          if (isDraft) messageAction = isRevision ? 'updated' : 'created';
 
+          setToast({
+            message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
+            variant: 'success',
+          });
+
+          history.push('/prescriptions');
+        }
+      }
+
+      if (completed === false) {
         setToast({
-          message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
-          variant: 'success',
+          message: get(notification, 'message'),
+          variant: 'danger',
         });
 
-        history.push('/prescriptions');
+        setStepAsyncState(asyncStates.failed);
       }
-    }
-
-    if (!inProgress && completed === false) {
-      setToast({
-        message: get(notification, 'message'),
-        variant: 'danger',
-      });
-
-      setStepAsyncState(asyncStates.failed);
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
