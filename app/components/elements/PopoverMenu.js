@@ -59,7 +59,7 @@ const PopoverMenu = props => {
             id={item.id}
             key={item.id}
             variant={item.variant}
-            onClick={get(item, 'onClick', noop)}
+            onClick={get(item, 'onClick', noop).bind(null, popupState)}
           >
             {item.text}
           </Button>
