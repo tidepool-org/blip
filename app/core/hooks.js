@@ -110,9 +110,11 @@ export const useFieldArray = (props, formikContext = useFormikContext()) => {
 // c.f. https://usehooks.com/usePrevious/
 export const usePrevious = value => {
   const ref = useRef();
+
   useEffect(() => {
     ref.current = value;
-  });
+  }, [value]);
+
   return ref.current;
 };
 
@@ -162,4 +164,14 @@ export const useInitialFocusedInput = () => {
   }, [ref.current]);
 
   return ref;
+};
+
+export const useIsFirstRender = () => {
+  const isFirstRenderRef = useRef(true);
+
+  useEffect(() => {
+    isFirstRenderRef.current = false;
+  }, []);
+
+  return isFirstRenderRef.current;
 };
