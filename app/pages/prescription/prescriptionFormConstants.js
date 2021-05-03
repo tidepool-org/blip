@@ -391,17 +391,17 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
 };
 
 export const revisionStateOptions = [
-  { value: 'draft', label: t('Draft') },
-	{ value: 'pending', label: t('Pending Approval') },
-	{ value: 'submitted', label: t('Submitted') },
+  { value: 'draft', label: t('Draft'), colorPalette: 'blues' },
+  { value: 'pending', label: t('Pending Approval'), colorPalette: 'oranges' },
+  { value: 'submitted', label: t('Submitted'), colorPalette: 'indigos' },
 ];
 
 export const prescriptionStateOptions = [
   ...revisionStateOptions,
-	{ value: 'claimed', label: t('Claimed') },
-	{ value: 'expired', label: t('Expired') },
-	{ value: 'active', label: t('Active') },
-	{ value: 'inactive', label: t('Inactive') },
+  { value: 'claimed', label: t('Claimed'), colorPalette: 'cyans' },
+  { value: 'expired', label: t('Expired'), colorPalette: 'pinks' },
+  { value: 'active', label: t('Active'), colorPalette: 'greens' },
+  { value: 'inactive', label: t('Inactive'), colorPalette: 'purples' },
 ];
 
 export const typeOptions = [
