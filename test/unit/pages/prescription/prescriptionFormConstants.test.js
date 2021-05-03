@@ -30,9 +30,21 @@ describe('prescriptionFormConstants', function() {
 
   it('should export the list of revision states', function() {
     expect(prescriptionFormConstants.revisionStateOptions).to.be.an('array').and.to.eql([
-      'draft',
-      'pending',
-      'submitted',
+      {
+        colorPalette: 'blues',
+        label: 'Draft',
+        value: 'draft',
+      },
+      {
+        colorPalette: 'oranges',
+        label: 'Pending Approval',
+        value: 'pending',
+      },
+      {
+        colorPalette: 'indigos',
+        label: 'Submitted',
+        value: 'submitted',
+      },
     ]);
   });
 
