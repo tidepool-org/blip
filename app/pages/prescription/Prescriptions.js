@@ -33,11 +33,12 @@ import {
   DialogActions,
 } from '../../components/elements/Dialog';
 
-import Table from '../../components/elements/Table';
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
+import Pill from '../../components/elements/Pill';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import Table from '../../components/elements/Table';
 import TextInput from '../../components/elements/TextInput';
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
@@ -58,7 +59,6 @@ const Prescriptions = props => {
 
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
-
   const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
 
   const popupFilterState = usePopupState({
@@ -100,7 +100,7 @@ const Prescriptions = props => {
 
   const data = filter(
     map(prescriptions, prescription => ({
-      birthday: get(prescription, 'latestRevision.attributes.birthday').replace(dateRegex, '$2/$3/$1'),
+      birthday: get(prescription, 'latestRevision.attributes.birthday', '').replace(dateRegex, '$2/$3/$1'),
       createdTime: get(prescription, 'latestRevision.attributes.createdTime'),
       firstName: get(prescription, 'latestRevision.attributes.firstName'),
       id: get(prescription, 'id'),
@@ -191,8 +191,8 @@ const Prescriptions = props => {
   const patientNameFromPrescription = ({ firstName = '', lastName = '' }) => [firstName, lastName].join(' ');
 
   const renderName = prescription => (
-    <>
-     {prescription.patientUserId && get(membershipPermissionsInOtherCareTeams, [prescription.patientUserId, 'view']) ? <Button
+    <React.Fragment>
+      {prescription.patientUserId && get(membershipPermissionsInOtherCareTeams, [prescription.patientUserId, 'view']) ? <Button
         p={0}
         m={0}
         color="text.link"
@@ -209,9 +209,14 @@ const Prescriptions = props => {
         {patientNameFromPrescription(prescription)}
       </Button> : patientNameFromPrescription(prescription)
      }
-    </>
+    </React.Fragment>
   );
-  const renderState = ({ state }) => get(prescriptionStates, [state, 'label'], '');
+
+  const renderState = ({ state }) => {
+    const label = get(prescriptionStates, [state, 'label'], '');
+    const colorPalette = get(prescriptionStates, [state, 'colorPalette'])
+    return <Pill label="prescription status" colorPalette={colorPalette} text={label} />
+  }
 
   const columns = [
     { title: t('Name'), field: 'patient', align: 'left', sortable: true, sortBy: 'firstName', render: renderName, searchable: true, searchBy: ['firstName', 'lastName'] },
@@ -332,7 +337,7 @@ const Prescriptions = props => {
         id="prescriptions-table"
         data={data}
         columns={columns}
-        rowsPerPage={3}
+        rowsPerPage={10}
         searchText={searchText}
         onClickRow={handleRowClick}
         orderBy="createdTime"
