@@ -10,6 +10,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
+import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
@@ -35,6 +36,7 @@ import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
 import Button from '../../components/elements/Button';
+import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 import { useToasts } from '../../providers/ToastProvider';
@@ -46,6 +48,7 @@ import {
   defaultUnits,
   deviceIdMap,
   getPumpGuardrail,
+  prescriptionStateOptions,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
@@ -207,6 +210,7 @@ export const PrescriptionForm = props => {
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
   const prescriptionState = get(prescription, 'state', 'draft');
+  const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
   const isEditable = includes(['draft', 'pending'], prescriptionState);
 
   React.useEffect(() => {
@@ -500,6 +504,9 @@ export const PrescriptionForm = props => {
     name: [values.firstName, values.lastName].join(' '),
   });
 
+  const prescriptionStateLabel = get(prescriptionStates, [prescriptionState, 'label'], '');
+  const prescriptionStateColorPalette = get(prescriptionStates, [prescriptionState, 'colorPalette'])
+
   return (
     <Box
       as='form'
@@ -530,10 +537,7 @@ export const PrescriptionForm = props => {
         </Button>
 
         <Text as={Headline} textAlign="center">{title}</Text>
-
-        <Text sx={{ textTransform: 'capitalize' }}>
-          {t('Status: {{state}}', { state: prescriptionState })}
-        </Text>
+        <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
       </Flex>
 
       {isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
