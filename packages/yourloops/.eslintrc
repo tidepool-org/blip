@@ -48,6 +48,7 @@
         }
       }
     ],
+    "linebreak-style": ["error", "unix"],
     "eol-last": ["error", "always"],
     "max-lines": ["error", { "max": 1000, "skipComments": true, "skipBlankLines": true }],
     "no-implied-eval": "error",

@@ -12,7 +12,7 @@ class TerminalTable extends React.Component {
   }
 
   render() {
-    const { device } = this.props; 
+    const { device } = this.props;
 
     if (device === null) {
       return null;
@@ -53,6 +53,6 @@ TerminalTable.propTypes = {
     manufacturer: PropTypes.string.isRequired,
     swVersion: PropTypes.string.isRequired,
   }).isRequired,
-}; 
+};
 
 export default TerminalTable;

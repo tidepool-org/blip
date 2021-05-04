@@ -27,6 +27,7 @@
   ],
   "rules": {
     "quotes": "off",
+    "linebreak-style": ["error", "unix"],
     "eol-last": 1,
     "camelcase": ["error", { "allow": ["UNSAFE_componentWillReceiveProps", "UNSAFE_componentWillMount"] }],
     "eqeqeq": 1,

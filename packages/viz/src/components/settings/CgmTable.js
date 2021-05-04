@@ -22,7 +22,7 @@ class CgmTable extends React.Component {
 
     const cgmEndOfLife = this.formatDate(cgm.endOfLifeTransmitterDate);
     const cgmSensorExpirationDate = this.formatDate(cgm.expirationDate);
-  
+
     return (
       <table className={styles.cgmTable}>
         <caption className={styles.bdlgSettingsHeader}>
