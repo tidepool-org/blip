@@ -110,40 +110,57 @@ describe('PumpSettingsContainer', () => {
     },
   };
 
-  before(() => {
+  let component = null;
+  const mountOptions = {
+    attachTo: null,
+  };
+
+  before(async () => {
     sinon.stub(console, 'error').callsFake(console.log.bind(console));
+    mountOptions.attachTo = document.getElementById("app");
+    if (mountOptions.attachTo === null) {
+      mountOptions.attachTo = document.createElement("div");
+      mountOptions.attachTo.id = "app";
+      document.body.appendChild(mountOptions.attachTo);
+    }
   });
 
   after(() => {
+    const { attachTo } = mountOptions;
+    if (attachTo instanceof HTMLElement) {
+      document.body.removeChild(attachTo);
+    }
     sinon.restore();
   });
 
   afterEach(() => {
     defaultProps.copySettingsClicked.resetHistory();
     console.error.resetHistory();
+
+    if (component !== null) {
+      component.unmount();
+      component.detach();
+      component = null;
+    }
   });
 
   it('should render with no error', () => {
-    let wrapper = mount(<PumpSettingsContainer {...defaultProps } />);
+    component = mount(<PumpSettingsContainer {...defaultProps } />, mountOptions);
     expect(console.error.callCount).to.equal(0);
-    expect(wrapper.exists('#button-settings-copy-as-text')).to.be.true;
-    wrapper.unmount();
+    expect(component.exists('#button-settings-copy-as-text')).to.be.true;
   });
 
-  it('should call copySettingsClicked() when copy setting is pressed', (/* done */) => {
-    let wrapper = mount(<PumpSettingsContainer {...defaultProps } />);
+  it('should call copySettingsClicked() when copy setting is pressed', (done) => {
+    component = mount(<PumpSettingsContainer {...defaultProps } />, mountOptions);
     expect(console.error.callCount).to.equal(0);
-    wrapper.find('#button-settings-copy-as-text').simulate('click');
-    // TODO / FIXME
-    wrapper.unmount();
-    // setTimeout(() => {
-    //   try {
-    //     expect(defaultProps.copySettingsClicked.calledOnce).to.be.true;
-    //     wrapper.unmount();
-    //     done();
-    //   } catch (e) {
-    //     done(e);
-    //   }
-    // }, 50);
+    component.find('#button-settings-copy-as-text').simulate('click');
+    setTimeout(() => {
+      try {
+        expect(defaultProps.copySettingsClicked.callCount).to.be.equal(1);
+        done();
+      } catch (r) {
+        done(r);
+      }
+    }, 10);
   });
 });

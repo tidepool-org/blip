@@ -107,8 +107,8 @@ class Settings extends React.Component {
     const { patientData } = this.props;
     const mostRecentSettings = _.last(patientData.grouped.pumpSettings);
     this.log.debug('Settings.renderChart()', mostRecentSettings);
-    const handleCopySettings = () => {
-      this.props.trackMetric('Clicked Copy Settings');
+    const handleCopySettings = (success, useClipboardAPI, error ) => {
+      this.props.trackMetric('setting-copy-as-text', { success, useClipboardAPI, error });
     };
 
     return (

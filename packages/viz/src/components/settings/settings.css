@@ -20,7 +20,6 @@
 .copyButton {
   composes: defaultSize from '../../styles/typography.css';
   float: right;
-  line-height: 0px;
   padding: 5px;
   border-radius: 0px;
   cursor: pointer;
@@ -41,12 +40,6 @@
   color: var(--white);
   background-color: #627cff;
   opacity: 0.62;
-}
-
-.copyText {
-  position: absolute;
-  left: -5000px;
-  top: 10px;
 }
 
 .settingsTable {
@@ -186,5 +179,3 @@
   }
 
 }
-
-

@@ -17,10 +17,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ClipboardButton from 'react-clipboard.js';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 import i18next from 'i18next';
+import bows from 'bows';
 
 import Header from './common/Header';
 import Table from './common/Table';
@@ -37,6 +37,7 @@ import { deviceName, getDeviceMeta } from '../../utils/settings/data';
 import styles from './Diabeloop.css';
 
 const t = i18next.t.bind(i18next);
+const log = bows('DblSettings');
 
 /**
  * Return the <div><table /></div> objects
@@ -101,6 +102,7 @@ const Diabeloop = (props) => {
     moment.tz(pumpSettings.deviceTime, 'UTC').tz(datetime.getBrowserTimezone()).format();
   const deviceDate = new Date(deviceDateISO);
   const displayDeviceDate = deviceDate.toLocaleString();
+  const [copyText, setCopyText] = React.useState('');
 
   const parameters = _.get(pumpSettings, 'payload.parameters', null);
   const device = _.get(pumpSettings, 'payload.device', null);
@@ -110,17 +112,51 @@ const Diabeloop = (props) => {
 
   const parametersByLevel = dblData.getParametersByLevel(parameters);
 
+  const handleCopyToClipboard = () => {
+    if (_.isFunction(_.get(navigator, 'clipboard.writeText')) && !_.get(window, 'config.TEST', false)) {
+      // Available on HTTPS connection only
+      // Does not seems to work well during unit tests (promise not always resolved)
+      navigator.clipboard.writeText(copyText).then(() => {
+        copySettingsClicked(true, true);
+      }).catch((reason) => {
+        log.error('Copy failed', reason);
+        copySettingsClicked(false, true, reason.message);
+      });
+    } else {
+      log.info('Using old clipboard API');
+      window.getSelection().removeAllRanges();
+      const pre = document.createElement('pre');
+      pre.appendChild(document.createTextNode(copyText));
+      document.body.appendChild(pre);
+      pre.focus();
+      const range = document.createRange();
+      range.selectNodeContents(pre);
+      window.getSelection().addRange(range);
+      try {
+        document.execCommand('copy');
+        copySettingsClicked(true, false);
+      } catch (err) {
+        log.error('Copy failed', err);
+        copySettingsClicked(false, false, err.message);
+      }
+      window.getSelection().removeAllRanges();
+      document.body.removeChild(pre);
+    }
+  };
+
+  React.useEffect(() => {
+    setCopyText(dblData.diabeloopText(device, parametersByLevel, displayDeviceDate));
+  }, []);
+
   return (
     <div>
-      <ClipboardButton
+      <button
         id="button-settings-copy-as-text"
         className={styles.copyButton}
-        button-title={t('For email or notes')}
-        data-clipboard-target="#copySettingsText"
-        onSuccess={copySettingsClicked}
-      >
-        <p>{t('Copy as text')}</p>
-      </ClipboardButton>
+        title={t("For email or notes")}
+        onClick={handleCopyToClipboard}>
+        {t('Copy as text')}
+      </button>
       <Header
         deviceDisplayName={deviceName(props.deviceKey)}
         deviceMeta={getDeviceMeta(pumpSettings, timePrefs)}
@@ -152,9 +188,6 @@ const Diabeloop = (props) => {
             />
         </div>
       </div>
-      <pre className={styles.copyText} id="copySettingsText">
-        {dblData.diabeloopText(device, parametersByLevel, displayDeviceDate)}
-      </pre>
     </div>
   );
 };
@@ -203,4 +236,5 @@ Diabeloop.propTypes = {
   }).isRequired,
   handleClickHistory: PropTypes.func.isRequired,
 };
+
 export default Diabeloop;
