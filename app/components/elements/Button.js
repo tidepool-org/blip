@@ -78,6 +78,7 @@ Button.propTypes = {
     'primary',
     'secondary',
     'tertiary',
+    'danger',
     'textPrimary',
     'textSecondary',
     'actionListItem',
