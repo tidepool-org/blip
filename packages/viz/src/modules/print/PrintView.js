@@ -86,24 +86,7 @@ class PrintView {
       height: 0,
     };
 
-    this.colors = {
-      basal: '#19A0D7',
-      basalHeader: '#DCF1F9',
-      basalAutomated: '#00D3E6',
-      bolus: '#7CD0F0',
-      bolusHeader: '#EBF7FC',
-      smbg: '#6480FB',
-      smbgHeader: '#E8ECFE',
-      siteChange: '#FCD144',
-      veryLow: colors.veryLow,
-      low: colors.low,
-      target: colors.target,
-      high: colors.high,
-      veryHigh: colors.veryHigh,
-      grey: '#6D6D6D',
-      lightGrey: '#979797',
-      darkGrey: '#4E4E4F',
-    };
+    this.colors = { ...colors };
 
     this.tableSettings = {
       colors: {

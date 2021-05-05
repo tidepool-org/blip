@@ -80,26 +80,35 @@
 
 
 :export {
-  bolus: var(--bolus);
+  bolus: #6FC3BB;
+  bolusHeader: #EBF7FC;
   bolusMeal: var(--bolus-meal);
   bolusMicro: var(--bolus-micro);
   bolusManual: var(--bolus-manual);
   basal: #19A0D7;
-  basalManual: #a8c8d4;
-  statDark: #27385b;
+  basalHeader: #DCF1F9;
+  basalAutomated: #00D3E6;
+  basalManual: #A8C8D4;
+  statDark: #27385B;
   statDefault: #727375;
-  statDisabled: #e7e9ee;
-  veryLow: var(--bg-very-low);
-  low: var(--bg-low);
-  target: var(--bg-target);
-  high: var(--bg-high);
-  veryHigh: var(--bg-very-high);
-  insulin: #0096d1;
-  white: #ffffff;
-  axis: #e7e9ee;
-  muted: #c1c9d6;
-  rescuecarbs: #fa9494;
+  statDisabled: #E7E9EE;
+  veryLow: #DA3A1B;
+  low: #E98D7C;
+  target: #9FCC93;
+  high: #F9D83E;
+  veryHigh: #FFA700;
+  insulin: #0096D1;
+  white: #FFFFFF;
+  axis: #E7E9EE;
+  muted: #C1C9D6;
+  rescuecarbs: #FA9494;
   deviceEvent: #727375;
   physicalActivity: #00D3E6;
-  confidentialMode: #b4b4b4;
+  confidentialMode: #B4B4B4;
+  smbg: #6480FB;
+  smbgHeader: #E8ECFE;
+  siteChange: #FCD144;
+  grey: #6D6D6D;
+  lightGrey: #979797;
+  darkGrey: #4E4E4F;
 }
