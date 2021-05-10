@@ -126,7 +126,6 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
     setUser(user);
     setSessionToken(auth.sessionToken);
-
     zendeskLogin();
     sendMetrics("setUserId", auth.user.userid);
     return user;
@@ -296,7 +295,17 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       throw new Error("invalid-user-role");
     }
 
+    // Call first Update user as it is the most importat call
+    // if it failed, for now we dont have compensation transaction that revert db change
     await api.updateUser(authInfo, { role: UserRoles.hcp });
+
+    // FIXME
+    if (authInfo.user?.profile !== undefined) {
+      const now = new Date().toISOString();
+      authInfo.user.profile.termsOfUse = { AcceptanceDate: now, IsAccepted: true };
+      authInfo.user.profile.privacyPolicy = { AcceptanceDate: now, IsAccepted: true };
+      await api.updateProfile(authInfo);
+    }
 
     // Ask for a new token with the updated role
     const newToken = await api.refreshToken(authInfo);

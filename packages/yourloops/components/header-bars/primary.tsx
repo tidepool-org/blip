@@ -39,13 +39,14 @@ import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Toolbar from "@material-ui/core/Toolbar";
-
+import Badge from "@material-ui/core/Badge";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 import brandingLogo from "branding/logo.png";
 
 import { User } from "../../models/shoreline";
+import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
 import { useAuth } from "../../lib/auth";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
@@ -78,7 +79,8 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
     backgroundColor: "var(--mdc-theme-surface, white)",
     display: "grid",
     gridTemplateRows: "auto",
-    gridTemplateColumns: (props: HeaderProps) => (_.isEmpty(props.children) ? "auto auto" : "auto auto auto"),
+    gridTemplateColumns: (props: HeaderProps) =>
+      _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
     paddingLeft: "6em",
     paddingRight: "6em",
     paddingBottom: "1em",
@@ -119,6 +121,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   const classes = toolbarStyles(props);
   const auth = useAuth();
   const history = useHistory();
+  const notifications = useNotification();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const userMenuOpen = Boolean(anchorEl);
@@ -221,7 +224,9 @@ function HeaderBar(props: HeaderProps): JSX.Element {
         {props.children}
         <div className={classes.toolbarRightSide}>
           <IconButton onClick={handleOpenNotifications}>
-            <NotificationsIcon />
+            <Badge color="error" badgeContent={notifications.count}>
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
           {accountMenu}
         </div>

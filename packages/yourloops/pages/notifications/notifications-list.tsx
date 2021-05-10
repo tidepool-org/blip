@@ -14,58 +14,192 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import * as React from "react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 import Container from "@material-ui/core/Container";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import Typography from "@material-ui/core/Typography";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-import { UserRoles } from "../../models/shoreline";
-import { MS_IN_DAY } from "../../models/generic";
-import { useAuth } from "../../lib/auth";
 import SecondaryHeaderBar from "./secondary-bar";
-import { INotification, Notification, NotificationType } from "./notification";
+import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
+import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
+import SwitchRoleToHcpSteps from "../../components/switch-role/switch-role-to-hcp-steps";
+import { Notification } from "./notification";
+import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
+import sendMetrics from "../../lib/metrics";
+import { INotification } from "../../lib/notifications/models";
+import { useAuth } from "../../lib/auth";
+import { useNotification } from "../../lib/notifications/hook";
+import { errorTextFromException } from "../../lib/utils";
+import { Snackbar } from "../../components/utils/snackbar";
 
 interface NotificationsPageProps {
   defaultURL: string;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    homeIcon: {
+      marginRight: "0.5em",
+    },
+    breadcrumbLink: {
+      display: "flex",
+    },
+    toolBar: {
+      display: "grid",
+      gridTemplateRows: "auto",
+      gridTemplateColumns: "auto auto auto",
+      paddingLeft: "6em",
+      paddingRight: "6em",
+    },
+    typography: {
+      textAlign: "center",
+      margin: theme.spacing(4),
+    },
+  })
+);
+
 const sortNotification = (notifA: INotification, notifB: INotification): number =>
-  Date.parse(notifB.date) - Date.parse(notifA.date);
+  Date.parse(notifB.created) - Date.parse(notifA.created);
 
 export const NotificationsPage = (props: NotificationsPageProps): JSX.Element => {
-  const { user } = useAuth();
+  const { t } = useTranslation("yourloops");
+  const classes = useStyles();
+  const { user, switchRoleToHCP } = useAuth();
+  const notifications = useNotification();
+  const { openSnackbar, snackbarParams } = useSnackbar();
+  const [notifs, setNotifs] = React.useState<INotification[]>([]);
+  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(
+    SwitchRoleToHcpSteps.none
+  );
 
-  const fakeNotif1: INotification = {
-    date: new Date().toISOString(),
-    emitter: { firstName: "Jean", lastName: "Dujardin", role: UserRoles.hcp },
-    type: NotificationType.joinGroup,
-    target: "Service de Diabétologie CH Angers",
+  React.useEffect(() => {
+    const loadNotifs = async () => {
+      console.log("enter in useEffect");
+      let results: INotification[];
+      try {
+        results = await notifications.getPendingInvitations(user?.userid);
+        results.sort(sortNotification);
+        setNotifs(results);
+      } catch (reason: unknown) {
+        const errorMessage = errorTextFromException(reason);
+        const message = t(errorMessage);
+        openSnackbar({ message, severity: AlertSeverity.error });
+      }
+    };
+
+    loadNotifs();
+  }, [notifications, user, t, openSnackbar]);
+
+  function handleRemove(id: string): void {
+    const newList = notifs.filter((item) => item.id !== id);
+    setNotifs(newList);
+  }
+
+  const handleSwitchRoleToConsequences = (): void => {
+    sendMetrics("user-switch-role", {
+      from: user?.role,
+      to: "hcp",
+      step: SwitchRoleToHcpSteps.consequences,
+    });
+    setSwitchRoleStep(SwitchRoleToHcpSteps.consequences);
   };
-  const fakeNotif2: INotification = {
-    date: "2021-02-18T10:00:00",
-    emitter: { firstName: "Jeanne", lastName: "Dubois", role: UserRoles.patient },
-    type: NotificationType.dataShare,
+
+  const handleSwitchRoleToConditions = (accept: boolean): void => {
+    sendMetrics("user-switch-role", {
+      from: user?.role,
+      to: "hcp",
+      step: SwitchRoleToHcpSteps.consent,
+      cancel: !accept,
+    });
+    if (accept) {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.consent);
+    } else {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
+    }
   };
-  const fakeNotif3: INotification = {
-    date: new Date(Date.now() - MS_IN_DAY).toISOString(), // yesterday date
-    emitter: { firstName: "Bob", lastName: "L'Eponge", role: UserRoles.hcp },
-    type: NotificationType.joinGroup,
-    target: "Crabe croustillant",
+
+  const handleSwitchRoleToUpdate = (accept: boolean): void => {
+    sendMetrics("user-switch-role", {
+      from: user?.role,
+      to: "hcp",
+      step: SwitchRoleToHcpSteps.update,
+      cancel: !accept,
+    });
+    if (accept) {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.update);
+
+      switchRoleToHCP()
+        .then(() => {
+          sendMetrics("user-switch-role", {
+            from: user?.role,
+            to: "hcp",
+            step: SwitchRoleToHcpSteps.update,
+            success: true,
+          });
+        })
+        .catch((reason: unknown) => {
+          openSnackbar({ message: t("modal-switch-hcp-failure"), severity: AlertSeverity.error });
+          sendMetrics("user-switch-role", {
+            from: user?.role,
+            to: "hcp",
+            step: SwitchRoleToHcpSteps.update,
+            success: false,
+            error: errorTextFromException(reason),
+          });
+        });
+    } else {
+      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
+    }
   };
-  const notifs: INotification[] = [fakeNotif1, fakeNotif2, fakeNotif3];
 
   return (
     <React.Fragment>
       <SecondaryHeaderBar defaultURL={props.defaultURL} />
+      <Snackbar params={snackbarParams} />
       <Container maxWidth="lg" style={{ marginTop: "1em" }}>
         <List>
-          {notifs.sort(sortNotification).map(({ date, emitter, type, target }, index) => (
-            <ListItem key={index} style={{ padding: "8px 0" }} divider={index !== notifs.length - 1}>
-              <Notification date={date} emitter={emitter} type={type} target={target} userRole={user?.role} />
-            </ListItem>
-          ))}
+          {notifs.length > 0 ? (
+            notifs.map(({ id, created, creator, type, target }, index) => (
+              <ListItem
+                key={index}
+                style={{ padding: "8px 0" }}
+                divider={index !== notifs.length - 1}>
+                <Notification
+                  id={id}
+                  created={created}
+                  creator={creator}
+                  type={type}
+                  target={target}
+                  // eslint-disable-next-line jsx-a11y/aria-role
+                  role={user?.role}
+                  onRemove={handleRemove}
+                  onHelp={handleSwitchRoleToConsequences}
+                />
+              </ListItem>
+            ))
+          ) : (
+            <Typography
+              className={classes.typography}
+              id="typography-no-pending-invitation-message"
+              variant="body2"
+              gutterBottom>
+              {t("notification-no-pending-invitation")}
+            </Typography>
+          )}
         </List>
+        <SwitchRoleConsequencesDialog
+          title="modal-switch-hcp-team-title-from-notification"
+          open={switchRoleStep === SwitchRoleToHcpSteps.consequences}
+          onResult={handleSwitchRoleToConditions}
+        />
+        <SwitchRoleConsentDialog
+          open={switchRoleStep === SwitchRoleToHcpSteps.consent}
+          onResult={handleSwitchRoleToUpdate}
+        />
       </Container>
     </React.Fragment>
   );

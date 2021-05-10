@@ -43,8 +43,8 @@ import { Password } from "../../components/utils/password";
 import { Snackbar } from "../../components/utils/snackbar";
 
 import SecondaryHeaderBar from "./secondary-bar";
-import SwitchRoleConsequencesDialog from "./switch-role-consequences-dialog";
-import SwitchRoleConsentDialog from "./switch-role-consent-dialog";
+import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
+import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
 
 interface ProfilePageProps {
   defaultURL: string;
@@ -214,7 +214,12 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
       switchRoleToHCP()
         .then(() => {
-          sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.update, success: true });
+          sendMetrics("user-switch-role", {
+            from: role,
+            to: "hcp",
+            step: SwitchRoleToHcpSteps.update,
+            success: true,
+          });
         })
         .catch((reason: unknown) => {
           openSnackbar({ message: t("modal-switch-hcp-failure"), severity: AlertSeverity.error });
@@ -461,6 +466,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         </div>
       </Container>
       <SwitchRoleConsequencesDialog
+        title="modal-switch-hcp-title"
         open={switchRoleStep === SwitchRoleToHcpSteps.consequences}
         onResult={handleSwitchRoleToConditions}
       />

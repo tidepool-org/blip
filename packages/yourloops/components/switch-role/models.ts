@@ -15,6 +15,11 @@
  */
 
 export interface SwitchRoleDialogProps {
+  title?: string;
   open: boolean;
   onResult: (accept: boolean) => void;
+}
+
+export interface SwitchRoleConsequencesDialogProps extends SwitchRoleDialogProps {
+  title: string;
 }

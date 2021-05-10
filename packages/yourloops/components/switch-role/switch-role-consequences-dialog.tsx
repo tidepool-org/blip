@@ -26,13 +26,17 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { makeButtonsStyles } from "../../components/theme";
-import { SwitchRoleDialogProps } from "./models";
+import { SwitchRoleConsequencesDialogProps } from "./models";
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-switch-role-consequences-buttons" });
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
       dialog: {
+        textAlign: "center",
+        padding: theme.spacing(4),
+      },
+      dialogContent: {
         display: "flex",
         flexDirection: "column",
         width: theme.breakpoints.width("sm"),
@@ -40,6 +44,15 @@ const dialogStyles = makeStyles(
       switchList: {
         marginTop: 0,
         marginBottom: 0,
+        display: "inline-block",
+      },
+      dialogButtons: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginTop: "16px",
+        marginLeft: "42px",
+        marginRight: "42px",
+        marginBottom: "16px",
       },
       buttonCancel: {
         marginRight: theme.spacing(2),
@@ -49,8 +62,8 @@ const dialogStyles = makeStyles(
   { name: "ylp-dialog-switch-role-consequences" }
 );
 
-function SwitchRoleConsequencesDialog(props: SwitchRoleDialogProps): JSX.Element {
-  const { open, onResult } = props;
+function SwitchRoleConsequencesDialog(props: SwitchRoleConsequencesDialogProps): JSX.Element {
+  const { title, open, onResult } = props;
   const buttonsClasses = makeButtonsClasses();
   const classes = dialogStyles();
   const { t } = useTranslation("yourloops");
@@ -59,17 +72,26 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleDialogProps): JSX.Element
   const handleAccept = () => onResult(true);
 
   return (
-    <Dialog id="switch-role-consequences-dialog" open={open} onClose={handleClose}>
+    <Dialog
+      id="switch-role-consequences-dialog"
+      className={classes.dialog}
+      PaperProps={{
+        style: {
+          padding: "20px",
+        },
+      }}
+      maxWidth="md"
+      open={open}
+      onClose={handleClose}>
       <DialogTitle id="switch-role-consequences-dialog-title">
-        <strong>{t("modal-switch-hcp-title")}</strong>
+        <strong>{t(title)}</strong>
       </DialogTitle>
 
-      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialog}>
-        <DialogContentText id="modal-switch-hcp-info-1">{t("modal-switch-hcp-info")}</DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-2">
-          <strong>{t("modal-switch-hcp-info-2")}</strong>
+      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
+        <DialogContentText id="modal-switch-hcp-info-1" color="textPrimary">
+          {t("modal-switch-hcp-info")}
         </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-list-3" component={"div"}>
+        <DialogContentText id="modal-switch-hcp-info-list-3" component={"div"} color="textPrimary">
           <span id="modal-switch-hcp-info-3">{t("modal-switch-hcp-info-3")}</span>
           <ul className={classes.switchList}>
             <li id="modal-switch-hcp-list-1">{t("modal-switch-hcp-list-1")}</li>
@@ -77,10 +99,20 @@ function SwitchRoleConsequencesDialog(props: SwitchRoleDialogProps): JSX.Element
             <li id="modal-switch-hcp-list-3">{t("modal-switch-hcp-list-3")}</li>
           </ul>
         </DialogContentText>
-        <DialogContentText id="modal-switch-hcp-info-4">{t("modal-switch-hcp-info-4")}</DialogContentText>
+        <DialogContentText id="modal-switch-hcp-info-4" color="textPrimary">
+          {t("modal-switch-hcp-info-4")}
+        </DialogContentText>
+        <DialogContentText id="modal-switch-hcp-info-5" color="textPrimary">
+          {t("modal-switch-hcp-info-5")}
+        </DialogContentText>
+        <DialogContentText id="modal-switch-hcp-info-2" color="textPrimary">
+          <strong>{t("modal-switch-hcp-info-2")}</strong>
+        </DialogContentText>
       </DialogContent>
 
-      <DialogActions id="switch-role-consequences-dialog-actions" style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions
+        id="switch-role-consequences-dialog-actions"
+        className={classes.dialogButtons}>
         <Button
           id="switch-role-consequences-dialog-button-cancel"
           onClick={handleClose}

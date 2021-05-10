@@ -29,14 +29,14 @@ import FormGroup from "@material-ui/core/FormGroup";
 import Link from "@material-ui/core/Link";
 
 import diabeloopUrl from "../../lib/diabeloop-url";
-import { makeButtonsStyles } from "../../components/theme";
+import { makeButtonsStyles } from "../theme";
 import { SwitchRoleDialogProps } from "./models";
 
 const makeButtonsClasses = makeStyles(makeButtonsStyles, { name: "ylp-dialog-switch-role-consent-buttons" });
 const dialogStyles = makeStyles(
   (theme: Theme) => {
     return {
-      dialog: {
+      dialogContent: {
         display: "flex",
         flexDirection: "column",
         width: theme.breakpoints.width("sm"),
@@ -44,13 +44,31 @@ const dialogStyles = makeStyles(
       },
       formControlPolicy: {
         marginBottom: theme.spacing(2),
-        color: theme.palette.text.secondary,
+        color: theme.palette.text.primary,
       },
       checkbox: {
         marginBottom: "auto",
       },
       buttonCancel: {
         marginRight: theme.spacing(2),
+      },
+      buttons: {
+        display: "flex",
+        flexDirection: "row",
+        marginTop: theme.spacing(2),
+        marginRight: theme.spacing(5), // eslint-disable-line no-magic-numbers
+        marginLeft: theme.spacing(1), // eslint-disable-line no-magic-numbers
+      },
+      dialogButtons: {
+        display: "flex",
+        justifyContent: "space-around",
+        marginTop: "16px",
+        marginLeft: "42px",
+        marginRight: "42px",
+        marginBottom: "16px",
+      },
+      button: {
+        marginLeft: "auto",
       },
     };
   },
@@ -144,7 +162,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
 
   return (
     <Dialog id="switch-role-consent-dialog" open={open} onClose={handleClose}>
-      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialog}>
+      <DialogContent id="switch-role-consequences-dialog-content" className={classes.dialogContent}>
         <FormControl id="switch-role-consequences-dialog-form">
           <FormGroup>
             <FormControlLabel
@@ -163,7 +181,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
         </FormControl>
       </DialogContent>
 
-      <DialogActions id="switch-role-consent-dialog-actions" style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
+      <DialogActions id="switch-role-consent-dialog-actions" className={classes.dialogButtons}>
         <Button
           id="switch-role-consent-dialog-button-decline"
           onClick={handleClose}
