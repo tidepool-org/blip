@@ -3598,7 +3598,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'DELETE_PRESCRIPTION_REQUEST' },
+          { type: 'DELETE_PRESCRIPTION_REQUEST', payload: { prescriptionId : prescriptionId } },
           { type: 'DELETE_PRESCRIPTION_SUCCESS', payload: { prescriptionId : prescriptionId } }
         ];
         _.each(expectedActions, (action) => {
@@ -3626,7 +3626,7 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'DELETE_PRESCRIPTION_REQUEST' },
+          { type: 'DELETE_PRESCRIPTION_REQUEST', payload: { prescriptionId : prescriptionId } },
           { type: 'DELETE_PRESCRIPTION_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
