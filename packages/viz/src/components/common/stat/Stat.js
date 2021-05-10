@@ -50,7 +50,7 @@ class Stat extends React.Component {
     alwaysShowTooltips: PropTypes.bool,
     alwaysShowSummary: PropTypes.bool,
     annotations: PropTypes.arrayOf(PropTypes.string),
-    bgPrefs: bgPrefsPropType,
+    bgPrefs: bgPrefsPropType.isRequired,
     categories: PropTypes.object,
     chartHeight: PropTypes.number,
     collapsible: PropTypes.bool,

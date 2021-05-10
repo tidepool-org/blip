@@ -52,7 +52,7 @@ import { BG_HIGH, BG_LOW, MMOLL_UNITS, MGDL_UNITS } from './constants';
  * @return {String} formatted blood glucose value
  */
 export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
-  const units = _.get(bgPrefs, 'bgUnits', '');
+  const units = _.get(bgPrefs, 'bgUnits', MGDL_UNITS);
   if (!_.isEmpty(outOfRangeThresholds)) {
     let lowThreshold = outOfRangeThresholds.low;
     let highThreshold = outOfRangeThresholds.high;
@@ -86,7 +86,7 @@ export function formatBgValue(val, bgPrefs, outOfRangeThresholds) {
  * @return {String} numeric value rounded to the desired number of decimal places
  */
 export function formatDecimalNumber(val, places) {
-  if (places === null || places === undefined) {
+  if (_.isNil(places)) {
     return format('d')(val);
   }
   return format(`.${places}f`)(val);

@@ -27,8 +27,8 @@ const t = i18next.t.bind(i18next);
 /**
  * classifyBgValue
  * @param {Object} bgBounds - object describing boundaries for blood glucose categories
- * @param {Number} bgValue - integer or float blood glucose value in either mg/dL or mmol/L
- * @param {String} classificationType - 'threeWay' or 'fiveWay'
+ * @param {number} bgValue - integer or float blood glucose value in either mg/dL or mmol/L
+ * @param {"threeWay" | "fiveWay"} classificationType - 'threeWay' or 'fiveWay'
  *
  * @return {String} bgClassification - low, target, high
  */

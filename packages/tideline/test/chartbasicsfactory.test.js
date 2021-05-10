@@ -58,8 +58,8 @@ describe('BasicsChart', function() {
   it('should render', async() => {
     const td = await newTidelineData([new types.Bolus(), new types.Basal()]);
     const props = {
-      bgUnits: MGDL_UNITS,
-      bgClasses: td.bgClasses,
+      bgUnits: td.opts.bgUnits,
+      bgClasses: td.opts.bgClasses,
       onSelectDay: sinon.stub(),
       patient: {
         profile: {
@@ -96,8 +96,8 @@ describe('BasicsChart', function() {
   it('should not mutate basics state', async () => {
     const td = await newTidelineData([new types.Bolus(), new types.Basal()]);
     const props = {
-      bgUnits: MGDL_UNITS,
-      bgClasses: td.bgClasses,
+      bgUnits: td.opts.bgUnits,
+      bgClasses: td.opts.bgClasses,
       onSelectDay: sinon.stub(),
       tidelineData: td,
       timePrefs: {
@@ -116,8 +116,8 @@ describe('BasicsChart', function() {
     it('should return false if insulin pump data is empty', async () => {
       const td = await newTidelineData([new types.CBG()]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -137,8 +137,8 @@ describe('BasicsChart', function() {
     it('should return true if bolus data is present', async () => {
       const td = await newTidelineData([new types.Bolus()]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -156,8 +156,8 @@ describe('BasicsChart', function() {
     it('should return true if basal data is present', async () => {
       const td = await newTidelineData([new types.Basal()]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -175,8 +175,8 @@ describe('BasicsChart', function() {
     it('should return true if wizard data is present', async () => {
       const td = await newTidelineData([new types.Wizard()]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -198,8 +198,8 @@ describe('BasicsChart', function() {
         new types.Basal({ deliveryType: 'automated', deviceTime: '2018-03-03T00:00:00' }),
       ]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -220,8 +220,8 @@ describe('BasicsChart', function() {
         new types.Basal({ deliveryType: 'scheduled', deviceTime: '2018-03-03T00:00:00' }),
       ]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -241,8 +241,8 @@ describe('BasicsChart', function() {
     it('should deactivate sections for which there is no data available', async () => {
       const td = await newTidelineData([new types.CBG()]);
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         tidelineData: td,
         timePrefs: {
@@ -283,8 +283,8 @@ describe('BasicsChart', function() {
       ]);
 
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
           profile: {
@@ -335,8 +335,8 @@ describe('BasicsChart', function() {
       ]);
 
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
           profile: {
@@ -380,8 +380,8 @@ describe('BasicsChart', function() {
       ]);
 
       const props = {
-        bgUnits: 'mg/dL',
-        bgClasses: td.bgClasses,
+        bgUnits: td.opts.bgUnits,
+        bgClasses: td.opts.bgClasses,
         onSelectDay: sinon.stub(),
         patient: {
           profile: {

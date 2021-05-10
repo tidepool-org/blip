@@ -80,6 +80,7 @@ class PatientDataPage extends React.Component {
     this.chartRef = React.createRef();
     this.apiUtils = new ApiUtils(api, patient);
 
+    const currentUser = api.whoami;
     const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     this.state = {
@@ -94,7 +95,7 @@ class PatientDataPage extends React.Component {
         timezoneName: browserTimezone,
       },
       bgPrefs: {
-        bgUnits: MGDL_UNITS,
+        bgUnits: currentUser.settings?.units?.bg ?? MGDL_UNITS,
         bgClasses: {},
       },
       permsOfLoggedInUser: {
@@ -908,7 +909,6 @@ class PatientDataPage extends React.Component {
   }
 
   async handleRefresh() {
-    // TODO bgUnits from api.whoami
     this.setState({
       loadingState: LOADING_STATE_INITIAL_FETCH,
       dataRange: null,
@@ -961,7 +961,11 @@ class PatientDataPage extends React.Component {
       throw new Error('no-data');
     }
 
-    this.dataUtil = new DataUtil(tidelineData.data, { bgPrefs, timePrefs, endpoints: tidelineData.endpoints });
+    const bgPrefsUpdated = {
+      bgUnits: tidelineData.opts.bgUnits,
+      bgClasses: tidelineData.opts.bgClasses,
+    };
+    this.dataUtil = new DataUtil(tidelineData.data, { bgPrefs: bgPrefsUpdated, timePrefs, endpoints: tidelineData.endpoints });
 
     let newLocation = epochLocation;
     if (epochLocation === 0) {
@@ -970,10 +974,7 @@ class PatientDataPage extends React.Component {
     }
 
     this.setState({
-      bgPrefs: {
-        bgUnits: tidelineData.opts.bgUnits,
-        bgClasses: tidelineData.opts.bgClasses,
-      },
+      bgPrefs: bgPrefsUpdated,
       timePrefs: tidelineData.opts.timePrefs,
       tidelineData,
       epochLocation: newLocation,

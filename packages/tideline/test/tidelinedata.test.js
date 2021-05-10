@@ -106,14 +106,14 @@ describe('TidelineData', function() {
 
     it('should default to mg/dL for `bgUnits` and `bgClasses`', function() {
       const msg = JSON.stringify({ expected: bgClasses, having: td.bgClasses }, null, 2);
-      expect(td.bgClasses, msg).to.deep.eql(bgClasses);
-      expect(td.bgUnits).to.equal(MGDL_UNITS);
+      expect(td.opts.bgClasses, msg).to.deep.eql(bgClasses);
+      expect(td.opts.bgUnits).to.equal(MGDL_UNITS);
     });
 
     it('should transform `bgClasses` when `bgUnits` are mmol/L', async () => {
       td = new TidelineData({bgUnits: MMOLL_UNITS});
-      expect(td.bgClasses).to.not.eql(bgClasses);
-      expect(td.bgUnits).to.equal(MMOLL_UNITS);
+      expect(td.opts.bgClasses).to.not.eql(bgClasses);
+      expect(td.opts.bgUnits).to.equal(MMOLL_UNITS);
     });
   });
 
