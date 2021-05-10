@@ -63,6 +63,9 @@
     }
   },
   "countries": {
+    "BE": {
+      "name": "Belgium"
+    },
     "DE": {
       "name": "Germany"
     },
