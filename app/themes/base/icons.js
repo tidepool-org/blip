@@ -32,7 +32,7 @@ export default ({ colors, fontSizes, radii, space }) => {
       padding: `${space[1]}px`,
       border: 'none',
       borderRadius: radii.default,
-      '&:hover,&:active': {
+      '&:hover,&:active,&.active': {
         color: colors.text.link,
         backgroundColor: colors.blues[0],
       },

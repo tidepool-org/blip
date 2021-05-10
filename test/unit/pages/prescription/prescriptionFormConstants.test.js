@@ -20,15 +20,31 @@ describe('prescriptionFormConstants', function() {
     expect(prescriptionFormConstants.dateFormat).to.equal('YYYY-MM-DD');
   });
 
+  it('should export the `dateRegex`', function() {
+    expect(prescriptionFormConstants.dateRegex).to.eql(/^(.*)[-|/](.*)[-|/](.*)$/);
+  });
+
   it('should export the `phoneRegex`', function() {
     expect(prescriptionFormConstants.phoneRegex).to.eql(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/);
   });
 
   it('should export the list of revision states', function() {
-    expect(prescriptionFormConstants.revisionStates).to.be.an('array').and.to.eql([
-      'draft',
-      'pending',
-      'submitted',
+    expect(prescriptionFormConstants.revisionStateOptions).to.be.an('array').and.to.eql([
+      {
+        colorPalette: 'blues',
+        label: 'Draft',
+        value: 'draft',
+      },
+      {
+        colorPalette: 'oranges',
+        label: 'Pending Approval',
+        value: 'pending',
+      },
+      {
+        colorPalette: 'indigos',
+        label: 'Submitted',
+        value: 'submitted',
+      },
     ]);
   });
 

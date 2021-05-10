@@ -56,8 +56,10 @@ export const PatientPhone = translate()(props => {
             alwaysShowMask
             defaultValue={get(values, 'phoneNumber.number')}
             onBlur={e => {
+              // Only set value if field contains at least one numeric digit
+              const value = !!e.target.value.match(/(?=.*\d)/) ? e.target.value : '';
               setFieldTouched('phoneNumber.number', true);
-              setFieldValue('phoneNumber.number', e.target.value);
+              setFieldValue('phoneNumber.number', value);
             }}
           >
             <TextInput
