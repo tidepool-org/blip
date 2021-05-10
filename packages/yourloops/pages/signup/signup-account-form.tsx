@@ -128,7 +128,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const validatePassword = (): boolean => {
     const err =
       _.isEmpty(newPassword?.trim()) ||
-      newPassword?.length < appConfig.PASSWORD_MIN_LENGTH;
+      newPassword?.length < appConfig.PWD_MIN_LENGTH;
     setErrors({ ...errors, newPassword: err });
     return !err;
   };
@@ -200,7 +200,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         helperText={
           errors.newPassword &&
           t("password-too-weak", {
-            minLength: appConfig.PASSWORD_MIN_LENGTH,
+            minLength: appConfig.PWD_MIN_LENGTH,
           })
         }
         InputProps={{

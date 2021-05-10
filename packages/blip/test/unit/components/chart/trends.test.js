@@ -102,7 +102,6 @@ describe('Trends', () => {
       root: true,
     },
     profileDialog: function ProfileDialogStub() { return <div id="profile-dialog" />; },
-    uploadUrl: '',
   };
 
   before(() => {

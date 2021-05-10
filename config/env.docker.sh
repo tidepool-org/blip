@@ -5,8 +5,8 @@ export PORT='3000'
 
 # Diabeloop specific
 export BRANDING='diabeloop'
-export PASSWORD_MIN_LENGTH='10'
-export PASSWORD_MAX_LENGTH='72'
+export PWD_MIN_LENGTH='10'
+export PWD_MAX_LENGTH='72'
 export MAX_FAILED_LOGIN_ATTEMPTS='5'
 export DELAY_BEFORE_NEXT_LOGIN_ATTEMPT='1'
 export LATEST_TERMS='1970-01-01'

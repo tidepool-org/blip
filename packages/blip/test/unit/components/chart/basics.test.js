@@ -69,6 +69,7 @@ describe('Basics', () => {
       basicsData: {
         nData: 0,
         data: {},
+        days: [],
       },
     },
     loading: false,
@@ -102,14 +103,6 @@ describe('Basics', () => {
   });
 
   describe('render', () => {
-    it('should render the missing data text if no data has been uploaded', () => {
-      const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
-      const chart = wrapper.find('#tidelineContainer');
-      expect(noDataMessage.length).to.equal(1);
-      expect(chart.length).to.equal(0);
-      expect(noDataMessage.text()).to.include('The Basics view shows a summary');
-    });
-
     it('should render the basics chart if any data is uploaded', () => {
       const date1 = new Date(Date.now() - 60*60*1000);
       const date2 = new Date();

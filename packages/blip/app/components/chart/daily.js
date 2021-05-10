@@ -254,6 +254,7 @@ class Daily extends React.Component {
     updateChartPrefs: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     profileDialog: PropTypes.func.isRequired,
+    prefixURL: PropTypes.string,
   };
 
   constructor(props) {
@@ -298,6 +299,7 @@ class Daily extends React.Component {
           atMostRecent={atMostRecent}
           loading={loading}
           title={title}
+          prefixURL={this.props.prefixURL}
           iconBack={'icon-back'}
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}

@@ -52,7 +52,7 @@ class Settings extends React.Component {
     onSwitchToSettings: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
-    uploadUrl: PropTypes.string.isRequired
+    prefixURL: PropTypes.string,
   };
 
   constructor(props) {
@@ -78,6 +78,7 @@ class Settings extends React.Component {
           inTransition={this.state.inTransition}
           title={this.state.title}
           canPrint={this.props.canPrint}
+          prefixURL={this.props.prefixURL}
           trackMetric={this.props.trackMetric}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           onClickMostRecent={this.handleClickMostRecent}
@@ -131,7 +132,7 @@ class Settings extends React.Component {
           The System Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like your system hasn't sent data yet.
         </p>
         <p>
-          If you just checked it, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
+          If you just checked it, try <button type="button" onClick={this.props.onClickNoDataRefresh}>refreshing</button>.
         </p>
       </Trans>
     );

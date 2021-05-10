@@ -113,7 +113,6 @@ describe('Settings', function () {
         onSwitchToTrends: sinon.spy(),
         onClickPrint: sinon.spy(),
         trackMetric: sinon.spy(),
-        uploadUrl: '',
         canPrint: true,
       };
 
@@ -136,7 +135,6 @@ describe('Settings', function () {
         onSwitchToBasics: sinon.spy(),
         onSwitchToTrends: sinon.spy(),
         trackMetric: sinon.spy(),
-        uploadUrl: '',
         canPrint: true,
       };
       settingsElem = mount(<Settings {...props} />);
@@ -152,7 +150,6 @@ describe('Settings', function () {
         onClickRefresh: sinon.spy(),
         onClickNoDataRefresh: sinon.spy(),
         trackMetric: sinon.spy(),
-        uploadUrl: '',
         canPrint: true,
       };
 

@@ -58,6 +58,7 @@ class Basics extends React.Component {
           atMostRecent={true}
           inTransition={inTransition}
           title={title}
+          prefixURL={this.props.prefixURL}
           canPrint={this.props.canPrint}
           trackMetric={this.props.trackMetric}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -71,7 +72,7 @@ class Basics extends React.Component {
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <Loader show={this.props.loading} overlay={true} />
-              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+              {this.renderChart()}
             </div>
           </div>
           <div className='container-box-inner patient-data-sidebar'>
@@ -114,22 +115,6 @@ class Basics extends React.Component {
           timePrefs={this.props.timePrefs}
           trackMetric={this.props.trackMetric} />
       </div>
-    );
-  }
-
-  renderMissingBasicsMessage() {
-    const handleClickUpload = () => {
-      this.props.trackMetric('Clicked Partial Data Upload, No Pump Data for Basics');
-    };
-
-    return (
-      <Trans i18nKey="html.basics-no-uploaded-data" t={i18next.t.bind(i18next)}>
-        <div className="patient-data-message patient-data-message-loading">
-          <p>The Basics view shows a summary of your recent device activity, but it looks like you haven't uploaded device data yet.</p>
-          <p>To see the Basics, <a href={this.props.uploadUrl} target="_blank" onClick={handleClickUpload}>upload</a> some device data.</p>
-          <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.</p>
-        </div>
-      </Trans>
     );
   }
 
@@ -220,7 +205,7 @@ Basics.propTypes = {
   onSwitchToSettings: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
   updateChartPrefs: PropTypes.func.isRequired,
-  uploadUrl: PropTypes.string.isRequired,
+  prefixURL: PropTypes.string,
   profileDialog: PropTypes.func.isRequired,
 };
 

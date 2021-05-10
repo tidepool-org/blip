@@ -26,7 +26,6 @@ import { Switch, Route /*, Redirect */ } from 'react-router-dom';
 import { TidelineData, nurseShark, MS_IN_DAY } from 'tideline';
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
 
-import config from '../config';
 import personUtils from '../core/personutils';
 import utils from '../core/utils';
 import { MGDL_UNITS } from '../core/constants';
@@ -237,7 +236,11 @@ class PatientDataPage extends React.Component {
         loader = <Loader />;
         break;
       default:
-        errorDisplay = <p id="loading-error-message">{errorMessage ?? t('Failed somewhere')}</p>;
+        if (errorMessage === 'no-data') {
+          errorDisplay = this.renderNoData();
+        } else {
+          errorDisplay = <p id="loading-error-message">{errorMessage ?? t('Failed somewhere')}</p>;
+        }
         break;
     }
 
@@ -342,6 +345,7 @@ class PatientDataPage extends React.Component {
             tidelineData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
+            prefixURL={prefixURL}
             permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -352,7 +356,6 @@ class PatientDataPage extends React.Component {
             onSwitchToSettings={this.handleSwitchToSettings}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            uploadUrl={config.UPLOAD_API}
             ref={this.chartRef}
           />
         </Route>
@@ -369,6 +372,7 @@ class PatientDataPage extends React.Component {
             msRange={msRange}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
+            prefixURL={prefixURL}
             permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
@@ -398,6 +402,7 @@ class PatientDataPage extends React.Component {
             patientData={tidelineData}
             loading={loadingState !== LOADING_STATE_DONE}
             canPrint={canPrint}
+            prefixURL={prefixURL}
             permsOfLoggedInUser={permsOfLoggedInUser}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
@@ -407,7 +412,6 @@ class PatientDataPage extends React.Component {
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             trackMetric={this.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            uploadUrl={config.UPLOAD_API}
             trendsState={chartStates.trends}
           />
         </Route>
@@ -421,6 +425,7 @@ class PatientDataPage extends React.Component {
               patient={patient}
               patientData={tidelineData}
               canPrint={canPrint}
+              prefixURL={prefixURL}
               permsOfLoggedInUser={this.state.permsOfLoggedInUser}
               onClickRefresh={this.handleClickRefresh}
               onClickNoDataRefresh={this.handleClickNoDataRefresh}
@@ -430,7 +435,6 @@ class PatientDataPage extends React.Component {
               onSwitchToSettings={this.handleSwitchToSettings}
               onClickPrint={this.handleClickPrint}
               trackMetric={this.trackMetric}
-              uploadUrl={config.UPLOAD_API}
             />
           </div>
         </Route>
@@ -954,7 +958,7 @@ class PatientDataPage extends React.Component {
     await tidelineData.addData(res.processedData);
 
     if (_.isEmpty(tidelineData.data)) {
-      throw new Error(t('No data to display!'));
+      throw new Error('no-data');
     }
 
     this.dataUtil = new DataUtil(tidelineData.data, { bgPrefs, timePrefs, endpoints: tidelineData.endpoints });

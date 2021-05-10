@@ -40,6 +40,7 @@ class TidelineHeader extends React.Component {
     patient: PropTypes.object,
     title: PropTypes.node.isRequired,
     chartType: PropTypes.string.isRequired,
+    prefixURL: PropTypes.string,
     inTransition: PropTypes.bool,
     atMostRecent: PropTypes.bool,
     loading: PropTypes.bool,
@@ -66,10 +67,11 @@ class TidelineHeader extends React.Component {
     loading: false,
     canPrint: false,
     profileDialog: null,
+    prefixURL: '',
   };
 
   renderStandard() {
-    const { canPrint, chartType, atMostRecent, inTransition, loading } = this.props;
+    const { canPrint, chartType, atMostRecent, inTransition, loading, prefixURL } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, chartType);
@@ -114,27 +116,27 @@ class TidelineHeader extends React.Component {
       'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
+    const mostRecentDisabled = atMostRecent || inTransition || loading;
     const mostRecentClass = cx({
       'js-most-recent': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !(atMostRecent || inTransition || loading),
-      'patient-data-subnav-disabled': atMostRecent || inTransition || loading,
+      'patient-data-subnav-active': !mostRecentDisabled,
       'patient-data-subnav-hidden': chartType === 'no-data',
     });
 
+    const backDisabled = inTransition || loading;
     const backClass = cx({
       'js-back': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !(inTransition || loading),
-      'patient-data-subnav-disabled': inTransition || loading,
+      'patient-data-subnav-active': !backDisabled,
       'patient-data-subnav-hidden': chartType === 'settings' || chartType === 'no-data',
     });
 
+    const nextDisabled = mostRecentDisabled;
     const nextClass = cx({
       'js-next': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !(atMostRecent || inTransition || loading),
-      'patient-data-subnav-disabled': atMostRecent || inTransition || loading,
+      'patient-data-subnav-active': !nextDisabled,
       'patient-data-subnav-hidden': chartType === 'settings' || chartType === 'no-data',
     });
 
@@ -190,21 +192,21 @@ class TidelineHeader extends React.Component {
           {profileDialog}
         </div>
         <div className='app-no-print patient-data-subnav-left'>
-          <a href='' className={basicsLinkClass} onClick={this.props.onClickBasics}>
+          <a href={`${prefixURL}/overview`} className={basicsLinkClass} onClick={this.props.onClickBasics}>
             {t('Basics')}
           </a>
-          <a href='' className={dayLinkClass} onClick={this.props.onClickOneDay}>
+          <a href={`${prefixURL}/daily`} className={dayLinkClass} onClick={this.props.onClickOneDay}>
             {t('Daily')}
           </a>
-          <a href='' className={trendsLinkClass} onClick={this.props.onClickTrends}>
+          <a href={`${prefixURL}/trends`} className={trendsLinkClass} onClick={this.props.onClickTrends}>
             {t('Trends')}
           </a>
         </div>
         <div className='patient-data-subnav-center' id='tidelineLabel'>
-          {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
+          {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack, backDisabled)}
           <div className={dateLinkClass}>{this.props.title}</div>
-          {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
-          {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
+          {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext, nextDisabled)}
+          {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent, mostRecentDisabled)}
         </div>
         <div className='app-no-print patient-data-subnav-right'>
           {printLink}
@@ -229,13 +231,14 @@ class TidelineHeader extends React.Component {
    * Helper function for rendering the various navigation buttons in the header.
    * It accounts for the transition state and disables the button if it is currently processing.
    *
-   * @param  {String} buttonClass
-   * @param  {Function} clickAction
-   * @param  {String} icon
+   * @param {string} buttonClass
+   * @param {function} clickAction
+   * @param {string} icon
+   * @param {boolean} disabled true to disable the button
    *
    * @return {JSX.Element}
    */
-  renderNavButton(buttonClass, clickAction, icon) {
+  renderNavButton(buttonClass, clickAction, icon, disabled) {
     const nullAction = function (e) {
       if (e) {
         e.preventDefault();
@@ -243,15 +246,15 @@ class TidelineHeader extends React.Component {
     };
     if (this.props.inTransition) {
       return (
-        <a href='' className={buttonClass} onClick={nullAction}>
+        <button type="button" className={buttonClass} onClick={nullAction} disabled={disabled}>
           <i className={icon} />
-        </a>
+        </button>
       );
     } else {
       return (
-        <a href='' className={buttonClass} onClick={clickAction}>
+        <button type="button" className={buttonClass} onClick={clickAction} disabled={disabled}>
           <i className={icon} />
-        </a>
+        </button>
       );
     }
   }

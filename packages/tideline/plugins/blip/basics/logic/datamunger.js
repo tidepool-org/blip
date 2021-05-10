@@ -56,7 +56,14 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
       };
 
       if (latestPump === constants.DIABELOOP) {
-        basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+        if (_.isEmpty(_.get(basicsData, 'data.reservoirChange'))) {
+          basicsData.data.reservoirChange = {
+            infusionSiteHistory: {},
+            data: [],
+          };
+        } else {
+          basicsData.data.reservoirChange.infusionSiteHistory = this.infusionSiteHistory(basicsData, constants.SITE_CHANGE_RESERVOIR);
+        }
 
         basicsData.sections.siteChanges.type = constants.SITE_CHANGE_RESERVOIR;
         basicsData.sections.siteChanges.selector = null;
@@ -303,10 +310,17 @@ function dataMunger(bgClasses, bgUnits = MGDL_UNITS) {
         dataForDate.total -= result.skipped;
       }
 
-      var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
+      const mostRecent = _.find(basicsData.days, { type: 'mostRecent' });
+      let mostRecentDay = null;
+      if (!_.isEmpty(mostRecent)) {
+        mostRecentDay = mostRecent.date;
+      }
 
-      for (var type in basicsData.data) {
-        var typeObj = basicsData.data[type];
+      for (const type in basicsData.data) {
+        let typeObj = basicsData.data[type];
+        if (_.isEmpty(typeObj)) {
+          continue;
+        }
         if (_.includes(['basal', 'bolus', constants.SITE_CHANGE_RESERVOIR, constants.SITE_CHANGE_TUBING, constants.SITE_CHANGE_CANNULA], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           this._buildCrossfilterUtils(typeObj, type);

@@ -79,8 +79,8 @@
 }
 
 .patient-data-subnav a {
-  display: inline-block;
   padding: 0 @patient-data-subnav-horizontal-padding;
+
   &.patient-data-icon {
     padding: 0;
   }
@@ -98,6 +98,26 @@
 
   &:active,
   &.patient-data-subnav-disabled {
+    color: @gray;
+    cursor: default;
+  }
+}
+.patient-data-subnav button {
+  background-color: transparent;
+  border-style: none;
+  padding: 0;
+
+  color: @black-80;
+  font-weight: bold;
+  letter-spacing: 0;
+
+  &:hover {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active,
+  &:disabled {
     color: @gray;
     cursor: default;
   }

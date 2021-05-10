@@ -71,7 +71,7 @@ class Trends extends React.Component {
     onDatetimeLocationChange: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
-    uploadUrl: PropTypes.string.isRequired,
+    prefixURL: PropTypes.string,
     profileDialog: PropTypes.func.isRequired,
   };
 
@@ -321,6 +321,8 @@ class Trends extends React.Component {
       atMostRecent = false;
     }
 
+    this.log.debug('handleDatetimeLocationChange', { endpoints, atMostRecent });
+
     this.setState({ atMostRecent });
     const start = moment.utc(endpoints[0]).valueOf();
     const end = moment.utc(endpoints[1]).valueOf();
@@ -505,6 +507,7 @@ class Trends extends React.Component {
         inTransition={this.state.inTransition}
         atMostRecent={this.state.atMostRecent}
         title={title}
+        prefixURL={this.props.prefixURL}
         canPrint={this.props.canPrint}
         trackMetric={this.props.trackMetric}
         iconBack={'icon-back'}

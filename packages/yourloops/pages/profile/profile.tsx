@@ -242,7 +242,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
       name: _.isEmpty(name),
       mail: !REGEX_EMAIL.test(mail),
       // eslint-disable-next-line no-magic-numbers
-      password: password.length > 0 && password.length < appConfig.PASSWORD_MIN_LENGTH,
+      password: password.length > 0 && password.length < appConfig.PWD_MIN_LENGTH,
       passwordConfirmation: passwordConfirmation !== password,
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
