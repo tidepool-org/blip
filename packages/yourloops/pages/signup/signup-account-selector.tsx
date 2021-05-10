@@ -41,6 +41,7 @@ import RadioLabel from "./signup-radio-label";
 import { useSignUpFormState } from "./signup-formstate-context";
 import Button from "@material-ui/core/Button";
 import SignUpFormProps from "./signup-form-props";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) => ({
   FormControl: {
@@ -49,9 +50,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   FormHelperText: {
     textAlign: "center",
   },
-  Button: {
-    marginRight: theme.spacing(1),
-  },
+
   Paper: {
     textAlign: "start",
     marginTop: theme.spacing(2),
@@ -61,6 +60,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+  Buttons: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: theme.spacing(2),
+    marginLeft: "100px",
+    marginRight: "100px",
+    marginBottom: theme.spacing(2),
+  },
+  Button: {
     marginRight: theme.spacing(1),
   },
 }));
@@ -117,28 +127,20 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-      }}
-    >
-      <FormControl
-        component="fieldset"
-        error={error}
-        className={classes.FormControl}
-      >
-        <FormHelperText className={classes.FormHelperText}>
-          {t(helperText)}
-        </FormHelperText>
+      }}>
+      <FormControl component="fieldset" error={error} className={classes.FormControl}>
+        <FormHelperText className={classes.FormHelperText}>{t(helperText)}</FormHelperText>
         <RadioGroup
           aria-label="account-selector"
           name="account-selector"
           value={state.formValues.accountRole}
-          onChange={(e) => handleRadioChange(e, "accountRole")}
-        >
+          onChange={(e) => handleRadioChange(e, "accountRole")}>
           <Paper elevation={3} className={classes.Paper}>
             <FormControlLabel
               className={classes.FormControlLabel}
               value="hcp"
               id="form-label-signup-account-hcp"
-              control={<Radio />}
+              control={<Radio color="primary" />}
               label={
                 <RadioLabel
                   header={t("signup-radiolabel-hcp-header")}
@@ -152,7 +154,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
               className={classes.FormControlLabel}
               value="caregiver"
               id="form-label-signup-account-caregiver"
-              control={<Radio />}
+              control={<Radio color="primary" />}
               label={
                 <RadioLabel
                   header={t("signup-radiolabel-caregiver-header")}
@@ -162,15 +164,17 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
             />
           </Paper>
         </RadioGroup>
+        <Typography variant="body2" gutterBottom>
+          {t("signup-account-selection-msg")}
+        </Typography>
       </FormControl>
-      <div id="signup-account-selector-button-group">
+      <div id="signup-account-selector-button-group" className={classes.Buttons}>
         <Button
           id="button-signup-steppers-back"
           variant="contained"
           color="secondary"
           className={classes.Button}
-          onClick={handleBack}
-        >
+          onClick={handleBack}>
           {t("signup-steppers-back")}
         </Button>
         <Button
@@ -178,8 +182,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.Button}
-          onClick={onNext}
-        >
+          onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>
       </div>

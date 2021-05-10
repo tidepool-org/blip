@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/anchor-has-content */
 /* eslint-disable indent */
 /**
  * Copyright (c) 2021, Diabeloop
@@ -29,7 +31,7 @@
 import * as React from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import _ from "lodash";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Stepper from "@material-ui/core/Stepper";
@@ -144,13 +146,23 @@ export default function SignUpStepper() : JSX.Element {
       <div>
         {activeStep === steps.length ? (
           <div>
-            <Typography
-              id="signup-steppers-ending-text"
-              className={classes.instructions}
-            >
-              {t("signup-steppers-ending-message", {
-                email: state.formValues.accountUsername,
-              })}
+            <Typography id="signup-steppers-ending-text-1" className={classes.instructions}>
+              <Trans
+                t={t}
+                i18nKey="signup-steppers-ending-message-1"
+                components={{ strong: <strong /> }}
+                values={{ email: state.formValues.accountUsername }}>
+                Please follow the link in the email we just sent you at <strong>email</strong> to verify and activate your account.
+              </Trans>
+            </Typography>
+            <Typography id="signup-steppers-ending-text-2" className={classes.instructions}>
+              <Trans
+                t={t}
+                i18nKey="signup-steppers-ending-message-2"
+                components={{ a: <a /> }}>
+                If you don’t receive any email from us, please contact our support at
+                technical.support@diabeloop.com
+              </Trans>
             </Typography>
             <Link
               id="link-signup-gotologin"

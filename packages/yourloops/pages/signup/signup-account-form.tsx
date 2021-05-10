@@ -54,9 +54,6 @@ interface Errors {
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
-    Button: {
-      marginRight: theme.spacing(1),
-    },
     TextField: {
       marginLeft: theme.spacing(0),
       marginRight: theme.spacing(1),
@@ -66,7 +63,15 @@ const formStyle = makeStyles((theme: Theme) => {
       marginRight: theme.spacing(1),
     },
     Buttons: {
-      margin: theme.spacing(3),
+      display: "flex",
+      justifyContent: "space-between",
+      marginTop: theme.spacing(4),
+      marginLeft: "80px",
+      marginRight: "70px",
+      marginBottom: theme.spacing(2),
+    },
+    Button: {
+      marginRight: theme.spacing(1),
     },
   };
 });

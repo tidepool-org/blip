@@ -40,7 +40,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { useSignUpFormState } from "./signup-formstate-context";
 import { availableCountries } from "../../lib/language";
 import SignUpFormProps from "./signup-form-props";
-import { REGEX_PHONE } from "../../lib/utils";
 
 interface Errors {
   firstName: boolean;
@@ -52,9 +51,6 @@ interface Errors {
 
 const formStyle = makeStyles((theme: Theme) => {
   return {
-    Button: {
-      marginRight: theme.spacing(1),
-    },
     TextField: {
       textAlign: "start",
       marginLeft: theme.spacing(0),
@@ -65,7 +61,15 @@ const formStyle = makeStyles((theme: Theme) => {
       marginRight: theme.spacing(1),
     },
     Buttons: {
-      margin: theme.spacing(3),
+      display: "flex",
+      justifyContent: "space-between",
+      marginTop: theme.spacing(4),
+      marginLeft: "100px",
+      marginRight: "100px",
+      marginBottom: theme.spacing(2),
+    },
+    Button: {
+      marginRight: theme.spacing(1),
     },
   };
 });
@@ -131,21 +135,12 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
     return !err;
   };
 
-  const validatePhone = (): boolean => {
-    const err =
-      _.isEmpty(state.formValues?.profilePhone) ||
-      !REGEX_PHONE.test(state.formValues?.profilePhone);
-    setErrors({ ...errors, phone: err });
-    return !err;
-  };
-
   const onNext = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
     if (
       validateFirstName() &&
       validateLastName() &&
-      validateCountry() &&
-      validatePhone()
+      validateCountry()
     ) {
       handleNext();
     }
@@ -213,21 +208,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           ))}
         </Select>
       </FormControl>
-      <TextField
-        id="phone"
-        className={classes.TextField}
-        placeholder={t("signup-phone-placeholder")}
-        margin="normal"
-        label={t("phone")}
-        variant="outlined"
-        value={state.formValues?.profilePhone}
-        required
-        error={errors.phone}
-        onBlur={() => validatePhone()}
-        onChange={(e) => onChange(e, "profilePhone")}
-        helperText={errors.phone && t("invalid-phone-number")}
-      />
-      <div id="signup-profileform-button-group">
+      <div id="signup-profileform-button-group" className={classes.Buttons}>
         <Button
           id="button-signup-steppers-back"
           variant="contained"

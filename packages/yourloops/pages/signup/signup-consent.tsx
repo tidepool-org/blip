@@ -53,6 +53,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
+  Buttons: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: theme.spacing(2),
+    marginLeft: "100px",
+    marginRight: "100px",
+    marginBottom: theme.spacing(2),
+  },
   Button: {
     marginRight: theme.spacing(1),
   },
@@ -89,7 +97,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
     }
 
     setError(true);
-    setHelperText("you must accept consent");
+    setHelperText("required-field");
     return false;
   };
 
@@ -128,7 +136,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
               id="signup-consent-privacy-check"
               checked={state.formValues.privacyPolicy}
               onChange={(e) => handleChange(e, "privacyPolicy")}
-              color="default"
+              color="primary"
               inputProps={{
                 "aria-label": "checkbox with default color",
               }}
@@ -144,10 +152,10 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           className={classes.FormControlLabel}
           control={
             <Checkbox
-            id="checkbox-signup-consent-terms"
-            checked={state.formValues.terms}
+              id="checkbox-signup-consent-terms"
+              checked={state.formValues.terms}
               onChange={(e) => handleChange(e, "terms")}
-              color="default"
+              color="primary"
               inputProps={{
                 "aria-label": "checkbox with default color",
               }}
@@ -159,28 +167,26 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           )}
           labelPlacement="end"
         />
-        <div id="signup-consent-button-group">
-          <Button
-            id="button-signup-steppers-back"
-            variant="contained"
-            color="secondary"
-            disabled={props.activeStep === 0}
-            onClick={handleBack}
-            className={classes.Button}
-          >
-            {t("signup-steppers-back")}
-          </Button>
-          <Button
-            id="button-signup-steppers-next"
-            variant="contained"
-            color="primary"
-            className={classes.Button}
-            onClick={onNext}
-          >
-            {t("signup-steppers-next")}
-          </Button>
-        </div>
       </FormControl>
+      <div id="signup-consent-button-group" className={classes.Buttons}>
+        <Button
+          id="button-signup-steppers-back"
+          variant="contained"
+          color="secondary"
+          disabled={props.activeStep === 0}
+          onClick={handleBack}
+          className={classes.Button}>
+          {t("signup-steppers-back")}
+        </Button>
+        <Button
+          id="button-signup-steppers-next"
+          variant="contained"
+          color="primary"
+          className={classes.Button}
+          onClick={onNext}>
+          {t("signup-steppers-next")}
+        </Button>
+      </div>
     </form>
   );
 }
