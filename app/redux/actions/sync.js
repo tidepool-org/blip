@@ -900,9 +900,12 @@ export function createPrescriptionRevisionFailure(error, apiError) {
   };
 }
 
-export function deletePrescriptionRequest() {
+export function deletePrescriptionRequest(prescriptionId) {
   return {
     type: ActionTypes.DELETE_PRESCRIPTION_REQUEST,
+    payload: {
+      prescriptionId: prescriptionId,
+    },
   };
 }
 

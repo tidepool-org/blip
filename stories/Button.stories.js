@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
+import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
 import { Flex } from 'rebass/styled-components';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -215,6 +216,38 @@ Chip.story = {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2517%3A161',
+    },
+  },
+};
+
+export const Icon = () => {
+  const buttonText = () => text('Button Text', 'Primary');
+
+  const [selected, setSelected] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Button
+        variant="primary"
+        disabled={disabled()}
+        processing={processing()}
+        selected={selected}
+        onClick={() => setSelected(!selected)}
+        icon={OpenInNewRoundedIcon}
+        iconLabel="Open in new tab"
+      >
+        {buttonText()}
+      </Button>
+    </React.Fragment>
+  );
+};
+
+Icon.story = {
+  name: 'Icon',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System-Sprint-1?node-id=3%3A2',
     },
   },
 };

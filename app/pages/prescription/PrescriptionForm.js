@@ -10,6 +10,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
+import keyBy from 'lodash/keyBy';
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
@@ -23,6 +24,7 @@ import isArray from 'lodash/isArray';
 import { default as _values } from 'lodash/values';
 import includes from 'lodash/includes';
 import { utils as vizUtils } from '@tidepool/viz';
+import { Box, Flex, Text } from 'rebass/styled-components';
 
 import { fieldsAreValid } from '../../core/forms';
 import prescriptionSchema from './prescriptionSchema';
@@ -33,14 +35,20 @@ import therapySettingsFormStep from './therapySettingsFormStep';
 import reviewFormStep from './reviewFormStep';
 import withPrescriptions from './withPrescriptions';
 import withDevices from './withDevices';
+import Button from '../../components/elements/Button';
+import Pill from '../../components/elements/Pill';
 import Stepper from '../../components/elements/Stepper';
 import i18next from '../../core/language';
 import { useToasts } from '../../providers/ToastProvider';
+import { Headline } from '../../components/elements/FontStyles';
+import { borders } from '../../themes/baseTheme';
+import { useIsFirstRender } from '../../core/hooks';
 
 import {
   defaultUnits,
   deviceIdMap,
   getPumpGuardrail,
+  prescriptionStateOptions,
   stepValidationFields,
   validCountryCodes,
 } from './prescriptionFormConstants';
@@ -115,6 +123,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
         }]),
       },
       training: get(props, 'prescription.latestRevision.attributes.training'),
+      therapySettings: get(props, 'prescription.latestRevision.attributes.therapySettings', 'initial'),
       therapySettingsReviewed: get(props, 'prescription.therapySettingsReviewed', false),
     };
   },
@@ -193,12 +202,16 @@ export const PrescriptionForm = props => {
     values,
   } = useFormikContext();
 
+  const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
 
   const stepperId = 'prescription-form-steps';
   const bgUnits = get(values, 'initialSettings.bloodGlucoseUnits', defaultUnits.bloodGlucose);
   const pumpId = get(values, 'initialSettings.pumpId', deviceIdMap.omnipodHorizon);
   const pump = find(devices.pumps, { id: pumpId });
+  const prescriptionState = get(prescription, 'state', 'draft');
+  const prescriptionStates = keyBy(prescriptionStateOptions, 'value');
+  const isEditable = includes(['draft', 'pending'], prescriptionState);
 
   React.useEffect(() => {
     // Schema needs to be recreated to account for conditional mins and maxes as values update
@@ -225,11 +238,12 @@ export const PrescriptionForm = props => {
   const [initialFocusedInput, setInitialFocusedInput] = React.useState();
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
-  let isLastStep = activeStep === stepValidationFields.length - 1;
+  const isLastStep = activeStep === stepValidationFields.length - 1;
+  const isNewPrescription = isEmpty(get(prescription, 'id'));
 
   React.useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
-    if (isUndefined(activeStep) || isUndefined(activeSubStep)) {
+    if (isEditable && (isUndefined(activeStep) || isUndefined(activeSubStep))) {
       let firstInvalidStep;
       let firstInvalidSubStep;
       let currentStep = 0;
@@ -249,7 +263,7 @@ export const PrescriptionForm = props => {
         currentSubStep = 0;
       }
 
-      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 3);
+      setActiveStep(isInteger(firstInvalidStep) ? firstInvalidStep : 4);
       setActiveSubStep(isInteger(firstInvalidSubStep) ? firstInvalidSubStep : 0);
     }
 
@@ -288,28 +302,30 @@ export const PrescriptionForm = props => {
 
     if (prescriptionId) setFieldValue('id', prescriptionId);
 
-    if (!inProgress && completed) {
-      setStepAsyncState(asyncStates.completed);
-      if (isLastStep) {
-        let messageAction = 'sent';
-        if (isDraft) messageAction = isRevision ? 'updated' : 'created';
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
+        setStepAsyncState(asyncStates.completed);
+        if (isLastStep) {
+          let messageAction = 'sent';
+          if (isDraft) messageAction = isRevision ? 'updated' : 'created';
 
+          setToast({
+            message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
+            variant: 'success',
+          });
+
+          history.push('/prescriptions');
+        }
+      }
+
+      if (completed === false) {
         setToast({
-          message: t('You have successfully {{messageAction}} a Tidepool Loop prescription.', { messageAction }),
-          variant: 'success',
+          message: get(notification, 'message'),
+          variant: 'danger',
         });
 
-        history.push('/prescriptions');
+        setStepAsyncState(asyncStates.failed);
       }
-    }
-
-    if (!inProgress && completed === false) {
-      setToast({
-        message: get(notification, 'message'),
-        variant: 'danger',
-      });
-
-      setStepAsyncState(asyncStates.failed);
     }
   }, [creatingPrescription, creatingPrescriptionRevision]);
 
@@ -396,10 +412,10 @@ export const PrescriptionForm = props => {
       const prescriptionAttributes = omit({ ...values }, fieldsToDelete);
       prescriptionAttributes.state = 'draft';
 
-      if (values.id) {
-        createPrescriptionRevision(prescriptionAttributes, values.id);
-      } else {
+      if (isNewPrescription) {
         createPrescription(prescriptionAttributes);
+      } else {
+        createPrescriptionRevision(prescriptionAttributes, values.id);
       }
     },
   };
@@ -408,7 +424,7 @@ export const PrescriptionForm = props => {
   const profileFormStepsProps = profileFormSteps(schema, devices, values);
   const settingsCalculatorFormStepsProps = settingsCalculatorFormSteps(schema, handlers, values);
   const therapySettingsFormStepProps = therapySettingsFormStep(schema, pump, values);
-  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values);
+  const reviewFormStepProps = reviewFormStep(schema, pump, handlers, values, isEditable);
 
   const stepProps = step => ({
     ...step,
@@ -473,11 +489,7 @@ export const PrescriptionForm = props => {
     ],
     themeProps: {
       wrapper: {
-        mx: 3,
-        my: 2,
-        px: 2,
-        py: 4,
-        bg: 'white',
+        padding: 4,
       },
       panel: {
         padding: 3,
@@ -488,12 +500,57 @@ export const PrescriptionForm = props => {
     },
   };
 
+  const title = isNewPrescription ? t('Create New Prescription') : t('Prescription: {{name}}', {
+    name: [values.firstName, values.lastName].join(' '),
+  });
+
+  const prescriptionStateLabel = get(prescriptionStates, [prescriptionState, 'label'], '');
+  const prescriptionStateColorPalette = get(prescriptionStates, [prescriptionState, 'colorPalette'])
+
   return (
-    <form id="prescription-form" onSubmit={handleSubmit}>
+    <Box
+      as='form'
+      id="prescription-form"
+      onSubmit={isEditable ? handleSubmit : noop}
+      mb={5}
+      mx={3}
+      bg="white"
+    >
+      <Flex
+        id="prescription-form-header"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        px={4}
+        py={3}
+        sx={{
+          borderBottom: borders.divider
+        }}
+      >
+        <Button
+          id="back-to-prescriptions"
+          variant="primary"
+          onClick={() => props.history.push('/prescriptions')}
+          mr={5}
+        >
+          {t('Back To Prescriptions')}
+        </Button>
+
+        <Text as={Headline} textAlign="center">{title}</Text>
+        <Pill label="prescription status" colorPalette={prescriptionStateColorPalette} text={prescriptionStateLabel} />
+      </Flex>
+
+      {isEditable && !isUndefined(activeStep) && <Stepper {...stepperProps} />}
+
+      {!isEditable && (
+        <Box px={4}>
+          {reviewFormStepProps.panelContent}
+        </Box>
+      )}
+
       <FastField type="hidden" name="id" />
-      {!isUndefined(activeStep) && <Stepper {...stepperProps} />}
       {formPersistReady && <PersistFormikValues persistInvalid name={storageKey} />}
-    </form>
+    </Box>
   );
 };
 
