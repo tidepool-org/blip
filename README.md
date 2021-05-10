@@ -6,6 +6,7 @@ Blip is a web app for type 1 diabetes (T1D) built on top of the [Tidepool](http:
 
 This README is focused on just the details of getting blip running locally. For more detailed information aimed at those working on the development of blip, please see the [developer guide](docs/StartHere.md).
 
+
 * * * * *
 
 ### Table of contents
