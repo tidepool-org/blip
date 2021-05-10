@@ -22,7 +22,19 @@ import _ from 'lodash';
 import lockIcon from 'lock.svg';
 import utils from './util/utils';
 
-function plotConfidentialMode(pool, options = {}) {
+/**
+ * @typedef {import("../tidelinedata").default} TidelineData
+ * @typedef {import("../tidelinedata").Datum} Datum
+ * @typedef {import("../pool").default} Pool
+ */
+
+/**
+ *
+ * @param {Pool} pool
+ * @param {{ tidelineData: TidelineData }} opts
+ * @returns
+ */
+function plotConfidentialModeEvent(pool, opts) {
   const d3 = window.d3;
   const t = i18next.t.bind(i18next);
   const height = pool.height() - 2;
@@ -30,7 +42,6 @@ function plotConfidentialMode(pool, options = {}) {
   // 3 hours max for the tooltip
   const maxSizeWithTooltip = 1000 * 60 * 60 * 3;
 
-  const opts = _.cloneDeep(options);
   opts.xScale = pool.xScale().copy();
   const poolId = pool.id();
 
@@ -40,10 +51,14 @@ function plotConfidentialMode(pool, options = {}) {
 
   function confidentialModeEvent(selection) {
     selection.each(function () {
-      const currentData = opts.data;
+      const confidentialEvents = pool.filterDataForRender(opts.tidelineData.confidentialEvents);
+      if (confidentialEvents.length < 1) {
+        return;
+      }
+
       const events = d3.select(this)
         .selectAll('g.d3-confidential-group')
-        .data(currentData, (d) => d.id);
+        .data(confidentialEvents, (d) => d.id);
 
       const backGroup = events.enter()
         .append('g')
@@ -114,4 +129,4 @@ function plotConfidentialMode(pool, options = {}) {
   return confidentialModeEvent;
 }
 
-export default plotConfidentialMode;
+export default plotConfidentialModeEvent;

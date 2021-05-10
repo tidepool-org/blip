@@ -20,32 +20,47 @@ import _ from 'lodash';
 import picto from '../../img/parameter.png';
 import utils from './util/utils';
 
+/**
+ * @typedef {import("../tidelinedata").default} TidelineData
+ * @typedef {import("../tidelinedata").Datum} Datum
+ * @typedef {import("../pool").default} Pool
+ */
+
+/**
+ *
+ * @param {Pool} pool
+ * @param {{r: number, padding: number, onParameterHover: (p: any) => void, onParameterOut: () => void, tidelineData: TidelineData, xScale: (d: number) => number }} opts
+ * @returns {(data: Data) => void}
+ */
 function plotDeviceParameterChange(pool, opts) {
   const d3 = window.d3;
-  var defaults = {
+  const defaults = {
     r: 14,
-    padding: 4
+    padding: 4,
+    xScale: pool.xScale().copy(),
   };
 
   _.defaults(opts, defaults);
 
-  var offset = pool.height() / 5 ;
-  var width = 40;
-  var xPos = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - (width / 2) ;
-  };
+  const offset = pool.height() / 5 ;
+  const width = 40;
+
+  const xPos = (/** @type {Datum} */ d) => utils.xPos(d, opts) - (width / 2);
 
   function parameter(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function() {
-      var data = opts.data;
-      var allParameters = d3
+      const deviceParameters = pool.filterDataForRender(opts.tidelineData.deviceParameters);
+      if (deviceParameters.length < 1) {
+        return;
+      }
+
+      const allParameters = d3
         .select(this)
         .selectAll('circle.d3-param-only')
-        .data(data, function(d) {
-          return d.id;
-        });
-      var parameterGroup = allParameters.enter()
+        .data(deviceParameters, (d) => d.id);
+
+        const parameterGroup = allParameters.enter()
         .append('g')
         .attr({
           'class': 'd3-param-group',

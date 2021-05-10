@@ -249,46 +249,29 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   }), true, true);
 
   poolBG.addPlotType('deviceEvent', plotZenModeEvent(poolBG, {
-    timezoneAware: chart.options.timePrefs.timezoneAware,
-    data: tidelineData.zenEvents,
+    tidelineData,
   }), false, true);
 
   poolBG.addPlotType('physicalActivity', plotPhysicalActivity(poolBG, {
-    bgUnits: chart.options.bgUnits,
-    classes: chart.options.bgClasses,
-    emitter,
-    subdueOpacity: 0.4,
-    timezoneAware: chart.options.timePrefs.timezoneAware,
     onPhysicalHover: options.onPhysicalHover,
     onPhysicalOut: options.onPhysicalOut,
-    data: tidelineData.physicalActivities,
+    tidelineData,
   }), true, true);
 
   poolBG.addPlotType('deviceEvent', plotReservoirChange(poolBG, {
-    bgUnits: chart.options.bgUnits,
-    classes: chart.options.bgClasses,
-    emitter,
-    subdueOpacity: 0.4,
-    timezoneAware: chart.options.timePrefs.timezoneAware,
     onReservoirHover: options.onReservoirHover,
     onReservoirOut: options.onReservoirOut,
   }), true, true);
 
   poolBG.addPlotType('deviceEvent', plotDeviceParameterChange(poolBG, {
-    bgUnits: chart.options.bgUnits,
-    classes: chart.options.bgClasses,
-    emitter,
-    subdueOpacity: 0.4,
-    timezoneAware: chart.options.timePrefs.timezoneAware,
+    tidelineData,
     onParameterHover: options.onParameterHover,
     onParameterOut: options.onParameterOut,
-    data: tidelineData.deviceParameters,
   }), true, true);
 
   // add confidential mode to BG pool
   poolBG.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBG, {
-    timezoneAware: chart.options.timePrefs.timezoneAware,
-    data: tidelineData.confidentialEvents,
+    tidelineData,
     onConfidentialHover: options.onConfidentialHover,
     onConfidentialOut: options.onConfidentialOut,
   }), true, true);
@@ -321,7 +304,6 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // add wizard data to wizard pool
   poolBolus.addPlotType('wizard', plotWizard(poolBolus, {
-    emitter,
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
@@ -329,7 +311,6 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   }), true, true);
 
   poolBolus.addPlotType('food', plotCarb(poolBolus, {
-    emitter,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onCarbHover: options.onCarbHover,
     onCarbOut: options.onCarbOut,
@@ -337,7 +318,6 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // quick bolus data to wizard pool
   poolBolus.addPlotType('bolus', plotQuickbolus(poolBolus, {
-    emitter,
     subdueOpacity: 0.4,
     timezoneAware: chart.options.timePrefs.timezoneAware,
     onBolusHover: options.onBolusHover,
@@ -346,8 +326,7 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // add confidential mode to Bolus pool
   poolBolus.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBolus, {
-    timezoneAware: chart.options.timePrefs.timezoneAware,
-    data: tidelineData.confidentialEvents,
+    tidelineData,
     onConfidentialHover: options.onConfidentialHover,
     onConfidentialOut: options.onConfidentialOut,
   }), false, true);
@@ -359,23 +338,15 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
 
   // add basal data to basal pool
   poolBasal.addPlotType('basal', plotBasal(poolBasal, {
-    emitter,
-    data: tidelineData.grouped.basal,
-    ...tidelineData.opts.timePrefs,
     defaultSource: tidelineData.opts.defaultSource,
   }), true, true);
 
   // add device suspend data to basal pool
-  poolBasal.addPlotType('deviceEvent', plotSuspend(poolBasal, {
-    emitter,
-    data: tidelineData.grouped.deviceEvent,
-    timezoneAware: chart.options.timePrefs.timezoneAware
-  }), true, true);
+  poolBasal.addPlotType('deviceEvent', plotSuspend(poolBasal, {}), true, true);
 
   // add confidential mode to Basal pool
   poolBasal.addPlotType('deviceEvent', plotConfidentialModeEvent(poolBasal, {
-    timezoneAware: chart.options.timePrefs.timezoneAware,
-    data: tidelineData.confidentialEvents,
+    tidelineData,
     onConfidentialHover: options.onConfidentialHover,
     onConfidentialOut: options.onConfidentialOut,
   }), false, true);
@@ -392,14 +363,11 @@ function chartDailyFactory(parentElement, tidelineData, options = {}) {
   poolMessages.addPlotType('message', plotMessage(poolMessages, {
     size: 30,
     emitter,
-    timezoneAware: chart.options.timePrefs.timezoneAware,
   }), true, true);
 
   // add timechange images to messages pool
   poolMessages.addPlotType('deviceEvent', plotTimeChange(poolMessages, {
     size: 30,
-    emitter,
-    timezone: chart.options.timePrefs.timezoneName,
   }), true, true);
 
   return chart;

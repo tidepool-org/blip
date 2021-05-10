@@ -15,47 +15,50 @@
  * == BSD2 LICENSE ==
  */
 
-import _ from 'lodash';
+import _ from "lodash";
+import utils from "./util/utils";
+import drawPhysicalActivity from "./util/drawphysicalactivity";
 
-import utils from './util/utils';
-import drawPhysicalActivity from './util/drawphysicalactivity';
+/**
+ * @typedef {import("../tidelinedata").default} TidelineData
+ * @typedef {import("../tidelinedata").Datum} Datum
+ * @typedef {import("../pool").default} Pool
+ */
 
-function plotPhysicalActivity(pool, opts = {}) {
-  const d3 = window.d3;
-  const defaults = {
-    width: 20
-  };
-
-  _.defaults(opts, defaults);
-
-  const drawpa = drawPhysicalActivity(pool, opts);
-
-  return function(selection) {
+/**
+ *
+ * @param {Pool} pool
+ * @param {{ tidelineData: TidelineData}} opts
+ * @returns
+ */
+function plotPhysicalActivity(pool, opts) {
+  return function physicalActivityEvent(selection) {
+    const d3 = window.d3;
     opts.xScale = pool.xScale().copy();
+    const drawPa = drawPhysicalActivity(pool, opts);
 
-    selection.each(function() {
-      var currentData = opts.data;
-      var physicalActivty = d3.select(this)
+    selection.each(function () {
+      const physicalActivities = pool.filterDataForRender(opts.tidelineData.physicalActivities);
+      if (physicalActivities.length < 1) {
+        return;
+      }
+
+      const physicalActivty = d3
+        .select(this)
         .selectAll('g.d3-pa-group')
-        .data(currentData, function(d) {
-          return d.id;
-        });
+        .data(physicalActivities, (d) => d.id);
 
-      var paGroups = physicalActivty.enter()
+      const paGroups = physicalActivty
+        .enter()
         .append('g')
         .attr({
-          'class': 'd3-pa-group',
-          id: function(d) {
-            return 'pa_group_' + d.id;
-          }
+          class: "d3-pa-group",
+          id: (d) => `pa_group_${d.id}`,
         });
 
-      var intensity = paGroups.filter(function(d) {
-        return d.reportedIntensity != null;
-      });
-
-      drawpa.picto(intensity);
-      drawpa.activity(intensity);
+      const intensity = paGroups.filter(d => !_.isEmpty(d.reportedIntensity));
+      drawPa.picto(intensity);
+      drawPa.activity(intensity);
 
       physicalActivty.exit().remove();
 
@@ -65,17 +68,15 @@ function plotPhysicalActivity(pool, opts = {}) {
       // tooltips
       selection.selectAll('.d3-pa-group').on('mouseover', function(d) {
         if (d.reportedIntensity) {
-          drawpa.tooltip.add(d, utils.getTooltipContainer(this));
+          drawPa.tooltip.add(d, utils.getTooltipContainer(this));
         }
-
         // highlight is disabled for now but we may decide to use it later one
         // highlight.on(d3.select(this));
       });
       selection.selectAll('.d3-pa-group').on('mouseout', function(d) {
         if (d.reportedIntensity) {
-          drawpa.tooltip.remove(d);
+          drawPa.tooltip.remove(d);
         }
-
         // highlight is disabled for now but we may decide to use it later one
         // highlight.off();
       });

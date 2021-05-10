@@ -252,6 +252,16 @@ function getTimerFuncs() {
   return { startTimer: _.noop, endTimer: _.noop };
 }
 
+function isObjectWithStandardDuration(d) {
+  switch (d.type) {
+  case "physicalActivity":
+    return true;
+  case "deviceEvent":
+    return d.subType === "confidential" || d.subType === "zen";
+  }
+  return false;
+}
+
 /**
  * Normalize the time: normalTime & normalEnd
  * @param {Datum} d The datum
@@ -266,7 +276,7 @@ TidelineData.prototype.normalizeTime = function normalizeTime(d) {
     d.normalEnd = moment.utc(mTime).add(duration, "milliseconds").toISOString();
     d.epochEnd = d.epoch + duration;
     this.maxDuration = Math.max(this.maxDuration, duration);
-  } else if (d.type === "deviceEvent" && (d.subType === "confidential" || d.subType === "zen")) {
+  } else if (isObjectWithStandardDuration(d)) {
     const mEnd = moment.utc(mTime);
     const duration = _.get(d, "duration.value", 0);
     const units = _.get(d, "duration.units", "hours");
@@ -274,7 +284,6 @@ TidelineData.prototype.normalizeTime = function normalizeTime(d) {
     d.normalEnd = mEnd.toISOString();
     d.epochEnd = mEnd.valueOf();
     this.maxDuration = Math.max(this.maxDuration, d.epochEnd - d.epoch);
-
   }
 
   // Do we have this data: "suppressed" ?

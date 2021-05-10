@@ -18,12 +18,11 @@
 import _ from 'lodash';
 import dt from '../data/util/datetime';
 
-function plotSuspend(pool, opts = {}) {
+function plotSuspend(pool, opts) {
   const defaults = {
     opacity: 0.4,
     opacityDelta: 0.2,
     pathStroke: 1.5,
-    timezoneAware: false,
     tooltipPadding: 20
   };
 
@@ -33,7 +32,8 @@ function plotSuspend(pool, opts = {}) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
-      var filteredData = _.filter(currentData, {
+      let filteredData = _.filter(currentData, {
+        type: 'deviceEvent',
         subType: 'status',
         status: 'suspended',
         reason: { suspended: 'automatic' }
@@ -42,6 +42,10 @@ function plotSuspend(pool, opts = {}) {
       filteredData = _.filter(filteredData, (data) => {
         return !_.isUndefined(data.duration);
       });
+
+      if (filteredData.length < 0) {
+        return;
+      }
 
       var deviceEventGroup = selection
         .selectAll('.d3-deviceevent-group')
@@ -137,7 +141,7 @@ function plotSuspend(pool, opts = {}) {
   }
 
   suspend.xPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(d.epoch);
   };
 
   suspend.endXPosition = function(d) {

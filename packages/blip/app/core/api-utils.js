@@ -61,7 +61,7 @@ class ApiUtils {
     /** @type {PartialDataLoad} */
     this.partialDataLoad = null;
 
-    this.logWarnNoAPIv1 = _.once((err) => this.log.warn("Data API v1 not available", err));
+    this.logWarnNoAPIv1 = _.once((err) => this.log.warn("Data API v1 not available", err.message));
     this.haveAPIv1 = true;
   }
 

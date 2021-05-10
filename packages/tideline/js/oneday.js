@@ -375,7 +375,11 @@ function oneDay(emitter, options = {}) {
       if (renderedData.length > 0) {
         const pools = container.pools;
         for (let i = 0; i < pools.length; i++) {
-          pools[i].render(container.poolGroup, renderedData, force);
+          try {
+            pools[i].render(container.poolGroup, renderedData, force);
+          } catch (e) {
+            log.error(e);
+          }
         }
       }
     }
@@ -727,6 +731,24 @@ function oneDay(emitter, options = {}) {
       // Only keep data which ends after our range
       renderedData = renderedData.filter((d) => d.epoch > rangeStart || (Number.isInteger(d.epochEnd) && d.epochEnd > rangeStart));
     }
+  };
+
+  /**
+   * Filter for special data. Do like updateRenderedData().
+   * Used for zenMode, physicalActivities...
+   * @param {Datum[]} data Array of tideline datum
+   * @returns {Datum[]} A filtered array of datum to be displayed
+   */
+  container.filterDataForRender = function filterDataForRender(data) {
+    let { start, end } = renderedDataRange;
+    start -= 1;
+    end += 1;
+
+    const isInRange = (/** @type {Datum} */d) => {
+      return (d.epoch > start || (Number.isInteger(d.epochEnd) && d.epochEnd > start)) && d.epoch < end;
+    };
+
+    return data.filter(isInRange);
   };
 
   container.createMessage = async (message) => {

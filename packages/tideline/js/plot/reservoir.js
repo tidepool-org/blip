@@ -35,16 +35,16 @@ function plotReservoirChange(pool, opts) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
-      var filteredData = _.filter(currentData, {
-          subType: 'reservoirChange'
-        });
+      const filteredData = _.filter(currentData, {
+        subType: 'reservoirChange'
+      });
 
-      var allReservoirs = d3
+      const allReservoirs = d3
         .select(this)
         .selectAll('circle.d3-reservoir-only')
         .data(filteredData, (d) => d.id);
 
-      var reservoirGroup = allReservoirs.enter()
+        const reservoirGroup = allReservoirs.enter()
         .append('g')
         .attr({
           'class': 'd3-reservoir-group',

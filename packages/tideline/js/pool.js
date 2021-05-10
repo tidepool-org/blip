@@ -21,6 +21,7 @@ import legendDefs from './plot/util/legend';
 
 /**
  * @typedef {import('./tidelinedata').default} TidelineData
+ * @typedef {import('./tidelinedata').Datum} Datum
  * @typedef {{ type: string, plot: function, panBoolean: boolean }} PlotType
  * @typedef { import('d3').Axis } Axis
  * @typedef { import('d3').ScaleContinuousNumeric<number, number> } ScaleContinuousNumeric
@@ -346,6 +347,16 @@ function Pool(container) {
         background.attr('opacity', 1);
       }
     };
+  };
+
+  /**
+   * Filter for special data. Do like updateRenderedData().
+   * Used for zenMode, physicalActivities...
+   * @param {Datum[]} data Array of tideline datum
+   * @returns {Datum[]} A filtered array of datum to be displayed
+   */
+  this.filterDataForRender = function filterDataForRender(data) {
+    return container.filterDataForRender(data);
   };
 
   return this;

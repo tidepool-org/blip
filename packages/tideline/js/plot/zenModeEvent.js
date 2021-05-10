@@ -19,27 +19,43 @@ import _ from 'lodash';
 
 import utils from './util/utils';
 
+/**
+ * @typedef {import("../tidelinedata").default} TidelineData
+ * @typedef {import("../tidelinedata").Datum} Datum
+ * @typedef {import("../pool").default} Pool
+ */
+
+/**
+ * @param {Pool} pool
+ * @param {{ tidelineData: TidelineData, r: number, xScale: (d: number) => number }} opts
+ * @returns
+ */
 function plotZenMode(pool, opts = {}) {
   const d3 = window.d3;
   const defaults = {
     r: 14,
+    xScale: pool.xScale().copy(),
   };
 
   _.defaults(opts, defaults);
 
-  const xPos = (d) => utils.xPos(d, opts);
+  const xPos = (/** @type {Datum} */ d) => utils.xPos(d, opts);
   const calculateWidth = (d) => utils.calculateWidth(d, opts);
 
-  opts.xScale = pool.xScale().copy();
   const height = pool.height();
   const offset = height / 5 /2;
 
   function zenModeEvent(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function() {
-      const currentData = opts.data;
+      const zenEvents = pool.filterDataForRender(opts.tidelineData.zenEvents);
+      if (zenEvents.length < 1) {
+        return;
+      }
+
       const zenModeEvent = d3.select(this)
         .selectAll('g.d3-event-group')
-        .data(currentData, (d) => d.id);
+        .data(zenEvents, (d) => d.id);
 
       const zenGroup = zenModeEvent.enter()
         .append('g')

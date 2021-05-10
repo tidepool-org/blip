@@ -27,7 +27,6 @@ const defaults = {
   opacity: 0.6,
   opacityDelta: 0.2,
   pathStroke: 1.5,
-  timezoneOffset: 0,
   tooltipPadding: 20,
   defaultSource: 'default',
 };
