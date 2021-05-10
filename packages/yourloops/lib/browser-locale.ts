@@ -20,6 +20,11 @@ function browserLocale(): string {
     lang = navigator.language;
   }
 
+  // Keep only the language, not the country information:
+  if (lang.indexOf('-') > 0) {
+    lang = lang.split('-')[0];
+  }
+
   return lang;
 }
 
