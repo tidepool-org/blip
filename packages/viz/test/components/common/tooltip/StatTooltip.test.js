@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
+import { expect } from 'chai';
 
 import { formatClassesAsSelector } from '../../../helpers/cssmodules';
 import StatTooltip from '../../../../src/components/common/tooltips/StatTooltip';
@@ -46,7 +47,7 @@ describe('StatTooltip', () => {
     const messages = wrapper.find(formatClassesAsSelector(styles.message)).hostNodes();
     expect(messages.at(0).html()).to.include('<em>italic</em>');
     expect(messages.at(1).html()).to.include('<strong>bold</strong>');
-    expect(messages.at(2).html()).to.include('<a target="_blank" href="http://www.example.com">link</a>');
+    expect(messages.at(2).html()).to.include('<a href="http://www.example.com" target="_blank">link</a>');
   });
 
   it('should render a divider between messages', () => {

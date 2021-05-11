@@ -35,7 +35,7 @@
     "bows": "^1.7.2",
     "i18next": "^19.8.4",
     "jwt-decode": "^3.1.2",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "moment-timezone": "^0.5.31",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
