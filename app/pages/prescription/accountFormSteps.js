@@ -133,8 +133,8 @@ export const PatientEmail = translate()(props => {
     if (!isCaregiverAccount) {
       setFieldValue('caregiverFirstName', '');
       setFieldValue('caregiverLastName', '');
-      setFieldTouched('caregiverFirstName', true);
-      setFieldTouched('caregiverLastName', true);
+      setFieldTouched('caregiverFirstName');
+      setFieldTouched('caregiverLastName');
     }
   }, []);
 

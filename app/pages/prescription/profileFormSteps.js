@@ -56,7 +56,7 @@ export const PatientPhone = translate()(props => {
             alwaysShowMask
             defaultValue={get(values, 'phoneNumber.number')}
             onBlur={e => {
-              setFieldTouched('phoneNumber.number', true);
+              setFieldTouched('phoneNumber.number');
               setFieldValue('phoneNumber.number', e.target.value);
             }}
           >
@@ -156,13 +156,13 @@ export const PatientDevices = translate()(props => {
               label={device.label}
               onChange={e => {
                 setFieldTouched('initialSettings.pumpId');
-                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '', true)
+                setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
               error={getFieldError('initialSettings.pumpId', formikContext)}
               innerRef={initialFocusedInputRef}
               onBlur={e => {
-                setFieldTouched('initialSettings.pumpId', true, !hasInitialFocus);
-                setHasInitialFocus(false);
+                if (hasInitialFocus) return setHasInitialFocus(false);
+                setFieldTouched('initialSettings.pumpId');
               }}
               {...checkboxStyles}
             />
