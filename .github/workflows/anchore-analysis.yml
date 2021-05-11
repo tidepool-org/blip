@@ -18,6 +18,9 @@ on:
 jobs:
   Anchore-Build-Scan:
     runs-on: ubuntu-latest
+    env: 
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
     steps:
     - name: Checkout the code
       uses: actions/checkout@v2
