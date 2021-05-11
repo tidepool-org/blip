@@ -405,6 +405,40 @@ export const InsulinSettings = props => {
         </Box>
 
         <PopoverLabel
+          id='insulin-sensitivity-factors'
+          label={t('Insulin sensitivity factors')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
+              </Paragraph2>
+              <Paragraph2>
+                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+
+        <Box {...scheduleGroupStyles} mb={3}>
+          <ScheduleForm
+            addButtonText={t('Add an additional insulin sensitivity factor')}
+            fieldArrayName='initialSettings.insulinSensitivitySchedule'
+            fields={[
+              {
+                label: t('1 U of insulin decreases BG by'),
+                name: 'amount',
+                suffix: bgUnits,
+                threshold: thresholds.insulinSensitivityFactor,
+                type: 'number',
+                ...ranges.insulinSensitivityFactor,
+              },
+            ]}
+            useFastField
+          />
+        </Box>
+
+        <PopoverLabel
           id='max-basal'
           label={t('Max Basal')}
           mb={2}
@@ -501,40 +535,6 @@ export const InsulinSettings = props => {
           error={getFieldError('initialSettings.insulinModel', formikContext)}
           mb={4}
         />
-
-        <PopoverLabel
-          id='insulin-sensitivity-factors'
-          label={t('Insulin sensitivity factors')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
-              </Paragraph2>
-              <Paragraph2>
-                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-
-        <Box {...scheduleGroupStyles} mb={3}>
-          <ScheduleForm
-            addButtonText={t('Add an additional insulin sensitivity factor')}
-            fieldArrayName='initialSettings.insulinSensitivitySchedule'
-            fields={[
-              {
-                label: t('1 U of insulin decreases BG by'),
-                name: 'amount',
-                suffix: bgUnits,
-                threshold: thresholds.insulinSensitivityFactor,
-                type: 'number',
-                ...ranges.insulinSensitivityFactor,
-              },
-            ]}
-            useFastField
-          />
-        </Box>
       </Box>
     </Box>
   );
