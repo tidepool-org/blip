@@ -10,6 +10,9 @@ Desktop.ini
 ._*
 Thumbs.db
 
+# DCC cache
+.dccache
+
 # Files that might appear on external disks
 .Spotlight-V100
 .Trashes
