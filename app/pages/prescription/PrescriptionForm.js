@@ -104,7 +104,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0)),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
@@ -239,7 +239,7 @@ export const PrescriptionForm = props => {
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const isLastStep = activeStep === stepValidationFields.length - 1;
-  const isNewPrescription = isEmpty(get(prescription, 'id'));
+  const isNewPrescription = isEmpty(get(values, 'id'));
 
   React.useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
