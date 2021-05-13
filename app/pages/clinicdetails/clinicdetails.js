@@ -144,8 +144,9 @@ export const ClinicDetails = (props) => {
           const newClinic = {
             name: values.orgName,
             address,
-            postalCode: values.zip,
             city: values.city,
+            state: values.state,
+            postalCode: values.zip,
             country: values.country,
             phoneNumbers: [
               {

@@ -3,16 +3,14 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
-import _ from 'lodash';
-import {
-  usePopupState,
-  bindPopover,
-  bindTrigger,
-  bindToggle,
-} from 'material-ui-popup-state/hooks';
+import get from 'lodash/get'
+import keys from 'lodash/keys';
+import map from 'lodash/map';
+import forEach from 'lodash/forEach';
+import includes from 'lodash/includes';
+import find from 'lodash/find';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {
@@ -23,113 +21,28 @@ import {
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
-import Icon from '../../components/elements/Icon';
-import Popover from '../../components/elements/Popover';
+import PopoverMenu from '../../components/elements/PopoverMenu';
+import Pill from '../../components/elements/Pill';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+import { useToasts } from '../../providers/ToastProvider';
 import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
-
-const MoreMenu = (props) => {
-  const popupState = usePopupState({
-    variant: 'popover',
-    popupId: `user-${props.userid}`,
-  });
-  const [showDialog, setShowDialog] = useState(false);
-  const { onClick: togglePopup } = bindToggle(popupState);
-
-  function closeDialog() {
-    setShowDialog(false);
-  }
-
-  return (
-    <React.Fragment>
-      <Text color="text.primary">
-        <Icon
-          label="more"
-          icon={MoreHorizRoundedIcon}
-          variant="button"
-          {...bindTrigger(popupState)}
-        />
-      </Text>
-
-      <Popover
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        {...bindPopover(popupState)}
-      >
-        <Flex
-          p={'10px'}
-          pr={4}
-          sx={{ borderBottom: baseTheme.borders.divider, cursor: 'pointer' }}
-          onClick={props.handleResendInvite}
-        >
-          <Icon label="send" icon={InputIcon} mr={1} />
-          <Text color="text.primary">Resend Invitation</Text>
-        </Flex>
-        <Flex
-          p={'10px'}
-          pr={4}
-          color="feedback.danger"
-          sx={{ cursor: 'pointer' }}
-          onClick={() => {
-            setShowDialog(true);
-            togglePopup();
-          }}
-        >
-          <Icon
-            label="delete"
-            icon={DeleteForeverIcon}
-            mr={1}
-            color="feedback.danger"
-          />
-          <Text>Remove User</Text>
-        </Flex>
-      </Popover>
-      <Dialog
-        id={`${props.userid}delete`}
-        aria-labelledBy="dialog-title"
-        open={showDialog}
-        onClose={closeDialog}
-      >
-        <DialogTitle onClose={closeDialog}>
-          <MediumTitle id="dialog-title">Remove {props.fullName}</MediumTitle>
-        </DialogTitle>
-        <DialogContent>
-          <Body1>
-            {props.fullName} will lose all access to this clinic workspace and
-            its patient list. Are you sure you want to remove this user?
-          </Body1>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="secondary" onClick={closeDialog}>
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              props.handleDelete();
-              closeDialog();
-            }}
-          >
-            Remove User
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
-  );
-};
+import { usePrevious } from '../../core/hooks';
 
 export const ClinicAdmin = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
   const [searchText, setSearchText] = useState('');
   const [selectedClinic, setSelectedClinic] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (trackMetric) {
@@ -139,72 +52,193 @@ export const ClinicAdmin = (props) => {
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
-  const fetchingClinicsForClinician = useSelector(
-    (state) => state.blip.working.fetchingClinicsForClinician
-  );
-  const fetchingCliniciansFromClinic = useSelector(
-    (state) => state.blip.working.fetchingCliniciansFromClinic
-  );
+  const working = useSelector((state) => state.blip.working);
+  const previousWorking = usePrevious(working);
+  const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
+  const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
   const allUsers = useSelector((state) => state.blip.allUsersMap);
-  const pendingSentInvites = useSelector(
-    (state) => state.blip.pendingSentInvites
-  );
-  const clinicians = _.get(clinics, selectedClinic, 'clinicians', []);
 
-  // NB: this will change heavily as the clinics API gets updated
+  useEffect(() => {
+    const { inProgress, completed, notification } = working.updatingClinician;
+    const prevInProgress = get(
+      previousWorking,
+      'updatingClinician.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('You have successfully updated clinician.'),
+          variant: 'success',
+        });
+      }
+    }
+  }, [working.updatingClinician]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.sendingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'sendingClinicianInvite.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinician invite sent.'),
+          variant: 'success',
+        });
+      }
+    }
+  }, [working.sendingClinicianInvite]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.resendingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'resendingClinicianInvite.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinician invite resent.'),
+          variant: 'success',
+        });
+      }
+    }
+  }, [working.resendingClinicianInvite]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.deletingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'deletingClinicianInvite.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinician invite deleted.'),
+          variant: 'success',
+        });
+      }
+    }
+  }, [working.deletingClinicianInvite]);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.deletingClinicianFromClinic;
+    const prevInProgress = get(
+      previousWorking,
+      'deletingClinicianFromClinic.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinician removed from clinic.'),
+          variant: 'success',
+        });
+      }
+    }
+  }, [working.deletingClinicianFromClinic]);
+
   useEffect(() => {
     if (
       !fetchingClinicsForClinician.inProgress &&
       !fetchingClinicsForClinician.completed &&
       !fetchingClinicsForClinician.notification
     ) {
-      dispatch(
-        actions.async.getClinicsForClinician(api, loggedInUserId)
-      );
+      dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
     } else {
-      if (_.keys(clinics).length) {
-        setSelectedClinic(_.keys(clinics)[0]);
+      if (keys(clinics).length) {
+        setSelectedClinic(keys(clinics)[0]);
       }
       if (
         !fetchingCliniciansFromClinic.inProgress &&
         !fetchingCliniciansFromClinic.completed &&
         !fetchingCliniciansFromClinic.notification
       ) {
-        _.forEach(clinics, (clinic) => {
+        forEach(clinics, (clinic) => {
           dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
         });
       }
     }
-  }, [loggedInUserId, fetchingClinicsForClinician, fetchingCliniciansFromClinic]);
+  }, [
+    loggedInUserId,
+    fetchingClinicsForClinician,
+    fetchingCliniciansFromClinic,
+  ]);
 
-  const clinicianArray = _.map(
-    _.get(clinics, [selectedClinic, 'clinicians'], {}),
+  const clinicianArray = map(
+    get(clinics, [selectedClinic, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id:clinicianId } = clinician;
-      const user = _.get(allUsers, clinicianId, {});
-      const role = _.includes(roles, 'CLINIC_ADMIN')
+      const { roles, email, id: clinicianId, inviteId } = clinician;
+      const user = get(allUsers, clinicianId, {});
+      const role = includes(roles, 'CLINIC_ADMIN')
         ? 'Clinic Admin'
-        : _.includes(roles, 'CLINIC_MEMBER')
+        : includes(roles, 'CLINIC_MEMBER')
         ? 'Clinic Member'
         : '';
       return {
         fullName: personUtils.fullName(user),
         fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
         role,
-        prescriberPermission: _.includes(roles, 'PRESCRIBER'),
+        prescriberPermission: includes(roles, 'PRESCRIBER'),
         userid: clinicianId,
-        inviteSent: _.includes(pendingSentInvites, clinicianId),
+        inviteId: inviteId,
         email,
         roles,
       };
     }
   );
 
-  const userRolesInClinic = _.get(
-    _.find(clinicianArray, { userid: loggedInUserId }),
+  const userRolesInClinic = get(
+    find(clinicianArray, { userid: loggedInUserId }),
     'roles',
     []
   );
+
+  function closeDeleteDialog() {
+    setShowDeleteDialog(false);
+    setSelectedUser(null);
+  }
 
   function handleSearchChange(event) {
     setSearchText(event.target.value);
@@ -220,17 +254,25 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleDelete(selectedClinicianId) {
-    // TODO: dispatch(actions.async.deleteClinicianFromClinic(api,selectedClinic,selectedClinicianId))
-    console.log(
-      'deleteClinicianFromClinic',
-      selectedClinic,
-      selectedClinicianId
+    dispatch(
+      actions.async.deleteClinicianFromClinic(
+        api,
+        selectedClinic,
+        selectedClinicianId
+      )
     );
   }
 
-  function handleResendInvite(selectedClinicianId) {
-    // TODO: API is not finalized for clinician invite send/resend
-    console.log('handleResendInvite', selectedClinicianId);
+  function handleResendInvite(inviteId) {
+    dispatch(
+      actions.async.resendClinicianInvite(api, selectedClinic, inviteId)
+    );
+  }
+
+  function handleDeleteInvite(inviteId) {
+    dispatch(
+      actions.async.deleteClinicianInvite(api, selectedClinic, inviteId)
+    );
   }
 
   const renderClinician = ({ fullName, email }) => (
@@ -240,18 +282,16 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
-  const renderStatus = ({ inviteSent }) => (
+  const renderStatus = ({ inviteId }) => (
     <Box>
-      <Text fontWeight="medium">
-        {inviteSent ? 'Pending' : 'No Pending Invite'}
-      </Text>
+      {inviteId ? <Pill text="invite sent" colorPalette="greens" /> : ''}
     </Box>
   );
 
   const renderPermission = ({ prescriberPermission }) => (
     <Box>
       <Text fontWeight="medium">
-        {prescriberPermission ? 'Prescriber' : 'Nonprescriber'}
+        {prescriberPermission ? 'Prescriber' : ''}
       </Text>
     </Box>
   );
@@ -262,24 +302,66 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
-  const renderEdit = ({ userid }) => (
-    <Button
-      p={0}
-      fontSize="inherit"
-      variant="textPrimary"
-      onClick={() => handleEdit(userid)}
-    >
-      Edit
-    </Button>
-  );
+  const renderEdit = ({ userid }) => {
+    if (userid) {
+      return (
+        <Button
+          p={0}
+          fontSize="inherit"
+          variant="textPrimary"
+          onClick={() => handleEdit(userid)}
+        >
+          Edit
+        </Button>
+      );
+    }
+  };
 
-  const renderMore = ({ ...props }) => (
-    <MoreMenu
-      handleDelete={() => handleDelete(props.userid)}
-      handleResendInvite={() => handleResendInvite(props.userid)}
-      {...props}
-    ></MoreMenu>
-  );
+  const renderMore = ({ ...props }) => {
+    let items;
+    if (props.userid) {
+      items = [
+        {
+          icon: DeleteForeverIcon,
+          iconLabel: 'Remove User',
+          iconPosition: 'left',
+          id: `delete-${props.userId}`,
+          variant: 'actionListItemDanger',
+          onClick: () => {
+            setSelectedUser(props);
+            setShowDeleteDialog(true);
+          },
+          text: 'Remove User',
+        },
+      ];
+    }
+    if (props.inviteId) {
+      items = [
+        {
+          icon: InputIcon,
+          iconLabel: 'Resend Invitation',
+          iconPosition: 'left',
+          id: `resendInvite-${props.inviteId}`,
+          variant: 'actionListItem',
+          onClick: () => handleResendInvite(props.inviteId),
+          text: 'Resend Invitation',
+        },
+        {
+          icon: DeleteForeverIcon,
+          iconLabel: 'Delete Invitation',
+          iconPosition: 'left',
+          id: `deleteInvite-${props.inviteId}`,
+          variant: 'actionListItemDanger',
+          onClick: () => handleDeleteInvite(props.inviteId),
+          text: 'Delete item',
+        },
+      ];
+    }
+
+    return (
+      <PopoverMenu id="action-menu" items={items} />
+    );
+  };
 
   const columns = [
     {
@@ -318,7 +400,7 @@ export const ClinicAdmin = (props) => {
     },
   ];
 
-  if (_.includes(userRolesInClinic, 'CLINIC_ADMIN')) {
+  if (includes(userRolesInClinic, 'CLINIC_ADMIN')) {
     columns.push(
       {
         title: '',
@@ -336,63 +418,214 @@ export const ClinicAdmin = (props) => {
   }
 
   return (
-    <Box
-      mx={'auto'}
-      my={2}
-      bg="white"
-      width={[1, 0.75, 0.75, 0.5]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderRadius: baseTheme.radii.default,
-      }}
-    >
-      <Flex
-        sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems={'center'}
+    <>
+      <Box
+        mx={'auto'}
+        my={2}
+        p={4}
+        bg="white"
+        width={[1, 0.75, 0.75, 0.5]}
+        sx={{
+          border: baseTheme.borders.default,
+          borderRadius: baseTheme.radii.default,
+        }}
       >
-        <Title p={4} flexGrow={1}>
-          Access Management
-        </Title>
-        <Box>
+        <Flex alignItems={'flex-start'}>
+          <Title py={4} pr={4}>
+            Clinic Profile
+          </Title>
+          <Box flexDirection="column" flexGrow="1">
+            <TextInput
+              name="clinic_name"
+              label="Clinic name"
+              disabled={true}
+              value={get(clinics, [selectedClinic, 'name'])}
+              width="100%"
+              themeProps={{
+                px: 2,
+                pb: 2,
+                sx: {
+                  '&& input:disabled': {
+                    color: baseTheme.colors.text.primary,
+                    bg: 'white',
+                  },
+                },
+              }}
+            ></TextInput>
+            <TextInput
+              name="clinic_address"
+              label="Clinic address"
+              disabled={true}
+              value={get(clinics, [selectedClinic, 'address'])}
+              width="100%"
+              color={baseTheme.colors.text.primary}
+              bg="white"
+              themeProps={{
+                px: 2,
+                sx: {
+                  '&& input:disabled': {
+                    color: baseTheme.colors.text.primary,
+                    bg: 'white',
+                  },
+                },
+              }}
+            ></TextInput>
+          </Box>
+          <Box flexDirection="column" flexGrow="1">
+            <Box>
+              <TextInput
+                name="clinic_contact"
+                label="Clinic contact"
+                disabled={true}
+                value={get(clinics, [selectedClinic, 'email'])}
+                width="100%"
+                themeProps={{
+                  px: 2,
+                  pb: 2,
+                  sx: {
+                    '&& input:disabled': {
+                      color: baseTheme.colors.text.primary,
+                      bg: 'white',
+                    },
+                  },
+                }}
+              ></TextInput>
+            </Box>
+            <Box>
+              <TextInput
+                name="clinic_cityzip"
+                label="City, State, Zipcode"
+                disabled={true}
+                value={`${get(clinics, [
+                  selectedClinic,
+                  'city',
+                ])}, ${get(clinics, [
+                  selectedClinic,
+                  'state',
+                ])}, ${get(clinics, [selectedClinic, 'postalCode'])}`}
+                width="100%"
+                themeProps={{
+                  px: 2,
+                  sx: {
+                    '&& input:disabled': {
+                      color: baseTheme.colors.text.primary,
+                      bg: 'white',
+                    },
+                  },
+                }}
+              ></TextInput>
+            </Box>
+          </Box>
+          <Box flexDirection="column" flexGrow="1">
+            <TextInput
+              name="clinic_sharecode"
+              label="Clinic share code"
+              disabled={true}
+              value={get(clinics, [selectedClinic, 'shareCode'])}
+              width="100%"
+              themeProps={{
+                px: 2,
+                pb: 2,
+                sx: {
+                  '&& input:disabled': {
+                    color: baseTheme.colors.text.primary,
+                    bg: 'white',
+                  },
+                },
+              }}
+            ></TextInput>
+          </Box>
+        </Flex>
+      </Box>
+      <Box
+        mx={'auto'}
+        my={2}
+        bg="white"
+        width={[1, 0.75, 0.75, 0.5]}
+        sx={{
+          border: baseTheme.borders.default,
+          borderRadius: baseTheme.radii.default,
+        }}
+      >
+        <Flex
+          sx={{ borderBottom: baseTheme.borders.default }}
+          alignItems={'center'}
+        >
+          <Title p={4} flexGrow={1}>
+            Access Management
+          </Title>
+          <Box>
+            <Button
+              mr={4}
+              variant="primary"
+              onClick={() => {
+                dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
+              }}
+            >
+              Invite new clinic team member
+            </Button>
+          </Box>
+        </Flex>
+
+        <Box mx={4}>
+          <TextInput
+            themeProps={{
+              minWidth: '250px',
+              py: 3,
+            }}
+            placeholder={t('search')}
+            icon={SearchIcon}
+            id="search-members"
+            name="search-members"
+            onChange={handleSearchChange}
+            variant="condensed"
+          />
+          <Table
+            id={'clinicianTable'}
+            lablel={'cliniciantablelabel'}
+            columns={columns}
+            data={clinicianArray}
+            orderBy="fullNameOrderable"
+            order="asc"
+            searchText={searchText}
+            rowsPerPage={8}
+            pagination={true}
+            style={{ fontSize: '14px' }}
+            label=""
+          />
+        </Box>
+      </Box>
+      <Dialog
+        id={'deleteUser'}
+        aria-labelledBy="dialog-title"
+        open={showDeleteDialog}
+        onClose={closeDeleteDialog}
+      >
+        <DialogTitle onClose={closeDeleteDialog}>
+          <MediumTitle id="dialog-title">Remove {selectedUser?.fullName}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            {selectedUser?.fullName} will lose all access to this clinic workspace and
+            its patient list. Are you sure you want to remove this user?
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="secondary" onClick={closeDeleteDialog}>
+            Cancel
+          </Button>
           <Button
-            mr={4}
-            variant="primary"
+            variant="danger"
             onClick={() => {
-              dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
+              handleDelete(selectedUser.userid);
+              closeDeleteDialog();
             }}
           >
-            Invite new clinic team member
+            Remove User
           </Button>
-        </Box>
-      </Flex>
-
-      <Box mx={4}>
-        <TextInput
-          themeProps={{
-            minWidth: '250px',
-            py: 3,
-          }}
-          placeholder={t('search')}
-          icon={SearchIcon}
-          name="search-members"
-          onChange={handleSearchChange}
-          variant="condensed"
-        />
-        <Table
-          id={'clinicianTable'}
-          lablel={'cliniciantablelabel'}
-          columns={columns}
-          data={clinicianArray}
-          orderBy="fullNameOrderable"
-          order="asc"
-          searchText={searchText}
-          rowsPerPage={8}
-          pagination={true}
-          style={{ fontSize: '14px' }}
-          label=""
-        />
-      </Box>
-    </Box>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

@@ -164,7 +164,7 @@ export const ClinicianEdit = (props) => {
           <Text fontWeight="medium">{fullName}</Text>
           <Text>{_.get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
         </Box>
-        <Text color="feedback.danger" onClick={() => handleClickDelete()}>
+        <Text color="feedback.danger" sx={{ cursor: 'pointer' }} onClick={() => handleClickDelete()}>
           Remove User
         </Text>
       </Flex>

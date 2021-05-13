@@ -234,6 +234,7 @@ describe('ClinicInvite', () => {
         {
           type: 'SEND_CLINICIAN_INVITE_SUCCESS',
           payload: {
+            'clinicId': 'clinicID456',
             'clinician': {inviteReturn:'success'}
           }
         },

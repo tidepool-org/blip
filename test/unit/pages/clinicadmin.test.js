@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import _ from 'lodash';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Button from '../../../app/components/elements/Button';
 import TextInput from '../../../app/components/elements/TextInput';
 import Table from '../../../app/components/elements/Table';
@@ -44,6 +45,12 @@ describe('ClinicAdmin', () => {
     mount.cleanUp();
   });
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  }
+
   const blipState = {
     blip: {
       working: {
@@ -57,6 +64,11 @@ describe('ClinicAdmin', () => {
           completed: true,
           notification: null,
         },
+        updatingClinician: defaultWorkingState,
+        sendingClinicianInvite: defaultWorkingState,
+        resendingClinicianInvite: defaultWorkingState,
+        deletingClinicianInvite: defaultWorkingState,
+        deletingClinicianFromClinic: defaultWorkingState,
       },
     },
   };
@@ -124,7 +136,9 @@ describe('ClinicAdmin', () => {
     defaultProps.trackMetric.resetHistory();
     wrapper = mount(
       <Provider store={store}>
-        <ClinicAdmin {...defaultProps} />
+        <ToastProvider>
+          <ClinicAdmin {...defaultProps} />
+        </ToastProvider>
       </Provider>
     );
   });
@@ -156,8 +170,8 @@ describe('ClinicAdmin', () => {
   });
 
   it('should render a search bar', () => {
-    const searchInput = wrapper.find(TextInput);
-    expect(searchInput).to.have.length(1);
+    const searchInput = wrapper.find('TextInput#search-members');
+    expect(searchInput).to.have.lengthOf(1);
     expect(searchInput.props().onChange).to.be.a('function');
     searchInput
       .find('input')
@@ -176,7 +190,9 @@ describe('ClinicAdmin', () => {
   it('should render a Table when data is available', () => {
     wrapper = mount(
       <Provider store={mockStore(fetchedDataState)}>
-        <ClinicAdmin {...defaultProps} />
+        <ToastProvider>
+          <ClinicAdmin {...defaultProps} />
+        </ToastProvider>
       </Provider>
     );
 
@@ -191,7 +207,9 @@ describe('ClinicAdmin', () => {
       store = mockStore(fetchedAdminState);
       wrapper = mount(
         <Provider store={store}>
-          <ClinicAdmin {...defaultProps} />
+          <ToastProvider>
+            <ClinicAdmin {...defaultProps} />
+          </ToastProvider>
         </Provider>
       );
     });
@@ -203,7 +221,7 @@ describe('ClinicAdmin', () => {
       expect(table.find('td')).to.have.length(5);
       const editButton = table.find(Button).at(0);
       expect(editButton.text()).to.equal('Edit');
-      expect(table.find('MoreMenu')).to.have.length(1);
+      expect(table.find('PopoverMenu')).to.have.length(1);
     });
 
     it('should navigate to "/clinician-edit" when "Edit" button clicked', () => {
@@ -227,14 +245,14 @@ describe('ClinicAdmin', () => {
     });
 
     it('should display menu when "More" icon is clicked', () => {
-      const moreMenuIcon = wrapper.find('MoreMenu').find('Icon').at(0);
+      const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
       expect(wrapper.find(Popover).props().open).to.be.false;
       moreMenuIcon.simulate('click');
       expect(wrapper.find(Popover).props().open).to.be.true;
     });
 
     it('should display dialog when "Remove User" is clicked', () => {
-      const flex = wrapper.find('div[color="feedback.danger"]');
+      const flex = wrapper.find('Button[iconLabel="Remove User"]');
       expect(wrapper.find(Dialog).props().open).to.be.false;
       flex.simulate('click');
       expect(wrapper.find(Dialog).props().open).to.be.true;
