@@ -227,8 +227,9 @@ describe('ClinicInvite', () => {
 
     it('should update clinician and redirect to "clinic-admin" on save', () => {
       expect(store.getActions()).to.eql([]);
+      expect(defaultProps.api.clinics.inviteClinician.callCount).to.equal(0);
       wrapper.find('Button#next').simulate('click');
-      //TODO: test that API call is executed when implemented
+      expect(defaultProps.api.clinics.inviteClinician.callCount).to.equal(1);
       expect(store.getActions()).to.eql([
         { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
         {

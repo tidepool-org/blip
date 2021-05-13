@@ -42,13 +42,13 @@ export const ClinicianEdit = (props) => {
     _.get(state, ['blip', 'allUsersMap', selectedClinicianId])
   );
   const selectedClinic = _.get(location, 'state.clinicId', false);
-  const selectedClinician = useSelector((state)=>
+  const selectedClinician = useSelector((state) =>
     _.get(state, [
       'blip',
       'clinics',
       selectedClinic,
       'clinicians',
-      selectedClinicianId
+      selectedClinicianId,
     ])
   );
   const selectedClinicianRoles = _.get(selectedClinician, 'roles');
@@ -95,12 +95,13 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleConfirmDeleteDialog() {
-    console.log(
-      'deleteClinicianFromClinic',
-      selectedClinic,
-      selectedClinicianId
+    dispatch(
+      actions.async.deleteClinicianFromClinic(
+        api,
+        selectedClinic,
+        selectedClinicianId
+      )
     );
-    // TODO: dispatch(actions.async.deleteClinicianFromClinic(api,selectedClinic,selectedClinicianId))
     dispatch(push('/clinic-admin'));
   }
 
@@ -118,7 +119,14 @@ export const ClinicianEdit = (props) => {
     updatedRoles.push(selectedType);
     if (prescriberPermission) updatedRoles.push('PRESCRIBER');
     updatedClinician.roles = updatedRoles;
-    dispatch(actions.async.updateClinician(api, selectedClinic, updatedClinician.id, updatedClinician));
+    dispatch(
+      actions.async.updateClinician(
+        api,
+        selectedClinic,
+        updatedClinician.id,
+        updatedClinician
+      )
+    );
     dispatch(push('/clinic-admin'));
   }
 
@@ -164,7 +172,11 @@ export const ClinicianEdit = (props) => {
           <Text fontWeight="medium">{fullName}</Text>
           <Text>{_.get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
         </Box>
-        <Text color="feedback.danger" sx={{ cursor: 'pointer' }} onClick={() => handleClickDelete()}>
+        <Text
+          color="feedback.danger"
+          sx={{ cursor: 'pointer' }}
+          onClick={() => handleClickDelete()}
+        >
           Remove User
         </Text>
       </Flex>
