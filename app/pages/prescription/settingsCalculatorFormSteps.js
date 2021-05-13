@@ -196,6 +196,7 @@ const settingsCalculatorFormSteps = (schema, handlers, values ) => ({
   label: t('Therapy Settings Calculator'),
   optional: true,
   onSkip: handlers.clearCalculator,
+  onEnter: handlers.goToFirstSubStep,
   subSteps: [
     {
       disableComplete: isEmpty(get(values, stepValidationFields[2][0][0])) || !fieldsAreValid(stepValidationFields[2][0], schema, values),

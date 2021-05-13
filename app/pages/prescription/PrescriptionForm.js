@@ -350,6 +350,8 @@ export const PrescriptionForm = props => {
 
     generateTherapySettingsOrderText,
 
+    goToFirstSubStep: () => setActiveSubStep(0),
+
     handleCopyTherapySettingsClicked: () => {
       trackMetric('Clicked Copy Therapy Settings Order');
     },
