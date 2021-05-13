@@ -36,13 +36,18 @@ const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionCalculator');
 
 export const CalculatorMethod = translate()(props => {
-  const { t } = props;
+  const { t, onMethodChange } = props;
   const formikContext = useFormikContext();
   const initialFocusedInputRef = useInitialFocusedInput();
+  const method = get(formikContext.values, 'calculator.method', '');
 
-  const options = !isEmpty(get(formikContext.values, 'calculator.method', ''))
+  const options = !isEmpty(method)
     ? calculatorMethodOptions
     : [ { label: t('Select method'), value: '' }, ...calculatorMethodOptions ];
+
+  React.useEffect(() => {
+    onMethodChange();
+  }, [method]);
 
   return (
     <Box {...fieldsetStyles}>
@@ -201,7 +206,10 @@ const settingsCalculatorFormSteps = (schema, handlers, values ) => ({
     {
       disableComplete: isEmpty(get(values, stepValidationFields[2][0][0])) || !fieldsAreValid(stepValidationFields[2][0], schema, values),
       onComplete: () => log('Calculator Method Complete'),
-      panelContent: <CalculatorMethod />
+      panelContent: <CalculatorMethod onMethodChange={() => {
+        handlers.clearCalculatorInputs();
+        handlers.clearCalculatorResults();
+      }} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[2][1], schema, values),
