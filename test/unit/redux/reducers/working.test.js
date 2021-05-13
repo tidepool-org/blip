@@ -4713,7 +4713,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('updateClinician', () => {
     describe('request', () => {
-      it('should leave updatingClinician.completed unchanged', () => {
+      it('should set updatingClinician.completed to null', () => {
         expect(initialState.updatingClinician.completed).to.be.null;
 
         let requestAction = actions.sync.updateClinicianRequest();
@@ -4727,7 +4727,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.updatingClinician.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.updatingClinician.completed).to.be.true;
+        expect(state.updatingClinician.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -4811,7 +4811,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('deleteClinicianFromClinic', () => {
     describe('request', () => {
-      it('should leave deletingClinicianFromClinic.completed unchanged', () => {
+      it('should set deletingClinicianFromClinic.completed to null', () => {
         expect(initialState.deletingClinicianFromClinic.completed).to.be.null;
 
         let requestAction = actions.sync.deleteClinicianFromClinicRequest();
@@ -4825,7 +4825,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.deletingClinicianFromClinic.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.deletingClinicianFromClinic.completed).to.be.true;
+        expect(state.deletingClinicianFromClinic.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -5007,7 +5007,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('createCustodialAccount', () => {
     describe('request', () => {
-      it('should leave creatingCustodialAccount.completed unchanged', () => {
+      it('should set creatingCustodialAccount.completed to null', () => {
         expect(initialState.creatingCustodialAccount.completed).to.be.null;
 
         let requestAction = actions.sync.createCustodialAccountRequest();
@@ -5021,7 +5021,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.creatingCustodialAccount.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.creatingCustodialAccount.completed).to.be.true;
+        expect(state.creatingCustodialAccount.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -5301,7 +5301,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('sendClinicianInvite', () => {
     describe('request', () => {
-      it('should leave sendingClinicianInvite.completed unchanged', () => {
+      it('should set sendingClinicianInvite.completed to null', () => {
         expect(initialState.sendingClinicianInvite.completed).to.be.null;
 
         let requestAction = actions.sync.sendClinicianInviteRequest();
@@ -5315,7 +5315,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.sendingClinicianInvite.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.sendingClinicianInvite.completed).to.be.true;
+        expect(state.sendingClinicianInvite.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -5497,7 +5497,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('deleteClinicianInvite', () => {
     describe('request', () => {
-      it('should leave deletingClinicianInvite.completed unchanged', () => {
+      it('should set deletingClinicianInvite.completed to null', () => {
         expect(initialState.deletingClinicianInvite.completed).to.be.null;
 
         let requestAction = actions.sync.deleteClinicianInviteRequest();
@@ -5511,7 +5511,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.deletingClinicianInvite.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.deletingClinicianInvite.completed).to.be.true;
+        expect(state.deletingClinicianInvite.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -5693,7 +5693,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('acceptPatientInvitation', () => {
     describe('request', () => {
-      it('should leave acceptingPatientInvitation.completed unchanged', () => {
+      it('should set acceptingPatientInvitation.completed to null', () => {
         expect(initialState.acceptingPatientInvitation.completed).to.be.null;
 
         let requestAction = actions.sync.acceptPatientInvitationRequest();
@@ -5707,7 +5707,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.acceptingPatientInvitation.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.acceptingPatientInvitation.completed).to.be.true;
+        expect(state.acceptingPatientInvitation.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -6085,7 +6085,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('acceptClinicianInvite', () => {
     describe('request', () => {
-      it('should leave acceptingClinicianInvite.completed unchanged', () => {
+      it('should set acceptingClinicianInvite.completed to null', () => {
         expect(initialState.acceptingClinicianInvite.completed).to.be.null;
 
         let requestAction = actions.sync.acceptClinicianInviteRequest();
@@ -6099,7 +6099,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.acceptingClinicianInvite.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.acceptingClinicianInvite.completed).to.be.true;
+        expect(state.acceptingClinicianInvite.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -6183,7 +6183,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('dismissClinicianInvite', () => {
     describe('request', () => {
-      it('should leave dismissingClinicianInvite.completed unchanged', () => {
+      it('should set dismissingClinicianInvite.completed to null', () => {
         expect(initialState.dismissingClinicianInvite.completed).to.be.null;
 
         let requestAction = actions.sync.dismissClinicianInviteRequest();
@@ -6197,7 +6197,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.dismissingClinicianInvite.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.dismissingClinicianInvite.completed).to.be.true;
+        expect(state.dismissingClinicianInvite.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 

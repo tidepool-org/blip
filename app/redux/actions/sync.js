@@ -1236,12 +1236,12 @@ export function updateClinicRequest() {
   };
 }
 
-export function updateClinicSuccess(clinicId, updates) {
+export function updateClinicSuccess(clinicId, clinic) {
   return {
     type: ActionTypes.UPDATE_CLINIC_SUCCESS,
     payload: {
       clinicId,
-      updates
+      clinic
     },
   };
 }
@@ -1287,11 +1287,12 @@ export function fetchClinicianRequest() {
   };
 }
 
-export function fetchClinicianSuccess(clinician) {
+export function fetchClinicianSuccess(clinician, clinicId) {
   return {
     type: ActionTypes.FETCH_CLINICIAN_SUCCESS,
     payload: {
-      clinician: clinician,
+      clinician,
+      clinicId
     },
   };
 }
@@ -1469,11 +1470,12 @@ export function sendClinicianInviteRequest() {
   };
 }
 
-export function sendClinicianInviteSuccess(clinician) {
+export function sendClinicianInviteSuccess(clinician, clinicId) {
   return {
     type: ActionTypes.SEND_CLINICIAN_INVITE_SUCCESS,
     payload: {
       clinician,
+      clinicId
     },
   };
 }
@@ -1519,11 +1521,13 @@ export function deleteClinicianInviteRequest() {
   };
 }
 
-export function deleteClinicianInviteSuccess(result) {
+export function deleteClinicianInviteSuccess(clinicId, inviteId, result) {
   return {
     type: ActionTypes.DELETE_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      clinicId,
+      inviteId,
+      result,
     },
   };
 }

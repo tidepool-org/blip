@@ -713,7 +713,7 @@ describe('Actions', () => {
             get: sinon.stub().callsArgWith(1, null, patient)
           },
           clinics: {
-            getAll: sinon.stub().callsArgWith(1, null, clinics)
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics)
           },
         };
 
@@ -721,8 +721,8 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
-          { type: 'GET_CLINICS_REQUEST' },
-          { type: 'GET_CLINICS_SUCCESS', payload: { clinics, options: { clinicianId: user.userid } }},
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics }},
           { type: 'LOGIN_SUCCESS', payload: { user } },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/clinic-details' ] } }
         ];
@@ -763,7 +763,7 @@ describe('Actions', () => {
             get: sinon.stub().callsArgWith(1, null, patient)
           },
           clinics: {
-            getAll: sinon.stub().callsArgWith(1, null, clinics)
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics)
           },
         };
 
@@ -771,8 +771,8 @@ describe('Actions', () => {
           { type: 'LOGIN_REQUEST' },
           { type: 'FETCH_USER_REQUEST' },
           { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
-          { type: 'GET_CLINICS_REQUEST' },
-          { type: 'GET_CLINICS_SUCCESS', payload: { clinics, options: { clinicianId: user.userid } }},
+          { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+          { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinics }},
           { type: 'LOGIN_SUCCESS', payload: { user } },
           { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: ['/patients?justLoggedIn=true'] } }
         ];
@@ -4174,7 +4174,15 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_CLINIC_REQUEST' },
-          { type: 'UPDATE_CLINIC_SUCCESS', payload: {clinicId: '5f85fbe6686e6bb9170ab5d0', updates: {name: 'newName'} } }
+          {
+            type: 'UPDATE_CLINIC_SUCCESS',
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              clinic: {
+                name: 'newName'
+              }
+            }
+          }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -4304,7 +4312,13 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_CLINICIAN_REQUEST' },
-          { type: 'FETCH_CLINICIAN_SUCCESS', payload: { clinician : clinician } }
+          {
+            type: 'FETCH_CLINICIAN_SUCCESS',
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              clinician: clinician
+            }
+          }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -4740,6 +4754,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
           { type: 'SEND_CLINICIAN_INVITE_SUCCESS', payload: {
+            clinicId,
             clinician
           } }
         ];
@@ -4863,6 +4878,8 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'DELETE_CLINICIAN_INVITE_REQUEST' },
           { type: 'DELETE_CLINICIAN_INVITE_SUCCESS', payload: {
+            clinicId,
+            inviteId,
             result:{},
           } }
         ];

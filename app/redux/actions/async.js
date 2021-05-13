@@ -235,14 +235,14 @@ export function login(api, credentials, options, postLoginAction) {
               redirectRoute = '/clinician-details';
             }
             if (isClinic && config.CLINICS_ENABLED) {
-              dispatch(sync.getClinicsRequest());
-              api.clinics.getAll({clinicianId:user.userid}, (err, clinics) => {
+              dispatch(sync.getClinicsForClinicianRequest());
+              api.clinics.getClinicsForClinician(user.userid, {}, (err, clinics) => {
                 if (err) {
                   dispatch(sync.loginFailure(
                     createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
                   ));
                 } else {
-                  dispatch(sync.getClinicsSuccess(clinics, {clinicianId:user.userid}));
+                  dispatch(sync.getClinicsForClinicianSuccess(clinics));
                   if(_.isEmpty(clinics)) {
                     redirectRoute = '/clinic-details';
                   }
@@ -1706,31 +1706,31 @@ export function fetchClinic(api, clinicId) {
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {Object} updates
- * @param {String} [updates.name] - Clinic name
- * @param {String} [updates.address] - Clinic address
- * @param {String} [updates.city] - Clinic city
- * @param {String} [updates.postalCode] - Clinic Zip code
- * @param {String} [updates.state] - Clinic state
- * @param {String} [updates.country] - Clinic 2-character country code
- * @param {Object[]} [updates.phoneNumbers] - Array of phone number objects for the clinic
- * @param {String} [updates.phoneNumbers[].type] - Phone number description
- * @param {String} [updates.phoneNumbers[].number] - Phone number
- * @param {String} [updates.clinicType] - Clinic type
- * @param {Number} [updates.clinicSize] - Int Lower bound for clinic size
- * @param {String} updates.email - Primary email address for clinic
+ * @param {Object} clinic
+ * @param {String} [clinic.name] - Clinic name
+ * @param {String} [clinic.address] - Clinic address
+ * @param {String} [clinic.city] - Clinic city
+ * @param {String} [clinic.postalCode] - Clinic Zip code
+ * @param {String} [clinic.state] - Clinic state
+ * @param {String} [clinic.country] - Clinic 2-character country code
+ * @param {Object[]} [clinic.phoneNumbers] - Array of phone number objects for the clinic
+ * @param {String} [clinic.phoneNumbers[].type] - Phone number description
+ * @param {String} [clinic.phoneNumbers[].number] - Phone number
+ * @param {String} [clinic.clinicType] - Clinic type
+ * @param {Number} [clinic.clinicSize] - Int Lower bound for clinic size
+ * @param {String} clinic.email - Primary email address for clinic
  */
-export function updateClinic(api, clinicId, updates) {
+export function updateClinic(api, clinicId, clinic) {
   return (dispatch) => {
     dispatch(sync.updateClinicRequest());
 
-    api.clinics.update(clinicId, updates, (err) => {
+    api.clinics.update(clinicId, clinic, (err) => {
       if (err) {
         dispatch(sync.updateClinicFailure(
           createActionError(ErrorMessages.ERR_UPDATING_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.updateClinicSuccess(clinicId, updates));
+        dispatch(sync.updateClinicSuccess(clinicId, clinic));
       }
     });
   };
@@ -1780,7 +1780,7 @@ export function fetchClinician(api, clinicId, clinicianId) {
           createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN, err), err
         ));
       } else {
-        dispatch(sync.fetchClinicianSuccess(clinician));
+        dispatch(sync.fetchClinicianSuccess(clinician, clinicId));
       }
     });
   };
@@ -1962,7 +1962,7 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
           createActionError(ErrorMessages.ERR_SENDING_CLINICIAN_INVITE, err), err
         ));
       } else {
-        dispatch(sync.sendClinicianInviteSuccess(clinician));
+        dispatch(sync.sendClinicianInviteSuccess(clinician, clinicId));
       }
     });
   };
@@ -2008,7 +2008,7 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
           createActionError(ErrorMessages.ERR_DELETING_CLINICIAN_INVITE, err), err
         ));
       } else {
-        dispatch(sync.deleteClinicianInviteSuccess(result));
+        dispatch(sync.deleteClinicianInviteSuccess(clinicId, inviteId, result));
       }
     });
   };

@@ -137,6 +137,14 @@ export default (state = initialWorkingState, action) => {
         } else if (_.includes([
           types.CREATE_PRESCRIPTION_REQUEST,
           types.CREATE_PRESCRIPTION_REVISION_REQUEST,
+          types.UPDATE_CLINICIAN_REQUEST,
+          types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
+          types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
+          types.SEND_CLINICIAN_INVITE_REQUEST,
+          types.DELETE_CLINICIAN_INVITE_REQUEST,
+          types.ACCEPT_PATIENT_INVITATION_REQUEST,
+          types.ACCEPT_CLINICIAN_INVITE_REQUEST,
+          types.DISMISS_CLINICIAN_INVITE_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
