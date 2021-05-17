@@ -154,6 +154,14 @@ function Login(props: RouteComponentProps): JSX.Element {
     }
   };
 
+  const onValidateLogin = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClickLoginButton();
+    }
+  };
+
   return (
     <Container maxWidth="sm">
       <Grid container spacing={0} alignItems="center" justify="center">
@@ -196,6 +204,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                   required
                   error={validateError && emptyUsername}
                   onChange={onUsernameChange}
+                  onKeyPress={onValidateLogin}
                 />
                 <TextField
                   id="login-password"
@@ -208,6 +217,7 @@ function Login(props: RouteComponentProps): JSX.Element {
                   required
                   error={validateError && (emptyPassword || helperTextValue.length > 0)}
                   onChange={onPasswordChange}
+                  onKeyPress={onValidateLogin}
                   helperText={helperTextValue}
                   InputProps={{
                     endAdornment: (
