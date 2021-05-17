@@ -46,7 +46,7 @@ export const ClinicAdmin = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Web - Clinic Admin');
+      trackMetric('Clinic - View clinician list');
     }
   }, []);
 
@@ -254,6 +254,7 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleDelete(selectedClinicianId) {
+    trackMetric('Clinic - Remove clinician');
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
@@ -264,12 +265,14 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleResendInvite(inviteId) {
+    trackMetric('Clinic - Resend clinician invite');
     dispatch(
       actions.async.resendClinicianInvite(api, selectedClinic, inviteId)
     );
   }
 
   function handleDeleteInvite(inviteId) {
+    trackMetric('Clinic - Delete clinician invite');
     dispatch(
       actions.async.deleteClinicianInvite(api, selectedClinic, inviteId)
     );

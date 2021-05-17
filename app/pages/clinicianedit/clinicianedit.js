@@ -64,7 +64,7 @@ export const ClinicianEdit = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Web - Clinician Edit');
+      trackMetric('Clinic - Clinician Edit');
     }
   }, []);
 
@@ -119,6 +119,7 @@ export const ClinicianEdit = (props) => {
     updatedRoles.push(selectedType);
     if (prescriberPermission) updatedRoles.push('PRESCRIBER');
     updatedClinician.roles = updatedRoles;
+    trackMetric('Clinic - Edit clinician');
     dispatch(
       actions.async.updateClinician(
         api,

@@ -40,7 +40,7 @@ export const ClinicInvite = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Web - Clinic Invite');
+      trackMetric('Clinic - Clinic Invite');
     }
   }, []);
 
@@ -74,13 +74,18 @@ export const ClinicInvite = (props) => {
 
   function handleSubmit() {
     const roles = [selectedType];
-    if(prescriberPermission) { roles.push('PRESCRIBER') }
+    let metricProperties = {role: selectedType};
+    if(prescriberPermission) {
+      roles.push('PRESCRIBER');
+      metricProperties.access = 'PRESCRIBER';
+    }
     console.log(
       'handleSubmit',
       selectedClinic,
       {email, roles}
     );
     dispatch(actions.async.sendClinicianInvite(api, selectedClinic, {email, roles}))
+    trackMetric('Clinic - Invite clinician', metricProperties)
     dispatch(push('/clinic-admin'));
   }
 

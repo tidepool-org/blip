@@ -110,7 +110,7 @@ export const ClinicDetails = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Web - Clinic Details Setup');
+      trackMetric('Clinic - Clinic Details Setup');
     }
   }, []);
 
@@ -172,6 +172,7 @@ export const ClinicDetails = (props) => {
             profileUpdates.clinic.npi = values.npi;
           }
           dispatch(actions.async.updateUser(api, profileUpdates));
+          trackMetric('Clinic - Account created');
           dispatch(actions.async.createClinic(api, newClinic));
         }}
       >
