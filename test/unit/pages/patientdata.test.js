@@ -1873,6 +1873,19 @@ describe('PatientData', function () {
         ]);
       });
 
+      it('should add appropriate stats when automated basal device is detected', () => {
+        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
+        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
+        expect(instance.getStatsByChartType()).to.eql([
+          'readingsInRange',
+          'averageGlucose',
+          'timeInAuto',
+          'standardDev',
+          'coefficientOfVariation',
+          'bgExtents',
+        ]);
+      });
+
       it('should add appropriate stats when settings-overridable device is detected', () => {
         wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
         wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
@@ -2291,7 +2304,8 @@ describe('PatientData', function () {
                 select: 'id,deviceId,deviceTags',
               },
             },
-            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
+            metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+            excludedDevices: undefined,
             timePrefs: sinon.match.object,
             bgPrefs: sinon.match.object,
           });
@@ -2683,7 +2697,7 @@ describe('PatientData', function () {
 
     it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,excludedDevices' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
