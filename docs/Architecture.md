@@ -81,4 +81,3 @@ Although blip and the uploader share some architectural features in common such 
 
 - client-side routing, since the uploader does not (currently) use a router
 - styles, since the uploader uses [CSS modules](http://developer.tidepool.io/chrome-uploader/docs/misc/CSSModules.html 'Tidepool developer docs: CSS modules in the chrome-uploader') and blip's uses class-prefixing to define local styles
-- different approaches to wrapping [platform-client](https://github.com/tidepool-org/platform-client 'GitHub: platform-client') in an `api.js` utility

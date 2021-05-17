@@ -90,7 +90,7 @@ const babelLoaderConfiguration = [
   {
     test: /\.js$/,
     exclude: function(modulePath) {
-      return /node_modules/.test(modulePath) && !/(tideline|tidepool-platform-client|tidepool-viz)/.test(modulePath);
+      return /node_modules/.test(modulePath) && !/(tideline|tidepool-viz)/.test(modulePath);
     },
     use: {
       loader: 'babel-loader',

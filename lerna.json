@@ -5,7 +5,6 @@
   },
   "packages": [
     "packages/sundial",
-    "packages/platform-client",
     "packages/tideline",
     "packages/viz",
     "packages/blip",
