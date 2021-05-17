@@ -1161,7 +1161,7 @@ export function createPrescriptionRevision(api, revision, prescriptionId) {
  */
 export function deletePrescription(api, prescriptionId) {
   return (dispatch) => {
-    dispatch(sync.deletePrescriptionRequest());
+    dispatch(sync.deletePrescriptionRequest(prescriptionId));
 
     api.prescription.delete(prescriptionId, (err) => {
       if (err) {

@@ -6,7 +6,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { Box, BoxProps } from 'rebass/styled-components';
+import { Box, Text, BoxProps } from 'rebass/styled-components';
 import Pagination from './Pagination';
 import map from 'lodash/map';
 import get from 'lodash/get';
@@ -17,6 +17,9 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import isFunction from 'lodash/isFunction';
 import styled from 'styled-components';
+
+import i18next from '../../core/language';
+const t = i18next.t.bind(i18next);
 
 function descendingComparator(a, b, orderBy) {
   const compA = get(a, orderBy);
@@ -76,12 +79,17 @@ const StyledTable = styled(Base)`
   .MuiTableSortLabel-root {
     color: inherit;
   }
+
+  .MuiTableRow-root {
+    cursor: ${props => (isFunction(props.onClickRow) ? 'pointer' : 'auto')}
+  }
 `;
 
 export const Table = props => {
   const {
     columns,
     data,
+    emptyText,
     id,
     label,
     onFilter,
@@ -98,10 +106,6 @@ export const Table = props => {
   const [orderBy, setOrderBy] = useState(props.orderBy || columns[0].field);
   const [page, setPage] = React.useState(1);
 
-  useEffect(() => {
-    setPage(1);
-  }, [searchText]);
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -114,6 +118,10 @@ export const Table = props => {
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleRowClick = (event, datum) => {
+    if (isFunction(tableProps.onClickRow)) tableProps.onClickRow(datum);
   };
 
   const sortedData = stableSort(data, getComparator(order, orderBy));
@@ -133,6 +141,10 @@ export const Table = props => {
   const pagedData = rowsPerPage && rowsPerPage < filteredData.length
     ? filteredData.slice(pageIndex * rowsPerPage, pageIndex * rowsPerPage + rowsPerPage)
     : filteredData;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchText, filteredData.length, rowsPerPage]);
 
   return (
     <>
@@ -169,6 +181,7 @@ export const Table = props => {
               id={`${id}-row-${rowIndex}`}
               key={`${id}-row-${rowIndex}`}
               hover={rowHover}
+              onClick={e => handleRowClick(e, d)}
             >
               {map(columns, (col, index) => (
                 <TableCell
@@ -187,6 +200,9 @@ export const Table = props => {
           ))}
         </TableBody>
       </Box>
+
+      {pagedData.length === 0 && emptyText && <Text p={3} fontSize={1} color="text.primary" textAlign="center">{emptyText}</Text>}
+
       {pagination && <Pagination
         id={`${id}-pagination`}
         page={page}
@@ -218,8 +234,10 @@ Table.propTypes = {
     padding: PropTypes.string,
   })).isRequired,
   data: PropTypes.array.isRequired,
+  emptyText: PropTypes.string,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
+  onClickRow: PropTypes.func,
   onFilter: PropTypes.func,
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
@@ -233,6 +251,7 @@ Table.propTypes = {
 };
 
 Table.defaultProps = {
+  emptyText: t('There are no results to show.'),
   order: 'asc',
   rowHover: true,
   variant: 'default',

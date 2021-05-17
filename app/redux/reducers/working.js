@@ -119,6 +119,17 @@ export default (state = initialWorkingState, action) => {
               }
             }
           });
+        } else if (action.type === types.DELETE_PRESCRIPTION_REQUEST) {
+          return update(state, {
+            [key]: {
+              $set: {
+                inProgress: true,
+                notification: null,
+                completed: null, // For these types we don't persist the completed state
+                prescriptionId: _.get(action, ['payload', 'prescriptionId']),
+              }
+            }
+          });
         } else if (_.includes([
           types.CREATE_PRESCRIPTION_REQUEST,
           types.CREATE_PRESCRIPTION_REVISION_REQUEST,
@@ -129,6 +140,7 @@ export default (state = initialWorkingState, action) => {
                 inProgress: true,
                 notification: null,
                 completed: null, // For these types we don't persist the completed state
+                prescriptionId: _.get(action, ['payload', 'prescription', 'id']),
               }
             }
           });
