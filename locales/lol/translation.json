@@ -681,6 +681,8 @@
   "Values": "crwdns46752:0crwdne46752:0",
   "View data for:": "crwdns46754:0crwdne46754:0",
   "View": "crwdns46756:0crwdne46756:0",
+  "sensor-warmup": "crwdns53626:0crwdne53626:0",
+  "sensor-warmup-session-end": "crwdns53628:0crwdne53628:0",
   "Waiting for confirmation": "crwdns46758:0crwdne46758:0",
   "Waiting to import data": "crwdns46760:0crwdne46760:0",
   "We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but {{source}} did not directly provide us with these rate changes.": "crwdns46762:0{{source}}crwdne46762:0",
