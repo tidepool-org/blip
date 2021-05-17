@@ -33,23 +33,33 @@ import moment from "moment-timezone";
 import { initReactI18next } from "react-i18next";
 
 import locales from "../../../locales/languages.json";
-import { Preferences } from "../models/shoreline";
-import { Country } from "../models/country";
+import { Country, LanguageCodes } from "../models/locales";
 import getLocale from "./browser-locale";
 import { zendeskLocale } from "./zendesk";
 
 const log = bows('i18n');
 
+const availableLanguagesNames = _.map(locales.resources, ({ name }) => name);
+const availableLanguageCodes = _.keys(locales.resources) as LanguageCodes[];
+const availableCountries: Country[] = _.map(locales.countries, (item, key) => {
+  return { code: key, name: item.name } as Country;
+});
+
+let language: LanguageCodes = "en";
+
 async function init(): Promise<void> {
-  log.info('Initializing...');
   const crowdinActive = typeof window._jipt === "object";
 
-  let language = getLocale();
-  if (self.localStorage && self.localStorage.lang) {
-    language = self.localStorage.lang;
-    zendeskLocale(language);
+  language = (localStorage.getItem("lang") ?? getLocale()) as LanguageCodes;
+
+  // Verification to be sure we have the language:
+  if (!availableLanguageCodes.includes(language)) {
+    language = "en";
   }
 
+  log.info(`Initializing with language ${language}...`);
+
+  zendeskLocale(language);
   moment.locale(language);
 
   const i18nOptions: InitOptions = {
@@ -89,22 +99,18 @@ async function init(): Promise<void> {
   i18n.use(initReactI18next);
 
   // Update moment with the right language, for date display
-  i18n.on("languageChanged", (lng: string) => {
+  i18n.on("languageChanged", (lng: LanguageCodes) => {
     // FIXME Only perform the update when the locale really changed.
     // For some reason, it is call a lots of times
-    if (typeof lng === "string" && language !== lng) {
-      log.debug('languageChanged', lng);
+    if (typeof lng === "string" && language !== lng && availableLanguageCodes.includes(lng)) {
+      log.debug(`languageChanged from ${language} to ${lng}`);
       language = lng;
 
-      // FIXME: Get currently use Crowdin language, when Crowdin is active.
-      moment.locale(lng);
-
+      // TODO: Get currently use Crowdin language, when Crowdin is active.
+      moment.locale(language);
       zendeskLocale(language);
-
       // Save locale for future load
-      if (self.localStorage) {
-        self.localStorage.lang = lng;
-      }
+      localStorage.setItem("lang", language);
     }
   });
 
@@ -123,25 +129,20 @@ function t(s: string, p?: TOptions | string): string {
   return i18n.t(`yourloops|${s}`, p);
 }
 
-const getCurrentLocaleName = (shortLocale: Preferences["displayLanguageCode"]): string => {
-  return shortLocale ? locales.resources[shortLocale]?.name : "";
+const changeLanguage = i18n.changeLanguage.bind(i18n);
+const getCurrentLang = (): LanguageCodes => language;
+const getLangName = (languageCode: LanguageCodes): string => {
+  return _.get(locales, `resources.${languageCode}.name`, "en");
 };
 
-const getLocaleShortname = (locale: string): Preferences["displayLanguageCode"] => {
-  let shortName = "";
-  _.forEach(locales.resources, ({ name }, key) => {
-    if (name === locale) {
-      shortName = key;
-    }
-  });
-
-  return shortName as Preferences["displayLanguageCode"];
+export {
+  init,
+  t,
+  changeLanguage,
+  getCurrentLang,
+  getLangName,
+  availableLanguagesNames,
+  availableLanguageCodes,
+  availableCountries,
 };
-
-const availableLocales = _.map(locales.resources, ({ name }) => name);
-const availableCountries: Country[] = _.map(locales.countries, (item, key) => {
-  return { code: key, name: item.name } as Country;
-});
-
-export { init, t, getCurrentLocaleName, getLocaleShortname, availableLocales, availableCountries };
 export default i18n;

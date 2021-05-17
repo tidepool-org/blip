@@ -16,19 +16,12 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
-import _ from 'lodash';
+import i18next from 'i18next';
 
 import styles from './NoData.css';
 
-import i18next from 'i18next';
 const t = i18next.t.bind(i18next);
-
-if (_.get(i18next, 'options.returnEmptyString') === undefined) {
-  // Return key if no translation is present
-  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
-}
 
 const NoData = (props) => {
   const {

@@ -25,6 +25,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+export type LanguageCodes = "en" | "de" | "es" | "fr" | "it" | "nl";
+
 export interface Country {
   code: string;
   name: string;

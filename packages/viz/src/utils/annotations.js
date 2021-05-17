@@ -38,17 +38,6 @@ import i18next from 'i18next';
 
 const t = i18next.t.bind(i18next);
 
-if (_.get(i18next, 'options.returnEmptyString') === undefined) {
-  // Return key if no translation is present
-  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
-}
-
-const medtronic600BGMessages = {
-  'medtronic600/smbg/user-accepted-remote-bg': t('Yes'),
-  'medtronic600/smbg/user-rejected-remote-bg': t('No'),
-  'medtronic600/smbg/remote-bg-acceptance-screen-timeout': t('Timed Out'),
-};
-
 const simpleAnnotationMessages = {
   'animas/bolus/extended-equal-split':
     t("* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts."),
@@ -86,7 +75,7 @@ export function getAnnotationCodes(datum) {
 export function getOutOfRangeAnnotationMessage(datum) {
   const annotations = getAnnotations(datum);
   const messages = [];
-  _.each(annotations, annotation => {
+  _.forEach(annotations, annotation => {
     if (_.get(annotation, 'code', '') === 'bg/out-of-range') {
       const value = annotation.value;
       let message;

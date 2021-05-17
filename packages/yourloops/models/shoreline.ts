@@ -27,6 +27,7 @@
  */
 
 import { Units } from "./generic";
+import { LanguageCodes } from "./locales";
 import { MedicalData } from "./device-data";
 
 enum UserRoles {
@@ -50,6 +51,12 @@ interface Consent {
   IsAccepted?: boolean;
 }
 
+interface Patient {
+  birthday?: string;
+  diagnosisDate?: string;
+  diagnosisType?: string;
+}
+
 interface Profile {
   fullName: string;
   firstName?: string;
@@ -58,12 +65,6 @@ interface Profile {
   job?: Jobs;
   termsOfUse?: Consent;
   privacyPolicy?: Consent;
-}
-
-interface Patient {
-  birthday?: string;
-  diagnosisDate?: string;
-  diagnosisType?: string;
 }
 
 interface Settings {
@@ -78,7 +79,7 @@ interface Settings {
 }
 
 interface Preferences {
-  displayLanguageCode?: "en" | "de" | "es" | "fr" | "it" | "nl";
+  displayLanguageCode?: LanguageCodes;
   patientsStarred?: string[];
 }
 

@@ -67,6 +67,7 @@ export const authHookHcp: AuthContext = {
   updateProfile: sinon.stub().resolves(authHcp.user.profile),
   updatePreferences: sinon.stub().resolves(authHcp.user.profile),
   updateSettings: sinon.stub().resolves(authHcp.user.profile),
+  updatePassword: sinon.stub().resolves(),
   signup: sinon.stub(),
   isLoggedIn: sinon.stub().returns(true),
   sendPasswordResetEmail: sinon.stub().returns(true),

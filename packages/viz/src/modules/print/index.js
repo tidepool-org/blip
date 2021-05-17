@@ -37,11 +37,6 @@ import siteChangeReservoirImage from './images/sitechange-reservoir.png';
 import siteChangeTubingImage from './images/sitechange-tubing.png';
 import siteChangeReservoirDiabeloopImage from './images/diabeloop/sitechange-diabeloop.png';
 
-if (_.get(i18next, 'options.returnEmptyString') === undefined) {
-  // Return key if no translation is present
-  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
-}
-
 const t = i18next.t.bind(i18next);
 
 // Exporting utils for easy stubbing in tests

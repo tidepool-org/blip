@@ -17,9 +17,6 @@
 
 import './styles/colors.css';
 
-import _ from 'lodash';
-import i18next from 'i18next';
-
 import CBGDateTraceLabel from './components/trends/cbg/CBGDateTraceLabel';
 import FocusedRangeLabels from './components/trends/common/FocusedRangeLabels';
 import FocusedSMBGPointLabel from './components/trends/smbg/FocusedSMBGPointLabel';
@@ -59,11 +56,6 @@ import {
 import DataUtil from './utils/data';
 import createPrintPDFPackage from './modules/print';
 import { selectDailyViewData, selectBgLogViewData } from './utils/print/data';
-
-if (_.get(i18next, 'options.returnEmptyString') === undefined) {
-  // Return key if no translation is present
-  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
-}
 
 const components = {
   CBGDateTraceLabel,

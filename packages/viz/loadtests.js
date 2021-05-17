@@ -1,5 +1,12 @@
-const enzyme = require('enzyme');
-const Adapter = require('enzyme-adapter-react-16');
+import _ from 'lodash';
+import i18next from 'i18next';
+import enzyme from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+
+if (_.get(i18next, 'options.returnEmptyString', true)) {
+  // Return key if no translation is present
+  i18next.init({ returnEmptyString: false, nsSeparator: '|' });
+}
 
 enzyme.configure({
   adapter: new Adapter(),

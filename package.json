@@ -44,7 +44,6 @@
     "blip": "file:packages/blip",
     "sundial": "file:packages/sundial",
     "tideline": "file:packages/tideline",
-    "tidepool-platform-client": "file:packages/platform-client",
     "tidepool-viz": "file:packages/viz",
     "yourloops": "file:packages/yourloops"
   },

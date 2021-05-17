@@ -35,6 +35,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
+import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
 import sendMetrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
 import { Session, AuthAPI, AuthContext, AuthProvider } from "./models";
@@ -59,6 +60,15 @@ const STORAGE_KEY_USER = "logged-in-user";
 const ReactAuthContext = React.createContext({} as AuthContext);
 const log = bows("AuthHook");
 
+const updateLanguageForUser = (user: User) => {
+  const userLanguage = user.preferences?.displayLanguageCode;
+  if (typeof userLanguage === "string" && availableLanguageCodes.includes(userLanguage) && userLanguage !== getCurrentLang()) {
+    log.info("Update language to user preferences", { userLanguage, currentLanguage: getCurrentLang() });
+    // Update the current UI language based on the user preferences
+    changeLanguage(userLanguage);
+  }
+};
+
 /**
  * Provider hook that creates auth object and handles state
  */
@@ -70,7 +80,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
   // JWT token as a string.
   const [sessionToken, setSessionToken] = React.useState<string | null>(null);
   // Current authenticated user
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUserPrivate] = React.useState<User | null>(null);
 
   // Get the current location path, needed to redirect on refresh the page
   const pathname = historyHook.location.pathname;
@@ -87,6 +97,35 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     return Promise.reject(new Error(t("not-logged-in")));
   };
 
+  /**
+   * Update hook users infos, perform zendesk & matomo login
+   * @param session sessionToken
+   * @param trace traceToken
+   * @param usr user
+   */
+  const setAuthInfos = React.useCallback((session: string, trace: string, usr: User): void => {
+    updateLanguageForUser(usr);
+    setUserPrivate(usr);
+    if (session !== sessionToken) {
+      setSessionToken(session);
+    }
+    if (trace !== traceToken) {
+      setTraceToken(trace);
+    }
+    zendeskLogin();
+    sendMetrics("setUserId", usr.userid);
+  }, [sessionToken, traceToken]);
+
+  /**
+   * - Update the hook user (no API call is performed with this function)
+   * - Update the storage
+   * @param u The user
+   */
+  const setUser = (u: User): void => {
+    setUserPrivate(u);
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u));
+  };
+
   // Wrap any methods we want to use making sure
   // to save the user to state.
   const login = async (username: string, password: string, key: string | null): Promise<User> => {
@@ -101,19 +140,20 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     const auth = await api.login(username, password, traceToken);
     const tokenInfos = jwtDecode<JwtShorelinePayload>(auth.sessionToken);
-    let user: User;
+    let loggedUser: User;
     if (!_.isString(tokenInfos.role)) {
       // old API support
       let role = _.get(auth.user, 'roles[0]', UserRoles.patient);
       if (role === "clinic") {
         role = UserRoles.caregiver;
       }
-      user = { ...auth.user, role };
+      loggedUser = { ...auth.user, role };
+      log.warn("User as a clinic role");
     } else if (tokenInfos.role === "clinic") {
       // TODO After BDD migration this check will be useless
-      user = { ...auth.user, role: UserRoles.caregiver };
+      loggedUser = { ...auth.user, role: UserRoles.caregiver };
     } else {
-      user = { ...auth.user, role: tokenInfos.role as UserRoles };
+      loggedUser = { ...auth.user, role: tokenInfos.role as UserRoles };
     }
 
     const expirationDate = tokenInfos.exp;
@@ -123,51 +163,58 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-    setUser(user);
-    setSessionToken(auth.sessionToken);
-    zendeskLogin();
-    sendMetrics("setUserId", auth.user.userid);
-    return user;
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(loggedUser));
+
+    setAuthInfos(auth.sessionToken, auth.traceToken, loggedUser);
+    return loggedUser;
   };
 
-  const updateProfile = async (roUser: Readonly<User>): Promise<Profile> => {
-    log.info("updateProfile", roUser.userid);
+  const updatePreferences = async (preferences: Preferences, refresh = true): Promise<Preferences> => {
     const authInfo = await getAuthInfos();
-    const profile = await api.updateProfile({ ...authInfo, user: roUser });
-    if (authInfo.user.userid === roUser.userid) {
-      const updatedUser = _.cloneDeep(authInfo.user);
-      updatedUser.profile = profile;
+    log.info("updatePreferences", authInfo.user.userid);
+    const updatedUser = _.cloneDeep(authInfo.user);
+    updatedUser.preferences = preferences;
+    const updatedPreferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
+    if (refresh) {
+      updatedUser.preferences = updatedPreferences;
       setUser(updatedUser);
-      sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
     }
-    return profile;
+    return updatedPreferences;
   };
 
-  const updatePreferences = async (roUser: Readonly<User>): Promise<Preferences> => {
-    log.info("updatePreferences", roUser.userid);
+  const updateProfile = async (profile: Profile, refresh = true): Promise<Profile> => {
     const authInfo = await getAuthInfos();
-    const preferences = await api.updatePreferences({ ...authInfo, user: roUser });
-    if (authInfo.user.userid === roUser.userid) {
-      const updatedUser = _.cloneDeep(authInfo.user);
-      updatedUser.preferences = preferences;
+    log.info("updateProfile", authInfo.user.userid);
+    const updatedUser = _.cloneDeep(authInfo.user);
+    updatedUser.profile = profile;
+    const updatedProfile = await api.updateProfile({ ...authInfo, user: updatedUser });
+    if (refresh) {
+      updatedUser.profile = updatedProfile;
       setUser(updatedUser);
-      sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
     }
-    return preferences;
+    return updatedProfile;
   };
 
-  const updateSettings = async (roUser: Readonly<User>): Promise<Settings> => {
-    log.info("updateSettings", roUser.userid);
+  const updateSettings = async (settings: Settings, refresh = true): Promise<Settings> => {
     const authInfo = await getAuthInfos();
-    const settings = await api.updateSettings({ ...authInfo, user: roUser });
-    if (authInfo.user.userid === roUser.userid) {
-      const updatedUser = _.cloneDeep(authInfo.user);
-      updatedUser.settings = settings;
+    log.info("updateSettings", authInfo.user.userid);
+    const updatedUser = _.cloneDeep(authInfo.user);
+    updatedUser.settings = settings;
+    const updatedSettings = await api.updateSettings({ ...authInfo, user: updatedUser });
+    if (refresh) {
+      updatedUser.settings = updatedSettings;
       setUser(updatedUser);
-      sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
     }
     return settings;
+  };
+
+  const updatePassword = async (currentPassword: string, password: string): Promise<void> => {
+    const authInfo = await getAuthInfos();
+    if (authInfo.user.role === UserRoles.patient) {
+      throw new Error("invalid-user-role");
+    }
+
+    return api.updateUser(authInfo, { currentPassword, password });
   };
 
   const signup = async (signup: SignUpFormState): Promise<void> => {
@@ -223,7 +270,6 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     }
     log.debug("starred", updatedUser.preferences.patientsStarred);
     updatedUser.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
 
@@ -237,7 +283,6 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     updatedUser.preferences.patientsStarred = userIds;
     log.debug("starred", updatedUser.preferences.patientsStarred);
     updatedUser.preferences = await api.updatePreferences({ ...authInfo, user: updatedUser });
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
 
@@ -260,7 +305,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     sendMetrics("resetUserId");
     zendeskLogout();
 
-    setUser(null);
+    setUserPrivate(null);
     setSessionToken(null);
     setTraceToken(null);
   };
@@ -297,7 +342,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     // Call first Update user as it is the most importat call
     // if it failed, for now we dont have compensation transaction that revert db change
-    await api.updateUser(authInfo, { role: UserRoles.hcp });
+    await api.updateUser(authInfo, { roles: [UserRoles.hcp] });
 
     // FIXME
     if (authInfo.user?.profile !== undefined) {
@@ -317,12 +362,14 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     // Refresh our data:
     const updatedUser: User = { ...authInfo.user, role: UserRoles.hcp };
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, newToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
-    setUser(updatedUser);
     setSessionToken(newToken);
+    setUser(updatedUser);
   };
 
   const initHook = () => {
+    log.info("init");
+
+    // TODO: Do not delete me yet
     // const onStorageChange = (ev: StorageEvent) => {
     //   log.debug("onStorageChange");
     //   if (ev.storageArea === sessionStorage) {
@@ -332,18 +379,15 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     //     setInitialized(false);
     //   }
     // };
-
-    const unmount = () => {
-      log.debug("TODO useEffect unmount");
-      // window.removeEventListener("storage", onStorageChange);
-    };
+    // const unmount = () => {
+    //   window.removeEventListener("storage", onStorageChange);
+    // };
 
     // Prevent to set two times the trace token, when we have found one in the storage.
     let initializedFromStorage = false;
 
     // Use traceToken to know if the API hook is initialized
     if (traceToken === null) {
-      log.info("init");
 
       const sessionTokenStored = sessionStorage.getItem(STORAGE_KEY_SESSION_TOKEN);
       const traceTokenStored = sessionStorage.getItem(STORAGE_KEY_TRACE_TOKEN);
@@ -372,13 +416,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
           log.info("Token expiration date:", new Date(decoded.exp * 1000).toISOString());
 
-          setSessionToken(sessionTokenStored);
-          setTraceToken(traceTokenStored);
-          setUser(currentUser);
-
           initializedFromStorage = true;
-
-          zendeskLogin();
+          setAuthInfos(sessionTokenStored, traceTokenStored, currentUser);
 
           if (pathname !== historyHook.location.pathname) {
             log.info("Reused session storage items, and redirect to", pathname);
@@ -401,10 +440,10 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       setTraceToken(uuidv4());
     }
 
-    return unmount;
+    // return unmount;
   };
 
-  React.useEffect(initHook, [historyHook, pathname, traceToken]);
+  React.useEffect(initHook, [historyHook, pathname, traceToken, setAuthInfos]);
 
   // Return the user object and auth methods
   return {
@@ -418,6 +457,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     updateProfile,
     updatePreferences,
     updateSettings,
+    updatePassword,
     logout,
     signup,
     isLoggedIn,

@@ -38,7 +38,7 @@ import appConfig from "../config";
 import { t } from "../language";
 import HttpStatus from "../http-status-codes";
 
-import { Session } from "./models";
+import { Session, UpdateUser } from "./models";
 
 const log = bows("Auth API");
 const failedLoginCounter = new Map<string, number>();
@@ -505,7 +505,7 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
   throw new Error(t(responseBody.reason));
 }
 
-async function updateUser(auth: Readonly<Session>, updates: Partial<User>): Promise<void> {
+async function updateUser(auth: Readonly<Session>, updates: UpdateUser): Promise<void> {
   const updateURL = new URL("/auth/user", appConfig.API_HOST);
 
   log.debug("updateUser:", updateURL.toString());

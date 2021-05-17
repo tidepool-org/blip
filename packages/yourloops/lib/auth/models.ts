@@ -36,6 +36,12 @@ export interface Session {
   traceToken: string;
 }
 
+export interface UpdateUser {
+  roles?: UserRoles[];
+  password?: string;
+  currentPassword?: string;
+}
+
 export interface AuthAPI {
   login: (username: string, password: string, traceToken: string) => Promise<Session>;
   requestPasswordReset: (username: string, traceToken: string, language?: string, info?: boolean) => Promise<boolean>;
@@ -46,7 +52,7 @@ export interface AuthAPI {
   updateProfile: (auth: Readonly<Session>) => Promise<Profile>;
   updatePreferences: (auth: Readonly<Session>) => Promise<Preferences>;
   updateSettings: (auth: Readonly<Session>) => Promise<Settings>;
-  updateUser: (auth: Readonly<Session>, updates: Partial<User>) => Promise<void>;
+  updateUser: (auth: Readonly<Session>, updates: UpdateUser) => Promise<void>;
   refreshToken: (auth: Readonly<Session>) => Promise<string>;
 }
 
@@ -59,12 +65,18 @@ export interface AuthContext {
   traceToken: string | null;
   initialized: () => boolean;
   session: () => Session | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  /** Change the hook user, and update the storage. No API change! */
+  setUser: (user: User) => void;
   login: (username: string, password: string, key: string | null) => Promise<User>;
   logout: () => void;
-  updateProfile: (user: Readonly<User>) => Promise<Profile>;
-  updatePreferences: (user: Readonly<User>) => Promise<Preferences>;
-  updateSettings: (user: Readonly<User>) => Promise<Settings>;
+  /** Update current user preferences */
+  updatePreferences: (preferences: Preferences, refresh?: boolean) => Promise<Preferences>;
+  /** Update current user profile */
+  updateProfile: (profile: Profile, refresh?: boolean) => Promise<Profile>;
+  /** Update current user settings */
+  updateSettings: (settings: Settings, refresh?: boolean) => Promise<Settings>;
+  /** Update current user password */
+  updatePassword: (currentPassword: string, password: string) => Promise<void>;
   signup: (signup: SignUpFormState) => Promise<void>;
   isLoggedIn: () => boolean;
   sendPasswordResetEmail: (username: string, language: string) => Promise<boolean>;

@@ -14,8 +14,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
+import bows from "bows";
 import moment from "moment-timezone";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -32,9 +33,10 @@ import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 
 import { Units } from "../../models/generic";
+import { LanguageCodes } from "../../models/locales";
 import { Preferences, Profile, UserRoles, Settings, User } from "../../models/shoreline";
-import { getCurrentLocaleName, getLocaleShortname, availableLocales } from "../../lib/language";
-import { REGEX_BIRTHDATE, REGEX_EMAIL, errorTextFromException } from "../../lib/utils";
+import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/language";
+import { REGEX_BIRTHDATE, errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
@@ -46,14 +48,20 @@ import SecondaryHeaderBar from "./secondary-bar";
 import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
 import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
 
+type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
+type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+type SelectChangeEvent = React.ChangeEvent<{ name?: string; value: unknown; }>;
+type HandleChange<E> = (event: E) => void;
+type CreateHandleChange<T, E> = (setState: SetState<T>) => HandleChange<E>;
+
 interface ProfilePageProps {
   defaultURL: string;
 }
 
 interface Errors {
   firstName: boolean;
-  name: boolean;
-  mail: boolean;
+  lastName: boolean;
+  currentPassword: boolean;
   password: boolean;
   passwordConfirmation: boolean;
   birthDate: boolean;
@@ -110,28 +118,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const log = bows("ProfilePage");
 const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const history = useHistory();
-  const { user, setUser, updatePreferences, updateProfile, updateSettings, switchRoleToHCP } = useAuth();
   const { openSnackbar, snackbarParams } = useSnackbar();
-
-  const [firstName, setFirstName] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [mail, setMail] = useState<string>("");
-  const [locale, setLocale] = useState<string>(
-    getCurrentLocaleName(i18n.language.split("-")[0] as Preferences["displayLanguageCode"])
-  );
-  const [password, setPassword] = useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
-  const [unit, setUnit] = useState<Units>(Units.gram);
-  const [birthDate, setBirthDate] = useState<string>("");
-  const [hbA1c, setHbA1c] = useState<Settings["a1c"] | null>(null);
-  const [hasProfileChanged, setHasProfileChanged] = useState<boolean>(false);
-  const [haveSettingsChanged, setHaveSettingsChanged] = useState<boolean>(false);
-  const [havePreferencesChanged, setHavePreferencesChanged] = useState<boolean>(false);
-  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(SwitchRoleToHcpSteps.none);
+  const { user, setUser, updatePreferences, updateProfile, updateSettings, updatePassword, switchRoleToHCP } = useAuth();
 
   if (user === null) {
     throw new Error("User must be looged-in");
@@ -139,61 +132,76 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
   const role = user.role;
 
-  const handleUserUpdate = useCallback(
-    (promises: Promise<unknown>[], newUser: User, callbacks: React.Dispatch<React.SetStateAction<boolean>>[]): void => {
-      Promise.all(promises)
-        .then(() => {
-          callbacks.forEach((callback) => callback(false));
-          setUser(newUser);
-          openSnackbar({ message: t("profile-updated"), severity: AlertSeverity.success });
-        })
-        .catch(() => openSnackbar({ message: t("profile-update-failed"), severity: AlertSeverity.error }));
-    },
-    [t, openSnackbar, setUser]
-  );
+  const [firstName, setFirstName] = useState<string>(getUserFirstName(user));
+  const [lastName, setLastName] = useState<string>(getUserLastName(user));
+  const [currentPassword, setCurrentPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
+  const [unit, setUnit] = useState<Units>(user.settings?.units?.bg ?? Units.gram);
+  const [birthDate, setBirthDate] = useState<string>(user.profile?.patient?.birthday ?? "");
+  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(SwitchRoleToHcpSteps.none);
+  const [lang, setLang] = useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
+
+  const browserTimezone = useMemo(() => new Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
   useEffect(() => {
-    if (user?.profile?.firstName) {
-      setFirstName(user.profile.firstName);
+    // To be sure we have the locale:
+    if (!availableLanguageCodes.includes(lang)) {
+      setLang(getCurrentLang());
     }
-    if (user?.profile?.lastName) {
-      setName(user.profile.lastName);
-    }
-    if (user?.emails && user.emails.length) {
-      setMail(user.emails[0]);
-    }
-    if (user?.settings?.units?.bg) {
-      setUnit(user?.settings?.units?.bg);
-    }
-    if (user?.settings?.a1c) {
-      setHbA1c({ date: moment.utc(user.settings.a1c.date).format("L"), value: user.settings.a1c.value });
-    }
-    if (user?.profile?.patient?.birthday) {
-      setBirthDate(user.profile.patient.birthday.split("T")[0]);
-    }
-  }, [user]);
+  }, [lang]);
 
-  const handleChange = (
-    setState: React.Dispatch<React.SetStateAction<string>>
-  ): ((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void) => (event) => setState(event.target.value);
+  useEffect(() => {
+    // ISO date format is required from the user: It's not a very user friendly format
+    // in all countries
+    // We should change it
+    if (role === UserRoles.patient && birthDate !== "") {
+      let birthday = birthDate;
+      if (birthday.length > 0 && birthday.indexOf("T") > 0) {
+        birthday = birthday.split("T")[0];
+      }
+      if (REGEX_BIRTHDATE.test(birthday)) {
+        setBirthDate(birthday);
+      } else {
+        setBirthDate("");
+      }
+    }
+    // No deps here, because we want the effect only when the component is mounting
+    // If we set the deps, the patient won't be able to change it's birthday.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleLocaleChange = (
-    event: React.ChangeEvent<{
-      name?: string | undefined;
-      value: string | unknown;
-    }>
-  ): void => {
-    setLocale(event.target.value as string);
+  const getUpdatedPreferences = (): Preferences => {
+    const updatedPreferences = _.cloneDeep(user.preferences ?? {}) as Preferences;
+    updatedPreferences.displayLanguageCode = lang;
+    return updatedPreferences;
   };
 
-  const handleUnitChange = (
-    event: React.ChangeEvent<{
-      name?: string | undefined;
-      value: string | unknown;
-    }>
-  ): void => {
-    setUnit(event.target.value as Units);
+  const getUpdatedProfile = (): Profile => {
+    const updatedProfile = _.cloneDeep(user.profile ?? {}) as Profile;
+    updatedProfile.firstName = firstName;
+    updatedProfile.lastName = lastName;
+    updatedProfile.fullName = `${firstName} ${lastName}`;
+
+    if (user.role === UserRoles.patient) {
+      _.set(updatedProfile, "patient.birthday", birthDate);
+    }
+
+    return updatedProfile;
   };
+
+  const getUpdatedSettings = (): Settings => {
+    const updatedSettings = _.cloneDeep(user.settings ?? {}) as Settings;
+    _.set(updatedSettings, "units.bg", unit);
+    return updatedSettings;
+  };
+
+  const preferencesChanged = !_.isEqual(user.preferences, getUpdatedPreferences());
+  const profileChanged = !_.isEqual(user.profile, getUpdatedProfile());
+  const settingsChanged = !_.isEqual(user.settings, getUpdatedSettings());
+  const passwordChanged = password !== "" || passwordConfirmation !== "";
+
+  const createHandleTextChange: CreateHandleChange<string, TextChangeEvent> = (setState) => (event) => setState(event.target.value);
+  const createHandleSelectChange = <T extends Units | LanguageCodes>(setState: SetState<T>): HandleChange<SelectChangeEvent> => (event) => setState(event.target.value as T);
 
   const handleSwitchRoleToConsequences = () => {
     sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consequences });
@@ -239,105 +247,151 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const errors: Errors = useMemo(
     () => ({
       firstName: _.isEmpty(firstName),
-      name: _.isEmpty(name),
-      mail: !REGEX_EMAIL.test(mail),
-      // eslint-disable-next-line no-magic-numbers
+      lastName: _.isEmpty(lastName),
+      currentPassword: password.length > 0 && currentPassword.length < appConfig.PWD_MIN_LENGTH,
       password: password.length > 0 && password.length < appConfig.PWD_MIN_LENGTH,
       passwordConfirmation: passwordConfirmation !== password,
       birthDate: role === UserRoles.patient && !REGEX_BIRTHDATE.test(birthDate),
     }),
-    [firstName, name, mail, password, passwordConfirmation, birthDate, role]
+    [firstName, lastName, currentPassword, password, passwordConfirmation, birthDate, role]
   );
 
-  const isAnyError: boolean = useMemo(() => _.some(errors), [errors]);
+  const isAnyError = useMemo(() => _.some(errors), [errors]);
+  const canSave = (preferencesChanged || profileChanged || settingsChanged || passwordChanged) && !isAnyError;
 
-  useEffect(() => {
-    if (user) {
-      const newSettings: Settings = {
-        ...user.settings,
-        units: { bg: unit },
-      };
-      setHaveSettingsChanged(!_.isEqual(user.settings, newSettings));
+  const onSave = async (): Promise<void> => {
+    let preferences: Preferences | null = null;
+    let profile: Profile | null = null;
+    let settings: Settings | null = null;
+    let updateFailed = false;
+    /** Set to true if we need to update the user only (no change needed for the password) */
+    let updated = false;
 
-      const newPreferences: Preferences = { ...user.preferences, displayLanguageCode: getLocaleShortname(locale) };
-      setHavePreferencesChanged(!_.isEqual(user.preferences, newPreferences));
+    try {
+      if (preferencesChanged) {
+        preferences = await updatePreferences(getUpdatedPreferences(), false);
+        updated = true;
+      }
+      if (profileChanged) {
+        profile = await updateProfile(getUpdatedProfile(), false);
+        updated = true;
+      }
+      if (settingsChanged) {
+        settings = await updateSettings(getUpdatedSettings(), false);
+        updated = true;
+      }
+      if (role !== UserRoles.patient && passwordChanged) {
+        await updatePassword(currentPassword, password);
+      }
+    } catch (err) {
+      log.error("Updating:", err);
+      updateFailed = true;
+    }
 
-      const newProfile: Profile = {
-        ...user.profile,
-        fullName: firstName + " " + name,
-        firstName,
-        lastName: name,
-        patient: { birthday: birthDate }
-      };
-      setHasProfileChanged(!_.isEqual(user.profile, newProfile));
+    if (updated) {
+      const updatedUser = _.cloneDeep(user) as User;
+      if (preferences) {
+        updatedUser.preferences = preferences;
+      }
+      if (profile) {
+        updatedUser.profile = profile;
+      }
+      if (settings) {
+        updatedUser.settings = settings;
+      }
+
+      setUser(updatedUser);
+    }
+
+    if (passwordChanged) {
+      setCurrentPassword("");
+      setPassword("");
+      setPasswordConfirmation("");
+    }
+
+    if (lang !== getCurrentLang()) {
+      i18n.changeLanguage(lang);
+    }
+
+    if (updateFailed) {
+      openSnackbar({ message: t("profile-update-failed"), severity: AlertSeverity.error });
     } else {
-      setHaveSettingsChanged(false);
-      setHavePreferencesChanged(false);
-      setHasProfileChanged(false);
+      openSnackbar({ message: t("profile-updated"), severity: AlertSeverity.success });
     }
-  }, [firstName, name, birthDate, unit, locale, user]);
+  };
 
-  const onSave = useCallback(() => {
-    if (user) {
-      const localeShortname = getLocaleShortname(locale);
-      const promises: Promise<unknown>[] = [];
-      const callbacks: React.Dispatch<React.SetStateAction<boolean>>[] = [];
-      const newUser: User = {
-        ...user,
-        preferences: havePreferencesChanged ? { ...user.preferences, displayLanguageCode: localeShortname } : user.preferences,
-        settings: haveSettingsChanged ? { ...user.settings, units: { bg: unit } } : user.settings,
-        profile: hasProfileChanged
-          ? {
-              ...user.profile,
-              fullName: firstName + " " + name,
-              firstName,
-              lastName: name,
-              patient: { birthday: birthDate },
-            }
-          : user.profile,
-      };
-      if (havePreferencesChanged) {
-        if (i18n) {
-          const lang = i18n.language.split("-")[0] as Preferences["displayLanguageCode"];
-          if (getCurrentLocaleName(lang) !== locale && localeShortname) {
-            i18n.changeLanguage(localeShortname);
-          }
-        }
-        promises.push(updatePreferences(newUser));
-        callbacks.push(setHavePreferencesChanged);
-      }
+  const onCancel = (): void => history.push(props.defaultURL);
 
-      if (haveSettingsChanged) {
-        promises.push(updateSettings(newUser));
-        callbacks.push(setHaveSettingsChanged);
-      }
+  let roleDependantPart: JSX.Element | null = null;
+  if (role === UserRoles.patient) {
+    const a1cDate = user.settings?.a1c?.date;
+    const a1cValue = user.settings?.a1c?.value;
+    const hba1cMoment = typeof a1cDate === "string" ? moment.tz(a1cDate, browserTimezone) : null;
 
-      if (hasProfileChanged) {
-        promises.push(updateProfile(newUser));
-        callbacks.push(setHasProfileChanged);
-      }
-      if (promises.length) {
-        handleUserUpdate(promises, newUser, callbacks);
-      }
+    let hba1cTextField: JSX.Element | null = null;
+    if (_.isNumber(a1cValue) && moment.isMoment(hba1cMoment) && hba1cMoment.isValid()) {
+      const hba1cDate = hba1cMoment.format("L");
+      hba1cTextField = (
+        <TextField
+          id="hbA1c"
+          label={t("hcp-patient-profile-hba1c", { hba1cDate })}
+          disabled
+          value={`${a1cValue}%`}
+          className={classes.textField}
+        />
+      );
     }
-  }, [
-    user,
-    haveSettingsChanged,
-    havePreferencesChanged,
-    hasProfileChanged,
-    firstName,
-    name,
-    birthDate,
-    locale,
-    i18n,
-    unit,
-    handleUserUpdate,
-    updatePreferences,
-    updateSettings,
-    updateProfile,
-  ]);
 
-  const onCancel = (): void => history.goBack();
+    roleDependantPart = (
+      <Fragment>
+        <TextField
+          id="profile-textfield-birthdate"
+          label={t("hcp-patient-profile-birthdate")}
+          value={birthDate ?? ""}
+          onChange={createHandleTextChange(setBirthDate)}
+          error={errors.birthDate}
+          helperText={errors.birthDate && t("required-field")}
+        />
+        {hba1cTextField}
+      </Fragment>
+    );
+  } else {
+    roleDependantPart = (
+      <Fragment>
+        <TextField
+          id="profile-textfield-mail"
+          label={t("Email")}
+          value={getUserEmail(user)}
+          disabled
+          className={classes.textField}
+        />
+        <Password
+          id="profile-textfield-password-current"
+          label="current-password"
+          value={currentPassword}
+          error={errors.currentPassword}
+          helperText={t("no-password")}
+          setState={setCurrentPassword}
+        />
+        <Password
+          id="profile-textfield-password"
+          label="new-password"
+          value={password}
+          error={errors.password}
+          helperText={t("password-too-weak")}
+          setState={setPassword}
+        />
+        <Password
+          id="profile-textfield-password-confirmation"
+          label="confirm-password"
+          value={passwordConfirmation}
+          error={errors.passwordConfirmation}
+          helperText={t("not-matching-password")}
+          setState={setPasswordConfirmation}
+        />
+      </Fragment>
+    );
+  }
 
   return (
     <Fragment>
@@ -350,73 +404,25 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           </DialogTitle>
           <TextField
             id="profile-textfield-firstname"
-            label={t("First name")}
+            label={t("firstname")}
             value={firstName}
-            onChange={handleChange(setFirstName)}
+            onChange={createHandleTextChange(setFirstName)}
             error={errors.firstName}
             helperText={errors.firstName && t("required-field")}
             className={classes.textField}
           />
           <TextField
             id="profile-textfield-lastname"
-            label={t("Last name")}
-            value={name}
-            onChange={handleChange(setName)}
-            error={errors.name}
-            helperText={errors.name && t("required-field")}
+            label={t("lastname")}
+            value={lastName}
+            onChange={createHandleTextChange(setLastName)}
+            error={errors.lastName}
+            helperText={errors.lastName && t("required-field")}
             className={classes.textField}
           />
 
-          {role !== UserRoles.patient ? (
-            <Fragment>
-              <TextField
-                id="profile-textfield-mail"
-                label={t("Email")}
-                value={mail}
-                disabled
-                onChange={handleChange(setMail)}
-                error={errors.mail}
-                helperText={errors.mail && t("Invalid email address.")}
-                className={classes.textField}
-              />
-              <Password
-                id="profile-textfield-password"
-                label="password"
-                value={password}
-                error={errors.password}
-                helperText={t("password-too-weak")}
-                setState={setPassword}
-              />
-              <Password
-                id="profile-textfield-password-confirmation"
-                label="confirm-password"
-                value={passwordConfirmation}
-                error={errors.passwordConfirmation}
-                helperText={t("not-matching-password")}
-                setState={setPasswordConfirmation}
-              />
-            </Fragment>
-          ) : (
-            <Fragment>
-              <TextField
-                id="profile-textfield-birthdate"
-                label={t("hcp-patient-profile-birthdate")}
-                value={birthDate}
-                onChange={handleChange(setBirthDate)}
-                error={errors.birthDate}
-                helperText={errors.birthDate && t("required-field")}
-              />
-              {hbA1c && (
-                <TextField
-                  id="hbA1c"
-                  label={t("hcp-patient-profile-hba1c", { hba1cDate: hbA1c?.date })}
-                  disabled
-                  value={hbA1c.value + "%"}
-                  className={classes.textField}
-                />
-              )}
-            </Fragment>
-          )}
+          {roleDependantPart}
+
           <FormControl className={classes.formControl}>
             <InputLabel id="profile-units-input-label">{t("units")}</InputLabel>
             <Select
@@ -424,17 +430,17 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
               labelId="unit-selector"
               id="profile-units-selector"
               value={unit}
-              onChange={handleUnitChange}>
+              onChange={createHandleSelectChange(setUnit)}>
               <MenuItem id="profile-units-mmoll" value={Units.mole}>{Units.mole}</MenuItem>
               <MenuItem id="profile-units-mgdl" value={Units.gram}>{Units.gram}</MenuItem>
             </Select>
           </FormControl>
           <FormControl className={classes.formControl}>
             <InputLabel id="profile-language-input-label">{t("Language")}</InputLabel>
-            <Select labelId="locale-selector" id="profile-locale-selector" value={locale} onChange={handleLocaleChange}>
-              {availableLocales.map((locale) => (
-                <MenuItem id={`profile-locale-item-${locale}`} key={locale} value={locale}>
-                  {locale}
+            <Select labelId="locale-selector" id="profile-locale-selector" value={lang} onChange={createHandleSelectChange(setLang)}>
+              {availableLanguageCodes.map((languageCode) => (
+                <MenuItem id={`profile-locale-item-${languageCode}`} key={languageCode} value={languageCode}>
+                  {getLangName(languageCode)}
                 </MenuItem>
               ))}
             </Select>
@@ -451,7 +457,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             <Button
               id="profile-button-save"
               variant="contained"
-              disabled={(!hasProfileChanged && !haveSettingsChanged && !havePreferencesChanged) || isAnyError}
+              disabled={!canSave}
               color="primary"
               onClick={onSave}
               className={classes.button}>
