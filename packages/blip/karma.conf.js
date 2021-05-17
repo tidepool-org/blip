@@ -1,65 +1,42 @@
-const _ = require('lodash');
-const optional = require('optional');
+/**
+ * Copyright (c) 2021, Diabeloop
+ * Karma test configuration file
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-const webpackConf = require('./webpack.config.js');
-const mochaConf = optional('./config/mocha.opts.json') || {};
+const { updateDefaultConfig, setKarmaConfig } = require("../../karma.common.conf");
+const webpack = require("./webpack.config.js");
 
-const testWebpackConf = _.assign({}, webpackConf, {
-  devtool: 'inline-source-map',
-});
-
-const isWSL = typeof process.env.WSL_DISTRO_NAME === 'string';
-const browsers = ['CustomChromeHeadless'];
-if (!isWSL) {
-  browsers.push('FirefoxHeadless');
-}
-const karmaConfig = {
-  autoWatch: false,
-  port: '8080',
-  browserNoActivityTimeout: 60000,
-  browsers,
-  captureTimeout: 60000,
-  client: {
-    mocha: mochaConf,
-  },
-  colors: true,
-  concurrency: Infinity,
-  coverageReporter: {
-    dir: 'coverage/',
-    reporters: [
-      { type: 'html' },
-    ],
-  },
-  customLaunchers: {
-    CustomChromeHeadless: {
-      base: 'ChromeHeadless',
-      flags: [
-        '--headless',
-        '--disable-gpu',
-        '--no-sandbox',
-        '--remote-debugging-port=9222',
-      ],
-    },
-  },
+const config = {
   files: [
     'test/run-tests.js',
   ],
-  frameworks: ['mocha'],
   preprocessors: {
     'test/run-tests.js': ['webpack', 'sourcemap'],
   },
-  reporters: ['mocha', 'coverage'],
-  singleRun: true,
-  webpack: testWebpackConf,
-  webpackMiddleware: {
-    noInfo: true,
-    stats: 'errors-only',
-  },
 };
-
-function setKarmaConfig(config) {
-  karmaConfig.logLevel = config.LOG_INFO;
-  config.set(karmaConfig);
-}
+updateDefaultConfig("blip", config, webpack);
 
 module.exports = setKarmaConfig;

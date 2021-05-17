@@ -30,6 +30,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'nexus-token', variable: 'NEXUS_TOKEN')]) {
+                    sh 'npm run clean-coverage'
                     sh 'npm run lint'
                     sh 'npm run test-sundial'
                     sh 'npm run test-tideline'

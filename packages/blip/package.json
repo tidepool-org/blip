@@ -7,8 +7,7 @@
     "url": "https://github.com/mdblp/blip"
   },
   "scripts": {
-    "mrproper": "rm -rf dist node_modules coverage",
-    "pretest": "rm -rf coverage",
+    "mrproper": "rm -rf dist node_modules",
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' karma --single-run --log-level debug start",
     "start-dev": "NODE_ENV=development USE_WEBPACK_DEV_SERVER=true webpack-dev-server --cache --colors --port 3001 --host 0.0.0.0",
     "prebuild": "rm -rf dist",

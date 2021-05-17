@@ -12,9 +12,8 @@
   "main": "js/index.js",
   "license": "BSD-2-Clause",
   "scripts": {
-    "mrproper": "rm -rf dist coverage node_modules",
-    "clean": "rm -rf dist coverage",
-    "pretest": "rm -rf coverage",
+    "mrproper": "rm -rf dist node_modules",
+    "clean": "rm -rf dist",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "lint": "eslint js plugins test"
   },

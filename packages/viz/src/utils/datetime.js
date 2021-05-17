@@ -330,7 +330,6 @@ export function formatLocalizedFromUTC(utc, timePrefs, format = getDayFormat()) 
  * @return {Number} Integer hammertime (i.e., UTC time in milliseconds)
  */
 export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
-  // console.info('getHammertimeFromDatumWithTimePrefs', { datum, timePrefs });
   let hammertime;
   if (timePrefs.timezoneAware) {
     if (!_.isUndefined(datum.normalTime)) {

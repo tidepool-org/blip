@@ -7,9 +7,8 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "mrproper": "rm -rf dist coverage node_modules",
-    "clean": "rm -rf dist coverage",
-    "pretest": "rm -rf coverage",
+    "mrproper": "rm -rf dist node_modules",
+    "clean": "rm -rf dist",
     "test": "TZ=UTC NODE_ENV=test karma start",
     "lint": "eslint src/ test/ *.js"
   },
