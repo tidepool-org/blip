@@ -53,9 +53,9 @@ interface JwtShorelinePayload extends JwtPayload {
   srv: "yes" | "no";
 }
 
-const STORAGE_KEY_SESSION_TOKEN = "session-token";
-const STORAGE_KEY_TRACE_TOKEN = "trace-token";
-const STORAGE_KEY_USER = "logged-in-user";
+export const STORAGE_KEY_SESSION_TOKEN = "session-token";
+export const STORAGE_KEY_TRACE_TOKEN = "trace-token";
+export const STORAGE_KEY_USER = "logged-in-user";
 
 const ReactAuthContext = React.createContext({} as AuthContext);
 const log = bows("AuthHook");

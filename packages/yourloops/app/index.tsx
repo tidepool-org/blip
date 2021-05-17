@@ -32,26 +32,15 @@ import "core-js/stable";
 import * as React from "react";
 import ReactDOM from "react-dom";
 import Yourloops from "./app";
+import OnError from "./error";
 
 import { init as i18nInit } from "../lib/language";
 import initCookiesConcentListener from "../lib/cookies-manager";
 
 i18nInit().then(() => {
   window.onerror = (event, source, lineno, colno, error) => {
-    // FIXME: create an error modale ?
-    // FIXME: Add a simplier one before to detect a Javascript load error -> Browser too old specific message
     console.error(event, source, lineno, colno, error);
-    let div = document.getElementById("app-error");
-    if (div === null) {
-      div = document.createElement("div");
-      div.id = "app-error";
-      document.body.appendChild(div);
-    }
-    const p = document.createElement("p");
-    p.style.color = "red";
-    p.appendChild(document.createTextNode(`Error ${source}:${lineno}:${colno}: ${error}`));
-    div.appendChild(p);
-
+    ReactDOM.render(<OnError event={event} source={source} lineno={lineno} colno={colno} error={error} />, document.body);
     return false;
   };
 
