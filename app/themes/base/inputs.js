@@ -30,10 +30,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
 
     input: {
       '&::placeholder': {
-        color: colors.text.primaryTextSubdued,
+        color: colors.text.primarySubdued,
       },
       '&.active': {
-        color: colors.text.primaryTextSubdued,
+        color: colors.text.primarySubdued,
         boxShadow: 'none',
       },
       '&:focus': {

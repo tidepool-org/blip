@@ -5,13 +5,14 @@ import isFinite from 'lodash/isFinite';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import mean from 'lodash/mean';
 import min from 'lodash/min';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
 import moment from 'moment';
 
 import i18next from '../../core/language';
-import { MGDL_UNITS } from '../../core/constants';
+import { LBS_PER_KG, MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import utils from '../../core/utils';
 import { getFloatFromUnitsAndNanos } from '../../core/data';
 
@@ -70,9 +71,9 @@ export const cgmDeviceOptions = ({ cgms } = {}) => map(
 export const defaultUnits = {
   basalRate: 'Units/hour',
   bloodGlucose: MGDL_UNITS,
-  glucoseSafetyLimit: MGDL_UNITS,
   bolusAmount: 'Units',
   insulinCarbRatio: 'g/U',
+  weight: 'kg',
 };
 
 export const getPumpGuardrail = (pump, path, fallbackValue) => getFloatFromUnitsAndNanos(get(pump, `guardRails.${path}`)) || fallbackValue;
@@ -282,12 +283,21 @@ export const warningThresholds = (pump, bgUnits = defaultUnits.bloodGlucose, val
  * @param {Object} values form values provided by formik context
  * @returns {Object} default values keyed by setting
  */
-export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values) => {
+export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values = {}) => {
+  const {
+    calculator: {
+      recommendedBasalRate,
+      recommendedInsulinSensitivity,
+      recommendedCarbohydrateRatio,
+    } = {},
+  } = values;
+
   const maxBasalRate = max(map(get(values, 'initialSettings.basalRateSchedule'), 'rate'));
   const patientAge = moment().diff(moment(get(values, 'birthday'), dateFormat), 'years', true);
   const isPediatric = patientAge < 18;
 
   return {
+    basalRate: recommendedBasalRate || 0.05,
     basalRateMaximum: isFinite(maxBasalRate)
       ? parseFloat((maxBasalRate * (isPediatric ? 3 : 3.5)).toFixed(2))
       : getPumpGuardrail(pump, 'basalRateMaximum.defaultValue', 0.05),
@@ -303,7 +313,49 @@ export const defaultValues = (pump, bgUnits = defaultUnits.bloodGlucose, values)
       low: getBgInTargetUnits(80, MGDL_UNITS, bgUnits),
       high: getBgInTargetUnits(100, MGDL_UNITS, bgUnits),
     },
+    carbohydrateRatio: recommendedCarbohydrateRatio,
+    insulinSensitivity: recommendedInsulinSensitivity,
     glucoseSafetyLimit: getBgInTargetUnits(isPediatric ? 80 : 75, MGDL_UNITS, bgUnits),
+  };
+};
+
+/**
+ * Calculate recommended therapy settings based on inputs provided by clinician
+ * @param {Object} values form values provided by formik context
+ * @returns {Object} recommended values keyed by setting
+ */
+export const calculateRecommendedTherapySettings = values => {
+  const {
+    calculator: {
+      weight,
+      weightUnits,
+      totalDailyDose,
+      totalDailyDoseScaleFactor,
+    } = {},
+    initialSettings: {
+      bloodGlucoseUnits: bgUnits = defaultUnits.bloodGlucose
+    } = {},
+  } = values;
+
+  const baseTotalDailyDoseInputs = [];
+
+  if (isFinite(totalDailyDose) && isFinite(totalDailyDoseScaleFactor))
+    baseTotalDailyDoseInputs.push(totalDailyDose * totalDailyDoseScaleFactor);
+
+  if (isFinite(weight) && includes(['kg', 'lbs'], weightUnits))
+    baseTotalDailyDoseInputs.push(weightUnits === 'lbs'
+      ? weight / LBS_PER_KG / 2
+      : weight / 2
+    );
+
+  const baseTotalDailyDose = mean(baseTotalDailyDoseInputs);
+
+  return {
+    recommendedBasalRate: roundValueToIncrement(baseTotalDailyDose / 2 / 24, 0.05),
+    recommendedCarbohydrateRatio: roundValueToIncrement(450 / baseTotalDailyDose, 1),
+    recommendedInsulinSensitivity: bgUnits === MGDL_UNITS
+      ? roundValueToIncrement(1700 / baseTotalDailyDose, 1)
+      : roundValueToIncrement(1700 / baseTotalDailyDose / MGDL_PER_MMOLL, 0.1),
   };
 };
 
@@ -360,6 +412,22 @@ export const insulinModelOptions = [
   { value: 'rapidChild', label: t('Rapid Acting - Child') },
 ];
 
+export const calculatorMethodOptions = [
+  { value: 'totalDailyDose', label: t('Total Daily Dose') },
+  { value: 'weight', label: t('Weight') },
+  { value: 'totalDailyDoseAndWeight', label: t('Total Daily Dose and Weight') },
+];
+
+export const totalDailyDoseScaleFactorOptions = [
+  { value: 1, label: t('Use full total daily dose') },
+  { value: 0.75, label: t('Use 0.75 total daily dose. Reduced dose, e.g. for MDI patients') },
+];
+
+export const weightUnitOptions = [
+  { value: 'kg', label: t('kg') },
+  { value: 'lbs', label: t('lbs') },
+];
+
 export const validCountryCodes = [1];
 
 export const stepValidationFields = [
@@ -373,6 +441,18 @@ export const stepValidationFields = [
     ['mrn'],
     ['sex'],
     ['initialSettings.pumpId', 'initialSettings.cgmId'],
+  ],
+  [
+    ['calculator.method'],
+    [
+      'calculator.totalDailyDose',
+      'calculator.totalDailyDoseScaleFactor',
+      'calculator.weight',
+      'calculator.weightUnits',
+      'calculator.recommendedBasalRate',
+      'calculator.recommendedInsulinSensitivity',
+      'calculator.recommendedCarbohydrateRatio',
+    ],
   ],
   [
     [

@@ -21,14 +21,11 @@ const values = {
   },
 };
 
-const validateSyncAt = sinon.stub();
-validateSyncAt
-  .withArgs('goodField')
-  .returns(true);
-
-validateSyncAt
-  .withArgs('badField')
-  .throws();
+const validateSyncAt = sinon.stub().callsFake((fieldKey, values) => {
+  if (_.get(values, fieldKey) === 'badField') {
+    throw('error');
+  }
+});
 
 const schema = { validateSyncAt };
 
@@ -61,11 +58,11 @@ describe('profileFormSteps', function() {
     expect(subSteps[2].disableComplete).to.be.false;
     expect(subSteps[3].disableComplete).to.be.false;
 
-    expect(profileFormSteps(invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
-    expect(profileFormSteps(invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(schema, null, invalidateValue('phoneNumber.number')).subSteps[0].disableComplete).to.be.true;
+    expect(profileFormSteps(schema, null, invalidateValue('mrn')).subSteps[1].disableComplete).to.be.true;
+    expect(profileFormSteps(schema, null, invalidateValue('sex')).subSteps[2].disableComplete).to.be.true;
+    expect(profileFormSteps(schema, null, invalidateValue('initialSettings.pumpId')).subSteps[3].disableComplete).to.be.true;
+    expect(profileFormSteps(schema, null, invalidateValue('initialSettings.cgmId')).subSteps[3].disableComplete).to.be.true;
   });
 
   it('should not hide the back button for the any subSteps', () => {

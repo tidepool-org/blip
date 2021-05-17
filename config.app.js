@@ -35,7 +35,7 @@ function booleanFromText(value, defaultValue) {
     return false;
   }
 
-  return defaultValue || false;
+  return (typeof value === 'boolean') ? value : defaultValue || false;
 }
 
 function integerFromText(value, defaultValue) {
