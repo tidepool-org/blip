@@ -33,13 +33,11 @@ import { useTranslation } from "react-i18next";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 
-import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
-import { Snackbar } from "../../../components/utils/snackbar";
-
 import { useAuth } from "../../../lib/auth";
 import sendMetrics from "../../../lib/metrics";
 import { errorTextFromException } from "../../../lib/utils";
 import { ShareUser, addDirectShare, getDirectShares, removeDirectShare } from "../../../lib/share";
+import { useAlert } from "../../../components/utils/snackbar";
 import { AddDialogContentProps, RemoveDialogContentProps } from "./types";
 import SecondaryBar from "./secondary-bar";
 import AddCaregiveDialog from "./add-dialog";
@@ -57,7 +55,7 @@ const log = bows("PatientCaregiversPage");
  */
 function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
   const { t } = useTranslation("yourloops");
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const authHook = useAuth();
   const [ caregiverToAdd, setCaregiverToAdd ] = React.useState<AddDialogContentProps | null>(null);
   const [ caregiverToRemove, setCaregiverToRemove ] = React.useState<RemoveDialogContentProps | null>(null);
@@ -77,12 +75,12 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
     if (email !== null && session !== null) {
       try {
         await addDirectShare(session, email);
-        openSnackbar({ message: t("modal-patient-add-caregiver-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-patient-add-caregiver-success"));
         sendMetrics("patient-add-caregiver", { added: true });
         setCaregivers(null); // Refresh the list
       } catch (reason) {
         log.error(reason);
-        openSnackbar({ message: t("modal-patient-add-caregiver-failure"), severity: AlertSeverity.error });
+        alert.error(t("modal-patient-add-caregiver-failure"));
         sendMetrics("patient-add-caregiver", { added: true, failed: errorTextFromException(reason) });
       }
     } else {
@@ -103,12 +101,12 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
     if (consent && session !== null) {
       try {
         await removeDirectShare(session, us.user.userid);
-        openSnackbar({ message: t("modal-patient-remove-caregiver-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-patient-remove-caregiver-success"));
         sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid });
         setCaregivers(null); // Refresh the list
       } catch (reason) {
         log.error(reason);
-        openSnackbar({ message: t("modal-patient-remove-caregiver-failure"), severity: AlertSeverity.error });
+        alert.error(t("modal-patient-remove-caregiver-failure"));
         sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid, failed: errorTextFromException(reason) });
       }
     } else {
@@ -140,7 +138,6 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <Snackbar params={snackbarParams} />
       <SecondaryBar defaultURL={props.defaultURL} onShowAddCaregiverDialog={handleShowAddCaregiverDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <CaregiverTable userShares={caregivers} onRemoveCaregiver={handleRemoveCaregiver} />

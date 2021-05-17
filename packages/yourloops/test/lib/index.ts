@@ -27,11 +27,9 @@
  */
 
 import _ from "lodash";
-import testUseSnackbar from "./useSnackbar.test";
 
 function testLib(): void {
   describe.skip("API", _.noop);
-  describe("useSnackbar", testUseSnackbar);
 }
 
 export default testLib;

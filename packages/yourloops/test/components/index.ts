@@ -28,8 +28,11 @@
 
 import _ from "lodash";
 
+import testSnackbar from "./utils/snackbar.test";
+
 function testComponents(): void {
   describe.skip("Components", _.noop);
+  describe("Snackbar", testSnackbar);
 }
 
 export default testComponents;

@@ -34,6 +34,7 @@ import "branding/theme-base.css";
 import "branding/theme.css";
 
 import sendMetrics from "../lib/metrics";
+import { AuthContextProvider } from "../lib/auth";
 import { PrivateRoute, PublicRoute } from "../components/routes";
 import InvalidRoute from "../components/invalid-route";
 import LoginPage from "../pages/login";
@@ -42,7 +43,6 @@ import HcpPage from "../pages/hcp";
 import CaregiverPage from "../pages/caregiver";
 import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
-import { AuthContextProvider } from "../lib/auth";
 // ** PR review in comment: Notifications are not used in public routes
 // I would have put the NotificationContextProvider in PrivateRoute
 import { NotificationContextProvider } from "../lib/notifications/hook";
@@ -63,7 +63,7 @@ const Yourloops = (): JSX.Element => {
         <NotificationContextProvider>
           <Switch>
             <PublicRoute exact path="/" component={LoginPage} />
-            {/* this route is required because some backend service generate URL with it */}
+            {/* The /login route is required because some backend service generate URL with it */}
             <PublicRoute exact path="/login" component={LoginPage} />
             <PublicRoute exact path="/signup" component={SignUpPage} />
             <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />

@@ -39,8 +39,7 @@ import sendMetrics from "../../../lib/metrics";
 import { useTeam, Team } from "../../../lib/team";
 import { t } from "../../../lib/language";
 import { errorTextFromException } from "../../../lib/utils";
-import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
-import { Snackbar } from "../../../components/utils/snackbar";
+import { useAlert } from "../../../components/utils/snackbar";
 
 import { AddTeamDialogContentProps, LeaveTeamDialogContentProps } from "./types";
 
@@ -59,8 +58,7 @@ const log = bows("PatientTeamsPage");
  * Patient teams page
  */
 function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
-  const { openSnackbar, snackbarParams } = useSnackbar();
-  // const authHook = useAuth();
+  const alert = useAlert();
   const teamHook = useTeam();
   const [loading, setLoading] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -99,13 +97,12 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
     if (isConfirmed) {
       try {
         await teamHook.leaveTeam(team);
-        openSnackbar({ message: t("modal-patient-remove-team-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-patient-remove-team-success"));
         return true;
       } catch (reason: unknown) {
         log.error("handleShowLeaveTeamDialog", reason);
         const errorMessage = errorTextFromException(reason);
-        const message = t("modal-patient-remove-team-failure", { errorMessage });
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(t("modal-patient-remove-team-failure", { errorMessage }));
       }
     }
     return false;
@@ -130,13 +127,12 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
 
     try {
       await teamHook.joinTeam(teamId);
-      openSnackbar({ message: t("modal-patient-add-team-success"), severity: AlertSeverity.success });
+      alert.success(t("modal-patient-add-team-success"));
       setTimeout(() => teamHook.refresh(true), 10);
     } catch (reason: unknown) {
       log.error("handleShowAddTeamDialog", reason);
       const errorMessage = errorTextFromException(reason);
-      const message = t("modal-patient-add-team-failure", { errorMessage });
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(t("modal-patient-add-team-failure", { errorMessage }));
     }
   };
 
@@ -196,7 +192,6 @@ function PatientTeamsPage(props: PatientTeamsPageProps): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Snackbar params={snackbarParams} />
       <SecondaryBar defaultURL={props.defaultURL} onShowAddTeamDialog={handleShowAddTeamDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>

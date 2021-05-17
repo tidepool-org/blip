@@ -39,8 +39,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { FilterType, SortDirection, SortFields } from "../../../models/generic";
 import sendMetrics from "../../../lib/metrics";
-import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
-import { Snackbar } from "../../../components/utils/snackbar";
+import { useAlert } from "../../../components/utils/snackbar";
 import { useAuth } from "../../../lib/auth";
 import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../../lib/utils";
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
@@ -167,7 +166,7 @@ function PatientListPage(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const [loading, setLoading] = React.useState<boolean>(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [order, setOrder] = React.useState<SortDirection>(SortDirection.asc);
@@ -219,7 +218,7 @@ function PatientListPage(): JSX.Element {
         const { email, teamId } = result;
         const team = teamHook.getTeam(teamId);
         await teamHook.invitePatient(team as Team, email);
-        openSnackbar({ message: t("modal-hcp-add-patient-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-hcp-add-patient-success"));
         sendMetrics("hcp-add-patient", { added: true });
         setTeamCodeToDisplay(team);
       } catch (reason) {
@@ -227,7 +226,7 @@ function PatientListPage(): JSX.Element {
         // TODO Errors:
         // - "modal-hcp-add-patient-failure-already-in-team"
         // - "modal-hcp-add-patient-failure-already-invited"
-        openSnackbar({ message: t("modal-hcp-add-patient-failure"), severity: AlertSeverity.error });
+        alert.error(t("modal-hcp-add-patient-failure"));
         sendMetrics("hcp-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
     } else {
@@ -302,7 +301,6 @@ function PatientListPage(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Snackbar params={snackbarParams} />
       <PatientsSecondaryBar
         filter={filter}
         filterType={filterType}

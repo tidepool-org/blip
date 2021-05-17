@@ -43,8 +43,7 @@ import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
 import appConfig from "../../lib/config";
 import SignUpFormProps from "./signup-form-props";
 import { useAuth } from "../../lib/auth";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import { Snackbar } from "../../components/utils/snackbar";
+import { useAlert } from "../../components/utils/snackbar";
 
 interface Errors {
   userName: boolean;
@@ -84,7 +83,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
   const classes = formStyle();
   const auth = useAuth();
   const { state, dispatch } = useSignUpFormState();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const { handleBack, handleNext } = props;
   const defaultErr = {
     userName: false,
@@ -160,8 +159,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         handleNext();
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
-        const message = t(errorMessage);
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(t(errorMessage));
       }
     }
   };
@@ -176,7 +174,6 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       noValidate
       autoComplete="off"
     >
-      <Snackbar params={snackbarParams} />
       <TextField
         id="username"
         className={classes.TextField}

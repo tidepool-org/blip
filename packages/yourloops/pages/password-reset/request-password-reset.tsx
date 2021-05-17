@@ -40,8 +40,7 @@ import brandingLogo from "branding/logo.png";
 
 import { useAuth } from "../../lib/auth";
 import { errorTextFromException, REGEX_EMAIL } from "../../lib/utils";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import { Snackbar } from "../../components/utils/snackbar";
+import { useAlert } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
 
 import RequestPasswordForm from "./request-password-form";
@@ -90,7 +89,7 @@ function RequestPasswordResetPage(): JSX.Element {
   const { t, i18n } = useTranslation("yourloops");
   const history = useHistory();
   const auth = useAuth();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const classes = loginStyle();
   const [username, setUserName] = React.useState("");
   const [validateError, setValidateError] = React.useState(false);
@@ -119,8 +118,7 @@ function RequestPasswordResetPage(): JSX.Element {
         setSuccess(success);
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
-        const message = t(errorMessage);
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(t(errorMessage));
       }
       setInProgress(false);
     }
@@ -128,7 +126,6 @@ function RequestPasswordResetPage(): JSX.Element {
 
   return (
     <Container className={classes.container} maxWidth="sm">
-      <Snackbar params={snackbarParams} />
       <Card className={classes.Card}>
         <CardMedia
           style={{

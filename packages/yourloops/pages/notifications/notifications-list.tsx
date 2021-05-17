@@ -23,18 +23,18 @@ import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-import SecondaryHeaderBar from "./secondary-bar";
-import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
-import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
-import SwitchRoleToHcpSteps from "../../components/switch-role/switch-role-to-hcp-steps";
-import { Notification } from "./notification";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import sendMetrics from "../../lib/metrics";
 import { INotification } from "../../lib/notifications/models";
 import { useAuth } from "../../lib/auth";
 import { useNotification } from "../../lib/notifications/hook";
 import { errorTextFromException } from "../../lib/utils";
-import { Snackbar } from "../../components/utils/snackbar";
+import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
+import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
+import SwitchRoleToHcpSteps from "../../components/switch-role/switch-role-to-hcp-steps";
+import { useAlert } from "../../components/utils/snackbar";
+
+import SecondaryHeaderBar from "./secondary-bar";
+import { Notification } from "./notification";
 
 interface NotificationsPageProps {
   defaultURL: string;
@@ -70,7 +70,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
   const classes = useStyles();
   const { user, switchRoleToHCP } = useAuth();
   const notifications = useNotification();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const [notifs, setNotifs] = React.useState<INotification[]>([]);
   const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(
     SwitchRoleToHcpSteps.none
@@ -87,12 +87,12 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         const message = t(errorMessage);
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(message);
       }
     };
 
     loadNotifs();
-  }, [notifications, user, t, openSnackbar]);
+  }, [notifications, user, t, alert]);
 
   function handleRemove(id: string): void {
     const newList = notifs.filter((item) => item.id !== id);
@@ -142,7 +142,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
           });
         })
         .catch((reason: unknown) => {
-          openSnackbar({ message: t("modal-switch-hcp-failure"), severity: AlertSeverity.error });
+          alert.error(t("modal-switch-hcp-failure"));
           sendMetrics("user-switch-role", {
             from: user?.role,
             to: "hcp",
@@ -159,7 +159,6 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
   return (
     <React.Fragment>
       <SecondaryHeaderBar defaultURL={props.defaultURL} />
-      <Snackbar params={snackbarParams} />
       <Container maxWidth="lg" style={{ marginTop: "1em" }}>
         <List>
           {notifs.length > 0 ? (

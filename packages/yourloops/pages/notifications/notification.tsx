@@ -30,8 +30,7 @@ import { User, UserRoles } from "../../models/shoreline";
 import { INotification, NotificationType } from "../../lib/notifications/models";
 import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
 import { useNotification } from "../../lib/notifications/hook";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import { Snackbar } from "../../components/utils/snackbar";
+import { useAlert } from "../../components/utils/snackbar";
 
 type NotificationProps = INotification & {
   role: UserRoles | undefined;
@@ -135,7 +134,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
   const { t } = useTranslation("yourloops");
   const { id, created, creator, type, target, onRemove } = props;
   const notifications = useNotification();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const [inProgress, setInProgress] = React.useState(false);
   const { container, notification, rightSide, button } = useStyles();
 
@@ -147,8 +146,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
       onRemove(id);
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
-      const message = t(errorMessage);
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(t(errorMessage));
     }
     setInProgress(false);
   };
@@ -161,15 +159,13 @@ export const Notification = (props: NotificationProps): JSX.Element => {
       onRemove(id);
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
-      const message = t(errorMessage);
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(t(errorMessage));
     }
     setInProgress(false);
   };
 
   return (
     <div id={`notification-line-${id}`} className={container}>
-      <Snackbar params={snackbarParams} />
       <NotificationIcon id={`notification-icon-${id}`} type={type} />
       <NotificationSpan t={t} notification={props} className={notification} />
       <div className={rightSide}>

@@ -41,8 +41,7 @@ import { useAuth } from "../../lib/auth";
 import { useTeam, Team, TeamMember } from "../../lib/team";
 import { t } from "../../lib/language";
 import { errorTextFromException } from "../../lib/utils";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
-import { Snackbar } from "../../components/utils/snackbar";
+import { useAlert } from "../../components/utils/snackbar";
 
 import {
   SwitchRoleDialogContentProps,
@@ -68,7 +67,7 @@ const log = bows("HCPTeamsPage");
  * HCP page to manage teams
  */
 function TeamsPage(): JSX.Element | null {
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const authHook = useAuth();
   const teamHook = useTeam();
   const [loading, setLoading] = React.useState(true);
@@ -115,10 +114,10 @@ function TeamsPage(): JSX.Element | null {
     try {
       if (team === null) {
         await teamHook.createTeam(editedTeam);
-        openSnackbar({ message: t("team-page-success-create"), severity: AlertSeverity.success });
+        alert.success(t("team-page-success-create"));
       } else {
         await teamHook.editTeam(editedTeam as Team);
-        openSnackbar({ message: t("team-page-success-edit"), severity: AlertSeverity.success });
+        alert.success(t("team-page-success-edit"));
       }
     } catch (reason: unknown) {
       log.error("onShowEditTeamDialog", reason, errorTextFromException(reason));
@@ -128,7 +127,7 @@ function TeamsPage(): JSX.Element | null {
       } else {
         message = t("team-page-failed-edit");
       }
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(message);
     }
   };
 
@@ -149,13 +148,13 @@ function TeamsPage(): JSX.Element | null {
         const onlyMember = !((team.members.length ?? 0) > 1);
         await teamHook.leaveTeam(team);
         const message = onlyMember ? t("team-page-success-deleted") : t("team-page-leave-success");
-        openSnackbar({ message, severity: AlertSeverity.success });
+        alert.success(message);
         return true;
       } catch (reason: unknown) {
         log.error("handleShowLeaveTeamDialog", reason);
         const errorMessage = errorTextFromException(reason);
         const message = t("team-page-failed-leave", { errorMessage });
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(message);
       }
     }
     return false;
@@ -177,12 +176,11 @@ function TeamsPage(): JSX.Element | null {
 
     try {
       await teamHook.inviteMember(team, email, role);
-      openSnackbar({ message: t("team-page-success-invite-hcp", { email }), severity: AlertSeverity.success });
+      alert.success(t("team-page-success-invite-hcp", { email }));
     } catch (reason: unknown) {
       log.error("handleShowAddMemberDialog", reason);
       const errorMessage = errorTextFromException(reason);
-      const message = t("team-page-failed-invite-hcp", { errorMessage });
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(t("team-page-failed-invite-hcp", { errorMessage }));
     }
   };
 
@@ -207,8 +205,7 @@ function TeamsPage(): JSX.Element | null {
     } catch (reason: unknown) {
       log.error("handleSwitchAdminRole", reason);
       const errorMessage = errorTextFromException(reason);
-      const message = t("team-page-failed-update-role", { errorMessage });
-      openSnackbar({ message, severity: AlertSeverity.error });
+      alert.error(t("team-page-failed-update-role", { errorMessage }));
     }
   };
 
@@ -227,13 +224,11 @@ function TeamsPage(): JSX.Element | null {
     if (isConfirmed) {
       try {
         await teamHook.removeMember(member);
-        const message = t("team-page-success-remove-member");
-        openSnackbar({ message, severity: AlertSeverity.success });
+        alert.success(t("team-page-success-remove-member"));
       } catch (reason: unknown) {
         log.error("handleShowRemoveTeamMemberDialog", reason);
         const errorMessage = errorTextFromException(reason);
-        const message = t("team-page-failed-remove-member", { errorMessage });
-        openSnackbar({ message, severity: AlertSeverity.error });
+        alert.error(t("team-page-failed-remove-member", { errorMessage }));
       }
     }
   };
@@ -313,7 +308,6 @@ function TeamsPage(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Snackbar params={snackbarParams} />
       <TeamsSecondaryBar onShowEditTeamDialog={handleShowEditTeamDialog} />
       <Container maxWidth="lg" style={{ marginTop: "4em", marginBottom: "2em" }}>
         <Grid id="team-page-grid-list" container spacing={3}>

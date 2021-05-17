@@ -41,9 +41,9 @@ import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../
 import { User, UserRoles } from "../../../models/shoreline";
 import { getUserFirstName, getUserLastName, getUserEmail, errorTextFromException } from "../../../lib/utils";
 import sendMetrics from "../../../lib/metrics";
-import { AlertSeverity, useSnackbar } from "../../../lib/useSnackbar";
 import { useAuth } from "../../../lib/auth";
 import { useSharedUser, ShareUser, addDirectShare, removeDirectShare } from "../../../lib/share";
+import { useAlert } from "../../../components/utils/snackbar";
 import RemovePatientDialog, { RemovePatientDialogContentProps } from "../../../components/remove-patient-dialog";
 import { AddPatientDialogContentProps, AddPatientDialogResult } from "./types";
 import PatientsSecondaryBar from "./secondary-bar";
@@ -164,7 +164,7 @@ function updatePatientList(
 function PatientListPage(): JSX.Element {
   const historyHook = useHistory();
   const { t } = useTranslation("yourloops");
-  const { openSnackbar } = useSnackbar();
+  const alert = useAlert();
   const authHook = useAuth();
   const classes = pageStyles();
   const [sharedUsersContext, sharedUsersDispatch] = useSharedUser();
@@ -225,12 +225,12 @@ function PatientListPage(): JSX.Element {
         await addDirectShare(session, email);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         // TODO: rename translation key to "modal-add-patient-success"
-        openSnackbar({ message: t("modal-hcp-add-patient-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-hcp-add-patient-success"));
         sendMetrics("caregiver-add-patient", { added: true });
       } catch (reason) {
         log.error(reason);
         // TODO: rename translation key to "modal-add-patient-failure"
-        openSnackbar({ message: t("modal-hcp-add-patient-failure"), severity: AlertSeverity.error });
+        alert.error(t("modal-hcp-add-patient-failure"));
         sendMetrics("caregiver-add-patient", { added: true, failed: errorTextFromException(reason) });
       }
     } else {
@@ -252,10 +252,10 @@ function PatientListPage(): JSX.Element {
         await removeDirectShare(session, patient.userid);
         setTimeout(() => sharedUsersDispatch({ type: "reset" }), 10);
         sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation });
-        openSnackbar({ message: t("modal-remove-patient-success"), severity: AlertSeverity.success });
+        alert.success(t("modal-remove-patient-success"));
       } catch (reason) {
         log.error(reason);
-        openSnackbar({ message: t("modal-delete-patient-failure"), severity: AlertSeverity.error });
+        alert.error(t("modal-delete-patient-failure"));
         sendMetrics("caregiver-remove-patient", { removed: true, flagged, isPendingInvitation, failed: errorTextFromException(reason) });
       }
     } else {

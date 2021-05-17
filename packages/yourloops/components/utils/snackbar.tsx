@@ -26,45 +26,148 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React, { useCallback } from "react";
+import * as React from "react";
+import _ from "lodash";
+import bows from "bows";
 
 import SnackbarUI from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 
-import { ApiAlert } from "../../lib/useSnackbar";
-
-interface SnackbarsProps {
-  params: {
-    apiAlert: ApiAlert;
-    removeAlert: (apiAlertId: ApiAlert["id"]) => void;
-  };
+export enum AlertSeverity {
+  error = "error",
+  warning = "warning",
+  info = "info",
+  success = "success",
 }
 
-export const Snackbar = ({ params: { apiAlert, removeAlert } }: SnackbarsProps): JSX.Element | null => {
-  const onCloseAlert = useCallback(
-    (id: ApiAlert["id"]) => (_: React.SyntheticEvent | MouseEvent, reason?: string) => {
-      // We don't want the snackbar to be closed by any random click on the page
-      if (reason === "clickaway") {
-        return;
-      }
-      removeAlert(id);
-    },
-    [removeAlert]
-  );
+export interface ApiAlert {
+  message: string;
+  severity: AlertSeverity;
+  id?: string;
+}
 
-  return apiAlert ? (
-    <SnackbarUI
-      key={apiAlert.id}
-      open={apiAlert !== null}
-      autoHideDuration={6000}
-      onClose={onCloseAlert(apiAlert?.id)}
+export interface SnackbarContext {
+  /** Add a new snackbar alert, return the alert id */
+  error: (message: string, id?: string) => string;
+  warning: (message: string, id?: string) => string;
+  info: (message: string, id?: string) => string;
+  success: (message: string, id?: string) => string;
+  /** Remove an alert with it's id */
+  removeAlert: (id: string) => void;
+  clearAlerts: () => void;
+  alerts: Readonly<ApiAlert[]>;
+}
+
+export interface SnackbarProvider {
+  children: React.ReactNode;
+  context: () => SnackbarContext;
+}
+
+const log = bows("Snackbar");
+export function DefaultSnackbarContext(): SnackbarContext {
+  const [alerts, setAlerts] = React.useState<ApiAlert[]>([]);
+
+  const addAlert = (severity: AlertSeverity, message: string, id?: string): string => {
+    const alert = { severity, message, id: id ?? _.uniqueId() };
+    const a = Array.from(alerts);
+    a.push(alert);
+    setAlerts(a);
+    log.debug("addAlert", alert);
+    return alert.id;
+  };
+  const error = (message: string, id?: string): string => {
+    return addAlert(AlertSeverity.error, message, id);
+  };
+  const warning = (message: string, id?: string): string => {
+    return addAlert(AlertSeverity.warning, message, id);
+  };
+  const info = (message: string, id?: string): string => {
+    return addAlert(AlertSeverity.info, message, id);
+  };
+  const success = (message: string, id?: string): string => {
+    return addAlert(AlertSeverity.success, message, id);
+  };
+  const removeAlert = (id: string): void => {
+    log.debug("removeAlert", id);
+    setAlerts(alerts.filter((a) => a.id !== id));
+  };
+  const clearAlerts = (): void => {
+    log.debug("clearAlerts");
+    setAlerts([]);
+  };
+
+  return { error, warning, info, success, removeAlert, clearAlerts, alerts };
+}
+
+export const Snackbar = (props: SnackbarContext): JSX.Element => {
+  const { alerts, removeAlert } = props;
+  const [currentAlert, onCloseAlert] = React.useMemo(() => {
+    if (alerts.length > 0) {
+      const currentAlert = alerts[0];
+      const onCloseAlert = () => {
+        if (typeof currentAlert.id === "string") {
+          removeAlert(currentAlert.id);
+        }
+      };
+      return [currentAlert, onCloseAlert];
+    }
+    return [null, _.noop];
+  }, [alerts, removeAlert]);
+
+  const alertUI = React.useMemo(() => {
+    if (currentAlert !== null) {
+      return (
+        <Alert id="alert-message" onClose={onCloseAlert} severity={currentAlert.severity}>
+          {currentAlert.message}
+        </Alert>
+      );
+    }
+    return undefined;
+  }, [currentAlert, onCloseAlert]);
+
+  return (
+    <SnackbarUI open={currentAlert !== null}
+      autoHideDuration={alerts.length > 1 ? 3000 : 6000} // eslint-disable-line no-magic-numbers
+      onClose={onCloseAlert}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-      <Alert
-        id="alert-message"
-        onClose={onCloseAlert(apiAlert?.id)}
-        severity={apiAlert?.severity}>
-        {apiAlert?.message}
-      </Alert>
+      {alertUI}
     </SnackbarUI>
-  ) : null;
+  );
 };
+
+
+const ReactSnackbarContext = React.createContext<SnackbarContext>({
+  error: _.constant(""),
+  warning: _.constant(""),
+  info: _.constant(""),
+  success: _.constant(""),
+  clearAlerts: _.noop,
+  removeAlert: _.noop,
+  alerts: [],
+});
+
+/**
+ * Provider component for useAlert().
+ *
+ * Note: This content is theme dependant.
+ * @param props for snackbar provider & children
+ */
+export function SnackbarContextProvider(props: SnackbarProvider): JSX.Element {
+  const { context, children } = props;
+  const snackbarContext = context();
+  return (
+    <ReactSnackbarContext.Provider value={snackbarContext}>
+      <Snackbar {...snackbarContext} />
+      {children}
+    </ReactSnackbarContext.Provider>
+  );
+}
+
+/**
+ * Hook for child components to get the snackbat functionalities
+ *
+ * Trigger a re-render when it change.
+ */
+export function useAlert(): SnackbarContext {
+  return React.useContext(ReactSnackbarContext);
+}

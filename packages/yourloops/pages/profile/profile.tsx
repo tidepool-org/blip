@@ -39,10 +39,9 @@ import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/l
 import { REGEX_BIRTHDATE, errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
-import { AlertSeverity, useSnackbar } from "../../lib/useSnackbar";
 import sendMetrics from "../../lib/metrics";
 import { Password } from "../../components/utils/password";
-import { Snackbar } from "../../components/utils/snackbar";
+import { useAlert } from "../../components/utils/snackbar";
 
 import SecondaryHeaderBar from "./secondary-bar";
 import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
@@ -123,7 +122,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const history = useHistory();
-  const { openSnackbar, snackbarParams } = useSnackbar();
+  const alert = useAlert();
   const { user, setUser, updatePreferences, updateProfile, updateSettings, updatePassword, switchRoleToHCP } = useAuth();
 
   if (user === null) {
@@ -230,7 +229,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           });
         })
         .catch((reason: unknown) => {
-          openSnackbar({ message: t("modal-switch-hcp-failure"), severity: AlertSeverity.error });
+          alert.error(t("modal-switch-hcp-failure"));
           sendMetrics("user-switch-role", {
             from: role,
             to: "hcp",
@@ -314,9 +313,9 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     }
 
     if (updateFailed) {
-      openSnackbar({ message: t("profile-update-failed"), severity: AlertSeverity.error });
+      alert.error(t("profile-update-failed"));
     } else {
-      openSnackbar({ message: t("profile-updated"), severity: AlertSeverity.success });
+      alert.success(t("profile-updated"));
     }
   };
 
@@ -396,7 +395,6 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   return (
     <Fragment>
       <SecondaryHeaderBar defaultURL={props.defaultURL} />
-      <Snackbar params={snackbarParams} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
           <DialogTitle className={classes.title} id="profile-title">
