@@ -121,7 +121,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   const classes = toolbarStyles(props);
   const auth = useAuth();
   const history = useHistory();
-  const notifications = useNotification();
+  const notificationHook = useNotification();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const userMenuOpen = Boolean(anchorEl);
@@ -224,7 +224,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
         {props.children}
         <div className={classes.toolbarRightSide}>
           <IconButton onClick={handleOpenNotifications}>
-            <Badge color="error" badgeContent={notifications.count}>
+            <Badge color="error" badgeContent={notificationHook.receivedInvitations.length}>
               <NotificationsIcon />
             </Badge>
           </IconButton>

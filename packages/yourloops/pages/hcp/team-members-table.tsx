@@ -185,7 +185,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
             const userId = event.target.name;
             const isAdmin = event.target.checked;
             setUpdatingUser(userId);
-            await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.viewer);
+            await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.member);
             setUpdatingUser("");
           };
           checkboxElement = (
@@ -228,7 +228,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
       }
 
       return (
-        <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={userId}>
+        <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={email}>
           <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
           <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
             {lastName}
@@ -253,7 +253,11 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     }
   );
 
-  return <TableBody>{rows}</TableBody>;
+  return (
+    <React.Fragment>
+      {rows}
+    </React.Fragment>
+  );
 }
 
 function TeamMembers(props: TeamMembersProps): JSX.Element {
@@ -296,7 +300,9 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
                 <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
               </TableRow>
             </TableHead>
-            <MembersTableBody {...props} classes={classes} />
+            <TableBody>
+              <MembersTableBody {...props} classes={classes} />
+            </TableBody>
           </Table>
         </AccordionDetails>
       </Accordion>

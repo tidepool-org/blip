@@ -26,133 +26,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
 import bows from "bows";
 
 import { HttpHeaderKeys } from "../../models/api";
-import { UserInvitationStatus } from "../../models/generic";
-import { User, UserRoles } from "../../models/shoreline";
-import { TeamType, ITeam, ITeamMember, TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
-import { waitTimeout } from "../../lib/utils";
+import { UserRoles } from "../../models/shoreline";
+import { TeamType, ITeam, ITeamMember, TypeTeamMemberRole } from "../../models/team";
+import { errorFromHttpStatus } from "../../lib/utils";
 import { Session } from "../auth";
 import appConfig from "../config";
-import httpStatus from "../http-status-codes";
-import { t } from "../language";
 
 const log = bows("TeamAPI");
-let teams: ITeam[] | null = null;
-let teamToJoin: ITeam | null = null;
 
 async function fetchTeams(session: Session): Promise<ITeam[]> {
-  const { user } = session;
+  const { sessionToken, traceToken } = session;
   log.info("fetchTeams()");
 
-  // FIXME
-  // Simulate the fetch() wait network call:
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(1000 + Math.random() * 200);
-
-  if (teams === null) {
-    teams = [
-      {
-        // FIXME
-        id: "team-0",
-        name: "CHU Grenoble",
-        code: "123456789",
-        ownerId: "abcdef",
-        type: TeamType.medical,
-        address: {
-          line1: "Boulevard de la Chantourne",
-          line2: "Cedex 38703",
-          zip: "38700",
-          city: "La Tronche",
-          country: "FR",
-        },
-        phone: "+33 (0)4 76 76 75 75",
-        email: "secretariat-diabethologie@chu-grenoble.fr",
-        members: [
-          {
-            teamId: "team-0",
-            userId: "a0a0a0a0",
-            role: TeamMemberRole.viewer,
-            invitationStatus: UserInvitationStatus.accepted,
-            user: {
-              userid: "a0a0a0a0",
-              username: "jean.dupont@chu-grenoble.fr",
-              role: UserRoles.hcp,
-              profile: { firstName: "Jean", lastName: "Dupont", fullName: "Jean Dupont" },
-            },
-          },
-          {
-            // Pending member invitation -> user not validated (missing termsAccepted field)
-            teamId: "team-0",
-            userId: "a0a0a0a1",
-            role: TeamMemberRole.viewer,
-            invitationStatus: UserInvitationStatus.pending,
-            user: {
-              userid: "a0a0a0a1",
-              role: UserRoles.hcp,
-              username: "michelle.dupuis@chu-grenoble.fr",
-            },
-          },
-        ],
-      },
-      {
-        id: "team-1",
-        name: "Charité – Universitätsmedizin Berlin",
-        code: "987654321",
-        phone: "+49 30 450 - 50",
-        address: {
-          line1: "Charitéplatz 1",
-          city: "Berlin",
-          zip: "10117",
-          country: "DE",
-        },
-        ownerId: "abcdef",
-        type: TeamType.medical,
-        members: [
-          {
-            teamId: "team-1",
-            userId: "b0b1b2b3",
-            role: TeamMemberRole.admin,
-            invitationStatus: UserInvitationStatus.accepted,
-            user: {
-              userid: "b0b1b2b3",
-              role: UserRoles.hcp,
-              username: "adelheide.alvar@charite.de",
-              profile: { firstName: "Adelheide", lastName: "Alvar", fullName: "Adelheide Alvar" },
-            },
-          },
-        ],
-      },
-    ];
-  }
-
-  const returnedTeam = _.cloneDeep(teams);
-  // Add ourselves to the teams:
-  returnedTeam[0].members.push({
-    teamId: "team-0",
-    userId: user.userid,
-    role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
-    invitationStatus: UserInvitationStatus.accepted,
-    user,
-  });
-  returnedTeam[1].members.push({
-    teamId: "team-1",
-    userId: user.userid,
-    role: user.role === UserRoles.patient ? TeamMemberRole.patient : TeamMemberRole.admin,
-    invitationStatus: UserInvitationStatus.accepted,
-    user,
-  });
-
-  return returnedTeam;
-}
-
-async function fetchPatients(session: Session): Promise<ITeamMember[]> {
-  const { sessionToken, traceToken, user } = session;
-  log.info("fetchPatients()");
-
-  const apiURL = new URL(`/metadata/users/${user.userid}/users`, appConfig.API_HOST);
+  const apiURL = new URL(`/v0/teams`, appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "GET",
     headers: {
@@ -161,156 +50,82 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
     },
   });
 
-  const patients: ITeamMember[] = [];
   if (response.ok) {
-    const users = (await response.json()) as User[];
-    // FIXME will be removed with the team API call
-    const nPatients = users.length;
-    let nPrivate = 0;
-    for (let i = 0; i < nPatients; i++) {
-      const user = { ...users[i], role: UserRoles.patient };
-
-      // Randomize the teams associations
-      const val = (Math.random() * 10) | 0;
-      let teamIds = [];
-      if (i < 2) {
-        teamIds = ["private"];
-      } else if (val < 7) { // eslint-disable-line no-magic-numbers
-        teamIds = ["team-0"];
-      } else if (val < 8) { // eslint-disable-line no-magic-numbers
-        teamIds = ["team-1"];
-      } else {
-        teamIds = ["team-0", "team-1"];
-      }
-      // eslint-disable-next-line no-magic-numbers
-      if (nPrivate < 3 && !teamIds.includes("private")) {
-        nPrivate++;
-        teamIds.push("private");
-      }
-
-      // Not using teamIds.forEach(): eslint(no-loop-func)
-      for (const teamId of teamIds) {
-        const member: ITeamMember = {
-          invitationStatus: UserInvitationStatus.accepted,
-          role: TeamMemberRole.patient,
-          teamId,
-          userId: user.userid,
-          user,
-        };
-        patients.push(member);
-      }
-    }
-
-    if (user.role !== UserRoles.patient) {
-      // Pending invite patient
-      patients.push({
-        invitationStatus: UserInvitationStatus.pending,
-        role: TeamMemberRole.patient,
-        teamId: "team-0",
-        userId: "a0a0a0b0",
-        user: {
-          userid: "a0a0a0b0",
-          username: "gerard.dumoulin@example.com",
-          role: UserRoles.patient,
-          profile: {
-            firstName: "Gerard",
-            lastName: "Dumoulin",
-            fullName: "Gerard D.",
-          },
-        },
-      });
-    }
-    // FIXME end
-    return patients;
+    return response.json() as Promise<ITeam[]>;
   }
 
-  log.error("Server response in error", response.status, response.statusText);
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
 
-  switch (response.status) {
-  case httpStatus.StatusInternalServerError:
-    throw new Error(t("error-http-500"));
-  default:
-    throw new Error(t("error-http-40x"));
+async function fetchPatients(session: Session): Promise<ITeamMember[]> {
+  const { sessionToken, traceToken } = session;
+  log.info("fetchPatients()");
+
+  const apiURL = new URL(`/v0/patients`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    return response.json();
   }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function invitePatient(session: Session, teamId: string, username: string): Promise<ITeamMember> {
   const { sessionToken, traceToken } = session;
-  log.info(`invitePatient(${username}, ${teamId})`, traceToken, sessionToken);
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(100 + Math.random() * 100);
+  log.info(`invitePatient(${username}, ${teamId})`);
 
-  // eslint-disable-next-line no-magic-numbers
-  if (Math.random() < 0.1) {
-    throw new Error(t("error-http-500"));
+  const apiURL = new URL(`/confirm/send/team/invite`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({ teamId, email: username, role: UserRoles.patient }),
+  });
+
+  if (response.ok) {
+    return response.json();
   }
 
-  const team = teams?.find(t => t.id === teamId);
-  if (typeof team === "object") {
-    const iMember = {
-      invitationStatus: UserInvitationStatus.pending,
-      role: TeamMemberRole.patient,
-      teamId,
-      userId: username,
-      user: {
-        userid: username,
-        username,
-        role: UserRoles.patient,
-      },
-    };
-    team.members.push(iMember);
-    return iMember;
-  }
-
-  throw new Error(t("error-http-40x"));
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function inviteMember(session: Session, teamId: string, username: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<ITeamMember> {
+async function inviteMember(session: Session, teamId: string, email: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<ITeamMember> {
   const { sessionToken, traceToken } = session;
-  log.info("inviteMember()", traceToken, sessionToken, teamId, username, role);
+  log.info("inviteMember()", teamId, email, role);
 
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(500 + Math.random() * 200);
+  const apiURL = new URL(`/confirm/send/team/invite`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({ teamId, email, role }),
+  });
 
-  // eslint-disable-next-line no-magic-numbers
-  if (Math.random() < 0.1) {
-    throw new Error(t("error-http-500"));
+  if (response.ok) {
+    return response.json();
   }
 
-  if (role as TeamMemberRole === TeamMemberRole.patient) {
-    throw new Error(t("error-http-40x"));
-  }
-
-  const team = teams?.find(t => t.id === teamId);
-  if (typeof team === "object") {
-    const iMember: ITeamMember = {
-      invitationStatus: UserInvitationStatus.pending,
-      role: role as TeamMemberRole,
-      teamId,
-      userId: username,
-      user: {
-        userid: username,
-        username,
-        role: UserRoles.hcp,
-      },
-    };
-    team.members.push(iMember);
-    return iMember;
-  }
-
-  throw new Error(t("error-http-40x"));
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function createTeam(session: Session, team: Partial<ITeam>): Promise<ITeam> {
-  const { sessionToken, traceToken, user } = session;
+  const { sessionToken, traceToken /*, user */ } = session;
 
   // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(100 + Math.random() * 50);
+  // await waitTimeout(100 + Math.random() * 50);
 
-  log.info("createTeam()", traceToken, sessionToken, team);
-  if (teams === null) {
-    teams = [];
-  }
+  log.info("createTeam()", team);
 
   if (typeof team.name !== "string") {
     throw new Error('Missing team name');
@@ -322,190 +137,201 @@ async function createTeam(session: Session, team: Partial<ITeam>): Promise<ITeam
     throw new Error('Missing team phone');
   }
 
-  // id, code, owner fields will be set by the back-end API
-  const teamId = `team-${Math.round(Math.random() * 1000)}`; // eslint-disable-line no-magic-numbers
-  const tmpTeam: ITeam = {
-    name: team.name,
-    address: team.address,
-    phone: team.phone,
-    email: team.email,
-    id: teamId,
-    code: "123-456-789",
-    ownerId: "00000",
-    type: TeamType.medical,
-    members: [{
-      invitationStatus: UserInvitationStatus.accepted,
-      role: TeamMemberRole.admin,
-      teamId,
-      userId: user.userid,
-      user,
-    }],
-  };
+  const apiURL = new URL(`/crew/v0/teams`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({ ...team, type: TeamType.medical }),
+  });
 
-  teams.push(tmpTeam);
-  return tmpTeam;
+  if (response.ok) {
+    return response.json();
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function editTeam(session: Session, editedTeam: ITeam): Promise<void> {
   const { sessionToken, traceToken } = session;
   log.info("editTeam()", traceToken, sessionToken, editedTeam);
-  if (teams === null || teams.length < 1) {
-    throw new Error("Empty team list!");
+
+  const apiURL = new URL(`/crew/v0/teams/${editedTeam.id}`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify(editedTeam),
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
   }
-  const nTeams = teams.length;
-  for (let i = 0; i < nTeams; i++) {
-    const team = teams[i];
-    if (editedTeam.id === team.id) {
-      teams[i] = { ...editedTeam, members: team.members };
-      break;
-    }
-  }
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(500 + Math.random() * 200);
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function leaveTeam(session: Session, teamId: string): Promise<void> {
+async function deleteTeam(session: Session, teamId: string): Promise<void> {
   const { sessionToken, traceToken } = session;
-  log.info("leaveTeam()", traceToken, sessionToken, teamId);
+  log.info("deleteTeam()", teamId);
 
-  if (teams === null || teams.length < 1) {
-    throw new Error("Empty team list !");
+  const apiURL = new URL(`/crew/v0/teams/${teamId}`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "DELETE",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
   }
 
-  // eslint-disable-next-line no-magic-numbers
-  if (Math.random() < 0.2) {
-    // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random() * 200);
-    throw new Error("A random error");
-  }
-
-  const nTeams = teams.length;
-  for (let i = 0; i < nTeams; i++) {
-    const thisTeam = teams[i];
-    if (thisTeam.id === teamId) {
-      log.debug(`Removing team ${thisTeam.id}`);
-      teams.splice(i, 1);
-      break;
-    }
-  }
-
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(500 + Math.random() * 200);
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function removeMember(session: Session, teamId: string, userId: string): Promise<void> {
   const { sessionToken, traceToken } = session;
-  log.info("removeMember()", traceToken, sessionToken, teamId, userId);
-  if (teams === null || teams.length < 1) {
-    throw new Error("Empty team list!");
+  log.info("removeMember()", teamId, userId);
+
+  const apiURL = new URL(`/crew/v0/teams/${teamId}/members/${userId}`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "DELETE",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
   }
 
-  // eslint-disable-next-line no-magic-numbers
-  if (Math.random() < 0.2) {
-    // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random() * 200);
-    throw new Error("A random error");
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
+
+/**
+ *
+ * @param userId FIXME/TODO Is it always ourself ?
+ */
+async function removePatient(session: Session, teamId: string, userId: string): Promise<void> {
+  const { sessionToken, traceToken } = session;
+  log.info("removePatient()", teamId, userId);
+
+  const apiURL = new URL(`/crew/v0/teams/${teamId}/patients/${userId}`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "DELETE",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
   }
 
-  const nTeams = teams.length;
-  for (let i = 0; i < nTeams; i++) {
-    const thisTeam = teams[i];
-    if (thisTeam.id === teamId) {
-      if (Array.isArray(thisTeam.members)) {
-        const idx = thisTeam.members.findIndex((tm: ITeamMember): boolean => tm.userId === userId);
-        if (idx > -1) {
-          thisTeam.members.splice(idx, 1);
-        }
-      }
-      break;
-    }
-  }
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(500 + Math.random() * 200);
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function changeMemberRole(session: Session, teamId: string, userId: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> {
   const { sessionToken, traceToken } = session;
-  log.info("changeMemberRole()", traceToken, sessionToken, teamId, userId, role);
-  if (teams === null || teams.length < 1) {
-    throw new Error("Empty team list!");
-  }
+  log.info("changeMemberRole()", teamId, userId, role);
 
-  // eslint-disable-next-line no-magic-numbers
-  if (Math.random() < 0.2) {
-    // eslint-disable-next-line no-magic-numbers
-    await waitTimeout(500 + Math.random() * 200);
-    throw new Error("A random error");
-  }
+  try {
+    const apiURL = new URL(`/confirm/send/team/role/${userId}`, appConfig.API_HOST);
+    const response = await fetch(apiURL.toString(), {
+      method: "PUT",
+      headers: {
+        [HttpHeaderKeys.traceToken]: traceToken,
+        [HttpHeaderKeys.sessionToken]: sessionToken,
+      },
+      body: JSON.stringify({
+        teamId,
+        userId,
+        role,
+      }),
+    });
 
-  const nTeams = teams.length;
-  for (let i = 0; i < nTeams; i++) {
-    const thisTeam = teams[i];
-    if (thisTeam.id === teamId) {
-      if (!Array.isArray(thisTeam.members)) {
-        throw new Error("No member for this team !");
-      }
-      for (const member of thisTeam.members) {
-        if (member.userId === userId) {
-          member.role = role as TeamMemberRole;
-          break;
-        }
-      }
-      break;
+    if (response.ok) {
+      log.info("changeMemberRole", response.status);
+      return Promise.resolve();
     }
+  } catch (err) {
+    log.error(err);
+    log.error("Trying with the team API");
   }
-  // eslint-disable-next-line no-magic-numbers
-  await waitTimeout(500 + Math.random() * 200);
+
+  // Try direct change: My hydrophone config failed because of sesMock don't work (or not configured for hydrophone)
+  const apiURL = new URL(`/crew/v0/teams/${teamId}/members`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({
+      teamId,
+      userId,
+      role,
+    }),
+  });
+
+  if (response.ok) {
+    log.info("changeMemberRole", response.status);
+    return Promise.resolve();
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function getTeamFromCode(session: Session, code: string): Promise<ITeam | null> {
-  if (code.match(/^[0-9]{9}$/) === null) {
-    return Promise.resolve(null);
-  }
-  if (code[0] === "0") {
-    // To test an error
-    return Promise.resolve(null);
-  }
-
-  const team = {
-    id: `team-${code}`,
-    name: `Test Code Team`,
-    code,
-    ownerId: session.traceToken,
-    type: TeamType.medical,
-    address: {
-      line1: "Avenue to be defined",
-      zip: "002255",
-      city: "Somewhere",
-      country: "FR",
+  const { sessionToken, traceToken } = session;
+  const apiURL = new URL("/crew/v0/teams", appConfig.API_HOST);
+  apiURL.searchParams.append("code", code);
+  const response = await fetch(apiURL.toString(), {
+    method: "GET",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
     },
-    phone: `+33 (0) ${code}`,
-    members: [],
-  };
+  });
 
-  teamToJoin = team;
+  if (response.ok) {
+    const teams = await response.json() as ITeam[];
+    if (teams.length > 0) {
+      return teams[0];
+    }
+    return null;
+  }
 
-  await waitTimeout(10);
-  return team;
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function joinTeam(session: Session, teamId: string): Promise<void> {
-  await waitTimeout(100);
-  log.info("joinTeam", { teamId });
-
-  if (teamId === teamToJoin?.id) {
-    teamToJoin.members = [{
-      invitationStatus: UserInvitationStatus.accepted,
-      role: TeamMemberRole.patient,
-      teamId,
+  const { sessionToken, traceToken } = session;
+  const apiURL = new URL(`/crew/v0/teams/${teamId}/patients`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({
       userId: session.user.userid,
-      user: session.user,
-    }];
-    teams?.push(teamToJoin);
-    teamToJoin = null;
-  } else {
-    Promise.reject(new Error("Invalid team id"));
+    }),
+  });
+
+  if (response.ok) {
+    return Promise.resolve();
   }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 export default {
@@ -515,8 +341,9 @@ export default {
   inviteMember,
   createTeam,
   editTeam,
-  leaveTeam,
+  deleteTeam,
   removeMember,
+  removePatient,
   changeMemberRole,
   getTeamFromCode,
   joinTeam,

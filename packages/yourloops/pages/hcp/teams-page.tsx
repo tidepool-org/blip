@@ -293,6 +293,7 @@ function TeamsPage(): JSX.Element | null {
         <TeamCard
           team={team}
           memberRole={member.role}
+          memberStatus={member.status}
           onShowEditTeamDialog={handleShowEditTeamDialog}
           onShowLeaveTeamDialog={handleShowLeaveTeamDialog}
           onShowAddMemberDialog={handleShowAddMemberDialog}

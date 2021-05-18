@@ -37,7 +37,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 
-import { useSignUpFormState } from "./signup-formstate-context";
+import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import { availableCountries } from "../../lib/language";
 import SignUpFormProps from "./signup-form-props";
 
@@ -94,7 +94,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
 
   const onChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-    keyField: string
+    keyField: FormValuesType
   ): void => {
     dispatch({
       type: "EDIT_FORMVALUE",
@@ -108,7 +108,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
       name?: string | undefined;
       value: string | unknown;
     }>,
-    keyField: string
+    keyField: FormValuesType
   ): void => {
     dispatch({
       type: "EDIT_FORMVALUE",

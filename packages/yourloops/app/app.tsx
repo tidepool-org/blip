@@ -43,9 +43,6 @@ import HcpPage from "../pages/hcp";
 import CaregiverPage from "../pages/caregiver";
 import PatientPage from "../pages/patient";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
-// ** PR review in comment: Notifications are not used in public routes
-// I would have put the NotificationContextProvider in PrivateRoute
-import { NotificationContextProvider } from "../lib/notifications/hook";
 
 function MetricsLocationListener() {
   const location = useLocation();
@@ -60,20 +57,18 @@ const Yourloops = (): JSX.Element => {
     <Router>
       <MetricsLocationListener />
       <AuthContextProvider>
-        <NotificationContextProvider>
-          <Switch>
-            <PublicRoute exact path="/" component={LoginPage} />
-            {/* The /login route is required because some backend service generate URL with it */}
-            <PublicRoute exact path="/login" component={LoginPage} />
-            <PublicRoute exact path="/signup" component={SignUpPage} />
-            <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
-            <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
-            <PrivateRoute path="/caregiver" component={CaregiverPage} />
-            <PrivateRoute path="/professional" component={HcpPage} />
-            <PrivateRoute path="/patient" component={PatientPage} />
-            <Route component={InvalidRoute} />
-          </Switch>
-        </NotificationContextProvider>
+        <Switch>
+          <PublicRoute exact path="/" component={LoginPage} />
+          {/* The /login route is required because some backend service generate URL with it */}
+          <PublicRoute exact path="/login" component={LoginPage} />
+          <PublicRoute exact path="/signup" component={SignUpPage} />
+          <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
+          <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
+          <PrivateRoute path="/caregiver" component={CaregiverPage} />
+          <PrivateRoute path="/professional" component={HcpPage} />
+          <PrivateRoute path="/patient" component={PatientPage} />
+          <Route component={InvalidRoute} />
+        </Switch>
       </AuthContextProvider>
     </Router>
   );

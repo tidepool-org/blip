@@ -97,7 +97,7 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
           <Link id="footer-link-url-support" href={diabeloopUrls.SupportUrl}>{t("footer-link-url-support")}</Link>
         </Grid>
         <Grid item xs={6} className={classes.rightLink}>
-          <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)}>{t("footer-link-url-terms")}</Link>
+          <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)}>{t("terms-and-conditions")}</Link>
         </Grid>
         <Grid item xs={6} className={classes.leftLink}>
           <Link id="footer-link-url-intended-use" href={diabeloopUrls.getIntendedUseUrL(i18n.language)}>{t("footer-link-url-intended-use")}</Link>

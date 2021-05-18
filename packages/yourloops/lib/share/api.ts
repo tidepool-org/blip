@@ -27,53 +27,17 @@
  */
 
 import bows from "bows";
-import { v4 as uuidv4 } from "uuid";
+import _ from "lodash";
 
 import { UserInvitationStatus } from "../../models/generic";
-import { User, UserRoles } from "../../models/shoreline";
+import { UserRoles } from "../../models/shoreline";
 import { HttpHeaderKeys } from "../../models/api";
 import appConfig from "../config";
 import { errorFromHttpStatus } from "../utils";
 import { Session } from "../auth";
-import { ShareUser } from "./models";
-
-import { waitTimeout } from "../../lib/utils";
+import { ShareUser, DirectShareAPI } from "./models";
 
 const log = bows("ShareApi");
-
-const directSharesDummy: ShareUser[] = [
-  {
-    status: UserInvitationStatus.accepted,
-    user: {
-      userid: "abcdef0000",
-      role: UserRoles.caregiver,
-      username: "caregiver.test-1@diabeloop.fr",
-      emails: ["caregiver.test-1@diabeloop.fr"],
-      profile: { firstName: "Caregiver", lastName: "Test01", fullName: "Caregiver Test01" },
-    },
-  },
-  {
-    status: UserInvitationStatus.accepted,
-    user: {
-      userid: "abcdef0001",
-      role: UserRoles.caregiver,
-      username: "caregiver.test-2@diabeloop.fr",
-      emails: ["caregiver.test-2@diabeloop.fr"],
-      profile: { firstName: "Caregiver", lastName: "Test02", fullName: "Caregiver Test02" },
-    },
-  },
-  {
-    status: UserInvitationStatus.pending,
-    user: {
-      userid: "abcdef0002",
-      role: UserRoles.caregiver,
-      username: "caregiver.test-3@diabeloop.fr",
-      emails: ["caregiver.test-3@diabeloop.fr"],
-      profile: { firstName: "Caregiver", lastName: "Test03", fullName: "Caregiver Test03" },
-    },
-  },
-];
-const directShares: ShareUser[] = [];
 
 async function getDirectShares(session: Session): Promise<ShareUser[]> {
   log.info("getDirectShares");
@@ -81,7 +45,7 @@ async function getDirectShares(session: Session): Promise<ShareUser[]> {
   // await waitTimeout(100);
   const { sessionToken, traceToken, user } = session;
 
-  const apiURL = new URL(`/metadata/users/${user.userid}/users`, appConfig.API_HOST);
+  const apiURL = new URL("/v0/direct-shares", appConfig.API_HOST);
   const response = await fetch(apiURL.toString(), {
     method: "GET",
     headers: {
@@ -91,79 +55,83 @@ async function getDirectShares(session: Session): Promise<ShareUser[]> {
   });
 
   if (response.ok) {
-    const users = (await response.json()) as (User & { roles: string[] })[];
-    directShares.splice(0);
-    Array.prototype.push.apply(directShares, directSharesDummy);
-    for (const user of users) {
-      directShares.push({
-        status: UserInvitationStatus.accepted,
-        user: { ...user, role: Array.isArray(user.roles) && user.roles.length > 1 ? UserRoles.caregiver : UserRoles.patient },
-      });
+    const directShares = (await response.json()) as DirectShareAPI[];
+    const shareUsers: ShareUser[] = [];
+    if (Array.isArray(directShares)) {
+      for (let i=0; i<directShares.length; i++) {
+        const directShare = directShares[i];
+        const directShareWith = directShare.patient ?? directShare.viewer;
+        if (_.isNil(directShareWith)) {
+          continue;
+        }
+
+        const shareUser: ShareUser = {
+          status: UserInvitationStatus.accepted,
+          user: {
+            userid: directShareWith.userId,
+            preferences: directShareWith.preferences ?? undefined,
+            profile: directShareWith.profile ?? undefined,
+            settings: directShareWith.settings ?? undefined,
+            username: directShareWith.email,
+            emails: [directShareWith.email],
+            role: user.role === UserRoles.patient ? UserRoles.caregiver : UserRoles.patient,
+          },
+        };
+        shareUsers.push(shareUser);
+      }
     }
-    return directShares;
+    log.debug(shareUsers);
+    return shareUsers;
   }
 
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function addDirectShare(session: Session, email: string): Promise<void> {
-  log.info("addDirectShare", session.traceToken, email);
+  const { sessionToken, traceToken, user } = session;
+  log.info("addDirectShare", email);
 
-  await waitTimeout(100);
+  const apiURL = new URL(`/confirm/send/invite/${user.userid}`, appConfig.API_HOST);
+  const response = await fetch(apiURL.toString(), {
+    method: "POST",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+    body: JSON.stringify({ email }),
+  });
 
-  if (email.match(/@diabeloop.fr$/) === null) {
-    return Promise.reject(new Error("A test problem occurred"));
+  if (response.ok) {
+    return response.json();
   }
-
-  let shareUser: ShareUser;
-  if (session.user.role === UserRoles.patient) {
-    shareUser = {
-      status: UserInvitationStatus.pending,
-      user: {
-        userid: uuidv4(),
-        role: UserRoles.caregiver,
-        username: email,
-        emails: [email],
-        profile: {
-          firstName: "Caregiver",
-          lastName: `Test${directShares.length}`,
-          fullName: `Caregiver Test${directShares.length}`,
-        },
-      },
-    };
-  } else {
-    shareUser = {
-      status: UserInvitationStatus.pending,
-      user: {
-        userid: uuidv4(),
-        role: UserRoles.patient,
-        username: email,
-        emails: [email],
-        profile: {
-          firstName: "Patient",
-          lastName: `Test${directShares.length}`,
-          fullName: `Patient Test${directShares.length}`,
-        },
-      },
-    };
-  }
-
-  directSharesDummy.push(shareUser);
-  return Promise.resolve();
+  // TODO: 409 Conflict -> already pending invitation
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function removeDirectShare(session: Session, userId: string): Promise<void> {
-  log.info("removeDirectShare", session.traceToken, userId);
+  const { sessionToken, traceToken, user } = session;
+  log.info("removeDirectShare", userId);
 
-  await waitTimeout(100);
-
-  const idx = directSharesDummy.findIndex((sh) => sh.user.userid === userId);
-  if (idx < 0) {
-    return Promise.reject(new Error("User not found"));
+  let apiURL: URL;
+  if (user.role === UserRoles.patient) {
+    apiURL = new URL(`/crew/v0/direct-share/${user.userid}/${userId}`, appConfig.API_HOST);
+  } else {
+    apiURL = new URL(`/crew/v0/direct-share/${userId}/${user.userid}`, appConfig.API_HOST);
   }
 
-  directSharesDummy.splice(idx, 1);
-  return Promise.resolve();
+  const response = await fetch(apiURL.toString(), {
+    method: "DELETE",
+    headers: {
+      [HttpHeaderKeys.traceToken]: traceToken,
+      [HttpHeaderKeys.sessionToken]: sessionToken,
+    },
+  });
+
+  if (response.ok) {
+    log.info("removeDirectShare", await response.json());
+    return Promise.resolve();
+  }
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 export default {

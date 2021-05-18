@@ -25,31 +25,96 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React, { createContext, Dispatch, useContext, useReducer } from "react";
-import { SignupReducer, initialState } from "./signup-reducer";
+import * as React from "react";
+import _ from "lodash";
+
+import { UserRoles } from "../../models/shoreline";
+import { LanguageCodes } from "../../models/locales";
+import { getCurrentLang } from "../../lib/language";
+
+export interface IFormValues {
+  accountUsername: string;
+  accountPassword: string;
+  accountRole: UserRoles;
+  profileFirstname: string;
+  profileLastname: string;
+  profileCountry: string;
+  profilePhone: string;
+  preferencesLanguage: LanguageCodes;
+  terms: boolean;
+  privacyPolicy: boolean;
+}
+
+export type FormValuesType = keyof IFormValues;
 
 /*
  * Signup Form type
  */
-export type SignUpFormState = {
-  formValues: any;
+export interface SignUpFormState {
+  formValues: IFormValues;
+}
+
+interface ISignUpFormStateContext {
+  state: SignUpFormState;
+  dispatch: React.Dispatch<ISignUpDispatch>;
+}
+
+interface IProvider {
+  children?: JSX.Element | JSX.Element[];
+}
+
+export interface ISignUpDispatch {
+  type: string;
+  key?: FormValuesType;
+  value?: boolean | string;
+}
+
+export const initialState: SignUpFormState = {
+  formValues: {
+    accountUsername: "",
+    accountPassword: "",
+    accountRole: UserRoles.caregiver,
+    profileFirstname: "",
+    profileLastname: "",
+    profileCountry: "", // how to do better ?
+    profilePhone: "",
+    // profileJob: "",
+    preferencesLanguage: getCurrentLang(),
+    terms: false,
+    privacyPolicy: false,
+  },
 };
+
+export function signupReducer(state: SignUpFormState, action: ISignUpDispatch): SignUpFormState {
+  switch (action.type) {
+  case "EDIT_FORMVALUE": {
+    if (_.isNil(action.value) || _.isNil(action.key)) {
+      throw new Error(`Invalid parameter: ${JSON.stringify(action)}`);
+    }
+    // clone input state in order to avoid initialstate mutation
+    const clone = _.cloneDeep(state);
+    _.set(clone.formValues, action.key, action.value);
+    // clone.formValues[action.key] = action.value;
+    return clone;
+  }
+  case "RESET_FORMVALUES":
+    return initialState;
+  default:
+  }
+  return state;
+}
 
 /*
  * Create the context for the Signup Form state
  */
-const SignUpFormStateContext = createContext<{
-  state: SignUpFormState;
-  dispatch: Dispatch<any>;
-// eslint-disable-next-line lodash/prefer-constant
-}>({ state: initialState, dispatch: () => null });
+const SignUpFormStateContext = React.createContext<ISignUpFormStateContext>({ state: initialState, dispatch: _.noop });
 
 /*
- * Provide a Signup Form state context
+ * Provide a signup form state context
  */
-export const SignUpFormStateProvider = ({ children }: any) => {
+export const SignUpFormStateProvider = ({ children }: IProvider): JSX.Element => {
   // Attach the Signup reducer and assign initial state
-  const [state, dispatch] = useReducer(SignupReducer, initialState);
+  const [state, dispatch] = React.useReducer(signupReducer, initialState);
   const value = { state, dispatch };
   return (
     <SignUpFormStateContext.Provider value={value}>
@@ -61,4 +126,4 @@ export const SignUpFormStateProvider = ({ children }: any) => {
 /**
  Returns the current SignupForm State and a dispatcher to update it
  */
-export const useSignUpFormState = () => useContext(SignUpFormStateContext);
+export const useSignUpFormState = (): ISignUpFormStateContext => React.useContext(SignUpFormStateContext);

@@ -58,7 +58,7 @@ export interface Team {
   name: string;
   readonly code: string;
   readonly type: TeamType;
-  readonly ownerId: string;
+  readonly owner: string;
   phone?: string;
   email?: string;
   address?: PostalAddress;
@@ -73,8 +73,9 @@ export interface TeamAPI {
   inviteMember: (session: Session, teamId: string, username: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<ITeamMember>;
   createTeam: (session: Session, team: Partial<ITeam>) => Promise<ITeam>;
   editTeam: (session: Session, editedTeam: ITeam) => Promise<void>;
-  leaveTeam: (session: Session, teamId: string) => Promise<void>;
+  deleteTeam: (session: Session, teamId: string) => Promise<void>;
   removeMember: (session: Session, teamId: string, userId: string) => Promise<void>;
+  removePatient: (session: Session, teamId: string, userId: string) => Promise<void>;
   changeMemberRole: (session: Session, teamId: string, userId: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<void>;
   getTeamFromCode: (session: Session, code: string) => Promise<ITeam | null>;
   joinTeam: (session: Session, teamId: string) => Promise<void>;

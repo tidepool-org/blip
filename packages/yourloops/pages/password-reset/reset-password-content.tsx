@@ -62,6 +62,7 @@ export default function ResetPasswordContent(): JSX.Element {
   const [success, setSuccess] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
   const emptyUsername = _.isEmpty(username);
+  const resetKey = React.useMemo(() => new URLSearchParams(location.search).get("resetKey"), []);
 
   const onBack = (): void => {
     history.push("/");
@@ -108,23 +109,13 @@ export default function ResetPasswordContent(): JSX.Element {
     return !err;
   };
 
-  const validateForm = (): boolean => {
-    if (
-      validateUserName() &&
-      validatePassword() &&
-      validateConfirmNewPassword()
-    ) {
-      return true;
-    }
-    return false;
-  };
+  const validateForm = () => validateUserName() && validatePassword() && validateConfirmNewPassword();
 
   const onSendResetPassword = async (): Promise<void> => {
     resetFormState();
-    if (validateForm()) {
+    if (validateForm() && resetKey !== null) {
       try {
         setInProgress(true);
-        const resetKey = new URLSearchParams(location.search).get("resetKey");
         const success = await auth.resetPassword(
           resetKey,
           username,
@@ -160,6 +151,7 @@ export default function ResetPasswordContent(): JSX.Element {
               }}
               noValidate
               autoComplete="off">
+              {_.isEmpty(resetKey) ? <Typography>{t("reset-key-is-missing")}</Typography> : null}
               <TextField
                 id="username"
                 className={classes.TextField}

@@ -136,8 +136,14 @@ function AddDialog(props: AddDialogProps): JSX.Element {
 
   const termsOfUse = t("terms-and-conditions");
   const linkTerms = (
-    <Link id="patient-list-dialog-add-warning-link" aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
+    <Link id="patient-list-dialog-add-warning-link-terms" aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
       {termsOfUse}
+    </Link>
+  );
+  const privacyPolicy = t("footer-link-url-privacy-policy");
+  const linkPrivacyPolicy = (
+    <Link id="patient-list-dialog-add-warning-link-privacy" aria-label={termsOfUse} href={DiabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
+      {privacyPolicy}
     </Link>
   );
   return (
@@ -174,14 +180,17 @@ function AddDialog(props: AddDialogProps): JSX.Element {
             {optionsTeamsElements}
           </NativeSelect>
         </FormControl>
+        <DialogContentText id="patient-list-dialog-add-warning-line1">
+          {t("modal-add-patient-warning-line1")}
+        </DialogContentText>
         <Trans
-          id="patient-list-dialog-add-warning"
-          i18nKey="modal-add-patient-warning"
+          id="patient-list-dialog-add-warning-line2"
+          i18nKey="modal-add-patient-warning-line2"
           t={t}
-          components={{ linkTerms }}
-          values={{ termsOfUse }}
+          components={{ linkTerms, linkPrivacyPolicy }}
+          values={{ terms: termsOfUse, privacyPolicy }}
           parent={DialogContentText}>
-          By inviting a patient, you recognize that you have the right to do so per our {linkTerms}
+          Read our {linkTerms} and {linkPrivacyPolicy}.
         </Trans>
       </DialogContent>
 

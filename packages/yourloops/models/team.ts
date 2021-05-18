@@ -18,7 +18,7 @@
  * TODO: Review me when we have the team API
  */
 
-import { User } from "./shoreline";
+import { Profile, Settings, Preferences } from "./shoreline";
 import { UserInvitationStatus, PostalAddress } from "./generic";
 
 export enum TeamType {
@@ -31,7 +31,7 @@ export enum TeamType {
 
 export enum TeamMemberRole {
   admin = "admin",
-  viewer = "viewer",
+  member = "member",
   patient = "patient",
 }
 
@@ -42,10 +42,13 @@ export type TypeTeamMemberRole = keyof typeof TeamMemberRole;
  */
 export interface ITeamMember {
   userId: string;
-  teamId: string;
+  teamId: "private" | string;
+  email: string;
   role: TeamMemberRole;
   invitationStatus: UserInvitationStatus;
-  user: User;
+  profile?: Profile | null;
+  settings?: Settings | null;
+  preferences?: Preferences | null;
 }
 
 /**
@@ -56,7 +59,7 @@ export interface ITeam {
   name: string;
   readonly code: string;
   readonly type: TeamType;
-  readonly ownerId: string;
+  readonly owner: string;
   phone?: string;
   email?: string;
   address?: PostalAddress;

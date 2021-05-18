@@ -61,11 +61,11 @@ function PatientPage(): JSX.Element {
   const defaultURL = `${prefixURL}/data`;
 
   React.useEffect(() => {
-    if (/^\/patient\/?$/.test(pathname)) {
+    if (new RegExp(`^${prefixURL}/?$`).test(pathname)) {
       log.info(`Redirecting to ${defaultURL}`);
       historyHook.push(defaultURL);
     }
-  }, [pathname, historyHook, defaultURL]);
+  }, [pathname, historyHook, prefixURL, defaultURL]);
 
   return (
     <TeamContextProvider>
@@ -87,7 +87,7 @@ function PatientPage(): JSX.Element {
           <Route exact={true} path={`${prefixURL}/notifications`}>
             <NotificationsPage defaultURL={defaultURL} />
           </Route>
-          <Route path="/patient" exact={true} />
+          <Route path={prefixURL} exact={true} />
           <Route>
             <InvalidRoute defaultURL={defaultURL} />
           </Route>

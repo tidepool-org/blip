@@ -36,19 +36,9 @@ enum UserRoles {
   patient = "patient",
 }
 
-/** List of job for an heath care practitioners (hcp).
- *  The value are key used in crowding for translation */
-enum Jobs {
-  diabetologist = "diabetologist",
-  doctor = "doctor",
-  nurse = "nurse",
-  nurseAssistant = "nurse-assistant",
-  studyNurse = "study-nurse",
-}
-
 interface Consent {
-  AcceptanceDate?: string;
-  IsAccepted?: boolean;
+  acceptanceDate?: string;
+  isAccepted?: boolean;
 }
 
 interface Patient {
@@ -62,7 +52,6 @@ interface Profile {
   firstName?: string;
   lastName?: string;
   patient?: Patient;
-  job?: Jobs;
   termsOfUse?: Consent;
   privacyPolicy?: Consent;
 }
@@ -90,18 +79,20 @@ interface User {
   readonly username: string;
   /** Role of the user */
   readonly role: UserRoles;
+  /** Shoreline (database) role value */
+  roles?: UserRoles[];
   /** Emails of the users */
   emails?: string[];
   /** true if the account has been verified */
   readonly emailVerified?: boolean;
   /** User profile */
-  profile?: Profile;
+  profile?: Profile | null;
   /** User settings (read-only for patient only?) */
-  settings?: Settings;
+  settings?: Settings | null;
   /** User preferences */
-  preferences?: Preferences;
+  preferences?: Preferences | null;
   /** Patient medical data. undefined means not fetched, null if the fetch failed */
   medicalData?: MedicalData | null;
 }
 
-export { User, Profile, Settings, Preferences, UserRoles, Jobs };
+export { User, Profile, Settings, Preferences, UserRoles };

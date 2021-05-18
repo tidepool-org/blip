@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Notification: Invitations & co
  *
  * All rights reserved.
  *
@@ -25,25 +25,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import { init as i18nInit } from "../lib/language";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+import { INotification, NotificationType, NotificationAPI } from "./models";
+import { useNotification } from "./hook";
 
-// Enable bows logging display:
-window.localStorage.setItem('debug', 'true');
-
-i18nInit().then(() => {
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+export {
+  INotification,
+  NotificationAPI,
+  NotificationType,
+  useNotification,
+};

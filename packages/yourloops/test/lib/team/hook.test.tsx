@@ -43,8 +43,9 @@ export const teamAPI: TeamAPI = {
   editTeam: sinon.stub().resolves(),
   inviteMember: sinon.stub().resolves(members[0]),
   invitePatient: sinon.stub().resolves(patients[4]),
-  leaveTeam: sinon.stub().resolves(),
+  deleteTeam: sinon.stub().resolves(),
   removeMember: sinon.stub().resolves(),
+  removePatient: sinon.stub().resolves(),
   getTeamFromCode: sinon.stub().resolves(emptyTeam3),
   joinTeam: sinon.stub().resolves(),
 };
@@ -57,8 +58,9 @@ export function resetTeamAPIStubs(): void {
   (teamAPI.editTeam as sinon.SinonStub).resetHistory();
   (teamAPI.inviteMember as sinon.SinonStub).resetHistory();
   (teamAPI.invitePatient as sinon.SinonStub).resetHistory();
-  (teamAPI.leaveTeam as sinon.SinonStub).resetHistory();
+  (teamAPI.deleteTeam as sinon.SinonStub).resetHistory();
   (teamAPI.removeMember as sinon.SinonStub).resetHistory();
+  (teamAPI.removePatient as sinon.SinonStub).resetHistory();
 
   (teamAPI.fetchTeams as sinon.SinonStub).resolves(teams);
   (teamAPI.fetchPatients as sinon.SinonStub).resolves(patients);

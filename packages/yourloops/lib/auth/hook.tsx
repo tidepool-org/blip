@@ -234,9 +234,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       fullName: `${signup.formValues.profileFirstname} ${signup.formValues.profileLastname}`,
       firstName: signup.formValues.profileFirstname,
       lastName: signup.formValues.profileLastname,
-      job: signup.formValues.profileJob,
-      termsOfUse: { AcceptanceDate: now, IsAccepted: signup.formValues.terms },
-      privacyPolicy: { AcceptanceDate: now, IsAccepted: signup.formValues.privacyPolicy },
+      termsOfUse: { acceptanceDate: now, isAccepted: signup.formValues.terms },
+      privacyPolicy: { acceptanceDate: now, isAccepted: signup.formValues.privacyPolicy },
     };
     auth.user.settings = { country: signup.formValues.profileCountry };
     auth.user.preferences = { displayLanguageCode: signup.formValues.preferencesLanguage };
@@ -257,7 +256,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     log.info("flagPatient", userId);
     const authInfo = await getAuthInfos();
     const updatedUser = _.cloneDeep(authInfo.user);
-    if (typeof updatedUser.preferences === "undefined") {
+    if (_.isNil(updatedUser.preferences)) {
       updatedUser.preferences = {};
     }
     if (!Array.isArray(updatedUser.preferences.patientsStarred)) {
@@ -277,7 +276,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     log.info("setFlagPatients", userIds);
     const authInfo = await getAuthInfos();
     const updatedUser = _.cloneDeep(authInfo.user);
-    if (typeof updatedUser.preferences === "undefined") {
+    if (_.isNil(updatedUser.preferences)) {
       updatedUser.preferences = {};
     }
     updatedUser.preferences.patientsStarred = userIds;
@@ -313,21 +312,15 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
   /**
    * @returns true if the email was sucessfully sent.
    */
-  const sendPasswordResetEmail = async (username: string, language: string): Promise<boolean> => {
+  const sendPasswordResetEmail = (username: string, language: string): Promise<void> => {
     log.info("sendPasswordResetEmail", username);
     if (traceToken === null) {
       throw new Error("not-yet-initialized");
     }
-    const response = await api.requestPasswordReset(
-      username,
-      traceToken,
-      language
-    );
-
-    return response;
+    return api.requestPasswordReset(username, traceToken, language);
   };
 
-  const resetPassword = (key: string | null, username: string, password: string): Promise<boolean> => {
+  const resetPassword = (key: string, username: string, password: string): Promise<boolean> => {
     if (traceToken === null) {
       throw new Error("not-yet-initialized");
     }
@@ -344,13 +337,11 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
     // if it failed, for now we dont have compensation transaction that revert db change
     await api.updateUser(authInfo, { roles: [UserRoles.hcp] });
 
-    // FIXME
-    if (authInfo.user?.profile !== undefined) {
-      const now = new Date().toISOString();
-      authInfo.user.profile.termsOfUse = { AcceptanceDate: now, IsAccepted: true };
-      authInfo.user.profile.privacyPolicy = { AcceptanceDate: now, IsAccepted: true };
-      await api.updateProfile(authInfo);
-    }
+    const now = new Date().toISOString();
+    const updatedProfile = _.cloneDeep(authInfo.user.profile ?? {}) as Profile;
+    updatedProfile.termsOfUse = { acceptanceDate: now, isAccepted: true };
+    updatedProfile.privacyPolicy = { acceptanceDate: now, isAccepted: true };
+    const profile = await updateProfile(updatedProfile, false);
 
     // Ask for a new token with the updated role
     const newToken = await api.refreshToken(authInfo);
@@ -360,7 +351,7 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       throw new Error("Role change is not effective");
     }
     // Refresh our data:
-    const updatedUser: User = { ...authInfo.user, role: UserRoles.hcp };
+    const updatedUser: User = { ...authInfo.user, role: UserRoles.hcp, profile };
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, newToken);
     setSessionToken(newToken);
     setUser(updatedUser);

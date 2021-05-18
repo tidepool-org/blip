@@ -28,15 +28,16 @@
 
 import * as React from "react";
 import bows from "bows";
+import _ from "lodash";
 import { useParams } from "react-router-dom";
 import Container from "@material-ui/core/Container";
 
 import Blip from "blip";
 
-import { UserRoles } from "../models/shoreline";
+import { UserRoles, User } from "../models/shoreline";
 import appConfig from "../lib/config";
 import { useAuth } from "../lib/auth";
-import { useTeam, TeamUser } from "../lib/team";
+import { useTeam } from "../lib/team";
 import { useData } from "../lib/data";
 
 import ProfileDialog from "./profile-dialog";
@@ -69,13 +70,15 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
   const teamHook = useTeam();
   const dataHook = useData();
 
-  const [patient, setPatient] = React.useState<Readonly<TeamUser> | null>(null);
+  const [patient, setPatient] = React.useState<Readonly<User> | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   const { blipApi } = dataHook;
   const { patientId: paramPatientId = null } = paramHook as PatientDataParam;
-  const userId = authHook.user?.userid ?? null;
-  const prefixURL = authHook.user?.role === UserRoles.patient ? props.prefixURL : `${props.prefixURL}/${paramPatientId}`;
+  const authUser = authHook.user;
+  const userId = authUser?.userid ?? null;
+  const userIsPatient = authHook.user?.role === UserRoles.patient;
+  const prefixURL = userIsPatient ? props.prefixURL : `${props.prefixURL}/${paramPatientId}`;
 
   const initialized = authHook.initialized() && teamHook.initialized && blipApi !== null;
 
@@ -84,21 +87,25 @@ function PatientDataPage(props: PatientDataPageProps): JSX.Element | null {
       return;
     }
 
-    const patientId = paramPatientId ?? userId;
-    if (patientId === null) {
-      log.error("Invalid patient Id", patientId);
-      setError("Invalid patient Id");
-      return;
-    }
-
-    const user = teamHook.getUser(patientId);
-    if (user === null || user.role !== UserRoles.patient) {
-      log.error("Patient not found");
-      setError("Patient not found");
+    if (userIsPatient && !_.isNil(authUser)) {
+      setPatient(authUser);
     } else {
-      setPatient(user);
+      const patientId = paramPatientId ?? userId;
+      if (patientId === null) {
+        log.error("Invalid patient Id", patientId);
+        setError("Invalid patient Id");
+        return;
+      }
+
+      const user = teamHook.getUser(patientId);
+      if (user === null || user.role !== UserRoles.patient) {
+        log.error("Patient not found");
+        setError("Patient not found");
+      } else {
+        setPatient(user);
+      }
     }
-  }, [initialized, paramPatientId, patient, userId, teamHook]);
+  }, [initialized, paramPatientId, patient, userId, teamHook, authUser, userIsPatient]);
 
   log.debug("render", { userId, paramPatientId, error });
 

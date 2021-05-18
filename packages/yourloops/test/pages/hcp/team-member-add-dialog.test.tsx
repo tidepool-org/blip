@@ -86,7 +86,7 @@ function testTeamAddMemberDialog(): void {
     component.find("#team-add-member-dialog-button-cancel").at(0).simulate("click");
     const spy = defaultProps.onDialogResult as sinon.SinonSpy;
     expect(spy.calledOnce, "calledOnce").to.be.true;
-    expect(spy.getCall(0).args[0]).to.deep.equal({ email: null, role: "viewer" });
+    expect(spy.getCall(0).args[0]).to.deep.equal({ email: null, role: "member" });
   });
 
   it("should return the email if validated", () => {

@@ -1,6 +1,6 @@
-/* eslint-disable indent */
 /**
  * Copyright (c) 2021, Diabeloop
+ * Utilities for notifications hook
  *
  * All rights reserved.
  *
@@ -26,39 +26,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
-import { SignUpFormState } from "./signup-formstate-context";
+import { INotificationAPI, APINotificationType } from "../../models/notification";
+import { INotification, NotificationType } from "./models";
 
-export const initialState: SignUpFormState = {
-  formValues: {
-    accountUsername: "",
-    accountPassword: "",
-    accountRole: "",
-    profileFirstname: "",
-    profileLastname: "",
-    profileCountry: "", // how to do better ?
-    profilePhone: "",
-    profileJob: "",
-    preferencesLanguage: "",
-    terms: false,
-    privacyPolicy: false,
-  },
-};
-
-export function SignupReducer(
-  state: SignUpFormState,
-  action: any
-): SignUpFormState {
-  switch (action.type) {
-    case "EDIT_FORMVALUE": {
-      // clone input state in order to avoid initialstate mutation
-      const clone = _.cloneDeep(state);
-      clone.formValues[action.key] = action.value;
-      return clone;
-    }
-    case "RESET_FORMVALUES":
-      return initialState;
-    default:
+/**
+ * Convert an API notification to our model
+ * @param apin API Notification
+ */
+export function notificationConversion(apin: INotificationAPI): INotification | null {
+  let type: NotificationType;
+  switch (apin.type) {
+  case APINotificationType.careTeamInvitation:
+    type = NotificationType.directInvitation;
+    break;
+  case APINotificationType.medicalTeamPatientInvitation:
+    type = NotificationType.careTeamPatientInvitation;
+    break;
+  case APINotificationType.medicalTeamProInvitation:
+    type = NotificationType.careTeamProInvitation;
+    break;
+  case APINotificationType.medicalTeamDoAdmin:
+    type = NotificationType.careTeamDoAdmin;
+    // break; // TODO medicalTeamDoAdmin
+    return null;
+  case APINotificationType.medicalTeamRemoveMember:
+    type = NotificationType.careTeamRemoveMember;
+    // break; // TODO medicalTeamRemoveMember
+    return null;
+  default:
+    throw new Error("Invalid notification type");
   }
-  return state;
+  return {
+    id: apin.key,
+    creatorId: apin.creatorId,
+    date: apin.created,
+    email: apin.email,
+    type,
+    creator: apin.creator,
+    role: apin.role,
+    target: apin.target,
+  };
 }

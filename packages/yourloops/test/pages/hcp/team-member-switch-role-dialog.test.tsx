@@ -45,7 +45,7 @@ function testTeamSwitchRoleDialog(): void {
   const apiTimeout = 50;
   const defaultProps: SwitchRoleDialogContentProps = {
     member: {} as TeamMember,
-    role: TeamMemberRole.viewer,
+    role: TeamMemberRole.member,
     onDialogResult: sinon.spy(),
   };
 

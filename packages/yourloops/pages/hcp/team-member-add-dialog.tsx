@@ -67,7 +67,7 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
 
   const { t } = useTranslation("yourloops");
   const [email, setEMail] = React.useState("");
-  const [role, setRole] = React.useState<Exclude<TypeTeamMemberRole, "patient">>(TeamMemberRole.viewer);
+  const [role, setRole] = React.useState<Exclude<TypeTeamMemberRole, "patient">>(TeamMemberRole.member);
   const [buttonDisabled, setButtonDisabled] = React.useState(true);
   const classes = dialogClasses();
 
@@ -79,21 +79,21 @@ function AddMemberDialog(props: AddMemberDialogProps): JSX.Element | null {
     setButtonDisabled(!REGEX_EMAIL.test(eMail));
   };
   const handleChangeRole = (_e: React.ChangeEvent<HTMLInputElement>, checked: boolean): void => {
-    setRole(checked ? TeamMemberRole.admin : TeamMemberRole.viewer);
+    setRole(checked ? TeamMemberRole.admin : TeamMemberRole.member);
   };
 
   const handleClickClose = (): void => {
     addMember?.onDialogResult({ email: null, role });
     setEMail("");
     setButtonDisabled(true);
-    setRole(TeamMemberRole.viewer);
+    setRole(TeamMemberRole.member);
   };
 
   const handleClickAdd = (): void => {
     addMember?.onDialogResult({ email, role });
     setEMail("");
     setButtonDisabled(true);
-    setRole(TeamMemberRole.viewer);
+    setRole(TeamMemberRole.member);
   };
 
   return (

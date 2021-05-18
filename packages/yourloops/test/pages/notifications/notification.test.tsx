@@ -30,44 +30,40 @@ import React from "react";
 import { expect } from "chai";
 import { mount, shallow } from "enzyme";
 import moment from "moment-timezone";
+import _ from "lodash";
 
 import GroupIcon from "@material-ui/icons/Group";
 import PersonIcon from "@material-ui/icons/Person";
 import HelpIcon from "@material-ui/icons/Help";
-import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
 
+import { UserRoles } from "../../../models/shoreline";
+import MedicalServiceIcon from "../../../components/icons/MedicalServiceIcon";
 import { Notification } from "../../../pages/notifications/notification";
 import { INotification, NotificationType } from "../../../lib/notifications/models";
-import { UserRoles } from "../../../models/shoreline";
-import _ from "lodash";
 
 export const testNotification = (): void => {
   const notif: INotification = {
     id: "11",
-    created: "2021-02-18T10:00:00",
+    date: "2021-02-18T10:00:00",
     creator: {
       userid: "1",
       profile: {
         fullName: "Jeanne Dubois",
       },
     },
-    type: NotificationType.directshare,
+    creatorId: "a",
+    email: "a@example.com",
+    type: NotificationType.directInvitation,
   };
 
   const fakeNotification = (
-    { id, created, creator, type, target }: INotification = notif,
+    notification: INotification = notif,
     role: UserRoles = UserRoles.hcp,
-    onRemove = () => _.noop,
     onHelp = () => _.noop
   ): JSX.Element => (
     <Notification
-      id={id}
-      created={created}
-      creator={creator}
-      type={type}
-      target={target}
-      role={role}
-      onRemove={onRemove}
+      notification={notification}
+      userRole={role}
       onHelp={onHelp}
     />
   );
@@ -84,9 +80,7 @@ export const testNotification = (): void => {
 
   it("should display the user firstname and lastname", () => {
     const wrapper = mount(fakeNotification());
-    const expected = notif.creator.profile.fullName;
-
-    expect(wrapper.text().includes(expected)).to.be.true;
+    expect(wrapper.text().includes("Jeanne Dubois")).to.be.true;
   });
 
   it("should display direct share", () => {
@@ -101,18 +95,18 @@ export const testNotification = (): void => {
     const wrapper = mount(
       fakeNotification({
         ...notif,
-        type: NotificationType.careteam,
+        type: NotificationType.careTeamProInvitation,
         target: { id: "0", name: "target" },
       })
     );
-    expect(wrapper.text().includes(" invites you to join")).to.be.true;
+    expect(wrapper.text().includes("invites you to join")).to.be.true;
   });
 
   it("should display medical team join invitation with more info button for a member having a caregiver role", () => {
     const wrapper = mount(
       fakeNotification({
         ...notif,
-        type: NotificationType.careteam,
+        type: NotificationType.careTeamProInvitation,
         target: { id: "0", name: "target" },
       },
       UserRoles.caregiver,
@@ -127,7 +121,7 @@ export const testNotification = (): void => {
     const wrapper = mount(
       fakeNotification({
         ...notif,
-        type: NotificationType.careteamPatient,
+        type: NotificationType.careTeamPatientInvitation,
         target: { id: "0", name: "grenoble DIAB service" },
       },
       UserRoles.patient
@@ -138,14 +132,13 @@ export const testNotification = (): void => {
       wrapper
         .text()
         .includes(
-          "You’re invited to share your diabetes data with grenoble DIAB service"
+          "You're invited to share your diabetes data with grenoble DIAB service"
         )
     ).to.be.true;
     expect(wrapper.find(HelpIcon).length).to.equal(0);
   });
 
   describe("getIconToDisplay", () => {
-
     it("should display a PersonIcon", () => {
       const wrapper = mount(fakeNotification());
 
@@ -155,7 +148,7 @@ export const testNotification = (): void => {
     });
 
     it("should display a GroupIcon", () => {
-      const wrapper = mount(fakeNotification({ ...notif, type: NotificationType.careteam }));
+      const wrapper = mount(fakeNotification({ ...notif, type: NotificationType.careTeamProInvitation }));
 
       expect(wrapper.find(PersonIcon).length).to.equal(0);
       expect(wrapper.find(GroupIcon).length).to.equal(1);
@@ -163,7 +156,7 @@ export const testNotification = (): void => {
     });
 
     it("should display a MedicalServiceIcon", () => {
-      const wrapper = mount(fakeNotification({ ...notif, type: NotificationType.careteamPatient }));
+      const wrapper = mount(fakeNotification({ ...notif, type: NotificationType.careTeamPatientInvitation }));
 
       expect(wrapper.find(PersonIcon).length).to.equal(0);
       expect(wrapper.find(GroupIcon).length).to.equal(0);
@@ -172,23 +165,23 @@ export const testNotification = (): void => {
   });
 
   describe("getDateToDisplay", () => {
-
     it("should display the given date", () => {
       const wrapper = mount(fakeNotification());
-      const expectedDate = moment(notif.created).utc().format("L");
+      const expectedDate = moment.utc(notif.date).utc().format("L");
 
       expect(wrapper.text().includes(expectedDate)).to.be.true;
     });
 
     it("should display today", () => {
-      const wrapper = mount(fakeNotification({ ...notif, created: new Date().toISOString() }));
+      const wrapper = mount(fakeNotification({ ...notif, date: new Date().toISOString() }));
 
       expect(wrapper.text().includes("today")).to.be.true;
     });
 
     it("should display yesterday", () => {
+      // eslint-disable-next-line no-magic-numbers
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const wrapper = mount(fakeNotification({ ...notif, created: yesterday }));
+      const wrapper = mount(fakeNotification({ ...notif, date: yesterday }));
 
       expect(wrapper.text().includes("yesterday")).to.be.true;
     });

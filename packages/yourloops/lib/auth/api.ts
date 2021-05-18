@@ -178,31 +178,17 @@ async function signup(username: string, password: string, role: UserRoles, trace
     });
   }
 
-  log.error(response?.status, response?.statusText);
-
-  switch (response?.status) {
-    case HttpStatus.StatusServiceUnavailable:
-    case HttpStatus.StatusInternalServerError:
-      throw new Error("error-http-500");
-    case HttpStatus.StatusConflict:
-      throw new Error("signup-error-409");
-    default:
-      throw new Error("error-http-40x");
-  }
-
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function getProfile(auth: Readonly<Session>): Promise<Profile | null> {
-  const seagullURL = new URL(
-    `/metadata/${auth.user.userid}/profile`,
-    appConfig.API_HOST
-  );
+async function getProfile(session: Readonly<Session>, userId?: string): Promise<Profile | null> {
+  const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/profile`, appConfig.API_HOST);
 
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
     headers: {
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
   });
 
@@ -214,22 +200,21 @@ async function getProfile(auth: Readonly<Session>): Promise<Profile | null> {
       log.debug(e);
     }
   } else if (response.status === HttpStatus.StatusNotFound) {
-    log.debug("Error : 404 not found");
+    log.debug(`No profile for ${userId ?? session.user.userid}`);
   } else {
-    const responseBody = (await response.json()) as APIErrorResponse;
-    throw new Error(t(responseBody.reason));
+    return Promise.reject(errorFromHttpStatus(response, log));
   }
 
   return profile;
 }
 
-async function getPreferences(auth: Readonly<Session>): Promise<Preferences | null> {
-  const seagullURL = new URL(`/metadata/${auth.user.userid}/preferences`, appConfig.API_HOST);
+async function getPreferences(session: Readonly<Session>, userId?: string): Promise<Preferences | null> {
+  const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/preferences`, appConfig.API_HOST);
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
     headers: {
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
   });
 
@@ -241,22 +226,21 @@ async function getPreferences(auth: Readonly<Session>): Promise<Preferences | nu
       log.debug(e);
     }
   } else if (response.status === HttpStatus.StatusNotFound) {
-    log.debug("Error : 404 not found");
+    log.debug(`No preferences for ${userId ?? session.user.userid}`);
   } else {
-    const responseBody = (await response.json()) as APIErrorResponse;
-    throw new Error(t(responseBody.reason));
+    return Promise.reject(errorFromHttpStatus(response, log));
   }
 
   return preferences;
 }
 
-async function getSettings(auth: Readonly<Session>): Promise<Settings | null> {
-  const seagullURL = new URL(`/metadata/${auth.user.userid}/settings`, appConfig.API_HOST);
+async function getSettings(session: Readonly<Session>, userId?: string): Promise<Settings | null> {
+  const seagullURL = new URL(`/metadata/${userId ?? session.user.userid}/settings`, appConfig.API_HOST);
   const response = await fetch(seagullURL.toString(), {
     method: "GET",
     headers: {
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
   });
 
@@ -268,10 +252,9 @@ async function getSettings(auth: Readonly<Session>): Promise<Settings | null> {
       log.debug(e);
     }
   } else if (response.status === HttpStatus.StatusNotFound) {
-    log.debug("Error : 404 not found");
+    log.debug(`No settings for ${userId ?? session.user.userid}`);
   } else {
-    const responseBody = (await response.json()) as APIErrorResponse;
-    throw new Error(t(responseBody.reason));
+    return Promise.reject(errorFromHttpStatus(response, log));
   }
 
   return settings;
@@ -299,13 +282,7 @@ async function login(username: string, password: string, traceToken: string): Pr
   return auth;
 }
 
-async function requestPasswordReset(
-  username: string,
-  traceToken: string,
-  language = "en",
-  info = true
-): Promise<boolean> {
-
+async function requestPasswordReset(username: string, traceToken: string, language = "en", info = true): Promise<void> {
   if (_.isEmpty(username)) {
     log.error("forbidden call to request password api, username is missing");
     throw new Error("error-http-40x");
@@ -326,35 +303,20 @@ async function requestPasswordReset(
   });
 
   if (response.ok) {
-    return Promise.resolve(true);
+    return Promise.resolve();
   }
-
-  log.error(response?.status, response?.statusText);
-
-  switch (response?.status) {
-    case HttpStatus.StatusServiceUnavailable:
-    case HttpStatus.StatusInternalServerError:
-      throw new Error("error-http-500");
-    default:
-      throw new Error("error-http-40x");
-  }
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function sendAccountValidation(auth: Readonly<Session>, language = "en"): Promise<boolean> {
-
-  if (_.isEmpty(auth?.user?.userid)) {
-    log.error("forbidden call to Account Validation api, user id is missing");
-    throw new Error("error-http-40x");
-  }
-
-  const confirmURL = new URL(`/confirm/send/signup/${auth?.user?.userid}`, appConfig.API_HOST);
+async function sendAccountValidation(session: Readonly<Session>, language = "en"): Promise<boolean> {
+  const confirmURL = new URL(`/confirm/send/signup/${session.user.userid}`, appConfig.API_HOST);
 
   const response = await fetch(confirmURL.toString(), {
     method: "POST",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
       [HttpHeaderKeys.language]: language,
     },
     cache: "no-cache",
@@ -364,15 +326,7 @@ async function sendAccountValidation(auth: Readonly<Session>, language = "en"): 
     return Promise.resolve(true);
   }
 
-  log.error(response?.status, response?.statusText);
-
-  switch (response?.status) {
-    case HttpStatus.StatusServiceUnavailable:
-    case HttpStatus.StatusInternalServerError:
-      throw new Error("error-http-500");
-    default:
-      throw new Error("error-http-40x");
-  }
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function accountConfirmed(key: string, traceToken: string): Promise<boolean> {
@@ -395,23 +349,10 @@ async function accountConfirmed(key: string, traceToken: string): Promise<boolea
     return Promise.resolve(true);
   }
 
-  log.error(response?.status, response?.statusText);
-
-  switch (response?.status) {
-    case HttpStatus.StatusServiceUnavailable:
-    case HttpStatus.StatusInternalServerError:
-      throw new Error("error-http-500");
-    default:
-      throw new Error("error-http-40x");
-  }
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function resetPassword(
-  key: string | null,
-  username: string,
-  password: string,
-  traceToken: string
-): Promise<boolean> {
+async function resetPassword(key: string, username: string, password: string, traceToken: string): Promise<boolean> {
   if (_.isEmpty(key) || _.isEmpty(username) || _.isEmpty(password)) {
     log.error("forbidden call to reset password api, one of the required parameters is missing");
     throw new Error("error-http-40x");
@@ -431,27 +372,19 @@ async function resetPassword(
     return Promise.resolve(true);
   }
 
-  log.error(response?.status, response?.statusText);
-
-  switch (response?.status) {
-    case HttpStatus.StatusServiceUnavailable:
-    case HttpStatus.StatusInternalServerError:
-      throw new Error("error-http-500");
-    default:
-      throw new Error("error-http-40x");
-  }
+  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function updateProfile(auth: Readonly<Session>): Promise<Profile> {
-  const seagullURL = new URL(`/metadata/${auth.user.userid}/profile`, appConfig.API_HOST);
-  const profile = auth.user.profile ?? {};
+async function updateProfile(session: Readonly<Session>): Promise<Profile> {
+  const seagullURL = new URL(`/metadata/${session.user.userid}/profile`, appConfig.API_HOST);
+  const profile = session.user.profile ?? {};
 
   const response = await fetch(seagullURL.toString(), {
     method: "PUT",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
     body: JSON.stringify(profile),
   });
@@ -463,16 +396,16 @@ async function updateProfile(auth: Readonly<Session>): Promise<Profile> {
   throw new Error(t(responseBody.reason));
 }
 
-async function updatePreferences(auth: Readonly<Session>): Promise<Preferences> {
-  const seagullURL = new URL(`/metadata/${auth.user.userid}/preferences`, appConfig.API_HOST);
-  const preferences = auth.user.preferences ?? {};
+async function updatePreferences(session: Readonly<Session>): Promise<Preferences> {
+  const seagullURL = new URL(`/metadata/${session.user.userid}/preferences`, appConfig.API_HOST);
+  const preferences = session.user.preferences ?? {};
 
   const response = await fetch(seagullURL.toString(), {
     method: "PUT",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
     body: JSON.stringify(preferences),
   });
@@ -505,7 +438,7 @@ async function updateSettings(auth: Readonly<Session>): Promise<Settings> {
   throw new Error(t(responseBody.reason));
 }
 
-async function updateUser(auth: Readonly<Session>, updates: UpdateUser): Promise<void> {
+async function updateUser(session: Readonly<Session>, updates: UpdateUser): Promise<void> {
   const updateURL = new URL("/auth/user", appConfig.API_HOST);
 
   log.debug("updateUser:", updateURL.toString());
@@ -513,8 +446,8 @@ async function updateUser(auth: Readonly<Session>, updates: UpdateUser): Promise
     method: "PUT",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
     body: JSON.stringify({ updates }),
   });
@@ -526,15 +459,15 @@ async function updateUser(auth: Readonly<Session>, updates: UpdateUser): Promise
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function refreshToken(auth: Readonly<Session>): Promise<string> {
+async function refreshToken(session: Readonly<Session>): Promise<string> {
   const refreshURL = new URL("/auth/login", appConfig.API_HOST);
 
   log.debug("refreshToken", refreshURL.toString());
   const response = await fetch(refreshURL.toString(), {
     method: "GET",
     headers: {
-      [HttpHeaderKeys.traceToken]: auth.traceToken,
-      [HttpHeaderKeys.sessionToken]: auth.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
     },
   });
 

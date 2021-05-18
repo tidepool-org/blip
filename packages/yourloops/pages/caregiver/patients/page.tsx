@@ -32,10 +32,7 @@ import bows from "bows";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
-import { Theme, makeStyles } from "@material-ui/core/styles";
-import Alert from "@material-ui/lab/Alert";
 import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
 
 import { FilterType, SortDirection, SortFields, UserInvitationStatus } from "../../../models/generic";
 import { User, UserRoles } from "../../../models/shoreline";
@@ -54,18 +51,6 @@ const log = bows("PatientListPage");
 
 // eslint-disable-next-line no-magic-numbers
 const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
-
-const pageStyles = makeStyles(
-  (theme: Theme) => {
-    return {
-      gridAlertComputed: {
-        marginTop: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-      },
-    };
-  },
-  { name: "ylp-caregiver-patients-page" }
-);
 
 /**
  * Compare two patient for sorting the patient table
@@ -166,7 +151,6 @@ function PatientListPage(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const alert = useAlert();
   const authHook = useAuth();
-  const classes = pageStyles();
   const [sharedUsersContext, sharedUsersDispatch] = useSharedUser();
   const [sortFlaggedFirst, setSortFlaggedFirst] = React.useState<boolean>(true);
   const [order, setOrder] = React.useState<SortDirection>(SortDirection.asc);
@@ -293,10 +277,7 @@ function PatientListPage(): JSX.Element {
         onFilterType={handleFilterType}
         onInvitePatient={handleInvitePatient}
       />
-      <Grid id="patient-list-alert-data-computed" container direction="row" justify="center" alignItems="center" className={classes.gridAlertComputed}>
-        <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
-      </Grid>
-      <Container id="patient-list-container" maxWidth="lg">
+      <Container id="patient-list-container" maxWidth="lg" style={{ paddingTop: "2em" }}>
         <PatientListTable
           patients={patients}
           flagged={flagged}

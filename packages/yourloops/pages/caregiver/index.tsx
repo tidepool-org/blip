@@ -129,7 +129,7 @@ const CaregiverPage = (): JSX.Element => {
           setLoading(false);
         });
     }
-  }, [pathname, historyHook, userRole, session, t, errorMessage, sharedUsers, sharedUsersState, loading]);
+  }, [pathname, historyHook, userRole, session, t, errorMessage, sharedUsers, loading]);
 
   let content: JSX.Element;
   if (errorMessage !== null) {

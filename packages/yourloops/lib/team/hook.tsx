@@ -27,6 +27,7 @@
  */
 
 import * as React from "react";
+import _ from "lodash";
 import bows from "bows";
 
 import { UserInvitationStatus } from "../../models/generic";
@@ -50,7 +51,13 @@ export function iMemberToMember(iTeamMember: ITeamMember, team: Team, users: Map
   let teamUser = users.get(userId);
   if (typeof teamUser === "undefined") {
     teamUser = {
-      ...iTeamMember.user,
+      role: iTeamMember.role === TeamMemberRole.patient ? UserRoles.patient : UserRoles.hcp,
+      userid: userId,
+      username: iTeamMember.email,
+      emails: [ iTeamMember.email ],
+      preferences: iTeamMember.preferences,
+      profile: iTeamMember.profile,
+      settings: iTeamMember.settings,
       members: [],
     };
     users.set(userId, teamUser);
@@ -97,8 +104,25 @@ export async function loadTeams(
 
   const users = new Map<string, TeamUser>();
   const [apiTeams, apiPatients] = await Promise.all([fetchTeams(session), fetchPatients(session)]);
-  const nPatients = apiPatients.length;
 
+  // If we are a patient, we are not in the list, add ourself
+  if (session.user.role === UserRoles.patient && _.isNil(apiPatients.find((m) => m.userId === session.user.userid))) {
+    log.debug("Add ourself as a team member");
+    for (const team of apiTeams) {
+      apiPatients.push({
+        userId: session.user.userid,
+        email: session.user.username,
+        invitationStatus: UserInvitationStatus.accepted,
+        role: TeamMemberRole.patient,
+        teamId: team.id,
+        preferences: session.user.preferences,
+        profile: session.user.profile,
+        settings: session.user.settings,
+      });
+    }
+  }
+
+  const nPatients = apiPatients.length;
   log.debug("loadTeams", { nPatients, nTeams: apiTeams.length });
 
   const privateTeam: Team = {
@@ -106,7 +130,7 @@ export async function loadTeams(
     id: TeamType.private,
     members: [],
     name: TeamType.private,
-    ownerId: session.user.userid,
+    owner: session.user.userid,
     type: TeamType.private,
   };
 
@@ -134,22 +158,7 @@ export async function loadTeams(
       team = privateTeam;
     }
 
-    let user = users.get(userId);
-    if (typeof user === "undefined") {
-      user = {
-        ...apiPatient.user,
-        members: [],
-      };
-      users.set(userId, user);
-    }
-    const member: TeamMember = {
-      role: apiPatient.role,
-      status: apiPatient.invitationStatus,
-      team,
-      user,
-    };
-    user.members.push(member);
-    team.members.push(member);
+    iMemberToMember(apiPatient, team, users);
   }
 
   // End, cleanup to help the garbage collector
@@ -160,13 +169,15 @@ export async function loadTeams(
 function TeamContextImpl(api: TeamAPI): TeamContext {
   // hooks (private or public variables)
   // TODO: Transform the React.useState with React.useReducer
+  const authHook = useAuth();
   const [teams, setTeams] = React.useState<Team[]>([]);
   const [initialized, setInitialized] = React.useState<boolean>(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const authHook = useAuth();
 
-  const authInitialized = authHook.initialized();
-  const isLoggedIn = authHook.isLoggedIn();
+  const session = authHook.session();
+  if (session === null) {
+    throw new Error("TeamHook need a logged-in user");
+  }
 
   // public methods
 
@@ -262,7 +273,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const invitePatient = async (team: Team, username: string): Promise<void> => {
-    const session = authHook.session() as Session;
     const iTeamMember = await api.invitePatient(session, team.id, username);
     const users = getMapUsers();
     iMemberToMember(iTeamMember, team, users);
@@ -270,7 +280,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const inviteMember = async (team: Team, username: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    const session = authHook.session() as Session;
     const iTeamMember = await api.inviteMember(session, team.id, username, role);
     const users = getMapUsers();
     iMemberToMember(iTeamMember, team, users);
@@ -278,7 +287,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const createTeam = async (team: Partial<Team>): Promise<void> => {
-    const session = authHook.session() as Session;
     const apiTeam: Partial<ITeam> = {
       address: team.address,
       description: team.description,
@@ -317,7 +325,18 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
 
   const leaveTeam = async (team: Team): Promise<void> => {
     const session = authHook.session() as Session;
-    await api.leaveTeam(session, team.id);
+    const ourselve = team.members.find((member) => member.user.userid === session.user.userid);
+    if (_.isNil(ourselve)) {
+      throw new Error("We are not a member of the team!");
+    }
+    log.info("leaveTeam", { ourselve, team });
+    if (ourselve.role === TeamMemberRole.patient) {
+      await api.removePatient(session, team.id, ourselve.user.userid);
+    } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && team.members.length < 2) {
+      await api.deleteTeam(session, team.id);
+    } else {
+      await api.removeMember(session, team.id, ourselve.user.userid);
+    }
     const idx = teams.findIndex((t: Team) => t.id === team.id);
     if (idx > -1) {
       teams.splice(idx, 1);
@@ -328,7 +347,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const removeMember = async (member: TeamMember): Promise<void> => {
-    const session = authHook.session() as Session;
     await api.removeMember(session, member.team.id, member.user.userid);
     const { team } = member;
     const idx = team.members.findIndex((m: TeamMember) => m.user.userid === member.user.userid);
@@ -341,7 +359,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const changeMemberRole = async (member: TeamMember, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    const session = authHook.session() as Session;
     await api.changeMemberRole(session, member.team.id, member.user.userid, role);
     member.role = role as TeamMemberRole;
     setTeams(teams);
@@ -355,7 +372,6 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const getTeamFromCode = async (code: string): Promise<Readonly<Team> | null> => {
-    const session = authHook.session() as Session;
     const iTeam = await api.getTeamFromCode(session, code);
     if (iTeam === null) {
       return null;
@@ -364,69 +380,46 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     return team;
   };
 
-  const joinTeam = async (teamId: string): Promise<void> => {
-    const session = authHook.session() as Session;
-    await api.joinTeam(session, teamId);
+  const joinTeam = (teamId: string): Promise<void> => {
+    return api.joinTeam(session, teamId);
   };
 
   const initHook = () => {
-    if (!authInitialized) {
-      if (teams.length > 0) {
-        setTeams([]);
-      }
+    if (initialized || lock) {
+      return;
+    }
+    log.info("init");
+    lock = true;
+
+    loadTeams(session, api.fetchTeams, api.fetchPatients).then(({ teams, flaggedNotInResult }: LoadTeams) => {
+      log.debug("Loaded teams: ", teams);
+      setTeams(teams);
       if (errorMessage !== null) {
         setErrorMessage(null);
       }
-      return;
-    }
 
-    if (initialized === false && lock === false) {
-      log.info("init");
-      lock = true;
-
-      if (isLoggedIn) {
-        const session = authHook.session() as Session;
-
-        loadTeams(session, api.fetchTeams, api.fetchPatients)
-          .then(({ teams, flaggedNotInResult }: LoadTeams) => {
-            log.debug("Loaded teams: ", teams);
-            setTeams(teams);
-            if (errorMessage !== null) {
-              setErrorMessage(null);
-            }
-
-            if (flaggedNotInResult.length > 0) {
-              // For some reason, the flagged list is not accurate - update it
-              log.warn("Missing patients in team list", flaggedNotInResult);
-              const validUserIds = authHook.getFlagPatients().filter((userId: string) => !flaggedNotInResult.includes(userId));
-              authHook.setFlagPatients(validUserIds);
-            }
-          })
-          .catch((reason: unknown) => {
-            log.error(reason);
-            const message = errorTextFromException(reason);
-            if (message !== errorMessage) {
-              setErrorMessage(message);
-            }
-          })
-          .finally(() => {
-            log.debug("Initialized !");
-            setInitialized(true);
-            // Clear the lock
-            lock = false;
-          });
-      } else {
-        if (teams.length > 0) {
-          setTeams([]);
-        }
-        setInitialized(true);
-        // Clear the lock
-        lock = false;
+      if (flaggedNotInResult.length > 0) {
+        // For some reason, the flagged list is not accurate - update it
+        log.warn("Missing patients in team list", flaggedNotInResult);
+        const validUserIds = authHook.getFlagPatients().filter((userId: string) => !flaggedNotInResult.includes(userId));
+        authHook.setFlagPatients(validUserIds);
       }
-    }
+    }).catch((reason: unknown) => {
+      log.error(reason);
+      const message = errorTextFromException(reason);
+      if (message !== errorMessage) {
+        setErrorMessage(message);
+      }
+    }).finally(() => {
+      log.debug("Initialized !");
+      setInitialized(true);
+      // Clear the lock
+      lock = false;
+    });
+
   };
 
-  React.useEffect(initHook, [initialized, errorMessage, teams, authInitialized, isLoggedIn, authHook, api]);
+  React.useEffect(initHook, [initialized, errorMessage, teams, session, authHook, api]);
 
   return {
     teams,
@@ -458,9 +451,9 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
 }
 
 /**
- * Provider component that wraps your app and makes auth object available to any child component that calls useTeam().
- * @param props for team provider & children
- */
+* Provider component that wraps your app and makes auth object available to any child component that calls useTeam().
+* @param props for team provider & children
+*/
 export function TeamContextProvider(props: TeamProvider): JSX.Element {
   const { children, api } = props;
   const context = TeamContextImpl(api ?? TeamAPIImpl); // eslint-disable-line new-cap
@@ -468,10 +461,10 @@ export function TeamContextProvider(props: TeamProvider): JSX.Element {
 }
 
 /**
- * Hook for child components to get the teams functionalities
- *
- * Trigger a re-render when it change.
- */
+* Hook for child components to get the teams functionalities
+*
+* Trigger a re-render when it change.
+*/
 export function useTeam(): TeamContext {
   return React.useContext(ReactTeamContext);
 }

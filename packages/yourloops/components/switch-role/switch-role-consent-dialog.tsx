@@ -125,6 +125,7 @@ function SwitchRoleConsentDialog(props: SwitchRoleDialogProps): JSX.Element {
     />
   );
 
+  // TODO: Fix duplicate code with signup-consent
   const privacyPolicy = t("footer-link-url-privacy-policy");
   const linkPrivacyPolicy = (
     <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">

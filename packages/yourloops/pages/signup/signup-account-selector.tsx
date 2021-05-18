@@ -27,21 +27,21 @@
 
 import * as React from "react";
 import _ from "lodash";
+import { useTranslation } from "react-i18next";
 
+import { makeStyles, Theme } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Paper from "@material-ui/core/Paper";
-import { makeStyles, Theme } from "@material-ui/core/styles";
-
-import { useTranslation } from "react-i18next";
-import RadioLabel from "./signup-radio-label";
-import { useSignUpFormState } from "./signup-formstate-context";
-import Button from "@material-ui/core/Button";
-import SignUpFormProps from "./signup-form-props";
 import Typography from "@material-ui/core/Typography";
+
+import RadioLabel from "./signup-radio-label";
+import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
+import SignUpFormProps from "./signup-form-props";
 
 const useStyles = makeStyles((theme: Theme) => ({
   FormControl: {
@@ -93,7 +93,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
 
   const handleRadioChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    keyField: string
+    keyField: FormValuesType
   ) => {
     dispatch({
       type: "EDIT_FORMVALUE",

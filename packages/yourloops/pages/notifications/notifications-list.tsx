@@ -1,22 +1,35 @@
 /**
- * Copyright (c) 2020, Diabeloop
- * Notifications page
+ * Copyright (c) 2021, Diabeloop
+ * The notifications page
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
+ * All rights reserved.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -55,53 +68,43 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: "6em",
       paddingRight: "6em",
     },
-    typography: {
+    noNotificationMessage: {
       textAlign: "center",
       margin: theme.spacing(4),
     },
   })
 );
 
-const sortNotification = (notifA: INotification, notifB: INotification): number =>
-  Date.parse(notifB.created) - Date.parse(notifA.created);
-
 export const NotificationsPage = (props: NotificationsPageProps): JSX.Element => {
   const { t } = useTranslation("yourloops");
   const classes = useStyles();
   const { user, switchRoleToHCP } = useAuth();
-  const notifications = useNotification();
+  const notificationsHook = useNotification();
   const alert = useAlert();
-  const [notifs, setNotifs] = React.useState<INotification[]>([]);
   const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(
     SwitchRoleToHcpSteps.none
   );
 
-  React.useEffect(() => {
-    const loadNotifs = async () => {
-      console.log("enter in useEffect");
-      let results: INotification[];
-      try {
-        results = await notifications.getPendingInvitations(user?.userid);
-        results.sort(sortNotification);
-        setNotifs(results);
-      } catch (reason: unknown) {
-        const errorMessage = errorTextFromException(reason);
-        const message = t(errorMessage);
-        alert.error(message);
-      }
-    };
+  if (user === null) {
+    throw new Error("Notification require a logged-in user");
+  }
 
-    loadNotifs();
-  }, [notifications, user, t, alert]);
+  const notifications = notificationsHook.receivedInvitations;
+  const loading = !notificationsHook.initialized;
 
-  function handleRemove(id: string): void {
-    const newList = notifs.filter((item) => item.id !== id);
-    setNotifs(newList);
+  if (loading) {
+    return (
+      <CircularProgress
+        id="notification-page-loading-progress"
+        disableShrink
+        style={{ position: "absolute", top: "calc(50vh - 20px)", left: "calc(50vw - 20px)" }}
+      />
+    );
   }
 
   const handleSwitchRoleToConsequences = (): void => {
     sendMetrics("user-switch-role", {
-      from: user?.role,
+      from: user.role,
       to: "hcp",
       step: SwitchRoleToHcpSteps.consequences,
     });
@@ -110,7 +113,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
 
   const handleSwitchRoleToConditions = (accept: boolean): void => {
     sendMetrics("user-switch-role", {
-      from: user?.role,
+      from: user.role,
       to: "hcp",
       step: SwitchRoleToHcpSteps.consent,
       cancel: !accept,
@@ -124,7 +127,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
 
   const handleSwitchRoleToUpdate = (accept: boolean): void => {
     sendMetrics("user-switch-role", {
-      from: user?.role,
+      from: user.role,
       to: "hcp",
       step: SwitchRoleToHcpSteps.update,
       cancel: !accept,
@@ -161,28 +164,23 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
       <SecondaryHeaderBar defaultURL={props.defaultURL} />
       <Container maxWidth="lg" style={{ marginTop: "1em" }}>
         <List>
-          {notifs.length > 0 ? (
-            notifs.map(({ id, created, creator, type, target }, index) => (
+          {notifications.length > 0 ? (
+            notifications.map((notification: INotification, index: number) => (
               <ListItem
                 key={index}
                 style={{ padding: "8px 0" }}
-                divider={index !== notifs.length - 1}>
+                divider={index !== notifications.length - 1}>
                 <Notification
-                  id={id}
-                  created={created}
-                  creator={creator}
-                  type={type}
-                  target={target}
-                  // eslint-disable-next-line jsx-a11y/aria-role
-                  role={user?.role}
-                  onRemove={handleRemove}
+                  notification={notification}
+                  userRole={user.role}
+                  // onRemove={handleRemove}
                   onHelp={handleSwitchRoleToConsequences}
                 />
               </ListItem>
             ))
           ) : (
             <Typography
-              className={classes.typography}
+              className={classes.noNotificationMessage}
               id="typography-no-pending-invitation-message"
               variant="body2"
               gutterBottom>

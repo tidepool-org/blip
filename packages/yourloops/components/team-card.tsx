@@ -126,7 +126,7 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
   const classes = teamInfoStyles();
   const { t } = useTranslation("yourloops");
 
-  if (value === null || typeof value === "undefined") {
+  if (_.isNil(value) || _.isEmpty(value)) {
     return null;
   }
 

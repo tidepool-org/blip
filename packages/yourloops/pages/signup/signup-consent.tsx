@@ -26,26 +26,28 @@
  */
 
 import * as React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 
+import { makeStyles, Theme } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Button from "@material-ui/core/Button";
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
 import FormHelperText from "@material-ui/core/FormHelperText";
+import Link from "@material-ui/core/Link";
 
-import { useSignUpFormState } from "./signup-formstate-context";
+import diabeloopUrl from "../../lib/diabeloop-url";
+import { useSignUpFormState, FormValuesType } from "./signup-formstate-context";
 import SignUpFormProps from "./signup-form-props";
 
 const useStyles = makeStyles((theme: Theme) => ({
-  FormControl: {
+  formControl: {
     margin: theme.spacing(3),
   },
-  FormHelperText: {
+  formHelperText: {
     textAlign: "center",
   },
-  FormControlLabel: {
+  formControlLabel: {
     alignItems: "start",
     textAlign: "start",
     marginTop: theme.spacing(2),
@@ -53,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
-  Buttons: {
+  buttons: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: theme.spacing(2),
@@ -61,13 +63,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: "100px",
     marginBottom: theme.spacing(2),
   },
-  Button: {
+  button: {
     marginRight: theme.spacing(1),
   },
 }));
 
 export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
-  const { t } = useTranslation("yourloops");
+  const { t, i18n } = useTranslation("yourloops");
   const classes = useStyles();
   const { handleBack, handleNext } = props;
   const { state, dispatch } = useSignUpFormState();
@@ -81,7 +83,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    keyField: string
+    keyField: FormValuesType
   ) => {
     dispatch({
       type: "EDIT_FORMVALUE",
@@ -109,6 +111,42 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
     }
   };
 
+  // TODO: Fix duplicate code with switch-role-consent-dialog.tsx
+  const privacyPolicy = t("footer-link-url-privacy-policy");
+  const linkPrivacyPolicy = (
+    <Link aria-label={privacyPolicy} href={diabeloopUrl.getPrivacyPolicyUrL(i18n.language)} target="_blank" rel="noreferrer">
+      {privacyPolicy}
+    </Link>
+  );
+  const terms = t("terms-and-conditions");
+  const linkTerms = (
+    <Link aria-label={terms} href={diabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
+      {terms}
+    </Link>
+  );
+
+  const labelPrivacyPolicy = (
+    <Trans
+      i18nKey={`signup-consent-${state.formValues.accountRole}-privacy-policy`}
+      t={t}
+      components={{ linkPrivacyPolicy }}
+      values={{ privacyPolicy }}
+      parent={React.Fragment}>
+      I have read and accepted YourLoops {privacyPolicy}.
+    </Trans>
+  );
+
+  const labelTerms = (
+    <Trans
+      i18nKey={`signup-consent-${state.formValues.accountRole}-terms-condition`}
+      t={t}
+      components={{ linkTerms }}
+      values={{ terms }}
+      parent={React.Fragment}>
+      I have read and accepted YourLoops {terms}.
+    </Trans>
+  );
+
   return (
     <form
       style={{
@@ -123,66 +161,54 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
         required
         component="fieldset"
         error={error}
-        className={classes.FormControl}
+        className={classes.formControl}
       >
-        <FormHelperText className={classes.FormHelperText}>
+        <FormHelperText className={classes.formHelperText}>
           {t(helperText)}
         </FormHelperText>
         <FormControlLabel
           id="signup-consent-privacy-ctl"
-          className={classes.FormControlLabel}
+          className={classes.formControlLabel}
           control={
             <Checkbox
               id="signup-consent-privacy-check"
               checked={state.formValues.privacyPolicy}
               onChange={(e) => handleChange(e, "privacyPolicy")}
               color="primary"
-              inputProps={{
-                "aria-label": "checkbox with default color",
-              }}
             />
           }
-          label={t(
-            `signup-consent-${state.formValues.accountRole}-privacy-policy`,
-            { privacyPolicy: "Privacy Policy" }
-          )}
+          label={labelPrivacyPolicy}
         />
         <FormControlLabel
           id="signup-consent-terms-ctl"
-          className={classes.FormControlLabel}
+          className={classes.formControlLabel}
           control={
             <Checkbox
               id="checkbox-signup-consent-terms"
               checked={state.formValues.terms}
               onChange={(e) => handleChange(e, "terms")}
               color="primary"
-              inputProps={{
-                "aria-label": "checkbox with default color",
-              }}
             />
           }
-          label={t(
-            `signup-consent-${state.formValues.accountRole}-terms-condition`,
-            { terms: t("terms-and-conditions") }
-          )}
+          label={labelTerms}
           labelPlacement="end"
         />
       </FormControl>
-      <div id="signup-consent-button-group" className={classes.Buttons}>
+      <div id="signup-consent-button-group" className={classes.buttons}>
         <Button
           id="button-signup-steppers-back"
           variant="contained"
           color="secondary"
           disabled={props.activeStep === 0}
           onClick={handleBack}
-          className={classes.Button}>
+          className={classes.button}>
           {t("signup-steppers-back")}
         </Button>
         <Button
           id="button-signup-steppers-next"
           variant="contained"
           color="primary"
-          className={classes.Button}
+          className={classes.button}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>

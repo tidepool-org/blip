@@ -114,8 +114,8 @@ function RequestPasswordResetPage(): JSX.Element {
     if (validateUserName()) {
       try {
         setInProgress(true);
-        const success = await auth.sendPasswordResetEmail(username, i18n.language);
-        setSuccess(success);
+        await auth.sendPasswordResetEmail(username, i18n.language);
+        setSuccess(true);
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         alert.error(t(errorMessage));

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Karma main test file
+ * Notifications API models (hydrophone interfaces)
  *
  * All rights reserved.
  *
@@ -25,25 +25,42 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import { init as i18nInit } from "../lib/language";
-import testLib from "./lib";
-import testComponents from "./components";
-import testPages from "./pages";
 
-enzyme.configure({
-  adapter: new Adapter(),
-  disableLifecycleMethods: true,
-});
+import { Profile } from "./shoreline";
+import { TeamMemberRole } from "./team";
 
-// Enable bows logging display:
-window.localStorage.setItem('debug', 'true');
+export enum APINotificationType {
+careTeamInvitation = "careteam_invitation",
+medicalTeamProInvitation = "medicalteam_invitation",
+medicalTeamPatientInvitation = "medicalteam_patient_invitation",
+medicalTeamDoAdmin = "medicalteam_do_admin",
+medicalTeamRemoveMember = "medicalteam_remove",
+}
 
-i18nInit().then(() => {
-  describe("Lib", testLib);
-  describe("Components", testComponents);
-  describe("Pages", testPages);
-}).catch((reason: unknown) => {
-  console.error(reason);
-});
+export interface INotificationAPI {
+key: string;
+type: APINotificationType;
+/** Current user email */
+email: string;
+/** User who create the invitation == creator.userid? */
+creatorId: string;
+/** Undocumented value */
+context?: null;
+/** Notification creation date */
+created: string;
+target?: {
+  /** TeamID */
+  id: string;
+  /** Team name */
+  name: string;
+};
+/** The role we will have in the team */
+role?: TeamMemberRole;
+/** Undocumented value */
+shortKey: string;
+/** Some information on the user who created this notification */
+creator: {
+  userid: string;
+  profile?: Profile;
+};
+}

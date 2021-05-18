@@ -60,12 +60,12 @@ const dialogClasses = makeStyles(
       divTeamCode: {
         marginLeft: "auto",
         marginRight: "auto",
-        backgroundColor: theme.palette.grey[200],
+        backgroundColor: theme.palette.grey[200], // eslint-disable-line no-magic-numbers
         paddingLeft: "1rem",
         paddingRight: "1rem",
         paddingTop: "0.3rem",
         paddingBottom: "0.3rem",
-        borderColor: theme.palette.grey[200],
+        borderColor: theme.palette.grey[200], // eslint-disable-line no-magic-numbers
         borderWidth: "1px",
         borderRadius: theme.shape.borderRadius,
       },

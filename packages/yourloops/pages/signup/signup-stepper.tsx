@@ -34,6 +34,7 @@ import _ from "lodash";
 import { Trans, useTranslation } from "react-i18next";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import Link from "@material-ui/core/Link";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
@@ -44,7 +45,6 @@ import SignUpAccountSelector from "./signup-account-selector";
 import SignUpProfileForm from "./signup-profile-form";
 import SignUpConsent from "./signup-consent";
 import { useSignUpFormState } from "./signup-formstate-context";
-import Link from "@material-ui/core/Link";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

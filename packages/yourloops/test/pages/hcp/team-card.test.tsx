@@ -31,6 +31,7 @@ import { expect } from "chai";
 import { mount, shallow, ReactWrapper, ShallowWrapper } from "enzyme";
 import sinon from "sinon";
 
+import { UserInvitationStatus } from "../../../models/generic";
 import { TeamMemberRole } from "../../../models/team";
 import { Team, loadTeams } from "../../../lib/team";
 import { TeamInfo } from "../../../components/team-card"; // TODO move theses tests
@@ -43,6 +44,7 @@ function testTeamCard(): void {
   const defaultProps: TeamCardProps = {
     team: {} as Team,
     memberRole: TeamMemberRole.admin,
+    memberStatus: UserInvitationStatus.accepted,
     onShowAddMemberDialog: sinon.spy(),
     onShowEditTeamDialog: sinon.spy(),
     onShowLeaveTeamDialog: sinon.spy(),
