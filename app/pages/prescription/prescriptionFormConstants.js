@@ -20,8 +20,7 @@ const t = i18next.t.bind(i18next);
 
 export const dateFormat = 'YYYY-MM-DD';
 export const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-
-export const revisionStates = ['draft', 'pending', 'submitted'];
+export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
@@ -391,6 +390,20 @@ export const shouldUpdateDefaultValue = (fieldPath, formikContext) => {
   );
 };
 
+export const revisionStateOptions = [
+  { value: 'draft', label: t('Draft'), colorPalette: 'blues' },
+  { value: 'pending', label: t('Pending Approval'), colorPalette: 'oranges' },
+  { value: 'submitted', label: t('Submitted'), colorPalette: 'indigos' },
+];
+
+export const prescriptionStateOptions = [
+  ...revisionStateOptions,
+  { value: 'claimed', label: t('Claimed'), colorPalette: 'cyans' },
+  { value: 'expired', label: t('Expired'), colorPalette: 'pinks' },
+  { value: 'active', label: t('Active'), colorPalette: 'greens' },
+  { value: 'inactive', label: t('Inactive'), colorPalette: 'purples' },
+];
+
 export const typeOptions = [
   { value: 'patient', label: t('Patient') },
   { value: 'caregiver', label: t('Patient and caregiver') },
@@ -405,6 +418,11 @@ export const sexOptions = [
 export const trainingOptions = [
   { value: 'inPerson', label: t('Yes, Patient requires in-person CPT training') },
   { value: 'inModule', label: t('No, Patient can self start with Tidepool Loop in-app tutorial') },
+];
+
+export const therapySettingsOptions = [
+  { value: 'initial', label: t('Initial pump settings order') },
+  { value: 'transferPumpSettings', label: t('Transfer pump settings') },
 ];
 
 export const insulinModelOptions = [

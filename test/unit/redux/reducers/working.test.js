@@ -1599,7 +1599,7 @@ describe('working', () => {
 
   describe('deletePrescription', () => {
     describe('request', () => {
-      it('should leave deletingPrescription.completed unchanged', () => {
+      it('should set deletingPrescription.completed to null', () => {
         expect(initialState.deletingPrescription.completed).to.be.null;
 
         let requestAction = actions.sync.deletePrescriptionRequest();
@@ -1613,7 +1613,7 @@ describe('working', () => {
         expect(successState.deletingPrescription.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.deletingPrescription.completed).to.be.true;
+        expect(state.deletingPrescription.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 

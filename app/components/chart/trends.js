@@ -338,7 +338,7 @@ const Trends = translate()(class Trends extends PureComponent {
       this.props.mostRecentDatetimeLocation,
       _.get(this.props, 'data.timePrefs', {})
     ).toISOString();
-    return mostRecentCeiling === _.get(this.refs, 'chart.state.dateDomain.end');
+    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentCeiling;
   }
 
   markTrendsViewed() {

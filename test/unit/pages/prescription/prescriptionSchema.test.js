@@ -29,6 +29,7 @@ describe('prescriptionSchema', function() {
       'sex',
       'calculator',
       'initialSettings',
+      'therapySettings',
       'training',
       'therapySettingsReviewed',
     ]);
