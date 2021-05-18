@@ -216,7 +216,7 @@ describe('TrendsContainer', () => {
       };
     }
 
-    const onDatetimeLocationChange = sinon.spy();
+    const onDatetimeLocationChange = sinon.stub().resolves(true);
     const onSwitchBgDataSource = sinon.spy();
     const markTrendsViewed = sinon.spy();
     const unfocusCbgSlice = sinon.spy();

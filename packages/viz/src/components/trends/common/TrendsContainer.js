@@ -261,6 +261,8 @@ export class TrendsContainer extends React.Component {
       yScale: null,
     };
 
+    /** Avoid infinite mount data loop */
+    this.mountingData = false;
     this.selectDate = this.selectDate.bind(this);
     this.determineDataToShow = this.determineDataToShow.bind(this);
   }
@@ -308,6 +310,11 @@ export class TrendsContainer extends React.Component {
   }
 
   mountData() {
+    this.log.debug("mountData", this.mountingData);
+    if (this.mountingData) {
+      return;
+    }
+    this.mountingData = true;
     // find BG domain (for yScale construction)
     const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = this.props;
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
@@ -347,7 +354,12 @@ export class TrendsContainer extends React.Component {
     };
 
     this.setState(state, this.determineDataToShow);
-    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent);
+    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent).catch((reason) => {
+      this.log.error(reason);
+    }).finally(() => {
+      this.mountingData = false;
+      this.log.debug("Mouting done");
+    });
   }
 
   filterCurrentData() {

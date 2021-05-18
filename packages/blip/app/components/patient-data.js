@@ -863,7 +863,8 @@ class PatientDataPage extends React.Component {
     //   epochLocation,
     //   msRange,
     //   date: moment.utc(epochLocation).toISOString(),
-    //   rangeDays: msRange/MS_IN_DAY
+    //   rangeDays: msRange/MS_IN_DAY,
+    //   loadingState,
     // });
 
     if (!Number.isFinite(epochLocation) || !Number.isFinite(msRange)) {
@@ -893,16 +894,16 @@ class PatientDataPage extends React.Component {
           };
         }
 
-        this.setState({ loadingState: LOADING_STATE_EARLIER_FETCH });
+        this.setState({ epochLocation, msRange, loadingState: LOADING_STATE_EARLIER_FETCH });
         const data = await this.apiUtils.fetchDataRange(rangeDisplay);
 
         this.setState({ loadingState: LOADING_STATE_EARLIER_PROCESS });
         await this.processData(data);
 
         dataLoaded = true;
+      } else {
+        this.setState({ epochLocation, msRange });
       }
-
-      this.setState({ epochLocation, msRange });
     }
 
     return dataLoaded;
@@ -938,7 +939,7 @@ class PatientDataPage extends React.Component {
    */
   async processData(data) {
     const { store, patient } = this.props;
-    const { timePrefs, bgPrefs, epochLocation } = this.state;
+    const { timePrefs, bgPrefs, epochLocation, msRange } = this.state;
     let { tidelineData } = this.state;
 
     const firstLoadOrRefresh = tidelineData === null;
@@ -972,13 +973,17 @@ class PatientDataPage extends React.Component {
       // First loading, display the last day in the daily chart
       newLocation = moment.utc(tidelineData.endpoints[1]).valueOf() - MS_IN_DAY/2;
     }
+    let newRange = msRange;
+    if (msRange === 0) {
+      newRange = MS_IN_DAY;
+    }
 
     this.setState({
       bgPrefs: bgPrefsUpdated,
       timePrefs: tidelineData.opts.timePrefs,
       tidelineData,
       epochLocation: newLocation,
-      msRange: MS_IN_DAY,
+      msRange: newRange,
       loadingState: LOADING_STATE_DONE,
       canPrint: true,
     }, () => this.log.info('Loading finished'));

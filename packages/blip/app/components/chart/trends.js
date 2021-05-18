@@ -315,6 +315,11 @@ class Trends extends React.Component {
     return;
   }
 
+  /**
+   * @param {string[]} endpoints
+   * @param {boolean} atMostRecent
+   * @return Promise<boolean>
+   */
   handleDatetimeLocationChange(endpoints, atMostRecent) {
     if (typeof atMostRecent !== 'boolean') {
       this.log.error('handleDatetimeLocationChange: Invalid parameter atMostRecent');
@@ -328,7 +333,7 @@ class Trends extends React.Component {
     const end = moment.utc(endpoints[1]).valueOf();
     const range = end - start;
     const center = start + range/2;
-    this.props.onDatetimeLocationChange(center, range);
+    return this.props.onDatetimeLocationChange(center, range);
   }
 
   handleSelectDate(date) {
