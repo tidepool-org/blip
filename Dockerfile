@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:experimental
 
 ### Stage: Base image
-FROM node:10.14.2-alpine as base
+FROM node:10.24.0-alpine as base
 WORKDIR /app
 RUN mkdir -p dist node_modules .yarn-cache && chown -R node:node .
 
