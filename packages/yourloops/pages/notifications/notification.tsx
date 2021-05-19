@@ -211,7 +211,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
               className={classes.button}
               disabled={inProgress}
               onClick={onAccept}>
-              {t("accept")}
+              {t("button-accept")}
             </Button>
           </div>
         )}
@@ -222,7 +222,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
           color="secondary"
           disabled={inProgress}
           onClick={onDecline}>
-          {t("decline")}
+          {t("button-decline")}
         </Button>
       </div>
     </div>
