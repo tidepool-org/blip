@@ -167,7 +167,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
           {notifications.length > 0 ? (
             notifications.map((notification: INotification, index: number) => (
               <ListItem
-                key={index}
+                key={notification.id}
                 style={{ padding: "8px 0" }}
                 divider={index !== notifications.length - 1}>
                 <Notification
