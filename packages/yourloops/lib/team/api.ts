@@ -30,6 +30,7 @@ import bows from "bows";
 
 import { HttpHeaderKeys } from "../../models/api";
 import { UserRoles } from "../../models/shoreline";
+import { INotificationAPI } from "../../models/notification";
 import { TeamType, ITeam, ITeamMember, TypeTeamMemberRole } from "../../models/team";
 import { errorFromHttpStatus } from "../../lib/utils";
 import { Session } from "../auth";
@@ -98,7 +99,7 @@ async function invitePatient(session: Session, teamId: string, username: string)
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function inviteMember(session: Session, teamId: string, email: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<ITeamMember> {
+async function inviteMember(session: Session, teamId: string, email: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<INotificationAPI> {
   const { sessionToken, traceToken } = session;
   log.info("inviteMember()", teamId, email, role);
 

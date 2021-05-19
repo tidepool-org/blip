@@ -208,7 +208,8 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         );
       }
 
-      if (userIsAdmin && userId !== currentUserId) {
+      // FIXME: We can't for now cancel a team invitation
+      if (userIsAdmin && userId !== currentUserId && member.status !== UserInvitationStatus.pending) {
         const handleClickRemoveMember = async (): Promise<void> => {
           await onShowRemoveTeamMemberDialog(member);
         };

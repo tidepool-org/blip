@@ -32,12 +32,14 @@ import { mount, ReactWrapper, MountRendererProps } from "enzyme";
 import sinon from "sinon";
 
 import { AuthContextProvider } from "../../../lib/auth";
+import { NotificationContextProvider } from "../../../lib/notifications";
 import { TeamContextProvider } from "../../../lib/team";
 import TeamsPage from "../../../pages/hcp/teams-page";
 
 import { waitTimeout } from "../../../lib/utils";
 import { teams } from "../../common";
 import { authHookHcp } from "../../lib/auth/hook.test";
+import { stubNotficationContextValue } from "../../lib/notifications/hook.test";
 import { teamAPI, resetTeamAPIStubs } from "../../lib/team/hook.test";
 
 function testTeamPage(): void {
@@ -50,9 +52,11 @@ function testTeamPage(): void {
   function TestTeamsPageComponent(): JSX.Element {
     return (
       <AuthContextProvider value={authHookHcp}>
-        <TeamContextProvider api={teamAPI}>
-          <TeamsPage />
-        </TeamContextProvider>
+        <NotificationContextProvider value={stubNotficationContextValue}>
+          <TeamContextProvider api={teamAPI}>
+            <TeamsPage />
+          </TeamContextProvider>
+        </NotificationContextProvider>
       </AuthContextProvider>
     );
   }

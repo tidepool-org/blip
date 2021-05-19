@@ -145,7 +145,7 @@ async function signup(username: string, password: string, role: UserRoles, trace
     return Promise.reject(new Error(reason));
   }
 
-  log.debug("login: /auth/login", appConfig.API_HOST);
+  log.debug("signup", username, role);
   const authURL = new URL("/auth/user", appConfig.API_HOST);
 
   const response = await fetch(authURL.toString(), {

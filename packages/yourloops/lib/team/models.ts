@@ -29,6 +29,8 @@
 import { UserInvitationStatus, PostalAddress } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { User } from "../../models/shoreline";
+import { INotificationAPI } from "../../models/notification";
+import { INotification } from "../notifications";
 import {
   ITeam,
   ITeamMember,
@@ -51,6 +53,8 @@ export interface TeamMember {
   role: TeamMemberRole;
   status: UserInvitationStatus;
   user: TeamUser;
+  /** Invitations for roles = pending */
+  invitation?: INotification;
 }
 
 export interface Team {
@@ -70,7 +74,7 @@ export interface TeamAPI {
   fetchTeams: (session: Session) => Promise<ITeam[]>;
   fetchPatients: (session: Session) => Promise<ITeamMember[]>;
   invitePatient: (session: Session, teamId: string, username: string) => Promise<ITeamMember>;
-  inviteMember: (session: Session, teamId: string, username: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<ITeamMember>;
+  inviteMember: (session: Session, teamId: string, username: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<INotificationAPI>;
   createTeam: (session: Session, team: Partial<ITeam>) => Promise<ITeam>;
   editTeam: (session: Session, editedTeam: ITeam) => Promise<void>;
   deleteTeam: (session: Session, teamId: string) => Promise<void>;

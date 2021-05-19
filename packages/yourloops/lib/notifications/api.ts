@@ -99,6 +99,7 @@ async function updateInvitation(session: Readonly<Session>, url: URL, key: strin
   const response = await fetch(url.toString(), {
     method: "PUT",
     headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
       [HttpHeaderKeys.traceToken]: session.traceToken,
     },
@@ -152,14 +153,33 @@ function declineInvitation(session: Readonly<Session>, notification: INotificati
   }
 }
 
-// function cancelInvitation(session: Readonly<Session>, notification: INotification): Promise<void> {
-// }
+async function cancelInvitation(session: Readonly<Session>, notification: INotification): Promise<void> {
+  // FIXME Invalid URL
+  const confirmURL = new URL(`/confirm/cancel`, appConfig.API_HOST);
+  const response = await fetch(confirmURL.toString(), {
+    method: "PUT",
+    headers: {
+      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+      [HttpHeaderKeys.sessionToken]: session.sessionToken,
+      [HttpHeaderKeys.traceToken]: session.traceToken,
+    },
+    cache: "no-cache",
+    body: JSON.stringify({ key: notification.id }),
+  });
+
+  if (response.ok) {
+    console.info("cancelInvitation response:", await response.text());
+    return Promise.resolve();
+  }
+
+  return Promise.reject(errorFromHttpStatus(response, log));
+}
 
 const notificationAPI: NotificationAPI = {
   getReceivedInvitations,
   getSentInvitations,
   acceptInvitation,
   declineInvitation,
-  // cancelInvitation,
+  cancelInvitation,
 };
 export default notificationAPI;

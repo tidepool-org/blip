@@ -48,24 +48,8 @@ function NotificationContextImpl(api: NotificationAPI): NotificationContext {
     throw new Error("User must be logged-in to use the Notification hook");
   }
 
-  const update = async (): Promise<void> => {
-    if (lock) {
-      return;
-    }
-    lock = true;
-
-    log.debug("Notification hook updating");
-
-    try {
-      const r = await api.getReceivedInvitations(session);
-      setReceivedInvitations(r);
-      const s = await api.getSentInvitations(session);
-      setSentInvitations(s);
-    } catch (err) {
-      log.error(err);
-    } finally {
-      lock = false;
-    }
+  const update = (): void => {
+    setInitialized(false);
   };
 
   const accept = async (notification: INotification): Promise<void> => {
@@ -82,9 +66,11 @@ function NotificationContextImpl(api: NotificationAPI): NotificationContext {
     setReceivedInvitations(r);
   };
 
-  const cancel = (notification: INotification): Promise<void> => {
-    log.debug("TODO cancel", notification);
-    return Promise.resolve();
+  const cancel = async (notification: INotification): Promise<void> => {
+    log.info("Cancel invitation", notification);
+    await api.cancelInvitation(session, notification);
+    const r = await api.getSentInvitations(session);
+    setSentInvitations(r);
   };
 
   const initHook = () => {

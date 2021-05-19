@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Notification: Invitations & co
+ * Auth hook tests
  *
  * All rights reserved.
  *
@@ -26,13 +26,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { INotification, NotificationType, NotificationAPI } from "./models";
-import { NotificationContextProvider, useNotification } from "./hook";
+import sinon from "sinon";
 
-export {
-  INotification,
-  NotificationAPI,
-  NotificationType,
-  NotificationContextProvider,
-  useNotification,
+import { NotificationContext } from "../../../lib/notifications/models";
+
+const stubNotficationContextValueInternal = {
+  accept: sinon.stub().resolves(),
+  cancel: sinon.stub().resolves(),
+  decline: sinon.stub().resolves(),
+  update: sinon.stub(),
+  initialized: true,
+  receivedInvitations: [],
+  sentInvitations: [],
 };
+
+export const stubNotficationContextValue = stubNotficationContextValueInternal as NotificationContext;
+
+export function resetNotficationContextValueStubs(): void {
+  stubNotficationContextValueInternal.accept.resetHistory();
+  stubNotficationContextValueInternal.cancel.resetHistory();
+  stubNotficationContextValueInternal.decline.resetHistory();
+  stubNotficationContextValueInternal.update.resetHistory();
+  stubNotficationContextValueInternal.initialized = true;
+  stubNotficationContextValueInternal.receivedInvitations = [];
+  stubNotficationContextValueInternal.sentInvitations = [];
+}

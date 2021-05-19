@@ -29,13 +29,17 @@
 import * as React from "react";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
+import { v4 as uuidv4 } from "uuid";
 
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 
+import { UserInvitationStatus } from "../../../models/generic";
+import { UserRoles } from "../../../models/shoreline";
 import { useAuth } from "../../../lib/auth";
 import sendMetrics from "../../../lib/metrics";
 import { errorTextFromException } from "../../../lib/utils";
+import { useNotification, NotificationType } from "../../../lib/notifications";
 import { ShareUser, addDirectShare, getDirectShares, removeDirectShare } from "../../../lib/share";
 import { useAlert } from "../../../components/utils/snackbar";
 import { AddDialogContentProps, RemoveDialogContentProps } from "./types";
@@ -57,10 +61,12 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const alert = useAlert();
   const authHook = useAuth();
+  const notificationHook = useNotification();
   const [ caregiverToAdd, setCaregiverToAdd ] = React.useState<AddDialogContentProps | null>(null);
   const [ caregiverToRemove, setCaregiverToRemove ] = React.useState<RemoveDialogContentProps | null>(null);
   const [ caregivers, setCaregivers ] = React.useState<ShareUser[] | null>(null);
   const session = authHook.session();
+  const { sentInvitations, initialized: haveNotifications } = notificationHook;
 
   const handleShowAddCaregiverDialog = async (): Promise<void> => {
     const getCaregiverEmail = (): Promise<string | null> => {
@@ -75,9 +81,12 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
     if (email !== null && session !== null) {
       try {
         await addDirectShare(session, email);
-        alert.success(t("modal-patient-add-caregiver-success"));
+        alert.success(t("modal-hcp-add-patient-success"));
         sendMetrics("patient-add-caregiver", { added: true });
-        setCaregivers(null); // Refresh the list
+        // Refresh the notifications list
+        notificationHook.update();
+        // And refresh the list
+        setCaregivers(null);
       } catch (reason) {
         log.error(reason);
         alert.error(t("modal-patient-add-caregiver-failure"));
@@ -100,7 +109,11 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
 
     if (consent && session !== null) {
       try {
-        await removeDirectShare(session, us.user.userid);
+        if (us.status === UserInvitationStatus.pending && typeof us.invitation === "object") {
+          await notificationHook.cancel(us.invitation);
+        } else {
+          await removeDirectShare(session, us.user.userid);
+        }
         alert.success(t("modal-patient-remove-caregiver-success"));
         sendMetrics("patient-remove-caregiver", { removed: true, caregiver: us.user.userid });
         setCaregivers(null); // Refresh the list
@@ -115,16 +128,38 @@ function PatientCaregiversPage(props: PatientCaregiversPageProps): JSX.Element {
   };
 
   React.useEffect(() => {
-    if (caregivers === null && session !== null) {
+    if (caregivers === null && session !== null && haveNotifications) {
       // Load caregivers
+      const addPendingInvitation = (target: ShareUser[]) => {
+        for (const invitation of sentInvitations) {
+          if (invitation.type === NotificationType.directInvitation) {
+            // Create a fake share user
+            log.debug("Found pending direct-share invitation: ", invitation);
+            const shareUser: ShareUser = {
+              invitation,
+              status: UserInvitationStatus.pending,
+              user: {
+                username: invitation.email,
+                userid: uuidv4(),
+                role: UserRoles.caregiver,
+              },
+            };
+            target.push(shareUser);
+          }
+        }
+      };
+
       getDirectShares(session).then((value) => {
+        addPendingInvitation(value);
         setCaregivers(value);
       }).catch((reason: unknown) => {
         log.error(reason);
-        setCaregivers([]);
+        const value: ShareUser[] = [];
+        addPendingInvitation(value);
+        setCaregivers(value);
       });
     }
-  }, [caregivers, session]);
+  }, [caregivers, session, haveNotifications, sentInvitations]);
 
   if (caregivers === null) {
     return (
