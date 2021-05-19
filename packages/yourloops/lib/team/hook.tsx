@@ -37,7 +37,7 @@ import { ITeam, TeamType, TeamMemberRole, TypeTeamMemberRole, ITeamMember } from
 
 import { errorTextFromException } from "../utils";
 import { useAuth, Session } from "../auth";
-import { useNotification } from "../notifications";
+import { useNotification, notificationConversion } from "../notifications";
 import { LoadTeams, Team, TeamAPI, TeamContext, TeamMember, TeamProvider, TeamUser } from "./models";
 import TeamAPIImpl from "./api";
 
@@ -286,27 +286,59 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
   };
 
   const invitePatient = async (team: Team, username: string): Promise<void> => {
-    const iTeamMember = await api.invitePatient(session, team.id, username);
-    const users = getMapUsers();
-    iMemberToMember(iTeamMember, team, users);
+    const apiInvitation = await api.invitePatient(session, team.id, username);
+    const invitation = notificationConversion(apiInvitation);
+    if (invitation === null) {
+      // Should not be possible
+      throw new Error("Invalid invitation type");
+    }
+    let user = getUserByEmail(teams, invitation.email);
+    if (user === null) {
+      user = {
+        userid: invitation.id,
+        role: UserRoles.patient,
+        username,
+        emails: [username],
+        members: [],
+      };
+    }
+    const member: TeamMember = {
+      role: TeamMemberRole.patient,
+      status: UserInvitationStatus.pending,
+      team,
+      user,
+      invitation,
+    };
+    user.members.push(member);
+    team.members.push(member);
     setTeams(teams);
   };
 
   const inviteMember = async (team: Team, username: string, role: Exclude<TypeTeamMemberRole, "patient">): Promise<void> => {
-    const invitation = await api.inviteMember(session, team.id, username, role);
-    const member: TeamMember = {
-      role: role as TeamMemberRole,
-      status: UserInvitationStatus.pending,
-      team,
-      user: {
-        userid: invitation.key,
+    const apiInvitation = await api.inviteMember(session, team.id, username, role);
+    const invitation = notificationConversion(apiInvitation);
+    if (invitation === null) {
+      // Should not be possible
+      throw new Error("Invalid invitation type");
+    }
+    let user = getUserByEmail(teams, invitation.email);
+    if (user === null) {
+      user = {
+        userid: invitation.id,
         role: UserRoles.hcp,
         username,
         emails: [username],
         members: [],
-      },
+      };
+    }
+    const member: TeamMember = {
+      role: role as TeamMemberRole,
+      status: UserInvitationStatus.pending,
+      team,
+      user,
+      invitation,
     };
-    member.user.members.push(member);
+    user.members.push(member);
     team.members.push(member);
     setTeams(teams);
   };

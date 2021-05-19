@@ -78,7 +78,7 @@ async function fetchPatients(session: Session): Promise<ITeamMember[]> {
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-async function invitePatient(session: Session, teamId: string, username: string): Promise<ITeamMember> {
+async function invitePatient(session: Session, teamId: string, username: string): Promise<INotificationAPI> {
   const { sessionToken, traceToken } = session;
   log.info(`invitePatient(${username}, ${teamId})`);
 

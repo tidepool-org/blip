@@ -73,7 +73,7 @@ export interface Team {
 export interface TeamAPI {
   fetchTeams: (session: Session) => Promise<ITeam[]>;
   fetchPatients: (session: Session) => Promise<ITeamMember[]>;
-  invitePatient: (session: Session, teamId: string, username: string) => Promise<ITeamMember>;
+  invitePatient: (session: Session, teamId: string, username: string) => Promise<INotificationAPI>;
   inviteMember: (session: Session, teamId: string, username: string, role: Exclude<TypeTeamMemberRole, "patient">) => Promise<INotificationAPI>;
   createTeam: (session: Session, team: Partial<ITeam>) => Promise<ITeam>;
   editTeam: (session: Session, editedTeam: ITeam) => Promise<void>;
