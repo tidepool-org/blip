@@ -88,7 +88,7 @@ function sendMetrics(eventName: string, properties?: unknown): void {
     } else if (eventName === "setDocumentTitle" && typeof properties === "string") {
       matomoPaq.push(["setDocumentTitle", properties]);
     } else if (typeof properties === "undefined") {
-      matomoPaq.push(["trackEvent", eventName]);
+      matomoPaq.push(["trackEvent", eventName, "n/a"]);
     } else {
       matomoPaq.push(["trackEvent", eventName, JSON.stringify(properties)]);
     }

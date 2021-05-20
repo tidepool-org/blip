@@ -266,6 +266,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     /** Set to true if we need to update the user only (no change needed for the password) */
     let updated = false;
 
+    sendMetrics("save-preferences", { preferencesChanged, profileChanged, settingsChanged, passwordChanged });
+
     try {
       if (preferencesChanged) {
         preferences = await updatePreferences(getUpdatedPreferences(), false);
