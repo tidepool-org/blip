@@ -91,7 +91,6 @@ class Trends extends React.Component {
     };
 
     this.chartRef = React.createRef();
-    this.chart = null;
 
     this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleClickBack = this.handleClickBack.bind(this);
@@ -113,34 +112,44 @@ class Trends extends React.Component {
 
   componentDidMount() {
     this.log.debug('Mounting...');
-    if (this.chartRef.current) {
-      // necessary to get a ref from the redux connect()ed TrendsContainer
-      this.chart = this.chartRef.current.getWrappedInstance();
-    }
   }
 
   componentWillUnmount() {
     this.log('Unmounting...');
-    this.chart = null;
+  }
+
+  getChart() {
+    if (this.chartRef.current) {
+      return this.chartRef.current.getWrappedInstance();
+    }
+    return null;
   }
 
   formatDate(datetime) {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-
     return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
   }
 
   /**
    * @private
-   * @returns {string[]} ISO string UTC date range
+   * @returns {string[] | moment.Moment[]} ISO string UTC date range
    */
-  getEndpoints() {
-    /** @type {{ epochLocation: number, msRange: number }} */
-    const { epochLocation, msRange } = this.props;
-    return [
-      (moment.utc(epochLocation - msRange / 2)).toISOString(),
-      (moment.utc(epochLocation + msRange / 2)).toISOString(),
-    ];
+  getEndpoints(returnMoment = false) {
+    /** @type {{ epochLocation: number, msRange: number, timePrefs: object }} */
+    const { epochLocation, msRange, timePrefs } = this.props;
+
+    const timezone = getTimezoneFromTimePrefs(timePrefs);
+    /** @type {undefined | null | { start: string; end: string }} */
+    const dateDomain = this.getChart()?.state?.dateDomain;
+    const msRangeDiv2 = Math.round(msRange / 2);
+    const start = dateDomain?.start ?? epochLocation - msRangeDiv2;
+    const end = dateDomain?.end ?? epochLocation + msRangeDiv2;
+    const startDate = moment.tz(start, timezone);
+    const endDate = moment.tz(end, timezone);
+    if (returnMoment) {
+      return [startDate, endDate];
+    }
+    return [startDate.toISOString(), endDate.toISOString()];
   }
 
   /**
@@ -149,8 +158,9 @@ class Trends extends React.Component {
    */
   getInitialDatetimeLocation() {
     /** @type {{ epochLocation: number }} */
-    const { epochLocation } = this.props;
-    return moment.utc(epochLocation).toISOString();
+    const { epochLocation, timePrefs } = this.props;
+    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? 'UTC');
+    return m.toISOString();
   }
 
   getNewDomain(current, extent) {
@@ -163,28 +173,26 @@ class Trends extends React.Component {
   }
 
   getExtendSize(domain) {
-    const startDate = moment.utc(domain[0]);
-    const endDate = moment.utc(domain[1]);
+    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+    const startDate = moment.tz(domain[0], timezone);
+    const endDate = moment.tz(domain[1], timezone);
     return endDate.diff(startDate, 'days');
   }
 
   getTitle() {
-    const { timePrefs, loading } = this.props;
+    const { loading } = this.props;
     const { displayCalendar } = this.state;
 
     if (loading) {
       return t('Loading...');
     }
 
-    const endpoints = this.getEndpoints();
+    /** @type {[moment.Moment, moment.Moment]} */
+    const [startDate, endDate] = this.getEndpoints(true);
 
-    const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const startDate = moment.utc(endpoints[0]).tz(timezone);
-    // endpoint is exclusive, so need to subtract a day:
-    const endDate = moment.utc(endpoints[1]).tz(timezone).subtract(1, 'days');
-
-    const displayStartDate = this.formatDate(startDate);
-    const displayEndDate = this.formatDate(endDate);
+    const mFormat = t('MMM D, YYYY');
+    const displayStartDate = startDate.format(mFormat);
+    const displayEndDate = endDate.format(mFormat);
 
     const handleClickTitle = (e) => {
       e.stopPropagation();
@@ -203,7 +211,8 @@ class Trends extends React.Component {
         const extentSize = this.getExtendSize(newDomain);
         prefs.trends.extentSize = extentSize;
         this.props.updateChartPrefs(prefs, () => {
-          this.chart.setExtent(newDomain);
+          const chart = this.getChart();
+          chart?.setExtent(newDomain);
         });
       });
     };
@@ -215,6 +224,7 @@ class Trends extends React.Component {
     let calendar = null;
     let divClass = 'chart-title-clickable';
     if (displayCalendar) {
+      const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
       calendar = (
         <RangeDatePicker
           timezone={timezone}
@@ -244,23 +254,24 @@ class Trends extends React.Component {
   }
 
   handleWindowResize(/* windowSize */) {
-    if (this.chart !== null) {
-      this.chart.mountData();
-    }
+    this.getChart()?.mountData();
   }
 
   handleClickBack(e) {
     if (e) {
       e.preventDefault();
     }
-    this.chart.goBack();
+    this.getChart()?.goBack();
   }
 
   handleClickDaily(e) {
+    const { epochLocation, timePrefs } = this.props;
     if (e) {
       e.preventDefault();
     }
-    this.props.onSwitchToDaily();
+    const extentSize = this.props.chartPrefs.trends.extentSize;
+    const m = moment.tz(epochLocation, timePrefs.timezoneName ?? 'UTC').add(Math.round(extentSize / 2), 'days');
+    this.props.onSwitchToDaily(m);
   }
 
   handleClickForward(e) {
@@ -270,7 +281,7 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
-    this.chart.goForward();
+    this.getChart()?.goForward();
   }
 
   handleClickMostRecent(e) {
@@ -280,7 +291,7 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
-    this.chart.goToMostRecent();
+    this.getChart()?.goToMostRecent();
   }
 
   handleClickPresetWeeks(e, extentSize) {
@@ -288,14 +299,15 @@ class Trends extends React.Component {
       e.preventDefault();
     }
     // no change, return early
-    if (this.props.chartPrefs.trends.extentSize !== extentSize) {
+    const chart = this.getChart();
+    if (this.props.chartPrefs.trends.extentSize !== extentSize && chart !== null) {
       const prefs = _.cloneDeep(this.props.chartPrefs);
-      const current = moment.utc(this.chart.getCurrentDay());
+      const current = moment.utc(chart.getCurrentDay());
       const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
       const newDomain = this.getNewDomain(current, extentSize);
       prefs.trends.extentSize = extentSize;
       this.props.updateChartPrefs(prefs, () => {
-        this.chart.setExtent(newDomain, oldDomain);
+        chart.setExtent(newDomain, oldDomain);
       });
     }
   }
@@ -332,7 +344,7 @@ class Trends extends React.Component {
     const start = moment.utc(endpoints[0]).valueOf();
     const end = moment.utc(endpoints[1]).valueOf();
     const range = end - start;
-    const center = start + range/2;
+    const center = start + Math.round(range / 2);
     return this.props.onDatetimeLocationChange(center, range);
   }
 
@@ -566,6 +578,7 @@ class Trends extends React.Component {
         smbgLines={this.props.chartPrefs.trends.smbgLines}
         timePrefs={this.props.timePrefs}
         // data
+        tidelineData={this.props.patientData}
         cbgByDate={this.props.patientData.cbgByDate}
         cbgByDayOfWeek={this.props.patientData.cbgByDayOfWeek}
         smbgByDate={this.props.patientData.smbgByDate}

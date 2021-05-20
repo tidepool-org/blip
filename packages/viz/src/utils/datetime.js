@@ -354,10 +354,10 @@ export function getHammertimeFromDatumWithTimePrefs(datum, timePrefs) {
 
 /**
  * getLocalizedCeiling
- * @param {String} utc - Zulu timestamp (Integer hammertime also OK)
- * @param {Object} timePrefs - object containing timezoneAware Boolean and timezoneName String
+ * @param {string} utc - Zulu timestamp (Integer hammertime also OK)
+ * @param {object} timePrefs - object containing timezoneAware Boolean and timezoneName String
  *
- * @return {Object} a JavaScript Date, the closest (future) midnight according to timePrefs;
+ * @return {Date} a JavaScript Date, the closest (future) midnight according to timePrefs;
  *                  if utc is already local midnight, returns utc
  */
 export function getLocalizedCeiling(utc, timePrefs) {

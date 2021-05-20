@@ -143,6 +143,7 @@ export class TrendsContainer extends React.Component {
       [MMOLL_UNITS]: PropTypes.number.isRequired,
     }).isRequired,
     // data (crossfilter dimensions)
+    tidelineData: PropTypes.object.isRequired,
     cbgByDate: PropTypes.object.isRequired,
     cbgByDayOfWeek: PropTypes.object.isRequired,
     smbgByDate: PropTypes.object.isRequired,
@@ -246,6 +247,7 @@ export class TrendsContainer extends React.Component {
       [MGDL_UNITS]: MGDL_CLAMP_TOP,
       [MMOLL_UNITS]: MMOLL_CLAMP_TOP,
     },
+    initialDatetimeLocation: new Date().toISOString(),
   };
 
   constructor(props) {
@@ -310,13 +312,14 @@ export class TrendsContainer extends React.Component {
   }
 
   mountData() {
-    this.log.debug("mountData", this.mountingData);
+    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
+    this.log.debug("mountData", this.mountingData, { initialDatetimeLocation, extentSize }, new Error("stack"));
     if (this.mountingData) {
       return;
     }
     this.mountingData = true;
     // find BG domain (for yScale construction)
-    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek } = this.props;
+    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek, tidelineData } = this.props;
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
 
@@ -329,14 +332,15 @@ export class TrendsContainer extends React.Component {
     const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
     // find initial date domain (based on initialDatetimeLocation or current time)
-    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
     const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    const mostRecent = datetime.getLocalizedCeiling(new Date().valueOf(), timePrefs);
-    const end = initialDatetimeLocation
-      ? datetime.getLocalizedCeiling(initialDatetimeLocation, timePrefs)
-      : mostRecent;
-
-    const start = moment(end.toISOString()).tz(timezone).subtract(extentSize, 'days');
+    // Remove 1 miliseconds here, because there is 1 added in tidelinedata
+    const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, 'millisecond');
+    let end = moment.tz(initialDatetimeLocation, timezone).endOf('day').add(Math.round(extentSize / 2), 'days');
+    if (end.valueOf() > mostRecent.valueOf()) {
+      this.log.info('End after most recent, update it', { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
+      end = moment.tz(mostRecent.valueOf(), timezone);
+    }
+    let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
     // filter data according to current activeDays and dateDomain
@@ -354,11 +358,12 @@ export class TrendsContainer extends React.Component {
     };
 
     this.setState(state, this.determineDataToShow);
-    this.props.onDatetimeLocationChange(dateDomain, end === mostRecent).catch((reason) => {
+    const atMostRecent = Math.abs(end.diff(mostRecent, 'hours').valueOf()) < 1;
+    this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
       this.log.error(reason);
     }).finally(() => {
       this.mountingData = false;
-      this.log.debug("Mouting done");
+      this.log.debug("Mouting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
     });
   }
 
@@ -410,30 +415,38 @@ export class TrendsContainer extends React.Component {
   }
 
   goBack() {
-    const oldDomain = _.clone(this.state.dateDomain);
-    const { dateDomain: { start: newEnd } } = this.state;
-    const start = getLocalizedOffset(newEnd, {
-      // negative because we are moving backward in time
-      amount: -this.props.extentSize,
-      units: 'days',
-    }, this.props.timePrefs).toISOString();
-    const newDomain = [start, newEnd];
-    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
+    const { timePrefs, extentSize, tidelineData } = this.props;
+    const { dateDomain } = this.state;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const mMostAncient = moment.tz(tidelineData.endpoints[0], timezone);
+    let start = moment.tz(dateDomain.start, timezone).subtract(extentSize, 'days');
+    if (start.valueOf() < mMostAncient.valueOf()) {
+      start = mMostAncient;
+    }
+    const end = moment.tz(start, timezone).add(extentSize, 'days');
+    this.setExtent([start.toISOString(), end.toISOString()], dateDomain);
   }
 
   goForward() {
-    const oldDomain = _.clone(this.state.dateDomain);
-    const { dateDomain: { end: newStart } } = this.state;
-    const end = utcDay.offset(new Date(newStart), this.props.extentSize).toISOString();
-    const newDomain = [newStart, end];
-    this.setExtent(newDomain, [oldDomain.start, oldDomain.end]);
+    const { timePrefs, extentSize } = this.props;
+    const { dateDomain, mostRecent } = this.state;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const mMostRecent = moment.tz(mostRecent, timezone);
+    let end = moment.tz(dateDomain.end, timezone).add(extentSize, 'days');
+    if (end.valueOf() > mMostRecent.valueOf()) {
+      end = mMostRecent;
+    }
+    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days');
+    this.setExtent([start.toISOString(), end.toISOString()], dateDomain);
   }
 
   goToMostRecent() {
-    const { mostRecent: end } = this.state;
-    const start = utcDay.offset(new Date(end), -this.props.extentSize).toISOString();
-    const newDomain = [start, end];
-    this.setExtent(newDomain);
+    const { timePrefs, extentSize } = this.props;
+    const { mostRecent } = this.state;
+    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+    const end = moment.tz(mostRecent, timezone);
+    const start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days');
+    this.setExtent([start.toISOString(), end.toISOString()]);
   }
 
   refilterByDate(dataByDate, dateDomain) {

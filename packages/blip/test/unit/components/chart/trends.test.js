@@ -88,6 +88,10 @@ describe('Trends', () => {
       TrendsData: {
         data: {},
       },
+      endpoints: [
+        '2018-01-01T00:00:00.000Z',
+        '2018-06-20T00:00:00.000Z'
+      ],
     },
     timePrefs: {
       timezoneAware: false,
@@ -178,7 +182,7 @@ describe('Trends', () => {
       wrapper.setProps({ epochLocation, msRange });
       // wrapper.update();
       const title = shallow(instance.getTitle());
-      expect(title.text(), 'title text').to.be.equal('Jan 10, 2018 - Jan 19, 2018');
+      expect(title.text(), 'title text').to.be.equal('Jan 10, 2018 - Jan 20, 2018');
     });
 
     it('should set the title correctly when ending on a DST changeover date', () => {
@@ -198,7 +202,7 @@ describe('Trends', () => {
 
       wrapper.setProps({ epochLocation, msRange, loading: false }).update();
       title = shallow(instance.getTitle());
-      expect(title.text(), 'title contains:').to.be.equal('Mar 1, 2018 - Mar 7, 2018');
+      expect(title.text(), 'title contains:').to.be.equal('Mar 1, 2018 - Mar 8, 2018');
     });
 
     it('should set the title correctly when starting on a DST changeover date', () => {
@@ -211,7 +215,7 @@ describe('Trends', () => {
 
       wrapper.setProps({ epochLocation, msRange, timePrefs });
       const title = shallow(instance.getTitle());
-      expect(title.text()).to.be.equal('Mar 10, 2018 - Mar 16, 2018');// (<span>Mar 11, 2018&#xA0;-&#xA0;Mar 17, 2018</span>)).to.be.true;
+      expect(title.text()).to.be.equal('Mar 10, 2018 - Mar 17, 2018');
     });
 
     it('should call the `onDatetimeLocationChange` prop method', () => {
