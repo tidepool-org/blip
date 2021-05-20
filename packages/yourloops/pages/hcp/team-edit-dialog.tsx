@@ -78,8 +78,13 @@ const modalStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexDirection: "column",
       padding: theme.spacing(2),
-      maxHeight: "28em",
       overflowY: "scroll",
+    },
+    formNew: {
+      maxHeight: "24em",
+    },
+    formEdit: {
+      maxHeight: "28em",
     },
     formChild: {
       marginBottom: theme.spacing(2),
@@ -252,17 +257,17 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
     modalButtonValidate = t("button-create-team");
     infoLine = <p id="team-edit-dialog-info-line" className={classes.pModalInfos}>{t("team-modal-create-info")}</p>;
     const termsOfUse = t("terms-and-conditions");
-    const linkTermsAndConditions = (
+    const linkTerms = (
       <Link aria-label={termsOfUse} href={DiabeloopUrl.getTermsUrL(i18n.language)} target="_blank" rel="noreferrer">
-        { termsOfUse }
+        {termsOfUse}
       </Link>
     );
     warningLines = (
       <div className={classes.divModalWarnings}>
         <p id="team-edit-dialog-warning-line1">{t("team-modal-create-warning-line1")}</p>
         <p id="team-edit-dialog-warning-line2">
-          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTermsAndConditions }} values={{ termsAndConditions: termsOfUse }} parent={React.Fragment}>
-            By accepting our Terms And Conditions you confirm you are a registered healthcare professional in your country
+          <Trans i18nKey="team-modal-create-warning-line2" t={t} components={{ linkTerms }} values={{ terms: termsOfUse }} parent={React.Fragment}>
+            By accepting our {termsOfUse} you confirm you are a registered healthcare professional in your country
             and have the right to create a care team.
           </Trans>
         </p>
@@ -287,7 +292,7 @@ function TeamEditDialog(props: TeamEditModalProps): JSX.Element {
 
           {infoLine}
 
-          <form noValidate autoComplete="off" className={classes.form}>
+          <form noValidate autoComplete="off" className={`${classes.form} ${team === null ? classes.formNew : classes.formEdit}`}>
             <TextField
               id="team-edit-dialog-field-name"
               className={classes.formChild}
