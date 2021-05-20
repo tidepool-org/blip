@@ -33,19 +33,15 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 
 import { useAuth } from "../lib/auth";
-import { getURLPrefixFromUser } from "../lib/diabeloop-url";
-import { publicRoutesTheme, mainTheme } from "./theme";
+import { externalTheme, mainTheme } from "./theme";
 import FooterLinks from "./footer-links";
 import { SnackbarContextProvider, DefaultSnackbarContext } from "./utils/snackbar";
 import { NotificationContextProvider } from "../lib/notifications/hook";
 
 export const PublicRoute = (props: RouteProps): JSX.Element => {
-  const { isLoggedIn, user } = useAuth();
 
-  return isLoggedIn() ? (
-    <Redirect to={{ pathname: getURLPrefixFromUser(user), state: { from: props.location } }} />
-  ) : (
-    <ThemeProvider theme={publicRoutesTheme}>
+  return (
+    <ThemeProvider theme={externalTheme}>
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
         <Route {...props} />
@@ -57,9 +53,10 @@ export const PublicRoute = (props: RouteProps): JSX.Element => {
 
 export const PrivateRoute = (props: RouteProps): JSX.Element => {
   const { isLoggedIn } = useAuth();
-
+  // FIXME
+  const theme = props.path === "/renew-consent" || props.path === "/new-consent" ? externalTheme : mainTheme;
   return isLoggedIn() ? (
-    <ThemeProvider theme={mainTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
         <NotificationContextProvider>

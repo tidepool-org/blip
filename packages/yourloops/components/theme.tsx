@@ -57,7 +57,7 @@ export const mainTheme = createMuiTheme({
   },
 });
 
-export const publicRoutesTheme = createMuiTheme({
+export const externalTheme = createMuiTheme({
   palette: {
     ...commonTheme,
     background: { default: "#F7F7F8" },

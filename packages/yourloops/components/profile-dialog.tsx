@@ -40,11 +40,11 @@ import TextField from "@material-ui/core/TextField";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { Units } from "../models/generic";
-import { Settings, User } from "../models/shoreline";
+import { Settings, IUser } from "../models/shoreline";
 import { getUserFirstName, getUserLastName } from "../lib/utils";
 
 interface ProfileDialogProps {
-  user: User;
+  user: IUser;
   isOpen: boolean;
   handleClose: () => void;
 }

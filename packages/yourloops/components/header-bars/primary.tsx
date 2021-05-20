@@ -45,10 +45,9 @@ import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 import brandingLogo from "branding/logo.png";
 
-import { User } from "../../models/shoreline";
 import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
-import { useAuth } from "../../lib/auth";
+import { User, useAuth } from "../../lib/auth";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
 import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
 

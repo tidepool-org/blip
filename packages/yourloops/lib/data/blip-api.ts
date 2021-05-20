@@ -31,8 +31,8 @@ import bows from "bows";
 
 import { PatientData } from "models/device-data";
 import { MessageNote } from "models/message";
-import { User } from "../../models/shoreline";
-import { AuthContext } from "../auth";
+import { IUser } from "../../models/shoreline";
+import { User, AuthContext } from "../auth";
 import { t as translate } from "../language";
 import sendMetrics from "../metrics";
 
@@ -66,7 +66,7 @@ class BlipApi {
     return _.cloneDeep(this.authHook.user);
   }
 
-  public getPatientDataRange(patient: User): Promise<string[]> {
+  public getPatientDataRange(patient: IUser): Promise<string[]> {
     this.log.debug("getPatientDataRange", { userId: patient.userid });
     const session = this.authHook.session();
     if (session !== null) {
@@ -75,7 +75,7 @@ class BlipApi {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public getPatientData(patient: User, options?: GetPatientDataOptions): Promise<PatientData> {
+  public getPatientData(patient: IUser, options?: GetPatientDataOptions): Promise<PatientData> {
     this.log.debug("getPatientData", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
@@ -84,7 +84,7 @@ class BlipApi {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public getPatientDataV0(patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
+  public getPatientDataV0(patient: IUser, options?: GetPatientDataOptionsV0): Promise<PatientData> {
     this.log.debug("getPatientDataV0", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
@@ -93,7 +93,7 @@ class BlipApi {
     return Promise.reject(new Error(translate("not-logged-in")));
   }
 
-  public getMessages(patient: User, options?: GetPatientDataOptions): Promise<MessageNote[]> {
+  public getMessages(patient: IUser, options?: GetPatientDataOptions): Promise<MessageNote[]> {
     this.log.debug("getMessages", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {

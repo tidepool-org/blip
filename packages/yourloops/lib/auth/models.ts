@@ -27,7 +27,8 @@
  */
 
 import { SignUpFormState } from "pages/signup/signup-formstate-context";
-import { User, Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
+import User from "./user";
+import { Preferences, Profile, Settings, UserRoles } from "../../models/shoreline";
 
 /** Hook internal usage */
 export interface Session {

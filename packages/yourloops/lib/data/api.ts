@@ -34,7 +34,7 @@ import { PatientData } from "models/device-data";
 import { MessageNote, MessagesThread } from "models/message";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 import { ComputedTIR } from "../../models/device-data";
-import { User, UserRoles } from "../../models/shoreline";
+import { IUser, UserRoles } from "../../models/shoreline";
 
 import HttpStatus from "../http-status-codes";
 import appConfig from "../config";
@@ -79,7 +79,7 @@ export async function getPatientsDataSummary(session: Session, userId: string, o
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-function getPatientDataRouteV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<Response> {
+function getPatientDataRouteV0(session: Session, patient: IUser, options?: GetPatientDataOptionsV0): Promise<Response> {
   const { sessionToken, traceToken } = session;
   const dataURL = new URL(`/data/${patient.userid}` , appConfig.API_HOST);
 
@@ -114,7 +114,7 @@ function getPatientDataRouteV0(session: Session, patient: User, options?: GetPat
  * @param options Request options
  * @returns Array of patient data
  */
-export async function getPatientDataV0(session: Session, patient: User, options?: GetPatientDataOptionsV0): Promise<PatientData> {
+export async function getPatientDataV0(session: Session, patient: IUser, options?: GetPatientDataOptionsV0): Promise<PatientData> {
   if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
   }
@@ -129,7 +129,7 @@ export async function getPatientDataV0(session: Session, patient: User, options?
   return Promise.reject(errorFromHttpStatus(response, log));
 }
 
-function getPatientDataRangeV1(session: Session, patient: User): Promise<Response> {
+function getPatientDataRangeV1(session: Session, patient: IUser): Promise<Response> {
   const { sessionToken, traceToken } = session;
   if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
@@ -151,7 +151,7 @@ function getPatientDataRangeV1(session: Session, patient: User): Promise<Respons
  * @param patient The patient (user) to fetch data
  * @returns Array [string, string] of ISO 8601 dates time
  */
-export async function getPatientDataRange(session: Session, patient: User): Promise<string[]> {
+export async function getPatientDataRange(session: Session, patient: IUser): Promise<string[]> {
   let response: Response | null = null;
   if (routeV1Available) {
     response = await getPatientDataRangeV1(session, patient);
@@ -212,7 +212,7 @@ export async function getPatientDataRange(session: Session, patient: User): Prom
  * @param options Options to pas to the API
  * @returns Patient data array
  */
-export async function getPatientData(session: Session, patient: User, options?: GetPatientDataOptions): Promise<PatientData> {
+export async function getPatientData(session: Session, patient: IUser, options?: GetPatientDataOptions): Promise<PatientData> {
   const { sessionToken, traceToken } = session;
   if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error(t("not-a-patient")));
@@ -252,7 +252,7 @@ export async function getPatientData(session: Session, patient: User, options?: 
  * Get notes of a given patient
  * @param userId ID of the patient
  */
-export async function getMessages(session: Session, patient: User, options?: GetPatientDataOptions): Promise<MessageNote[]> {
+export async function getMessages(session: Session, patient: IUser, options?: GetPatientDataOptions): Promise<MessageNote[]> {
   const { sessionToken, traceToken } = session;
   const messagesURL = new URL(`/message/notes/${patient.userid}`, appConfig.API_HOST);
 

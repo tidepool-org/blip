@@ -1,6 +1,5 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Login page
  *
  * All rights reserved.
  *
@@ -26,6 +25,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import Login from "./login";
-import ConsentPage from "./consent";
-export { Login as LoginPage, ConsentPage };
+import * as React from "react";
+import Consent from "../../components/consent";
+import { useAuth } from "../../lib/auth";
+
+/**
+ * Consent Page
+ */
+function ConsentPage(): JSX.Element {
+  const { user } = useAuth();
+
+  return (<Consent messageKey="constent-renew-message" destinationPath={`${user?.getHomePage()}`} />);
+}
+
+export default ConsentPage;

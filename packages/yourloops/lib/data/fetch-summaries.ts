@@ -30,7 +30,7 @@ import bows from "bows";
 
 import { MS_IN_DAY } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
-import { User, UserRoles } from "../../models/shoreline";
+import { IUser, UserRoles } from "../../models/shoreline";
 import { Session } from "../auth";
 
 import {
@@ -40,7 +40,7 @@ import {
 
 const log = bows("FetchSummaries");
 
-async function fetchSummary(session: Session, patient: User): Promise<MedicalData | null> {
+async function fetchSummary(session: Session, patient: IUser): Promise<MedicalData | null> {
   let range: string[] | null = null;
 
   try {
@@ -89,7 +89,7 @@ type PendingSummaryFetchPromiseFuncs = {
 };
 interface PendingSummaryFetch {
   /** To know the patient we need data */
-  patient: User;
+  patient: IUser;
   /** Our sessions infos for the API call */
   session: Session;
   /** To know if we are processing this patient -> API call in progress */
@@ -148,7 +148,7 @@ function startFetchSummary() {
  * @param patient Patient infos
  * @returns The medical data (TIR/last upload data), or null if theses infos are not available, or undefined, if cancelled
  */
-function addPendingFetch(session: Session, patient: User): Promise<MedicalData | null | undefined> {
+function addPendingFetch(session: Session, patient: IUser): Promise<MedicalData | null | undefined> {
   if (patient.role !== UserRoles.patient) {
     return Promise.reject(new Error("invalid-user"));
   }
@@ -176,7 +176,7 @@ function addPendingFetch(session: Session, patient: User): Promise<MedicalData |
  * Cancel a pending summary fetch
  * @param patient Patient infos
  */
-function removePendingFetch(patient: User): void {
+function removePendingFetch(patient: IUser): void {
   const psf = mapPendingFetch.get(patient.userid);
   if (psf !== undefined && psf.inProgress === false) {
     mapPendingFetch.delete(patient.userid);

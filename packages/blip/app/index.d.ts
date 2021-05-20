@@ -27,7 +27,7 @@
  */
 
 import { AppConfig } from "../../yourloops/models/config";
-import { User } from "../../yourloops/models/shoreline";
+import { IUser } from "../../yourloops/models/shoreline";
 import BlipApi from "../../yourloops/lib/data/blip-api";
 import ProfileDialog from "../../yourloops/components/profile-dialog";
 import { PatientDatum, PatientData } from "../../yourloops/models/device-data";
@@ -37,7 +37,7 @@ import { GetPatientDataOptions, GetPatientDataOptionsV0 } from "../../yourloops/
 interface BlipProperties {
   config: AppConfig;
   api: BlipApi;
-  patient: User;
+  patient: IUser;
   prefixURL: string;
   profileDialog: typeof ProfileDialog;
 }
@@ -48,7 +48,7 @@ declare function cleanStore(): void;
 export {
   BlipProperties,
   BlipApi,
-  User,
+  IUser,
   PatientDatum,
   PatientData,
   MessageNote,

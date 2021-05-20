@@ -37,11 +37,12 @@ import sendMetrics from "../lib/metrics";
 import { AuthContextProvider } from "../lib/auth";
 import { PrivateRoute, PublicRoute } from "../components/routes";
 import InvalidRoute from "../components/invalid-route";
-import LoginPage from "../pages/login";
+import { LoginPage, ConsentPage } from "../pages/login";
 import { SignUpPage } from "../pages/signup";
 import HcpPage from "../pages/hcp";
-import CaregiverPage from "../pages/caregiver";
 import PatientPage from "../pages/patient";
+import PatientConsentPage from "../pages/patient/patient-consent";
+import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
 function MetricsLocationListener() {
@@ -64,6 +65,8 @@ const Yourloops = (): JSX.Element => {
           <PublicRoute exact path="/signup" component={SignUpPage} />
           <PublicRoute path="/request-password-reset" component={RequestPasswordResetPage} />
           <PublicRoute path="/confirm-password-reset" component={ConfirmPasswordResetPage} />
+          <PrivateRoute path="/new-consent" component={PatientConsentPage} />
+          <PrivateRoute path="/renew-consent" component={ConsentPage} />
           <PrivateRoute path="/caregiver" component={CaregiverPage} />
           <PrivateRoute path="/professional" component={HcpPage} />
           <PrivateRoute path="/patient" component={PatientPage} />

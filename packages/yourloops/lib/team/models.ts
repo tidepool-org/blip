@@ -28,7 +28,7 @@
 
 import { UserInvitationStatus, PostalAddress } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
-import { User } from "../../models/shoreline";
+import { IUser } from "../../models/shoreline";
 import { INotificationAPI } from "../../models/notification";
 import { INotification } from "../notifications";
 import {
@@ -44,7 +44,7 @@ export const TEAM_CODE_LENGTH = 9;
 export const REGEX_TEAM_CODE = /^[0-9]{9}$/;
 export const REGEX_TEAM_CODE_DISPLAY = /^[0-9]{3} - [0-9]{3} - [0-9]{3}$/;
 
-export interface TeamUser extends User {
+export interface TeamUser extends IUser {
   members: TeamMember[];
 }
 

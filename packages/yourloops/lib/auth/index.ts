@@ -37,10 +37,13 @@ import {
   useAuth,
 } from "./hook";
 
+import User from "./user";
+
 export {
   AuthAPI,
   AuthContext,
   Session,
+  User,
   AuthContextProvider,
   useAuth,
 };

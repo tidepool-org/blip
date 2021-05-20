@@ -34,7 +34,8 @@ import { v4 as uuidv4, validate as validateUuid } from "uuid";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
-import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
+import User from "./user";
+import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
 import { availableLanguageCodes, getCurrentLang, changeLanguage } from "../language";
 import sendMetrics from "../metrics";
 import { zendeskLogin, zendeskLogout } from "../zendesk";
@@ -140,20 +141,19 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     const auth = await api.login(username, password, traceToken);
     const tokenInfos = jwtDecode<JwtShorelinePayload>(auth.sessionToken);
-    let loggedUser: User;
     if (!_.isString(tokenInfos.role)) {
       // old API support
       let role = _.get(auth.user, 'roles[0]', UserRoles.patient);
       if (role === "clinic") {
         role = UserRoles.caregiver;
       }
-      loggedUser = { ...auth.user, role };
+      auth.user.role = role;
       log.warn("User as a clinic role");
     } else if (tokenInfos.role === "clinic") {
       // TODO After BDD migration this check will be useless
-      loggedUser = { ...auth.user, role: UserRoles.caregiver };
+      auth.user.role = UserRoles.caregiver;
     } else {
-      loggedUser = { ...auth.user, role: tokenInfos.role as UserRoles };
+      auth.user.role = tokenInfos.role as UserRoles;
     }
 
     const expirationDate = tokenInfos.exp;
@@ -163,10 +163,10 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, auth.sessionToken);
     sessionStorage.setItem(STORAGE_KEY_TRACE_TOKEN, auth.traceToken);
-    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(loggedUser));
+    sessionStorage.setItem(STORAGE_KEY_USER, JSON.stringify(auth.user));
 
-    setAuthInfos(auth.sessionToken, auth.traceToken, loggedUser);
-    return loggedUser;
+    setAuthInfos(auth.sessionToken, auth.traceToken, auth.user);
+    return auth.user;
   };
 
   const updatePreferences = async (preferences: Preferences, refresh = true): Promise<Preferences> => {
@@ -234,8 +234,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       fullName: `${signup.formValues.profileFirstname} ${signup.formValues.profileLastname}`,
       firstName: signup.formValues.profileFirstname,
       lastName: signup.formValues.profileLastname,
-      termsOfUse: { acceptanceDate: now, isAccepted: signup.formValues.terms },
-      privacyPolicy: { acceptanceDate: now, isAccepted: signup.formValues.privacyPolicy },
+      termsOfUse: { acceptanceTimestamp: now, isAccepted: signup.formValues.terms },
+      privacyPolicy: { acceptanceTimestamp: now, isAccepted: signup.formValues.privacyPolicy },
     };
     auth.user.settings = { country: signup.formValues.profileCountry };
     auth.user.preferences = { displayLanguageCode: signup.formValues.preferencesLanguage };
@@ -339,8 +339,8 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
 
     const now = new Date().toISOString();
     const updatedProfile = _.cloneDeep(authInfo.user.profile ?? {}) as Profile;
-    updatedProfile.termsOfUse = { acceptanceDate: now, isAccepted: true };
-    updatedProfile.privacyPolicy = { acceptanceDate: now, isAccepted: true };
+    updatedProfile.termsOfUse = { acceptanceTimestamp: now, isAccepted: true };
+    updatedProfile.privacyPolicy = { acceptanceTimestamp: now, isAccepted: true };
     const profile = await updateProfile(updatedProfile, false);
 
     // Ask for a new token with the updated role
@@ -351,10 +351,11 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       throw new Error("Role change is not effective");
     }
     // Refresh our data:
-    const updatedUser: User = { ...authInfo.user, role: UserRoles.hcp, profile };
+    authInfo.user.role = UserRoles.hcp;
+    authInfo.user.profile = profile;
     sessionStorage.setItem(STORAGE_KEY_SESSION_TOKEN, newToken);
     setSessionToken(newToken);
-    setUser(updatedUser);
+    setUser(authInfo.user);
   };
 
   const initHook = () => {
@@ -393,7 +394,16 @@ function AuthContextImpl(api: AuthAPI): AuthContext {
       } else {
         try {
           // FIXME check storage items validity
-          const currentUser = JSON.parse(userStored) as User;
+          const jsonUser = JSON.parse(userStored) as IUser;
+          const currentUser = new User(jsonUser.userid, jsonUser.username);
+          currentUser.emails = jsonUser.emails;
+          currentUser.emailVerified = jsonUser.emailVerified;
+          currentUser.role = jsonUser.role;
+          currentUser.settings = jsonUser.settings;
+          currentUser.profile = jsonUser.profile;
+          currentUser.preferences = jsonUser.preferences;
+          currentUser.medicalData = jsonUser.medicalData;
+
           if (!validateUuid(traceTokenStored)) {
             throw new Error("Invalid trace token uuid");
           }

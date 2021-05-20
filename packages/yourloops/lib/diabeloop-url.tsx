@@ -25,8 +25,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import React from "react";
 
-import { User, UserRoles } from "../models/shoreline";
+import Link from "@material-ui/core/Link";
+
+import { IUser, UserRoles } from "../models/shoreline";
 import config from "./config";
 
 export const urlPrefixFromUserRole = {
@@ -35,7 +38,7 @@ export const urlPrefixFromUserRole = {
   caregiver: "/caregiver",
 };
 
-export function getURLPrefixFromUser(user: Readonly<User> | null, suffix?: string): string {
+export function getURLPrefixFromUser(user: Readonly<IUser> | null, suffix?: string): string {
   let path = "/";
   if (user) {
     switch (user.role) {
@@ -84,9 +87,28 @@ class DiabeloopUrl {
     return this.termsUrl;
   }
 
+  getTermsLink(currentLangue: string): JSX.Element {
+    return (
+      <Link
+        href={this.getTermsUrL(currentLangue)}
+        target="_blank"
+        rel="noreferrer">
+        anyword
+      </Link>
+    );
+  }
+
   getPrivacyPolicyUrL(currentLangue: string): string {
     this.privacyPolicyUrl = `${this.rootPathName}data-privacy.${currentLangue}.pdf`;
     return this.privacyPolicyUrl;
+  }
+
+  getPrivacyPolicyLink(currentLangue: string): JSX.Element {
+    return (
+      <Link href={this.getPrivacyPolicyUrL(currentLangue)} target="_blank" rel="noreferrer">
+        anyword
+      </Link>
+    );
   }
 
   getIntendedUseUrL(currentLangue: string): string {

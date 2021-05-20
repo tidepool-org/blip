@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { User } from "../models/shoreline";
+import { IUser } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
 
@@ -87,14 +87,14 @@ export function errorFromHttpStatus(response: Response, log?: Console): Error {
 /**
  * Return the user first name
  */
-export function getUserFirstName(user: User): string {
+export function getUserFirstName(user: IUser): string {
   return user.profile?.firstName ?? "";
 }
 
 /**
  * Return the user last name
  */
-export function getUserLastName(user: User): string {
+export function getUserLastName(user: IUser): string {
   return user.profile?.lastName ?? user.profile?.fullName ?? user.username;
 }
 
@@ -102,10 +102,10 @@ export function getUserLastName(user: User): string {
  * @param user The user to have firstName / lastName
  * @returns The object for "user-name" translation string
  */
-export function getUserFirstLastName(user: User): { firstName: string, lastName: string; } {
+export function getUserFirstLastName(user: IUser): { firstName: string, lastName: string; } {
   return { firstName: getUserFirstName(user), lastName: getUserLastName(user) };
 }
 
-export function getUserEmail(user: User): string {
+export function getUserEmail(user: IUser): string {
   return Array.isArray(user.emails) ? user.emails[0] : user.username;
 }

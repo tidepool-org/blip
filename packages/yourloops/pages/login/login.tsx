@@ -28,6 +28,7 @@
 
 import _ from "lodash";
 import * as React from "react";
+import { StaticContext } from "react-router";
 import { Link as RouterLink, RouteComponentProps } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
@@ -49,11 +50,11 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import brandingLogo from "branding/logo.png";
 
-import { useAuth } from "../../lib/auth";
+import { User, useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
-import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
 import { useAlert } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
+import { UserRoles } from "../../models/shoreline";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -92,7 +93,8 @@ const loginStyle = makeStyles((theme: Theme) => {
 /**
  * Login page
  */
-function Login(props: RouteComponentProps): JSX.Element {
+// eslint-disable-next-line @typescript-eslint/ban-types
+function Login(props: RouteComponentProps<{}, StaticContext, {from:{pathname: string }}>): JSX.Element {
   const { t } = useTranslation("yourloops");
   const auth = useAuth();
   const alert = useAlert();
@@ -133,6 +135,34 @@ function Login(props: RouteComponentProps): JSX.Element {
     document.title = t("brand-name");
   }, [t]);
 
+  const pushRoute = (user: User): void => {
+    log.debug("user loggued,", user);
+
+    if (user.role !== undefined) {
+      if (user.role === UserRoles.patient &&
+        user.shouldAcceptConsent()) {
+        //FIXME
+        log.debug("push to new");
+        props.history.push("/new-consent");
+        log.debug("login see history value:  ", props.history);
+        return;
+      }
+
+      if (user.shouldRenewConsent()) {
+        log.debug("push to renew");
+        props.history.push("/renew-consent");
+        log.debug("login see history value:  ", props.history);
+        return;
+      }
+
+      const path = props.location?.state?.from?.pathname ?? user.getHomePage();
+      log.debug("default path ", path);
+      props.history.push(path);
+      return;
+    }
+
+  };
+
   const onClickLoginButton = async (): Promise<void> => {
     if (_.isEmpty(username) || _.isEmpty(password)) {
       setValidateError(true);
@@ -144,8 +174,7 @@ function Login(props: RouteComponentProps): JSX.Element {
     try {
       const signupKey = new URLSearchParams(location.search).get("signupKey");
       const user = await auth.login(username, password, signupKey);
-      log.debug("user loggued,", user.username);
-      props.history.push(getURLPrefixFromUser(user));
+      pushRoute(user);
     } catch (reason: unknown) {
       const errorMessage = errorTextFromException(reason);
       alert.error(t(errorMessage));

@@ -30,7 +30,8 @@ import bows from "bows";
 import _ from "lodash";
 
 import { APIErrorResponse } from "models/error";
-import { User, Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
+import User from "./user";
+import { Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 
 import { errorFromHttpStatus } from "../utils";
@@ -42,6 +43,14 @@ import { Session, UpdateUser } from "./models";
 
 const log = bows("Auth API");
 const failedLoginCounter = new Map<string, number>();
+
+function format(user: any): User {
+  const u = new User(user.userid, user.username);
+  u.emails = user.emails;
+  u.emailVerified = user.emailVerified;
+  return u;
+}
+
 
 /**
  * Perform a login.
@@ -114,9 +123,10 @@ async function authenticate(username: string, password: string, traceToken: stri
     reason = "An error occurred while logging in.";
     return Promise.reject(new Error(reason as string));
   }
-  //FIXME the user roles is assigned with the first value in UserRoles enum
-  // regardless of what the api sent, due to the json dezerialisation
-  const user = (await response.json()) as User;
+
+  const user = await response
+    .json()
+    .then((res) => format(res));
 
   // We may miss some case, but it's probably good enough:
   failedLoginCounter.clear();

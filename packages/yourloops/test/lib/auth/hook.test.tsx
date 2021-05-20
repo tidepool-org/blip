@@ -30,8 +30,7 @@ import sinon from "sinon";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
 
-import { User } from "../../../models/shoreline";
-import { AuthAPI, Session, AuthContext } from "../../../lib/auth";
+import { User, AuthAPI, Session, AuthContext } from "../../../lib/auth";
 import { loggedInUsers } from "../../common";
 
 

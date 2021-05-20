@@ -39,7 +39,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { Button, createStyles, makeStyles } from "@material-ui/core";
 import Tooltip from "@material-ui/core/Tooltip";
 
-import { User, UserRoles } from "../../models/shoreline";
+import { IUser, UserRoles } from "../../models/shoreline";
 import { INotification, NotificationType } from "../../lib/notifications/models";
 import { errorTextFromException, getUserFirstName, getUserLastName } from "../../lib/utils";
 import { useNotification } from "../../lib/notifications/hook";
@@ -77,8 +77,8 @@ const useStyles = makeStyles(() =>
 
 const NotificationSpan = ({ t, notification, className, id }: NotificationSpanProps): JSX.Element => {
   const { creator, type } = notification;
-  const firstName = getUserFirstName(creator as User);
-  const lastName = getUserLastName(creator as User);
+  const firstName = getUserFirstName(creator as IUser);
+  const lastName = getUserLastName(creator as IUser);
   const careteam = notification.target?.name ?? "";
   const values = { firstName, lastName, careteam };
 

@@ -154,7 +154,7 @@
   "Profile": "Profile",
   "Required": "Required",
   "terms-and-conditions": "Terms of use",
-  "signup-consent-patient-privacy-policy": "I have read and accepted YourLoops<linkPrivacyPolicy>{{privacyPolicy}}</linkPrivacyPolicy>. Hereby, I consent to the processing of my personal data (including my health data) by Diabeloop so I can benefit from YourLoops services.",
+  "signup-consent-patient-privacy-policy": "I have read and accepted YourLoops <linkPrivacyPolicy>{{privacyPolicy}}</linkPrivacyPolicy>. Hereby, I consent to the processing of my personal data (including my health data) by Diabeloop so I can benefit from YourLoops services.",
   "signup-consent-patient-terms-condition": "I have read and accepted YourLoops <linkTerms>{{terms}}</linkTerms>.",
   "signup-consent-caregiver-privacy-policy": "I have read and accepted YourLoops <linkPrivacyPolicy>{{privacyPolicy}}</linkPrivacyPolicy>. Hereby, I consent to the processing of my personal data by Diabeloop so I can benefit from YourLoops services.",
   "signup-consent-caregiver-terms-condition": "I have read and accepted YourLoops <linkTerms>{{terms}}</linkTerms>. Hereby, I undertake to use YourLoops solely in accordance with these Terms of Use and what is allowed by the law.",
