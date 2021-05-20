@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
-import { AUTOMATED_BASAL_DEVICE_MODELS, pumpVocabulary } from './constants';
-import { deviceName } from './settings/data';
+import { AUTOMATED_BASAL_DEVICE_MODELS, getPumpVocabularies } from './constants';
+import { deviceName as getDeviceName } from './settings/data';
 
 /**
  * Get the latest upload datum
@@ -19,7 +19,7 @@ export function getLatestPumpUpload(uploadData = []) {
  * @returns {Boolean}
  */
 export function isAutomatedBasalDevice(manufacturer, deviceModel) {
-  const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, deviceName(manufacturer), false);
+  const models = _.get(AUTOMATED_BASAL_DEVICE_MODELS, getDeviceName(manufacturer), false);
   return (_.isBoolean(models) && models) || (_.isArray(models) && _.includes(models, deviceModel));
 }
 
@@ -29,9 +29,11 @@ export function isAutomatedBasalDevice(manufacturer, deviceModel) {
  * @returns {Object} pump vocabulary
  */
 export function getPumpVocabulary(manufacturer) {
-  const vocabulary = _.cloneDeep(pumpVocabulary);
-  return _.defaults(
-    _.get(vocabulary, deviceName(manufacturer), {}),
-    vocabulary.default
-  );
+  const pumpVocabularies = getPumpVocabularies();
+  const deviceName = getDeviceName(manufacturer);
+  if (deviceName in pumpVocabularies) {
+    return pumpVocabularies[deviceName];
+  }
+  console.warn(`Missing ${deviceName} in pumpVocabularies`);
+  return pumpVocabularies.default;
 }

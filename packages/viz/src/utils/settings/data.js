@@ -31,14 +31,14 @@ const DISPLAY_PRECISION_PLACES = 3;
  * @return {Boolean}     true if value is defined, not null, not empty string, false otherwise
  */
 export function noData(val) {
-  return val == null || (typeof val === 'string' && _.isEmpty(val));
+  return _.isNil(val) || (typeof val === 'string' && _.isEmpty(val));
 }
 
 /**
  * deviceName
- * @param  {String} manufacturer one of: animas, insulet, medtronic, tandem, diabeloop
+ * @param  {string} manufacturer one of: animas, insulet, medtronic, tandem, diabeloop
  *
- * @return {String}              name for given manufacturer
+ * @return {string}              name for given manufacturer
  */
 export function deviceName(manufacturer) {
   const DEVICE_DISPLAY_NAME_BY_MANUFACTURER = {
@@ -48,7 +48,7 @@ export function deviceName(manufacturer) {
     tandem: 'Tandem',
     diabeloop: 'Diabeloop',
   };
-  return DEVICE_DISPLAY_NAME_BY_MANUFACTURER[manufacturer] || manufacturer;
+  return _.get(DEVICE_DISPLAY_NAME_BY_MANUFACTURER, manufacturer, manufacturer);
 }
 
 /**

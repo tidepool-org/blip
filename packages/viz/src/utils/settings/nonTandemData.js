@@ -17,7 +17,7 @@
 import _ from 'lodash';
 import i18next from 'i18next';
 import * as data from './data';
-import { pumpVocabulary, AUTOMATED_DELIVERY } from '../constants';
+import { getPumpVocabularies, AUTOMATED_DELIVERY } from '../constants';
 
 const t = i18next.t.bind(i18next);
 
@@ -117,6 +117,7 @@ export function basal(schedule, settings, manufacturer) {
   const name = settings.basalSchedules[schedule].name;
   const lookupKey = (manufacturer === 'carelink') ? 'medtronic' : manufacturer;
 
+  const pumpVocabulary = getPumpVocabularies();
   const isAutomated = _.get(pumpVocabulary, [
     data.deviceName(lookupKey),
     AUTOMATED_DELIVERY,

@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import { expect } from 'chai';
 import * as constants from '../../src/utils/constants';
 
 describe('constants', () => {
@@ -194,16 +195,21 @@ describe('constants', () => {
 
   describe('pumpVocabulary', () => {
     it('should define common terms per device manufacturer', () => {
-      expect(constants.pumpVocabulary).to.eql({
+      const pumpVocabulary = constants.getPumpVocabularies();
+      expect(pumpVocabulary).to.eql({
         [constants.ANIMAS]: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Go Rewind',
           [constants.SITE_CHANGE_TUBING]: 'Go Prime',
           [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+          [constants.AUTOMATED_DELIVERY]: 'Automated',
+          [constants.SCHEDULED_DELIVERY]: 'Manual',
         },
         [constants.INSULET]: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Pod',
           [constants.SITE_CHANGE_TUBING]: 'Activate Pod',
           [constants.SITE_CHANGE_CANNULA]: 'Prime',
+          [constants.AUTOMATED_DELIVERY]: 'Automated',
+          [constants.SCHEDULED_DELIVERY]: 'Manual',
         },
         [constants.MEDTRONIC]: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Rewind',
@@ -216,9 +222,14 @@ describe('constants', () => {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
           [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
           [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+          [constants.AUTOMATED_DELIVERY]: 'Automated',
+          [constants.SCHEDULED_DELIVERY]: 'Manual',
         },
         [constants.DIABELOOP]: {
           [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
+          [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
+          [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
+          [constants.AUTOMATED_DELIVERY]: 'Automated',
           [constants.AUTOMATED_DELIVERY]: 'Loop mode',
           [constants.SCHEDULED_DELIVERY]: 'Loop mode off',
         },

@@ -49,7 +49,7 @@ import {
   ANIMAS,
   MEDTRONIC,
   DIABELOOP,
-  pumpVocabulary,
+  getPumpVocabularies,
 } from '../constants';
 
 import { getBasalPathGroups } from '../basal';
@@ -224,6 +224,7 @@ export function processInfusionSiteHistory(data, patient) {
     basicsData.sections.siteChanges.selector = null;
   }
 
+  const pumpVocabulary = getPumpVocabularies();
   const fallbackSubtitle = basicsData.sections.siteChanges.type !== SECTION_TYPE_UNDECLARED
     ? pumpVocabulary.default[SITE_CHANGE_RESERVOIR]
     : null;

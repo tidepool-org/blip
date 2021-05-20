@@ -18,6 +18,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import i18next from 'i18next';
 
 import * as constants from '../../logic/constants';
 
@@ -169,7 +170,8 @@ class Selector extends React.Component {
   }
 
   subAction(pump, action) {
-    var pumpVocabulary = {
+    const t = i18next.t.bind(i18next);
+    const pumpVocabulary = {
       [constants.ANIMAS]: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Go Rewind',
         [constants.SITE_CHANGE_TUBING]: 'Go Prime',
@@ -190,6 +192,13 @@ class Selector extends React.Component {
         [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
         [constants.SITE_CHANGE_CANNULA]: 'Fill Cannula',
       },
+      [constants.DIABELOOP]: {
+        [constants.SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
+        [constants.SITE_CHANGE_TUBING]: t('Fill Tubing'),
+        [constants.SITE_CHANGE_CANNULA]: t('Fill Cannula'),
+        [constants.AUTOMATED_DELIVERY]: t('Loop mode'),
+        [constants.SCHEDULED_DELIVERY]: t('Loop mode off'),
+      },
       default: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
         [constants.SITE_CHANGE_TUBING]: 'Fill Tubing',
@@ -197,7 +206,7 @@ class Selector extends React.Component {
       }
     };
 
-    if (pumpVocabulary.hasOwnProperty(pump)) {
+    if (pump in pumpVocabulary) {
       return (
         <strong key={action}>{pumpVocabulary[pump][action]}</strong>
       );

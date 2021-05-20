@@ -15,11 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
- /* eslint-disable max-len */
-
 import _ from 'lodash';
+import { expect } from 'chai';
 
-import { ANIMAS, TANDEM, INSULET, MEDTRONIC, DIABELOOP, pumpVocabulary } from '../../src/utils/constants';
+import { ANIMAS, TANDEM, INSULET, MEDTRONIC, DIABELOOP, getPumpVocabularies } from '../../src/utils/constants';
 
 import * as device from '../../src/utils/device';
 
@@ -81,11 +80,15 @@ describe('device utility functions', () => {
         INSULET,
         MEDTRONIC,
         TANDEM,
+        DIABELOOP,
         'default',
       ];
 
+      const pumpVocabularies = getPumpVocabularies();
+
       _.forEach(manufacturers, manufacturer => {
-        expect(device.getPumpVocabulary(manufacturer)).to.have.all.keys([
+        const pumpVocabulary = device.getPumpVocabulary(manufacturer);
+        expect(pumpVocabulary, manufacturer).to.have.all.keys([
           'reservoirChange',
           'tubingPrime',
           'cannulaPrime',
@@ -95,18 +98,12 @@ describe('device utility functions', () => {
       });
 
       // Medtronic should have it's own unique key for automated basal delivery
-      expect(device.getPumpVocabulary(MEDTRONIC).automatedDelivery).to.equal(pumpVocabulary[MEDTRONIC].automatedDelivery);
+      expect(device.getPumpVocabulary(MEDTRONIC).automatedDelivery).to.equal(pumpVocabularies[MEDTRONIC].automatedDelivery);
 
       // Animas, Tandem, and Insulet should fall back to a default value
-      expect(pumpVocabulary[ANIMAS].automatedDelivery).to.be.undefined;
-      expect(device.getPumpVocabulary(ANIMAS).automatedDelivery).to.equal(pumpVocabulary.default.automatedDelivery);
-
-      expect(pumpVocabulary[TANDEM].automatedDelivery).to.be.undefined;
-      expect(device.getPumpVocabulary(TANDEM).automatedDelivery).to.equal(pumpVocabulary.default.automatedDelivery);
-
-      expect(pumpVocabulary[INSULET].automatedDelivery).to.be.undefined;
-      expect(device.getPumpVocabulary(INSULET).automatedDelivery).to.equal(pumpVocabulary.default.automatedDelivery);
+      expect(device.getPumpVocabulary(ANIMAS).automatedDelivery).to.equal(pumpVocabularies.default.automatedDelivery);
+      expect(device.getPumpVocabulary(TANDEM).automatedDelivery).to.equal(pumpVocabularies.default.automatedDelivery);
+      expect(device.getPumpVocabulary(INSULET).automatedDelivery).to.equal(pumpVocabularies.default.automatedDelivery);
     });
   });
 });
-/* eslint-enable max-len */

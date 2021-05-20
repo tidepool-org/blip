@@ -67,16 +67,20 @@ export const ROCHE = 'Roche';
 export const VICENTRA = 'Vicentra';
 export const DEFAULT_MANUFACTURER = 'default';
 
-export const pumpVocabulary = {
+export const getPumpVocabularies = () => ({
   [ANIMAS]: {
     [SITE_CHANGE_RESERVOIR]: t('Go Rewind'),
     [SITE_CHANGE_TUBING]: t('Go Prime'),
     [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
+    [AUTOMATED_DELIVERY]: t('Automated'),
+    [SCHEDULED_DELIVERY]: t('Manual'),
   },
   [INSULET]: {
     [SITE_CHANGE_RESERVOIR]: t('Change Pod'),
     [SITE_CHANGE_TUBING]: t('Activate Pod'),
     [SITE_CHANGE_CANNULA]: t('Prime'),
+    [AUTOMATED_DELIVERY]: t('Automated'),
+    [SCHEDULED_DELIVERY]: t('Manual'),
   },
   [MEDTRONIC]: {
     [SITE_CHANGE_RESERVOIR]: t('Rewind'),
@@ -89,9 +93,13 @@ export const pumpVocabulary = {
     [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
     [SITE_CHANGE_TUBING]: t('Fill Tubing'),
     [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
+    [AUTOMATED_DELIVERY]: t('Automated'),
+    [SCHEDULED_DELIVERY]: t('Manual'),
   },
   [DIABELOOP]: {
     [SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
+    [SITE_CHANGE_TUBING]: t('Fill Tubing'),
+    [SITE_CHANGE_CANNULA]: t('Fill Cannula'),
     [AUTOMATED_DELIVERY]: t('Loop mode'),
     [SCHEDULED_DELIVERY]: t('Loop mode off'),
   },
@@ -102,7 +110,7 @@ export const pumpVocabulary = {
     [AUTOMATED_DELIVERY]: t('Automated'),
     [SCHEDULED_DELIVERY]: t('Manual'),
   },
-};
+});
 
 export const AUTOMATED_BASAL_DEVICE_MODELS = {
   [MEDTRONIC]: ['1580', '1581', '1582', '1780', '1781', '1782'],
