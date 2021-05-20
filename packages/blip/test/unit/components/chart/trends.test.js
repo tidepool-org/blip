@@ -84,7 +84,7 @@ describe('Trends', () => {
     onDatetimeLocationChange: sinon.stub().resolves(false),
     updateChartPrefs: sinon.stub(),
     trackMetric: sinon.stub(),
-    patientData: {
+    tidelineData: {
       TrendsData: {
         data: {},
       },

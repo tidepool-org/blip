@@ -85,9 +85,9 @@ class RangeDatePicker extends React.Component {
       return null;
     }
     if (typeof value === 'string') {
-      return moment.utc(value).tz(timezone).startOf('day');
+      return moment.tz(value, timezone).startOf('day');
     }
-    return moment.utc(value).tz(timezone).startOf('day');
+    return moment.tz(value, timezone).startOf('day');
   }
 
   constructor(props) {
@@ -107,8 +107,8 @@ class RangeDatePicker extends React.Component {
       selectedEnd = tmp;
     }
 
-    const hoverDate = moment.utc(selectedBegin).tz(timezone);
-    const displayMonth = moment.utc(selectedBegin).tz(timezone).date(1);
+    const hoverDate = moment.tz(selectedBegin, timezone);
+    const displayMonth = moment.tz(selectedBegin, timezone).date(1);
     if (selectedBegin.get('month') !== selectedEnd.get('month')) {
       // When 2 month (or more) are displayed, the start displayed
       // date should be on the left calendar side

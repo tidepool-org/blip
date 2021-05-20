@@ -45,7 +45,6 @@ const Loader = vizComponents.Loader;
 const TrendsContainer = vizContainers.TrendsContainer;
 const reshapeBgClassesToBgBounds = vizUtils.bg.reshapeBgClassesToBgBounds;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 class Trends extends React.Component {
   static propTypes = {
@@ -59,7 +58,7 @@ class Trends extends React.Component {
     epochLocation: PropTypes.number.isRequired,
     msRange: PropTypes.number.isRequired,
     patient: PropTypes.object,
-    patientData: PropTypes.object.isRequired,
+    tidelineData: PropTypes.object.isRequired,
     permsOfLoggedInUser: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     trendsState: PropTypes.object.isRequired,
@@ -86,7 +85,6 @@ class Trends extends React.Component {
       atMostRecent: true,
       inTransition: false,
       extentSize: 14,
-      visibleDays: 0,
       displayCalendar: false,
     };
 
@@ -163,24 +161,15 @@ class Trends extends React.Component {
     return m.toISOString();
   }
 
-  getNewDomain(current, extent) {
-    const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
-    const end = getLocalizedCeiling(current.valueOf(), this.props.timePrefs);
-    const start = moment.utc(end.toISOString()).tz(timezone).subtract(extent, 'days');
-    const dateDomain = [start.toISOString(), end.toISOString()];
-
-    return dateDomain;
-  }
-
   getExtendSize(domain) {
     const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
     const startDate = moment.tz(domain[0], timezone);
     const endDate = moment.tz(domain[1], timezone);
-    return endDate.diff(startDate, 'days');
+    return Math.round(endDate.diff(startDate, 'days', true));
   }
 
   getTitle() {
-    const { loading } = this.props;
+    const { loading, tidelineData } = this.props;
     const { displayCalendar } = this.state;
 
     if (loading) {
@@ -204,8 +193,9 @@ class Trends extends React.Component {
         this.setState({ displayCalendar: true });
       }
     };
-    const handleChange = (begin, end) => {
-      const newDomain = [begin.toISOString(), end.add(1, 'days').toISOString()];
+    const handleChange = (/** @type {moment.Moment} */ begin, /** @type {moment.Moment} */ end) => {
+      const newDomain = [begin.toISOString(), end.add(1, 'days').subtract(1, 'millisecond').toISOString()];
+      this.log.debug("Calendar newDomain", newDomain);
       this.setState({ displayCalendar: false }, () => {
         const prefs = _.cloneDeep(this.props.chartPrefs);
         const extentSize = this.getExtendSize(newDomain);
@@ -225,12 +215,15 @@ class Trends extends React.Component {
     let divClass = 'chart-title-clickable';
     if (displayCalendar) {
       const timezone = getTimezoneFromTimePrefs(this.props.timePrefs);
+      const minDate = moment.tz(tidelineData.endpoints[0], timezone);
+      const maxDate = moment.tz(tidelineData.endpoints[1], timezone);
       calendar = (
         <RangeDatePicker
           timezone={timezone}
           begin={startDate}
           end={endDate}
-          max={moment.utc().add(1, 'days').utc().startOf('day')}
+          min={minDate}
+          max={maxDate}
           minDuration={1}
           maxDuration={90}
           aboveMaxDurationMessage={t('The period must be less than {{days}} days', { days: 90 })}
@@ -298,15 +291,30 @@ class Trends extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    // no change, return early
+    const { timePrefs, chartPrefs, tidelineData, updateChartPrefs } = this.props;
     const chart = this.getChart();
-    if (this.props.chartPrefs.trends.extentSize !== extentSize && chart !== null) {
-      const prefs = _.cloneDeep(this.props.chartPrefs);
-      const current = moment.utc(chart.getCurrentDay());
-      const oldDomain = this.getNewDomain(current, prefs.trends.extentSize);
-      const newDomain = this.getNewDomain(current, extentSize);
-      prefs.trends.extentSize = extentSize;
-      this.props.updateChartPrefs(prefs, () => {
+
+    // if no change, return early
+    if (chartPrefs.trends.extentSize !== extentSize && chart !== null) {
+      const timezone = getTimezoneFromTimePrefs(timePrefs);
+      const prefs = _.cloneDeep(chartPrefs);
+
+      // Use the endDate as a reference point in time
+      const endDate = moment.tz(chart.state.dateDomain.end, timezone);
+      let startDate = moment.tz(endDate.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+      const minDate = moment.tz(tidelineData.endpoints[0], timezone);
+      if (startDate.isBefore(minDate)) {
+        startDate = minDate;
+        this.log.info(`Require more days than available changing from ${extentSize} to ${endDate.diff(startDate, 'days')}`);
+      }
+
+      prefs.trends.extentSize = Math.round(endDate.diff(startDate, 'days', true));
+      const oldDomain = [chart.state.dateDomain.start, chart.state.dateDomain.end];
+      const newDomain = [startDate.toISOString(), endDate.toISOString()];
+
+      this.log.info(`Changing number of displays days to ${prefs.trends.extentSize} days`, { oldDomain, newDomain });
+
+      updateChartPrefs(prefs, () => {
         chart.setExtent(newDomain, oldDomain);
       });
     }
@@ -578,11 +586,11 @@ class Trends extends React.Component {
         smbgLines={this.props.chartPrefs.trends.smbgLines}
         timePrefs={this.props.timePrefs}
         // data
-        tidelineData={this.props.patientData}
-        cbgByDate={this.props.patientData.cbgByDate}
-        cbgByDayOfWeek={this.props.patientData.cbgByDayOfWeek}
-        smbgByDate={this.props.patientData.smbgByDate}
-        smbgByDayOfWeek={this.props.patientData.smbgByDayOfWeek}
+        tidelineData={this.props.tidelineData}
+        cbgByDate={this.props.tidelineData.cbgByDate}
+        cbgByDayOfWeek={this.props.tidelineData.cbgByDayOfWeek}
+        smbgByDate={this.props.tidelineData.smbgByDate}
+        smbgByDayOfWeek={this.props.tidelineData.smbgByDayOfWeek}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDate={this.handleSelectDate}

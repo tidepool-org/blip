@@ -341,7 +341,7 @@ describe('TrendsContainer', () => {
 
       it('should set dateDomain.start based on initialDatetimeLocation and extentSize', () => {
         const { dateDomain } = withInitialDatetimeLocation.state();
-        expect(dateDomain.start).to.equal('2016-03-12T23:59:59.999Z');
+        expect(dateDomain.start).to.equal('2016-03-13T00:00:00.000Z');
       });
 
       it('should mark trends viewed as `touched` if not already touched', () => {
@@ -718,6 +718,10 @@ describe('TrendsContainer', () => {
           });
         });
 
+        afterEach(() => {
+          sinon.restore();
+        });
+
         describe('setExtent', () => {
           it('should exist and be a function', () => {
             assert.isFunction(minimalData.instance().setExtent);
@@ -738,8 +742,6 @@ describe('TrendsContainer', () => {
             const { dateDomain: newDomain } = minimalData.state();
             expect(newDomain.start).to.equal(domain[0]);
             expect(newDomain.end).to.equal(domain[1]);
-            instance.refilterByDate.restore();
-            instance.setState.restore();
           });
         });
 
@@ -765,9 +767,7 @@ describe('TrendsContainer', () => {
             const { dateDomain: newDomain } = minimalData.state();
 
             expect(newDomain.start).to.equal('2016-03-08T08:00:00.000Z');
-            expect(newDomain.end).to.equal('2016-03-15T07:00:00.000Z');
-
-            instance.setExtent.restore();
+            expect(newDomain.end).to.equal('2016-03-15T06:59:59.999Z');
           });
         });
 
@@ -782,7 +782,7 @@ describe('TrendsContainer', () => {
 
             const expectedDomain = [
               '2016-03-15T07:00:00.000Z',
-              '2016-03-22T07:00:00.000Z',
+              '2016-03-22T06:59:59.999Z',
             ];
 
             expect(setExtentSpy.callCount).to.equal(0);
@@ -792,7 +792,8 @@ describe('TrendsContainer', () => {
 
             expect(setExtentSpy.callCount).to.equal(1);
             expect(onDatetimeLocationChange.callCount).to.equal(1);
-            expect(onDatetimeLocationChange.args[0][0]).to.deep.equal(expectedDomain);
+            expect(onDatetimeLocationChange.args[0][0],
+              JSON.stringify({ expectedDomain, having: onDatetimeLocationChange.args[0][0] })).to.deep.equal(expectedDomain);
             // 2nd arg is Boolean indicating whether atMostRecent
             expect(onDatetimeLocationChange.args[0][1]).to.be.false;
 
@@ -800,8 +801,6 @@ describe('TrendsContainer', () => {
 
             expect(newDomain.start).to.equal(expectedDomain[0]);
             expect(newDomain.end).to.equal(expectedDomain[1]);
-
-            instance.setExtent.restore();
           });
 
           it('should call onDatetimeLocationChange w/2nd arg true when domain > mostRecent', () => {
@@ -839,8 +838,6 @@ describe('TrendsContainer', () => {
 
             const { dateDomain: newDomain, mostRecent } = minimalData.state();
             expect(newDomain.end).to.equal(mostRecent);
-
-            instance.setExtent.restore();
           });
         });
 
