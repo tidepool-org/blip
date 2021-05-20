@@ -60,7 +60,7 @@ class Tooltip extends React.PureComponent {
       const offset = {};
       const tooltipRect = this.element.getBoundingClientRect();
 
-      let horizontalOffset = (propOffset.left != null)
+      let horizontalOffset = !_.isNil(propOffset.left)
         ? propOffset.left
         : (propOffset.horizontal || 0);
 

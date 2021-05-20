@@ -1,8 +1,9 @@
 .row {
   composes: smallSize from '../../../styles/typography.css';
   line-height: 20px;
-  max-width: 180px;
+  max-width: 240px;
   min-width: 160px;
+  width: max-content;
 }
 
 .message {
