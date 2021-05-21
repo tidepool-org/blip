@@ -196,8 +196,6 @@ class Selector extends React.Component {
         [constants.SITE_CHANGE_RESERVOIR]: t('Change Cartridge'),
         [constants.SITE_CHANGE_TUBING]: t('Fill Tubing'),
         [constants.SITE_CHANGE_CANNULA]: t('Fill Cannula'),
-        [constants.AUTOMATED_DELIVERY]: t('Loop mode'),
-        [constants.SCHEDULED_DELIVERY]: t('Loop mode off'),
       },
       default: {
         [constants.SITE_CHANGE_RESERVOIR]: 'Change Cartridge',
