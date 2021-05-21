@@ -59,7 +59,7 @@ const contentSecurityPolicy = {
   styleSrc: ["'self'", "'unsafe-inline'"],
   imgSrc: ["'self'", 'data:'], // 'strict-dynamic' is problematic on google
   fontSrc: ["'self'", 'data:'],
-  connectSrc: ["'self'", '{{ API_HOST }}'],
+  connectSrc: ["'self'", 'data:', '{{ API_HOST }}'],
   frameSrc: [],
   objectSrc: [],
 };
