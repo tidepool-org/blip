@@ -154,17 +154,36 @@ function declineInvitation(session: Readonly<Session>, notification: INotificati
 }
 
 async function cancelInvitation(session: Readonly<Session>, notification: INotification): Promise<void> {
-  // FIXME Invalid URL
-  const confirmURL = new URL(`/confirm/cancel`, appConfig.API_HOST);
+  const confirmURL = new URL(`/confirm/cancel/invite`, appConfig.API_HOST);
+  const body: Partial<INotificationAPI> = {
+    key: notification.id,
+  };
+
+  let id: string | undefined;
+  switch (notification.type) {
+  case NotificationType.careTeamProInvitation:
+    id = notification.target?.id;
+    if (typeof id !== "string") {
+      throw new Error("Missing or invalid team ID in notification");
+    }
+    body.target = notification.target;
+    break;
+  case NotificationType.directInvitation:
+    body.email = notification.email;
+    break;
+  default:
+    throw new Error("Invalid notification type");
+  }
+
   const response = await fetch(confirmURL.toString(), {
-    method: "PUT",
+    method: "POST",
     headers: {
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.sessionToken]: session.sessionToken,
       [HttpHeaderKeys.traceToken]: session.traceToken,
     },
     cache: "no-cache",
-    body: JSON.stringify({ key: notification.id }),
+    body: JSON.stringify(body),
   });
 
   if (response.ok) {

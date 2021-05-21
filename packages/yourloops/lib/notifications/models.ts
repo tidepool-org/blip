@@ -41,7 +41,7 @@ export enum NotificationType {
 export interface INotification {
   id: string;
   type: NotificationType;
-  /** Current user email */
+  /** Current user email for received invitation, target user email for sent invitations */
   email: string;
   /** User who create the invitation == creator.userid? */
   creatorId: string;

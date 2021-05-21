@@ -173,6 +173,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
       const errorMessage = errorTextFromException(reason);
       alert.error(t(errorMessage));
       setInProgress(false);
+      notifications.update();
     }
   };
 
@@ -185,6 +186,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
       const errorMessage = errorTextFromException(reason);
       alert.error(t(errorMessage));
       setInProgress(false);
+      notifications.update();
     }
   };
 
