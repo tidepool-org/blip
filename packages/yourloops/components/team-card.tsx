@@ -164,7 +164,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
     address = (
       <React.Fragment>
         {line1}
-        {_.isString(line2) ? (
+        {_.isString(line2) && line2.length > 0 ? (
           <React.Fragment>
             <br />
             {line2}
