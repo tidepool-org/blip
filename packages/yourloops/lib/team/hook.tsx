@@ -392,7 +392,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
     } else if (ourselve.role === TeamMemberRole.admin && ourselve.status === UserInvitationStatus.accepted && team.members.length < 2) {
       await api.deleteTeam(session, team.id);
     } else {
-      await api.removeMember(session, team.id, ourselve.user.userid);
+      await api.leaveTeam(session, team.id);
     }
     const idx = teams.findIndex((t: Team) => t.id === team.id);
     if (idx > -1) {
@@ -410,7 +410,7 @@ function TeamContextImpl(api: TeamAPI): TeamContext {
       }
       await notificationHook.cancel(member.invitation);
     } else {
-      await api.removeMember(session, member.team.id, member.user.userid);
+      await api.removeMember(session, member.team.id, member.user.userid, member.user.username);
     }
     const { team } = member;
     const idx = team.members.findIndex((m: TeamMember) => m.user.userid === member.user.userid);

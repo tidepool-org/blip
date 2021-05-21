@@ -124,7 +124,8 @@ function testTeamPage(): void {
   });
 
   describe("onShowLeaveTeamDialog", () => {
-    const leaveTeamStub = teamAPI.removeMember as sinon.SinonStub;
+    const leaveTeamStub = teamAPI.leaveTeam as sinon.SinonStub;
+    // const removeMember = teamAPI.removeMember as sinon.SinonStub;
     const deleteTeam = teamAPI.deleteTeam as sinon.SinonStub;
 
     it("should display the leave dialog, and call deleteTeam api on validate if the member is the only member", async () => {
