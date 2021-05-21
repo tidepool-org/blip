@@ -209,10 +209,6 @@ const isWanted = (d) => {
     }
   } else {
     // Assume new data
-    if (d.type === "basal" && d.deliveryType === "temp") {
-      d.unwanted = 'temp basal';
-      return false; // temp basal
-    }
     if (d.type === "message" && !_.isEmpty(d.parentMessage)) {
       return false; // We display only the parent message, we do not care for the others
     }
@@ -332,6 +328,11 @@ TidelineData.prototype.cleanDatum = function cleanDatum(d) {
   // Be sure to have a source (use in lots of places)
   if (typeof d.source !== "string") {
     d.source = this.opts.defaultSource;
+  }
+
+  if (d.type === "basal" && d.deliveryType === "temp") {
+    // For some reason the transition to subType was partially done
+    d.subType = "temp";
   }
 };
 
@@ -1113,7 +1114,7 @@ TidelineData.prototype.addData = async function addData(newData) {
   startTimer("setEvents");
   this.zenEvents = this.setEvents({ type: "deviceEvent", subType: "zen" }, ["inputTime"]);
   this.confidentialEvents = this.setEvents({ type: "deviceEvent", subType: "confidential" }, ["inputTime"]);
-  this.warmUpEvents = this.setEvents({ type: "deviceEvent", subType: "warmup" }, ["inputTime"]); 
+  this.warmUpEvents = this.setEvents({ type: "deviceEvent", subType: "warmup" }, ["inputTime"]);
   endTimer("setEvents");
 
   startTimer("deduplicatePhysicalActivities");
