@@ -4,6 +4,8 @@ import moment from 'moment';
 
 import {
   clearCalculator,
+  clearCalculatorInputs,
+  clearCalculatorResults,
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
@@ -83,19 +85,64 @@ describe('PrescriptionForm', () => {
     expect(backButton).to.have.length(0);
   });
 
+  describe('clearCalculatorInputs', () => {
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
+
+    it('should clear all calculator input values', () => {
+      clearCalculatorInputs(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDose', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDose', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDoseScaleFactor', 1, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDoseScaleFactor', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weight', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weight', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weightUnits', 'kg', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weightUnits', false);
+    });
+  });
+
+  describe('clearCalculatorResults', () => {
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
+
+    it('should clear all calculator result values', () => {
+      clearCalculatorResults(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedBasalRate', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedInsulinSensitivity', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedCarbohydrateRatio', false)
+    });
+  });
+
   describe('clearCalculator', () => {
-    const setFieldValue = sinon.stub();
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
 
     it('should clear all calculator values', () => {
-      clearCalculator(setFieldValue);
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.method', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDose', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.totalDailyDoseScaleFactor', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weight', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.weightUnits', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
-      sinon.assert.calledWithExactly(setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+      clearCalculator(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDose', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDose', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDoseScaleFactor', 1, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDoseScaleFactor', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weight', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weight', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weightUnits', 'kg', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weightUnits', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedBasalRate', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedInsulinSensitivity', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedCarbohydrateRatio', false)
     });
   });
 

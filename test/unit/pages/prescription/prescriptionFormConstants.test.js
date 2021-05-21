@@ -911,6 +911,26 @@ describe('prescriptionFormConstants', function() {
     });
   });
 
+  describe('hasCalculatorResults', () => {
+    const values = {
+      calculator: {
+        recommendedBasalRate: 0.5,
+        recommendedInsulinSensitivity: 25,
+        recommendedCarbohydrateRatio: 20,
+      }
+    };
+
+    it('should return `true` if stored calculator field contains values for recommended basal rate, sensitivity factor, and carb ratio', () => {
+      expect(prescriptionFormConstants.hasCalculatorResults(values)).to.be.true;
+    });
+
+    it('should return `false` if stored calculator field is missing values for recommended basal rate, sensitivity factor, or carb ratio', () => {
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedBasalRate: undefined } })).to.be.false;
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedInsulinSensitivity: undefined } })).to.be.false;
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedCarbohydrateRatio: undefined } })).to.be.false;
+    });
+  });
+
   describe('shouldUpdateDefaultValue', () => {
     const initialValue = {
       initialValues: { field: { path: 30 } },
