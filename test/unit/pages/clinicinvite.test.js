@@ -236,8 +236,8 @@ describe('ClinicInvite', () => {
           type: 'SEND_CLINICIAN_INVITE_SUCCESS',
           payload: {
             'clinicId': 'clinicID456',
-            'clinician': {inviteReturn:'success'}
-          }
+            'clinician': { inviteReturn: 'success' },
+          },
         },
         {
           type: '@@router/CALL_HISTORY_METHOD',

@@ -1747,7 +1747,7 @@ export function updateClinic(api, clinicId, clinic) {
  * @param {Number} [options.limit] - Results per page
  * @param {String} [options.email] - Email to search
  */
- export function fetchCliniciansFromClinic(api, clinicId, options) {
+export function fetchCliniciansFromClinic(api, clinicId, options) {
   return (dispatch) => {
     dispatch(sync.fetchCliniciansFromClinicRequest());
 
@@ -1952,7 +1952,7 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
  * @param {String} clinician.email - clinician's email address
  * @param {String[]} clinician.roles - array of clinician's roles
  */
- export function sendClinicianInvite(api, clinicId, clinician) {
+export function sendClinicianInvite(api, clinicId, clinician) {
   return (dispatch) => {
     dispatch(sync.sendClinicianInviteRequest());
 
@@ -2185,7 +2185,7 @@ export function dismissClinicianInvite(api, userId, inviteId) {
  * @param {Number} [options.offset] - Query offset
  * @param {Object} api - an instance of the API wrapper
  */
- export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.noop) {
+export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.getClinicsForClinicianRequest());
 

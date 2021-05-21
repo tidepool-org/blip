@@ -212,9 +212,9 @@ export const ClinicAdmin = (props) => {
       const { roles, email, id: clinicianId, inviteId } = clinician;
       const user = get(allUsers, clinicianId, {});
       const role = includes(roles, 'CLINIC_ADMIN')
-        ? 'Clinic Admin'
+        ? t('Clinic Admin')
         : includes(roles, 'CLINIC_MEMBER')
-        ? 'Clinic Member'
+        ? t('Clinic Member')
         : '';
       return {
         fullName: personUtils.fullName(user),
@@ -287,14 +287,14 @@ export const ClinicAdmin = (props) => {
 
   const renderStatus = ({ inviteId }) => (
     <Box>
-      {inviteId ? <Pill text="invite sent" colorPalette="greens" /> : ''}
+      {inviteId ? <Pill text={t('invite sent')} colorPalette="greens" /> : ''}
     </Box>
   );
 
   const renderPermission = ({ prescriberPermission }) => (
     <Box>
       <Text fontWeight="medium">
-        {prescriberPermission ? 'Prescriber' : ''}
+        {prescriberPermission ? t('Prescriber') : ''}
       </Text>
     </Box>
   );
@@ -314,7 +314,7 @@ export const ClinicAdmin = (props) => {
           variant="textPrimary"
           onClick={() => handleEdit(userid)}
         >
-          Edit
+          {t('Edit')}
         </Button>
       );
     }
@@ -326,7 +326,7 @@ export const ClinicAdmin = (props) => {
       items = [
         {
           icon: DeleteForeverIcon,
-          iconLabel: 'Remove User',
+          iconLabel: t('Remove User'),
           iconPosition: 'left',
           id: `delete-${props.userId}`,
           variant: 'actionListItemDanger',
@@ -334,7 +334,7 @@ export const ClinicAdmin = (props) => {
             setSelectedUser(props);
             setShowDeleteDialog(true);
           },
-          text: 'Remove User',
+          text: t('Remove User'),
         },
       ];
     }
@@ -342,21 +342,21 @@ export const ClinicAdmin = (props) => {
       items = [
         {
           icon: InputIcon,
-          iconLabel: 'Resend Invitation',
+          iconLabel: t('Resend Invitation'),
           iconPosition: 'left',
           id: `resendInvite-${props.inviteId}`,
           variant: 'actionListItem',
           onClick: () => handleResendInvite(props.inviteId),
-          text: 'Resend Invitation',
+          text: t('Resend Invitation'),
         },
         {
           icon: DeleteForeverIcon,
-          iconLabel: 'Delete Invitation',
+          iconLabel: t('Delete Invitation'),
           iconPosition: 'left',
           id: `deleteInvite-${props.inviteId}`,
           variant: 'actionListItemDanger',
           onClick: () => handleDeleteInvite(props.inviteId),
-          text: 'Delete item',
+          text: t('Delete item'),
         },
       ];
     }
@@ -368,7 +368,7 @@ export const ClinicAdmin = (props) => {
 
   const columns = [
     {
-      title: 'Name',
+      title: t('Name'),
       field: 'fullName',
       align: 'left',
       sortable: true,
@@ -378,7 +378,7 @@ export const ClinicAdmin = (props) => {
       searchBy: ['fullName'],
     },
     {
-      title: 'Status',
+      title: t('Status'),
       field: 'inviteSent',
       align: 'left',
       sortable: true,
@@ -386,7 +386,7 @@ export const ClinicAdmin = (props) => {
       render: renderStatus,
     },
     {
-      title: 'Permission',
+      title: t('Permission'),
       field: 'prescriberPermission',
       align: 'left',
       sortable: true,
@@ -394,7 +394,7 @@ export const ClinicAdmin = (props) => {
       render: renderPermission,
     },
     {
-      title: 'Role',
+      title: t('Role'),
       field: 'role',
       align: 'left',
       sortable: true,
@@ -423,7 +423,7 @@ export const ClinicAdmin = (props) => {
   return (
     <>
       <Box
-        mx={'auto'}
+        mx="auto"
         my={2}
         p={4}
         bg="white"
@@ -433,14 +433,14 @@ export const ClinicAdmin = (props) => {
           borderRadius: baseTheme.radii.default,
         }}
       >
-        <Flex alignItems={'flex-start'}>
+        <Flex alignItems="flex-start">
           <Title py={4} pr={4}>
-            Clinic Profile
+            {t('Clinic Profile')}
           </Title>
           <Box flexDirection="column" flexGrow="1">
             <TextInput
               name="clinic_name"
-              label="Clinic name"
+              label={t('Clinic name')}
               disabled={true}
               value={get(clinics, [selectedClinic, 'name'])}
               width="100%"
@@ -457,7 +457,7 @@ export const ClinicAdmin = (props) => {
             ></TextInput>
             <TextInput
               name="clinic_address"
-              label="Clinic address"
+              label={t('Clinic address')}
               disabled={true}
               value={get(clinics, [selectedClinic, 'address'])}
               width="100%"
@@ -478,7 +478,7 @@ export const ClinicAdmin = (props) => {
             <Box>
               <TextInput
                 name="clinic_contact"
-                label="Clinic contact"
+                label={t('Clinic contact')}
                 disabled={true}
                 value={get(clinics, [selectedClinic, 'email'])}
                 width="100%"
@@ -497,7 +497,7 @@ export const ClinicAdmin = (props) => {
             <Box>
               <TextInput
                 name="clinic_cityzip"
-                label="City, State, Zipcode"
+                label={t('City, State, Zipcode')}
                 disabled={true}
                 value={`${get(clinics, [
                   selectedClinic,
@@ -522,7 +522,7 @@ export const ClinicAdmin = (props) => {
           <Box flexDirection="column" flexGrow="1">
             <TextInput
               name="clinic_sharecode"
-              label="Clinic share code"
+              label={t('Clinic share code')}
               disabled={true}
               value={get(clinics, [selectedClinic, 'shareCode'])}
               width="100%"
@@ -541,7 +541,7 @@ export const ClinicAdmin = (props) => {
         </Flex>
       </Box>
       <Box
-        mx={'auto'}
+        mx="auto"
         my={2}
         bg="white"
         width={[1, 0.75, 0.75, 0.5]}
@@ -555,7 +555,7 @@ export const ClinicAdmin = (props) => {
           alignItems={'center'}
         >
           <Title p={4} flexGrow={1}>
-            Access Management
+            {t('Access Management')}
           </Title>
           <Box>
             <Button
@@ -565,7 +565,7 @@ export const ClinicAdmin = (props) => {
                 dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
               }}
             >
-              Invite new clinic team member
+              {t('Invite new clinic team member')}
             </Button>
           </Box>
         </Flex>
@@ -584,8 +584,8 @@ export const ClinicAdmin = (props) => {
             variant="condensed"
           />
           <Table
-            id={'clinicianTable'}
-            lablel={'cliniciantablelabel'}
+            id="clinicianTable"
+            label={t('Clinician Table')}
             columns={columns}
             data={clinicianArray}
             orderBy="fullNameOrderable"
@@ -594,28 +594,26 @@ export const ClinicAdmin = (props) => {
             rowsPerPage={8}
             pagination={true}
             style={{ fontSize: '14px' }}
-            label=""
           />
         </Box>
       </Box>
       <Dialog
-        id={'deleteUser'}
+        id="deleteUser"
         aria-labelledBy="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">Remove {selectedUser?.fullName}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName })}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>
-            {selectedUser?.fullName} will lose all access to this clinic workspace and
-            its patient list. Are you sure you want to remove this user?
+            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName })}
           </Body1>
         </DialogContent>
         <DialogActions>
           <Button variant="secondary" onClick={closeDeleteDialog}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button
             variant="danger"
@@ -624,7 +622,7 @@ export const ClinicAdmin = (props) => {
               closeDeleteDialog();
             }}
           >
-            Remove User
+            {t('Remove User')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -79,11 +79,6 @@ export const ClinicInvite = (props) => {
       roles.push('PRESCRIBER');
       metricProperties.access = 'PRESCRIBER';
     }
-    console.log(
-      'handleSubmit',
-      selectedClinic,
-      {email, roles}
-    );
     dispatch(actions.async.sendClinicianInvite(api, selectedClinic, {email, roles}))
     trackMetric('Clinic - Invite clinician', metricProperties)
     dispatch(push('/clinic-admin'));
@@ -91,27 +86,25 @@ export const ClinicInvite = (props) => {
 
   const clinicAdminDesc = (
     <>
-      <Title>Clinic Admin</Title>
+      <Title>{t('Clinic Admin')}</Title>
       <Body1>
-        Clinic administrators have full read and edit access to access. Clinic
-        administrators have full read and edit access to access{' '}
+        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}{' '}
       </Body1>
     </>
   );
 
   const clinicMemberDesc = (
     <>
-      <Title>Clinic Member</Title>
+      <Title>{t('Clinic Member')}</Title>
       <Body1>
-        Clinic members have read access to access management. More details are
-        described here.{' '}
+        {t('Clinic members have read access to access management. More details are described here.')}{' '}
       </Body1>
     </>
   );
 
   return (
     <Box
-      mx={'auto'}
+      mx="auto"
       my={2}
       bg="white"
       width={[1, 0.75, 0.75, 0.5]}
@@ -122,11 +115,11 @@ export const ClinicInvite = (props) => {
     >
       <Flex
         sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems={'center'}
+        alignItems="center"
         p={4}
         px={6}
       >
-        <Title flexGrow={1}>Invite team members</Title>
+        <Title flexGrow={1}>{t('Invite team members')}</Title>
       </Flex>
       <Box px={6}>
         <TextInput
@@ -150,7 +143,7 @@ export const ClinicInvite = (props) => {
           required={true}
           value={selectedType}
           onChange={handleSelectType}
-          variant={'verticalBordered'}
+          variant="verticalBordered"
           sx={{
             '&&': {
               label: {
@@ -174,7 +167,7 @@ export const ClinicInvite = (props) => {
           }}
         >
           <Checkbox
-            label={'Prescribing access'}
+            label={t('Prescribing access')}
             checked={prescriberPermission}
             onChange={handleTogglePrescriberPermission}
             themeProps={{ bg: 'lightestGrey' }}
@@ -182,10 +175,10 @@ export const ClinicInvite = (props) => {
         </Box>
         <Flex p={4} justifyContent="flex-end">
           <Button id="back" variant="secondary" m={2} onClick={handleBack}>
-            Back
+            {t('Back')}
           </Button>
           <Button id="next" variant="primary" m={2} onClick={handleSubmit}>
-            Next
+            {t('Next')}
           </Button>
         </Flex>
       </Box>
@@ -196,12 +189,11 @@ export const ClinicInvite = (props) => {
         onClose={handleDialogClose}
       >
         <DialogTitle onClose={handleDialogClose}>
-          <MediumTitle id="dialog-title">Unsaved invitation</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Unsaved invitation')}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>
-            You have a unsaved changes to this invitation which will be lost if
-            you navigate away. Are you sure you wish to discard these changes?
+            {t('You have a unsaved changes to this invitation which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
           </Body1>
         </DialogContent>
         <DialogActions>
@@ -210,14 +202,14 @@ export const ClinicInvite = (props) => {
             variant="secondary"
             onClick={handleDialogClose}
           >
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button
             id="confirmDialogExit"
             variant="danger"
             onClick={handleDialogConfirm}
           >
-            Exit
+            {t('Exit')}
           </Button>
         </DialogActions>
       </Dialog>

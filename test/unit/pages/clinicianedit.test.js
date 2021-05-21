@@ -251,9 +251,9 @@ describe('ClinicianEdit', () => {
             'clinicianId': 'clinicianUserId123',
             'clinician': {
               'id': 'clinicianUserId123',
-              'roles': ['CLINIC_ADMIN']
-            }
-          }
+              'roles': ['CLINIC_ADMIN'],
+            },
+          },
         },
         {
           type: '@@router/CALL_HISTORY_METHOD',

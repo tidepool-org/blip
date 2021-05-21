@@ -959,7 +959,7 @@ api.clinics.dismissClinicianInvite = function(userId, inviteId, cb) {
 
 api.clinics.getClinicsForClinician = function(clinicianId, options, cb) {
   return tidepool.getClinicsForClinician(clinicianId, options, cb);
-}
+};
 
 // ----- Errors -----
 

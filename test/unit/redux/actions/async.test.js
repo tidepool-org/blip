@@ -5105,7 +5105,7 @@ describe('Actions', () => {
     });
 
     describe('fetchClinicsForPatient', () => {
-      it('should trigger FETCH_CLINICS_FOR_PATIENT_SUCCESS and it should call clinics.updatePatientPermissions once for a successful request', () => {
+      it('should trigger FETCH_CLINICS_FOR_PATIENT_SUCCESS and it should call clinics.getClinicsForPatient once for a successful request', () => {
         let userId = 'user123';
         let clinics = [{
           patient: {
@@ -5171,7 +5171,7 @@ describe('Actions', () => {
     });
 
     describe('fetchClinicianInvites', () => {
-      it('should trigger FETCH_CLINICIAN_INVITES_SUCCESS and it should call clinics.updatePatientPermissions once for a successful request', () => {
+      it('should trigger FETCH_CLINICIAN_INVITES_SUCCESS and it should call clinics.getClinicianInvites once for a successful request', () => {
         let userId = 'user123';
         let invites = ['inviteId']
 
@@ -5228,7 +5228,7 @@ describe('Actions', () => {
     });
 
     describe('acceptClinicianInvite', () => {
-      it('should trigger ACCEPT_CLINICIAN_INVITE_SUCCESS and it should call clinics.updatePatientPermissions once for a successful request', () => {
+      it('should trigger ACCEPT_CLINICIAN_INVITE_SUCCESS and it should call clinics.acceptClinicianInvite once for a successful request', () => {
         let userId = 'user123';
         let inviteId = 'inviteId345';
 
@@ -5286,7 +5286,7 @@ describe('Actions', () => {
     });
 
     describe('dismissClinicianInvite', () => {
-      it('should trigger DISMISS_CLINICIAN_INVITE_SUCCESS and it should call clinics.updatePatientPermissions once for a successful request', () => {
+      it('should trigger DISMISS_CLINICIAN_INVITE_SUCCESS and it should call clinics.dismissClinicianInvite once for a successful request', () => {
         let userId = 'user123';
         let inviteId = 'inviteId345';
 
@@ -5344,7 +5344,7 @@ describe('Actions', () => {
     });
 
     describe('getClinicsForClinician', () => {
-      it('should trigger GET_CLINICS_FOR_CLINICIAN_SUCCESS and it should call clinics.getAll once for a successful request', () => {
+      it('should trigger GET_CLINICS_FOR_CLINICIAN_SUCCESS and it should call clinics.getClinicsForClinician once for a successful request', () => {
         let clinicianId = 'clinicianId1';
         let clinics = [
           {
