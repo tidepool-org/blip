@@ -56,7 +56,7 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @typedef { import('history').History } History
  * @typedef { import('redux').Store } Store
  * @typedef { import("../index").BlipApi } API
- * @typedef { import("../index").User } User
+ * @typedef { import("../index").IUser } User
  * @typedef { import("../index").PatientData } PatientData
  * @typedef { import("../index").MessageNote } MessageNote
  * @typedef { import("../core/lib/partial-data-load").DateRange } DateRange
@@ -70,7 +70,7 @@ const LOADING_STATE_ERROR = LOADING_STATE_EARLIER_PROCESS + 1;
  * @augments {React.Component<PatientDataProps,PatientDataState>}
  */
 class PatientDataPage extends React.Component {
-  constructor(/** @type{PatientDataProps} */ props) {
+  constructor(/** @type {PatientDataProps} */ props) {
     super(props);
     const { api, patient } = this.props;
 
@@ -82,6 +82,8 @@ class PatientDataPage extends React.Component {
 
     const currentUser = api.whoami;
     const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    this.showProfileDialog = currentUser.userid !== patient.userid;
 
     this.state = {
       loadingState: LOADING_STATE_NONE,
@@ -337,7 +339,7 @@ class PatientDataPage extends React.Component {
       <Switch>
         <Route path={`${prefixURL}/overview`}>
           <Basics
-            profileDialog={profileDialog}
+            profileDialog={this.showProfileDialog ? profileDialog : null}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
@@ -362,7 +364,7 @@ class PatientDataPage extends React.Component {
         </Route>
         <Route path={`${prefixURL}/daily`}>
           <Daily
-            profileDialog={profileDialog}
+            profileDialog={this.showProfileDialog ? profileDialog : null}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={chartPrefs}
             dataUtil={this.dataUtil}
@@ -391,7 +393,7 @@ class PatientDataPage extends React.Component {
         </Route>
         <Route path={`${prefixURL}/trends`}>
           <Trends
-            profileDialog={profileDialog}
+            profileDialog={this.showProfileDialog ? profileDialog : null}
             bgPrefs={this.state.bgPrefs}
             chartPrefs={chartPrefs}
             currentPatientInViewId={patient.userid}

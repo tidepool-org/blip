@@ -4,7 +4,6 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import i18next from 'i18next';
-import { Trans } from 'react-i18next';
 
 import { BasicsChart } from 'tideline';
 import { components as vizComponents, utils as vizUtils } from 'tidepool-viz';
@@ -206,7 +205,10 @@ Basics.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   updateChartPrefs: PropTypes.func.isRequired,
   prefixURL: PropTypes.string,
-  profileDialog: PropTypes.func.isRequired,
+  profileDialog: PropTypes.func,
+};
+Basics.defaultProps = {
+  profileDialog: null,
 };
 
 export default Basics;

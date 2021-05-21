@@ -71,7 +71,10 @@ class Trends extends React.Component {
     trackMetric: PropTypes.func.isRequired,
     updateChartPrefs: PropTypes.func.isRequired,
     prefixURL: PropTypes.string,
-    profileDialog: PropTypes.func.isRequired,
+    profileDialog: PropTypes.func,
+  };
+  static defaultProps = {
+    profileDialog: null,
   };
 
   constructor(props) {

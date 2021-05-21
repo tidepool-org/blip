@@ -72,6 +72,7 @@ class TidelineHeader extends React.Component {
 
   renderStandard() {
     const { canPrint, chartType, atMostRecent, inTransition, loading, prefixURL } = this.props;
+    const { profileDialog: ProfileDialog } = this.props;
 
     const printViews = ['basics', 'daily', 'bgLog', 'settings'];
     const showPrintLink = _.includes(printViews, chartType);
@@ -164,9 +165,7 @@ class TidelineHeader extends React.Component {
 
     /** @type {(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void} */
     const handleShowPatientProfile = (/* e */) => {
-      // e.preventDefault();
-      // FIXME: Find a way to use the react-router-dom
-      this.props.trackMetric('Clicked Navbar Name');
+      this.props.trackMetric('show-patient-profile', { chart: chartType });
       this.setState({ isDialogOpen: true });
     };
 
@@ -175,22 +174,21 @@ class TidelineHeader extends React.Component {
     };
 
     let profileDialog = null;
-    if (this.props.profileDialog) {
-      const { profileDialog: ProfileDialog } = this.props;
+    if (_.isFunction(ProfileDialog)) {
       profileDialog = (
-        <ProfileDialog user={this.props.patient} isOpen={this.state.isDialogOpen} handleClose={handleDialogClose} />
-      );
-    }
-
-    return (
-      <div className='grid patient-data-subnav'>
         <div className='app-no-print patient-data-subnav-left'>
           <AccountCircleIcon className={home} />
           <Link className={home} onClick={handleShowPatientProfile} title={t('Profile')}>
             {homeValue}
           </Link>
-          {profileDialog}
+          <ProfileDialog user={this.props.patient} isOpen={this.state.isDialogOpen} handleClose={handleDialogClose} />
         </div>
+      );
+    }
+
+    return (
+      <div className='grid patient-data-subnav'>
+        {profileDialog}
         <div className='app-no-print patient-data-subnav-left'>
           <a href={`${prefixURL}/overview`} className={basicsLinkClass} onClick={this.props.onClickBasics}>
             {t('Basics')}
