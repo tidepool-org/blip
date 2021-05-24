@@ -4,7 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
-import _ from 'lodash';
+import get from 'lodash/get';
+import includes from 'lodash/includes';
+import cloneDeep from 'lodash/cloneDeep';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import {
   Title,
@@ -21,29 +23,35 @@ import {
   DialogActions,
 } from '../../components/elements/Dialog';
 import * as actions from '../../redux/actions';
+import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
 import personUtils from '../../core/personutils';
+import { usePrevious } from '../../core/hooks';
 
 export const ClinicianEdit = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
 
   const [formTouched, setFormTouched] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const location = useLocation();
-  const selectedClinicianId = _.get(location, 'state.clinicianId', false);
+  const selectedClinicianId = get(location, 'state.clinicianId', false);
 
   if (!selectedClinicianId) {
     dispatch(push('/clinic-admin'));
   }
 
+  const working = useSelector((state) => state.blip.working);
+  const previousWorking = usePrevious(working);
+
   const selectedClinicianUser = useSelector((state) =>
-    _.get(state, ['blip', 'allUsersMap', selectedClinicianId])
+    get(state, ['blip', 'allUsersMap', selectedClinicianId])
   );
-  const selectedClinic = _.get(location, 'state.clinicId', false);
+  const selectedClinic = get(location, 'state.clinicId', false);
   const selectedClinician = useSelector((state) =>
-    _.get(state, [
+    get(state, [
       'blip',
       'clinics',
       selectedClinic,
@@ -51,12 +59,12 @@ export const ClinicianEdit = (props) => {
       selectedClinicianId,
     ])
   );
-  const selectedClinicianRoles = _.get(selectedClinician, 'roles');
+  const selectedClinicianRoles = get(selectedClinician, 'roles');
   const [prescriberPermission, setPrescriberPermission] = useState(
-    _.includes(selectedClinicianRoles, 'PRESCRIBER') ? true : false
+    includes(selectedClinicianRoles, 'PRESCRIBER') ? true : false
   );
   const [selectedType, setSelectedType] = useState(
-    _.includes(selectedClinicianRoles, 'CLINIC_ADMIN')
+    includes(selectedClinicianRoles, 'CLINIC_ADMIN')
       ? 'CLINIC_ADMIN'
       : 'CLINIC_MEMBER'
   );
@@ -67,6 +75,28 @@ export const ClinicianEdit = (props) => {
       trackMetric('Clinic - Clinician Edit');
     }
   }, []);
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = working.updatingClinician;
+    const prevInProgress = get(
+      previousWorking,
+      'updatingClinician.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('You have successfully updated clinician.'),
+          variant: 'success',
+        });
+        dispatch(push('/clinic-admin'));
+      }
+    }
+  }, [working.updatingClinician]);
 
   function handleClickDelete() {
     setDeleteDialogOpen(true);
@@ -114,7 +144,7 @@ export const ClinicianEdit = (props) => {
   }
 
   function handleSave() {
-    const updatedClinician = _.cloneDeep(selectedClinician);
+    const updatedClinician = cloneDeep(selectedClinician);
     const updatedRoles = [];
     updatedRoles.push(selectedType);
     if (prescriberPermission) updatedRoles.push('PRESCRIBER');
@@ -128,14 +158,13 @@ export const ClinicianEdit = (props) => {
         updatedClinician
       )
     );
-    dispatch(push('/clinic-admin'));
   }
 
   const clinicAdminDesc = (
     <>
       <Title>{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}{' '}
+        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}
       </Body1>
     </>
   );
@@ -144,7 +173,7 @@ export const ClinicianEdit = (props) => {
     <>
       <Title>{t('Clinic Member')}</Title>
       <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}{' '}
+        {t('Clinic members have read access to access management. More details are described here.')}
       </Body1>
     </>
   );
@@ -169,7 +198,7 @@ export const ClinicianEdit = (props) => {
       >
         <Box flexGrow={1}>
           <Text fontWeight="medium">{fullName}</Text>
-          <Text>{_.get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
+          <Text>{get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
         </Box>
         <Text
           color="feedback.danger"

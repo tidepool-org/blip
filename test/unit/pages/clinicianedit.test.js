@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import _ from 'lodash';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
 import RadioGroup from '../../../app/components/elements/RadioGroup';
 import ClinicianEdit from '../../../app/pages/clinicianedit';
 import Checkbox from '../../../app/components/elements/Checkbox';
@@ -45,6 +46,12 @@ describe('ClinicianEdit', () => {
     mount.cleanUp();
   });
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
   const blipState = {
     blip: {
       working: {
@@ -58,6 +65,7 @@ describe('ClinicianEdit', () => {
           completed: true,
           notification: null,
         },
+        updatingClinician: defaultWorkingState,
       },
     },
   };
@@ -145,7 +153,9 @@ describe('ClinicianEdit', () => {
     beforeEach(() => {
       wrapper = mount(
         <Provider store={store}>
-          <ClinicianEdit {...defaultProps} />
+          <ToastProvider>
+            <ClinicianEdit {...defaultProps} />
+          </ToastProvider>
         </Provider>
       );
     });
@@ -180,7 +190,9 @@ describe('ClinicianEdit', () => {
       store = mockStore(fetchedAdminState);
       wrapper = mount(
         <Provider store={store}>
-          <ClinicianEdit {...defaultProps} />
+          <ToastProvider>
+            <ClinicianEdit {...defaultProps} />
+          </ToastProvider>
         </Provider>
       );
     });
@@ -253,13 +265,6 @@ describe('ClinicianEdit', () => {
               'id': 'clinicianUserId123',
               'roles': ['CLINIC_ADMIN'],
             },
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/clinic-admin'],
-            method: 'push',
           },
         },
       ]);

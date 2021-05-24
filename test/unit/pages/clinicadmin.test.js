@@ -3,10 +3,9 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import _ from 'lodash';
+import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Button from '../../../app/components/elements/Button';
-import TextInput from '../../../app/components/elements/TextInput';
 import Table from '../../../app/components/elements/Table';
 import Popover from '../../../app/components/elements/Popover';
 import ClinicAdmin from '../../../app/pages/clinicadmin';
@@ -32,7 +31,6 @@ describe('ClinicAdmin', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
-        //getAll: sinon.stub().callArgWith(1, null, [{id:'12345'}])
       },
     },
   };
@@ -49,7 +47,7 @@ describe('ClinicAdmin', () => {
     inProgress: false,
     completed: false,
     notification: null,
-  }
+  };
 
   const blipState = {
     blip: {
@@ -75,7 +73,7 @@ describe('ClinicAdmin', () => {
 
   let store = mockStore(blipState);
 
-  const fetchedDataState = _.merge({}, blipState, {
+  const fetchedDataState = merge({}, blipState, {
     blip: {
       allUsersMap: {
         clinicianUserId123: {
@@ -118,7 +116,7 @@ describe('ClinicAdmin', () => {
     },
   });
 
-  const fetchedAdminState = _.merge({}, fetchedDataState, {
+  const fetchedAdminState = merge({}, fetchedDataState, {
     blip: {
       clinics: {
         clinicID456: {

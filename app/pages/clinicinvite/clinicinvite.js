@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router-dom';
-import _ from 'lodash';
+import get from 'lodash/get'
 import {
   Title,
   MediumTitle,
@@ -23,16 +23,21 @@ import {
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+import { useToasts } from '../../providers/ToastProvider';
+import { usePrevious } from '../../core/hooks';
 
 export const ClinicInvite = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
   const [selectedType, setSelectedType] = useState('');
   const [prescriberPermission, setPrescriberPermission] = useState(false);
   const [email, setEmail] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const location = useLocation();
-  const selectedClinic = _.get(location, 'state.clinicId', false);
+  const selectedClinic = get(location, 'state.clinicId', false);
+  const working = useSelector((state) => state.blip.working);
+  const previousWorking = usePrevious(working);
 
   if (!selectedClinic) {
     dispatch(push('/clinic-admin'));
@@ -43,6 +48,32 @@ export const ClinicInvite = (props) => {
       trackMetric('Clinic - Clinic Invite');
     }
   }, []);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.sendingClinicianInvite;
+    const prevInProgress = get(
+      previousWorking,
+      'sendingClinicianInvite.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Clinician invite sent.'),
+          variant: 'success',
+        });
+        dispatch(push('/clinic-admin'));
+      }
+    }
+  }, [working.sendingClinicianInvite]);
 
   function handleSelectType(event) {
     setSelectedType(event.target.value);
@@ -81,14 +112,13 @@ export const ClinicInvite = (props) => {
     }
     dispatch(actions.async.sendClinicianInvite(api, selectedClinic, {email, roles}))
     trackMetric('Clinic - Invite clinician', metricProperties)
-    dispatch(push('/clinic-admin'));
   }
 
   const clinicAdminDesc = (
     <>
       <Title>{t('Clinic Admin')}</Title>
       <Body1>
-        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}{' '}
+        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}
       </Body1>
     </>
   );
@@ -97,7 +127,7 @@ export const ClinicInvite = (props) => {
     <>
       <Title>{t('Clinic Member')}</Title>
       <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}{' '}
+        {t('Clinic members have read access to access management. More details are described here.')}
       </Body1>
     </>
   );

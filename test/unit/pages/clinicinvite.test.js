@@ -3,10 +3,11 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import _ from 'lodash';
+import merge from 'lodash/merge';
 import RadioGroup from '../../../app/components/elements/RadioGroup';
 import ClinicInvite from '../../../app/pages/clinicinvite';
 import Checkbox from '../../../app/components/elements/Checkbox';
+import { ToastProvider } from '../../../app/providers/ToastProvider';
 
 /* global chai */
 /* global sinon */
@@ -42,6 +43,12 @@ describe('ClinicInvite', () => {
     mount.cleanUp();
   });
 
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
   const blipState = {
     blip: {
       working: {
@@ -55,13 +62,14 @@ describe('ClinicInvite', () => {
           completed: true,
           notification: null,
         },
+        sendingClinicianInvite: defaultWorkingState,
       },
     },
   };
 
   let store = mockStore(blipState);
 
-  const fetchedDataState = _.merge({}, blipState, {
+  const fetchedDataState = merge({}, blipState, {
     blip: {
       allUsersMap: {
         clinicianUserId123: {
@@ -103,7 +111,7 @@ describe('ClinicInvite', () => {
     },
   });
 
-  const fetchedAdminState = _.merge({}, fetchedDataState, {
+  const fetchedAdminState = merge({}, fetchedDataState, {
     blip: {
       clinics: {
         clinicID456: {
@@ -142,7 +150,9 @@ describe('ClinicInvite', () => {
     beforeEach(() => {
       wrapper = mount(
         <Provider store={store}>
-          <ClinicInvite {...defaultProps} />
+          <ToastProvider>
+            <ClinicInvite {...defaultProps} />
+          </ToastProvider>
         </Provider>
       );
     });
@@ -174,7 +184,9 @@ describe('ClinicInvite', () => {
       store = mockStore(fetchedAdminState);
       wrapper = mount(
         <Provider store={store}>
-          <ClinicInvite {...defaultProps} />
+          <ToastProvider>
+            <ClinicInvite {...defaultProps} />
+          </ToastProvider>
         </Provider>
       );
     });
@@ -237,13 +249,6 @@ describe('ClinicInvite', () => {
           payload: {
             'clinicId': 'clinicID456',
             'clinician': { inviteReturn: 'success' },
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/clinic-admin'],
-            method: 'push',
           },
         },
       ]);

@@ -59,52 +59,6 @@ export const ClinicAdmin = (props) => {
   const allUsers = useSelector((state) => state.blip.allUsersMap);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = working.updatingClinician;
-    const prevInProgress = get(
-      previousWorking,
-      'updatingClinician.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('You have successfully updated clinician.'),
-          variant: 'success',
-        });
-      }
-    }
-  }, [working.updatingClinician]);
-
-  useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.sendingClinicianInvite;
-    const prevInProgress = get(
-      previousWorking,
-      'sendingClinicianInvite.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Clinician invite sent.'),
-          variant: 'success',
-        });
-      }
-    }
-  }, [working.sendingClinicianInvite]);
-
-  useEffect(() => {
     const {
       inProgress,
       completed,
@@ -221,7 +175,7 @@ export const ClinicAdmin = (props) => {
         fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
         role,
         prescriberPermission: includes(roles, 'PRESCRIBER'),
-        userid: clinicianId,
+        userId: clinicianId,
         inviteId: inviteId,
         email,
         roles,
@@ -230,7 +184,7 @@ export const ClinicAdmin = (props) => {
   );
 
   const userRolesInClinic = get(
-    find(clinicianArray, { userid: loggedInUserId }),
+    find(clinicianArray, { userId: loggedInUserId }),
     'roles',
     []
   );
@@ -244,10 +198,10 @@ export const ClinicAdmin = (props) => {
     setSearchText(event.target.value);
   }
 
-  function handleEdit(userid) {
+  function handleEdit(userId) {
     dispatch(
       push('/clinician-edit', {
-        clinicianId: userid,
+        clinicianId: userId,
         clinicId: selectedClinic,
       })
     );
@@ -305,14 +259,14 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
-  const renderEdit = ({ userid }) => {
-    if (userid) {
+  const renderEdit = ({ userId }) => {
+    if (userId) {
       return (
         <Button
           p={0}
           fontSize="inherit"
           variant="textPrimary"
-          onClick={() => handleEdit(userid)}
+          onClick={() => handleEdit(userId)}
         >
           {t('Edit')}
         </Button>
@@ -320,9 +274,9 @@ export const ClinicAdmin = (props) => {
     }
   };
 
-  const renderMore = ({ ...props }) => {
+  const renderMore = props => {
     let items;
-    if (props.userid) {
+    if (props.userId) {
       items = [
         {
           icon: DeleteForeverIcon,
@@ -618,7 +572,7 @@ export const ClinicAdmin = (props) => {
           <Button
             variant="danger"
             onClick={() => {
-              handleDelete(selectedUser.userid);
+              handleDelete(selectedUser.userId);
               closeDeleteDialog();
             }}
           >
