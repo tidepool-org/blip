@@ -129,6 +129,8 @@ describe('PrescriptionForm', () => {
 
     it('should clear all calculator values', () => {
       clearCalculator(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.method', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.method', false);
       sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDose', undefined, false);
       sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDose', false);
       sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDoseScaleFactor', 1, false);
