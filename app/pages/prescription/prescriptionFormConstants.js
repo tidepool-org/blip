@@ -358,6 +358,10 @@ export const calculateRecommendedTherapySettings = values => {
   };
 };
 
+export const hasCalculatorResults = values => !!(get(values, 'calculator.recommendedBasalRate')
+  && get(values, 'calculator.recommendedInsulinSensitivity')
+  && get(values, 'calculator.recommendedCarbohydrateRatio'));
+
 /**
  * Determine whether or not to update the default value of a field
  *

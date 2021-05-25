@@ -39,6 +39,7 @@ const StyledRadio = styled(Base)`
 
 const StyledRadioLabel = styled(Text)`
   margin-right: 2em;
+  margin-top: .15em;
 
   &.disabled {
     color: ${colors.text.primaryDisabled};
@@ -59,8 +60,10 @@ const Radio = (props) => {
   });
 
   return (
-    <Label width="auto" mb={2} alignItems="center">
-      <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
+    <Label width="auto" mb={2} alignItems="flex-start">
+      <Box minWidth="auto">
+        <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
+      </Box>
       <StyledRadioLabel className={classNames} as="span">
         {label}
       </StyledRadioLabel>

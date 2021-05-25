@@ -93,8 +93,12 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
           .min(0)
           .required(t('Total Daily Dose is required')),
       }),
-      totalDailyDoseScaleFactor: yup.number()
-        .oneOf(map(totalDailyDoseScaleFactorOptions, 'value')),
+      totalDailyDoseScaleFactor: yup.mixed().notRequired().when('method', {
+        is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
+        then: yup.number()
+          .oneOf(map(totalDailyDoseScaleFactorOptions, 'value'))
+          .required(),
+      }),
       weight: yup.mixed().notRequired().when('method', {
         is: method => includes(['weight', 'totalDailyDoseAndWeight'], method),
         then: yup.number()
@@ -105,15 +109,21 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .oneOf(map(weightUnitOptions, 'value')),
       recommendedBasalRate: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedInsulinSensitivity: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedCarbohydrateRatio: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
     }),
     initialSettings: yup.object().shape({

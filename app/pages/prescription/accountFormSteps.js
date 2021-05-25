@@ -34,6 +34,7 @@ export const AccountType = translate()(props => {
         options={typeOptions}
         error={getFieldError('accountType', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
@@ -131,8 +132,8 @@ export const PatientEmail = translate()(props => {
     if (!isCaregiverAccount) {
       setFieldValue('caregiverFirstName', '');
       setFieldValue('caregiverLastName', '');
-      setFieldTouched('caregiverFirstName', true);
-      setFieldTouched('caregiverLastName', true);
+      setFieldTouched('caregiverFirstName');
+      setFieldTouched('caregiverLastName');
     }
   }, []);
 
