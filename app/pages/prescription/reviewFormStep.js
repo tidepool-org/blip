@@ -18,7 +18,7 @@ import { components as vizComponents } from '@tidepool/viz';
 
 import { fieldsAreValid, getThresholdWarning, getFieldError } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
+import { dateRegex, insulinModelOptions, stepValidationFields, warningThresholds } from './prescriptionFormConstants';
 import i18next from '../../core/language';
 import { convertMsPer24ToTimeString } from '../../core/datetime';
 import { Body1, Headline, Paragraph1 } from '../../components/elements/FontStyles';
@@ -68,7 +68,7 @@ const patientRows = values => {
     },
     {
       label: t('Birthdate'),
-      value: get(values, 'birthday', emptyValueText),
+      value: get(values, 'birthday', emptyValueText).replace(dateRegex, '$2/$3/$1'),
       error: getFieldError('birthday', formikContext, true),
       step: [0, 1],
       initialFocusedInput: 'birthday',

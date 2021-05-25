@@ -104,7 +104,7 @@ export const prescriptionForm = (bgUnits = defaultUnits.bloodGlucose) => ({
           units: defaultUnits.basalRate,
         },
         bolusAmountMaximum: {
-          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value', getPumpGuardrail(pump, 'bolusAmountMaximum.defaultValue', 0)),
+          value: get(props, 'prescription.latestRevision.attributes.initialSettings.bolusAmountMaximum.value'),
           units: defaultUnits.bolusAmount,
         },
         bloodGlucoseTargetSchedule: get(props, 'prescription.latestRevision.attributes.initialSettings.bloodGlucoseTargetSchedule', [{
@@ -168,15 +168,31 @@ export const generateTherapySettingsOrderText = (patientRows = [], therapySettin
   return textString;
 };
 
-export const clearCalculator = setFieldValue => {
-  setFieldValue('calculator.method', undefined, false)
-  setFieldValue('calculator.totalDailyDose', undefined, false)
-  setFieldValue('calculator.totalDailyDoseScaleFactor', undefined, false)
-  setFieldValue('calculator.weight', undefined, false)
-  setFieldValue('calculator.weightUnits', undefined, false)
-  setFieldValue('calculator.recommendedBasalRate', undefined, false)
-  setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false)
-  setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false)
+export const clearCalculatorInputs = formikContext => {
+  formikContext.setFieldValue('calculator.totalDailyDose', undefined, false);
+  formikContext.setFieldTouched('calculator.totalDailyDose', false);
+  formikContext.setFieldValue('calculator.totalDailyDoseScaleFactor', 1, false);
+  formikContext.setFieldTouched('calculator.totalDailyDoseScaleFactor', false);
+  formikContext.setFieldValue('calculator.weight', undefined, false);
+  formikContext.setFieldTouched('calculator.weight', false);
+  formikContext.setFieldValue('calculator.weightUnits', defaultUnits.weight, false);
+  formikContext.setFieldTouched('calculator.weightUnits', false);
+};
+
+export const clearCalculatorResults = formikContext => {
+  formikContext.setFieldValue('calculator.recommendedBasalRate', undefined, false);
+  formikContext.setFieldTouched('calculator.recommendedBasalRate', false);
+  formikContext.setFieldValue('calculator.recommendedInsulinSensitivity', undefined, false);
+  formikContext.setFieldTouched('calculator.recommendedInsulinSensitivity', false);
+  formikContext.setFieldValue('calculator.recommendedCarbohydrateRatio', undefined, false);
+  formikContext.setFieldTouched('calculator.recommendedCarbohydrateRatio', false);
+};
+
+export const clearCalculator = formikContext => {
+  formikContext.setFieldValue('calculator.method', undefined, false);
+  formikContext.setFieldTouched('calculator.method', false);
+  clearCalculatorInputs(formikContext);
+  clearCalculatorResults(formikContext);
 };
 
 export const PrescriptionForm = props => {
@@ -193,6 +209,8 @@ export const PrescriptionForm = props => {
     trackMetric,
   } = props;
 
+  const formikContext = useFormikContext();
+
   const {
     handleSubmit,
     resetForm,
@@ -200,7 +218,7 @@ export const PrescriptionForm = props => {
     setStatus,
     status,
     values,
-  } = useFormikContext();
+  } = formikContext;
 
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -239,7 +257,7 @@ export const PrescriptionForm = props => {
   const [singleStepEditValues, setSingleStepEditValues] = React.useState(values);
   const isSingleStepEdit = !!pendingStep.length;
   const isLastStep = activeStep === stepValidationFields.length - 1;
-  const isNewPrescription = isEmpty(get(prescription, 'id'));
+  const isNewPrescription = isEmpty(get(values, 'id'));
 
   React.useEffect(() => {
     // Determine the latest incomplete step, and default to starting there
@@ -346,9 +364,11 @@ export const PrescriptionForm = props => {
       setInitialFocusedInput(initialFocusedInput);
     },
 
-    clearCalculator: clearCalculator.bind(null, setFieldValue),
-
+    clearCalculator: clearCalculator.bind(null, formikContext),
+    clearCalculatorInputs: clearCalculatorInputs.bind(null, formikContext),
+    clearCalculatorResults: clearCalculatorResults.bind(null, formikContext),
     generateTherapySettingsOrderText,
+    goToFirstSubStep: () => setActiveSubStep(0),
 
     handleCopyTherapySettingsClicked: () => {
       trackMetric('Clicked Copy Therapy Settings Order');
