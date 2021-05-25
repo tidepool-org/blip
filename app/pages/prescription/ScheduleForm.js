@@ -173,12 +173,12 @@ ScheduleForm.propTypes = {
   })),
   separator: PropTypes.string,
   useFastField: PropTypes.bool,
-}
+};
 
 ScheduleForm.defaultProps = {
   addButtonText: t('Add another'),
   fields: [],
   useFastField: false,
-}
+};
 
 export default translate()(ScheduleForm);
