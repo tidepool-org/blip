@@ -172,7 +172,7 @@ describe('PeopleTable', () => {
     });
 
     it('should have a remove icon for each patient', function () {
-      expect(wrapper.find('span[aria-label="Remove"]')).to.have.length(5);
+      expect(wrapper.find('button[aria-label="Remove"]')).to.have.length(5);
     });
 
     it('should show open a modal for removing a patient when their remove icon is clicked', function () {
@@ -184,7 +184,7 @@ describe('PeopleTable', () => {
       expect(overlay().is('.ModalOverlay--show')).to.be.false;
 
       // Click the remove link for the last patient
-      const removeLink = wrapper.find('span[aria-label="Remove"]').last();
+      const removeLink = wrapper.find('button[aria-label="Remove"]').last();
       const handleRemoveSpy = sinon.spy(wrapper.instance().getWrappedInstance(), 'handleRemove');
       sinon.assert.notCalled(handleRemoveSpy);
       removeLink.simulate('click');
@@ -213,7 +213,7 @@ describe('PeopleTable', () => {
       wrapper.find('.peopletable-names-toggle').simulate('click');
       overlay = () => wrapper.find('.ModalOverlay');
 
-      removeLink = wrapper.find('span[aria-label="Remove"]').last();
+      removeLink = wrapper.find('button[aria-label="Remove"]').last();
       removeLink.simulate('click');
     });
 

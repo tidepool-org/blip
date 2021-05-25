@@ -158,7 +158,7 @@ describe('ChartDateRangeModal', function () {
   });
 
   it('should run `onClose` prop method when the close icon is clicked', () => {
-    const closeIcon = wrapper.find('span[aria-label="close dialog"]').hostNodes();
+    const closeIcon = wrapper.find('button[aria-label="close dialog"]').hostNodes();
     closeIcon.simulate('click');
     sinon.assert.calledOnce(props.onClose);
   });
