@@ -5,6 +5,7 @@ import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import keys from 'lodash/keys';
+import values from 'lodash/values';
 import map from 'lodash/map';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
@@ -13,22 +14,28 @@ import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import {
   Title,
   MediumTitle,
   Body1,
+  Body2,
 } from '../../components/elements/FontStyles';
-import TextInput from '../../components/elements/TextInput';
+
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
+
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+
 import { useToasts } from '../../providers/ToastProvider';
 import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
@@ -39,10 +46,10 @@ export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
-  const [searchText, setSearchText] = useState('');
-  const [selectedClinic, setSelectedClinic] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [sharedAccounts, setSharedAccounts] = useState([]);
+  const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
+  const [popupState, setPopupState] = useState(null);
 
   useEffect(() => {
     if (trackMetric) {
@@ -51,19 +58,52 @@ export const AccessManagement = (props) => {
   }, []);
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const clinics = useSelector((state) => state.blip.clinics);
-  const working = useSelector((state) => state.blip.working);
-  const previousWorking = usePrevious(working);
-  const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
-  const fetchingCliniciansFromClinic = working.fetchingCliniciansFromClinic;
   const allUsers = useSelector((state) => state.blip.allUsersMap);
+  const working = useSelector((state) => state.blip.working);
+  const clinics = useSelector((state) => state.blip.clinics);
+  const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
+  const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
+  const previousWorking = usePrevious(working);
+  const fetchingPatient = working.fetchingPatient;
+  const fetchingClinicsForPatient = working.fetchingClinicsForPatient;
+  const fetchingPendingSentInvites = working.fetchingPendingSentInvites;
+  const fetchingAssociatedAccounts = working.fetchingAssociatedAccounts;
+  const settingMemberPermissions = working.settingMemberPermissions;
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = settingMemberPermissions;
+
+    if (!inProgress) {
+      if (completed) {
+        popupState.close();
+
+        setToast({
+          message: t('Upload permission for {{name}} has been {{uploadPermission}}.', {
+            name: selectedSharedAccount.name,
+            uploadPermission: get(permissionsOfMembersInTargetCareTeam, [selectedSharedAccount.id, 'upload']) ? 'enabled' : 'disabled',
+          }),
+          variant: 'success',
+        });
+
+        setSelectedSharedAccount(null);
+        setPopupState(null);
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+    }
+  }, [settingMemberPermissions]);
 
   useEffect(() => {
     const {
       inProgress,
       completed,
       notification,
-    } = working.resendingClinicianInvite;
+    } = working.sendingInvite; // TODO: will this work for resending or do we need add'l backend work
     const prevInProgress = get(
       previousWorking,
       'resendingClinicianInvite.inProgress'
@@ -76,22 +116,22 @@ export const AccessManagement = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite resent.'),
+          message: t('Invitation resent.'),
           variant: 'success',
         });
       }
     }
-  }, [working.resendingClinicianInvite]);
+  }, [working.sendingInvite]);
 
   useEffect(() => {
     const {
       inProgress,
       completed,
       notification,
-    } = working.deletingClinicianInvite;
+    } = working.sendingInvite; // TODO: will this work for resending or do we need add'l backend work
     const prevInProgress = get(
       previousWorking,
-      'deletingClinicianInvite.inProgress'
+      'resendingClinicianInvite.inProgress'
     );
     if (!inProgress && completed && prevInProgress) {
       if (notification) {
@@ -101,22 +141,22 @@ export const AccessManagement = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician invite deleted.'),
+          message: t('Invitation resent.'),
           variant: 'success',
         });
       }
     }
-  }, [working.deletingClinicianInvite]);
+  }, [working.sendingInvite]);
 
   useEffect(() => {
     const {
       inProgress,
       completed,
       notification,
-    } = working.deletingClinicianFromClinic;
+    } = working.cancellingSentInvite;
     const prevInProgress = get(
       previousWorking,
-      'deletingClinicianFromClinic.inProgress'
+      'cancellingSentInvite.inProgress'
     );
     if (!inProgress && completed && prevInProgress) {
       if (notification) {
@@ -126,210 +166,253 @@ export const AccessManagement = (props) => {
         });
       } else {
         setToast({
-          message: t('Clinician removed from clinic.'),
+          message: t('Invitation revoked.'),
           variant: 'success',
         });
       }
     }
-  }, [working.deletingClinicianFromClinic]);
+  }, [working.cancellingSentInvite]);
 
+
+  // Fetchers
   useEffect(() => {
-    if (
-      !fetchingClinicsForClinician.inProgress &&
-      !fetchingClinicsForClinician.completed &&
-      !fetchingClinicsForClinician.notification
-    ) {
-      dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
-    } else {
-      if (keys(clinics).length) {
-        setSelectedClinic(keys(clinics)[0]);
-      }
+    forEach([
+      {
+        workingState: fetchingPatient,
+        action: actions.async.fetchPatient.bind(null, api, loggedInUserId),
+      },
+      {
+        workingState: fetchingClinicsForPatient,
+        action: actions.async.fetchClinicsForPatient.bind(null, api, loggedInUserId),
+      },
+      {
+        workingState: fetchingPendingSentInvites,
+        action: actions.async.fetchPendingSentInvites.bind(null, api, loggedInUserId),
+      },
+      {
+        workingState: fetchingAssociatedAccounts,
+        action: actions.async.fetchAssociatedAccounts.bind(null, api, loggedInUserId),
+      },
+    ], ({ workingState, action }) => {
       if (
-        !fetchingCliniciansFromClinic.inProgress &&
-        !fetchingCliniciansFromClinic.completed &&
-        !fetchingCliniciansFromClinic.notification
+        !workingState.inProgress &&
+        !workingState.completed &&
+        !workingState.notification
       ) {
-        forEach(clinics, (clinic) => {
-          dispatch(actions.async.fetchCliniciansFromClinic(api, clinic.id));
-        });
+        dispatch(action());
       }
-    }
+    });
   }, [
     loggedInUserId,
-    fetchingClinicsForClinician,
-    fetchingCliniciansFromClinic,
+    fetchingClinicsForPatient,
+    fetchingPendingSentInvites,
+    fetchingAssociatedAccounts
   ]);
 
-  const clinicianArray = map(
-    get(clinics, [selectedClinic, 'clinicians'], {}),
-    (clinician) => {
-      const { roles, email, id: clinicianId, inviteId } = clinician;
-      const user = get(allUsers, clinicianId, {});
-      const role = includes(roles, 'CLINIC_ADMIN')
-        ? t('Clinic Admin')
-        : includes(roles, 'CLINIC_MEMBER')
-        ? t('Clinic Member')
-        : '';
-      return {
-        fullName: personUtils.fullName(user),
-        fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
-        role,
-        prescriberPermission: includes(roles, 'PRESCRIBER'),
-        userId: clinicianId,
-        inviteId: inviteId,
-        email,
-        roles,
-      };
-    }
-  );
+  useEffect(() => {
+    console.log('clinics', clinics);
+    console.log('membersOfTargetCareTeam', membersOfTargetCareTeam);
+    console.log('permissionsOfMembersInTargetCareTeam', permissionsOfMembersInTargetCareTeam);
+    console.log('allUsers', allUsers);
 
-  const userRolesInClinic = get(
-    find(clinicianArray, { userId: loggedInUserId }),
-    'roles',
-    []
-  );
+    const sharedAccounts = [
+      ...(values(clinics) || []),
+      ...(map(membersOfTargetCareTeam || [], memberId => ({
+        name: get(allUsers, [memberId, 'profile', 'fullName']),
+        id: get(allUsers, [memberId, 'userid']),
+        uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
+        email: get(allUsers, [memberId, 'emails', '0']),
+        role: 'member',
+        isClinician: get(allUsers, [memberId, 'roles', '0']) === 'clinic',
+      }))),
+    ];
+
+    console.log('sharedAccounts', sharedAccounts);
+    setSharedAccounts(sharedAccounts);
+  }, [
+    clinics,
+    membersOfTargetCareTeam,
+    permissionsOfMembersInTargetCareTeam,
+  ]);
+
+  // TODO: incorporate these
+  // removeMember: actions.async.removeMemberFromTargetCareTeam,
+  // inviteMember: actions.async.sendInvite,
+  // cancelInvite: actions.async.cancelSentInvite,
+
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
-    setSelectedUser(null);
+    setSelectedSharedAccount(null);
   }
 
-  function handleSearchChange(event) {
-    setSearchText(event.target.value);
-  }
+  function handleUploadPermissionsToggle(member) {
+    trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
 
-  function handleEdit(userId) {
+    const permissions = {
+      view: {},
+      note: {},
+      upload: member.uploadPermission ? undefined : {},
+    };
+
+    setSelectedSharedAccount(member);
+
     dispatch(
-      push('/clinician-edit', {
-        clinicianId: userId,
-        clinicId: selectedClinic,
-      })
+      actions.async.setMemberPermissions(api, loggedInUserId, member.id, permissions)
     );
   }
 
-  function handleDelete(selectedClinicianId) {
-    trackMetric('Clinic - Remove clinician');
+  function handleDelete(selectedSharedAccount) {
+    trackMetric('Patient - Remove shared account', {
+      type: 'member' // TODO: or 'clinic'
+    });
+    // TODO: does remove clinic exist on backend
     dispatch(
-      actions.async.deleteClinicianFromClinic(
+      actions.async.removeMemberFromTargetCareTeam(
         api,
-        selectedClinic,
-        selectedClinicianId
+        loggedInUserId,
+        selectedSharedAccount.id
       )
     );
   }
 
-  function handleResendInvite(inviteId) {
-    trackMetric('Clinic - Resend clinician invite');
+  function handleResendInvite(email, permissions) {
+    trackMetric('Patient - Resend Invite', {
+      type: 'member' // TODO: or 'clinic'
+    });
     dispatch(
-      actions.async.resendClinicianInvite(api, selectedClinic, inviteId)
+      actions.async.sendInvite(api, email, permissions)
     );
   }
 
-  function handleDeleteInvite(inviteId) {
-    trackMetric('Clinic - Delete clinician invite');
+  function handleDeleteInvite(api, email) {
+    trackMetric('Patient - Resend Invite', {
+      type: 'member' // TODO: or 'clinic'
+    });
     dispatch(
-      actions.async.deleteClinicianInvite(api, selectedClinic, inviteId)
+      actions.async.cancelSentInvite(api, email)
     );
   }
 
-  const renderClinician = ({ fullName, email }) => (
-    <Box>
-      <Text fontWeight="medium">{fullName}</Text>
-      <Text>{email || '\u00A0'}</Text>
-    </Box>
+  const renderMember = ({ userId, email, name, shareCode }) => (
+    email ? (
+      <Box>
+        <Text fontWeight="medium">{name}</Text>
+        <Text>{email || '\u00A0'}</Text>
+      </Box>
+    ) : (
+      <Box>
+        <Text fontWeight="medium">{name}</Text>
+        <Text>{shareCode || '\u00A0'}</Text> { /* TODO: is shareCode present on clinic objects? */ }
+      </Box>
+    )
   );
 
   const renderStatus = ({ inviteId }) => (
+    // TODO: get declined
     <Box>
       {inviteId ? <Pill text={t('invite sent')} colorPalette="greens" /> : ''}
     </Box>
   );
 
-  const renderPermission = ({ prescriberPermission }) => (
+  const renderUploadPermission = ({ uploadPermission }) => (
     <Box>
       <Text fontWeight="medium">
-        {prescriberPermission ? t('Prescriber') : ''}
+        {uploadPermission ? t('Yes') : ''}
       </Text>
     </Box>
   );
 
   const renderRole = ({ role }) => (
     <Box>
-      <Text fontWeight="medium">{role}</Text>
+      <Text fontWeight="medium" sx={{ textTransform: 'capitalize' }}>{role}</Text>
     </Box>
   );
 
-  const renderEdit = ({ userId }) => {
-    if (userId) {
-      return (
-        <Button
-          p={0}
-          fontSize="inherit"
-          variant="textPrimary"
-          onClick={() => handleEdit(userId)}
-        >
-          {t('Edit')}
-        </Button>
-      );
-    }
-  };
+  const renderMore = member => {
+    const items = [];
+    console.log('member', member);
 
-  const renderMore = props => {
-    let items;
-    if (props.userId) {
-      items = [
-        {
-          icon: DeleteForeverIcon,
-          iconLabel: t('Remove User'),
-          iconPosition: 'left',
-          id: `delete-${props.userId}`,
-          variant: 'actionListItemDanger',
-          onClick: () => {
-            setSelectedUser(props);
-            setShowDeleteDialog(true);
-          },
-          text: t('Remove User'),
+    if (member.role === 'member') {
+      const uploadPermissionLabel = member.uploadPermission
+        ? t('Remove upload permission')
+        : t('Allow upload permission');
+
+      items.push({
+        icon: settingMemberPermissions.inProgress ? CircularProgress : PublishRoundedIcon,
+        processing: settingMemberPermissions.inProgress,
+        iconLabel: uploadPermissionLabel,
+        iconPosition: 'left',
+        id: `upload-permission-${member.userId}`,
+        variant: 'actionListItem',
+        disabled: settingMemberPermissions.inProgress,
+        onClick: _popupState => {
+          setPopupState(_popupState);
+          setSelectedSharedAccount(member);
+          handleUploadPermissionsToggle(member);
         },
-      ];
+        text: uploadPermissionLabel,
+      });
+
+      items.push({
+        icon: DeleteForeverIcon,
+        iconLabel: t('Remove Member'),
+        iconPosition: 'left',
+        id: `delete-${member.userId}`,
+        variant: 'actionListItemDanger',
+        onClick: () => {
+          setSelectedSharedAccount(member);
+          setShowDeleteDialog(true);
+        },
+        text: t('Remove Member'),
+      });
     }
-    if (props.inviteId) {
+
+    if (member.inviteId) {
       items = [
         {
           icon: InputIcon,
           iconLabel: t('Resend Invitation'),
           iconPosition: 'left',
-          id: `resendInvite-${props.inviteId}`,
+          id: `resendInvite-${member.inviteId}`,
           variant: 'actionListItem',
-          onClick: () => handleResendInvite(props.inviteId),
+          onClick: () => handleResendInvite(member.email, member.permissions),
           text: t('Resend Invitation'),
         },
         {
           icon: DeleteForeverIcon,
           iconLabel: t('Delete Invitation'),
           iconPosition: 'left',
-          id: `deleteInvite-${props.inviteId}`,
+          id: `deleteInvite-${member.inviteId}`,
           variant: 'actionListItemDanger',
-          onClick: () => handleDeleteInvite(props.inviteId),
+          onClick: () => handleDeleteInvite(member.email),
           text: t('Delete item'),
         },
       ];
     }
 
     return (
-      <PopoverMenu id="action-menu" items={items} />
+      <Box onClick={e => {
+        // Prevent clicks from propogating up to the table row click handlers
+        e.stopPropagation();
+      }}>
+        <PopoverMenu
+          id="access-management-actions"
+          label="Access Management actions"
+          items={items}
+        />
+      </Box>
     );
   };
 
   const columns = [
     {
       title: t('Name'),
-      field: 'fullName',
+      field: 'name',
       align: 'left',
       sortable: true,
-      sortBy: 'fullNameOrderable',
-      render: renderClinician,
-      searchable: true,
-      searchBy: ['fullName'],
+      sortBy: 'name',
+      render: renderMember,
     },
     {
       title: t('Status'),
@@ -340,12 +423,12 @@ export const AccessManagement = (props) => {
       render: renderStatus,
     },
     {
-      title: t('Permission'),
-      field: 'prescriberPermission',
+      title: t('Upload Permission'),
+      field: 'uploadPermission',
       align: 'left',
       sortable: true,
-      sortBy: 'prescriberPermission',
-      render: renderPermission,
+      sortBy: 'uploadPermission',
+      render: renderUploadPermission,
     },
     {
       title: t('Role'),
@@ -355,201 +438,80 @@ export const AccessManagement = (props) => {
       sortBy: 'role',
       render: renderRole,
     },
+    {
+      title: '',
+      field: 'more',
+      render: renderMore,
+      align: 'left',
+    },
   ];
-
-  if (includes(userRolesInClinic, 'CLINIC_ADMIN')) {
-    columns.push(
-      {
-        title: '',
-        field: 'edit',
-        render: renderEdit,
-        align: 'left',
-      },
-      {
-        title: '',
-        field: 'more',
-        render: renderMore,
-        align: 'left',
-      }
-    );
-  }
 
   return (
     <>
       <Box
         mx="auto"
         my={2}
-        p={4}
         bg="white"
-        width={[1, 0.75, 0.75, 0.5]}
+        width={[1, 0.85]}
         sx={{
           border: baseTheme.borders.default,
-          borderRadius: baseTheme.radii.default,
-        }}
-      >
-        <Flex alignItems="flex-start">
-          <Title py={4} pr={4}>
-            {t('Clinic Profile')}
-          </Title>
-          <Box flexDirection="column" flexGrow="1">
-            <TextInput
-              name="clinic_name"
-              label={t('Clinic name')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'name'])}
-              width="100%"
-              themeProps={{
-                px: 2,
-                pb: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-            <TextInput
-              name="clinic_address"
-              label={t('Clinic address')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'address'])}
-              width="100%"
-              color={baseTheme.colors.text.primary}
-              bg="white"
-              themeProps={{
-                px: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-          </Box>
-          <Box flexDirection="column" flexGrow="1">
-            <Box>
-              <TextInput
-                name="clinic_contact"
-                label={t('Clinic contact')}
-                disabled={true}
-                value={get(clinics, [selectedClinic, 'email'])}
-                width="100%"
-                themeProps={{
-                  px: 2,
-                  pb: 2,
-                  sx: {
-                    '&& input:disabled': {
-                      color: baseTheme.colors.text.primary,
-                      bg: 'white',
-                    },
-                  },
-                }}
-              ></TextInput>
-            </Box>
-            <Box>
-              <TextInput
-                name="clinic_cityzip"
-                label={t('City, State, Zipcode')}
-                disabled={true}
-                value={`${get(clinics, [
-                  selectedClinic,
-                  'city',
-                ])}, ${get(clinics, [
-                  selectedClinic,
-                  'state',
-                ])}, ${get(clinics, [selectedClinic, 'postalCode'])}`}
-                width="100%"
-                themeProps={{
-                  px: 2,
-                  sx: {
-                    '&& input:disabled': {
-                      color: baseTheme.colors.text.primary,
-                      bg: 'white',
-                    },
-                  },
-                }}
-              ></TextInput>
-            </Box>
-          </Box>
-          <Box flexDirection="column" flexGrow="1">
-            <TextInput
-              name="clinic_sharecode"
-              label={t('Clinic share code')}
-              disabled={true}
-              value={get(clinics, [selectedClinic, 'shareCode'])}
-              width="100%"
-              themeProps={{
-                px: 2,
-                pb: 2,
-                sx: {
-                  '&& input:disabled': {
-                    color: baseTheme.colors.text.primary,
-                    bg: 'white',
-                  },
-                },
-              }}
-            ></TextInput>
-          </Box>
-        </Flex>
-      </Box>
-      <Box
-        mx="auto"
-        my={2}
-        bg="white"
-        width={[1, 0.75, 0.75, 0.5]}
-        sx={{
-          border: baseTheme.borders.default,
-          borderRadius: baseTheme.radii.default,
+          borderLeft: ['none', baseTheme.borders.default],
+          borderRight: ['none', baseTheme.borders.default],
+          borderRadius: ['none', baseTheme.radii.default],
+          maxWidth: '1280px',
         }}
       >
         <Flex
           sx={{ borderBottom: baseTheme.borders.default }}
           alignItems={'center'}
+          flexWrap={['wrap', 'nowrap']}
+          px={[3, 4, 5, 6]}
         >
-          <Title p={4} flexGrow={1}>
+          <Title flexGrow={1} pr={[0, 3]} py={[3, 4]} textAlign={['center', 'left']}>
             {t('Access Management')}
           </Title>
-          <Box>
+          <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
             <Button
-              mr={4}
               variant="primary"
               onClick={() => {
-                dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
+                dispatch(push('/share/member-invite'));
               }}
             >
-              {t('Invite new clinic team member')}
+              {t('Invite new member')}
             </Button>
-          </Box>
+            <Button
+              ml={3}
+              variant="secondary"
+              className="active"
+              onClick={() => {
+                dispatch(push('/share/clinic-invite'));
+              }}
+            >
+              {t('Invite new clinic')}
+            </Button>
+          </Flex>
         </Flex>
 
-        <Box mx={4}>
-          <TextInput
-            themeProps={{
-              minWidth: '250px',
-              py: 3,
-            }}
-            placeholder={t('search')}
-            icon={SearchIcon}
-            id="search-members"
-            name="search-members"
-            onChange={handleSearchChange}
-            variant="condensed"
-          />
-          <Table
-            id="clinicianTable"
-            label={t('Clinician Table')}
-            columns={columns}
-            data={clinicianArray}
-            orderBy="fullNameOrderable"
-            order="asc"
-            searchText={searchText}
-            rowsPerPage={8}
-            pagination={true}
-            style={{ fontSize: '14px' }}
-          />
-        </Box>
+        <Body2 px={[3, 4, 5, 6]} py={[4, 5]}>{sharedAccounts.length
+          ? t('You have invited the following members to view your data:')
+          : t('You have not invited any other members to view your data.')}
+        </Body2>
+
+        {!!sharedAccounts.length && (
+          <Box px={[0, 0, 5, 6] } pb={[0, 0, 7, 8]}>
+            <Table
+              id="clinicianTable"
+              label={t('Clinician Table')}
+              columns={columns}
+              data={sharedAccounts}
+              orderBy="name"
+              order="asc"
+              rowsPerPage={10}
+              pagination={sharedAccounts.length > 10}
+              fontSize={1}
+            />
+          </Box>
+        )}
       </Box>
       <Dialog
         id="deleteUser"
@@ -558,11 +520,11 @@ export const AccessManagement = (props) => {
         onClose={closeDeleteDialog}
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedUser?.fullName })}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedSharedAccount?.name })}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>
-            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedUser?.fullName })}
+            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedSharedAccount?.name })}
           </Body1>
         </DialogContent>
         <DialogActions>
@@ -572,7 +534,7 @@ export const AccessManagement = (props) => {
           <Button
             variant="danger"
             onClick={() => {
-              handleDelete(selectedUser.userId);
+              handleDelete(selectedSharedAccount.userId);
               closeDeleteDialog();
             }}
           >
