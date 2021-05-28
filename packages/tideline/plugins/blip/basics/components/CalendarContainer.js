@@ -129,7 +129,8 @@ class CalendarContainer extends React.Component {
     // hard-coding a solution that assumes Monday is the first day
     // of the week.
     var firstDay = moment.utc(this.props.days[0].date).day();
-    return _.range(firstDay, firstDay + 7).map((dow) => {
+    const daysRange = _.range(firstDay, firstDay + 7);
+    return daysRange.map((dow) => {
       var day = moment.utc().day(dow).format(dateTimeFormats.DDD_FORMAT);
       return (
         <div key={moment.utc().day(dow)} className='Calendar-day-label'>

@@ -76,24 +76,25 @@ class ADay extends React.Component {
   };
 
   render() {
+    const { type, date } = this.props;
     const t = i18next.t.bind(i18next);
-    var date = moment.utc(this.props.date);
+    const mDate = moment.utc(date);
 
     var isDisabled = (this.props.type === constants.SECTION_TYPE_UNDECLARED);
 
-    var containerClass = cx('Calendar-day--' + this.props.type, {
+    var containerClass = cx('Calendar-day--' + type, {
       'Calendar-day': !this.props.future,
       'Calendar-day-future': this.props.future,
       'Calendar-day-most-recent': this.props.mostRecent,
       'Calendar-day--disabled': isDisabled,
     });
 
-    var drawMonthLabel = (date.date() === 1 || this.props.isFirst);
+    var drawMonthLabel = (mDate.date() === 1 || this.props.isFirst);
     var monthLabel = null;
 
     if (drawMonthLabel) {
       monthLabel = (
-        <span className='Calendar-monthlabel'>{date.format(t(this.props.monthAbbrevMask))}</span>
+        <span className='Calendar-monthlabel'>{mDate.format(t(this.props.monthAbbrevMask))}</span>
       );
     }
 
@@ -102,15 +103,15 @@ class ADay extends React.Component {
       chart = this.props.chart({
         chartWidth: this.props.chartWidth,
         data: this.props.data,
-        date: this.props.date,
+        date,
         subtotalType: this.props.subtotalType,
       });
     }
 
     return (
-      <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
+      <div id={`calendar-day-${type}-${date}`} className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
-          {(monthLabel) ? monthLabel : date.format(t(this.props.dayAbbrevMask))}
+          {(monthLabel) ? monthLabel : mDate.format(t(this.props.dayAbbrevMask))}
         </p>
         {this.props.future ? null: chart}
       </div>

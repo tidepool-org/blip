@@ -34,18 +34,19 @@ class HoverDay extends React.Component {
   };
 
   render() {
-    var containerClass = cx("Calendar-day--" + this.props.type, {
+    const { type, date } = this.props;
+    var containerClass = cx("Calendar-day--" + type, {
       "Calendar-day--HOVER": true,
     });
 
     var display = <div className="Calendar-day-text">{this.getCount(this.props.subtotalType)}</div>;
 
     if (this.props.hoverDisplay) {
-      display = this.props.hoverDisplay({ data: this.props.data, date: this.props.date, trackMetric: this.props.trackMetric });
+      display = this.props.hoverDisplay({ data: this.props.data, date, trackMetric: this.props.trackMetric });
     }
 
     return (
-      <div className={containerClass} onClick={this.handleClickDay} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
+      <div id={`calendar-day-${type}-${date}-hover`} className={containerClass} onClick={this.handleClickDay} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className="Calendar-weekday">{moment.utc(this.props.date).format(t(this.props.dayAbbrevMask))}</p>
         {display}
       </div>
@@ -56,7 +57,7 @@ class HoverDay extends React.Component {
 HoverDay.propTypes = {
   data: PropTypes.object,
   date: PropTypes.string.isRequired,
-  dayAbbrevMask: PropTypes.string.isRequired,
+  dayAbbrevMask: PropTypes.string,
   hoverDisplay: PropTypes.func,
   onHover: PropTypes.func.isRequired,
   onSelectDay: PropTypes.func.isRequired,
@@ -68,7 +69,7 @@ HoverDay.propTypes = {
 };
 
 HoverDay.defaultProps = {
-  dayAbbrevMask: i18next.t("MMM D"),
+  dayAbbrevMask: 'MMM D',
 };
 
 export default HoverDay;
