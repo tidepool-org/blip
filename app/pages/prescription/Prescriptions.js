@@ -159,7 +159,7 @@ const Prescriptions = props => {
       iconPosition: 'left',
       id: 'delete',
       onClick: handleDeletePrescription(prescription),
-      text: 'Delete prescription',
+      text: t('Delete prescription'),
       variant: 'actionListItemDanger',
       disabled: !isEditable,
     });
@@ -342,7 +342,7 @@ const Prescriptions = props => {
         onClickRow={handleRowClick}
         orderBy="createdTime"
         order="desc"
-        pagination
+        pagination={data.length > 10}
       />
       <Dialog
         id={'prescription-delete'}
