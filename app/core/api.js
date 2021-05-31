@@ -410,18 +410,21 @@ api.user.getAssociatedAccounts = function(cb) {
           email: user.username,
           status: 'confirmed',
         });
-      } else if (!_.isEmpty(user.trustorPermissions)) {
-        // These are the accounts that have shared their data
-        // with a given set of permissions.
-        user.permissions = user.trustorPermissions
-        delete user.trustorPermissions
-        viewableUsers.push(user);
-      } else if (!_.isEmpty(user.trusteePermissions)) {
-        // These are accounts with which the user has shared access to their data, exluding the
-        // data donation accounts
-        user.permissions = user.trusteePermissions
-        delete user.trusteePermissions
-        careTeam.push(user);
+      } else {
+        if (!_.isEmpty(user.trustorPermissions)) {
+          // These are the accounts that have shared their data
+          // with a given set of permissions.
+          user.permissions = user.trustorPermissions
+          delete user.trustorPermissions
+          viewableUsers.push(user);
+        }
+        if (!_.isEmpty(user.trusteePermissions)) {
+          // These are accounts with which the user has shared access to their data, exluding the
+          // data donation accounts
+          user.permissions = user.trusteePermissions
+          delete user.trusteePermissions
+          careTeam.push(user);
+        }
       }
     });
 
