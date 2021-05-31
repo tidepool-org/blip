@@ -35,6 +35,7 @@ import { HttpHeaderKeys } from "../../models/api";
 import appConfig from "../config";
 import { errorFromHttpStatus } from "../utils";
 import { Session } from "../auth";
+import { getCurrentLang } from "../language";
 import { ShareUser, DirectShareAPI } from "./models";
 
 const log = bows("ShareApi");
@@ -97,6 +98,7 @@ async function addDirectShare(session: Session, email: string): Promise<void> {
     headers: {
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
+      [HttpHeaderKeys.language]: getCurrentLang(),
     },
     body: JSON.stringify({ email }),
   });

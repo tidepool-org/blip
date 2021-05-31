@@ -35,6 +35,7 @@ import { TeamType, ITeam, ITeamMember, TypeTeamMemberRole } from "../../models/t
 import { errorFromHttpStatus } from "../../lib/utils";
 import { Session } from "../auth";
 import appConfig from "../config";
+import { getCurrentLang } from "../language";
 
 const log = bows("TeamAPI");
 
@@ -89,6 +90,7 @@ async function invitePatient(session: Session, teamId: string, username: string)
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
+      [HttpHeaderKeys.language]: getCurrentLang(),
     },
     body: JSON.stringify({ teamId, email: username, role: UserRoles.patient }),
   });
@@ -111,6 +113,7 @@ async function inviteMember(session: Session, teamId: string, email: string, rol
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
+      [HttpHeaderKeys.language]: getCurrentLang(),
     },
     body: JSON.stringify({ teamId, email, role }),
   });
@@ -230,6 +233,7 @@ async function removeMember(session: Session, teamId: string, userId: string, em
       [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
       [HttpHeaderKeys.traceToken]: traceToken,
       [HttpHeaderKeys.sessionToken]: sessionToken,
+      [HttpHeaderKeys.language]: getCurrentLang(),
     },
     body: JSON.stringify({ teamId, email }),
   });
@@ -277,6 +281,7 @@ async function changeMemberRole(session: Session, teamId: string, userId: string
         [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
         [HttpHeaderKeys.traceToken]: traceToken,
         [HttpHeaderKeys.sessionToken]: sessionToken,
+        [HttpHeaderKeys.language]: getCurrentLang(),
       },
       body: JSON.stringify({
         teamId,
