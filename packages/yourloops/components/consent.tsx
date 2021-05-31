@@ -52,7 +52,6 @@ import { Profile } from "../models/shoreline";
 
 interface ConsentProps {
   messageKey: string;
-  destinationPath: string;
 }
 
 const style = makeStyles((theme: Theme) => {
@@ -104,19 +103,28 @@ const style = makeStyles((theme: Theme) => {
  */
 function Consent(props: ConsentProps): JSX.Element {
   const { t, i18n } = useTranslation("yourloops");
+  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const auth = useAuth();
-  const historyHook = useHistory();
   const classes = style();
   const [terms, setTerms] = React.useState(false);
   const [privacyPolicy, setPrivacyPolicy] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [helperText, setHelperText] = React.useState("");
 
+  const log = React.useMemo(() => bows("consent"), []);
+  const fromPath = React.useMemo(() => historyHook.location.state?.from?.pathname, [historyHook]);
+
   const linkTermsText = t("terms-and-conditions");
   const linkTerms = DiabeloopUrl.getTermsLink(i18n.language);
   const privacyPolicyText = t("footer-link-url-privacy-policy");
   const linkPrivacyPolicy = DiabeloopUrl.getPrivacyPolicyLink(i18n.language);
-  const log = bows("consent");
+
+  const user = auth.user;
+  if (user === null) {
+    throw new Error("User must be logged-in");
+  }
+
+  const destinationPath = fromPath ?? user.getHomePage();
 
   const resetFormState = (): void => {
     setError(false);
@@ -149,10 +157,6 @@ function Consent(props: ConsentProps): JSX.Element {
     resetFormState();
     if (valideForm()) {
       // api call
-      const user = auth.user;
-      if (user === null) {
-        throw new Error("User must be logged-in");
-      }
       const now = new Date().toISOString();
       const updatedProfile = _.cloneDeep(user.profile ?? {}) as Profile;
       updatedProfile.termsOfUse = { acceptanceTimestamp: now, isAccepted: terms };
@@ -160,7 +164,7 @@ function Consent(props: ConsentProps): JSX.Element {
       auth.updateProfile(updatedProfile).catch((reason: unknown) => {
         log.error(reason);
       }).finally(() => {
-        historyHook.push(props.destinationPath);
+        historyHook.push(destinationPath);
       });
     }
   };
@@ -224,7 +228,7 @@ function Consent(props: ConsentProps): JSX.Element {
                     label={
                       <Trans
                         t={t}
-                        i18nKey={`signup-consent-${auth?.user?.role}-privacy-policy`}
+                        i18nKey={`signup-consent-${user.role}-privacy-policy`}
                         components={{ linkPrivacyPolicy }}
                         values={{ privacyPolicy: privacyPolicyText }}
                       />
@@ -243,7 +247,7 @@ function Consent(props: ConsentProps): JSX.Element {
                     label={
                       <Trans
                         t={t}
-                        i18nKey={`signup-consent-${auth?.user?.role}-terms-condition`}
+                        i18nKey={`signup-consent-${user.role}-terms-condition`}
                         components={{ linkTerms }}
                         values={{ terms: linkTermsText }}
                       />

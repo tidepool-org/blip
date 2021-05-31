@@ -29,11 +29,12 @@
 import * as React from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 
-import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
+import { UserRoles } from "../../models/shoreline";
 import { useAuth } from "../../lib/auth";
 import PatientDataPage from "../../components/patient-data";
 import InvalidRoute from "../../components/invalid-route";
@@ -49,23 +50,29 @@ const log = bows("PatientPage");
  * Patient page
  */
 function PatientPage(): JSX.Element {
+  const { t } = useTranslation("yourloops");
   const historyHook = useHistory();
   const { user } = useAuth();
-  const pathname = historyHook.location.pathname;
 
   if (user === null) {
     throw new Error("User not logged-in");
   }
 
-  const prefixURL = React.useMemo(() => getURLPrefixFromUser(user), [user]);
+  const prefixURL = React.useMemo(() => user.getHomePage(), [user]);
   const defaultURL = `${prefixURL}/data`;
 
   React.useEffect(() => {
-    if (new RegExp(`^${prefixURL}/?$`).test(pathname)) {
+    const { pathname } = historyHook.location;
+    if (user.role !== UserRoles.patient) {
+      // Only allow patient for this route
+      document.title = t("brand-name");
+      log.info("Wrong page for current user");
+      historyHook.replace(prefixURL);
+    } else if (new RegExp(`^${prefixURL}/?$`).test(pathname)) {
       log.info(`Redirecting to ${defaultURL}`);
-      historyHook.push(defaultURL);
+      historyHook.replace(defaultURL);
     }
-  }, [pathname, historyHook, prefixURL, defaultURL]);
+  }, [historyHook, prefixURL, defaultURL, user, t]);
 
   return (
     <TeamContextProvider>

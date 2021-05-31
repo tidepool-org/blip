@@ -23,3 +23,15 @@ export interface SwitchRoleDialogProps {
 export interface SwitchRoleConsequencesDialogProps extends SwitchRoleDialogProps {
   title: string;
 }
+
+export interface SwitchRoleDialogsProps {
+  open: boolean;
+  onCancel: () => void;
+}
+
+export enum SwitchRoleToHcpSteps {
+  none,
+  consequences,
+  consent,
+  update, // Update in progress => backend API call
+}

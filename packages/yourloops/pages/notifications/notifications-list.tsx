@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -36,15 +36,10 @@ import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-import sendMetrics from "../../lib/metrics";
 import { INotification } from "../../lib/notifications/models";
 import { useAuth } from "../../lib/auth";
 import { useNotification } from "../../lib/notifications/hook";
-import { errorTextFromException } from "../../lib/utils";
-import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
-import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
-import SwitchRoleToHcpSteps from "../../components/switch-role/switch-role-to-hcp-steps";
-import { useAlert } from "../../components/utils/snackbar";
+import SwitchRoleDialogs from "../../components/switch-role";
 
 import SecondaryHeaderBar from "./secondary-bar";
 import { Notification } from "./notification";
@@ -78,12 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
 export const NotificationsPage = (props: NotificationsPageProps): JSX.Element => {
   const { t } = useTranslation("yourloops");
   const classes = useStyles();
-  const { user, switchRoleToHCP } = useAuth();
+  const { user } = useAuth();
   const notificationsHook = useNotification();
-  const alert = useAlert();
-  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(
-    SwitchRoleToHcpSteps.none
-  );
+  const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
 
   if (user === null) {
     throw new Error("Notification require a logged-in user");
@@ -102,61 +94,11 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
     );
   }
 
-  const handleSwitchRoleToConsequences = (): void => {
-    sendMetrics("user-switch-role", {
-      from: user.role,
-      to: "hcp",
-      step: SwitchRoleToHcpSteps.consequences,
-    });
-    setSwitchRoleStep(SwitchRoleToHcpSteps.consequences);
+  const handleSwitchRoleOpen = () => {
+    setSwitchRoleOpen(true);
   };
-
-  const handleSwitchRoleToConditions = (accept: boolean): void => {
-    sendMetrics("user-switch-role", {
-      from: user.role,
-      to: "hcp",
-      step: SwitchRoleToHcpSteps.consent,
-      cancel: !accept,
-    });
-    if (accept) {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.consent);
-    } else {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
-    }
-  };
-
-  const handleSwitchRoleToUpdate = (accept: boolean): void => {
-    sendMetrics("user-switch-role", {
-      from: user.role,
-      to: "hcp",
-      step: SwitchRoleToHcpSteps.update,
-      cancel: !accept,
-    });
-    if (accept) {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.update);
-
-      switchRoleToHCP()
-        .then(() => {
-          sendMetrics("user-switch-role", {
-            from: user?.role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: true,
-          });
-        })
-        .catch((reason: unknown) => {
-          alert.error(t("modal-switch-hcp-failure"));
-          sendMetrics("user-switch-role", {
-            from: user?.role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: false,
-            error: errorTextFromException(reason),
-          });
-        });
-    } else {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
-    }
+  const handleSwitchRoleCancel = () => {
+    setSwitchRoleOpen(false);
   };
 
   return (
@@ -174,7 +116,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
                   notification={notification}
                   userRole={user.role}
                   // onRemove={handleRemove}
-                  onHelp={handleSwitchRoleToConsequences}
+                  onHelp={handleSwitchRoleOpen}
                 />
               </ListItem>
             ))
@@ -188,15 +130,7 @@ export const NotificationsPage = (props: NotificationsPageProps): JSX.Element =>
             </Typography>
           )}
         </List>
-        <SwitchRoleConsequencesDialog
-          title="modal-switch-hcp-team-title-from-notification"
-          open={switchRoleStep === SwitchRoleToHcpSteps.consequences}
-          onResult={handleSwitchRoleToConditions}
-        />
-        <SwitchRoleConsentDialog
-          open={switchRoleStep === SwitchRoleToHcpSteps.consent}
-          onResult={handleSwitchRoleToUpdate}
-        />
+        <SwitchRoleDialogs open={switchRoleOpen} onCancel={handleSwitchRoleCancel} />
       </Container>
     </React.Fragment>
   );

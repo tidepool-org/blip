@@ -49,7 +49,6 @@ import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
 import { User, useAuth } from "../../lib/auth";
 import { getUserFirstName, getUserLastName } from "../../lib/utils";
-import { getURLPrefixFromUser } from "../../lib/diabeloop-url";
 
 type CloseMenuCallback = () => void;
 export interface HeaderActions {
@@ -133,7 +132,7 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     if (props.headerLogoURL) {
       history.push(props.headerLogoURL);
     } else {
-      history.push(getURLPrefixFromUser(auth.user));
+      history.push(auth.user?.getHomePage() ?? "/");
     }
   };
 
@@ -143,12 +142,12 @@ function HeaderBar(props: HeaderProps): JSX.Element {
 
   const handleOpenProfilePage = () => {
     setAnchorEl(null);
-    history.push(getURLPrefixFromUser(auth.user, "/preferences"));
+    history.push(auth.user?.getHomePage("/preferences") ?? "/");
   };
 
   const handleOpenNotifications = () => {
     setAnchorEl(null);
-    history.push(getURLPrefixFromUser(auth.user, "/notifications"));
+    history.push(auth.user?.getHomePage("/notifications") ?? "/");
   };
 
   const handleOpenSupport = () => {

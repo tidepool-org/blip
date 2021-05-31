@@ -26,16 +26,14 @@
  */
 
 import * as React from "react";
+
 import Consent from "../../components/consent";
-import { useAuth } from "../../lib/auth";
 
 /**
  * Consent Page
  */
 function ConsentPage(): JSX.Element {
-  const { user } = useAuth();
-
-  return (<Consent messageKey="constent-renew-message" destinationPath={`${user?.getHomePage()}`} />);
+  return <Consent messageKey="constent-renew-message" />;
 }
 
 export default ConsentPage;

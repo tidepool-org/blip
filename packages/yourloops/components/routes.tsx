@@ -26,12 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React from "react";
+import * as React from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 
+import { UserRoles } from "../models/shoreline";
 import { useAuth } from "../lib/auth";
 import { externalTheme, mainTheme } from "./theme";
 import FooterLinks from "./footer-links";
@@ -39,7 +40,10 @@ import { SnackbarContextProvider, DefaultSnackbarContext } from "./utils/snackba
 import { NotificationContextProvider } from "../lib/notifications/hook";
 
 export const PublicRoute = (props: RouteProps): JSX.Element => {
-
+  const { isLoggedIn, user } = useAuth();
+  if (isLoggedIn()) {
+    return <Redirect to={{ pathname: user?.getHomePage() }} />;
+  }
   return (
     <ThemeProvider theme={externalTheme}>
       <CssBaseline />
@@ -52,20 +56,41 @@ export const PublicRoute = (props: RouteProps): JSX.Element => {
 };
 
 export const PrivateRoute = (props: RouteProps): JSX.Element => {
-  const { isLoggedIn } = useAuth();
-  // FIXME
-  const theme = props.path === "/renew-consent" || props.path === "/new-consent" ? externalTheme : mainTheme;
-  return isLoggedIn() ? (
+  const { isLoggedIn, user } = useAuth();
+
+  const renewConsentPath = props.path === "/renew-consent" || props.path === "/new-consent";
+  const theme = renewConsentPath ? externalTheme : mainTheme;
+
+  if (!isLoggedIn()) {
+    return <Redirect to={{ pathname: "/", state: { from: props.location } }} />;
+  }
+
+  // Put the redirect under the contexts here because of the mount/unmount component logic
+  // If not doing so, we have an update on an unmont component.
+  let component: JSX.Element | null = null;
+  if (user !== null && !renewConsentPath) {
+    if (user.role === UserRoles.patient && user.shouldAcceptConsent()) {
+      component = <Redirect to={{ pathname: "/new-consent", state: { from: props.location } }} />;
+    }
+
+    if (user.shouldRenewConsent()) {
+      component = <Redirect to={{ pathname: "/renew-consent", state: { from: props.location } }} />;
+    }
+  }
+
+  if (component === null) {
+    component = <Route {...props} />;
+  }
+
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SnackbarContextProvider context={DefaultSnackbarContext}>
         <NotificationContextProvider>
-          <Route {...props} />
+          {component}
         </NotificationContextProvider>
       </SnackbarContextProvider>
       <FooterLinks atBottom />
     </ThemeProvider>
-  ) : (
-    <Redirect to={{ pathname: "/", state: { from: props.location } }} />
   );
 };

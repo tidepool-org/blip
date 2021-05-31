@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React, { useEffect } from "react";
+import * as React from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import bows from "bows";
@@ -95,8 +95,6 @@ const CaregiverPage = (): JSX.Element => {
   const [loading, setLoading] = React.useState(false);
   const [sharedUsersState, sharedUsersDispatch] = React.useReducer(sharedUserReducer, sharedUserInitialState);
 
-  const pathname = historyHook.location.pathname;
-  const userRole = authHook.user?.role;
   const session = authHook.session();
   const { errorMessage, sharedUsers } = sharedUsersState;
 
@@ -104,17 +102,23 @@ const CaregiverPage = (): JSX.Element => {
     sharedUsersDispatch({ type: "reset" });
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
+    if (session === null) {
+      throw new Error("User must be looged-in");
+    }
+    const userRole = session.user.role;
+    const { pathname } = historyHook.location;
     log.info("useEffect", { pathname, userRole });
     if (userRole !== UserRoles.caregiver) {
       // Only allow caregivers for this route
       document.title = t("brand-name");
-      setTimeout(() => historyHook.push("/"), 1);
+      log.info("Wrong page for current user");
+      historyHook.replace(session.user.getHomePage());
     } else if (/^\/caregiver\/?$/.test(pathname)) {
       log.info("Redirecting to the patients list", { from: pathname, to: defaultURL });
       document.title = t("brand-name");
-      setTimeout(() => historyHook.push(defaultURL), 1);
-    } else if (sharedUsers === null && session !== null && errorMessage === null && loading === false) {
+      historyHook.replace(defaultURL);
+    } else if (sharedUsers === null && errorMessage === null && loading === false) {
       document.title = t("brand-name");
       setLoading(true);
       getDirectShares(session)
@@ -129,7 +133,7 @@ const CaregiverPage = (): JSX.Element => {
           setLoading(false);
         });
     }
-  }, [pathname, historyHook, userRole, session, t, errorMessage, sharedUsers, loading]);
+  }, [historyHook, session, t, errorMessage, sharedUsers, loading]);
 
   let content: JSX.Element;
   if (errorMessage !== null) {

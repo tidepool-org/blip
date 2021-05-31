@@ -1,20 +1,32 @@
 /**
- * Copyright (c) 2020, Diabeloop
+ * Copyright (c) 2021, Diabeloop
  * Profile page
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
+ * All rights reserved.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import * as React from "react";
 import _ from "lodash";
 import bows from "bows";
 import moment from "moment-timezone";
@@ -36,7 +48,7 @@ import { Units } from "../../models/generic";
 import { LanguageCodes } from "../../models/locales";
 import { Preferences, Profile, UserRoles, Settings } from "../../models/shoreline";
 import { getLangName, getCurrentLang, availableLanguageCodes } from "../../lib/language";
-import { REGEX_BIRTHDATE, errorTextFromException, getUserFirstName, getUserLastName, getUserEmail } from "../../lib/utils";
+import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, getUserEmail } from "../../lib/utils";
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import sendMetrics from "../../lib/metrics";
@@ -44,8 +56,7 @@ import { Password } from "../../components/utils/password";
 import { useAlert } from "../../components/utils/snackbar";
 
 import SecondaryHeaderBar from "./secondary-bar";
-import SwitchRoleConsequencesDialog from "../../components/switch-role/switch-role-consequences-dialog";
-import SwitchRoleConsentDialog from "../../components/switch-role/switch-role-consent-dialog";
+import SwitchRoleDialogs from "../../components/switch-role";
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
@@ -64,13 +75,6 @@ interface Errors {
   password: boolean;
   passwordConfirmation: boolean;
   birthDate: boolean;
-}
-
-enum SwitchRoleToHcpSteps {
-  none,
-  consequences,
-  consent,
-  update, // Update in progress => backend API call
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -123,7 +127,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const classes = useStyles();
   const history = useHistory();
   const alert = useAlert();
-  const { user, setUser, updatePreferences, updateProfile, updateSettings, updatePassword, switchRoleToHCP } = useAuth();
+  const { user, setUser, updatePreferences, updateProfile, updateSettings, updatePassword } = useAuth();
 
   if (user === null) {
     throw new Error("User must be looged-in");
@@ -131,26 +135,26 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
 
   const role = user.role;
 
-  const [firstName, setFirstName] = useState<string>(getUserFirstName(user));
-  const [lastName, setLastName] = useState<string>(getUserLastName(user));
-  const [currentPassword, setCurrentPassword] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
-  const [unit, setUnit] = useState<Units>(user.settings?.units?.bg ?? Units.gram);
-  const [birthDate, setBirthDate] = useState<string>(user.profile?.patient?.birthday ?? "");
-  const [switchRoleStep, setSwitchRoleStep] = React.useState<SwitchRoleToHcpSteps>(SwitchRoleToHcpSteps.none);
-  const [lang, setLang] = useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
+  const [firstName, setFirstName] = React.useState<string>(getUserFirstName(user));
+  const [lastName, setLastName] = React.useState<string>(getUserLastName(user));
+  const [currentPassword, setCurrentPassword] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState<string>("");
+  const [unit, setUnit] = React.useState<Units>(user.settings?.units?.bg ?? Units.gram);
+  const [birthDate, setBirthDate] = React.useState<string>(user.profile?.patient?.birthday ?? "");
+  const [switchRoleOpen, setSwitchRoleOpen] = React.useState<boolean>(false);
+  const [lang, setLang] = React.useState<LanguageCodes>(user.preferences?.displayLanguageCode ?? getCurrentLang());
 
-  const browserTimezone = useMemo(() => new Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  const browserTimezone = React.useMemo(() => new Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // To be sure we have the locale:
     if (!availableLanguageCodes.includes(lang)) {
       setLang(getCurrentLang());
     }
   }, [lang]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // ISO date format is required from the user: It's not a very user friendly format
     // in all countries
     // We should change it
@@ -202,48 +206,14 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
   const createHandleTextChange: CreateHandleChange<string, TextChangeEvent> = (setState) => (event) => setState(event.target.value);
   const createHandleSelectChange = <T extends Units | LanguageCodes>(setState: SetState<T>): HandleChange<SelectChangeEvent> => (event) => setState(event.target.value as T);
 
-  const handleSwitchRoleToConsequences = () => {
-    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consequences });
-    setSwitchRoleStep(SwitchRoleToHcpSteps.consequences);
+  const handleSwitchRoleOpen = () => {
+    setSwitchRoleOpen(true);
   };
-  const handleSwitchRoleToConditions = (accept: boolean): void => {
-    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.consent, cancel: !accept });
-    if (accept) {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.consent);
-    } else {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
-    }
-  };
-  const handleSwitchRoleToUpdate = (accept: boolean): void => {
-    sendMetrics("user-switch-role", { from: role, to: "hcp", step: SwitchRoleToHcpSteps.update, cancel: !accept });
-    if (accept) {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.update);
-
-      switchRoleToHCP()
-        .then(() => {
-          sendMetrics("user-switch-role", {
-            from: role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: true,
-          });
-        })
-        .catch((reason: unknown) => {
-          alert.error(t("modal-switch-hcp-failure"));
-          sendMetrics("user-switch-role", {
-            from: role,
-            to: "hcp",
-            step: SwitchRoleToHcpSteps.update,
-            success: false,
-            error: errorTextFromException(reason),
-          });
-        });
-    } else {
-      setSwitchRoleStep(SwitchRoleToHcpSteps.none);
-    }
+  const handleSwitchRoleCancel = () => {
+    setSwitchRoleOpen(false);
   };
 
-  const errors: Errors = useMemo(
+  const errors: Errors = React.useMemo(
     () => ({
       firstName: _.isEmpty(firstName),
       lastName: _.isEmpty(lastName),
@@ -255,7 +225,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     [firstName, lastName, currentPassword, password, passwordConfirmation, birthDate, role]
   );
 
-  const isAnyError = useMemo(() => _.some(errors), [errors]);
+  const isAnyError = React.useMemo(() => _.some(errors), [errors]);
   const canSave = (preferencesChanged || profileChanged || settingsChanged || passwordChanged) && !isAnyError;
 
   const onSave = async (): Promise<void> => {
@@ -344,7 +314,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
     }
 
     roleDependantPart = (
-      <Fragment>
+      <React.Fragment>
         <TextField
           id="profile-textfield-birthdate"
           label={t("hcp-patient-profile-birthdate")}
@@ -354,11 +324,11 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           helperText={errors.birthDate && t("required-field")}
         />
         {hba1cTextField}
-      </Fragment>
+      </React.Fragment>
     );
   } else {
     roleDependantPart = (
-      <Fragment>
+      <React.Fragment>
         <TextField
           id="profile-textfield-mail"
           label={t("Email")}
@@ -390,12 +360,12 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
           helperText={t("not-matching-password")}
           setState={setPasswordConfirmation}
         />
-      </Fragment>
+      </React.Fragment>
     );
   }
 
   return (
-    <Fragment>
+    <React.Fragment>
       <SecondaryHeaderBar defaultURL={props.defaultURL} />
       <Container className={classes.container} maxWidth="sm">
         <div style={{ display: "flex", flexDirection: "column", margin: "16px" }}>
@@ -465,19 +435,14 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
             </Button>
           </div>
           {UserRoles.caregiver === role ? (
-            <Link id="profile-link-switch-role" component="button" onClick={handleSwitchRoleToConsequences}>
+            <Link id="profile-link-switch-role" component="button" onClick={handleSwitchRoleOpen}>
               {t("modal-switch-hcp-title")}
             </Link>
           ) : null}
         </div>
       </Container>
-      <SwitchRoleConsequencesDialog
-        title="modal-switch-hcp-title"
-        open={switchRoleStep === SwitchRoleToHcpSteps.consequences}
-        onResult={handleSwitchRoleToConditions}
-      />
-      <SwitchRoleConsentDialog open={switchRoleStep === SwitchRoleToHcpSteps.consent} onResult={handleSwitchRoleToUpdate} />
-    </Fragment>
+      <SwitchRoleDialogs open={switchRoleOpen} onCancel={handleSwitchRoleCancel} />
+    </React.Fragment>
   );
 };
 

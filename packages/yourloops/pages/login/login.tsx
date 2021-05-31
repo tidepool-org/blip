@@ -28,8 +28,7 @@
 
 import _ from "lodash";
 import * as React from "react";
-import { StaticContext } from "react-router";
-import { Link as RouterLink, RouteComponentProps } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
 
@@ -54,7 +53,6 @@ import { User, useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
-import { UserRoles } from "../../models/shoreline";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -94,11 +92,16 @@ const loginStyle = makeStyles((theme: Theme) => {
  * Login page
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-function Login(props: RouteComponentProps<{}, StaticContext, {from:{pathname: string }}>): JSX.Element {
+function Login(): JSX.Element {
   const { t } = useTranslation("yourloops");
+  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const auth = useAuth();
   const alert = useAlert();
   const classes = loginStyle();
+
+  const log = React.useMemo(() => bows("Login"), []);
+  const fromPath = React.useMemo(() => historyHook.location.state?.from?.pathname, [historyHook]);
+  const signupEmail = React.useMemo(() => new URLSearchParams(location.search).get("signupEmail"), []);
 
   const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -108,7 +111,6 @@ function Login(props: RouteComponentProps<{}, StaticContext, {from:{pathname: st
 
   const emptyUsername = _.isEmpty(username);
   const emptyPassword = _.isEmpty(password);
-  const log = bows("Login");
 
   const onUsernameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     setUserName(event.target.value);
@@ -122,9 +124,7 @@ function Login(props: RouteComponentProps<{}, StaticContext, {from:{pathname: st
     setShowPassword(!showPassword);
   };
 
-  const signupEmail = new URLSearchParams(location.search).get("signupEmail");
   React.useEffect(() => {
-
     if (signupEmail !== null && username !== signupEmail) {
       setUserName(signupEmail);
     }
@@ -136,31 +136,10 @@ function Login(props: RouteComponentProps<{}, StaticContext, {from:{pathname: st
   }, [t]);
 
   const pushRoute = (user: User): void => {
-    log.debug("user loggued,", user);
-
-    if (user.role !== undefined) {
-      if (user.role === UserRoles.patient &&
-        user.shouldAcceptConsent()) {
-        //FIXME
-        log.debug("push to new");
-        props.history.push("/new-consent");
-        log.debug("login see history value:  ", props.history);
-        return;
-      }
-
-      if (user.shouldRenewConsent()) {
-        log.debug("push to renew");
-        props.history.push("/renew-consent");
-        log.debug("login see history value:  ", props.history);
-        return;
-      }
-
-      const path = props.location?.state?.from?.pathname ?? user.getHomePage();
-      log.debug("default path ", path);
-      props.history.push(path);
-      return;
-    }
-
+    log.debug("Logged user:", user);
+    const path = fromPath ?? user.getHomePage();
+    log.debug("Redirect to:", { path, fromPath });
+    historyHook.push(path);
   };
 
   const onClickLoginButton = async (): Promise<void> => {

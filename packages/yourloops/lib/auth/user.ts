@@ -118,18 +118,16 @@ class User implements IUser {
 
   getHomePage(suffix?: string): string {
     let path = "/";
-    if (this.role) {
-      switch (this.role) {
-        case UserRoles.caregiver:
-          path = urlPrefixFromUserRole.caregiver;
-          break;
-        case UserRoles.hcp:
-          path = urlPrefixFromUserRole.hcp;
-          break;
-        case UserRoles.patient:
-          path = `${urlPrefixFromUserRole.patient}/${this.userid}`;
-          break;
-      }
+    switch (this.role) {
+    case UserRoles.caregiver:
+      path = urlPrefixFromUserRole.caregiver;
+      break;
+    case UserRoles.hcp:
+      path = urlPrefixFromUserRole.hcp;
+      break;
+    case UserRoles.patient:
+      path = `${urlPrefixFromUserRole.patient}/${this.userid}`;
+      break;
     }
     if (suffix) {
       path = `/${path}/${suffix}`;

@@ -78,8 +78,6 @@ function TeamsPage(): JSX.Element | null {
   const [switchAdminRole, setSwitchAdminRole] = React.useState<SwitchRoleDialogContentProps | null>(null);
   const [userToBeRemoved, setUserToBeRemoved] = React.useState<RemoveMemberDialogContentProps | null>(null);
 
-  log.debug("TeamsPage()", { loading, errorMessage });
-
   const handleRefresh = async (force = false) => {
     log.debug("handleRefresh:", { force });
     setLoading(true);

@@ -29,7 +29,10 @@
 import * as React from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 import bows from "bows";
+import { useTranslation } from "react-i18next";
 
+import { UserRoles } from "../../models/shoreline";
+import { useAuth } from "../../lib/auth";
 import { TeamContextProvider } from "../../lib/team";
 import { DataContextProvider, DefaultDataContext } from "../../lib/data";
 import PatientDataPage from "../../components/patient-data";
@@ -47,17 +50,28 @@ const log = bows("HcpPage");
  * Health care professional page
  */
 function HcpPage(): JSX.Element {
+  const { t } = useTranslation("yourloops");
   const historyHook = useHistory();
-  const pathname = historyHook.location.pathname;
+  const authHook = useAuth();
+
+  const user = authHook.user;
+
+  if (user === null) {
+    throw new Error("User must be looged-in");
+  }
 
   React.useEffect(() => {
-    if (/^\/professional\/?$/.test(pathname)) {
+    const { pathname } = historyHook.location;
+    if (user.role !== UserRoles.hcp) {
+      // Only allow hcp for this route
+      document.title = t("brand-name");
+      log.info("Wrong page for current user");
+      historyHook.replace(user.getHomePage());
+    } else if (/^\/professional\/?$/.test(pathname)) {
       log.info("Redirecting to the patients list");
-      historyHook.push(defaultURL);
+      historyHook.replace(defaultURL);
     }
-  }, [pathname, historyHook]);
-
-  log.info("render", pathname);
+  }, [historyHook, user, t]);
 
   return (
     <TeamContextProvider>
