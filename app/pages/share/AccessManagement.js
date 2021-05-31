@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get'
-import keys from 'lodash/keys';
 import values from 'lodash/values';
 import map from 'lodash/map';
+import reject from 'lodash/reject';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import find from 'lodash/find';
@@ -49,6 +49,7 @@ export const AccessManagement = (props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
+  const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
 
   useEffect(() => {
@@ -57,18 +58,24 @@ export const AccessManagement = (props) => {
     }
   }, []);
 
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsers = useSelector((state) => state.blip.allUsersMap);
-  const working = useSelector((state) => state.blip.working);
   const clinics = useSelector((state) => state.blip.clinics);
+  const dataDonationAccounts = useSelector((state) => state.blip.dataDonationAccounts);
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
+  const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
-  const previousWorking = usePrevious(working);
-  const fetchingPatient = working.fetchingPatient;
-  const fetchingClinicsForPatient = working.fetchingClinicsForPatient;
-  const fetchingPendingSentInvites = working.fetchingPendingSentInvites;
-  const fetchingAssociatedAccounts = working.fetchingAssociatedAccounts;
-  const settingMemberPermissions = working.settingMemberPermissions;
+
+  const {
+    fetchingPatient,
+    fetchingClinicsForPatient,
+    fetchingPendingSentInvites,
+    fetchingAssociatedAccounts,
+    settingMemberPermissions,
+    sendingInvite,
+    cancellingSentInvite,
+    removingMemberFromTargetCareTeam,
+  } = useSelector((state) => state.blip.working);
 
   useEffect(() => {
     const { inProgress, completed, notification } = settingMemberPermissions;
@@ -99,80 +106,87 @@ export const AccessManagement = (props) => {
   }, [settingMemberPermissions]);
 
   useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.sendingInvite; // TODO: will this work for resending or do we need add'l backend work
-    const prevInProgress = get(
-      previousWorking,
-      'resendingClinicianInvite.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
+    // TODO: this will not work for resend -- could be used if we run the cancel action first,
+    // then trigger the send, but will be brittle in the case that either action fails.
+    const { inProgress, completed, notification } = sendingInvite;
+
+    if (!inProgress) {
+      if (completed) {
+        popupState.close();
+
         setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Invitation resent.'),
+          message: t('Share invitation resent to {{email}} has been re-sent.', {
+            email: selectedSharedAccount.email,
+          }),
           variant: 'success',
+        });
+
+        setSelectedSharedAccount(null);
+        setPopupState(null);
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
         });
       }
     }
-  }, [working.sendingInvite]);
+  }, [sendingInvite]);
 
   useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.sendingInvite; // TODO: will this work for resending or do we need add'l backend work
-    const prevInProgress = get(
-      previousWorking,
-      'resendingClinicianInvite.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
+    const { inProgress, completed, notification } = cancellingSentInvite;
+
+    if (!inProgress) {
+      if (completed) {
+        popupState.close();
+
         setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Invitation resent.'),
+          message: t('Share invitation to {{email}} has been revoked.', {
+            email: selectedSharedAccount.email,
+          }),
           variant: 'success',
+        });
+
+        setSelectedSharedAccount(null);
+        setPopupState(null);
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
         });
       }
     }
-  }, [working.sendingInvite]);
+  }, [cancellingSentInvite]);
 
   useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.cancellingSentInvite;
-    const prevInProgress = get(
-      previousWorking,
-      'cancellingSentInvite.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
+    const { inProgress, completed, notification } = removingMemberFromTargetCareTeam;
+
+    if (!inProgress) {
+      if (completed) {
+        popupState.close();
+
         setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Invitation revoked.'),
+          message: t('Share access for {{name}} has been revoked.', {
+            name: selectedSharedAccount.name,
+          }),
           variant: 'success',
+        });
+
+        setSelectedSharedAccount(null);
+        setPopupState(null);
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
         });
       }
     }
-  }, [working.cancellingSentInvite]);
-
+  }, [removingMemberFromTargetCareTeam]);
 
   // Fetchers
   useEffect(() => {
@@ -213,17 +227,28 @@ export const AccessManagement = (props) => {
     console.log('clinics', clinics);
     console.log('membersOfTargetCareTeam', membersOfTargetCareTeam);
     console.log('permissionsOfMembersInTargetCareTeam', permissionsOfMembersInTargetCareTeam);
+    console.log('pendingSentInvites', pendingSentInvites);
     console.log('allUsers', allUsers);
 
     const sharedAccounts = [
       ...(values(clinics) || []),
       ...(map(membersOfTargetCareTeam || [], memberId => ({
-        name: get(allUsers, [memberId, 'profile', 'fullName']),
-        id: get(allUsers, [memberId, 'userid']),
-        uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
         email: get(allUsers, [memberId, 'emails', '0']),
+        id: get(allUsers, [memberId, 'userid']),
+        name: personUtils.fullName(allUsers[memberId]),
+        nameOrderable: (personUtils.fullName(allUsers[memberId]) || '').toLowerCase(),
+        permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
         role: 'member',
-        isClinician: get(allUsers, [memberId, 'roles', '0']) === 'clinic',
+        type: 'account',
+        uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
+      }))),
+      ...(map(reject(pendingSentInvites, personUtils.isDataDonationAccount), invite => ({
+        email: invite.email,
+        nameOrderable: invite.email,
+        permissions: invite.context,
+        role: 'member',
+        status: t('Invite Sent'),
+        type: invite.type,
       }))),
     ];
 
@@ -232,14 +257,32 @@ export const AccessManagement = (props) => {
   }, [
     clinics,
     membersOfTargetCareTeam,
+    pendingSentInvites,
+    dataDonationAccounts,
     permissionsOfMembersInTargetCareTeam,
   ]);
 
-  // TODO: incorporate these
-  // removeMember: actions.async.removeMemberFromTargetCareTeam,
-  // inviteMember: actions.async.sendInvite,
-  // cancelInvite: actions.async.cancelSentInvite,
+  useEffect(() => {
+    if (selectedSharedAccount) {
+      const title = selectedSharedAccount?.type === 'account'
+      ? t('Remove {{name}}', { name: selectedSharedAccount?.name })
+      : t('Revoke invitation?');
 
+      const submitText = selectedSharedAccount?.type === 'account'
+        ? t('Remove User')
+        : t('Revoke Invitation');
+
+      const body = selectedSharedAccount?.type === 'account'
+        ? t('{{name}} will lose all access to your data. Are you sure you want to remove this user?', { name: selectedSharedAccount?.name })
+        : t('Are you sure you want to revoke this share invitation to {{email}}?', { email: selectedSharedAccount?.email });
+
+      setDeleteDialogContent({
+        title,
+        body,
+        submitText,
+      })
+    }
+  }, [selectedSharedAccount]);
 
   function closeDeleteDialog() {
     setShowDeleteDialog(false);
@@ -255,42 +298,43 @@ export const AccessManagement = (props) => {
       upload: member.uploadPermission ? undefined : {},
     };
 
-    setSelectedSharedAccount(member);
-
     dispatch(
       actions.async.setMemberPermissions(api, loggedInUserId, member.id, permissions)
     );
   }
 
-  function handleDelete(selectedSharedAccount) {
-    trackMetric('Patient - Remove shared account', {
-      type: 'member' // TODO: or 'clinic'
-    });
-    // TODO: does remove clinic exist on backend
-    dispatch(
-      actions.async.removeMemberFromTargetCareTeam(
-        api,
-        loggedInUserId,
-        selectedSharedAccount.id
-      )
-    );
+  function handleDelete(member) {
+    // TODO: does remove clinic exist on backend?
+    if (member.type === 'account') {
+      trackMetric('Patient - Remove shared account', {
+        type: 'member' // TODO: or 'clinic'
+      });
+
+      dispatch(
+        actions.async.removeMemberFromTargetCareTeam(
+          api,
+          loggedInUserId,
+          member.id
+        )
+      );
+    } else if (member.type === 'careteam_invitation') {
+      trackMetric('Patient - Cancel Invite', {
+        type: 'member' // TODO: or 'clinic'
+      });
+
+      dispatch(
+        actions.async.cancelSentInvite(api, member.email)
+      );
+    }
   }
 
-  function handleResendInvite(email, permissions) {
+  function handleResendInvite(member) {
     trackMetric('Patient - Resend Invite', {
       type: 'member' // TODO: or 'clinic'
     });
-    dispatch(
-      actions.async.sendInvite(api, email, permissions)
-    );
-  }
 
-  function handleDeleteInvite(api, email) {
-    trackMetric('Patient - Resend Invite', {
-      type: 'member' // TODO: or 'clinic'
-    });
     dispatch(
-      actions.async.cancelSentInvite(api, email)
+      actions.async.sendInvite(api, member.email, member.permissions)
     );
   }
 
@@ -308,10 +352,9 @@ export const AccessManagement = (props) => {
     )
   );
 
-  const renderStatus = ({ inviteId }) => (
-    // TODO: get declined
+  const renderStatus = ({ status }) => (
     <Box>
-      {inviteId ? <Pill text={t('invite sent')} colorPalette="greens" /> : ''}
+      {status ? <Pill text={status} colorPalette="greens" /> : ''}
     </Box>
   );
 
@@ -333,10 +376,10 @@ export const AccessManagement = (props) => {
     const items = [];
     console.log('member', member);
 
-    if (member.role === 'member') {
-      const uploadPermissionLabel = member.uploadPermission
-        ? t('Remove upload permission')
-        : t('Allow upload permission');
+    if (member.type === 'account') {
+      const uploadPermissionLabel = !!get(member.permissions, 'upload')
+      ? t('Remove upload permission')
+      : t('Allow upload permission');
 
       items.push({
         icon: settingMemberPermissions.inProgress ? CircularProgress : PublishRoundedIcon,
@@ -368,16 +411,20 @@ export const AccessManagement = (props) => {
       });
     }
 
-    if (member.inviteId) {
-      items = [
+    if (member.type === 'careteam_invitation') {
+      items.push(...[
         {
           icon: InputIcon,
           iconLabel: t('Resend Invitation'),
           iconPosition: 'left',
           id: `resendInvite-${member.inviteId}`,
           variant: 'actionListItem',
-          onClick: () => handleResendInvite(member.email, member.permissions),
-          text: t('Resend Invitation'),
+          onClick: _popupState => {
+            setPopupState(_popupState);
+            setSelectedSharedAccount(member);
+            handleResendInvite(member);
+          },
+          text: t('Resend invitation'),
         },
         {
           icon: DeleteForeverIcon,
@@ -385,10 +432,13 @@ export const AccessManagement = (props) => {
           iconPosition: 'left',
           id: `deleteInvite-${member.inviteId}`,
           variant: 'actionListItemDanger',
-          onClick: () => handleDeleteInvite(member.email),
-          text: t('Delete item'),
+          onClick: () => {
+            setSelectedSharedAccount(member);
+            setShowDeleteDialog(true);
+          },
+          text: t('Revoke invitation'),
         },
-      ];
+      ]);
     }
 
     return (
@@ -408,10 +458,10 @@ export const AccessManagement = (props) => {
   const columns = [
     {
       title: t('Name'),
-      field: 'name',
+      field: 'nameOrderable',
       align: 'left',
       sortable: true,
-      sortBy: 'name',
+      sortBy: 'nameOrderable',
       render: renderMember,
     },
     {
@@ -504,7 +554,7 @@ export const AccessManagement = (props) => {
               label={t('Clinician Table')}
               columns={columns}
               data={sharedAccounts}
-              orderBy="name"
+              orderBy="nameOrderable"
               order="asc"
               rowsPerPage={10}
               pagination={sharedAccounts.length > 10}
@@ -518,13 +568,14 @@ export const AccessManagement = (props) => {
         aria-labelledBy="dialog-title"
         open={showDeleteDialog}
         onClose={closeDeleteDialog}
+        zIndex="1301"
       >
         <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: selectedSharedAccount?.name })}</MediumTitle>
+          <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
         </DialogTitle>
         <DialogContent>
           <Body1>
-            {t('{{name}} will lose all access to this clinic workspace and patient list. Are you sure you want to remove this user?', { name: selectedSharedAccount?.name })}
+            {deleteDialogContent?.body}
           </Body1>
         </DialogContent>
         <DialogActions>
@@ -534,11 +585,11 @@ export const AccessManagement = (props) => {
           <Button
             variant="danger"
             onClick={() => {
-              handleDelete(selectedSharedAccount.userId);
+              handleDelete(selectedSharedAccount);
               closeDeleteDialog();
             }}
           >
-            {t('Remove User')}
+            {deleteDialogContent?.submitText}
           </Button>
         </DialogActions>
       </Dialog>

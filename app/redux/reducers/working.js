@@ -145,6 +145,8 @@ export default (state = initialWorkingState, action) => {
           types.ACCEPT_PATIENT_INVITATION_REQUEST,
           types.ACCEPT_CLINICIAN_INVITE_REQUEST,
           types.DISMISS_CLINICIAN_INVITE_REQUEST,
+          types.SET_MEMBER_PERMISSIONS_REQUEST,
+          types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
