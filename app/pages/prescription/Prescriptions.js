@@ -67,7 +67,6 @@ const Prescriptions = props => {
   });
 
   const initialDeleteDialogState = {
-    closeParentPopover: noop,
     open: false,
     prescription: {},
   };
@@ -127,8 +126,8 @@ const Prescriptions = props => {
   };
 
   const handleDeletePrescription = prescription => popupState => {
+    popupState.close();
     setDeleteDialog({
-      closeParentPopover: popupState.close,
       open: true,
       prescription,
     });
@@ -233,7 +232,6 @@ const Prescriptions = props => {
     if (!isFirstRender && !inProgress) {
       if (completed) {
         if (deleteDialog.open) {
-          deleteDialog.closeParentPopover();
           closeDeleteDialog();
         }
 
