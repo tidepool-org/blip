@@ -82,7 +82,8 @@ export const AccessManagement = (props) => {
 
     if (!inProgress) {
       if (completed) {
-        popupState.close();
+        popupState?.close();
+        setShowDeleteDialog(false);
 
         setToast({
           message: successMessage,
@@ -185,6 +186,7 @@ export const AccessManagement = (props) => {
         role: 'member',
         status: t('Invite Sent'),
         type: invite.type,
+        uploadPermission: !!get(invite, ['context', 'upload']),
       }))),
     ];
 
@@ -219,11 +221,6 @@ export const AccessManagement = (props) => {
       })
     }
   }, [selectedSharedAccount]);
-
-  function closeDeleteDialog() {
-    setShowDeleteDialog(false);
-    setSelectedSharedAccount(null);
-  }
 
   function handleUploadPermissionsToggle(member) {
     trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
@@ -339,7 +336,8 @@ export const AccessManagement = (props) => {
         iconPosition: 'left',
         id: `delete-${member.userId}`,
         variant: 'actionListItemDanger',
-        onClick: () => {
+        onClick: _popupState => {
+          _popupState.close();
           setSelectedSharedAccount(member);
           setShowDeleteDialog(true);
         },
@@ -368,7 +366,8 @@ export const AccessManagement = (props) => {
           iconPosition: 'left',
           id: `deleteInvite-${member.inviteId}`,
           variant: 'actionListItemDanger',
-          onClick: () => {
+          onClick: _popupState => {
+            _popupState.close();
             setSelectedSharedAccount(member);
             setShowDeleteDialog(true);
           },
@@ -503,10 +502,10 @@ export const AccessManagement = (props) => {
         id="deleteUser"
         aria-labelledBy="dialog-title"
         open={showDeleteDialog}
-        onClose={closeDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
         zIndex="1301"
       >
-        <DialogTitle onClose={closeDeleteDialog}>
+        <DialogTitle onClose={() => setShowDeleteDialog(false)}>
           <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
         </DialogTitle>
         <DialogContent>
@@ -515,14 +514,13 @@ export const AccessManagement = (props) => {
           </Body1>
         </DialogContent>
         <DialogActions>
-          <Button variant="secondary" onClick={closeDeleteDialog}>
+          <Button variant="secondary" onClick={() => setShowDeleteDialog(false)}>
             {t('Cancel')}
           </Button>
           <Button
             variant="danger"
             onClick={() => {
               handleDelete(selectedSharedAccount);
-              closeDeleteDialog();
             }}
           >
             {deleteDialogContent?.submitText}
