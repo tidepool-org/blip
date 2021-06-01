@@ -77,18 +77,15 @@ export const AccessManagement = (props) => {
     removingMemberFromTargetCareTeam,
   } = useSelector((state) => state.blip.working);
 
-  useEffect(() => {
-    const { inProgress, completed, notification } = settingMemberPermissions;
+  function handleAsyncResult(workingState, successMessage) {
+    const { inProgress, completed, notification } = workingState;
 
     if (!inProgress) {
       if (completed) {
         popupState.close();
 
         setToast({
-          message: t('Upload permission for {{name}} has been {{uploadPermission}}.', {
-            name: selectedSharedAccount.name,
-            uploadPermission: get(permissionsOfMembersInTargetCareTeam, [selectedSharedAccount.id, 'upload']) ? 'enabled' : 'disabled',
-          }),
+          message: successMessage,
           variant: 'success',
         });
 
@@ -103,125 +100,64 @@ export const AccessManagement = (props) => {
         });
       }
     }
+  }
+
+  useEffect(() => {
+    handleAsyncResult(settingMemberPermissions, t('Upload permission for {{name}} has been {{uploadPermission}}.', {
+      name: selectedSharedAccount?.name,
+      uploadPermission: get(permissionsOfMembersInTargetCareTeam, [selectedSharedAccount?.id, 'upload']) ? 'enabled' : 'disabled',
+    }));
   }, [settingMemberPermissions]);
 
   useEffect(() => {
-    // TODO: this will not work for resend -- could be used if we run the cancel action first,
-    // then trigger the send, but will be brittle in the case that either action fails.
-    const { inProgress, completed, notification } = sendingInvite;
-
-    if (!inProgress) {
-      if (completed) {
-        popupState.close();
-
-        setToast({
-          message: t('Share invitation resent to {{email}} has been re-sent.', {
-            email: selectedSharedAccount.email,
-          }),
-          variant: 'success',
-        });
-
-        setSelectedSharedAccount(null);
-        setPopupState(null);
-      }
-
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-    }
+    handleAsyncResult(sendingInvite, t('Share invitation resent to {{email}} has been re-sent.', {
+      email: selectedSharedAccount?.email,
+    }));
   }, [sendingInvite]);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = cancellingSentInvite;
-
-    if (!inProgress) {
-      if (completed) {
-        popupState.close();
-
-        setToast({
-          message: t('Share invitation to {{email}} has been revoked.', {
-            email: selectedSharedAccount.email,
-          }),
-          variant: 'success',
-        });
-
-        setSelectedSharedAccount(null);
-        setPopupState(null);
-      }
-
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-    }
+    handleAsyncResult(cancellingSentInvite, t('Share invitation to {{email}} has been revoked.', {
+      email: selectedSharedAccount?.email,
+    }));
   }, [cancellingSentInvite]);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = removingMemberFromTargetCareTeam;
-
-    if (!inProgress) {
-      if (completed) {
-        popupState.close();
-
-        setToast({
-          message: t('Share access for {{name}} has been revoked.', {
-            name: selectedSharedAccount.name,
-          }),
-          variant: 'success',
-        });
-
-        setSelectedSharedAccount(null);
-        setPopupState(null);
-      }
-
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-    }
+    handleAsyncResult(removingMemberFromTargetCareTeam, t('Share access for {{name}} has been revoked.', {
+      name: selectedSharedAccount?.name,
+    }));
   }, [removingMemberFromTargetCareTeam]);
 
   // Fetchers
   useEffect(() => {
-    forEach([
-      {
-        workingState: fetchingPatient,
-        action: actions.async.fetchPatient.bind(null, api, loggedInUserId),
-      },
-      {
-        workingState: fetchingClinicsForPatient,
-        action: actions.async.fetchClinicsForPatient.bind(null, api, loggedInUserId),
-      },
-      {
-        workingState: fetchingPendingSentInvites,
-        action: actions.async.fetchPendingSentInvites.bind(null, api, loggedInUserId),
-      },
-      {
-        workingState: fetchingAssociatedAccounts,
-        action: actions.async.fetchAssociatedAccounts.bind(null, api, loggedInUserId),
-      },
-    ], ({ workingState, action }) => {
-      if (
-        !workingState.inProgress &&
-        !workingState.completed &&
-        !workingState.notification
-      ) {
-        dispatch(action());
-      }
-    });
-  }, [
-    loggedInUserId,
-    fetchingClinicsForPatient,
-    fetchingPendingSentInvites,
-    fetchingAssociatedAccounts
-  ]);
+    if (loggedInUserId) {
+      forEach([
+        {
+          workingState: fetchingPatient,
+          action: actions.async.fetchPatient.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingClinicsForPatient,
+          action: actions.async.fetchClinicsForPatient.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingPendingSentInvites,
+          action: actions.async.fetchPendingSentInvites.bind(null, api, loggedInUserId),
+        },
+        {
+          workingState: fetchingAssociatedAccounts,
+          action: actions.async.fetchAssociatedAccounts.bind(null, api, loggedInUserId),
+        },
+      ], ({ workingState, action }) => {
+        if (
+          !workingState.inProgress &&
+          !workingState.completed &&
+          !workingState.notification
+        ) {
+          dispatch(action());
+        }
+      });
+    }
+  }, [loggedInUserId]);
 
   useEffect(() => {
     console.log('clinics', clinics);
