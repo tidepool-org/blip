@@ -41,6 +41,7 @@ import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
+import { colors } from '../../themes/baseTheme';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -184,7 +185,7 @@ export const AccessManagement = (props) => {
         nameOrderable: invite.email,
         permissions: invite.context,
         role: 'member',
-        status: t('Invite Sent'),
+        status: invite.status,
         type: invite.type,
         uploadPermission: !!get(invite, ['context', 'upload']),
       }))),
@@ -287,7 +288,12 @@ export const AccessManagement = (props) => {
 
   const renderStatus = ({ status }) => (
     <Box>
-      {status ? <Pill text={status} colorPalette="greens" /> : ''}
+      {status ? (
+        <Pill
+          text={status === 'pending' ? t('invite sent') : t('invite declined')}
+          colorPalette={status === 'pending' ? colors.status.pending : colors.status.declined}
+        />
+      ) : ''}
     </Box>
   );
 
@@ -401,10 +407,10 @@ export const AccessManagement = (props) => {
     },
     {
       title: t('Status'),
-      field: 'inviteSent',
+      field: 'status',
       align: 'left',
       sortable: true,
-      sortBy: 'inviteSent',
+      sortBy: 'status',
       render: renderStatus,
     },
     {
