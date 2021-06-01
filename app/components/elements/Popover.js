@@ -52,6 +52,7 @@ Popover.defaultProps = {
     vertical: 'top',
     horizontal: 'left',
   },
+  keepMounted: true,
 };
 
 export default Popover;

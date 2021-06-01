@@ -3,6 +3,9 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 
 import {
+  clearCalculator,
+  clearCalculatorInputs,
+  clearCalculatorResults,
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
@@ -11,6 +14,7 @@ import {
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 import { withFormik } from 'formik';
+import { set } from 'lodash';
 
 /* global chai */
 /* global sinon */
@@ -59,14 +63,15 @@ describe('PrescriptionForm', () => {
     expect(stepper).to.have.length(1);
 
     const steps = stepper.find('.MuiStep-root');
-    expect(steps).to.have.length(4);
+    expect(steps).to.have.length(5);
 
     expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
     expect(steps.at(0).hasClass('active')).to.be.true;
 
     expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
+    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
+    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
+    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Prescription');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {
@@ -80,7 +85,70 @@ describe('PrescriptionForm', () => {
     expect(backButton).to.have.length(0);
   });
 
-  describe.skip('generateTherapySettingsOrderText', () => {
+  describe('clearCalculatorInputs', () => {
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
+
+    it('should clear all calculator input values', () => {
+      clearCalculatorInputs(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDose', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDose', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDoseScaleFactor', 1, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDoseScaleFactor', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weight', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weight', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weightUnits', 'kg', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weightUnits', false);
+    });
+  });
+
+  describe('clearCalculatorResults', () => {
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
+
+    it('should clear all calculator result values', () => {
+      clearCalculatorResults(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedBasalRate', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedInsulinSensitivity', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedCarbohydrateRatio', false)
+    });
+  });
+
+  describe('clearCalculator', () => {
+    const formikContext = {
+      setFieldValue: sinon.stub(),
+      setFieldTouched: sinon.stub(),
+    }
+
+    it('should clear all calculator values', () => {
+      clearCalculator(formikContext);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.method', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.method', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDose', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDose', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.totalDailyDoseScaleFactor', 1, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.totalDailyDoseScaleFactor', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weight', undefined, false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weight', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.weightUnits', 'kg', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.weightUnits', false);
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedBasalRate', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedBasalRate', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedInsulinSensitivity', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedInsulinSensitivity', false)
+      sinon.assert.calledWithExactly(formikContext.setFieldValue, 'calculator.recommendedCarbohydrateRatio', undefined, false)
+      sinon.assert.calledWithExactly(formikContext.setFieldTouched, 'calculator.recommendedCarbohydrateRatio', false)
+    });
+  });
+
+  describe('generateTherapySettingsOrderText', () => {
     it('should generate the therapy settings order text', () => {
       const patientRows = [
         {
@@ -138,11 +206,11 @@ describe('PrescriptionForm', () => {
     });
   });
 
-  describe.skip('handleCopyTherapySettingsClicked', () => {
+  describe('handleCopyTherapySettingsClicked', () => {
     let wrapper;
     let reviewStepProps = {
       ...defaultProps,
-      location: { search: '?prescription-form-steps-step=3,0' },
+      location: { search: '?prescription-form-steps-step=4,0' },
     };
 
     beforeEach(() => {
@@ -155,7 +223,7 @@ describe('PrescriptionForm', () => {
     });
 
     it('should track a metric when copy as text button is clicked', () => {
-      const copyButton = wrapper.find('button[title="Copy therapy settings order as text"]');
+      const copyButton = wrapper.find('button[title="Copy therapy settings order as text"]').at(0);
       sinon.assert.notCalled(defaultProps.trackMetric);
       copyButton.simulate('click');
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Copy Therapy Settings Order');

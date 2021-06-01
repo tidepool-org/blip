@@ -10,12 +10,15 @@ RUN mkdir -p dist node_modules .yarn-cache && chown -R node:node .
 FROM base as development
 ARG I18N_ENABLED=false
 ARG RX_ENABLED=false
+ARG CLINICS_ENABLED=false
 ENV \
   CHROME_BIN=/usr/bin/chromium-browser \
   LIGHTHOUSE_CHROMIUM_PATH=/usr/bin/chromium-browser \
   I18N_ENABLED=$I18N_ENABLED \
   RX_ENABLED=$RX_ENABLED \
-  NODE_ENV=development
+  CLINICS_ENABLED=$CLINICS_ENABLED \
+  NODE_ENV=development \
+  TIDEPOOL_DOCKER_VIZ_DIR=/app/packageMounts/@tidepool/viz
 RUN \
   echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -58,6 +61,7 @@ ARG SERVICE_NAME=blip
 ARG ROLLBAR_POST_SERVER_TOKEN
 ARG I18N_ENABLED=false
 ARG RX_ENABLED=false
+ARG CLINICS_ENABLED=false
 ARG TRAVIS_COMMIT
 # Set ENV from ARGs
 ENV \
@@ -67,6 +71,7 @@ ENV \
   ROLLBAR_POST_SERVER_TOKEN=$ROLLBAR_POST_SERVER_TOKEN \
   I18N_ENABLED=$I18N_ENABLED \
   RX_ENABLED=$RX_ENABLED \
+  CLINICS_ENABLED=$CLINICS_ENABLED \
   TRAVIS_COMMIT=$TRAVIS_COMMIT \
   NODE_ENV=production
 USER node

@@ -39,7 +39,7 @@ ToggleStory.story = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=0%3A1',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=2178%3A0',
     },
   },
 };

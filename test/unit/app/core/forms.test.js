@@ -10,155 +10,96 @@ import get from 'lodash/get';
 const expect = chai.expect;
 
 describe('forms', function() {
-  const touchedAndError = {
-    touched: true,
-    error: 'error!',
+  const errors = {
+    touchedAndError: 'error!',
+    touchedAndNoError: undefined,
+    notTouchedAndError: 'error!',
+    notTouchedAndNoError: undefined,
+    initiallySetAndError: 'error!',
+    notInitiallySetAndError: 'error!',
   };
 
-  const touchedAndNoError = {
-    touched: true,
-    error: null,
+  const touched = {
+    touchedAndError: true,
+    touchedAndNoError: true,
+    notTouchedAndError: undefined,
+    notTouchedAndNoError: undefined,
+    initiallySetAndError: undefined,
+    notInitiallySetAndError: undefined,
   };
 
-  const notTouchedAndError = {
-    touched: false,
-    error: 'error!',
+  const initialValues = {
+    touchedAndError: undefined,
+    touchedAndNoError: undefined,
+    notTouchedAndError: undefined,
+    notTouchedAndNoError: undefined,
+    initiallySetAndError: 'foo',
+    notInitiallySetAndError: undefined,
   };
 
-  const notTouchedAndNoError = {
-    touched: false,
-    error: null,
+  const formikContext = {
+    errors,
+    touched,
+    initialValues,
   };
 
-  const errorArray = {
-    touched: true,
-    error: [
-      { foo: null },
-      { bar: 'error!' },
-    ],
-  };
 
-  const fieldsMeta = {
-    firstName: { ...touchedAndError, value: 'foo' },
-    phoneNumber: {
-      countryCode: { ...notTouchedAndError, value: 'bar' },
-      number: { ...touchedAndNoError, value: 'baz' },
-      ext: { ...touchedAndNoError, value: 123 },
-      isCellNumber: { ...notTouchedAndNoError, value: true },
-    },
-    other: {
-      deeply: {
-        nestedField: { ...notTouchedAndNoError, value: 'blip' },
-      },
-    },
-  };
+  const validateSyncAt = sinon.stub();
+  validateSyncAt
+    .withArgs('goodField')
+    .returns(true);
 
-  const getFieldMeta = sinon.stub().callsFake(fieldName => get(fieldsMeta, fieldName));
+  validateSyncAt
+    .withArgs('great.field')
+    .returns(true);
 
-  const schema = {
-    fields: {
-      firstName: {},
-      phoneNumber: {
-        fields: {
-          countryCode: {},
-          number: {},
-          ext: {},
-          isCellNumber: {},
-        },
-      },
-      other: {
-        fields: {
-          deeply: {
-            fields: {
-              nestedField: {},
-            },
-          },
-        },
-      },
-    },
-  };
+  validateSyncAt
+    .withArgs('badField')
+    .throws();
+
+  const schema = { validateSyncAt };
 
   beforeEach(() => {
-    getFieldMeta.resetHistory();
-  });
-
-  describe('getFieldsMeta', () => {
-    it('should return an object of field metadata keyed by provided `schema.fields`', () => {
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).firstName).to.eql({
-        ...touchedAndError,
-        value: 'foo',
-        valid: false,
-      });
-    });
-
-    it('should key metadata of nested fields within of `schema.fields` in appropriate format', () => {
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.countryCode).to.eql({
-        ...notTouchedAndError,
-        value: 'bar',
-        valid: false,
-      });
-
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.number).to.eql({
-        ...touchedAndNoError,
-        value: 'baz',
-        valid: true,
-      });
-
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.ext).to.eql({
-        ...touchedAndNoError,
-        value: 123,
-        valid: true,
-      });
-
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).phoneNumber.isCellNumber).to.eql({
-        ...notTouchedAndNoError,
-        value: true,
-        valid: true,
-      });
-
-      expect(formUtils.getFieldsMeta(schema, getFieldMeta).other.deeply.nestedField).to.eql({
-        ...notTouchedAndNoError,
-        value: 'blip',
-        valid: true,
-      });
-    });
+    schema.validateSyncAt.resetHistory();
   });
 
   describe('fieldsAreValid', () => {
-    const fieldsMeta = formUtils.getFieldsMeta(schema, getFieldMeta);
-
     it('should return `true` when all provided fields are valid', () => {
-      expect(formUtils.fieldsAreValid(['phoneNumber.number', 'other.deeply.nestedField'], fieldsMeta)).to.be.true;
+      expect(formUtils.fieldsAreValid(['goodField', 'great.field'], schema, {})).to.be.true;
     });
 
     it('should return `false` when at least one of the provided fields are not valid', () => {
-      expect(formUtils.fieldsAreValid(['phoneNumber.number', 'phoneNumber.countryCode'], fieldsMeta)).to.be.false;
+      expect(formUtils.fieldsAreValid(['goodField', 'badField'], schema, {})).to.be.false;
     });
   });
 
   describe('getFieldError', () => {
     it('should return `null` when field has not been touched and is not in an error state', () => {
-      expect(formUtils.getFieldError(notTouchedAndNoError)).to.be.null;
+      expect(formUtils.getFieldError('notTouchedAndNoError', formikContext)).to.be.null;
     });
 
     it('should return `null` when field has not been touched and is in an error state', () => {
-      expect(formUtils.getFieldError(notTouchedAndError)).to.be.null;
+      expect(formUtils.getFieldError('notTouchedAndError', formikContext)).to.be.null;
+    });
+
+    it('should return an error when field has not been touched and is in an error state, and the forceTouched argument is `true`', () => {
+      expect(formUtils.getFieldError('notTouchedAndError', formikContext, true)).to.equal('error!');
     });
 
     it('should return `null` when field has been touched and is not in an error state', () => {
-      expect(formUtils.getFieldError(touchedAndNoError)).to.be.null;
+      expect(formUtils.getFieldError('touchedAndNoError', formikContext)).to.be.null;
     });
 
     it('should return an error string when field has been touched and is in an error state', () => {
-      expect(formUtils.getFieldError(touchedAndError)).to.equal('error!');
+      expect(formUtils.getFieldError('touchedAndError', formikContext)).to.equal('error!');
     });
 
-    it('should return `null` when error is an array and specified key and index do not contain an error string', () => {
-      expect(formUtils.getFieldError(errorArray, 0, 'foo')).to.be.null;
+    it('should return an error string when field has been initially set and is in an error state', () => {
+      expect(formUtils.getFieldError('initiallySetAndError', formikContext)).to.equal('error!');
     });
 
-    it('should return an error string when error is an array and specified key and index contains an error', () => {
-      expect(formUtils.getFieldError(errorArray, 1, 'bar')).to.equal('error!');
+    it('should return `null` when field has not been initially set and is in an error state', () => {
+      expect(formUtils.getFieldError('notInitiallySetAndError', formikContext)).to.be.null;
     });
   });
 
@@ -168,19 +109,17 @@ describe('forms', function() {
       high: { value: 50, message: 'Too high!' },
     };
 
-    it('should return the low threshold message if provided value is <= the low threshold', () => {
+    it('should return the low threshold message if provided value is < the low threshold', () => {
       expect(formUtils.getThresholdWarning(9, threshold)).to.equal('Too low!');
-      expect(formUtils.getThresholdWarning(10, threshold)).to.equal('Too low!');
     });
 
-    it('should return the high threshold message if provided value is >= the high threshold', () => {
-      expect(formUtils.getThresholdWarning(50, threshold)).to.equal('Too high!');
+    it('should return the high threshold message if provided value is > the high threshold', () => {
       expect(formUtils.getThresholdWarning(51, threshold)).to.equal('Too high!');
     });
 
     it('should return `null` if provided value is not outside the thresholds', () => {
-      expect(formUtils.getThresholdWarning(11, threshold)).to.equal(null);
-      expect(formUtils.getThresholdWarning(49, threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning(10, threshold)).to.equal(null);
+      expect(formUtils.getThresholdWarning(50, threshold)).to.equal(null);
     });
 
     it('should return `null` if non-numeric value is passed in', () => {

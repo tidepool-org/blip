@@ -6,9 +6,10 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     fontFamily: fonts.default,
     padding: `${space[2]}px ${space[3]}px`,
     height: 'auto',
+    cursor: 'pointer',
 
     '.icon': {
-      fontSize: `${fontSizes[3]}px`,
+      fontSize: '1.125em',
     },
   };
 
@@ -29,6 +30,30 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       backgroundColor: colors.lightestGrey,
       borderColor: colors.lightestGrey,
       color: colors.text.primaryDisabled,
+    },
+  };
+
+  const textButtonStyles = {
+    border: 0,
+    borderRadius: 0,
+    paddingLeft: 2,
+    paddingRight: 2,
+    backgroundColor: 'transparent',
+    '&:disabled': {
+      color: colors.text.primaryDisabled,
+    },
+  };
+
+  const actionListItemStyles = {
+    ...textButtonStyles,
+    backgroundColor: colors.white,
+    width: '100%',
+    padding: 3,
+    paddingRight: 5,
+    fontSize: 2,
+    borderBottom: borders.divider,
+    '&:last-child': {
+      borderBottom: 'none',
     },
   };
 
@@ -68,34 +93,55 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       },
     },
     tertiary: tertiaryStyles,
-    textPrimary: {
+    danger: {
       ...defaultStyles,
-      backgroundColor: colors.white,
-      color: colors.purpleMedium,
-      border: 0,
-      borderRadius: 0,
-      paddingLeft: 2,
-      paddingRight: 2,
-      '&:hover,&:active': {
-        color: colors.text.primary,
+      backgroundColor: colors.feedback.danger,
+      color: colors.white,
+      border: borders.input,
+      borderColor: colors.feedback.danger,
+      borderRadius: radii.default,
+      '&.selected': {
+        backgroundColor: colors.pinks[13],
+        borderColor: colors.pinks[13],
       },
       '&:disabled': {
+        backgroundColor: colors.coral,
+        borderColor: colors.coral,
         color: colors.text.primaryDisabled,
+      },
+    },
+    textPrimary: {
+      ...defaultStyles,
+      ...textButtonStyles,
+      color: colors.purpleMedium,
+      '&:hover,&:active': {
+        color: colors.text.primary,
       },
     },
     textSecondary: {
       ...defaultStyles,
-      backgroundColor: colors.white,
+      ...textButtonStyles,
       color: colors.text.primarySubdued,
-      border: 0,
-      borderRadius: 0,
-      paddingLeft: 2,
-      paddingRight: 2,
       '&:hover,&:active': {
         color: colors.text.primary,
       },
-      '&:disabled': {
-        color: colors.text.primaryDisabled,
+    },
+    actionListItem: {
+      ...defaultStyles,
+      ...actionListItemStyles,
+      color: colors.text.primary,
+      '&:hover,&:active': {
+        color: colors.text.primary,
+        backgroundColor: colors.lightestGrey,
+      },
+    },
+    actionListItemDanger: {
+      ...defaultStyles,
+      ...actionListItemStyles,
+      color: colors.feedback.danger,
+      '&:hover,&:active': {
+        color: colors.feedback.danger,
+        backgroundColor: colors.lightestGrey,
       },
     },
     pagination: {
@@ -156,9 +202,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       '&.selected': {
         backgroundColor: colors.blues[0],
         color: colors.purpleBright,
+        cursor: 'auto',
 
         '&:disabled': {
-          backgroundColor: colors.blueGreyLight,
+          color: colors.text.primaryDisabled,
+          backgroundColor: colors.lightGrey,
         },
       },
     },

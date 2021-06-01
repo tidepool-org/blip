@@ -30,10 +30,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
 
     input: {
       '&::placeholder': {
-        color: colors.text.primaryTextSubdued,
+        color: colors.text.primarySubdued,
       },
       '&.active': {
-        color: colors.text.primaryTextSubdued,
+        color: colors.text.primarySubdued,
         boxShadow: 'none',
       },
       '&:focus': {
@@ -80,6 +80,10 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     fontSize: fontSizes[1],
     fontWeight: fontWeights.medium,
     input: { width: 'auto' },
+    '>div': {
+      minWidth: 'unset',
+      alignSelf: 'flex-start',
+    },
   };
 
   const checkboxGroup = {
@@ -180,6 +184,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         flexDirection: 'column',
         padding: `${space[3]}px`,
         border: borders.input,
+        borderRadius: radii.default,
         marginBottom: `${space[3]}px`,
         fontSize: fontSizes[1],
 
@@ -203,6 +208,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         label: {
           padding: `${space[3]}px`,
           border: borders.input,
+          borderRadius: radii.default,
           marginBottom: `${space[3]}px`,
 
           '&:last-child': {

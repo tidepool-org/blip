@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 
+import { action } from '@storybook/addon-actions';
 import { withDesign } from 'storybook-addon-designs';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { ThemeProvider } from 'styled-components';
 import { Text, Box } from 'rebass/styled-components';
+import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import find from 'lodash/find';
 
@@ -16,6 +19,7 @@ import {
 
 import baseTheme from '../app/themes/baseTheme';
 import Popover from '../app/components/elements/Popover';
+import PopoverMenu from '../app/components/elements/PopoverMenu';
 import { Icon } from '../app/components/elements/Icon';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import { Paragraph1, Subheading } from '../app/components/elements/FontStyles';
@@ -157,6 +161,47 @@ export const FilterMenu = () => {
 
 FilterMenu.story = {
   name: 'FilterMenu',
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/iuXkrpuLTXExSnuPJE3Jtn/Tidepool-Design-System---Sprint-1?node-id=51%3A379',
+    },
+  },
+};
+
+export const ActionList = () => {
+  const items = [
+    {
+      icon: EditRoundedIcon,
+      iconLabel: 'Edit',
+      iconPosition: 'left',
+      id: 'edit',
+      variant: 'actionListItem',
+      onClick: action('"Edit" called'),
+      text: 'Edit item details',
+    },
+    {
+      icon: DeleteForeverRoundedIcon,
+      iconLabel: 'Delete',
+      iconPosition: 'left',
+      id: 'delete',
+      variant: 'actionListItemDanger',
+      onClick: action('"Delete" called'),
+      text: 'Delete item',
+    },
+  ];
+
+  return (
+    <PopoverMenu
+      ml="200px"
+      id="action-menu"
+      items={items}
+    />
+  );
+};
+
+ActionList.story = {
+  name: 'ActionList',
   parameters: {
     design: {
       type: 'figma',

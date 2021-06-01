@@ -1,19 +1,3 @@
-
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -29,7 +13,7 @@ import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 
 import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
 export let Login = translate()(class extends React.Component {
@@ -47,7 +31,11 @@ export let Login = translate()(class extends React.Component {
 
   constructor(props) {
     super(props);
-    var formValues = {};
+    var formValues = {
+      username : '',
+      password: '',
+      remember: true,
+    };
     var email = props.seedEmail;
 
     if (email) {
@@ -65,7 +53,7 @@ export let Login = translate()(class extends React.Component {
     const { t } = this.props;
 
     return [
-      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail },
+      { name: 'username', placeholder: t('Email'), type: 'email', disabled: !!this.props.seedEmail, autoFocus: true },
       { name: 'password', placeholder: t('Password'), type: 'password' },
       { name: 'remember', label: t('Remember me'), type: 'checkbox' }
     ];
