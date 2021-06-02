@@ -754,10 +754,10 @@ api.patientData.get = function(patientId, options, cb) {
 
 api.invitation = {};
 
-api.invitation.send = function(emailAddress, permissions, callback) {
+api.invitation.send = function(emailAddress, permissions, key, callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('POST /confirm/send/invite/' + loggedInUser);
-  return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
+  return tidepool.inviteUser(emailAddress, permissions, key, loggedInUser, callback);
 };
 
 api.invitation.getReceived = function(callback) {

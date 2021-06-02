@@ -381,12 +381,13 @@ export function removeMemberFromTargetCareTeam(api, patientId, memberId, cb = _.
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  * @param  {Object} permissions
+ * @param  {String} key - if provided, will allow resending an existing invite
  */
-export function sendInvite(api, email, permissions, cb = _.noop) {
+export function sendInvite(api, email, permissions, key, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.sendInviteRequest());
 
-    api.invitation.send(email, permissions, (err, invite) => {
+    api.invitation.send(email, permissions, key, (err, invite) => {
       cb(err, invite);
 
       if (err) {
@@ -1288,7 +1289,7 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
         note: {},
       };
 
-      dispatch(sendInvite(api, email, permissions, cb));
+      dispatch(sendInvite(api, email, permissions, undefined, cb));
     }
 
     const removeAccount = (account, cb) => {
