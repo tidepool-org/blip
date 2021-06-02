@@ -1,18 +1,3 @@
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -26,8 +11,7 @@ import * as actions from '../../redux/actions';
 import config from '../../config';
 
 import utils from '../../core/utils';
-import LoginNav from '../../components/loginnav';
-import LoginLogo from '../../components/loginlogo';
+import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 
 export var ConfirmPasswordReset = translate()(class extends React.Component {
@@ -99,9 +83,6 @@ export var ConfirmPasswordReset = translate()(class extends React.Component {
 
     return (
       <div className="PasswordReset">
-        <LoginNav
-          hideLinks={true}
-          trackMetric={this.props.trackMetric} />
         <LoginLogo />
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">

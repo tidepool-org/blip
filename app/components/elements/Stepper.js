@@ -187,11 +187,18 @@ export const Stepper = props => {
         if (!stepIsAsync || stepComplete) {
           completeAsyncStep();
         }
-        if (pendingStep[1] === 0 && !stepPending && !stepComplete) handleActiveStepOnComplete();
+        if (pendingStep[1] === 0 && !stepPending && stepComplete === null) {
+          handleActiveStepOnComplete();
+        }
       } else if (activeSubStep === get(steps[activeStep], 'subSteps.length', 1) - 1) {
         if (!subStepPending && stepIsAsync && !stepPending) {
-          if (!stepComplete) {
+          if (stepComplete === null) {
             handleActiveStepOnComplete();
+          } else if (stepComplete === false) {
+            // failed async action so we don't run onComplete, but do set processing to false and
+            // unset the pending step to allow re-submission attempts.
+            setProcessing(false);
+            setPendingStep([]);
           } else {
             completeAsyncStep();
           }
@@ -202,25 +209,6 @@ export const Stepper = props => {
       if (processing) setProcessing(false);
     }
   }, [steps, pendingStep]);
-
-  React.useEffect(() => {
-    if (transitioningToStep) return;
-
-    const newStep = [activeStep, activeSubStep];
-
-    // At init, the previous activeStep is `undefined`. In this case, we want to replace the current
-    // state rather than push a new one to avoid having to hit the browser back button twice to go
-    // back to the previous location
-    const updateMethod = prevActiveStep === undefined ? 'replaceState' : 'pushState';
-
-    const currentParams = params();
-    if (currentParams.get(activeStepParamKey) !== newStep.join(',')) {
-      currentParams.set(activeStepParamKey, newStep);
-      history[updateMethod]({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
-    }
-
-    if (isFunction(onStepChange)) onStepChange(newStep);
-  }, [activeStep, activeSubStep]);
 
   const handleNext = () => {
     const { subStepIsAsync, stepIsAsync } = getActiveStepAsyncState();
@@ -292,8 +280,46 @@ export const Stepper = props => {
     }
   };
 
+  const handleStepEnter = () => {
+    if (isFunction(steps[activeStep].onEnter)) steps[activeStep].onEnter();
+  };
+
+  React.useEffect(() => {
+    if (transitioningToStep) return;
+
+    const newStep = [activeStep, activeSubStep];
+
+    // At init, the previous activeStep is `undefined`. In this case, we want to replace the current
+    // state rather than push a new one to avoid having to hit the browser back button twice to go
+    // back to the previous location
+    const updateMethod = prevActiveStep === undefined ? 'replaceState' : 'pushState';
+
+    const currentParams = params();
+    if (currentParams.get(activeStepParamKey) !== newStep.join(',')) {
+      currentParams.set(activeStepParamKey, newStep);
+      history[updateMethod]({}, '', decodeURIComponent(`${location.pathname}?${currentParams}`));
+    }
+
+    if (isFunction(onStepChange)) onStepChange(newStep);
+
+    // Calling `handleStepEnter` last allows us to redirect to another step after any step/subStep
+    // updates, including those from the generic `onStepChange`, have taken effect.
+    if (prevActiveStep && (activeStep !== prevActiveStep)) handleStepEnter();
+  }, [activeStep, activeSubStep]);
+
   const handleSkip = () => {
+    if (stepHasSubSteps(activeStep)) {
+      if (isFunction(steps[activeStep].subSteps[activeSubStep].onSkip)) {
+        steps[activeStep].subSteps[activeSubStep].onSkip();
+      }
+    }
+
+    if (isFunction(steps[activeStep].onSkip)) {
+      steps[activeStep].onSkip();
+    }
+
     if (!disableDefaultStepHandlers) advanceActiveStep();
+
     setSkipped((prevSkipped) => {
       const newSkipped = new Set(prevSkipped.values());
       newSkipped.add(activeStep);
@@ -438,6 +464,8 @@ const StepPropTypes = {
   label: PropTypes.string,
   onBack: PropTypes.func,
   onComplete: PropTypes.func,
+  onEnter: PropTypes.func,
+  onSkip: PropTypes.func,
   optional: PropTypes.bool,
   panelContent: PropTypes.node,
 };
@@ -463,7 +491,7 @@ Stepper.propTypes = {
   steps: PropTypes.arrayOf(PropTypes.shape({
     ...StepPropTypes,
     subSteps: PropTypes.arrayOf(
-      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label'])),
+      PropTypes.shape(omit({ ...StepPropTypes }, ['completed', 'label', 'onEnter'])),
     ),
   })),
   themeProps: PropTypes.shape({

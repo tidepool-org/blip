@@ -64,7 +64,12 @@ describe('PDFWorker', () => {
       bgLog: 'bgLog',
       settings: 'settings',
     },
-    opts: {},
+    opts: {
+      basics: {},
+      daily: {},
+      bgLog: {},
+      settings: {},
+    },
   };
 
   const {

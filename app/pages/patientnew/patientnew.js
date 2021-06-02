@@ -101,7 +101,7 @@ export let PatientNew = translate()(class extends React.Component {
         text: (
           <Trans i18nKey="html.patientnew-donate-explainer">
             You own your data. Read all the details about Tidepool's Big Data
-            Donation project <a target="_blank" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
+            Donation project <a target="_blank" rel="noreferrer noopener" href={URL_BIG_DATA_DONATION_INFO}>here</a>.
           </Trans>
         ),
       },

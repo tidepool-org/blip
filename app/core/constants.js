@@ -49,6 +49,7 @@ export const DIABETES_TYPES = () => [
   { value: 'gestational', label: t('Gestational') },
   { value: 'prediabetes', label: t('Pre-diabetes') },
   { value: 'lada', label: t('LADA (Type 1.5)') },
+  { value: 'mody', label: t('MODY/Monogenic') },
   { value: 'other', label: t('Other') },
 ];
 
@@ -72,3 +73,5 @@ export const MGDL_PER_MMOLL = 18.01559;
 export const MS_IN_DAY = 864e5;
 export const MS_IN_HOUR = 864e5 / 24;
 export const MS_IN_MIN = MS_IN_HOUR / 60;
+
+export const LBS_PER_KG = 2.2046226218;

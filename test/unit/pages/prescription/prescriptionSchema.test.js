@@ -27,7 +27,9 @@ describe('prescriptionSchema', function() {
       'phoneNumber',
       'mrn',
       'sex',
+      'calculator',
       'initialSettings',
+      'therapySettings',
       'training',
       'therapySettingsReviewed',
     ]);
@@ -42,10 +44,12 @@ describe('prescriptionSchema', function() {
       'pumpId',
       'cgmId',
       'insulinModel',
-      'bloodGlucoseSuspendThreshold',
+      'glucoseSafetyLimit',
       'basalRateMaximum',
       'bolusAmountMaximum',
       'bloodGlucoseTargetSchedule',
+      'bloodGlucoseTargetPhysicalActivity',
+      'bloodGlucoseTargetPreprandial',
       'basalRateSchedule',
       'carbohydrateRatioSchedule',
       'insulinSensitivitySchedule',
@@ -61,18 +65,23 @@ describe('prescriptionSchema', function() {
       'units',
     ]);
 
-
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule.type).to.equal('array');
     expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType._nodes).to.be.an('array').and.have.members([
-      'context',
       'high',
       'low',
       'start',
     ]);
 
-    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context.type).to.equal('object');
-    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetSchedule._subType.fields.context._nodes).to.be.an('array').and.have.members([
-      'min',
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetPhysicalActivity.type).to.equal('object');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetPhysicalActivity._nodes).to.be.an('array').and.have.members([
+      'high',
+      'low',
+    ]);
+
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetPreprandial.type).to.equal('object');
+    expect(schema.fields.initialSettings.fields.bloodGlucoseTargetPreprandial._nodes).to.be.an('array').and.have.members([
+      'high',
+      'low',
     ]);
 
     expect(schema.fields.initialSettings.fields.basalRateSchedule.type).to.equal('array');
@@ -91,6 +100,17 @@ describe('prescriptionSchema', function() {
     expect(schema.fields.initialSettings.fields.insulinSensitivitySchedule._subType._nodes).to.be.an('array').and.have.members([
       'amount',
       'start',
+    ]);
+
+    expect(schema.fields.calculator._nodes).to.be.an('array').and.have.members([
+      'method',
+      'totalDailyDose',
+      'totalDailyDoseScaleFactor',
+      'weight',
+      'weightUnits',
+      'recommendedBasalRate',
+      'recommendedInsulinSensitivity',
+      'recommendedCarbohydrateRatio',
     ]);
   });
 });

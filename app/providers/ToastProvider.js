@@ -27,3 +27,5 @@ export function ToastProvider({ children }) {
 
 /* Consumer */
 export const useToasts = () => React.useContext(ToastContext);
+
+export default ToastContext;

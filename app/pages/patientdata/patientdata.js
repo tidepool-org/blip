@@ -20,7 +20,6 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import { translate, Trans } from 'react-i18next';
-import i18next from '../../core/language';
 import { bindActionCreators } from 'redux';
 
 import _ from 'lodash';
@@ -37,22 +36,34 @@ import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
 import Trends from '../../components/chart/trends';
+import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import baseTheme from '../../themes/baseTheme';
 
 import Messages from '../../components/messages';
 import UploaderButton from '../../components/uploaderbutton';
+import ChartDateRangeModal from '../../components/ChartDateRangeModal';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import Button from '../../components/elements/Button';
+
+import ToastContext from '../../providers/ToastProvider';
+
+import { Box } from 'rebass/styled-components';
+import Checkbox from '../../components/elements/Checkbox';
+import PopoverLabel from '../../components/elements/PopoverLabel';
+import { Paragraph2 } from '../../components/elements/FontStyles';
 
 import {
   URL_TIDEPOOL_MOBILE_APP_STORE,
 } from '../../core/constants';
 
 const { Loader } = vizComponents;
-const { findBasicsStart, getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 
-export let PatientData = translate()(createReactClass({
+export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
 
   propTypes: {
@@ -92,7 +103,11 @@ export let PatientData = translate()(createReactClass({
     var state = {
       chartPrefs: {
         basics: {
+          stats: {
+            excludeDaysWithoutBolus: false,
+          },
           sections: {},
+          extentSize: 14,
         },
         daily: {
           extentSize: 1,
@@ -141,12 +156,12 @@ export let PatientData = translate()(createReactClass({
         },
         excludedDevices: [],
       },
-      printOpts: {
-        numDays: {
-          daily: 15,
-          bgLog: 30,
-        },
-      },
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
+      printDialogOpen: false,
+      printDialogProcessing: false,
+      printDialogPDFOpts: null,
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -177,12 +192,16 @@ export let PatientData = translate()(createReactClass({
   render: function() {
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
+    const datesDialog = this.renderDatesDialog();
+    const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
+        {datesDialog}
+        {printDialog}
         <Loader show={showLoader} />
       </div>
     );
@@ -257,7 +276,7 @@ export let PatientData = translate()(createReactClass({
             onClick={handleClickUpload}
             buttonText='Get the Tidepool Uploader' />
           <p>Already have the Tidepool Uploader? Launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a></p>
-          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
+          <p>To upload Dexcom with iPhone, get <a href={URL_TIDEPOOL_MOBILE_APP_STORE} className="uploader-color-override" target="_blank" rel="noreferrer noopener" onClick={handleClickBlipNotes}>Tidepool Mobile</a></p>
           <p className="patient-no-data-help">
             Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
             <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
@@ -285,6 +304,94 @@ export let PatientData = translate()(createReactClass({
 
   renderUploadOverlay: function() {
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+  },
+
+  renderDatesDialog: function() {
+    return (
+      <ChartDateRangeModal
+        chartType={this.state.chartType}
+        defaultDates={_.get(this.state, 'chartEndpoints.current')}
+        id="chart-dates-dialog"
+        mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
+        open={this.state.datesDialogOpen}
+        onClose={this.closeDatesDialog}
+        onSubmit={dates => {
+          this.setState({ datesDialogProcessing: true });
+
+          // Determine the earliest startDate needed to fetch data to.
+          const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          const updateOpts = {
+            showLoading: true,
+            updateChartEndpoints: true,
+          };
+
+          if (startDate < fetchedUntil) {
+            this.setState({ datesDialogFetchingData: true });
+
+            this.fetchEarlierData({
+              returnData: false,
+              showLoading: true,
+              startDate,
+            });
+          } else {
+            this.closeDatesDialog();
+          }
+          this.updateChart(this.state.chartType, endDate, dates, updateOpts);
+        }}
+        processing={this.state.datesDialogProcessing}
+        timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  },
+
+  renderPrintDialog: function() {
+    return (
+      <PrintDateRangeModal
+        id="print-dialog"
+        mostRecentDatumDates={{
+          basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
+          bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
+          daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
+        }}
+        open={this.state.printDialogOpen}
+        onClose={this.closePrintDialog}
+        onClickPrint={opts => {
+          this.setState({ printDialogProcessing: true })
+
+          // Determine the earliest startDate needed to fetch data to.
+          const earliestPrintDate = _.min(_.at(opts, _.map(_.keys(opts), key => `${key}.endpoints.0`)));
+          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
+          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+
+          if (startDate < fetchedUntil) {
+            this.fetchEarlierData({
+              returnData: false,
+              showLoading: false,
+              startDate,
+            });
+
+            // In cases where we need to fetch data via an async backend call, we need to pre-open
+            // the PDF tab ahead of time. Otherwise, it will be treated as a popup, and likely blocked.
+            if (!this.printWindowRef || this.printWindowRef.closed) {
+              const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
+              this.printWindowRef = window.open();
+              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
+            }
+
+            this.setState({ printDialogPDFOpts: opts });
+          } else {
+            this.generatePDF(this.props, this.state, opts);
+          }
+        }}
+        processing={this.state.printDialogProcessing}
+        timePrefs={this.state.timePrefs}
+        trackMetric={this.props.trackMetric}
+      />
+    );
   },
 
   isEmptyPatientData: function() {
@@ -321,7 +428,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             ref="tideline" />
         </div>
       </div>
@@ -361,12 +467,11 @@ export let PatientData = translate()(createReactClass({
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
+            onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
             stats={stats}
-            // updateBasicsData={this.updateBasicsData}
             updateBasicsSettings={this.updateBasicsSettings}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -394,7 +499,6 @@ export let PatientData = translate()(createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
-            pdf={this.props.pdf.combined || {}}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -453,7 +557,6 @@ export let PatientData = translate()(createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            pdf={this.props.pdf.combined || {}}
             queryDataCount={this.state.queryDataCount}
             ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
@@ -461,6 +564,41 @@ export let PatientData = translate()(createReactClass({
       case 'settings':
         return this.renderSettings();
     }
+  },
+
+  renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
+    const { t } = props;
+
+    return (
+      <Box p={2} sx={{
+        borderTop: '1px solid',
+        borderColor: 'grays.1',
+      }}>
+        <PopoverLabel
+          id='exclude-bolus-info'
+          label={(
+            <Checkbox
+              checked={_.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
+              label={t('Exclude days with no boluses')}
+              onChange={this.toggleDaysWithoutBoluses}
+              themeProps={{
+                color: 'stat.text',
+              }}
+            />
+          )}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
+              </Paragraph2>
+              <Paragraph2>
+                {t('If this option is checked, days without boluses will be excluded when calculating this stat and the "Avg per day" count in the "Bolusing" calendar summary.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+      </Box>
+    );
   },
 
   renderMessagesContainer: function() {
@@ -490,6 +628,32 @@ export let PatientData = translate()(createReactClass({
     }
   },
 
+  toggleDaysWithoutBoluses: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const prefs = _.cloneDeep(this.state.chartPrefs);
+    prefs.basics.stats.excludeDaysWithoutBolus = !prefs.basics.stats.excludeDaysWithoutBolus;
+    if (prefs.basics.stats.excludeDaysWithoutBolus) this.props.trackMetric('Basics exclude days without boluses');
+    this.updateChartPrefs(prefs, false, true, true);
+  },
+
+  closeDatesDialog: function() {
+    this.setState({
+      datesDialogOpen: false,
+      datesDialogProcessing: false,
+      datesDialogFetchingData: false,
+    });
+  },
+
+  closePrintDialog: function() {
+    this.setState({
+      printDialogOpen: false,
+      printDialogPDFOpts: null,
+    });
+  },
+
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
     this.refs.tideline.getWrappedInstance().closeMessageThread();
@@ -505,12 +669,13 @@ export let PatientData = translate()(createReactClass({
   generateStats: function (props = this.props, state = this.state) {
     const {
       bgPrefs = {},
-    } = this.state;
+      chartType,
+    } = state;
 
     const manufacturer = this.getMetaData('latestPumpUpload.manufacturer');
     const bgSource = this.getMetaData('bgSources.current');
     const endpoints = this.getCurrentData('endpoints');
-    const statsData = this.getCurrentData('stats');
+    const { averageDailyDose, ...statsData } = this.getCurrentData('stats');
 
     const stats = [];
 
@@ -522,8 +687,56 @@ export let PatientData = translate()(createReactClass({
         manufacturer,
       });
 
-      if (statType === 'averageDailyDose' && _.isFunction(props.onAverageDailyDoseInputChange)) {
-        stat.onInputChange = props.onAverageDailyDoseInputChange;
+      if (statType === 'totalInsulin' && chartType === 'basics') {
+        // We nest the averageDailyDose stat within the totalInsulin stat
+        stat.title = props.t('Avg. Daily Insulin Ratio');
+        delete stat.dataFormat.title;
+        delete stat.data.dataPaths.title;
+
+        const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
+        const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
+
+        const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
+          bgSource,
+          days: endpoints.activeDays || endpoints.days,
+          bgPrefs,
+          manufacturer,
+        });
+
+        const averageDailyDoseComponent = (
+          <Box
+            mt={1}
+            theme={baseTheme}
+            sx={{
+              '#Stat--averageDailyDose': {
+                marginBottom: 0,
+
+                '> div > div:first-child, > div > div:first-child > div': {
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  borderBottom: 'none',
+                  borderRadius: 0,
+                  borderColor: 'grays.1',
+                },
+              }
+            }}
+          >
+            <Stats stats={[ averageDailyDoseStat ]} chartPrefs={state.chartPrefs} bgPrefs={bgPrefs} />
+          </Box>
+        );
+
+        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+          // If any of the calendar dates within the range are missing boluses,
+          // present a checkbox to disable them from insulin stat calculations
+          stat.children = (
+            <React.Fragment>
+              {averageDailyDoseComponent}
+              {this.renderExcludeEmptyBolusDaysCheckbox(props, state)}
+            </React.Fragment>
+          )
+        } else {
+          stat.children = averageDailyDoseComponent;
+        }
       }
 
       stats.push(stat);
@@ -533,7 +746,7 @@ export let PatientData = translate()(createReactClass({
     return stats;
   },
 
-  generatePDF: function (props = this.props, state = this.state) {
+  generatePDF: function(props = this.props, state = this.state, pdfOpts = {}) {
     const patientSettings = _.get(props, 'patient.settings', {});
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
     const pdfPatient = _.assign({}, props.patient, {
@@ -542,6 +755,7 @@ export let PatientData = translate()(createReactClass({
 
     const opts = {
       patient: pdfPatient,
+      ..._.mapValues(pdfOpts, chartType => ({ disabled: chartType.disabled })),
     };
 
     const commonQueries = {
@@ -551,22 +765,33 @@ export let PatientData = translate()(createReactClass({
       excludedDevices: state.chartPrefs.excludedDevices,
     };
 
-    const queries = {
-      basics: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'basics')).toISOString(),
-          { chartType: 'basics' }
-        ),
+    const queries = {};
+
+    if (!opts.basics.disabled) {
+      queries.basics = {
+        endpoints: pdfOpts.basics.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        stats: this.getStatsByChartType('basics'),
         bgSource: _.get(this.state.chartPrefs, 'basics.bgSource'),
+        stats: this.getStatsByChartType('basics'),
+        excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
         ...commonQueries,
-      },
-      daily: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'daily')).toISOString(),
-          { chartType: 'daily', extentSize: state.printOpts.numDays.daily, applyTimeZoneToStart: true }
-        ),
+      };
+    }
+
+    if (!opts.bgLog.disabled) {
+      queries.bgLog = {
+        endpoints: pdfOpts.bgLog.endpoints,
+        aggregationsByDate: 'dataByDate',
+        stats: this.getStatsByChartType('bgLog'),
+        types: { smbg: {} },
+        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+        ...commonQueries,
+      };
+    }
+
+    if (!opts.daily.disabled) {
+      queries.daily = {
+        endpoints: pdfOpts.daily.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         stats: this.getStatsByChartType('daily'),
         types: {
@@ -581,22 +806,14 @@ export let PatientData = translate()(createReactClass({
         },
         bgSource: _.get(this.state.chartPrefs, 'daily.bgSource'),
         ...commonQueries,
-      },
-      bgLog: {
-        endpoints: this.getChartEndpoints(
-          moment.utc(this.getMostRecentDatumTimeByChartType(props, 'bgLog')).toISOString(),
-          { chartType: 'bgLog', extentSize: state.printOpts.numDays.bgLog }
-        ),
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(this.state.chartPrefs, 'bgLog.bgSource'),
+      };
+    }
+
+    if (!opts.settings.disabled) {
+      queries.settings = {
         ...commonQueries,
-      },
-      settings: {
-        ...commonQueries,
-      },
-    };
+      };
+    }
 
     this.log('Generating PDF with', queries, opts);
 
@@ -725,8 +942,9 @@ export let PatientData = translate()(createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
+    const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
+    const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
@@ -793,16 +1011,24 @@ export let PatientData = translate()(createReactClass({
     this.updateChart('settings');
   },
 
-  handleClickPrint: function(pdf = {}) {
+  handleClickPrint: function() {
     this.props.trackMetric('Clicked Print', {
       fromChart: this.state.chartType
     });
 
-    if (pdf.url) {
-      const printWindow = window.open(pdf.url);
-      printWindow.focus();
-      printWindow.print();
-    }
+    this.props.removeGeneratedPDFS();
+    this.setState({ printDialogOpen: true });
+  },
+
+  handleClickChartDates: function() {
+    this.props.trackMetric('Clicked Chart Dates', {
+      fromChart: this.state.chartType
+    });
+
+    this.setState({
+      datesDialogOpen: true,
+      datesDialogProcessing: false,
+    });
   },
 
   handleClickRefresh: function(e) {
@@ -854,7 +1080,7 @@ export let PatientData = translate()(createReactClass({
     }
   },
 
-  updateChartPrefs: function(updates, queryData = true, queryStats = false) {
+  updateChartPrefs: function(updates, queryData = true, queryStats = false, queryAggregations = false) {
     const newPrefs = {
       ...this.state.chartPrefs,
       ...updates,
@@ -867,13 +1093,14 @@ export let PatientData = translate()(createReactClass({
 
       if (queryData) {
         this.queryData(undefined, queryOpts);
-      } else if (queryStats) {
-        const statsQuery = {
+      } else if (queryStats || queryAggregations) {
+        const query = {
           endpoints: _.get(this.state, 'chartEndpoints.current'),
-          stats: this.getStatsByChartType(),
-        }
+          stats: queryStats ? this.getStatsByChartType() : undefined,
+          aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
+        };
 
-        this.queryData(statsQuery, queryOpts);
+        this.queryData(query, queryOpts);
       }
     });
   },
@@ -889,29 +1116,11 @@ export let PatientData = translate()(createReactClass({
 
     const timezoneName = applyTimeZoneToStart ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC';
 
-    let start;
     const end = setEndToLocalCeiling
       ? getLocalizedCeiling(datetimeLocation, this.state.timePrefs).valueOf()
       : Date.parse(datetimeLocation);
 
-    switch (chartType) {
-      case 'basics':
-        start = findBasicsStart(datetimeLocation, timezoneName).valueOf();
-        break;
-
-      case 'daily':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'bgLog':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-
-      case 'trends':
-        start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
-        break;
-    }
-
+    const start = moment.utc(end).tz(timezoneName).subtract(extentSize, 'days').valueOf();
     return (start && end ? [start, end] : []);
   },
 
@@ -919,8 +1128,8 @@ export let PatientData = translate()(createReactClass({
     return _.get(this.props, `data.data.current.${path}`, emptyValue);
   },
 
-  getMetaData: function(path, emptyValue = {}) {
-    return _.get(this.props, `data.metaData.${path}`, emptyValue);
+  getMetaData: function(path, emptyValue = {}, props = this.props) {
+    return _.get(props, `data.metaData.${path}`, emptyValue);
   },
 
   getBasicsAggregations: function() {
@@ -936,6 +1145,7 @@ export let PatientData = translate()(createReactClass({
       vizUtils.aggregation.defineBasicsAggregations(
         bgPrefs,
         manufacturer,
+        latestPumpUpload,
       ),
       aggregationsByDate,
       this.props.patient,
@@ -943,10 +1153,27 @@ export let PatientData = translate()(createReactClass({
     );
   },
 
+  getAggregationsByChartType: function(chartType = this.state.chartType) {
+    let aggregations;
+
+    switch (chartType) {
+      case 'basics':
+        aggregations = 'basals, boluses, fingersticks, siteChanges';
+        break;
+
+      default:
+        aggregations = undefined;
+        break;
+    }
+
+    return aggregations;
+  },
+
   getStatsByChartType: function(chartType = this.state.chartType) {
     const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
     const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
 
     let stats = [];
 
@@ -958,9 +1185,11 @@ export let PatientData = translate()(createReactClass({
         cbgSelected && stats.push(commonStats.sensorUsage);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
         break;
 
@@ -970,6 +1199,7 @@ export let PatientData = translate()(createReactClass({
         stats.push(commonStats.averageGlucose);
         stats.push(commonStats.totalInsulin);
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
         cbgSelected && stats.push(commonStats.standardDev);
         cbgSelected && stats.push(commonStats.coefficientOfVariation);
@@ -987,6 +1217,8 @@ export let PatientData = translate()(createReactClass({
         smbgSelected && stats.push(commonStats.readingsInRange);
         stats.push(commonStats.averageGlucose);
         cbgSelected && stats.push(commonStats.sensorUsage);
+        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
+        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
@@ -1032,7 +1264,6 @@ export let PatientData = translate()(createReactClass({
           'bolus',
           'cbg',
           'deviceEvent',
-          'pumpSettings',
           'smbg',
           'wizard',
         ]);
@@ -1078,6 +1309,7 @@ export let PatientData = translate()(createReactClass({
     const defaultQuery = {
       metaData: [
         'bgSources',
+        'excludedDevices',
         'latestDatumByType',
         'latestPumpUpload',
         'patientId',
@@ -1181,7 +1413,8 @@ export let PatientData = translate()(createReactClass({
               select: 'id,deviceId,deviceTags',
             },
           },
-          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices',
+          metaData: 'latestDatumByType,latestPumpUpload,size,bgSources,devices,excludedDevices',
+          excludedDevices: undefined,
           timePrefs,
           bgPrefs,
         });
@@ -1237,20 +1470,72 @@ export let PatientData = translate()(createReactClass({
       if (newDataAdded) {
         // New data has been added. Let's query it to update the chart.
         this.queryData();
+
+        // If new data was fetched to support requested PDF dates, kick off pdf generation.
+        if (this.state.printDialogPDFOpts) {
+          this.generatePDF(nextProps, this.state, this.state.printDialogPDFOpts);
+        }
+
+        // If new data was fetched to support new chart dates,
+        // close the and reset the chart date dialog.
+        if (this.state.datesDialogFetchingData) {
+          this.closeDatesDialog();
+        }
       }
     }
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerating = nextProps.generatingPDF.inProgress;
     const pdfGenerated = _.isObject(nextProps.pdf.combined);
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
-    // Ahead-Of-Time pdf generation for non-blocked print popup.
-    // Whenever patientData is processed or the chartType changes, such as after a refresh
-    // we check to see if we need to generate a new pdf to avoid stale data
-    if (!this.isInitialProcessing() && !nextState.queryingData && !pdfGenerating && !pdfGenerated && !pdfGenerationFailed) {
-      this.generatePDF(nextProps, nextState);
+    if (nextState.printDialogProcessing && pdfGenerated) {
+      this.setState({ printDialogProcessing: false });
+
+      if (nextState.printDialogOpen && !pdfGenerationFailed) {
+        this.closePrintDialog();
+      }
+
+      if (nextProps.pdf.combined.url) {
+        if (this.printWindowRef && !this.printWindowRef.closed) {
+          // If we already have a ref to a PDF window, (re)use it
+          this.printWindowRef.location.href = nextProps.pdf.combined.url;
+        } else {
+          // Otherwise, we create and open a new PDF window ref.
+          this.printWindowRef = window.open(nextProps.pdf.combined.url);
+        }
+
+        setTimeout(() => {
+          if (this.printWindowRef) {
+            this.printWindowRef.focus();
+            this.printWindowRef.print();
+          } else {
+            const { set: setToast } = this.context;
+
+            setToast({
+              message: this.props.t('A popup blocker is preventing your report from opening.'),
+              variant: 'warning',
+              autoHideDuration: null,
+              action: (
+                <Button
+                  p={0}
+                  lineHeight={1.5}
+                  fontSize={1}
+                  variant="textPrimary"
+                  onClick={() => {
+                    this.printWindowRef = window.open(nextProps.pdf.combined.url);
+                    this.printWindowRef.focus();
+                    this.printWindowRef.print();
+                    setToast(null);
+                  }}
+                >
+                  {this.props.t('Open it anyway')}
+                </Button>
+              ),
+            });
+          }
+        });
+      }
     }
   },
 
@@ -1259,7 +1544,7 @@ export let PatientData = translate()(createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices',
+      metaData: 'bgSources,devices,excludedDevices',
     });
 
     if (this.state.queryingData) return;
@@ -1269,6 +1554,7 @@ export let PatientData = translate()(createReactClass({
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
+      excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
     };
@@ -1399,6 +1685,7 @@ export let PatientData = translate()(createReactClass({
     const uploads = _.get(props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
+    const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
@@ -1428,6 +1715,7 @@ export let PatientData = translate()(createReactClass({
         basics: { ...this.state.chartPrefs.basics, bgSource },
         daily: { ...this.state.chartPrefs.daily, bgSource },
         trends: { ...this.state.chartPrefs.trends, bgSource },
+        excludedDevices,
       }, false);
 
       this.updateChart(chartType, datetimeLocation, endpoints);
@@ -1441,36 +1729,27 @@ export let PatientData = translate()(createReactClass({
       return;
     };
 
-    _.defaults(options, {
-      showLoading: true,
-    })
-
-    this.log('fetching');
-
     const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
 
-    const requestedPatientDataRange = {
-      start: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
-      end: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
-    };
-
-    const count = this.state.fetchEarlierDataCount + 1;
-
-    this.setState({
-      loading: options.showLoading,
-      requestedPatientDataRange,
-      fetchEarlierDataCount: count,
-    });
-
     const fetchOpts = _.defaults(options, {
-      startDate: requestedPatientDataRange.start,
-      endDate: requestedPatientDataRange.end,
+      showLoading: true,
+      startDate: moment.utc(earliestRequestedData).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).subtract(16, 'weeks').toISOString(),
+      endDate: moment.utc(earliestRequestedData).subtract(1, 'milliseconds').toISOString(),
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
       useCache: false,
       initial: false,
     });
+
+    const count = this.state.fetchEarlierDataCount + 1;
+
+    this.setState({
+      loading: options.showLoading,
+      fetchEarlierDataCount: count,
+    });
+
+    this.log('fetching');
 
     this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
 
@@ -1517,7 +1796,14 @@ export let PatientData = translate()(createReactClass({
       fetcher();
     });
   },
-}));
+});
+
+PatientDataClass.contextType = ToastContext;
+
+// We need to apply the contextType prop to use the Toast provider with create-react-class.
+// This produces an issue with the current enzyme mounting and breaks unit tests.
+// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
+export const PatientData = translate()(props => <PatientDataClass {...props}/>);
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux

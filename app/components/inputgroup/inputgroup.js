@@ -1,19 +1,3 @@
-
-/**
- * Copyright (c) 2014, Tidepool Project
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
@@ -40,6 +24,8 @@ class InputGroup extends React.Component {
     rows: PropTypes.number,
     disabled: PropTypes.bool,
     multi: PropTypes.bool,
+    autoFocus: PropTypes.bool,
+    defaultChecked: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -121,6 +107,7 @@ class InputGroup extends React.Component {
         placeholder={this.props.placeholder}
         onChange={this.handleChange}
         disabled={this.props.disabled}
+        autoFocus={!!this.props.autoFocus}
         ref="control"/>
     );
   };
@@ -157,6 +144,7 @@ class InputGroup extends React.Component {
           checked={this.props.value}
           onChange={this.handleChange}
           disabled={this.props.disabled}
+          defaultChecked={this.props.defaultChecked}
           ref="control"/>
         {' '}
         {this.props.label}

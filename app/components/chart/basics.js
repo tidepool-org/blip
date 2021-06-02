@@ -37,7 +37,6 @@ class Basics extends Component {
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
-    pdf: PropTypes.object.isRequired,
     stats: PropTypes.array.isRequired,
     permsOfLoggedInUser: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
@@ -63,10 +62,18 @@ class Basics extends Component {
     title: this.getTitle(),
   });
 
+  UNSAFE_componentWillReceiveProps = nextProps => {
+    const newEndpointsRecieved = _.get(this.props, 'data.data.current.endpoints.range') !== _.get(nextProps, 'data.data.current.endpoints.range');
+    if (newEndpointsRecieved) {
+      this.setState({ title: this.getTitle(nextProps, false) });
+    }
+  };
+
   render = () => {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
+
     let renderedContent;
     if (dataQueryComplete) {
       renderedContent = this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart();
@@ -77,11 +84,11 @@ class Basics extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
           onClickBasics={this.handleClickBasics}
+          onClickChartDates={this.props.onClickChartDates}
           onClickOneDay={this.handleClickOneDay}
           onClickTrends={this.handleClickTrends}
           onClickRefresh={this.props.onClickRefresh}
@@ -143,6 +150,7 @@ class Basics extends Component {
           bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
           data={this.props.data}
+          excludeDaysWithoutBolus={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -167,6 +175,7 @@ class Basics extends Component {
         <p>To see the Basics, <a
             href={this.props.uploadUrl}
             target="_blank"
+            rel="noreferrer noopener"
             onClick={handleClickUpload}>upload</a> some device data.</p>
         <p>If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.
         </p>
@@ -174,13 +183,13 @@ class Basics extends Component {
     );
   };
 
-  getTitle = () => {
-    const { t } = this.props;
-    if (this.isMissingBasics()) {
+  getTitle = (props = this.props, checkMissing = true) => {
+    const { t } = props;
+    if (checkMissing && this.isMissingBasics(props)) {
       return '';
     }
 
-    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const timePrefs = _.get(props, 'data.timePrefs', {});
     let timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -190,12 +199,12 @@ class Basics extends Component {
     }
 
     const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(this.props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
+    return sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
   }
 
-  isMissingBasics = () => {
-    const aggregationsByDate = _.get(this.props, 'data.data.aggregationsByDate', {});
+  isMissingBasics = (props = this.props) => {
+    const aggregationsByDate = _.get(props, 'data.data.aggregationsByDate', {});
     return isMissingBasicsData(aggregationsByDate);
   };
 
