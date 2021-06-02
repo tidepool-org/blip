@@ -182,6 +182,7 @@ export const AccessManagement = (props) => {
       }))),
       ...(map(reject(pendingSentInvites, personUtils.isDataDonationAccount), invite => ({
         email: invite.email,
+        key: invite.key,
         nameOrderable: invite.email,
         permissions: invite.context,
         role: 'member',
@@ -268,7 +269,7 @@ export const AccessManagement = (props) => {
     });
 
     dispatch(
-      actions.async.sendInvite(api, member.email, member.permissions)
+      actions.async.sendInvite(api, member.email, member.permissions, member.key)
     );
   }
 
@@ -321,19 +322,19 @@ export const AccessManagement = (props) => {
       : t('Allow upload permission');
 
       items.push({
+        disabled: settingMemberPermissions.inProgress,
         icon: settingMemberPermissions.inProgress ? CircularProgress : PublishRoundedIcon,
-        processing: settingMemberPermissions.inProgress,
         iconLabel: uploadPermissionLabel,
         iconPosition: 'left',
         id: `upload-permission-${member.userId}`,
-        variant: 'actionListItem',
-        disabled: settingMemberPermissions.inProgress,
         onClick: _popupState => {
           setPopupState(_popupState);
           setSelectedSharedAccount(member);
           handleUploadPermissionsToggle(member);
         },
+        processing: settingMemberPermissions.inProgress,
         text: uploadPermissionLabel,
+        variant: 'actionListItem',
       });
 
       items.push({
@@ -341,43 +342,45 @@ export const AccessManagement = (props) => {
         iconLabel: t('Remove Member'),
         iconPosition: 'left',
         id: `delete-${member.userId}`,
-        variant: 'actionListItemDanger',
         onClick: _popupState => {
           _popupState.close();
           setSelectedSharedAccount(member);
           setShowDeleteDialog(true);
         },
         text: t('Remove Member'),
+        variant: 'actionListItemDanger',
       });
     }
 
     if (member.type === 'careteam_invitation') {
       items.push(...[
         {
+          disabled: sendingInvite.inProgress,
           icon: InputIcon,
           iconLabel: t('Resend Invitation'),
           iconPosition: 'left',
           id: `resendInvite-${member.inviteId}`,
-          variant: 'actionListItem',
           onClick: _popupState => {
             setPopupState(_popupState);
             setSelectedSharedAccount(member);
             handleResendInvite(member);
           },
+          processing: sendingInvite.inProgress,
           text: t('Resend invitation'),
+          variant: 'actionListItem',
         },
         {
           icon: DeleteForeverIcon,
           iconLabel: t('Delete Invitation'),
           iconPosition: 'left',
           id: `deleteInvite-${member.inviteId}`,
-          variant: 'actionListItemDanger',
           onClick: _popupState => {
             _popupState.close();
             setSelectedSharedAccount(member);
             setShowDeleteDialog(true);
           },
           text: t('Revoke invitation'),
+          variant: 'actionListItemDanger',
         },
       ]);
     }
