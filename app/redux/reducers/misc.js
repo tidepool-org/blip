@@ -515,6 +515,9 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
     case types.SEND_INVITE_SUCCESS:
       const invite = _.get(action.payload, 'invite', null);
       if (invite) {
+        // Replace at index of existing invite if already in state, else push if new.
+        const existingInviteIndex = _.findIndex(state, { key: invite.key });
+        if (existingInviteIndex >= 0) return update(state, { $splice: [[existingInviteIndex, 1, invite]] });
         return update(state, { $push: [ action.payload.invite ] });
       }
       return state;
