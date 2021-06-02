@@ -48,7 +48,6 @@ export default class PDFWorker {
           _.each(queries, (query, key) => {
             this.log(key, query);
             data[key] = this.dataUtil.query(query);
-            opts[key] = {};
 
             switch(key) {
               case 'basics':

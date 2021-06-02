@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Flex, Box, Text, BoxProps } from 'rebass/styled-components';
-import { Label, Input as Base, InputProps } from '@rebass/forms';
+import { Label, Input as Base, InputProps } from '@rebass/forms/styled-components';
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
 import cx from 'classnames';
@@ -17,7 +17,7 @@ const StyledWrapper = styled(Flex)`
 
   .MuiSvgIcon-root {
     color: inherit;
-    pointer-events: none;
+    pointer-events: inherit;
   }
 `;
 
@@ -27,7 +27,9 @@ export const TextInput = (props) => {
     name,
     width = ['100%', '75%', '50%'],
     icon,
+    iconLabel,
     innerRef,
+    onClickIcon,
     prefix,
     suffix,
     themeProps,
@@ -61,7 +63,15 @@ export const TextInput = (props) => {
           ref={innerRef}
           {...inputProps}
         />
-        {icon && <Icon className="icon" icon={icon} label={label} />}
+        {icon && (
+          <Icon
+            className="icon"
+            icon={icon}
+            label={iconLabel || label}
+            cursor={onClickIcon ? 'pointer' : 'auto'}
+            onClick={onClickIcon}
+          />
+        )}
         {suffix && <Text className="suffix">{suffix}</Text>}
       </StyledWrapper>
       {error && (
@@ -87,11 +97,13 @@ TextInput.propTypes = {
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   label: PropTypes.string,
+  onClickIcon: PropTypes.func,
   prefix: PropTypes.string,
   suffix: PropTypes.string,
   space: PropTypes.number,
   disabled: PropTypes.bool,
   icon: PropTypes.elementType,
+  iconLabel: PropTypes.string,
   themeProps: PropTypes.shape(BoxProps),
   variant: PropTypes.oneOf(['default', 'condensed']),
   required: PropTypes.bool,

@@ -58,11 +58,11 @@ DialogTitle.defaultProps = {
 
 /* Dialog Content Start */
 const StyledDialogContent = styled(Box)`
-  div:first-child {
+  > div:first-child {
     margin-top: 0;
   }
 
-  div:last-child {
+  > div:last-child {
     margin-bottom: 0;
   }
 `;
@@ -107,6 +107,9 @@ DialogActions.propTypes = {
 
 /* Dialog Start */
 const StyledDialog = styled(MuiDialog)`
+  .MuiBackdrop-root {
+    background-color: rgba(66, 90, 112, 0.81);
+  }
   .MuiDialog-paper {
     border: ${borders.modal};
     box-shadow: ${shadows.large};
@@ -119,5 +122,9 @@ export const Dialog = props => <StyledDialog {...props} />;
 Dialog.propTypes = {
   ...DialogProps,
   id: PropTypes.string.isRequired,
+};
+
+Dialog.defaultProps = {
+  keepMounted: true,
 };
 /* Dialog End */

@@ -67,6 +67,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
       background: ${colors.purpleLight};
       border-radius: 0;
     }
+
     &.CalendarDay__blocked_out_of_range {
       background-color: ${colors.lightestGrey};
       color: ${colors.blueGreyLight};

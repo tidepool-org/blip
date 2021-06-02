@@ -153,7 +153,7 @@ describe('Settings', function () {
       expect(props.onClickRefresh.callCount).to.equal(1);
     });
 
-    it('should have a disabled print button and spinner when a pdf is not ready to print', function () {
+    it('should have a print button and icon and call onClickPrint when clicked', function () {
       var props = {
         chartPrefs: {},
         data: {
@@ -162,45 +162,15 @@ describe('Settings', function () {
             timezoneAware: false,
             timezoneName: 'US/Pacific',
           },
-        },
-        printReady: false,
-        pdf: {},
-      };
-
-      var settingsElem = React.createElement(Settings, props);
-      var elem = TestUtils.renderIntoDocument(settingsElem);
-
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-disabled', 'printview-print-icon']);
-      var spinner = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-loading-spinner');
-
-      expect(printLink).to.be.ok;
-      expect(spinner).to.be.ok;
-    });
-
-    it('should have an enabled print button and icon when a pdf is ready and call onClickPrint when clicked', function () {
-      var props = {
-        chartPrefs: {},
-        data: {
-          bgPrefs,
-          timePrefs: {
-            timezoneAware: false,
-            timezoneName: 'US/Pacific',
-          },
-        },
-        printReady: true,
-        pdf: {
-          url: 'blobURL',
         },
         onClickPrint: sinon.spy(),
       };
 
       var settingsElem = React.createElement(Settings, props);
       var elem = TestUtils.renderIntoDocument(settingsElem);
-      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, ['patient-data-subnav-active', 'printview-print-icon']);
-      var printIcon = TestUtils.findRenderedDOMComponentWithClass(elem, 'print-icon');
+      var printLink = TestUtils.findRenderedDOMComponentWithClass(elem, 'printview-print-icon');
 
       expect(printLink).to.be.ok;
-      expect(printIcon).to.be.ok;
 
       expect(props.onClickPrint.callCount).to.equal(0);
       TestUtils.Simulate.click(printLink);

@@ -39,6 +39,7 @@ const StyledRadio = styled(Base)`
 
 const StyledRadioLabel = styled(Text)`
   margin-right: 2em;
+  margin-top: .15em;
 
   &.disabled {
     color: ${colors.text.primaryDisabled};
@@ -59,8 +60,10 @@ const Radio = (props) => {
   });
 
   return (
-    <Label width="auto" mb={2} alignItems="center">
-      <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
+    <Label width="auto" mb={2} alignItems="flex-start">
+      <Box minWidth="auto">
+        <StyledRadio ref={innerRef} className={classNames} {...radioProps} />
+      </Box>
       <StyledRadioLabel className={classNames} as="span">
         {label}
       </StyledRadioLabel>
@@ -118,8 +121,8 @@ export const RadioGroup = (props) => {
             id={`${name}-${i}`}
             key={option.value}
             name={name}
-            value={option.value}
-            checked={value === option.value}
+            value={String(option.value)}
+            checked={String(value) === String(option.value)}
             onChange={onChange}
             label={option.label}
             error={error}
@@ -145,7 +148,10 @@ RadioGroup.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   disabled: PropTypes.bool,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
   onChange: PropTypes.func.isRequired,
   variant: PropTypes.oneOf(['horizontal', 'vertical', 'verticalBordered']),
   options: PropTypes.arrayOf(

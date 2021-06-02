@@ -1599,7 +1599,7 @@ describe('working', () => {
 
   describe('deletePrescription', () => {
     describe('request', () => {
-      it('should leave deletingPrescription.completed unchanged', () => {
+      it('should set deletingPrescription.completed to null', () => {
         expect(initialState.deletingPrescription.completed).to.be.null;
 
         let requestAction = actions.sync.deletePrescriptionRequest();
@@ -1613,7 +1613,7 @@ describe('working', () => {
         expect(successState.deletingPrescription.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.deletingPrescription.completed).to.be.true;
+        expect(state.deletingPrescription.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -4122,4 +4122,2259 @@ describe('dataWorkerQueryData', () => {
       });
     });
   });
+
+  describe('getClinics', () => {
+    describe('request', () => {
+      it('should leave fetchingClinics.completed unchanged', () => {
+        expect(initialState.fetchingClinics.completed).to.be.null;
+
+        let requestAction = actions.sync.getClinicsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinics.completed).to.be.null;
+
+        let successAction = actions.sync.getClinicsSuccess('foo', {some:'option'});
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinics.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinics.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinics.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.getClinicsRequest();
+
+        expect(initialStateForTest.fetchingClinics.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinics.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinics.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinics.completed).to.be.null;
+
+        let failureAction = actions.sync.getClinicsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinics.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinics.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinics: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.getClinicsFailure(error);
+
+        expect(initialStateForTest.fetchingClinics.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinics.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinics.inProgress).to.be.false;
+        expect(state.fetchingClinics.notification.type).to.equal('error');
+        expect(state.fetchingClinics.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinics.completed to be true', () => {
+        expect(initialState.fetchingClinics.completed).to.be.null;
+
+        let successAction = actions.sync.getClinicsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinics.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinics.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinics: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.getClinicsSuccess([ {clinic: {id:1} } ]);
+
+        expect(initialStateForTest.fetchingClinics.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinics.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createClinic', () => {
+    describe('request', () => {
+      it('should leave creatingClinic.completed unchanged', () => {
+        expect(initialState.creatingClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.createClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createClinicRequest();
+
+        expect(initialStateForTest.creatingClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.createClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createClinicFailure(error);
+
+        expect(initialStateForTest.creatingClinic.inProgress).to.be.true;
+        expect(initialStateForTest.creatingClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinic.inProgress).to.be.false;
+        expect(state.creatingClinic.notification.type).to.equal('error');
+        expect(state.creatingClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingClinic.completed to be true', () => {
+        expect(initialState.creatingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createClinicSuccess({id:'clinicId'});
+
+        expect(initialStateForTest.creatingClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchClinic', () => {
+    describe('request', () => {
+      it('should leave fetchingClinic.completed unchanged', () => {
+        expect(initialState.fetchingClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchClinicRequest();
+
+        expect(initialStateForTest.fetchingClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchClinicFailure(error);
+
+        expect(initialStateForTest.fetchingClinic.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinic.inProgress).to.be.false;
+        expect(state.fetchingClinic.notification.type).to.equal('error');
+        expect(state.fetchingClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinic.completed to be true', () => {
+        expect(initialState.fetchingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchClinicSuccess({id:'clinicId'});
+
+        expect(initialStateForTest.fetchingClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('updateClinic', () => {
+    describe('request', () => {
+      it('should leave updatingClinic.completed unchanged', () => {
+        expect(initialState.updatingClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.updateClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicSuccess('foo', {some:'update'});
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.updateClinicRequest();
+
+        expect(initialStateForTest.updatingClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.updatingClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.updateClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.updateClinicFailure(error);
+
+        expect(initialStateForTest.updatingClinic.inProgress).to.be.true;
+        expect(initialStateForTest.updatingClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinic.inProgress).to.be.false;
+        expect(state.updatingClinic.notification.type).to.equal('error');
+        expect(state.updatingClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingClinic.completed to be true', () => {
+        expect(initialState.updatingClinic.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.updateClinicSuccess('clinicId', {id:'clinicId', name:'newName'});
+
+        expect(initialStateForTest.updatingClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchCliniciansFromClinic', () => {
+    describe('request', () => {
+      it('should leave fetchingCliniciansFromClinic.completed unchanged', () => {
+        expect(initialState.fetchingCliniciansFromClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchCliniciansFromClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingCliniciansFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchCliniciansFromClinicSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingCliniciansFromClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingCliniciansFromClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingCliniciansFromClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchCliniciansFromClinicRequest();
+
+        expect(initialStateForTest.fetchingCliniciansFromClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingCliniciansFromClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingCliniciansFromClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingCliniciansFromClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchCliniciansFromClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingCliniciansFromClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingCliniciansFromClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingCliniciansFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchCliniciansFromClinicFailure(error);
+
+        expect(initialStateForTest.fetchingCliniciansFromClinic.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingCliniciansFromClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingCliniciansFromClinic.inProgress).to.be.false;
+        expect(state.fetchingCliniciansFromClinic.notification.type).to.equal('error');
+        expect(state.fetchingCliniciansFromClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingCliniciansFromClinic.completed to be true', () => {
+        expect(initialState.fetchingCliniciansFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchCliniciansFromClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingCliniciansFromClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingCliniciansFromClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingCliniciansFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchCliniciansFromClinicSuccess([{id:'clinicianId'}]);
+
+        expect(initialStateForTest.fetchingCliniciansFromClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingCliniciansFromClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchClinician', () => {
+    describe('request', () => {
+      it('should leave fetchingClinician.completed unchanged', () => {
+        expect(initialState.fetchingClinician.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchClinicianRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinician.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicianSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinician.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinician.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinician.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchClinicianRequest();
+
+        expect(initialStateForTest.fetchingClinician.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinician.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinician.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinician.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchClinicianFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinician.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinician.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchClinicianFailure(error);
+
+        expect(initialStateForTest.fetchingClinician.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinician.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinician.inProgress).to.be.false;
+        expect(state.fetchingClinician.notification.type).to.equal('error');
+        expect(state.fetchingClinician.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinician.completed to be true', () => {
+        expect(initialState.fetchingClinician.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicianSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinician.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinician.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchClinicianSuccess({id:'clinicianId'});
+
+        expect(initialStateForTest.fetchingClinician.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinician.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('updateClinician', () => {
+    describe('request', () => {
+      it('should set updatingClinician.completed to null', () => {
+        expect(initialState.updatingClinician.completed).to.be.null;
+
+        let requestAction = actions.sync.updateClinicianRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingClinician.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicianSuccess('foo', 'bar', 'baz');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingClinician.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingClinician.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinician.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.updateClinicianRequest();
+
+        expect(initialStateForTest.updatingClinician.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.updatingClinician.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingClinician.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingClinician.completed).to.be.null;
+
+        let failureAction = actions.sync.updateClinicianFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingClinician.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinician.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.updateClinicianFailure(error);
+
+        expect(initialStateForTest.updatingClinician.inProgress).to.be.true;
+        expect(initialStateForTest.updatingClinician.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinician.inProgress).to.be.false;
+        expect(state.updatingClinician.notification.type).to.equal('error');
+        expect(state.updatingClinician.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingClinician.completed to be true', () => {
+        expect(initialState.updatingClinician.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicianSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingClinician.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinician.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.updateClinicianSuccess('clinicId','clinicianId',{id:'clinicianId', name:'newName'});
+
+        expect(initialStateForTest.updatingClinician.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinician.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('deleteClinicianFromClinic', () => {
+    describe('request', () => {
+      it('should set deletingClinicianFromClinic.completed to null', () => {
+        expect(initialState.deletingClinicianFromClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.deleteClinicianFromClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.deletingClinicianFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.deleteClinicianFromClinicSuccess('foo', 'bar');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.deletingClinicianFromClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.deletingClinicianFromClinic.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianFromClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.deleteClinicianFromClinicRequest();
+
+        expect(initialStateForTest.deletingClinicianFromClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.deletingClinicianFromClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set deletingClinicianFromClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.deletingClinicianFromClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.deleteClinicianFromClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.deletingClinicianFromClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianFromClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          deletingClinicianFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.deleteClinicianFromClinicFailure(error);
+
+        expect(initialStateForTest.deletingClinicianFromClinic.inProgress).to.be.true;
+        expect(initialStateForTest.deletingClinicianFromClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingClinicianFromClinic.inProgress).to.be.false;
+        expect(state.deletingClinicianFromClinic.notification.type).to.equal('error');
+        expect(state.deletingClinicianFromClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set deletingClinicianFromClinic.completed to be true', () => {
+        expect(initialState.deletingClinicianFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.deleteClinicianFromClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.deletingClinicianFromClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianFromClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          deletingClinicianFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.deleteClinicianFromClinicSuccess('clinicianId', 'clinicId');
+
+        expect(initialStateForTest.deletingClinicianFromClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingClinicianFromClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchPatientsForClinic', () => {
+    describe('request', () => {
+      it('should leave fetchingPatientsForClinic.completed unchanged', () => {
+        expect(initialState.fetchingPatientsForClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchPatientsForClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingPatientsForClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientsForClinicSuccess('foo', 'bar');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingPatientsForClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingPatientsForClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientsForClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchPatientsForClinicRequest();
+
+        expect(initialStateForTest.fetchingPatientsForClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingPatientsForClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingPatientsForClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingPatientsForClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchPatientsForClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingPatientsForClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientsForClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientsForClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchPatientsForClinicFailure(error);
+
+        expect(initialStateForTest.fetchingPatientsForClinic.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingPatientsForClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientsForClinic.inProgress).to.be.false;
+        expect(state.fetchingPatientsForClinic.notification.type).to.equal('error');
+        expect(state.fetchingPatientsForClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingPatientsForClinic.completed to be true', () => {
+        expect(initialState.fetchingPatientsForClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientsForClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingPatientsForClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientsForClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientsForClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchPatientsForClinicSuccess([{id:'patientId', name:'patient name'}]);
+
+        expect(initialStateForTest.fetchingPatientsForClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientsForClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createCustodialAccount', () => {
+    describe('request', () => {
+      it('should set creatingCustodialAccount.completed to null', () => {
+        expect(initialState.creatingCustodialAccount.completed).to.be.null;
+
+        let requestAction = actions.sync.createCustodialAccountRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingCustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createCustodialAccountSuccess('foo', 'bar', 'baz');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingCustodialAccount.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingCustodialAccount.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingCustodialAccount.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createCustodialAccountRequest();
+
+        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingCustodialAccount.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingCustodialAccount.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingCustodialAccount.completed).to.be.null;
+
+        let failureAction = actions.sync.createCustodialAccountFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingCustodialAccount.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingCustodialAccount.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingCustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createCustodialAccountFailure(error);
+
+        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.true;
+        expect(initialStateForTest.creatingCustodialAccount.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingCustodialAccount.inProgress).to.be.false;
+        expect(state.creatingCustodialAccount.notification.type).to.equal('error');
+        expect(state.creatingCustodialAccount.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingCustodialAccount.completed to be true', () => {
+        expect(initialState.creatingCustodialAccount.completed).to.be.null;
+
+        let successAction = actions.sync.createCustodialAccountSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingCustodialAccount.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingCustodialAccount.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingCustodialAccount: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createCustodialAccountSuccess('clinicId', {id:'patientId'},'patientId');
+
+        expect(initialStateForTest.creatingCustodialAccount.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingCustodialAccount.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchPatientFromClinic', () => {
+    describe('request', () => {
+      it('should leave fetchingPatientFromClinic.completed unchanged', () => {
+        expect(initialState.fetchingPatientFromClinic.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchPatientFromClinicRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingPatientFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientFromClinicSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingPatientFromClinic.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingPatientFromClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientFromClinic.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchPatientFromClinicRequest();
+
+        expect(initialStateForTest.fetchingPatientFromClinic.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingPatientFromClinic.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingPatientFromClinic.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingPatientFromClinic.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchPatientFromClinicFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingPatientFromClinic.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientFromClinic.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchPatientFromClinicFailure(error);
+
+        expect(initialStateForTest.fetchingPatientFromClinic.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingPatientFromClinic.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientFromClinic.inProgress).to.be.false;
+        expect(state.fetchingPatientFromClinic.notification.type).to.equal('error');
+        expect(state.fetchingPatientFromClinic.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingPatientFromClinic.completed to be true', () => {
+        expect(initialState.fetchingPatientFromClinic.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientFromClinicSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingPatientFromClinic.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientFromClinic.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientFromClinic: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchPatientFromClinicSuccess({id:'patientId'});
+
+        expect(initialStateForTest.fetchingPatientFromClinic.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientFromClinic.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('updateClinicPatient', () => {
+    describe('request', () => {
+      it('should leave updatingClinicPatient.completed unchanged', () => {
+        expect(initialState.updatingClinicPatient.completed).to.be.null;
+
+        let requestAction = actions.sync.updateClinicPatientRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingClinicPatient.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicPatientSuccess('foo', 'bar', 'baz');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingClinicPatient.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingClinicPatient.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinicPatient.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.updateClinicPatientRequest();
+
+        expect(initialStateForTest.updatingClinicPatient.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.updatingClinicPatient.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingClinicPatient.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingClinicPatient.completed).to.be.null;
+
+        let failureAction = actions.sync.updateClinicPatientFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingClinicPatient.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinicPatient.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinicPatient: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.updateClinicPatientFailure(error);
+
+        expect(initialStateForTest.updatingClinicPatient.inProgress).to.be.true;
+        expect(initialStateForTest.updatingClinicPatient.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinicPatient.inProgress).to.be.false;
+        expect(state.updatingClinicPatient.notification.type).to.equal('error');
+        expect(state.updatingClinicPatient.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingClinicPatient.completed to be true', () => {
+        expect(initialState.updatingClinicPatient.completed).to.be.null;
+
+        let successAction = actions.sync.updateClinicPatientSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingClinicPatient.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingClinicPatient.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingClinicPatient: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.updateClinicPatientSuccess('clinicId','patientId',{id:'patientId', name:'newName'});
+
+        expect(initialStateForTest.updatingClinicPatient.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingClinicPatient.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('sendClinicianInvite', () => {
+    describe('request', () => {
+      it('should set sendingClinicianInvite.completed to null', () => {
+        expect(initialState.sendingClinicianInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.sendClinicianInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.sendingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.sendClinicianInviteSuccess('foo', 'bar');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.sendingClinicianInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.sendingClinicianInvite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicianInvite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.sendClinicianInviteRequest();
+
+        expect(initialStateForTest.sendingClinicianInvite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.sendingClinicianInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set sendingClinicianInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.sendingClinicianInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.sendClinicianInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.sendingClinicianInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicianInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.sendClinicianInviteFailure(error);
+
+        expect(initialStateForTest.sendingClinicianInvite.inProgress).to.be.true;
+        expect(initialStateForTest.sendingClinicianInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingClinicianInvite.inProgress).to.be.false;
+        expect(state.sendingClinicianInvite.notification.type).to.equal('error');
+        expect(state.sendingClinicianInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set sendingClinicianInvite.completed to be true', () => {
+        expect(initialState.sendingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.sendClinicianInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.sendingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicianInvite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.sendClinicianInviteSuccess({id:'clinicianId'});
+
+        expect(initialStateForTest.sendingClinicianInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingClinicianInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('resendClinicianInvite', () => {
+    describe('request', () => {
+      it('should leave resendingClinicianInvite.completed unchanged', () => {
+        expect(initialState.resendingClinicianInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.resendClinicianInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.resendingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.resendClinicianInviteSuccess('foo', 'bar');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.resendingClinicianInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.resendingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set resendingClinicianInvite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.resendClinicianInviteRequest();
+
+        expect(initialStateForTest.resendingClinicianInvite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.resendingClinicianInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set resendingClinicianInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.resendingClinicianInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.resendClinicianInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.resendingClinicianInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set resendingClinicianInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          resendingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.resendClinicianInviteFailure(error);
+
+        expect(initialStateForTest.resendingClinicianInvite.inProgress).to.be.true;
+        expect(initialStateForTest.resendingClinicianInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.resendingClinicianInvite.inProgress).to.be.false;
+        expect(state.resendingClinicianInvite.notification.type).to.equal('error');
+        expect(state.resendingClinicianInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set resendingClinicianInvite.completed to be true', () => {
+        expect(initialState.resendingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.resendClinicianInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.resendingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set resendingClinicianInvite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          resendingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.resendClinicianInviteSuccess({});
+
+        expect(initialStateForTest.resendingClinicianInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.resendingClinicianInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('deleteClinicianInvite', () => {
+    describe('request', () => {
+      it('should set deletingClinicianInvite.completed to null', () => {
+        expect(initialState.deletingClinicianInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.deleteClinicianInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.deletingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.deleteClinicianInviteSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.deletingClinicianInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.deletingClinicianInvite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianInvite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.deleteClinicianInviteRequest();
+
+        expect(initialStateForTest.deletingClinicianInvite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.deletingClinicianInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set deletingClinicianInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.deletingClinicianInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.deleteClinicianInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.deletingClinicianInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          deletingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.deleteClinicianInviteFailure(error);
+
+        expect(initialStateForTest.deletingClinicianInvite.inProgress).to.be.true;
+        expect(initialStateForTest.deletingClinicianInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingClinicianInvite.inProgress).to.be.false;
+        expect(state.deletingClinicianInvite.notification.type).to.equal('error');
+        expect(state.deletingClinicianInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set deletingClinicianInvite.completed to be true', () => {
+        expect(initialState.deletingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.deleteClinicianInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.deletingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set deletingClinicianInvite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          deletingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.deleteClinicianInviteSuccess({});
+
+        expect(initialStateForTest.deletingClinicianInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.deletingClinicianInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchPatientInvites', () => {
+    describe('request', () => {
+      it('should leave fetchingPatientInvites.completed unchanged', () => {
+        expect(initialState.fetchingPatientInvites.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchPatientInvitesRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingPatientInvites.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientInvitesSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingPatientInvites.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingPatientInvites.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientInvites.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchPatientInvitesRequest();
+
+        expect(initialStateForTest.fetchingPatientInvites.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingPatientInvites.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingPatientInvites.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingPatientInvites.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchPatientInvitesFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingPatientInvites.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientInvites.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientInvites: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchPatientInvitesFailure(error);
+
+        expect(initialStateForTest.fetchingPatientInvites.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingPatientInvites.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientInvites.inProgress).to.be.false;
+        expect(state.fetchingPatientInvites.notification.type).to.equal('error');
+        expect(state.fetchingPatientInvites.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingPatientInvites.completed to be true', () => {
+        expect(initialState.fetchingPatientInvites.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientInvitesSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingPatientInvites.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingPatientInvites.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingPatientInvites: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchPatientInvitesSuccess(['inviteId','inviteId2']);
+
+        expect(initialStateForTest.fetchingPatientInvites.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatientInvites.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('acceptPatientInvitation', () => {
+    describe('request', () => {
+      it('should set acceptingPatientInvitation.completed to null', () => {
+        expect(initialState.acceptingPatientInvitation.completed).to.be.null;
+
+        let requestAction = actions.sync.acceptPatientInvitationRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.acceptingPatientInvitation.completed).to.be.null;
+
+        let successAction = actions.sync.acceptPatientInvitationSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.acceptingPatientInvitation.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.acceptingPatientInvitation.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingPatientInvitation.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.acceptPatientInvitationRequest();
+
+        expect(initialStateForTest.acceptingPatientInvitation.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.acceptingPatientInvitation.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set acceptingPatientInvitation.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.acceptingPatientInvitation.completed).to.be.null;
+
+        let failureAction = actions.sync.acceptPatientInvitationFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.acceptingPatientInvitation.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingPatientInvitation.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          acceptingPatientInvitation: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.acceptPatientInvitationFailure(error);
+
+        expect(initialStateForTest.acceptingPatientInvitation.inProgress).to.be.true;
+        expect(initialStateForTest.acceptingPatientInvitation.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.acceptingPatientInvitation.inProgress).to.be.false;
+        expect(state.acceptingPatientInvitation.notification.type).to.equal('error');
+        expect(state.acceptingPatientInvitation.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set acceptingPatientInvitation.completed to be true', () => {
+        expect(initialState.acceptingPatientInvitation.completed).to.be.null;
+
+        let successAction = actions.sync.acceptPatientInvitationSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.acceptingPatientInvitation.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingPatientInvitation.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          acceptingPatientInvitation: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.acceptPatientInvitationSuccess({});
+
+        expect(initialStateForTest.acceptingPatientInvitation.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.acceptingPatientInvitation.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('updatePatientPermissions', () => {
+    describe('request', () => {
+      it('should leave updatingPatientPermissions.completed unchanged', () => {
+        expect(initialState.updatingPatientPermissions.completed).to.be.null;
+
+        let requestAction = actions.sync.updatePatientPermissionsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingPatientPermissions.completed).to.be.null;
+
+        let successAction = actions.sync.updatePatientPermissionsSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingPatientPermissions.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingPatientPermissions.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingPatientPermissions.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.updatePatientPermissionsRequest();
+
+        expect(initialStateForTest.updatingPatientPermissions.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.updatingPatientPermissions.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingPatientPermissions.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingPatientPermissions.completed).to.be.null;
+
+        let failureAction = actions.sync.updatePatientPermissionsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingPatientPermissions.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingPatientPermissions.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingPatientPermissions: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.updatePatientPermissionsFailure(error);
+
+        expect(initialStateForTest.updatingPatientPermissions.inProgress).to.be.true;
+        expect(initialStateForTest.updatingPatientPermissions.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingPatientPermissions.inProgress).to.be.false;
+        expect(state.updatingPatientPermissions.notification.type).to.equal('error');
+        expect(state.updatingPatientPermissions.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingPatientPermissions.completed to be true', () => {
+        expect(initialState.updatingPatientPermissions.completed).to.be.null;
+
+        let successAction = actions.sync.updatePatientPermissionsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingPatientPermissions.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingPatientPermissions.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingPatientPermissions: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.updatePatientPermissionsSuccess({view:{},upload:{}});
+
+        expect(initialStateForTest.updatingPatientPermissions.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingPatientPermissions.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchClinicsForPatient', () => {
+    describe('request', () => {
+      it('should leave fetchingClinicsForPatient.completed unchanged', () => {
+        expect(initialState.fetchingClinicsForPatient.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchClinicsForPatientRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinicsForPatient.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicsForPatientSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinicsForPatient.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinicsForPatient.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForPatient.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchClinicsForPatientRequest();
+
+        expect(initialStateForTest.fetchingClinicsForPatient.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinicsForPatient.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinicsForPatient.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinicsForPatient.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchClinicsForPatientFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinicsForPatient.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForPatient.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicsForPatient: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchClinicsForPatientFailure(error);
+
+        expect(initialStateForTest.fetchingClinicsForPatient.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinicsForPatient.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicsForPatient.inProgress).to.be.false;
+        expect(state.fetchingClinicsForPatient.notification.type).to.equal('error');
+        expect(state.fetchingClinicsForPatient.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinicsForPatient.completed to be true', () => {
+        expect(initialState.fetchingClinicsForPatient.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicsForPatientSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinicsForPatient.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForPatient.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicsForPatient: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchClinicsForPatientSuccess([{clinic:{id:'clinicId'}}]);
+
+        expect(initialStateForTest.fetchingClinicsForPatient.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicsForPatient.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchClinicianInvites', () => {
+    describe('request', () => {
+      it('should leave fetchingClinicianInvites.completed unchanged', () => {
+        expect(initialState.fetchingClinicianInvites.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchClinicianInvitesRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinicianInvites.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicianInvitesSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinicianInvites.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinicianInvites.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicianInvites.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchClinicianInvitesRequest();
+
+        expect(initialStateForTest.fetchingClinicianInvites.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinicianInvites.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinicianInvites.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinicianInvites.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchClinicianInvitesFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinicianInvites.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicianInvites.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicianInvites: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchClinicianInvitesFailure(error);
+
+        expect(initialStateForTest.fetchingClinicianInvites.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinicianInvites.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicianInvites.inProgress).to.be.false;
+        expect(state.fetchingClinicianInvites.notification.type).to.equal('error');
+        expect(state.fetchingClinicianInvites.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinicianInvites.completed to be true', () => {
+        expect(initialState.fetchingClinicianInvites.completed).to.be.null;
+
+        let successAction = actions.sync.fetchClinicianInvitesSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinicianInvites.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicianInvites.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicianInvites: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchClinicianInvitesSuccess(['inviteid','inviteid2']);
+
+        expect(initialStateForTest.fetchingClinicianInvites.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicianInvites.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('acceptClinicianInvite', () => {
+    describe('request', () => {
+      it('should set acceptingClinicianInvite.completed to null', () => {
+        expect(initialState.acceptingClinicianInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.acceptClinicianInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.acceptingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.acceptClinicianInviteSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.acceptingClinicianInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.acceptingClinicianInvite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingClinicianInvite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.acceptClinicianInviteRequest();
+
+        expect(initialStateForTest.acceptingClinicianInvite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.acceptingClinicianInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set acceptingClinicianInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.acceptingClinicianInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.acceptClinicianInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.acceptingClinicianInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingClinicianInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          acceptingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.acceptClinicianInviteFailure(error);
+
+        expect(initialStateForTest.acceptingClinicianInvite.inProgress).to.be.true;
+        expect(initialStateForTest.acceptingClinicianInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.acceptingClinicianInvite.inProgress).to.be.false;
+        expect(state.acceptingClinicianInvite.notification.type).to.equal('error');
+        expect(state.acceptingClinicianInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set acceptingClinicianInvite.completed to be true', () => {
+        expect(initialState.acceptingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.acceptClinicianInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.acceptingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set acceptingClinicianInvite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          acceptingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.acceptClinicianInviteSuccess({});
+
+        expect(initialStateForTest.acceptingClinicianInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.acceptingClinicianInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('dismissClinicianInvite', () => {
+    describe('request', () => {
+      it('should set dismissingClinicianInvite.completed to null', () => {
+        expect(initialState.dismissingClinicianInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.dismissClinicianInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.dismissingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.dismissClinicianInviteSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.dismissingClinicianInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.dismissingClinicianInvite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set dismissingClinicianInvite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.dismissClinicianInviteRequest();
+
+        expect(initialStateForTest.dismissingClinicianInvite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.dismissingClinicianInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set dismissingClinicianInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.dismissingClinicianInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.dismissClinicianInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.dismissingClinicianInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set dismissingClinicianInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          dismissingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.dismissClinicianInviteFailure(error);
+
+        expect(initialStateForTest.dismissingClinicianInvite.inProgress).to.be.true;
+        expect(initialStateForTest.dismissingClinicianInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.dismissingClinicianInvite.inProgress).to.be.false;
+        expect(state.dismissingClinicianInvite.notification.type).to.equal('error');
+        expect(state.dismissingClinicianInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set dismissingClinicianInvite.completed to be true', () => {
+        expect(initialState.dismissingClinicianInvite.completed).to.be.null;
+
+        let successAction = actions.sync.dismissClinicianInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.dismissingClinicianInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set dismissingClinicianInvite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          dismissingClinicianInvite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.dismissClinicianInviteSuccess({});
+
+        expect(initialStateForTest.dismissingClinicianInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.dismissingClinicianInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('getClinicsForClinician', () => {
+    describe('request', () => {
+      it('should leave fetchingClinicsForClinician.completed unchanged', () => {
+        expect(initialState.fetchingClinicsForClinician.completed).to.be.null;
+
+        let requestAction = actions.sync.getClinicsForClinicianRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingClinicsForClinician.completed).to.be.null;
+
+        let successAction = actions.sync.getClinicsForClinicianSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingClinicsForClinician.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingClinicsForClinician.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForClinician.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.getClinicsForClinicianRequest();
+
+        expect(initialStateForTest.fetchingClinicsForClinician.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingClinicsForClinician.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingClinicsForClinician.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingClinicsForClinician.completed).to.be.null;
+
+        let failureAction = actions.sync.getClinicsForClinicianFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingClinicsForClinician.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForClinician.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicsForClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.getClinicsForClinicianFailure(error);
+
+        expect(initialStateForTest.fetchingClinicsForClinician.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingClinicsForClinician.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicsForClinician.inProgress).to.be.false;
+        expect(state.fetchingClinicsForClinician.notification.type).to.equal('error');
+        expect(state.fetchingClinicsForClinician.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingClinicsForClinician.completed to be true', () => {
+        expect(initialState.fetchingClinicsForClinician.completed).to.be.null;
+
+        let successAction = actions.sync.getClinicsForClinicianSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingClinicsForClinician.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingClinicsForClinician.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingClinicsForClinician: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.getClinicsForClinicianSuccess('strava', 'blah');
+
+        expect(initialStateForTest.fetchingClinicsForClinician.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingClinicsForClinician.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
 });

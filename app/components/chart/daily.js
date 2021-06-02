@@ -21,7 +21,6 @@ import _ from 'lodash';
 import bows from 'bows';
 import ReactDOM from 'react-dom';
 import sundial from 'sundial';
-import moment from 'moment';
 import WindowSizeListener from 'react-window-size-listener';
 import { translate } from 'react-i18next';
 
@@ -39,6 +38,7 @@ const BolusTooltip = vizComponents.BolusTooltip;
 const SMBGTooltip = vizComponents.SMBGTooltip;
 const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
+const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
 import Footer from './footer';
@@ -68,15 +68,20 @@ const DailyChart = translate()(class DailyChart extends Component {
     onCBGOut: PropTypes.func.isRequired,
     onCarbHover: PropTypes.func.isRequired,
     onCarbOut: PropTypes.func.isRequired,
+    onPumpSettingsOverrideHover: PropTypes.func.isRequired,
+    onPumpSettingsOverrideOut: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
 
     this.chartOpts = [
+      'automatedBasal',
+      'automatedBolus',
       'bgClasses',
       'bgUnits',
       'bolusRatio',
+      'carbUnits',
       'dynamicCarbs',
       'timePrefs',
       'onBolusHover',
@@ -87,6 +92,8 @@ const DailyChart = translate()(class DailyChart extends Component {
       'onCBGOut',
       'onCarbHover',
       'onCarbOut',
+      'onPumpSettingsOverrideHover',
+      'onPumpSettingsOverrideOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -210,7 +217,6 @@ class Daily extends Component {
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
-    pdf: PropTypes.object.isRequired,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     updatingDatum: PropTypes.object.isRequired,
@@ -280,7 +286,6 @@ class Daily extends Component {
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
-          printReady={!!this.props.pdf.url}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
@@ -372,6 +377,15 @@ class Daily extends Component {
           bgPrefs={bgPrefs}
           timePrefs={timePrefs}
         />}
+        {this.state.hoveredPumpSettingsOverride && <PumpSettingsOverrideTooltip
+          position={{
+            top: this.state.hoveredPumpSettingsOverride.top,
+            left: this.state.hoveredPumpSettingsOverride.left
+          }}
+          side={this.state.hoveredPumpSettingsOverride.side}
+          override={this.state.hoveredPumpSettingsOverride.data}
+          timePrefs={timePrefs}
+        />}
         <WindowSizeListener onResize={this.handleWindowResize} />
       </div>
       );
@@ -380,15 +394,31 @@ class Daily extends Component {
   renderChart = () => {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
+    const carbUnits = ['grams'];
+
+    const {
+      isAutomatedBasalDevice,
+      isAutomatedBolusDevice,
+    } = _.get(this.props, 'data.metaData.latestPumpUpload', {});
+
+    const hasCarbExchanges = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'wizard', carbUnits: 'exchanges' }
+    );
+
+    if (hasCarbExchanges) carbUnits.push('exchanges');
 
     return (
       <DailyChart
+        automatedBasal={isAutomatedBasalDevice}
+        automatedBolus={isAutomatedBolusDevice}
         bgClasses={bgPrefs.bgClasses}
         bgUnits={bgPrefs.bgUnits}
         bolusRatio={this.props.chartPrefs.bolusRatio}
+        carbUnits={carbUnits}
+        data={this.props.data}
         dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
-        data={this.props.data}
         timePrefs={timePrefs}
         // message handlers
         onCreateMessage={this.props.onCreateMessage}
@@ -407,6 +437,8 @@ class Daily extends Component {
         onCBGOut={this.handleCBGOut}
         onCarbHover={this.handleCarbHover}
         onCarbOut={this.handleCarbOut}
+        onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
+        onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
         ref="chart" />
     );
   }
@@ -513,8 +545,9 @@ class Daily extends Component {
 
   handleBolusHover = bolus => {
     const rect = bolus.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(bolus.data.normalTime, datetimeLocation, 'h');
     bolus.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       bolus.side = 'left';
@@ -536,8 +569,9 @@ class Daily extends Component {
 
   handleSMBGHover = smbg => {
     const rect = smbg.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, this.state.datetimeLocation, 'h');
+    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       smbg.side = 'left';
@@ -560,8 +594,9 @@ class Daily extends Component {
   handleCBGHover = cbg => {
     this.throttledMetric('hovered over daily cgm tooltip');
     var rect = cbg.rect;
+    const datetimeLocation = this.refs.chart.getWrappedInstance().state.datetimeLocation;
     // range here is -12 to 12
-    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, this.state.datetimeLocation, 'h');
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
     cbg.top = rect.top + (rect.height / 2)
     if(hoursOffset > 5) {
       cbg.side = 'left';
@@ -578,6 +613,36 @@ class Daily extends Component {
   handleCBGOut = () => {
     this.setState({
       hoveredCBG: false
+    });
+  };
+
+  handlePumpSettingsOverrideHover = override => {
+    this.throttledMetric('hovered over daily settings override tooltip');
+    const rect = override.rect;
+    const markerLeftOffset = 7;
+    override.top = rect.top;
+    override.left = rect.left + markerLeftOffset;
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = override.left - override.chartExtents.left;
+    const rightOffset = override.left - override.chartExtents.right;
+
+    if (leftOffset < 70) {
+      override.left = override.chartExtents.left + 70;
+    }
+
+    if (rightOffset > -70) {
+      override.left = override.chartExtents.right - 70;
+    }
+
+    this.setState({
+      hoveredPumpSettingsOverride: override
+    });
+  };
+
+  handlePumpSettingsOverrideOut = () => {
+    this.setState({
+      hoveredPumpSettingsOverride: false
     });
   };
 

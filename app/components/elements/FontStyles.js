@@ -59,7 +59,7 @@ export const Headline = Styled(H2)`
   line-height: ${lineHeights[2]};
   font-weight: ${fontWeights.regular};
   font-family: ${fonts.default};
-  color: ${colors.text.primary};
+  color: ${props => (props.color ? props.color : colors.text.primary)};
 `;
 
 export const Title = Styled(H3)`

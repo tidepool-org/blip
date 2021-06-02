@@ -188,7 +188,6 @@ class BgLog extends Component {
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
-    pdf: PropTypes.object.isRequired,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
     trackMetric: PropTypes.func.isRequired,
@@ -302,7 +301,6 @@ class BgLog extends Component {
       <Header
         chartType={this.chartType}
         patient={this.props.patient}
-        printReady={!!this.props.pdf.url}
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}
@@ -335,7 +333,6 @@ class BgLog extends Component {
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
         onClickPrint={this.handleClickPrint}
-        printReady={!!this.props.pdf.url}
       ref="header" />
     );
   };
@@ -352,6 +349,7 @@ class BgLog extends Component {
         <p>To see your data in the BG Log view, <a
             href={this.props.uploadUrl}
             target="_blank"
+            rel="noreferrer noopener"
             onClick={handleClickUpload}>upload</a> your pump or BG meter.</p>
         <p>
           If you just uploaded, try <a href="" onClick={this.props.onClickNoDataRefresh}>refreshing</a>.

@@ -9,7 +9,6 @@ import Icon from './Icon';
 import baseTheme, { transitions } from '../../themes/baseTheme';
 
 const StyledButton = styled(Base)`
-  cursor: pointer;
   transition: ${transitions.easeOut};
   position: relative;
 
@@ -35,16 +34,25 @@ const StyledCircularProgress = styled(Box)`
 `;
 
 export const Button = props => {
-  const { children, selected, processing, icon, iconLabel, className = '', ...buttonProps } = props;
+  const { children, selected, processing, icon, iconLabel, iconPosition, className = '', ...buttonProps } = props;
   const classNames = cx({ processing, selected });
-
   const themeContext = useContext(ThemeContext);
+  const isLeftIcon = iconPosition === 'left';
+  const flexDirection = isLeftIcon ? 'row-reverse' : 'row';
+
+  const iconMargins = {
+    left: isLeftIcon ? 0 : 2,
+    right: isLeftIcon ? 2 : 0,
+  };
+
+  let justifyContent = 'center';
+  if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
-    <Flex as={StyledButton} alignItems="center" {...buttonProps} className={`${classNames} ${className}`}>
+    <Flex as={StyledButton} flexDirection={flexDirection} alignItems="center" justifyContent={justifyContent} {...buttonProps} className={`${classNames} ${className}`}>
       <Box>{children}</Box>
       {icon && (
-        <Icon className="icon" ml={1} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
+        <Icon className="icon" mr={iconMargins.right} ml={iconMargins.left} theme={baseTheme} variant="static" icon={icon} label={iconLabel} />
       )}
       {processing && (
         <StyledCircularProgress>
@@ -65,19 +73,25 @@ Button.propTypes = {
   selected: PropTypes.bool,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
+  iconPosition: PropTypes.oneOf(['left', 'right']),
   variant: PropTypes.oneOf([
     'primary',
     'secondary',
     'tertiary',
+    'danger',
     'textPrimary',
     'textSecondary',
+    'actionListItem',
+    'actionListItemDanger',
     'pagination',
+    'paginationLight',
     'filter',
     'chip',
   ]),
 };
 
 Button.defaultProps = {
+  iconPosition: 'right',
   type: 'button',
   variant: 'primary',
 };

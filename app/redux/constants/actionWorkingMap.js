@@ -224,6 +224,121 @@ export default (type) => {
     case types.FETCH_SERVER_TIME_FAILURE:
       return 'fetchingServerTime';
 
+    case types.GET_CLINICS_REQUEST:
+    case types.GET_CLINICS_SUCCESS:
+    case types.GET_CLINICS_FAILURE:
+      return 'fetchingClinics';
+
+    case types.CREATE_CLINIC_REQUEST:
+    case types.CREATE_CLINIC_SUCCESS:
+    case types.CREATE_CLINIC_FAILURE:
+      return 'creatingClinic';
+
+    case types.FETCH_CLINIC_REQUEST:
+    case types.FETCH_CLINIC_SUCCESS:
+    case types.FETCH_CLINIC_FAILURE:
+      return 'fetchingClinic';
+
+    case types.UPDATE_CLINIC_REQUEST:
+    case types.UPDATE_CLINIC_SUCCESS:
+    case types.UPDATE_CLINIC_FAILURE:
+      return 'updatingClinic';
+
+    case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
+    case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:
+      return 'fetchingCliniciansFromClinic';
+
+    case types.FETCH_CLINICIAN_REQUEST:
+    case types.FETCH_CLINICIAN_SUCCESS:
+    case types.FETCH_CLINICIAN_FAILURE:
+      return 'fetchingClinician'
+
+    case types.UPDATE_CLINICIAN_REQUEST:
+    case types.UPDATE_CLINICIAN_SUCCESS:
+    case types.UPDATE_CLINICIAN_FAILURE:
+      return 'updatingClinician';
+
+    case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
+    case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
+      return 'deletingClinicianFromClinic';
+
+    case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
+    case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
+    case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
+      return 'fetchingPatientsForClinic';
+
+    case types.CREATE_CUSTODIAL_ACCOUNT_REQUEST:
+    case types.CREATE_CUSTODIAL_ACCOUNT_SUCCESS:
+    case types.CREATE_CUSTODIAL_ACCOUNT_FAILURE:
+      return 'creatingCustodialAccount';
+
+    case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
+      return 'fetchingPatientFromClinic';
+
+    case types.UPDATE_CLINIC_PATIENT_REQUEST:
+    case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+    case types.UPDATE_CLINIC_PATIENT_FAILURE:
+      return 'updatingClinicPatient';
+
+    case types.SEND_CLINICIAN_INVITE_REQUEST:
+    case types.SEND_CLINICIAN_INVITE_SUCCESS:
+    case types.SEND_CLINICIAN_INVITE_FAILURE:
+      return 'sendingClinicianInvite';
+
+    case types.RESEND_CLINICIAN_INVITE_REQUEST:
+    case types.RESEND_CLINICIAN_INVITE_SUCCESS:
+    case types.RESEND_CLINICIAN_INVITE_FAILURE:
+      return 'resendingClinicianInvite';
+
+    case types.DELETE_CLINICIAN_INVITE_REQUEST:
+    case types.DELETE_CLINICIAN_INVITE_SUCCESS:
+    case types.DELETE_CLINICIAN_INVITE_FAILURE:
+      return 'deletingClinicianInvite';
+
+    case types.FETCH_PATIENT_INVITES_REQUEST:
+    case types.FETCH_PATIENT_INVITES_SUCCESS:
+    case types.FETCH_PATIENT_INVITES_FAILURE:
+      return 'fetchingPatientInvites';
+
+    case types.ACCEPT_PATIENT_INVITATION_REQUEST:
+    case types.ACCEPT_PATIENT_INVITATION_SUCCESS:
+    case types.ACCEPT_PATIENT_INVITATION_FAILURE:
+      return 'acceptingPatientInvitation';
+
+    case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
+    case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:
+    case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:
+      return 'updatingPatientPermissions';
+
+    case types.FETCH_CLINICS_FOR_PATIENT_REQUEST:
+    case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS:
+    case types.FETCH_CLINICS_FOR_PATIENT_FAILURE:
+      return 'fetchingClinicsForPatient';
+
+    case types.FETCH_CLINICIAN_INVITES_REQUEST:
+    case types.FETCH_CLINICIAN_INVITES_SUCCESS:
+    case types.FETCH_CLINICIAN_INVITES_FAILURE:
+      return 'fetchingClinicianInvites';
+
+    case types.ACCEPT_CLINICIAN_INVITE_REQUEST:
+    case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
+    case types.ACCEPT_CLINICIAN_INVITE_FAILURE:
+      return 'acceptingClinicianInvite';
+
+    case types.DISMISS_CLINICIAN_INVITE_REQUEST:
+    case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
+    case types.DISMISS_CLINICIAN_INVITE_FAILURE:
+      return 'dismissingClinicianInvite';
+
+    case types.GET_CLINICS_FOR_CLINICIAN_REQUEST:
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+    case types.GET_CLINICS_FOR_CLINICIAN_FAILURE:
+      return 'fetchingClinicsForClinician';
+
     default:
       return null;
   }
