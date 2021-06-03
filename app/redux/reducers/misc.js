@@ -40,13 +40,9 @@ export const notification = (state = initialState.notification, action) => {
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
     case types.SETUP_DATA_STORAGE_FAILURE:
     case types.REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_FAILURE:
-    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
-    case types.SEND_INVITE_FAILURE:
-    case types.CANCEL_SENT_INVITE_FAILURE:
     case types.ACCEPT_RECEIVED_INVITE_FAILURE:
     case types.REJECT_RECEIVED_INVITE_FAILURE:
-    case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
     case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
