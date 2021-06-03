@@ -40,11 +40,12 @@ import { useToasts } from '../../providers/ToastProvider';
 import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
-import { usePrevious } from '../../core/hooks';
+import { useIsFirstRender } from '../../core/hooks';
 import { colors } from '../../themes/baseTheme';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
+  const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -81,7 +82,7 @@ export const AccessManagement = (props) => {
   function handleAsyncResult(workingState, successMessage) {
     const { inProgress, completed, notification } = workingState;
 
-    if (!inProgress) {
+    if (!isFirstRender && !inProgress) {
       if (completed) {
         popupState?.close();
         setShowDeleteDialog(false);
@@ -112,7 +113,7 @@ export const AccessManagement = (props) => {
   }, [settingMemberPermissions]);
 
   useEffect(() => {
-    handleAsyncResult(sendingInvite, t('Share invitation resent to {{email}} has been re-sent.', {
+    handleAsyncResult(sendingInvite, t('Share invitation to {{email}} has been re-sent.', {
       email: selectedSharedAccount?.email,
     }));
   }, [sendingInvite]);
@@ -444,7 +445,8 @@ export const AccessManagement = (props) => {
     <>
       <Box
         mx="auto"
-        my={2}
+        mt={2}
+        mb={6}
         bg="white"
         width={[1, 0.85]}
         sx={{
@@ -468,7 +470,7 @@ export const AccessManagement = (props) => {
             <Button
               variant="primary"
               onClick={() => {
-                dispatch(push('/share/member-invite'));
+                dispatch(push(`/patients/${loggedInUserId}/share/member`));
               }}
             >
               {t('Invite new member')}
@@ -478,7 +480,7 @@ export const AccessManagement = (props) => {
               variant="secondary"
               className="active"
               onClick={() => {
-                dispatch(push('/share/clinic-invite'));
+                dispatch(push('/patients/${loggedInUserId}/share/clinic/share-code'));
               }}
             >
               {t('Invite new clinic')}
@@ -528,6 +530,7 @@ export const AccessManagement = (props) => {
           </Button>
           <Button
             variant="danger"
+            processing={cancellingSentInvite.inProgress || removingMemberFromTargetCareTeam.inProgress}
             onClick={() => {
               handleDelete(selectedSharedAccount);
             }}
