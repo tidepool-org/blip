@@ -142,13 +142,9 @@ const InviteMember = props => {
           width="100%"
           themeProps={{
             fontSize: 1,
-            mb: 2,
+            mb: 5,
           }}
         />
-
-        <Text as={Body1} mb={5}>
-          {t('Description text. Powder bonbon cupcake chocolate bar. Powder muffin carrot cake. Pastry donut biscuit chupa chups. Jelly-o jujubes jujubes oat cake. ')}
-        </Text>
 
         <Flex justifyContent={['center', 'flex-end']}>
           <Button id="cancel" variant="secondary" onClick={() => dispatch(push(`/patients/${loggedInUserId}/share`))}>
