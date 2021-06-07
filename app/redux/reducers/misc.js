@@ -667,6 +667,12 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinic.id]: { $set: { clinicians: {}, patients: {} } },
       });
     }
+    case types.FETCH_CLINIC_SUCCESS: {
+      let clinic = _.get(action.payload, 'clinic', {});
+      return update(state, {
+        [clinic.id]: { $set: { clinicians: {}, patients: {}, ...clinic } },
+      });
+    }
     case types.UPDATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic');
       let clinicId = _.get(action.payload, 'clinicId');
@@ -724,6 +730,21 @@ export const clinics = (state = initialState.clinics, action) => {
           newSet[clinic.clinic.id] = {
             ...clinic.clinic,
             clinicians: { [clinic.clinician.id]: clinic.clinician },
+          };
+          return newSet;
+        },
+        {}
+      );
+    }
+    case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS: {
+      const clinics = _.get(action.payload, 'clinics');
+      console.log('clinics', clinics);
+      const newClinics = _.reduce(
+        clinics,
+        (newSet, clinic) => {
+          newSet[clinic.clinic.id] = {
+            ...clinic.clinic,
+            clinicians: { [clinic.clinician.id]: clinic.clinician }, // TODO: prob need to update patients - not yet sure of format
           };
           return newSet;
         },

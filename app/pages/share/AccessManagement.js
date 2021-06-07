@@ -480,7 +480,7 @@ export const AccessManagement = (props) => {
               variant="secondary"
               className="active"
               onClick={() => {
-                dispatch(push('/patients/${loggedInUserId}/share/clinic/share-code'));
+                dispatch(push(`/patients/${loggedInUserId}/share/clinic`));
               }}
             >
               {t('Invite new clinic')}

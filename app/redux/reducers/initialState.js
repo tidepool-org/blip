@@ -117,6 +117,8 @@ const initialState = {
     creatingClinic: Object.assign({}, working),
     fetchingClinic: Object.assign({}, working),
     updatingClinic: Object.assign({}, working),
+    cancellingSentClinicInvite: Object.assign({}, working),
+    removingClinicFromTargetCareTeam: Object.assign({}, working),
     fetchingCliniciansFromClinic: Object.assign({}, working),
     fetchingClinician: Object.assign({}, working),
     updatingClinician: Object.assign({}, working),

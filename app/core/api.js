@@ -964,6 +964,10 @@ api.clinics.getClinicsForClinician = function(clinicianId, options, cb) {
   return tidepool.getClinicsForClinician(clinicianId, options, cb);
 };
 
+api.clinics.inviteClinic = function(shareCode, permissions, patientId, cb) {
+  return tidepool.inviteClinic(shareCode, permissions, patientId, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

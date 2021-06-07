@@ -2016,6 +2016,30 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
 }
 
 /**
+ * Send Clinic Invite Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} shareCode - share code of the clinic to invite
+ * @param {Object} permissions - permissions to be given
+ * @param {String} patientId - id of the patient sending the invite
+ */
+ export function sendClinicInvite(api, shareCode, permissions, patientId) {
+  return (dispatch) => {
+    dispatch(sync.sendInviteRequest());
+
+    api.clinics.inviteClinic(shareCode, permissions, patientId, (err, invite) => {
+      if (err) {
+        dispatch(sync.sendInviteFailure(
+          createActionError(ErrorMessages.ERR_SENDING_CLINIC_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.sendInviteSuccess(invite));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Patient Invites Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper

@@ -31,7 +31,7 @@ import personUtils from './core/personutils';
 import config from './config';
 
 import * as actions from './redux/actions';
-import { AccessManagement, InviteMember } from './pages/share';
+import { AccessManagement, InviteClinic, InviteMember } from './pages/share';
 
 /**
  * This function checks if the user is using chrome - if they are not it will redirect
@@ -234,8 +234,7 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/:id/share_old' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><Share {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/member' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><InviteMember {...routeProps} {...props} /></Gate>)} />
-          {config.CLINICS_ENABLED && <Route exact path='/patients/:id/share/clinic/share-code' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />}
-          {config.CLINICS_ENABLED && <Route exact path='/patients/:id/share/clinic/confirm' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />}
+          {config.CLINICS_ENABLED && <Route exact path='/patients/:id/share/clinic' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><InviteClinic {...routeProps} {...props} /></Gate>)} />}
           <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
