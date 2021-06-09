@@ -1703,6 +1703,38 @@ export function fetchClinic(api, clinicId) {
 }
 
 /**
+ * Fetch Clinics By IDs Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {Array} clinicIds - Array of clinic Ids of the clinics to fetch
+ */
+export function fetchClinicsByIds(api, clinicIds) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicsByIdsRequest());
+
+    const fetchers = {};
+
+    _.forEach(clinicIds, clinicId => {
+      fetchers[clinicId] = api.clinics.get.bind(api, clinicId);
+    });
+
+    async.parallel(async.reflectAll(fetchers), (err, results) => {
+      const resultsErr = _.mapValues(results, ({ error }) => error);
+      const resultsVal = _.mapValues(results, ({ value }) => value);
+      const error = _.find(resultsErr, _.isError);
+
+      if (error) {
+        dispatch(sync.fetchClinicsByIdsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS, error), error
+        ));
+      } else {
+        dispatch(sync.fetchClinicsByIdsSuccess(resultsVal));
+      }
+    });
+  };
+}
+
+/**
  * Update Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper

@@ -673,6 +673,10 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinic.id]: { $set: { clinicians: {}, patients: {}, ...clinic } },
       });
     }
+    case types.FETCH_CLINICS_BY_IDS_SUCCESS: {
+      const clinics = _.get(action.payload, 'clinics', {});
+      return _.merge({}, state, clinics);
+    }
     case types.UPDATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic');
       let clinicId = _.get(action.payload, 'clinicId');

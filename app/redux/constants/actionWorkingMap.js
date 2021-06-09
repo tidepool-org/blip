@@ -239,6 +239,11 @@ export default (type) => {
     case types.FETCH_CLINIC_FAILURE:
       return 'fetchingClinic';
 
+    case types.FETCH_CLINICS_BY_IDS_REQUEST:
+    case types.FETCH_CLINICS_BY_IDS_SUCCESS:
+    case types.FETCH_CLINICS_BY_IDS_FAILURE:
+      return 'fetchingClinicsByIds';
+
     case types.UPDATE_CLINIC_REQUEST:
     case types.UPDATE_CLINIC_SUCCESS:
     case types.UPDATE_CLINIC_FAILURE:

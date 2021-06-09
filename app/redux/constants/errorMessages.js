@@ -78,6 +78,7 @@ export const ERR_DISCONNECTING_DATA_SOURCE = t('Something went wrong while disco
 export const ERR_GETTING_CLINICS = t('Something went wrong while getting clinics.');
 export const ERR_CREATING_CLINIC = t('Something went wrong while creating clinic.');
 export const ERR_FETCHING_CLINIC = t('Something went wrong while fetching clinic.');
+export const ERR_FETCHING_CLINICS_BY_IDS = t('Something went wrong while fetching one or more clinics.');
 export const ERR_UPDATING_CLINIC = t('Something went wrong while updating clinic.');
 export const ERR_FETCHING_CLINICIANS_FROM_CLINIC = t('Something went wrong while fetching clinicians from clinic.');
 export const ERR_FETCHING_CLINICIAN = t('Something went wrong while fetching clinician.');

@@ -1230,6 +1230,31 @@ export function fetchClinicFailure(error, apiError) {
   };
 }
 
+export function fetchClinicsByIdsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_REQUEST,
+  };
+}
+
+export function fetchClinicsByIdsSuccess(clinics) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_SUCCESS,
+    payload: {
+      clinics: clinics,
+    },
+  };
+}
+
+export function fetchClinicsByIdsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINICS_BY_IDS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updateClinicRequest() {
   return {
     type: ActionTypes.UPDATE_CLINIC_REQUEST,

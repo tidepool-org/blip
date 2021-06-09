@@ -6,12 +6,12 @@ import { push } from 'connected-react-router';
 import get from 'lodash/get'
 import values from 'lodash/values';
 import map from 'lodash/map';
+import has from 'lodash/has';
 import reject from 'lodash/reject';
 import forEach from 'lodash/forEach';
-import includes from 'lodash/includes';
-import find from 'lodash/find';
+import filter from 'lodash/filter';
+import isEmpty from 'lodash/isEmpty';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import SearchIcon from '@material-ui/icons/Search';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
@@ -50,6 +50,7 @@ export const AccessManagement = (props) => {
   const { set: setToast } = useToasts();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [sharedAccounts, setSharedAccounts] = useState([]);
+  const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
   const [popupState, setPopupState] = useState(null);
@@ -70,6 +71,7 @@ export const AccessManagement = (props) => {
 
   const {
     fetchingPatient,
+    fetchingClinicsByIds,
     fetchingClinicsForPatient,
     fetchingPendingSentInvites,
     fetchingAssociatedAccounts,
@@ -130,6 +132,17 @@ export const AccessManagement = (props) => {
     }));
   }, [removingMemberFromTargetCareTeam]);
 
+  useEffect(() => {
+    const { inProgress, completed, notification } = fetchingClinicsByIds;
+
+    if (!isFirstRender && !inProgress && completed === false) {
+      setToast({
+        message: get(notification, 'message'),
+        variant: 'danger',
+      });
+    }
+  }, [fetchingClinicsByIds]);
+
   // Fetchers
   useEffect(() => {
     if (loggedInUserId) {
@@ -162,16 +175,29 @@ export const AccessManagement = (props) => {
     }
   }, [loggedInUserId]);
 
+  // Fetcher for clinics with pending invites
   useEffect(() => {
-    console.log('clinics', clinics);
-    console.log('membersOfTargetCareTeam', membersOfTargetCareTeam);
-    console.log('permissionsOfMembersInTargetCareTeam', permissionsOfMembersInTargetCareTeam);
-    console.log('pendingSentInvites', pendingSentInvites);
-    console.log('allUsers', allUsers);
+    const clinicIds = map(filter(pendingClinicInvites, ({ clinicId }) => !clinics[clinicId]), 'clinicId');
+
+    if (
+      clinicIds.length &&
+      !fetchingClinicsByIds.inProgress &&
+      !fetchingClinicsByIds.completed &&
+      !fetchingClinicsByIds.notification
+    ) {
+      dispatch(actions.async.fetchClinicsByIds(api, clinicIds));
+    }
+  }, [pendingClinicInvites]);
+
+  useEffect(() => {
+    const pendingInvites = reject(pendingSentInvites, personUtils.isDataDonationAccount);
+    const pendingMemberInvites = filter(pendingInvites, ({ email }) => !isEmpty(email));
+    const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
+    setPendingClinicInvites(clinicInvites);
 
     const sharedAccounts = [
-      ...(values(clinics) || []),
-      ...(map(membersOfTargetCareTeam || [], memberId => ({
+      ...(filter(values(clinics), ({ patients }) => has(patients, loggedInUserId))),
+      ...(map(membersOfTargetCareTeam, memberId => ({
         email: get(allUsers, [memberId, 'emails', '0']),
         id: get(allUsers, [memberId, 'userid']),
         name: personUtils.fullName(allUsers[memberId]),
@@ -181,7 +207,7 @@ export const AccessManagement = (props) => {
         type: 'account',
         uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
       }))),
-      ...(map(reject(pendingSentInvites, personUtils.isDataDonationAccount), invite => ({
+      ...(map(pendingMemberInvites, invite => ({
         email: invite.email,
         key: invite.key,
         nameOrderable: invite.email,
@@ -191,9 +217,19 @@ export const AccessManagement = (props) => {
         type: invite.type,
         uploadPermission: !!get(invite, ['context', 'upload']),
       }))),
+      ...(map(clinicInvites, invite => ({
+        id: invite.clinicId,
+        key: invite.key,
+        name: get(clinics, [invite.clinicId, 'name'], ''),
+        nameOrderable: get(clinics, [invite.clinicId, 'name'], ''),
+        permissions: invite.context,
+        role: 'clinic',
+        status: invite.status,
+        type: invite.type,
+        uploadPermission: !!get(invite, ['context', 'upload']),
+      }))),
     ];
 
-    console.log('sharedAccounts', sharedAccounts);
     setSharedAccounts(sharedAccounts);
   }, [
     clinics,
@@ -215,7 +251,7 @@ export const AccessManagement = (props) => {
 
       const body = selectedSharedAccount?.type === 'account'
         ? t('{{name}} will lose all access to your data. Are you sure you want to remove this user?', { name: selectedSharedAccount?.name })
-        : t('Are you sure you want to revoke this share invitation to {{email}}?', { email: selectedSharedAccount?.email });
+        : t('Are you sure you want to revoke this share invitation to {{member}}?', { member: selectedSharedAccount?.email || selectedSharedAccount?.name });
 
       setDeleteDialogContent({
         title,
@@ -243,7 +279,7 @@ export const AccessManagement = (props) => {
     // TODO: does remove clinic exist on backend?
     if (member.type === 'account') {
       trackMetric('Patient - Remove shared account', {
-        type: 'member' // TODO: or 'clinic'
+        type: member.clinicId ? 'clinic' : 'member',
       });
 
       dispatch(
@@ -255,7 +291,7 @@ export const AccessManagement = (props) => {
       );
     } else if (member.type === 'careteam_invitation') {
       trackMetric('Patient - Cancel Invite', {
-        type: 'member' // TODO: or 'clinic'
+        type: member.clinicId ? 'clinic' : 'member',
       });
 
       dispatch(
@@ -266,7 +302,7 @@ export const AccessManagement = (props) => {
 
   function handleResendInvite(member) {
     trackMetric('Patient - Resend Invite', {
-      type: 'member' // TODO: or 'clinic'
+      type: member.clinicId ? 'clinic' : 'member',
     });
 
     dispatch(
@@ -274,16 +310,15 @@ export const AccessManagement = (props) => {
     );
   }
 
-  const renderMember = ({ userId, email, name, shareCode }) => (
+  const renderMember = ({ email, name }) => (
     email ? (
       <Box>
         <Text fontWeight="medium">{name}</Text>
-        <Text>{email || '\u00A0'}</Text>
+        <Text>{email}</Text>
       </Box>
     ) : (
       <Box>
         <Text fontWeight="medium">{name}</Text>
-        <Text>{shareCode || '\u00A0'}</Text> { /* TODO: is shareCode present on clinic objects? */ }
       </Box>
     )
   );
@@ -315,7 +350,6 @@ export const AccessManagement = (props) => {
 
   const renderMore = member => {
     const items = [];
-    console.log('member', member);
 
     if (member.type === 'account') {
       const uploadPermissionLabel = !!get(member.permissions, 'upload')
