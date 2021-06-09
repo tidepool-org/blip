@@ -313,12 +313,12 @@ export const AccessManagement = (props) => {
   const renderMember = ({ email, name }) => (
     email ? (
       <Box>
-        <Text fontWeight="medium">{name}</Text>
+        <Text>{name}</Text>
         <Text>{email}</Text>
       </Box>
     ) : (
       <Box>
-        <Text fontWeight="medium">{name}</Text>
+        <Text>{name}</Text>
       </Box>
     )
   );
@@ -336,7 +336,7 @@ export const AccessManagement = (props) => {
 
   const renderUploadPermission = ({ uploadPermission }) => (
     <Box>
-      <Text fontWeight="medium">
+      <Text>
         {uploadPermission ? t('Yes') : ''}
       </Text>
     </Box>
@@ -344,7 +344,7 @@ export const AccessManagement = (props) => {
 
   const renderRole = ({ role }) => (
     <Box>
-      <Text fontWeight="medium" sx={{ textTransform: 'capitalize' }}>{role}</Text>
+      <Text sx={{ textTransform: 'capitalize' }}>{role}</Text>
     </Box>
   );
 
