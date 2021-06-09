@@ -114,12 +114,8 @@ function DisplayErrorMessage(props: DisplayErrorMessageProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <DialogTitle id="team-add-dialog-error-title">
-        <strong>{t("modal-add-medical-team")}</strong>
-      </DialogTitle>
-
-      <DialogContent>
-        <strong>{t("modal-patient-add-team-failure")}</strong>
+      <DialogContent style={{ marginTop: "2.5em", marginBottom: "calc(2.5em - 16px)", marginRight: "1em", marginLeft: "1em", paddingTop: "8px" }}>
+        {props.message}
       </DialogContent>
 
       <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
@@ -320,7 +316,7 @@ function AddTeamDialog(props: AddTeamDialogProps): JSX.Element {
   const { t } = useTranslation("yourloops");
   const teamHook = useTeam();
   const [idCode, setIdCode] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [team, setTeam] = React.useState<Team | null>(null);
 
   const { actions } = props;
@@ -330,8 +326,17 @@ function AddTeamDialog(props: AddTeamDialogProps): JSX.Element {
     setTimeout(() => {
       setIdCode("");
       setTeam(null);
-      setErrorMessage(false);
+      setErrorMessage(null);
     }, 100);
+  };
+  const handleSetTeamId = (id: string) => {
+    if (id !== "") {
+      const team = teamHook.teams.find((team) => team.code === id);
+      if (!_.isNil(team)) {
+        setErrorMessage(t("modal-patient-add-team-failure-exists"));
+      }
+      setIdCode(id);
+    }
   };
 
   const handleClose = () => {
@@ -346,9 +351,9 @@ function AddTeamDialog(props: AddTeamDialogProps): JSX.Element {
 
   let content: JSX.Element;
   if (idCode === "") {
-    content = <EnterIdentificationCode handleClose={handleClose} handleSetIdCode={setIdCode} />;
+    content = <EnterIdentificationCode handleClose={handleClose} handleSetIdCode={handleSetTeamId} />;
   } else if (errorMessage) {
-    content = <DisplayErrorMessage handleClose={handleClose} message={t("modal-patient-add-team-failure")} />;
+    content = <DisplayErrorMessage handleClose={handleClose} message={errorMessage} />;
   } else if (team === null) {
     content = (
       <DialogContent>
@@ -359,14 +364,14 @@ function AddTeamDialog(props: AddTeamDialogProps): JSX.Element {
       .getTeamFromCode(idCode)
       .then((team) => {
         if (team === null) {
-          setErrorMessage(true);
+          setErrorMessage(t("modal-patient-add-team-failure"));
         } else {
           setTeam(team);
         }
       })
       .catch((reason: unknown) => {
         console.error(reason);
-        setErrorMessage(true);
+        setErrorMessage(t("modal-patient-add-team-failure"));
       });
   } else {
     content = <ConfirmTeam team={team} handleClose={handleClose} handleAccept={handleAccept} />;

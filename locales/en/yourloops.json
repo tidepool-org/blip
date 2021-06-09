@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "Add care team",
   "modal-patient-add-team-success": "Your care team has now access to your data.",
   "modal-patient-add-team-failure": "Impossible to add a care team. Please try again later.",
+  "modal-patient-add-team-failure-exists": "You already share data with this team.",
   "modal-patient-add-caregiver-success": "Your caregiver has now access to your data.",
   "modal-patient-add-caregiver-failure": "Impossible to add a caregiver. Please Try again later.",
   "modal-patient-remove-caregiver-title": "Remove a caregiver",
