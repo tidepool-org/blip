@@ -32,6 +32,12 @@ enum SortFields {
   lastname = "lastname",
   firstname = "firstname",
   email = "email",
+  /** Time in range */
+  tir = "tir",
+  /** Time below range */
+  tbr = "tbr",
+  /** Last upload date */
+  upload = "upload",
 }
 enum UserInvitationStatus {
   pending = "pending",

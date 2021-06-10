@@ -74,6 +74,14 @@ function doCompare(a: ShareUser, b: ShareUser, orderBy: SortFields): number {
     aValue = getUserEmail(a.user);
     bValue = getUserEmail(b.user);
     break;
+  case SortFields.tir:
+  case SortFields.tbr:
+  case SortFields.upload:
+    // Not used for caregiver
+    // Here to make typescript happy
+    aValue = "";
+    bValue = "";
+    break;
   }
 
   return aValue.localeCompare(bValue);
@@ -165,7 +173,7 @@ function PatientListPage(): JSX.Element {
   const shares = sharedUsersContext.sharedUsers ?? [];
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    log.info("Sort patients", orderBy, order);
+    sendMetrics("caregiver-sort-patient", { orderBy, order });
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);

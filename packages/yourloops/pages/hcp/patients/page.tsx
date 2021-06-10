@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
 import * as React from "react";
 import bows from "bows";
 import { useTranslation } from "react-i18next";
@@ -45,11 +46,14 @@ import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
 import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
-import PatientListTable from "./table";
+import PatientListTable, { getMedicalValues } from "./table";
 import AddPatientDialog from "./add-dialog";
 import TeamCodeDialog from "./team-code-dialog";
 
 const log = bows("PatientListPage");
+
+// eslint-disable-next-line no-magic-numbers
+const throttledMetrics = _.throttle(sendMetrics, 60000); // No more than one per minute
 
 /**
  * Compare two patient for sorting the patient table
@@ -58,8 +62,9 @@ const log = bows("PatientListPage");
  * @param orderBy Sort field
  */
 function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
-  let aValue: string;
-  let bValue: string;
+  let aValue: string | number;
+  let bValue: string | number;
+
   switch (orderBy) {
   case SortFields.firstname:
     aValue = getUserFirstName(a);
@@ -73,9 +78,30 @@ function doCompare(a: TeamUser, b: TeamUser, orderBy: SortFields): number {
     aValue = getUserEmail(a);
     bValue = getUserEmail(b);
     break;
+  case SortFields.tir:
+    aValue = getMedicalValues(a.medicalData).tirNumber;
+    bValue = getMedicalValues(b.medicalData).tirNumber;
+    break;
+  case SortFields.tbr:
+    aValue = getMedicalValues(a.medicalData).tbrNumber;
+    bValue = getMedicalValues(b.medicalData).tbrNumber;
+    break;
+  case SortFields.upload:
+    aValue = getMedicalValues(a.medicalData).lastUploadEpoch;
+    bValue = getMedicalValues(b.medicalData).lastUploadEpoch;
+    break;
   }
 
-  return aValue.localeCompare(bValue);
+  if (typeof aValue === "string" && typeof bValue === "string") {
+    return aValue.localeCompare(bValue);
+  }
+  if (typeof aValue !== "number" || !Number.isFinite(aValue)) {
+    return -1;
+  }
+  if (typeof bValue !== "number" ||!Number.isFinite(bValue)) {
+    return 1;
+  }
+  return aValue - bValue;
 }
 
 function updatePatientList(
@@ -235,7 +261,7 @@ function PatientListPage(): JSX.Element {
   };
 
   const handleSortList = (orderBy: SortFields, order: SortDirection): void => {
-    log.info("Sort patients", orderBy, order);
+    sendMetrics("hcp-sort-patient", { orderBy, order });
     setSortFlaggedFirst(false);
     setOrder(order);
     setOrderBy(orderBy);
@@ -243,17 +269,26 @@ function PatientListPage(): JSX.Element {
 
   const handleFilter = (filter: string): void => {
     log.info("Filter patients name", filter);
+    throttledMetrics("hcp-filter-patient", { type: "by-name" });
     setFilter(filter);
   };
 
   const handleFilterType = (filterType: FilterType | string): void => {
     log.info("Filter patients with", filterType);
+    throttledMetrics("hcp-filter-patient", { type: filterType });
     setFilterType(filterType);
   };
 
   const handleCloseTeamCodeDialog = (): void => {
     setTeamCodeToDisplay(null);
   };
+
+  const patients = React.useMemo(() => {
+    if (!teamHook.initialized || errorMessage !== null) {
+      return [];
+    }
+    return updatePatientList(teamHook, flagged, filter, filterType, orderBy, order, sortFlaggedFirst);
+  }, [teamHook, flagged, filter, filterType, orderBy, order, sortFlaggedFirst, errorMessage]);
 
   React.useEffect(() => {
     if (!teamHook.initialized) {
@@ -296,8 +331,6 @@ function PatientListPage(): JSX.Element {
       </div>
     );
   }
-
-  const patients = updatePatientList(teamHook, flagged, filter, filterType, orderBy, order, sortFlaggedFirst);
 
   return (
     <React.Fragment>

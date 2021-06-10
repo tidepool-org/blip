@@ -74,7 +74,66 @@ export interface PatientTableRowProps {
   onFlagPatient: (userId: string) => Promise<void>;
 }
 
+export interface MedicalTableValues {
+  /** Value as a string for easy display */
+  tir: string;
+  /** Value as a number for easy compare */
+  tirNumber: number;
+  /** Value as a string for easy display */
+  tbr: string;
+  /** Value as a number for easy compare */
+  tbrNumber: number;
+  /** Value as a string for easy display */
+  lastUpload: string;
+  /** Value as a number for easy compare */
+  lastUploadEpoch: number;
+}
+
 // const log = bows("PatientListTable");
+
+export const getMedicalValues = (medicalData: MedicalData | null | undefined, na = "N/A"): MedicalTableValues => {
+  let tir = "-";
+  let tbr = "-";
+  let lastUpload = "-";
+  let tirNumber = Number.NaN;
+  let tbrNumber = Number.NaN;
+  let lastUploadEpoch = Number.NaN;
+
+  if (medicalData === null) {
+    tir = na;
+    tbr = na;
+    lastUpload = na;
+  } else if (medicalData) {
+    if (medicalData.range?.endDate) {
+      const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const mLastUpload = moment.tz(medicalData.range.endDate, browserTimezone);
+      if (mLastUpload.isValid()) {
+        lastUploadEpoch = mLastUpload.valueOf();
+        lastUpload = mLastUpload.format("llll");
+      }
+    }
+    if (medicalData.computedTir?.count) {
+      const { high, low, target, veryHigh, veryLow } = medicalData.computedTir.count;
+      const total = high + low + target + veryHigh + veryLow;
+      tirNumber = Math.round((100 * target) / total);
+      tir = tirNumber.toString(10);
+      tbrNumber = Math.round((100 * (low + veryLow)) / total);
+      tbr = tbrNumber.toString(10);
+    } else {
+      tir = na;
+      tbr = na;
+    }
+  }
+
+  return {
+    tir,
+    tbr,
+    lastUpload,
+    tirNumber,
+    tbrNumber,
+    lastUploadEpoch,
+  };
+};
 
 const patientListStyle = makeStyles((theme: Theme) => {
   return {
@@ -124,35 +183,14 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
     onClickPatient(patient);
   };
 
-  let tir = "-";
-  let tbr = "-";
-  let lastUpload = "-";
-  if (medicalData === null) {
-    tir = na;
-    tbr = na;
-    lastUpload = na;
-  } else if (medicalData) {
-    if (medicalData.range?.endDate) {
-      lastUpload = moment.utc(medicalData.range.endDate).format("llll");
-    }
-    if (medicalData.computedTir?.count) {
-      const { high, low, target, veryHigh, veryLow } = medicalData.computedTir.count;
-      const total = high + low + target + veryHigh + veryLow;
-      tir = Math.round((100 * target) / total).toString(10);
-      tbr = Math.round((100 * (low + veryLow)) / total).toString(10);
-    } else {
-      tir = na;
-      tbr = na;
-    }
-  }
-
+  const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, na), [medicalData, na]);
   const rowId = `patients-list-row-${userId}`;
   const session = authHook.session();
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
   React.useEffect(() => {
     const observedElement = rowRef.current;
     if (session !== null && observedElement !== null && typeof medicalData === "undefined" && !isPendingInvitation) {
-      /** If unmounted, we want to discard the result, react don't like to udated an unmounted component */
+      /** If unmounted, we want to discard the result, react don't like to update an unmounted component */
       let componentMounted = true;
       const observer = new IntersectionObserver((entries) => {
         const rowDisplayed = entries[0];
@@ -252,21 +290,30 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
           <TableRow className={classes.tableRowHeader}>
             <TableCell id="patients-list-header-icon" className={classes.tableCellHeader} />
             <TableCell id="patients-list-header-lastname" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler(SortFields.lastname)}>
+              <TableSortLabel active={orderBy === SortFields.lastname} direction={order} onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-firstname" className={classes.tableCellHeader}>
-              <TableSortLabel
-                active={orderBy === "firstname"}
-                direction={order}
-                onClick={createSortHandler(SortFields.firstname)}>
+              <TableSortLabel active={orderBy === SortFields.firstname} direction={order} onClick={createSortHandler(SortFields.firstname)}>
                 {t("firstname")}
               </TableSortLabel>
             </TableCell>
-            <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>{t("list-patient-tir")}</TableCell>
-            <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>{t("list-patient-tbr")}</TableCell>
-            <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>{t("list-patient-upload")}</TableCell>
+            <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>
+              <TableSortLabel active={orderBy === SortFields.tir} direction={order} onClick={createSortHandler(SortFields.tir)}>
+                {t("list-patient-tir")}
+              </TableSortLabel>
+            </TableCell>
+            <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>
+              <TableSortLabel active={orderBy === SortFields.tbr} direction={order} onClick={createSortHandler(SortFields.tbr)}>
+                {t("list-patient-tbr")}
+              </TableSortLabel>
+            </TableCell>
+            <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>
+              <TableSortLabel active={orderBy === SortFields.upload} direction={order} onClick={createSortHandler(SortFields.upload)}>
+                {t("list-patient-upload")}
+              </TableSortLabel>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>{patientsRows}</TableBody>
