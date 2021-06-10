@@ -221,7 +221,7 @@ export const AccessManagement = (props) => {
         id: invite.clinicId,
         key: invite.key,
         name: get(clinics, [invite.clinicId, 'name'], ''),
-        nameOrderable: get(clinics, [invite.clinicId, 'name'], ''),
+        nameOrderable: get(clinics, [invite.clinicId, 'name'], '').toLowerCase(),
         permissions: invite.context,
         role: 'clinic',
         status: invite.status,
