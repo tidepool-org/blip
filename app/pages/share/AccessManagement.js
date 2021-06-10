@@ -388,36 +388,35 @@ export const AccessManagement = (props) => {
     }
 
     if (member.type === 'careteam_invitation') {
-      items.push(...[
-        {
-          disabled: sendingInvite.inProgress,
-          icon: InputIcon,
-          iconLabel: t('Resend Invitation'),
-          iconPosition: 'left',
-          id: `resendInvite-${member.inviteId}`,
-          onClick: _popupState => {
-            setPopupState(_popupState);
-            setSelectedSharedAccount(member);
-            handleResendInvite(member);
-          },
-          processing: sendingInvite.inProgress,
-          text: t('Resend invitation'),
-          variant: 'actionListItem',
+      if (member.role === 'member') items.push({
+        disabled: sendingInvite.inProgress,
+        icon: InputIcon,
+        iconLabel: t('Resend Invitation'),
+        iconPosition: 'left',
+        id: `resendInvite-${member.inviteId}`,
+        onClick: _popupState => {
+          setPopupState(_popupState);
+          setSelectedSharedAccount(member);
+          handleResendInvite(member);
         },
-        {
-          icon: DeleteForeverIcon,
-          iconLabel: t('Delete Invitation'),
-          iconPosition: 'left',
-          id: `deleteInvite-${member.inviteId}`,
-          onClick: _popupState => {
-            _popupState.close();
-            setSelectedSharedAccount(member);
-            setShowDeleteDialog(true);
-          },
-          text: t('Revoke invitation'),
-          variant: 'actionListItemDanger',
+        processing: sendingInvite.inProgress,
+        text: t('Resend invitation'),
+        variant: 'actionListItem',
+      });
+
+      items.push({
+        icon: DeleteForeverIcon,
+        iconLabel: t('Delete Invitation'),
+        iconPosition: 'left',
+        id: `deleteInvite-${member.inviteId}`,
+        onClick: _popupState => {
+          _popupState.close();
+          setSelectedSharedAccount(member);
+          setShowDeleteDialog(true);
         },
-      ]);
+        text: t('Revoke invitation'),
+        variant: 'actionListItemDanger',
+      });
     }
 
     return (
