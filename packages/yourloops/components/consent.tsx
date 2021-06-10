@@ -56,47 +56,70 @@ interface ConsentProps {
 
 const style = makeStyles((theme: Theme) => {
   return {
-    mainContainer: { margin: "auto" },
-    Typography: {
-      alignItems: "center",
+    mainContainer: {
+      margin: "auto",
+      [theme.breakpoints.down('xs')]: {
+        margin: 0,
+        padding: 0,
+      },
     },
-    Card: {
+    card: {
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
       textAlign: "center",
       padding: theme.spacing(4),
     },
-    CardContent: {
+    cardContent: {
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: theme.spacing(0),
+        marginRight: theme.spacing(0),
+      },
     },
-    FormControl: {
+    formControl: {
       margin: theme.spacing(3),
+      [theme.breakpoints.down('xs')]: {
+        margin: 0,
+      },
     },
-    FormHelperText: {
+    formHelperText: {
       textAlign: "center",
     },
-    FormControlLabel: {
+    formControlLabel: {
       alignItems: "start",
       textAlign: "start",
       marginTop: theme.spacing(2),
       marginBottom: theme.spacing(2),
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
+      [theme.breakpoints.down('xs')]: {
+        marginLeft: 0,
+        marginRight: 0,
+      },
     },
-    Buttons: {
+    buttons: {
       display: "flex",
       flexDirection: "row",
       marginTop: theme.spacing(2),
       marginRight: theme.spacing(5), // eslint-disable-line no-magic-numbers
       marginLeft: theme.spacing(1),
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0,
+        marginLeft: 0,
+        justifyContent: "space-between",
+      },
     },
-    Button: {
+    button: {
       marginLeft: "auto",
+      [theme.breakpoints.down('sm')]: {
+        marginRight: theme.spacing(1), // eslint-disable-line no-magic-numbers
+        marginLeft: theme.spacing(1),
+      },
     },
   };
-});
+}, { name: "ylp-component-consent" });
 
 /**
  * Patient Consent Page
@@ -178,7 +201,7 @@ function Consent(props: ConsentProps): JSX.Element {
         justify="center"
         style={{ minHeight: "100vh" }}>
         <Grid item xs={12}>
-          <Card className={classes.Card}>
+          <Card className={classes.card}>
             <CardMedia
               style={{
                 display: "flex",
@@ -195,7 +218,7 @@ function Consent(props: ConsentProps): JSX.Element {
                 alt={t("alt-img-logo")}
               />
             </CardMedia>
-            <CardContent className={classes.CardContent}>
+            <CardContent className={classes.cardContent}>
               <Typography variant="body1" gutterBottom>
                 {t(props.messageKey)}
               </Typography>
@@ -211,12 +234,12 @@ function Consent(props: ConsentProps): JSX.Element {
                   required
                   component="fieldset"
                   error={error}
-                  className={classes.FormControl}>
-                  <FormHelperText className={classes.FormHelperText}>
+                  className={classes.formControl}>
+                  <FormHelperText className={classes.formHelperText}>
                     {t(helperText)}
                   </FormHelperText>
                   <FormControlLabel
-                    className={classes.FormControlLabel}
+                    className={classes.formControlLabel}
                     control={
                       <Checkbox
                         id="consent-checkbox-privacypolicy"
@@ -235,7 +258,7 @@ function Consent(props: ConsentProps): JSX.Element {
                     }
                   />
                   <FormControlLabel
-                    className={classes.FormControlLabel}
+                    className={classes.formControlLabel}
                     control={
                       <Checkbox
                         id="consent-checkbox-terms"
@@ -253,12 +276,12 @@ function Consent(props: ConsentProps): JSX.Element {
                       />
                     }
                   />
-                  <div id="consent-button-group" className={classes.Buttons}>
+                  <div id="consent-button-group" className={classes.buttons}>
                     <Button
                       id="consent-button-decline"
                       variant="contained"
                       color="secondary"
-                      className={classes.Button}
+                      className={classes.button}
                       onClick={onDecline}>
                       {t("button-decline")}
                     </Button>
@@ -266,7 +289,7 @@ function Consent(props: ConsentProps): JSX.Element {
                       id="consent-button-confirm"
                       variant="contained"
                       color="primary"
-                      className={classes.Button}
+                      className={classes.button}
                       onClick={onConfirm}>
                       {t("button-accept")}
                     </Button>

@@ -26,17 +26,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import React from "react";
+import * as React from "react";
 import _ from "lodash";
 import { TFunction, useTranslation, Trans } from "react-i18next";
 import moment from "moment-timezone";
 
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import GroupIcon from "@material-ui/icons/Group";
 import PersonIcon from "@material-ui/icons/Person";
 import HelpIcon from "@material-ui/icons/Help";
 import MedicalServiceIcon from "../../components/icons/MedicalServiceIcon";
 import IconButton from "@material-ui/core/IconButton";
-import { Button, createStyles, makeStyles } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import { IUser, UserRoles } from "../../models/shoreline";
@@ -61,18 +62,38 @@ interface NotificationProps {
   onHelp: () => void;
 }
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    container: { display: "flex", alignItems: "center", width: "100%" },
+    container: {
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+      [theme.breakpoints.down('sm')]: {
+        flexWrap: "wrap",
+        padding: theme.spacing(1),
+      },
+    },
     rightSide: {
       width: "300px",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
+      [theme.breakpoints.down('sm')]: {
+        width: "100%",
+        marginTop: theme.spacing(1),
+      },
     },
     notificationSpan: { marginLeft: "1em", flex: "1" },
-    button: { marginLeft: "1em" },
-  })
+    buttonAccept: {
+      marginLeft: "1em",
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: "auto",
+      },
+    },
+    buttonDecline: {
+      marginLeft: "1em",
+    },
+  }), { name: "ylp-page-notification" }
 );
 
 const NotificationSpan = ({ t, notification, className, id }: NotificationSpanProps): JSX.Element => {
@@ -205,21 +226,19 @@ export const Notification = (props: NotificationProps): JSX.Element => {
             <HelpIcon id={`notification-help-${id}`} />
           </IconButton>
         ) : (
-          <div>
-            <Button
-              id={`notification-button-accept-${id}`}
-              color="primary"
-              variant="contained"
-              className={classes.button}
-              disabled={inProgress}
-              onClick={onAccept}>
-              {t("button-accept")}
-            </Button>
-          </div>
+          <Button
+            id={`notification-button-accept-${id}`}
+            color="primary"
+            variant="contained"
+            className={classes.buttonAccept}
+            disabled={inProgress}
+            onClick={onAccept}>
+            {t("button-accept")}
+          </Button>
         )}
         <Button
           id={`notification-button-decline-${id}`}
-          className={classes.button}
+          className={classes.buttonDecline}
           variant="contained"
           color="secondary"
           disabled={inProgress}

@@ -29,12 +29,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { INotification } from "../../lib/notifications/models";
 import { useAuth } from "../../lib/auth";
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: "center",
       margin: theme.spacing(4),
     },
-  })
+  }), { name: "ylp-page-notifications-list" }
 );
 
 export const NotificationsPage = (props: NotificationsPageProps): JSX.Element => {
