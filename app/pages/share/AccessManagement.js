@@ -263,15 +263,15 @@ export const AccessManagement = (props) => {
       let title, submitText, body;
 
       if (selectedSharedAccount.type === 'clinic') {
-        title = t('Remove {{name}}', { name: selectedSharedAccount.name });
-        submitText = t('Remove Clinic');
-        body = t('{{name}} will lose all access to your data. Are you sure you want to remove this clinic?', { name: selectedSharedAccount.name });
+        title = t('Leave {{name}}', { name: selectedSharedAccount.name });
+        submitText = t('Leave Clinic');
+        body = t('{{name}} will lose all access to your data. Are you sure you want to leave this clinic?', { name: selectedSharedAccount.name });
       }
 
       if (selectedSharedAccount.type === 'account') {
         title = t('Remove {{name}}', { name: selectedSharedAccount.name });
         submitText = t('Remove User');
-        body = t('{{name}} will lose all access to your data. Are you sure you want to remove this user?', { name: selectedSharedAccount.name });
+        body = t('{{name}} will lose all access to your data. Are you sure you want to remove this user from your care team?', { name: selectedSharedAccount.name });
       }
 
       if (selectedSharedAccount.type === 'careteam_invitation') {
