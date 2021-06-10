@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
-import get from 'lodash/get'
-import values from 'lodash/values';
-import map from 'lodash/map';
-import has from 'lodash/has';
-import reject from 'lodash/reject';
-import forEach from 'lodash/forEach';
+import capitalize from 'lodash/capitalize';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
+import get from 'lodash/get'
+import has from 'lodash/has';
+import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
+import map from 'lodash/map';
+import reject from 'lodash/reject';
+import values from 'lodash/values';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
@@ -70,15 +72,16 @@ export const AccessManagement = (props) => {
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
 
   const {
-    fetchingPatient,
+    cancellingSentInvite,
+    fetchingAssociatedAccounts,
     fetchingClinicsByIds,
     fetchingClinicsForPatient,
+    fetchingPatient,
     fetchingPendingSentInvites,
-    fetchingAssociatedAccounts,
+    removingMemberFromTargetCareTeam,
     settingMemberPermissions,
     sendingInvite,
-    cancellingSentInvite,
-    removingMemberFromTargetCareTeam,
+    updatingPatientPermissions,
   } = useSelector((state) => state.blip.working);
 
   function handleAsyncResult(workingState, successMessage) {
@@ -113,6 +116,13 @@ export const AccessManagement = (props) => {
       uploadPermission: get(permissionsOfMembersInTargetCareTeam, [selectedSharedAccount?.id, 'upload']) ? 'enabled' : 'disabled',
     }));
   }, [settingMemberPermissions]);
+
+  useEffect(() => {
+    handleAsyncResult(updatingPatientPermissions, t('Upload permission for {{name}} has been {{uploadPermission}}.', {
+      name: selectedSharedAccount?.name,
+      uploadPermission: get(clinics, [selectedSharedAccount?.id, 'patients', loggedInUserId, 'permissions', 'upload']) ? 'enabled' : 'disabled',
+    }));
+  }, [updatingPatientPermissions]);
 
   useEffect(() => {
     handleAsyncResult(sendingInvite, t('Share invitation to {{email}} has been re-sent.', {
@@ -192,11 +202,20 @@ export const AccessManagement = (props) => {
   useEffect(() => {
     const pendingInvites = reject(pendingSentInvites, personUtils.isDataDonationAccount);
     const pendingMemberInvites = filter(pendingInvites, ({ email }) => !isEmpty(email));
+    const patientClinics = filter(values(clinics), ({ patients }) => has(patients, loggedInUserId));
     const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
     setPendingClinicInvites(clinicInvites);
 
     const sharedAccounts = [
-      ...(filter(values(clinics), ({ patients }) => has(patients, loggedInUserId))),
+      ...(map(patientClinics, clinic => ({
+        id: clinic.id,
+        name: clinic.name,
+        nameOrderable: clinic.name.toLowerCase(),
+        permissions: get(clinic, ['patients', loggedInUserId, 'permissions']),
+        role: 'clinic',
+        type: 'clinic',
+        uploadPermission: !!get(clinic, ['patients', loggedInUserId, 'permissions', 'upload']),
+      }))),
       ...(map(membersOfTargetCareTeam, memberId => ({
         email: get(allUsers, [memberId, 'emails', '0']),
         id: get(allUsers, [memberId, 'userid']),
@@ -241,17 +260,25 @@ export const AccessManagement = (props) => {
 
   useEffect(() => {
     if (selectedSharedAccount) {
-      const title = selectedSharedAccount?.type === 'account'
-      ? t('Remove {{name}}', { name: selectedSharedAccount?.name })
-      : t('Revoke invitation?');
+      let title, submitText, body;
 
-      const submitText = selectedSharedAccount?.type === 'account'
-        ? t('Remove User')
-        : t('Revoke Invitation');
+      if (selectedSharedAccount.type === 'clinic') {
+        title = t('Remove {{name}}', { name: selectedSharedAccount.name });
+        submitText = t('Remove Clinic');
+        body = t('{{name}} will lose all access to your data. Are you sure you want to remove this clinic?', { name: selectedSharedAccount.name });
+      }
 
-      const body = selectedSharedAccount?.type === 'account'
-        ? t('{{name}} will lose all access to your data. Are you sure you want to remove this user?', { name: selectedSharedAccount?.name })
-        : t('Are you sure you want to revoke this share invitation to {{member}}?', { member: selectedSharedAccount?.email || selectedSharedAccount?.name });
+      if (selectedSharedAccount.type === 'account') {
+        title = t('Remove {{name}}', { name: selectedSharedAccount.name });
+        submitText = t('Remove User');
+        body = t('{{name}} will lose all access to your data. Are you sure you want to remove this user?', { name: selectedSharedAccount.name });
+      }
+
+      if (selectedSharedAccount.type === 'careteam_invitation') {
+        title = t('Revoke invitation?');
+        submitText = t('Revoke Invitation');
+        body = t('Are you sure you want to revoke this share invitation to {{member}}?', { member: selectedSharedAccount.email || selectedSharedAccount.name });
+      }
 
       setDeleteDialogContent({
         title,
@@ -270,16 +297,30 @@ export const AccessManagement = (props) => {
       upload: member.uploadPermission ? undefined : {},
     };
 
-    dispatch(
-      actions.async.setMemberPermissions(api, loggedInUserId, member.id, permissions)
-    );
+    const action = member.type === 'clinic'
+      ? actions.async.updatePatientPermissions(api, member.id, loggedInUserId, permissions)
+      : actions.async.setMemberPermissions(api, loggedInUserId, member.id, permissions);
+
+    dispatch(action);
   }
 
   function handleDelete(member) {
-    // TODO: does remove clinic exist on backend?
-    if (member.type === 'account') {
+    if (member.type === 'clinic') {
       trackMetric('Patient - Remove shared account', {
-        type: member.clinicId ? 'clinic' : 'member',
+        type: member.role,
+      });
+
+      // TODO: remove clinic api call when ready
+      dispatch(
+        actions.async.removeMemberFromTargetCareTeam(
+          api,
+          loggedInUserId,
+          member.id
+        )
+      );
+    } else if (member.type === 'account') {
+      trackMetric('Patient - Remove shared account', {
+        type: member.role,
       });
 
       dispatch(
@@ -291,7 +332,7 @@ export const AccessManagement = (props) => {
       );
     } else if (member.type === 'careteam_invitation') {
       trackMetric('Patient - Cancel Invite', {
-        type: member.clinicId ? 'clinic' : 'member',
+        type: member.role,
       });
 
       dispatch(
@@ -302,7 +343,7 @@ export const AccessManagement = (props) => {
 
   function handleResendInvite(member) {
     trackMetric('Patient - Resend Invite', {
-      type: member.clinicId ? 'clinic' : 'member',
+      type: member.role,
     });
 
     dispatch(
@@ -351,10 +392,14 @@ export const AccessManagement = (props) => {
   const renderMore = member => {
     const items = [];
 
-    if (member.type === 'account') {
-      const uploadPermissionLabel = !!get(member.permissions, 'upload')
+    if (includes(['account', 'clinic'], member.type)) {
+      const uploadPermissionLabel = member.uploadPermission
       ? t('Remove upload permission')
       : t('Allow upload permission');
+
+      const removeLabel = t('Remove {{memberType}}', {
+        memberType: capitalize(member.type),
+      });
 
       items.push({
         disabled: settingMemberPermissions.inProgress,
@@ -374,15 +419,15 @@ export const AccessManagement = (props) => {
 
       items.push({
         icon: DeleteForeverIcon,
-        iconLabel: t('Remove Member'),
+        iconLabel: removeLabel,
         iconPosition: 'left',
-        id: `delete-${member.userId}`,
+        id: `delete-${member.id}`,
         onClick: _popupState => {
           _popupState.close();
           setSelectedSharedAccount(member);
           setShowDeleteDialog(true);
         },
-        text: t('Remove Member'),
+        text: removeLabel,
         variant: 'actionListItemDanger',
       });
     }

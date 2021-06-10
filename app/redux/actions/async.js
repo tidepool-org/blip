@@ -2134,7 +2134,7 @@ export function updatePatientPermissions(api, clinicId, patientId, permissions) 
           createActionError(ErrorMessages.ERR_UPDATING_PATIENT_PERMISSIONS, err), err
         ));
       } else {
-        dispatch(sync.updatePatientPermissionsSuccess(permissions));
+        dispatch(sync.updatePatientPermissionsSuccess(clinicId, patientId, permissions));
       }
     });
   };

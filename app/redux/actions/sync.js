@@ -1623,10 +1623,12 @@ export function updatePatientPermissionsRequest() {
   };
 }
 
-export function updatePatientPermissionsSuccess(permissions) {
+export function updatePatientPermissionsSuccess(clinicId, patientId, permissions) {
   return {
     type: ActionTypes.UPDATE_PATIENT_PERMISSIONS_SUCCESS,
     payload: {
+      clinicId: clinicId,
+      patientId: patientId,
       permissions: permissions,
     },
   };

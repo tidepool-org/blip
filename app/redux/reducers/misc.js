@@ -756,6 +756,22 @@ export const clinics = (state = initialState.clinics, action) => {
       );
       return _.merge({}, state, newClinics);
     }
+    case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        permissions,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            permissions,
+          } } },
+        },
+      });
+    }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
     default:
