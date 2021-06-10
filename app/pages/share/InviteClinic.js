@@ -69,7 +69,8 @@ const InviteClinic = props => {
         trackMetric('Clicked Invite');
       } else {
         trackMetric('fetched clinic details with share code');
-        const sampleClinicId = '60ba752c5450b48d1ff5098c';
+        const sampleClinicId = '60c2399d5450b48d1ff50990';
+        // const sampleClinicId = '60ba752c5450b48d1ff5098c';
 
         dispatch(
           // TODO: dispatch getClinicByShareCode action when ready
