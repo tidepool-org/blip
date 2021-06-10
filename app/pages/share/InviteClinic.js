@@ -46,7 +46,6 @@ const InviteClinic = props => {
   const formikContext = useFormik({
     initialValues: {
       shareCode: '',
-      // shareCode: 'CDTD-D4XM-W6EU',
       uploadPermission: false,
     },
     onSubmit: (values, { setSubmitting }) => {
