@@ -748,7 +748,7 @@ export const clinics = (state = initialState.clinics, action) => {
         (newSet, clinic) => {
           newSet[clinic.clinic.id] = {
             ...clinic.clinic,
-            clinicians: { [clinic.clinician.id]: clinic.clinician }, // TODO: prob need to update patients - not yet sure of format
+            patients: { [clinic.patient.id]: clinic.patient },
           };
           return newSet;
         },
