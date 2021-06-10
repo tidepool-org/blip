@@ -29,15 +29,19 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles, Theme, withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles, useTheme, Theme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
+import Avatar from "@material-ui/core/Avatar";
 import Checkbox from "@material-ui/core/Checkbox";
+import Chip from "@material-ui/core/Chip";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
+import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -52,7 +56,7 @@ import PersonRemoveIcon from "../../components/icons/PersonRemoveIcon";
 
 import { UserInvitationStatus } from "../../models/generic";
 import { TeamMemberRole, TypeTeamMemberRole } from "../../models/team";
-import { getUserFirstName, getUserLastName } from "../../lib/utils";
+import { getUserFirstName, getUserLastName, getUserFirstLastName, getUserInitials } from "../../lib/utils";
 import { useAuth } from "../../lib/auth";
 import { Team, TeamMember, useTeam } from "../../lib/team";
 
@@ -77,12 +81,51 @@ const teamMembersStyles = makeStyles((theme: Theme) => {
       fontWeight: "bold",
       color: theme.palette.primary.main,
     },
+    accordionMembersList: {
+      flexDirection: "column",
+    },
     tableRowHeader: {
       textTransform: "uppercase",
       fontSize: "16px",
     },
     tableRowPending: {
       backgroundColor: theme.palette.primary.light,
+    },
+    paperMember: {
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginBottom: theme.spacing(2),
+      padding: theme.spacing(1),
+    },
+    paperMemberBreak: {
+      flexBasis: "100%",
+      height: 0,
+    },
+    paperMemberPending: {
+      width: 40,
+      height: 40,
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    paperMemberAvatar: {
+      width: 40,
+      height: 40,
+    },
+    paperMemberName: {
+      marginTop: "auto",
+      marginBottom: "auto",
+      marginLeft: theme.spacing(1),
+    },
+    paperMemberRemove: {
+      marginLeft: "auto",
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
+    paperMemberChip: {
+      display: "inline-flex",
+      marginTop: theme.spacing(1),
+      marginRight: theme.spacing(1),
     },
   };
 });
@@ -98,25 +141,46 @@ const teamMembersTableStyles = makeStyles(() => ({
  *
  * With a CSS style named "ylp-member-accordion-summary"
  */
-const MembersAccordionSummary = withStyles((theme: Theme) => ({
-  root: {
-    justifyContent: "left",
-    transition: theme.transitions.create(["background-color", "min-height"]),
-    "&:hover": {
-      backgroundColor: theme.palette.primary.light,
+const MembersAccordionSummary = withStyles(
+  (theme: Theme) => ({
+    root: {
+      justifyContent: "left",
+      transition: theme.transitions.create(["background-color", "min-height"]),
+      "&:hover": {
+        backgroundColor: theme.palette.primary.light,
+      },
     },
-  },
-  content: {
-    flexGrow: 0,
-    margin: 0,
-    display: "inline",
-    transition: undefined,
-    '&$expanded': {
+    content: {
+      flexGrow: 0,
       margin: 0,
+      display: "inline",
+      transition: undefined,
+      "&$expanded": {
+        margin: 0,
+      },
     },
-  },
-  expanded: {},
-}), { name: "ylp-member-accordion-summary" })(AccordionSummary);
+    expanded: {},
+  }),
+  { name: "ylp-member-accordion-summary" }
+)(AccordionSummary);
+
+function sortTeamMembers(a: Readonly<TeamMember>, b: Readonly<TeamMember>): number {
+  let ret = 0;
+  if (a.status !== b.status) {
+    ret = a.status === UserInvitationStatus.pending ? 1 : -1;
+  }
+  if (ret === 0) {
+    const aln = getUserLastName(a.user);
+    const bln = getUserLastName(b.user);
+    ret = aln.localeCompare(bln);
+  }
+  if (ret === 0) {
+    const afn = getUserFirstName(a.user);
+    const bfn = getUserFirstName(b.user);
+    ret = afn.localeCompare(bfn);
+  }
+  return ret;
+}
 
 function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const { team, onSwitchAdminRole, onShowRemoveTeamMemberDialog } = props;
@@ -134,135 +198,249 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
   const userIsTheOnlyAdministrator = teamHook.isUserTheOnlyAdministrator(team, currentUserId);
 
   const members = teamHook.getMedicalMembers(team);
-  members.sort((a: Readonly<TeamMember>, b: Readonly<TeamMember>): number => {
-    let ret = 0;
-    if (a.status !== b.status) {
-      ret = a.status === UserInvitationStatus.pending ? 1 : -1;
-    }
-    if (ret === 0) {
-      const aln = getUserLastName(a.user);
-      const bln = getUserLastName(b.user);
-      ret = aln.localeCompare(bln);
-    }
-    if (ret === 0) {
-      const afn = getUserFirstName(a.user);
-      const bfn = getUserFirstName(b.user);
-      ret = afn.localeCompare(bfn);
-    }
-    return ret;
-  });
+  members.sort(sortTeamMembers);
 
-  const rows: JSX.Element[] = members.map(
-    (member: Readonly<TeamMember>): JSX.Element => {
-      const userId = member.user.userid;
-      const email = member.user.username;
-      // Dash: U+2014
-      const firstName = member.status === UserInvitationStatus.pending ? "—" : getUserFirstName(member.user);
-      const lastName = member.status === UserInvitationStatus.pending ? "—" : getUserLastName(member.user);
-      const isAdmin = member.role === TeamMemberRole.admin;
+  const rows: JSX.Element[] = members.map((member: Readonly<TeamMember>): JSX.Element => {
+    const userId = member.user.userid;
+    const email = member.user.username;
+    // Dash: U+2014
+    const firstName = member.status === UserInvitationStatus.pending ? "—" : getUserFirstName(member.user);
+    const lastName = member.status === UserInvitationStatus.pending ? "—" : getUserLastName(member.user);
+    const isAdmin = member.role === TeamMemberRole.admin;
 
-      let checkboxElement: JSX.Element | null = null;
-      let removeMemberButton: JSX.Element | null = null;
-      let rowClassName = "";
-      let icon: JSX.Element | null = null;
+    let checkboxElement: JSX.Element | null = null;
+    let removeMemberButton: JSX.Element | null = null;
+    let rowClassName = "";
+    let icon: JSX.Element | null = null;
 
-      if (member.status === UserInvitationStatus.accepted) {
-        // Determine if the current user can change the admin role for this member
-        // - Must be an admin
-        // - Mustn't be the only admin for it's own entry
-        // - An update mustn't be in progress
-        const checkboxAdminDisabled =
-          !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
-        if (updatingUser === userId) {
-          // Disabled while update in progress (backend api call in progress)
-          checkboxElement = (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
-              <CircularProgress disableShrink size={17} />
-            </div>
-          );
-        } else {
-          const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-            const userId = event.target.name;
-            const isAdmin = event.target.checked;
-            setUpdatingUser(userId);
-            await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.member);
-            setUpdatingUser("");
-          };
-          checkboxElement = (
-            <Checkbox
-              disabled={checkboxAdminDisabled}
-              id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
-              color="primary"
-              name={userId}
-              checked={isAdmin}
-              onChange={handleSwitchRole}
-            />
-          );
-        }
+    if (member.status === UserInvitationStatus.accepted) {
+      // Determine if the current user can change the admin role for this member
+      // - Must be an admin
+      // - Mustn't be the only admin for it's own entry
+      // - An update mustn't be in progress
+      const checkboxAdminDisabled =
+        !userIsAdmin || (userIsTheOnlyAdministrator && userId === currentUserId) || updatingUser.length > 0;
+      if (updatingUser === userId) {
+        // Disabled while update in progress (backend api call in progress)
+        checkboxElement = (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px" }}>
+            <CircularProgress disableShrink size={17} />
+          </div>
+        );
       } else {
-        rowClassName = props.classes?.tableRowPending ?? "";
-        icon = (
-          <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-            <AccessTimeIcon />
-          </Tooltip>
-        );
-      }
-
-      if (userIsAdmin && userId !== currentUserId) {
-        const handleClickRemoveMember = async (): Promise<void> => {
-          await onShowRemoveTeamMemberDialog(member);
+        const handleSwitchRole = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+          const userId = event.target.name;
+          const isAdmin = event.target.checked;
+          setUpdatingUser(userId);
+          await onSwitchAdminRole(member, isAdmin ? TeamMemberRole.admin : TeamMemberRole.member);
+          setUpdatingUser("");
         };
-        const removeText = t("team-member-remove");
-        removeMemberButton = (
-          <Tooltip title={removeText} aria-label={removeText} placement="bottom">
-            <IconButton
-              id={`team-members-list-${team.id}-row-${userId}-action-remove`}
-              color="primary"
-              aria-label={removeText}
-              component="span"
-              onClick={handleClickRemoveMember}>
-              <PersonRemoveIcon />
-            </IconButton>
-          </Tooltip>
+        checkboxElement = (
+          <Checkbox
+            disabled={checkboxAdminDisabled}
+            id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
+            color="primary"
+            name={userId}
+            checked={isAdmin}
+            onChange={handleSwitchRole}
+          />
         );
       }
-
-      return (
-        <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={email}>
-          <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
-          <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
-            {lastName}
-          </TableCell>
-          <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-firstname`}>
-            {firstName}
-          </TableCell>
-          <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
-            <Link
-              classes={{ root: classes.root }}
-              id={`team-members-list-${team.id}-row-${userId}-email-link`}
-              href={`mailto:${email}`}>
-              {email}
-            </Link>
-          </TableCell>
-          <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>{checkboxElement}</TableCell>
-          <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
-            {removeMemberButton}
-          </TableCell>
-        </TableRow>
+    } else {
+      rowClassName = props.classes?.tableRowPending ?? "";
+      icon = (
+        <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
+          <AccessTimeIcon />
+        </Tooltip>
       );
     }
-  );
+
+    if (userIsAdmin && userId !== currentUserId) {
+      const handleClickRemoveMember = async (): Promise<void> => {
+        await onShowRemoveTeamMemberDialog(member);
+      };
+      const removeText = t("team-member-remove");
+      removeMemberButton = (
+        <Tooltip title={removeText} aria-label={removeText} placement="bottom">
+          <IconButton
+            id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+            color="primary"
+            aria-label={removeText}
+            component="span"
+            onClick={handleClickRemoveMember}>
+            <PersonRemoveIcon />
+          </IconButton>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={email}>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
+        <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
+          {lastName}
+        </TableCell>
+        <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-firstname`}>
+          {firstName}
+        </TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-email`}>
+          <Link
+            classes={{ root: classes.root }}
+            id={`team-members-list-${team.id}-row-${userId}-email-link`}
+            href={`mailto:${email}`}
+            target="_blank"
+            rel="noreferrer">
+            {email}
+          </Link>
+        </TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-role`}>{checkboxElement}</TableCell>
+        <TableCell id={`team-members-list-${team.id}-row-${userId}-actions`} align="right">
+          {removeMemberButton}
+        </TableCell>
+      </TableRow>
+    );
+  });
+
+  return <React.Fragment>{rows}</React.Fragment>;
+}
+
+function TeamMemberTable(props: TeamMembersProps): JSX.Element {
+  const { team } = props;
+  const classes = teamMembersStyles();
+  const { t } = useTranslation("yourloops");
 
   return (
-    <React.Fragment>
-      {rows}
-    </React.Fragment>
+    <Table id={`team-members-list-${team.id}-table`}>
+      {/* prettier-ignore */}
+      <TableHead className={classes.tableRowHeader}>
+        <TableRow>
+          <TableCell id={`team-members-list-${team.id}-cellheader-icon`} />
+          <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
+            {t("lastName")}
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>
+            {t("firstName")}
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-cellheader-email`}>
+            {t("email")}
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-cellheader-role`}>
+            {t("team-member-admin")}
+          </TableCell>
+          <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <MembersTableBody {...props} classes={classes} />
+      </TableBody>
+    </Table>
   );
+}
+
+function TeamMembersCards(props: TeamMembersProps): JSX.Element {
+  const { team /*, onSwitchAdminRole*/, onShowRemoveTeamMemberDialog } = props;
+  const { t } = useTranslation("yourloops");
+  const authContext = useAuth();
+  const teamHook = useTeam();
+  const classes = teamMembersStyles();
+
+  const currentUserId = authContext.user?.userid as string;
+  const userIsAdmin = teamHook.isUserAdministrator(team, currentUserId);
+  const members = teamHook.getMedicalMembers(team);
+  members.sort(sortTeamMembers);
+
+  const papers = members.map((member: TeamMember): JSX.Element | null => {
+    const userId = member.user.userid;
+    const email = member.user.username;
+
+    // TODO onSwitchAdminRole
+
+    let removeMemberButton: JSX.Element;
+    if (userIsAdmin && userId !== currentUserId) {
+      const handleClickRemoveMember = async (): Promise<void> => {
+        await onShowRemoveTeamMemberDialog(member);
+      };
+      removeMemberButton = (
+        <IconButton
+          id={`team-members-list-${team.id}-paper-${email}-action-remove`}
+          className={classes.paperMemberRemove}
+          color="primary"
+          component="span"
+          onClick={handleClickRemoveMember}>
+          <PersonRemoveIcon />
+        </IconButton>
+      );
+    } else {
+      removeMemberButton = <div id={`team-members-list-${team.id}-paper-${email}-action-remove-empty`} />;
+    }
+
+    let content: JSX.Element;
+    if (member.status === UserInvitationStatus.pending) {
+      content = (
+        <React.Fragment>
+          <AccessTimeIcon className={classes.paperMemberPending} />
+          <Link
+            id={`team-members-list-${team.id}-link-${email}`}
+            className={classes.paperMemberName}
+            href={`mailto:${email}`}
+            color="textPrimary"
+            target="_blank"
+            rel="noreferrer">
+            {email}
+          </Link>
+          {removeMemberButton}
+          <div className={classes.paperMemberBreak} />
+          {member.role === TeamMemberRole.admin ? (
+            <div className={classes.paperMemberChip}>
+              <Chip size="small" label={t("team-member-admin")} />
+            </div>
+          ) : null}
+          <div className={classes.paperMemberChip}>
+            <Chip id={`team-members-list-${team.id}-badge-admin-${email}`} size="small" label={t("team-member-pending")} />
+          </div>
+        </React.Fragment>
+      );
+    } else if (member.status === UserInvitationStatus.accepted) {
+      content = (
+        <React.Fragment>
+          <Avatar>{getUserInitials(member.user)}</Avatar>
+          <Link
+            id={`team-members-list-${team.id}-username-${userId}`}
+            className={classes.paperMemberName}
+            href={`mailto:${email}`}
+            color="textPrimary"
+            target="_blank"
+            rel="noreferrer">
+            {t("user-name", getUserFirstLastName(member.user))}
+          </Link>
+          {removeMemberButton}
+          <div className={classes.paperMemberBreak} />
+          {member.role === TeamMemberRole.admin ? (
+            <div className={classes.paperMemberChip}>
+              <Chip id={`team-members-list-${team.id}-badge-admin-${userId}`} size="small" label={t("team-member-admin")} />
+            </div>
+          ) : null}
+        </React.Fragment>
+      );
+    } else {
+      return null;
+    }
+
+    return (
+      <Paper key={email} id={`team-members-list-${team.id}-paper-${userId}`} className={classes.paperMember}>
+        {content}
+      </Paper>
+    );
+  });
+
+  return <React.Fragment>{papers}</React.Fragment>;
 }
 
 function TeamMembers(props: TeamMembersProps): JSX.Element {
   const { team } = props;
 
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.down("xs"));
   const classes = teamMembersStyles();
   const { t } = useTranslation("yourloops");
   const teamHook = useTeam();
@@ -279,31 +457,8 @@ function TeamMembers(props: TeamMembersProps): JSX.Element {
           <Typography className={classes.listTitle}>{t("team-members-list-header", { nMembers })}</Typography>
         </MembersAccordionSummary>
 
-        {/* prettier-ignore */}
-        <AccordionDetails>
-          <Table id={`team-members-list-${team.id}-table`}>
-            <TableHead className={classes.tableRowHeader}>
-              <TableRow>
-                <TableCell id={`team-members-list-${team.id}-cellheader-icon`} />
-                <TableCell id={`team-members-list-${team.id}-cellheader-lastname`}>
-                  {t("lastName")}
-                </TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-firstname`}>
-                  {t("firstName")}
-                </TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-email`}>
-                  {t("email")}
-                </TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-role`}>
-                  {t("team-member-admin")}
-                </TableCell>
-                <TableCell id={`team-members-list-${team.id}-cellheader-actions`} />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <MembersTableBody {...props} classes={classes} />
-            </TableBody>
-          </Table>
+        <AccordionDetails className={classes.accordionMembersList}>
+          {matches ? <TeamMembersCards {...props} /> : <TeamMemberTable {...props} />}
         </AccordionDetails>
       </Accordion>
     </div>

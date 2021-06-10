@@ -52,7 +52,7 @@ import { REGEX_BIRTHDATE, getUserFirstName, getUserLastName, getUserEmail } from
 import { User, useAuth } from "../../lib/auth";
 import appConfig from "../../lib/config";
 import sendMetrics from "../../lib/metrics";
-import { Password } from "../../components/utils/password";
+import Password from "../../components/utils/password";
 import { useAlert } from "../../components/utils/snackbar";
 
 import SecondaryHeaderBar from "./secondary-bar";
@@ -338,7 +338,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password-current"
-          label="current-password"
+          variant="standard"
+          label={t("current-password")}
           value={currentPassword}
           error={errors.currentPassword}
           helperText={t("no-password")}
@@ -346,7 +347,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password"
-          label="new-password"
+          variant="standard"
+          label={t("new-password")}
           value={password}
           error={errors.password}
           helperText={t("password-too-weak")}
@@ -354,7 +356,8 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password-confirmation"
-          label="confirm-password"
+          variant="standard"
+          label={t("confirm-password")}
           value={passwordConfirmation}
           error={errors.passwordConfirmation}
           helperText={t("not-matching-password")}

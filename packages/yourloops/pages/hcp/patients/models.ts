@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCP patient list bar tests
+ * Models for patients list
  *
  * All rights reserved.
  *
@@ -26,34 +26,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { expect } from "chai";
-import { shallow } from "enzyme";
-import sinon from "sinon";
-
 import { SortDirection, SortFields } from "../../../models/generic";
-import { PatientListProps } from "../../../pages/hcp/patients/models";
-import PatientListTable from "../../../pages/hcp/patients/table";
+import { TeamUser } from "../../../lib/team";
 
-function testPatientListTable(): void {
-  const defaultProps: PatientListProps = {
-    patients: [],
-    flagged: [],
-    order: SortDirection.asc,
-    orderBy: SortFields.lastname,
-    onClickPatient: sinon.spy(),
-    onFlagPatient: sinon.spy(),
-    onSortList: sinon.spy(),
-  };
-
-  it("should be exported as a function", () => {
-    expect(PatientListTable).to.be.a("function");
-  });
-
-  it("should be able to render", () => {
-    const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-table").length).to.be.equal(1);
-  });
+export interface PatientListProps {
+  patients: TeamUser[];
+  flagged: string[];
+  order: SortDirection;
+  orderBy: SortFields;
+  onClickPatient: (user: TeamUser) => void;
+  onFlagPatient: (userId: string) => Promise<void>;
+  onSortList: (field: SortFields, direction: SortDirection) => void;
 }
 
-export default testPatientListTable;
+export interface PatientElementProps {
+  trNA: string;
+  patient: TeamUser;
+  flagged: string[];
+  onClickPatient: (user: TeamUser) => void;
+  onFlagPatient: (userId: string) => Promise<void>;
+}
+
+export interface PatientElementCardProps extends PatientElementProps {
+  trTIR: string;
+  trTBR: string;
+  trUpload: string;
+}
+
+export interface MedicalTableValues {
+  /** Value as a string for easy display */
+  tir: string;
+  /** Value as a number for easy compare */
+  tirNumber: number;
+  /** Value as a string for easy display */
+  tbr: string;
+  /** Value as a number for easy compare */
+  tbrNumber: number;
+  /** Value as a string for easy display */
+  lastUpload: string;
+  /** Value as a number for easy compare */
+  lastUploadEpoch: number;
+}

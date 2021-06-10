@@ -29,7 +29,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Button from "@material-ui/core/Button";
@@ -46,10 +46,13 @@ interface BarProps {
 }
 
 const pageBarStyles = makeStyles(
-  () => {
+  (theme: Theme) => {
     return {
       toolBarRight: {
         display: "flex",
+        [theme.breakpoints.down('sm')]: {
+          marginLeft: "auto",
+        },
       },
       breadcrumbText: {
         display: "flex",
@@ -60,6 +63,11 @@ const pageBarStyles = makeStyles(
       },
       buttonAddTeam: {
         marginLeft: "auto",
+      },
+      buttonAddTeamText: {
+        [theme.breakpoints.down('xs')]: {
+          display: "none",
+        },
       },
     };
   },
@@ -93,7 +101,7 @@ function TeamsSecondaryBar(props: BarProps): JSX.Element {
           className={classes.buttonAddTeam}
           onClick={handleOpenModalAddTeam}>
           <AddIcon />
-          &nbsp;{t("button-create-a-team")}
+          <span className={classes.buttonAddTeamText}>&nbsp;{t("button-create-a-team")}</span>
         </Button>
       </div>
     </SecondaryHeaderBar>

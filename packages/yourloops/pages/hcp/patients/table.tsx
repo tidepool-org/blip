@@ -28,7 +28,6 @@
 
 import * as React from "react";
 import _ from "lodash";
-import moment from "moment-timezone"; // TODO: Change moment-timezone lib with something else
 import { useTranslation } from "react-i18next";
 // import bows from "bows";
 
@@ -55,85 +54,10 @@ import { getUserFirstName, getUserLastName } from "../../../lib/utils";
 import { useAuth } from "../../../lib/auth";
 import { TeamUser, useTeam } from "../../../lib/team";
 import { addPendingFetch, removePendingFetch } from "../../../lib/data";
-
-export interface PatientListTableProps {
-  patients: TeamUser[];
-  flagged: string[];
-  order: SortDirection;
-  orderBy: SortFields;
-  onClickPatient: (user: TeamUser) => void;
-  onFlagPatient: (userId: string) => Promise<void>;
-  onSortList: (field: SortFields, direction: SortDirection) => void;
-}
-
-export interface PatientTableRowProps {
-  na: string;
-  patient: TeamUser;
-  flagged: string[];
-  onClickPatient: (user: TeamUser) => void;
-  onFlagPatient: (userId: string) => Promise<void>;
-}
-
-export interface MedicalTableValues {
-  /** Value as a string for easy display */
-  tir: string;
-  /** Value as a number for easy compare */
-  tirNumber: number;
-  /** Value as a string for easy display */
-  tbr: string;
-  /** Value as a number for easy compare */
-  tbrNumber: number;
-  /** Value as a string for easy display */
-  lastUpload: string;
-  /** Value as a number for easy compare */
-  lastUploadEpoch: number;
-}
+import { PatientListProps, PatientElementProps } from "./models";
+import { getMedicalValues } from "./utils";
 
 // const log = bows("PatientListTable");
-
-export const getMedicalValues = (medicalData: MedicalData | null | undefined, na = "N/A"): MedicalTableValues => {
-  let tir = "-";
-  let tbr = "-";
-  let lastUpload = "-";
-  let tirNumber = Number.NaN;
-  let tbrNumber = Number.NaN;
-  let lastUploadEpoch = Number.NaN;
-
-  if (medicalData === null) {
-    tir = na;
-    tbr = na;
-    lastUpload = na;
-  } else if (medicalData) {
-    if (medicalData.range?.endDate) {
-      const browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const mLastUpload = moment.tz(medicalData.range.endDate, browserTimezone);
-      if (mLastUpload.isValid()) {
-        lastUploadEpoch = mLastUpload.valueOf();
-        lastUpload = mLastUpload.format("llll");
-      }
-    }
-    if (medicalData.computedTir?.count) {
-      const { high, low, target, veryHigh, veryLow } = medicalData.computedTir.count;
-      const total = high + low + target + veryHigh + veryLow;
-      tirNumber = Math.round((100 * target) / total);
-      tir = tirNumber.toString(10);
-      tbrNumber = Math.round((100 * (low + veryLow)) / total);
-      tbr = tbrNumber.toString(10);
-    } else {
-      tir = na;
-      tbr = na;
-    }
-  }
-
-  return {
-    tir,
-    tbr,
-    lastUpload,
-    tirNumber,
-    tbrNumber,
-    lastUploadEpoch,
-  };
-};
 
 const patientListStyle = makeStyles((theme: Theme) => {
   return {
@@ -159,8 +83,8 @@ const patientListStyle = makeStyles((theme: Theme) => {
   };
 }, { name: "ylp-hcp-patients-table" });
 
-function PatientRow(props: PatientTableRowProps): JSX.Element {
-  const { na, patient, flagged, onClickPatient, onFlagPatient } = props;
+function PatientRow(props: PatientElementProps): JSX.Element {
+  const { trNA, patient, flagged, onClickPatient, onFlagPatient } = props;
   const { t } = useTranslation("yourloops");
   const authHook = useAuth();
   const teamHook = useTeam();
@@ -183,7 +107,7 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
     onClickPatient(patient);
   };
 
-  const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, na), [medicalData, na]);
+  const { tir, tbr, lastUpload } = React.useMemo(() => getMedicalValues(medicalData, trNA), [medicalData, trNA]);
   const rowId = `patients-list-row-${userId}`;
   const session = authHook.session();
   const isPendingInvitation = teamHook.isOnlyPendingInvitation(patient);
@@ -257,18 +181,18 @@ function PatientRow(props: PatientTableRowProps): JSX.Element {
   );
 }
 
-function PatientListTable(props: PatientListTableProps): JSX.Element {
+function PatientListTable(props: PatientListProps): JSX.Element {
   const { patients, flagged, order, orderBy, onClickPatient, onFlagPatient, onSortList } = props;
   const { t } = useTranslation("yourloops");
   const classes = patientListStyle();
 
-  const na = t("N/A");
+  const trNA = t("N/A");
 
   const patientsRows = patients.map(
     (patient: TeamUser): JSX.Element => (
       <PatientRow
         key={patient.userid}
-        na={na}
+        trNA={trNA}
         patient={patient}
         flagged={flagged}
         onClickPatient={onClickPatient}
@@ -279,7 +203,11 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
 
   const createSortHandler = (property: SortFields): (() => void) => {
     return (/* event: React.MouseEvent */): void => {
-      onSortList(property, order === SortDirection.asc ? SortDirection.desc : SortDirection.asc);
+      let newOrder = order;
+      if (property === orderBy) {
+        newOrder = order === SortDirection.asc ? SortDirection.desc : SortDirection.asc;
+      }
+      onSortList(property, newOrder);
     };
   };
 

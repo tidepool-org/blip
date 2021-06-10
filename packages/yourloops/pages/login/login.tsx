@@ -41,11 +41,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import InputAdornment from "@material-ui/core/InputAdornment";
 import TextField from "@material-ui/core/TextField";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import brandingLogo from "branding/logo.png";
 
@@ -53,6 +49,7 @@ import { User, useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
 import LanguageSelector from "../../components/language-select";
+import Password from "../../components/utils/password";
 
 const loginStyle = makeStyles((theme: Theme) => {
   return {
@@ -76,7 +73,7 @@ const loginStyle = makeStyles((theme: Theme) => {
       marginRight: theme.spacing(4),
       padding: theme.spacing(2),
     },
-    TextField: {
+    textField: {
       marginLeft: theme.spacing(0),
       marginRight: theme.spacing(1),
     },
@@ -105,7 +102,6 @@ function Login(): JSX.Element {
 
   const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
   const [validateError, setValidateError] = React.useState(false);
   const [helperTextValue, setHelperTextValue] = React.useState("");
 
@@ -116,19 +112,10 @@ function Login(): JSX.Element {
     setUserName(event.target.value);
   };
 
-  const onPasswordChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
-    setPassword(event.target.value);
-  };
-
-  const onClickShowPasswordVisibility = (): void => {
-    setShowPassword(!showPassword);
-  };
-
   React.useEffect(() => {
     if (signupEmail !== null && username !== signupEmail) {
       setUserName(signupEmail);
     }
-
   }, [signupEmail, username]);
 
   React.useEffect(() => {
@@ -186,7 +173,7 @@ function Login(): JSX.Element {
                   marginLeft: "auto",
                   marginRight: "auto",
                 }}
-                alt={t("Login Branding Logo")}
+                alt={t("alt-img-logo")}
               />
             </CardMedia>
             <CardContent className={classes.CardContent}>
@@ -201,40 +188,29 @@ function Login(): JSX.Element {
                 autoComplete="off">
                 <TextField
                   id="login-username"
-                  className={classes.TextField}
+                  className={classes.textField}
                   margin="normal"
                   label={t("email")}
                   variant="outlined"
                   value={username}
+                  disabled={signupEmail !== null}
                   required
                   error={validateError && emptyUsername}
                   onChange={onUsernameChange}
                   onKeyPress={onValidateLogin}
                 />
-                <TextField
+                <Password
                   id="login-password"
-                  margin="normal"
-                  className={classes.TextField}
-                  label={t("password")}
                   variant="outlined"
-                  type={showPassword ? "text" : "password"}
+                  margin="normal"
+                  className={classes.textField}
+                  label={t("password")}
+                  setState={setPassword}
+                  onValidate={onClickLoginButton}
                   value={password}
-                  required
+                  required={true}
                   error={validateError && (emptyPassword || helperTextValue.length > 0)}
-                  onChange={onPasswordChange}
-                  onKeyPress={onValidateLogin}
                   helperText={helperTextValue}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label={t("aria-toggle-password-visibility")}
-                          onClick={onClickShowPasswordVisibility}>
-                          {showPassword ? <Visibility /> : <VisibilityOff />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               </form>
               <Link id="link-password-reset" component={RouterLink} to="/request-password-reset">

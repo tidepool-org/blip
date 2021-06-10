@@ -601,6 +601,7 @@ function oneDay(emitter, options = {}) {
 
   container.destroy = function() {
     log.info('Destroying chart container...');
+    container.throttleNavigated.cancel();
     container.emitter.removeAllListeners();
     container.mainSVG.remove();
     container.pools.forEach(pool => pool.destroy());

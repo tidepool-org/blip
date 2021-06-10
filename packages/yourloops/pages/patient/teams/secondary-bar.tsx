@@ -52,8 +52,23 @@ interface BarProps {
 const pageBarStyles = makeStyles(
   (theme: Theme) => {
     return {
+      toolBarLeft: {
+        [theme.breakpoints.down('sm')]: {
+          order: 1,
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
+        },
+      },
       toolBarRight: {
         display: "flex",
+        [theme.breakpoints.down('sm')]: {
+          order: 2,
+          marginLeft: "auto",
+        },
+        [theme.breakpoints.down('xs')]: {
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
+        },
       },
       breadcrumbText: {
         display: "flex",
@@ -70,6 +85,11 @@ const pageBarStyles = makeStyles(
       buttonAddTeam: {
         marginLeft: "auto",
       },
+      buttonAddTeamText: {
+        [theme.breakpoints.down('xs')]: {
+          display: "none",
+        },
+      },
     };
   },
   { name: "ylp-patient-teams-secondary-bar" }
@@ -85,7 +105,7 @@ function SecondaryBar(props: BarProps): JSX.Element {
 
   return (
     <SecondaryHeaderBar>
-      <div id="patient-navbar-item-left">
+      <div id="patient-navbar-item-left" className={classes.toolBarLeft}>
         <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
           <Link component={RouterLink} to={props.defaultURL} className={classes.breadcrumbLink}>
             <HomeIcon className={classes.homeIcon} />
@@ -103,7 +123,7 @@ function SecondaryBar(props: BarProps): JSX.Element {
           className={classes.buttonAddTeam}
           onClick={handleOpenModalAddTeam}>
           <AddIcon />
-          &nbsp;{t("button-add-team")}
+          <span className={classes.buttonAddTeamText}>&nbsp;{t("button-add-team")}</span>
         </Button>
       </div>
     </SecondaryHeaderBar>

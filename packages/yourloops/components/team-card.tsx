@@ -35,6 +35,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 
 import EmailIcon from "@material-ui/icons/Email";
+import Link from "@material-ui/core/Link";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import PhoneIcon from "@material-ui/icons/Phone";
 
@@ -70,17 +71,34 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       flexDirection: "row",
       marginBottom: theme.spacing(4),
       marginTop: theme.spacing(2),
+      [theme.breakpoints.down('sm')]: {
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+        flexWrap: "wrap",
+      },
     },
     secondRow: {
       display: "flex",
       flexDirection: "row",
       justifyContent: "flex-start",
       marginBottom: theme.spacing(2),
+      [theme.breakpoints.down('sm')]: {
+        flexWrap: "wrap",
+      },
+      [theme.breakpoints.down('xs')]: {
+        flexDirection: "column",
+      },
     },
     teamName: {
       minWidth: "8em",
       marginTop: "auto",
       marginBottom: "auto",
+      [theme.breakpoints.down('sm')]: {
+        width: "100%",
+        textAlign: "center",
+        marginTop: 0,
+        marginBottom: theme.spacing(1),
+      },
     },
     teamInfoIcon: {
       fill: "#2e2e2e",
@@ -95,9 +113,13 @@ const teamCardStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexGrow: 1,
       justifyContent: "flex-start",
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: "0px",
+        justifyContent: "center",
+      },
     },
   };
-});
+}, { name: "ylp-team-card" });
 
 const teamInfoStyles = makeStyles((theme: Theme) => {
   return {
@@ -105,6 +127,15 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
       display: "flex",
       flexDirection: "row",
       marginRight: theme.spacing(3), // eslint-disable-line no-magic-numbers
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0,
+        width: "50%",
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+      },
+      [theme.breakpoints.down('xs')]: {
+        width: "100%",
+      },
     },
     avatar: {
       backgroundColor: "#e4e4e5",
@@ -118,8 +149,12 @@ const teamInfoStyles = makeStyles((theme: Theme) => {
     spanValue: {
       fontWeight: 500,
     },
+    linkValue: {
+      fontWeight: 500,
+      color: theme.palette.text.primary,
+    },
   };
-});
+}, { name: "ylp-team-card-info" });
 
 export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
   const { id, label, value, icon } = props;
@@ -130,12 +165,29 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
     return null;
   }
 
-  let infoLabel;
-  if (label === "email") {
-    // email key is common, so we can't use generic code here
+  let infoLabel: string;
+  let elemValue: JSX.Element;
+  switch (label) {
+  case "email":
     infoLabel = t("email");
-  } else {
+    elemValue = (
+      <Link id={`team-card-info-${id}-${label}-value`} className={classes.linkValue} href={`mailto:${value}`} target="_blank" rel="noreferrer">
+        {value}
+      </Link>
+    );
+    break;
+  case "phone":
     infoLabel = t(`team-card-label-${label}`);
+    elemValue = (
+      <Link id={`team-card-info-${id}-${label}-value`} className={classes.linkValue} href={`tel:${value}`} target="_blank" rel="noreferrer">
+        {value}
+      </Link>
+    );
+    break;
+  default:
+    infoLabel = t(`team-card-label-${label}`);
+    elemValue = <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>{value}</span>;
+    break;
   }
 
   return (
@@ -143,9 +195,7 @@ export function TeamInfo(props: TeamInfoProps): JSX.Element | null {
       <Avatar className={classes.avatar}>{icon}</Avatar>
       <div className={classes.divLabelValue}>
         <span id={`team-card-info-${id}-${label}-label`}>{infoLabel}</span>
-        <span id={`team-card-info-${id}-${label}-value`} className={classes.spanValue}>
-          {value}
-        </span>
+        {elemValue}
       </div>
     </div>
   );

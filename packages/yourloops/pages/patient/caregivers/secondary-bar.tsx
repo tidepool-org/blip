@@ -51,8 +51,23 @@ interface BarProps {
 const pageBarStyles = makeStyles(
   (theme: Theme) => {
     return {
+      toolBarLeft: {
+        [theme.breakpoints.down('sm')]: {
+          order: 1,
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
+        },
+      },
       toolBarRight: {
         display: "flex",
+        [theme.breakpoints.down('sm')]: {
+          order: 2,
+          marginLeft: "auto",
+        },
+        [theme.breakpoints.down('xs')]: {
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(1),
+        },
       },
       breadcrumbText: {
         display: "flex",
@@ -66,8 +81,13 @@ const pageBarStyles = makeStyles(
       homeIcon: {
         marginRight: "0.5em",
       },
-      buttonAddTeam: {
+      buttonAddCaregiver: {
         marginLeft: "auto",
+      },
+      buttonAddCaregiverText: {
+        [theme.breakpoints.down('xs')]: {
+          display: "none",
+        },
       },
     };
   },
@@ -84,7 +104,7 @@ function SecondaryBar(props: BarProps): JSX.Element {
 
   return (
     <SecondaryHeaderBar>
-      <div id="patient-navbar-item-left">
+      <div id="patient-navbar-item-left" className={classes.toolBarLeft}>
         <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
           <Link component={RouterLink} to={props.defaultURL} className={classes.breadcrumbLink}>
             <HomeIcon className={classes.homeIcon} />
@@ -96,13 +116,13 @@ function SecondaryBar(props: BarProps): JSX.Element {
       <div id="patient-navbar-item-middle"></div>
       <div id="patient-navbar-item-right" className={classes.toolBarRight}>
         <Button
-          id="patient-navbar-add-team"
+          id="patient-navbar-add-caregiver"
           color="primary"
           variant="contained"
-          className={classes.buttonAddTeam}
+          className={classes.buttonAddCaregiver}
           onClick={handleOpenAddCaregiverDialog}>
           <AddIcon />
-          &nbsp;{t("button-add-caregiver")}
+          <span className={classes.buttonAddCaregiverText}>&nbsp;{t("button-add-caregiver")}</span>
         </Button>
       </div>
     </SecondaryHeaderBar>

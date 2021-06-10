@@ -43,7 +43,8 @@ import Badge from "@material-ui/core/Badge";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
-import brandingLogo from "branding/logo.png";
+import brandingLogoFull from "branding/logo-full.svg";
+import brandingLogoIcon from "branding/logo-icon.svg";
 
 import { useNotification } from "../../lib/notifications/hook";
 import config from "../../lib/config";
@@ -76,22 +77,69 @@ const toolbarStyles = makeStyles((theme: Theme) => ({
   toolBar: {
     backgroundColor: "var(--mdc-theme-surface, white)",
     display: "grid",
-    gridTemplateRows: "auto",
-    gridTemplateColumns: (props: HeaderProps) =>
-      _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
-    paddingLeft: "6em",
-    paddingRight: "6em",
-    paddingBottom: "1em",
-    paddingTop: "0.5em",
+    gridTemplateRows: "3.5em",
+    gridTemplateColumns: (props: HeaderProps) => _.isEmpty(props.children) ? "1fr 1fr" : "1fr auto 1fr",
+    paddingLeft: theme.spacing(12), // eslint-disable-line no-magic-numbers
+    paddingRight: theme.spacing(12), // eslint-disable-line no-magic-numbers
+    paddingBottom: "0.7em",
+    paddingTop: "0.7em",
+    justifyItems: "stretch",
+    alignItems: "center",
+    [theme.breakpoints.down('lg')]: {
+      paddingLeft: theme.spacing(4),
+      paddingRight: theme.spacing(4),
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: (props: HeaderProps) => _.isEmpty(props.children) ? "auto auto" : "auto auto auto",
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+    },
+    [theme.breakpoints.down('xs')]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+      display: "flex",
+      flexWrap: "wrap",
+    },
   },
-  toolbarRightSide: { display: "flex", justifyContent: "flex-end" },
+  toolbarLeft: {
+    height: "100%",
+    [theme.breakpoints.down('xs')]: {
+      order: 1,
+      width: "3em",
+    },
+  },
+  toolbarMiddle: {
+    [theme.breakpoints.down('xs')]: {
+      order: 3,
+      width: "100%",
+    },
+  },
+  toolbarRight: {
+    display: "flex",
+    justifyContent: "flex-end",
+    [theme.breakpoints.down('xs')]: {
+      order: 2,
+      marginLeft: "auto",
+    },
+  },
   accountType: {
     fontWeight: "lighter",
   },
-  toolbarLogo: {
-    height: "45px",
+  toolbarLogoFull: {
+    height: "100%",
     cursor: "pointer",
     outline: "none",
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  toolbarLogoIcon: {
+    height: "100%",
+    cursor: "pointer",
+    outline: "none",
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   accountMenuIcon: { color: theme.palette.primary.main },
 }));
@@ -218,9 +266,18 @@ function HeaderBar(props: HeaderProps): JSX.Element {
   return (
     <AppBar position="static">
       <Toolbar className={classes.toolBar}>
-        <input type="image" className={classes.toolbarLogo} alt={t("alt-img-logo")} src={brandingLogo} onClick={onLogoClick} />
-        {props.children}
-        <div className={classes.toolbarRightSide}>
+        <div id="primary-toolbar-left" className={classes.toolbarLeft}>
+          <input id="branding-logo-full" type="image" className={classes.toolbarLogoFull} alt={t("alt-img-logo")} src={brandingLogoFull} onClick={onLogoClick} />
+          <input id="branding-logo-icon" type="image" className={classes.toolbarLogoIcon} alt={t("alt-img-logo")} src={brandingLogoIcon} onClick={onLogoClick} />
+        </div>
+        {
+          _.isNil(props.children) ? null : (
+            <div id="primary-toolbar-middle" className={classes.toolbarMiddle}>
+              {props.children}
+            </div>
+          )
+        }
+        <div id="primary-toolbar-right" className={classes.toolbarRight}>
           <IconButton onClick={handleOpenNotifications}>
             <Badge color="error" badgeContent={notificationHook.receivedInvitations.length}>
               <NotificationsIcon />

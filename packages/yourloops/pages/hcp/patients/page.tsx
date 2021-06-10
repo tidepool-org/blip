@@ -32,6 +32,9 @@ import bows from "bows";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+
 import Alert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -46,7 +49,9 @@ import { errorTextFromException, getUserFirstName, getUserLastName, getUserEmail
 import { Team, TeamContext, TeamUser, useTeam } from "../../../lib/team";
 import { AddPatientDialogResult, AddPatientDialogContentProps } from "../types";
 import PatientsSecondaryBar from "./secondary-bar";
-import PatientListTable, { getMedicalValues } from "./table";
+import { getMedicalValues } from "./utils";
+import PatientListTable from "./table";
+import PatientListCards from "./cards";
 import AddPatientDialog from "./add-dialog";
 import TeamCodeDialog from "./team-code-dialog";
 
@@ -190,6 +195,8 @@ function updatePatientList(
 function PatientListPage(): JSX.Element {
   const historyHook = useHistory();
   const { t } = useTranslation("yourloops");
+  const theme = useTheme();
+  const matchesMediaSizeSmall = useMediaQuery(theme.breakpoints.down("sm"));
   const authHook = useAuth();
   const teamHook = useTeam();
   const alert = useAlert();
@@ -332,6 +339,37 @@ function PatientListPage(): JSX.Element {
     );
   }
 
+  let patientListElement: JSX.Element;
+  if (matchesMediaSizeSmall) {
+    patientListElement = (
+      <Container id="patient-list-container">
+        <PatientListCards
+          patients={patients}
+          flagged={flagged}
+          order={order}
+          orderBy={orderBy}
+          onClickPatient={handleSelectPatient}
+          onFlagPatient={handleFlagPatient}
+          onSortList={handleSortList}
+        />
+      </Container>
+    );
+  } else {
+    patientListElement = (
+      <Container id="patient-list-container" maxWidth="lg">
+        <PatientListTable
+          patients={patients}
+          flagged={flagged}
+          order={order}
+          orderBy={orderBy}
+          onClickPatient={handleSelectPatient}
+          onFlagPatient={handleFlagPatient}
+          onSortList={handleSortList}
+        />
+      </Container>
+    );
+  }
+
   return (
     <React.Fragment>
       <PatientsSecondaryBar
@@ -344,17 +382,7 @@ function PatientListPage(): JSX.Element {
       <Grid container direction="row" justify="center" alignItems="center" style={{ marginTop: "1.5em", marginBottom: "1.5em" }}>
         <Alert severity="info">{t("alert-patient-list-data-computed")}</Alert>
       </Grid>
-      <Container id="patient-list-container" maxWidth="lg">
-        <PatientListTable
-          patients={patients}
-          flagged={flagged}
-          order={order}
-          orderBy={orderBy}
-          onClickPatient={handleSelectPatient}
-          onFlagPatient={handleFlagPatient}
-          onSortList={handleSortList}
-        />
-      </Container>
+      {patientListElement}
       <AddPatientDialog actions={patientToAdd} />
       <TeamCodeDialog
         onClose={handleCloseTeamCodeDialog}

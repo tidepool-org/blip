@@ -29,7 +29,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
@@ -49,12 +49,17 @@ export interface TeamInfoProps {
   icon: JSX.Element;
 }
 
-const teamCardStyles = makeStyles((/* theme: Theme */) => {
+const teamCardStyles = makeStyles((theme: Theme) => {
   return {
     buttonActionFirstRow: {
       alignSelf: "center",
       marginRight: "1em",
       textTransform: "initial",
+    },
+    buttonText: {
+      [theme.breakpoints.down('xs')]: {
+        display: "none",
+      },
     },
   };
 });
@@ -82,7 +87,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         startIcon={<ExitToAppIcon color="primary" />}
         onClick={handleClickLeaveTeam}
         disabled={buttonsDisabled}>
-        {t("remove")}
+        <span className={classes.buttonText}>{t("remove")}</span>
       </Button>
     </GenericTeamCard>
   );

@@ -26,6 +26,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import _ from "lodash";
+
 import { IUser } from "../models/shoreline";
 import httpStatus from "./http-status-codes";
 import { t } from "./language";
@@ -104,6 +106,18 @@ export function getUserLastName(user: IUser): string {
  */
 export function getUserFirstLastName(user: IUser): { firstName: string, lastName: string; } {
   return { firstName: getUserFirstName(user), lastName: getUserLastName(user) };
+}
+
+export function getUserInitials(user: IUser): string {
+  const { firstName, lastName } = getUserFirstLastName(user);
+  const emptyFirstName = _.isEmpty(firstName);
+  const emptyLastName = _.isEmpty(lastName);
+  if (emptyFirstName && emptyLastName) {
+    return user.username.substring(0, 2).toLocaleUpperCase();
+  } else if (emptyFirstName) {
+    return lastName.substring(0, 2).toLocaleUpperCase();
+  }
+  return `${firstName[0]}${lastName[0]}`.toLocaleUpperCase();
 }
 
 export function getUserEmail(user: IUser): string {

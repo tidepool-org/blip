@@ -26,29 +26,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createStyles, IconButton, InputAdornment, makeStyles, TextField } from "@material-ui/core";
-import React, { CSSProperties, FunctionComponent, useState } from "react";
-
-import { Visibility } from "@material-ui/icons";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-enum PasswordVisibility {
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import TextField from "@material-ui/core/TextField";
+import Tooltip from "@material-ui/core/Tooltip";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
+
+export enum PasswordVisibility {
   text = "text",
   hidden = "password",
 }
 
-interface PasswordProps {
+export interface PasswordProps {
   id: string;
   label: string;
   value: string;
   setState: React.Dispatch<React.SetStateAction<string>>;
+  onValidate?: () => void;
   error: boolean;
   helperText: string;
-  style?: CSSProperties;
+  required?: boolean;
+  variant: "standard" | "filled" | "outlined";
+  margin?: "none" | "dense" | "normal";
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     textField: {
       marginTop: "1em",
@@ -56,50 +65,77 @@ const useStyles = makeStyles(() =>
         backgroundColor: "white",
       },
     },
+    adornment: {
+      [theme.breakpoints.down('sm')]: {
+        padding: 0,
+      },
+    },
   })
 );
 
-export const Password: FunctionComponent<PasswordProps> = ({
+const Password: React.FunctionComponent<PasswordProps> = ({
   id,
   label,
   value,
   error,
   helperText,
   style,
+  className,
+  required,
+  variant,
+  margin,
+  onValidate,
   setState,
 }: PasswordProps) => {
   const classes = useStyles();
   const { t } = useTranslation("yourloops");
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const handleShowPasswordChange = () => {
     setShowPassword(!showPassword);
   };
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     setState(event.target.value);
   };
+  const handleValidate = typeof onValidate !== "function" ? undefined : (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      onValidate();
+    }
+  };
+
+  const tip = t("aria-toggle-password-visibility");
 
   return (
     <TextField
       id={id}
-      label={t(label)}
+      label={label}
       value={value}
       error={error}
+      required={required}
+      variant={variant}
       type={showPassword ? PasswordVisibility.text : PasswordVisibility.hidden}
-      onChange={onChange}
+      onChange={handleChange}
+      onKeyPress={handleValidate}
       helperText={error && helperText}
       style={style}
-      className={classes.textField}
+      margin={margin}
+      className={className ?? classes.textField}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton aria-label={t("aria-toggle-password-visibility")} onClick={handleShowPasswordChange}>
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
+            <Tooltip title={tip} aria-label={tip} placement="bottom">
+              <IconButton id={`${id}-btn-show-pwd`} className={classes.adornment} aria-label={tip} onClick={handleShowPasswordChange}>
+                {showPassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </Tooltip>
           </InputAdornment>
         ),
       }}
     />
   );
 };
+
+export default Password;

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * HCP patient list bar tests
+ * Module declaration to import svg files
  *
  * All rights reserved.
  *
@@ -26,34 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as React from "react";
-import { expect } from "chai";
-import { shallow } from "enzyme";
-import sinon from "sinon";
-
-import { SortDirection, SortFields } from "../../../models/generic";
-import { PatientListProps } from "../../../pages/hcp/patients/models";
-import PatientListTable from "../../../pages/hcp/patients/table";
-
-function testPatientListTable(): void {
-  const defaultProps: PatientListProps = {
-    patients: [],
-    flagged: [],
-    order: SortDirection.asc,
-    orderBy: SortFields.lastname,
-    onClickPatient: sinon.spy(),
-    onFlagPatient: sinon.spy(),
-    onSortList: sinon.spy(),
-  };
-
-  it("should be exported as a function", () => {
-    expect(PatientListTable).to.be.a("function");
-  });
-
-  it("should be able to render", () => {
-    const bar = shallow(<PatientListTable {...defaultProps} />);
-    expect(bar.find("#patients-list-table").length).to.be.equal(1);
-  });
+ declare module "*.svg" {
+  const value: string;
+  export default value;
 }
-
-export default testPatientListTable;

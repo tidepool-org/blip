@@ -29,7 +29,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
 import EditIcon from "@material-ui/icons/Edit";
@@ -57,15 +57,23 @@ export interface TeamInfoProps {
   icon: JSX.Element;
 }
 
-const teamCardStyles = makeStyles((/* theme: Theme */) => {
+const teamCardStyles = makeStyles((theme: Theme) => {
   return {
     buttonActionFirstRow: {
       alignSelf: "center",
       marginRight: "1em",
       textTransform: "initial",
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0,
+      },
+    },
+    buttonText: {
+      [theme.breakpoints.down('xs')]: {
+        display: "none",
+      },
     },
   };
-});
+}, { name: "ylp-team-card-hcp" });
 
 function TeamCard(props: TeamCardProps): JSX.Element {
   const { team, memberRole, memberStatus, onShowEditTeamDialog, onShowLeaveTeamDialog, onShowAddMemberDialog } = props;
@@ -104,7 +112,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
           startIcon={<EditIcon color="primary" />}
           onClick={handleClickEdit}
           disabled={buttonsDisabled}>
-          {t("button-team-edit")}
+          <span className={classes.buttonText}>{t("button-team-edit")}</span>
         </Button>
         <Button
           id={`team-card-${id}-button-add-member`}
@@ -112,7 +120,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
           startIcon={<PersonAddIcon color="primary" />}
           onClick={handleClickAddMember}
           disabled={buttonsDisabled}>
-          {t("button-team-add-member")}
+          <span className={classes.buttonText}>{t("button-team-add-member")}</span>
         </Button>
         <Button
           id={`team-card-${id}-button-leave-team`}
@@ -120,7 +128,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
           startIcon={<ExitToAppIcon color="primary" />}
           onClick={handleClickLeaveTeam}
           disabled={buttonsDisabled}>
-          {t("button-team-leave")}
+          <span className={classes.buttonText}>{t("button-team-leave")}</span>
         </Button>
       </GenericTeamCard>
     );
@@ -134,7 +142,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
         startIcon={<ExitToAppIcon color="primary" />}
         onClick={handleClickLeaveTeam}
         disabled={buttonsDisabled}>
-        {t("button-team-leave")}
+        <span className={classes.buttonText}>{t("button-team-leave")}</span>
       </Button>
     </GenericTeamCard>
   );

@@ -9,6 +9,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-793 Sorting on TIR indicators and data upload in the patient dashboard
 - YLP-791 Patient can share to the same team several times
 - YLP-796 Set header x-tidepool-language for all requests to /confirm/send/xx
+- YLP-799 CSS fixes for mobile display of patient data
 
 ### Engineering Use
 - YLP-808 Regenerate package-lock.json files

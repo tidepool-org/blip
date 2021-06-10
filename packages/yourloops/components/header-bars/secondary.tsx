@@ -49,6 +49,26 @@ const pageBarStyles = makeStyles((theme: Theme) => {
       gridTemplateColumns: "1fr 1fr 1fr",
       paddingLeft: theme.spacing(12), // eslint-disable-line no-magic-numbers
       paddingRight: theme.spacing(12), // eslint-disable-line no-magic-numbers
+      [theme.breakpoints.down('lg')]: {
+        paddingLeft: theme.spacing(4),
+        paddingRight: theme.spacing(4),
+      },
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(2),
+        display: "flex",
+        flexWrap: "wrap",
+        flexDirection: "row",
+
+      },
+      [theme.breakpoints.down('xs')]: {
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
+      },
     },
   };
 });

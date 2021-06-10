@@ -26,6 +26,8 @@ const alias = {
   "branding/theme-base.css": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/theme-base.css`),
   "branding/theme.css": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/theme.css`),
   "branding/logo.png": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo.png`),
+  "branding/logo-icon.svg": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo-icon.svg`),
+  "branding/logo-full.svg": path.resolve(__dirname, `../../branding/${buildConfig.BRANDING}/logo-full.svg`),
   'cartridge.png': path.resolve(__dirname, '../../branding/sitechange/cartridge.png'),
   'infusion.png': path.resolve(__dirname, '../../branding/sitechange/infusion.png'),
   'cartridge-vicentra.png': path.resolve(__dirname, '../../branding/sitechange/cartridge-vicentra.png'),
