@@ -107,7 +107,7 @@ DialogActions.propTypes = {
 
 /* Dialog Start */
 const StyledDialog = styled(MuiDialog)`
-  z-index: ${props => (props.zIndex || '1301')} !important;
+  z-index: ${props => (props.zIndex || '1310')} !important;
 
   .MuiBackdrop-root {
     background-color: rgba(66, 90, 112, 0.81);
