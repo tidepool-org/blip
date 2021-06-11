@@ -592,7 +592,6 @@ export const AccessManagement = (props) => {
         aria-labelledBy="dialog-title"
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-        zIndex="1301"
       >
         <DialogTitle onClose={() => setShowDeleteDialog(false)}>
           <MediumTitle id="dialog-title">{deleteDialogContent?.title}</MediumTitle>
