@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "Aggiungi team di cura",
   "modal-patient-add-team-success": "Il suo team di cura può ora accedere ai suoi dati.",
   "modal-patient-add-team-failure": "Impossibile aggiungere un team di cura. Riprovare più tardi.",
+  "modal-patient-add-team-failure-exists": "Condividi già i dati con questo team.",
   "modal-patient-add-caregiver-success": "Il suo caregiver può ora accedere ai suoi dati.",
   "modal-patient-add-caregiver-failure": "Impossibile aggiungere un caregiver. Riprovare più tardi.",
   "modal-patient-remove-caregiver-title": "Rimuovi un caregiver",

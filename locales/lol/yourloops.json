@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "crwdns54202:0crwdne54202:0",
   "modal-patient-add-team-success": "crwdns54204:0crwdne54204:0",
   "modal-patient-add-team-failure": "crwdns54206:0crwdne54206:0",
+  "modal-patient-add-team-failure-exists": "crwdns54312:0crwdne54312:0",
   "modal-patient-add-caregiver-success": "crwdns54208:0crwdne54208:0",
   "modal-patient-add-caregiver-failure": "crwdns54210:0crwdne54210:0",
   "modal-patient-remove-caregiver-title": "crwdns54212:0crwdne54212:0",

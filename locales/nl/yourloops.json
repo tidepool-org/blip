@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "Behandelteam toevoegen",
   "modal-patient-add-team-success": "Je behandelteam heeft nu toegang tot je gegevens.",
   "modal-patient-add-team-failure": "Behandelteam kan niet worden toegevoegd. Probeer het later opnieuw.",
+  "modal-patient-add-team-failure-exists": "Je deelt al gegevens met dit team.",
   "modal-patient-add-caregiver-success": "Je verzorger heeft nu toegang tot je gegevens.",
   "modal-patient-add-caregiver-failure": "Verzorger kan niet worden toegevoegd. Probeer het later opnieuw.",
   "modal-patient-remove-caregiver-title": "Een verzorger verwijderen",

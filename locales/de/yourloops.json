@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "Behandlungsteam hinzufügen",
   "modal-patient-add-team-success": "Ihr Behandlungsteam kann nun auf Ihre Daten zugreifen.",
   "modal-patient-add-team-failure": "Es kann kein Behandlungsteam hinzugefügt werden. Versuchen Sie es zu einem späteren Zeitpunkt erneut.",
+  "modal-patient-add-team-failure-exists": "Sie teilen bereits Daten mit diesem Team.",
   "modal-patient-add-caregiver-success": "Ihre Hilfsperson kann nun nicht mehr auf Ihre Daten zugreifen.",
   "modal-patient-add-caregiver-failure": "Es ist nicht möglich, eine Hilfsperson hinzuzufügen. Bitte versuchen Sie es später noch einmal.",
   "modal-patient-remove-caregiver-title": "Hilfsperson entfernen",

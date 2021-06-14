@@ -269,6 +269,7 @@
   "modal-patient-add-team-accept": "Añadir equipo de atención médica",
   "modal-patient-add-team-success": "Su equipo de atención médica ya tiene acceso a sus datos.",
   "modal-patient-add-team-failure": "Imposible añadir un equipo de atención médica. Vuelva a intentarlo más tarde.",
+  "modal-patient-add-team-failure-exists": "Ya compartes datos con este equipo.",
   "modal-patient-add-caregiver-success": "Su cuidador ya tiene acceso a sus datos.",
   "modal-patient-add-caregiver-failure": "Imposible añadir cuidador. Vuelva a intentarlo más tarde.",
   "modal-patient-remove-caregiver-title": "Eliminar un cuidador",
