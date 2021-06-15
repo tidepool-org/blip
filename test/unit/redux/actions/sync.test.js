@@ -2990,16 +2990,20 @@ describe('Actions', () => {
     });
 
     describe('updatePatientPermissionsSuccess', () => {
+      const clinicId = 'clinic123';
+      const patientId = 'patient123';
       let permissions = {upload: {}, view: {}};
       it('should be a TSA', () => {
-        let action = sync.updatePatientPermissionsSuccess(permissions);
+        let action = sync.updatePatientPermissionsSuccess(clinicId, patientId, permissions);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PATIENT_PERMISSIONS_SUCCESS', () => {
-        let action = sync.updatePatientPermissionsSuccess(permissions);
+        let action = sync.updatePatientPermissionsSuccess(clinicId, patientId, permissions);
         expect(action.type).to.equal('UPDATE_PATIENT_PERMISSIONS_SUCCESS');
         expect(action.payload.permissions).to.equal(permissions);
+        expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.patientId).to.equal(patientId);
       });
     });
 

@@ -739,10 +739,10 @@ export const clinics = (state = initialState.clinics, action) => {
         },
         {}
       );
+      return _.merge({}, state, newClinics);
     }
     case types.FETCH_CLINICS_FOR_PATIENT_SUCCESS: {
       const clinics = _.get(action.payload, 'clinics');
-      console.log('clinics', clinics);
       const newClinics = _.reduce(
         clinics,
         (newSet, clinic) => {

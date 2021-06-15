@@ -1220,10 +1220,11 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
+        let key = null;
         let invite = { foo: 'bar' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, null, invite)
+            send: sinon.stub().callsArgWith(3, null, invite)
           }
         };
 
@@ -1237,11 +1238,11 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
 
         // assert callback contains no error, and the invite
         sinon.assert.calledOnce(callback);
@@ -1253,10 +1254,11 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
+        let key = null;
         let invite = { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, null, invite),
+            send: sinon.stub().callsArgWith(3, null, invite),
             getSent: sinon.stub(),
           }
         };
@@ -1272,11 +1274,11 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
 
         // assert callback contains no error, and the invite
         sinon.assert.calledOnce(callback);
@@ -1288,11 +1290,12 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
+        let key = null;
         let invitation = { foo: 'bar' };
         const error = { status: 409, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, error)
+            send: sinon.stub().callsArgWith(3, error)
           }
         };
 
@@ -1310,13 +1313,13 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ALREADY_SENT_TO_EMAIL });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
 
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
@@ -1328,11 +1331,12 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
+        let key = null;
         let invitation = { foo: 'bar' };
         const error = { status: 500, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, error)
+            send: sinon.stub().callsArgWith(3, error)
           }
         };
 
@@ -1350,13 +1354,13 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
 
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
@@ -1443,7 +1447,7 @@ describe('Actions', () => {
 
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
+            send: sinon.stub().callsArgWith(3, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
             cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
@@ -1492,7 +1496,7 @@ describe('Actions', () => {
 
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
+            send: sinon.stub().callsArgWith(3, { status: 500, body: 'Error!' } , null),
             cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
@@ -5058,7 +5062,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PATIENT_PERMISSIONS_REQUEST' },
-          { type: 'UPDATE_PATIENT_PERMISSIONS_SUCCESS', payload: { permissions } }
+          { type: 'UPDATE_PATIENT_PERMISSIONS_SUCCESS', payload: { clinicId, patientId, permissions } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

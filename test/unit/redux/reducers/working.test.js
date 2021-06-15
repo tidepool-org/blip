@@ -2704,7 +2704,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('removeMemberFromTargetCareTeam', () => {
     describe('request', () => {
-      it('should leave removingMemberFromTargetCareTeam.completed unchanged', () => {
+      it('should set removingMemberFromTargetCareTeam.completed to null', () => {
         expect(initialState.removingMemberFromTargetCareTeam.completed).to.be.null;
 
         let requestAction = actions.sync.removeMemberFromTargetCareTeamRequest();
@@ -2718,7 +2718,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.removingMemberFromTargetCareTeam.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.removingMemberFromTargetCareTeam.completed).to.be.true;
+        expect(state.removingMemberFromTargetCareTeam.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
@@ -3019,7 +3019,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('setMemberPermissions', () => {
     describe('request', () => {
-      it('should leave settingMemberPermissions.completed unchanged', () => {
+      it('should set settingMemberPermissions.completed to null', () => {
         expect(initialState.settingMemberPermissions.completed).to.be.null;
 
         let requestAction = actions.sync.setMemberPermissionsRequest();
@@ -3033,7 +3033,7 @@ describe('dataWorkerQueryData', () => {
           expect(successState.settingMemberPermissions.completed).to.be.true;
 
           let state = reducer(successState, requestAction);
-          expect(state.settingMemberPermissions.completed).to.be.true;
+          expect(state.settingMemberPermissions.completed).to.be.null;
           expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
