@@ -749,3 +749,24 @@ export const selectedClinicId = (state = initialState.selectedClinicId, action) 
       return state;
   }
 };
+
+export const pendingReceivedClinicianInvites = (state = initialState.pendingReceivedClinicianInvites, action) => {
+  switch(action.type) {
+    case types.FETCH_CLINICIAN_INVITES_SUCCESS:
+      return update(state, { $set: _.get(action.payload, 'invites', []) });
+    case types.ACCEPT_CLINICIAN_INVITE_SUCCESS:
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'inviteId', null) );
+        }
+      });
+    case types.DISMISS_CLINICIAN_INVITE_SUCCESS:
+      return update(state, { $apply: (invite) => {
+          return invite.filter( (i) => i.key !== _.get(action.payload, 'inviteId', null) );
+        }
+      });
+    case types.LOGOUT_REQUEST:
+      return [];
+    default:
+      return state;
+  }
+};

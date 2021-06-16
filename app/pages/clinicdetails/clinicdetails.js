@@ -1,18 +1,20 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import * as yup from 'yup';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
 import sortBy from 'lodash/sortBy';
 import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { Formik, Form, FastField } from 'formik';
 import InputMask from 'react-input-mask';
 import { Box, Flex } from 'rebass/styled-components';
 import countries from 'i18n-iso-countries';
 import { phoneRegex } from '../prescription/prescriptionFormConstants';
-import { Body1, Body2, Headline } from '../../components/elements/FontStyles';
+import { Body1, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import TextInput from '../../components/elements/TextInput';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
@@ -20,6 +22,10 @@ import Checkbox from '../../components/elements/Checkbox';
 import Button from '../../components/elements/Button';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
+import config from '../../config';
+import { usePrevious } from '../../core/hooks';
+import { useToasts } from '../../providers/ToastProvider';
+import { push } from 'connected-react-router';
 
 const t = i18next.t.bind(i18next);
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
@@ -63,7 +69,7 @@ const selectCountries = sortBy(
 const clinicSchema = yup.object().shape({
   firstName: yup.string().required(t('First name is required')),
   lastName: yup.string().required(t('Last name is required')),
-  role: yup.string().oneOf(map(roles, 'value')).required(),
+  role: yup.string().oneOf(map(roles, 'value')),
   npi: yup
     .string()
     .length(10, t('NPI must be 10 digits'))
@@ -100,6 +106,8 @@ const clinicSchema = yup.object().shape({
     .oneOf([true], t('You must acknowledge admin role')),
 });
 
+const clinicianSchema = clinicSchema.pick(['firstName', 'lastName', 'role', 'npi']);
+
 const inputStyles = {
   themeProps: { width: [1, 0.75, 0.5], py: 2, pr: [0, 0, 4] },
 };
@@ -107,6 +115,7 @@ const inputStyles = {
 export const ClinicDetails = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
 
   useEffect(() => {
     if (trackMetric) {
@@ -114,13 +123,50 @@ export const ClinicDetails = (props) => {
     }
   }, []);
 
+  const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
+  const displayFullForm = config.CLINICS_ENABLED && (isEmpty(pendingReceivedClinicianInvites) /* || user.isflagged */)
+
+  const working = useSelector((state) => state.blip.working);
+  const previousWorking = usePrevious(working);
+
+  useEffect(() => {
+    const {
+      inProgress,
+      completed,
+      notification,
+    } = working.updatingUser;
+    const prevInProgress = get(
+      previousWorking,
+      'updatingUser.inProgress'
+    );
+    if (!inProgress && completed && prevInProgress) {
+      if (notification) {
+        setToast({
+          message: notification.message,
+          variant: 'danger',
+        });
+      } else {
+        setToast({
+          message: t('Profile updated'),
+          variant: 'success',
+        });
+        dispatch(push('/workspace-switch'));
+      }
+    }
+  }, [working.updatingUser]);
+
   return (
     <Box mx={'auto'} my={2} p={4} bg="white" width={[1, 0.75, 0.75, 0.5]}>
+      {!displayFullForm &&
+      <>
+        <Title>Update your account</Title>
+        <Body2>Before accessing your clinic workspace, please provide the additional account information requested below.</Body2>
+      </>}
       <Formik
         initialValues={{
           firstName: '',
           lastName: '',
-          role: roles[0].value,
+          role: '',
           npi: '',
           clinicType: '',
           clinicSize: '',
@@ -136,29 +182,8 @@ export const ClinicDetails = (props) => {
           email: '',
           adminAcknowledge: false,
         }}
-        validationSchema={clinicSchema}
+        validationSchema={displayFullForm ? clinicSchema : clinicianSchema}
         onSubmit={(values) => {
-          const address =
-            values.address1 + (values.address2 ? ' ' + values.address2 : '');
-          const meta = pick(values, ['website']);
-          const newClinic = {
-            name: values.orgName,
-            address,
-            city: values.city,
-            state: values.state,
-            postalCode: values.zip,
-            country: values.country,
-            phoneNumbers: [
-              {
-                type: 'Office',
-                number: values.phoneNumber,
-              },
-            ],
-            clinicType: values.clinicType,
-            clinicSize: parseInt(values.clinicSize, 10),
-            email: values.email,
-            meta,
-          };
           const profileUpdates = {
             fullName: `${values.firstName} ${values.lastName}`,
             profile: {
@@ -171,9 +196,36 @@ export const ClinicDetails = (props) => {
           if (values.npi) {
             profileUpdates.clinic.npi = values.npi;
           }
+
           dispatch(actions.async.updateUser(api, profileUpdates));
-          trackMetric('Clinic - Account created');
-          dispatch(actions.async.createClinic(api, newClinic));
+
+          if(displayFullForm){
+            const address =
+            values.address1 + (values.address2 ? ' ' + values.address2 : '');
+            const meta = pick(values, ['website']);
+            const newClinic = {
+              name: values.orgName,
+              address,
+              city: values.city,
+              state: values.state,
+              postalCode: values.zip,
+              country: values.country,
+              phoneNumbers: [
+                {
+                  type: 'Office',
+                  number: values.phoneNumber,
+                },
+              ],
+              clinicType: values.clinicType,
+              clinicSize: parseInt(values.clinicSize, 10),
+              email: values.email,
+              meta,
+            };
+
+            trackMetric('Clinic - Account created');
+            dispatch(actions.async.createClinic(api, newClinic));
+          }
+
         }}
       >
         {({ errors, touched, setFieldTouched, setFieldValue, values }) => (
@@ -201,7 +253,7 @@ export const ClinicDetails = (props) => {
                 as={Select}
                 id="role"
                 name="role"
-                label={t('Role')}
+                label={t('Job Title (Optional)')}
                 options={roles}
                 error={touched.role && errors.role}
                 {...inputStyles}
@@ -216,150 +268,154 @@ export const ClinicDetails = (props) => {
                 {...inputStyles}
               />
             </Flex>
-            <Headline mb={4}>More about your clinic</Headline>
-            <Body1 mb={4}>
-              The information below will be displayed along with your name when
-              you invite patients to connect and share their data remotely.
-              Please ensure you have the correct clinic information for their
-              verification.
-            </Body1>
-            <Body2 mb={3}>
-              {t('What is the type of organization you are a part of?')}
-            </Body2>
-            <FastField
-              mb={3}
-              as={RadioGroup}
-              variant="vertical"
-              id="clinicType"
-              name="clinicType"
-              options={clinicTypes}
-              error={touched.clinicType && errors.clinicType}
-            />
-            <Body2 mb={3}>
-              {t('How many patients does your clinic practice see?')}
-            </Body2>
-            <FastField
-              mb={3}
-              as={RadioGroup}
-              variant="vertical"
-              id="clinicSize"
-              name="clinicSize"
-              options={clinicSizes}
-              error={touched.clinicSize && errors.clinicSize}
-            />
-            <FastField
-              as={Select}
-              id="country"
-              name="country"
-              label={t('Country')}
-              error={touched.country && errors.country}
-              options={selectCountries}
-              {...inputStyles}
-            />
-            <Flex flexWrap={'wrap'} mb={5}>
+            {displayFullForm &&
+            <>
+              <Headline mb={4}>More about your clinic</Headline>
+              <Body1 mb={4}>
+                The information below will be displayed along with your name when
+                you invite patients to connect and share their data remotely.
+                Please ensure you have the correct clinic information for their
+                verification.
+              </Body1>
+              <Body2 mb={3}>
+                {t('What is the type of organization you are a part of?')}
+              </Body2>
               <FastField
-                as={TextInput}
-                id="orgName"
-                name="orgName"
-                label={t('Organization Name')}
-                placeholder={t('Organization Name')}
-                error={touched.orgName && errors.orgName}
-                {...inputStyles}
+                mb={3}
+                as={RadioGroup}
+                variant="vertical"
+                id="clinicType"
+                name="clinicType"
+                options={clinicTypes}
+                error={touched.clinicType && errors.clinicType}
+              />
+              <Body2 mb={3}>
+                {t('How many patients does your clinic practice see?')}
+              </Body2>
+              <FastField
+                mb={3}
+                as={RadioGroup}
+                variant="vertical"
+                id="clinicSize"
+                name="clinicSize"
+                options={clinicSizes}
+                error={touched.clinicSize && errors.clinicSize}
               />
               <FastField
-                as={({ innerRef }) => (
-                  <InputMask
-                    mask="(999) 999-9999"
-                    alwaysShowMask
-                    defaultValue={values.phoneNumber}
-                    onBlur={(e) => {
-                      setFieldTouched('phoneNumber', true);
-                      setFieldValue('phoneNumber', e.target.value);
-                    }}
-                  >
-                    <TextInput
-                      name="phoneNumber"
-                      id="phoneNumber"
-                      label={t('Phone Number')}
-                      error={touched.phoneNumber && errors.phoneNumber}
-                      {...inputStyles}
-                      innerRef={innerRef}
-                    />
-                  </InputMask>
+                as={Select}
+                id="country"
+                name="country"
+                label={t('Country')}
+                error={touched.country && errors.country}
+                options={selectCountries}
+                {...inputStyles}
+              />
+              <Flex flexWrap={'wrap'} mb={5}>
+                <FastField
+                  as={TextInput}
+                  id="orgName"
+                  name="orgName"
+                  label={t('Organization Name')}
+                  placeholder={t('Organization Name')}
+                  error={touched.orgName && errors.orgName}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={({ innerRef }) => (
+                    <InputMask
+                      mask="(999) 999-9999"
+                      alwaysShowMask
+                      defaultValue={values.phoneNumber}
+                      onBlur={(e) => {
+                        setFieldTouched('phoneNumber', true);
+                        setFieldValue('phoneNumber', e.target.value);
+                      }}
+                    >
+                      <TextInput
+                        name="phoneNumber"
+                        id="phoneNumber"
+                        label={t('Phone Number')}
+                        error={touched.phoneNumber && errors.phoneNumber}
+                        {...inputStyles}
+                        innerRef={innerRef}
+                      />
+                    </InputMask>
+                  )}
+                />
+                <FastField
+                  as={TextInput}
+                  id="address1"
+                  name="address1"
+                  label={t('Address Line 1')}
+                  placeholder={t('Address Line 1')}
+                  error={touched.address1 && errors.address1}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="address2"
+                  name="address2"
+                  label={t('Address Line 2')}
+                  placeholder={t('Address Line 2')}
+                  error={touched.address2 && errors.address2}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="city"
+                  name="city"
+                  label={t('City')}
+                  placeholder={t('City')}
+                  error={touched.city && errors.city}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="state"
+                  name="state"
+                  label={t('State')}
+                  placeholder={t('State')}
+                  error={touched.state && errors.state}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="zip"
+                  name="zip"
+                  label={t('Zip Code')}
+                  placeholder={t('Postal Code')}
+                  error={touched.zip && errors.zip}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="website"
+                  name="website"
+                  label={t('Website')}
+                  error={touched.website && errors.website}
+                  {...inputStyles}
+                />
+                <FastField
+                  as={TextInput}
+                  id="email"
+                  name="email"
+                  label={t('Clinic Admin Email')}
+                  error={touched.email && errors.email}
+                  {...inputStyles}
+                />
+              </Flex>
+              <FastField
+                as={Checkbox}
+                id="adminAcknowledge"
+                name="adminAcknowledge"
+                label={t(
+                  'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
                 )}
+                error={touched.adminAcknowledge && errors.adminAcknowledge}
+                checked={values.adminAcknowledge}
               />
-              <FastField
-                as={TextInput}
-                id="address1"
-                name="address1"
-                label={t('Address Line 1')}
-                placeholder={t('Address Line 1')}
-                error={touched.address1 && errors.address1}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="address2"
-                name="address2"
-                label={t('Address Line 2')}
-                placeholder={t('Address Line 2')}
-                error={touched.address2 && errors.address2}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="city"
-                name="city"
-                label={t('City')}
-                placeholder={t('City')}
-                error={touched.city && errors.city}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="state"
-                name="state"
-                label={t('State')}
-                placeholder={t('State')}
-                error={touched.state && errors.state}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="zip"
-                name="zip"
-                label={t('Zip Code')}
-                placeholder={t('Postal Code')}
-                error={touched.zip && errors.zip}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="website"
-                name="website"
-                label={t('Website')}
-                error={touched.website && errors.website}
-                {...inputStyles}
-              />
-              <FastField
-                as={TextInput}
-                id="email"
-                name="email"
-                label={t('Clinic Admin Email')}
-                error={touched.email && errors.email}
-                {...inputStyles}
-              />
-            </Flex>
-            <FastField
-              as={Checkbox}
-              id="adminAcknowledge"
-              name="adminAcknowledge"
-              label={t(
-                'By creating this clinic, your Tidepool account will become the default administrator. You can invite other healthcare professionals to join the clinic and add or remove privileges for these accounts at any time.'
-              )}
-              error={touched.adminAcknowledge && errors.adminAcknowledge}
-              checked={values.adminAcknowledge}
-            />
+            </>}
+
             <Button type={'submit'} mt={3}>
               Submit
             </Button>

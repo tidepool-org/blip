@@ -54,6 +54,7 @@ import {
   authorizedDataSource,
   clinics,
   selectedClinicId,
+  pendingReceivedClinicianInvites,
 } from './misc';
 
 export default combineReducers({
@@ -90,6 +91,7 @@ export default combineReducers({
   authorizedDataSource,
   clinics,
   selectedClinicId,
+  pendingReceivedClinicianInvites,
   pdf,
   data,
   working,

@@ -1673,11 +1673,11 @@ export function acceptClinicianInviteRequest() {
   };
 }
 
-export function acceptClinicianInviteSuccess(result) {
+export function acceptClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.ACCEPT_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }
@@ -1698,11 +1698,11 @@ export function dismissClinicianInviteRequest() {
   };
 }
 
-export function dismissClinicianInviteSuccess(result) {
+export function dismissClinicianInviteSuccess(inviteId) {
   return {
     type: ActionTypes.DISMISS_CLINICIAN_INVITE_SUCCESS,
     payload: {
-      result: result,
+      inviteId,
     },
   };
 }

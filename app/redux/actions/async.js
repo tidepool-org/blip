@@ -716,6 +716,7 @@ export function updateClinicianProfile(api, formValues) {
         ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
+        // TODO: if pending clinic invite (should be in state already) and new clinics enabled, then redirect to workspace switcher
         dispatch(push('/patients?justLoggedIn=true'));
       }
     });
@@ -2183,7 +2184,7 @@ export function acceptClinicianInvite(api, userId, inviteId) {
           createActionError(ErrorMessages.ERR_ACCEPTING_CLINICIAN_INVITE, err), err
         ));
       } else {
-        dispatch(sync.acceptClinicianInviteSuccess(result));
+        dispatch(sync.acceptClinicianInviteSuccess(inviteId));
       }
     });
   };
@@ -2206,7 +2207,7 @@ export function dismissClinicianInvite(api, userId, inviteId) {
           createActionError(ErrorMessages.ERR_DISMISSING_CLINICIAN_INVITE, err), err
         ));
       } else {
-        dispatch(sync.dismissClinicianInviteSuccess(result));
+        dispatch(sync.dismissClinicianInviteSuccess(inviteId));
       }
     });
   };
