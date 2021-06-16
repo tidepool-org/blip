@@ -67,7 +67,7 @@ NoData.propTypes = {
     y: PropTypes.number.isRequired,
   }).isRequired,
   unselectedAllData: PropTypes.bool.isRequired,
-  unselectedAllDataString: PropTypes.string.isRequired,
+  unselectedAllDataString: PropTypes.string,
 };
 
 export default NoData;

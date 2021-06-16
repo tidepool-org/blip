@@ -250,13 +250,14 @@ class Trends extends React.Component {
   }
 
   handleWindowResize(/* windowSize */) {
-    this.getChart()?.mountData();
+    this.getChart()?.mountData(false);
   }
 
   handleClickBack(e) {
     if (e) {
       e.preventDefault();
     }
+    this.props.trackMetric("Trends", { action: "pan-back" });
     this.getChart()?.goBack();
   }
 
@@ -277,6 +278,7 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
+    this.props.trackMetric("Trends", { action: "pan-forward" });
     this.getChart()?.goForward();
   }
 
@@ -287,6 +289,7 @@ class Trends extends React.Component {
     if (this.state.atMostRecent) {
       return;
     }
+    this.props.trackMetric("Trends", { action: "pan-most-recent" });
     this.getChart()?.goToMostRecent();
   }
 

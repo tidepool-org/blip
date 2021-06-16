@@ -37,6 +37,7 @@ import {
   MMOLL_UNITS,
   CGM_DATA_KEY,
   BGM_DATA_KEY,
+  MS_IN_DAY,
 } from '../../../utils/constants';
 
 import * as datetime from '../../../utils/datetime';
@@ -258,7 +259,7 @@ export class TrendsContainer extends React.Component {
       dateDomain: null,
       mostRecent: null,
       previousDateDomain: null,
-      xScale: null,
+      xScale: scaleLinear().domain([0, MS_IN_DAY]),
       yScale: null,
     };
 
@@ -269,7 +270,7 @@ export class TrendsContainer extends React.Component {
   }
 
   componentDidMount() {
-    this.mountData();
+    this.mountData(true);
   }
 
   /*
@@ -285,7 +286,7 @@ export class TrendsContainer extends React.Component {
     const newDataLoaded = prevProps.loading && !this.props.loading;
 
     if (newDataLoaded) {
-      this.mountData();
+      this.mountData(false);
     } else if (!_.isEqual(prevProps.activeDays, this.props.activeDays)) {
       this.filterCurrentData();
     }
@@ -310,59 +311,75 @@ export class TrendsContainer extends React.Component {
     }
   }
 
-  mountData() {
-    const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
+  mountData(initialLoading) {
     if (this.mountingData) {
       return;
     }
     this.mountingData = true;
-    // find BG domain (for yScale construction)
-    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek, tidelineData } = this.props;
+
+    const { cbgByDate, cbgByDayOfWeek, smbgByDate, smbgByDayOfWeek, bgPrefs, yScaleClampTop, tidelineData } = this.props;
+    const { bgBounds, bgUnits } = bgPrefs;
+    const upperBound = yScaleClampTop[bgUnits];
     const allBg = cbgByDate.filterAll().top(Infinity).concat(smbgByDate.filterAll().top(Infinity));
     const bgDomain = extent(allBg, d => d.value);
-
-    const { bgPrefs: { bgBounds, bgUnits }, yScaleClampTop } = this.props;
-    const upperBound = yScaleClampTop[bgUnits];
     const yScaleDomain = [bgDomain[0], upperBound];
     if (bgDomain[0] > bgBounds.veryLowThreshold) {
       yScaleDomain[0] = bgBounds.veryLowThreshold;
     }
     const yScale = scaleLinear().domain(yScaleDomain).clamp(true);
 
-    // find initial date domain (based on initialDatetimeLocation or current time)
-    const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
-    // Remove 1 miliseconds here, because there is 1 added in tidelinedata
-    const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, 'millisecond');
-    let end = moment.tz(initialDatetimeLocation, timezone).endOf('day').add(Math.round(extentSize / 2), 'days');
-    if (end.valueOf() > mostRecent.valueOf()) {
-      this.log.info('End after most recent, update it', { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
-      end = moment.tz(mostRecent.valueOf(), timezone);
+    if (initialLoading) {
+      // find BG domain (for yScale construction)
+      const { extentSize, initialDatetimeLocation, timePrefs } = this.props;
+
+      // find initial date domain (based on initialDatetimeLocation or current time)
+      const timezone = datetime.getTimezoneFromTimePrefs(timePrefs);
+      // Remove 1 miliseconds here, because there is 1 added in tidelinedata
+      const mostRecent = moment.tz(tidelineData.endpoints[1], timezone).subtract(1, 'millisecond');
+      let end = moment.tz(initialDatetimeLocation, timezone).endOf('day').add(Math.round(extentSize / 2), 'days');
+      if (end.valueOf() > mostRecent.valueOf()) {
+        this.log.info('End after most recent, update it', { end: end.toISOString(), mostRecent: mostRecent.toISOString() });
+        end = moment.tz(mostRecent.valueOf(), timezone);
+      }
+      let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
+      const dateDomain = [start.toISOString(), end.toISOString()];
+
+      // filter data according to current activeDays and dateDomain
+      this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
+      this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
+
+      const state = {
+        bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
+        currentCbgData: cbgByDate.top(Infinity).reverse(),
+        currentSmbgData: smbgByDate.top(Infinity).reverse(),
+        dateDomain: { start: dateDomain[0], end: dateDomain[1] },
+        mostRecent: mostRecent.toISOString(),
+        yScale,
+      };
+
+      this.setState(state, this.determineDataToShow);
+      const atMostRecent = Math.abs(end.diff(mostRecent, 'hours', true).valueOf()) < 1;
+      this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
+        this.log.error(reason);
+      }).finally(() => {
+        this.mountingData = false;
+        this.log.debug("Mouting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
+      });
+    } else {
+      const { dateDomain } = this.state;
+      this.initialFiltering(cbgByDate, cbgByDayOfWeek, [dateDomain.start, dateDomain.end]);
+      this.initialFiltering(smbgByDate, smbgByDayOfWeek, [dateDomain.start, dateDomain.end]);
+      this.setState({
+        bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
+        currentCbgData: cbgByDate.top(Infinity).reverse(),
+        currentSmbgData: smbgByDate.top(Infinity).reverse(),
+        yScale,
+      }, () => {
+        this.determineDataToShow();
+        this.mountingData = false;
+        this.log.debug("Remount done", { currentCbgData: this.state.currentCbgData, currentSmbgData: this.state.currentSmbgData, dateDomain });
+      });
     }
-    let start = moment.tz(end.valueOf(), timezone).subtract(extentSize, 'days').add(1, 'millisecond');
-    const dateDomain = [start.toISOString(), end.toISOString()];
-
-    // filter data according to current activeDays and dateDomain
-    this.initialFiltering(cbgByDate, cbgByDayOfWeek, dateDomain);
-    this.initialFiltering(smbgByDate, smbgByDayOfWeek, dateDomain);
-
-    const state = {
-      bgDomain: { lo: bgDomain[0], hi: bgDomain[1] },
-      currentCbgData: cbgByDate.top(Infinity).reverse(),
-      currentSmbgData: smbgByDate.top(Infinity).reverse(),
-      dateDomain: { start: dateDomain[0], end: dateDomain[1] },
-      mostRecent: mostRecent.toISOString(),
-      xScale: scaleLinear().domain([0, 864e5]),
-      yScale,
-    };
-
-    this.setState(state, this.determineDataToShow);
-    const atMostRecent = Math.abs(end.diff(mostRecent, 'hours', true).valueOf()) < 1;
-    this.props.onDatetimeLocationChange(dateDomain, atMostRecent).catch((reason) => {
-      this.log.error(reason);
-    }).finally(() => {
-      this.mountingData = false;
-      this.log.debug("Mouting done", { initialDatetimeLocation, dateDomain: state.dateDomain, mostRecent: state.mostRecent, timezone });
-    });
   }
 
   filterCurrentData() {
