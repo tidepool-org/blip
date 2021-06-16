@@ -738,3 +738,14 @@ export const clinics = (state = initialState.clinics, action) => {
       return state;
   }
 };
+
+export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
+  switch(action.type) {
+    case types.SELECT_CLINIC:
+      return _.get(action.payload, 'clinicId', null);
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};

@@ -53,6 +53,7 @@ import {
   dataSources,
   authorizedDataSource,
   clinics,
+  selectedClinicId,
 } from './misc';
 
 export default combineReducers({
@@ -88,6 +89,7 @@ export default combineReducers({
   dataSources,
   authorizedDataSource,
   clinics,
+  selectedClinicId,
   pdf,
   data,
   working,

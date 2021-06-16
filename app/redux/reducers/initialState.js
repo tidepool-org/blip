@@ -149,6 +149,7 @@ const initialState = {
   dataSources: [],
   authorizedDataSource: null,
   clinics: {},
+  selectedClinicId: null,
 };
 
 export default initialState;

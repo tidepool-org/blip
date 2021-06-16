@@ -40,7 +40,6 @@ export const ClinicAdmin = (props) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [searchText, setSearchText] = useState('');
-  const [selectedClinic, setSelectedClinic] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -52,6 +51,7 @@ export const ClinicAdmin = (props) => {
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
@@ -142,7 +142,7 @@ export const ClinicAdmin = (props) => {
       dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
     } else {
       if (keys(clinics).length) {
-        setSelectedClinic(keys(clinics)[0]);
+        dispatch(actions.sync.selectClinic(keys(clinics)[0]));
       }
       if (
         !fetchingCliniciansFromClinic.inProgress &&
@@ -161,7 +161,7 @@ export const ClinicAdmin = (props) => {
   ]);
 
   const clinicianArray = map(
-    get(clinics, [selectedClinic, 'clinicians'], {}),
+    get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
       const { roles, email, id: clinicianId, inviteId } = clinician;
       const user = get(allUsers, clinicianId, {});
@@ -202,7 +202,7 @@ export const ClinicAdmin = (props) => {
     dispatch(
       push('/clinician-edit', {
         clinicianId: userId,
-        clinicId: selectedClinic,
+        clinicId: selectedClinicId,
       })
     );
   }
@@ -212,7 +212,7 @@ export const ClinicAdmin = (props) => {
     dispatch(
       actions.async.deleteClinicianFromClinic(
         api,
-        selectedClinic,
+        selectedClinicId,
         selectedClinicianId
       )
     );
@@ -221,14 +221,14 @@ export const ClinicAdmin = (props) => {
   function handleResendInvite(inviteId) {
     trackMetric('Clinic - Resend clinician invite');
     dispatch(
-      actions.async.resendClinicianInvite(api, selectedClinic, inviteId)
+      actions.async.resendClinicianInvite(api, selectedClinicId, inviteId)
     );
   }
 
   function handleDeleteInvite(inviteId) {
     trackMetric('Clinic - Delete clinician invite');
     dispatch(
-      actions.async.deleteClinicianInvite(api, selectedClinic, inviteId)
+      actions.async.deleteClinicianInvite(api, selectedClinicId, inviteId)
     );
   }
 
@@ -396,7 +396,7 @@ export const ClinicAdmin = (props) => {
               name="clinic_name"
               label={t('Clinic name')}
               disabled={true}
-              value={get(clinics, [selectedClinic, 'name'])}
+              value={get(clinics, [selectedClinicId, 'name'])}
               width="100%"
               themeProps={{
                 px: 2,
@@ -413,7 +413,7 @@ export const ClinicAdmin = (props) => {
               name="clinic_address"
               label={t('Clinic address')}
               disabled={true}
-              value={get(clinics, [selectedClinic, 'address'])}
+              value={get(clinics, [selectedClinicId, 'address'])}
               width="100%"
               color={baseTheme.colors.text.primary}
               bg="white"
@@ -434,7 +434,7 @@ export const ClinicAdmin = (props) => {
                 name="clinic_contact"
                 label={t('Clinic contact')}
                 disabled={true}
-                value={get(clinics, [selectedClinic, 'email'])}
+                value={get(clinics, [selectedClinicId, 'email'])}
                 width="100%"
                 themeProps={{
                   px: 2,
@@ -454,12 +454,12 @@ export const ClinicAdmin = (props) => {
                 label={t('City, State, Zipcode')}
                 disabled={true}
                 value={`${get(clinics, [
-                  selectedClinic,
+                  selectedClinicId,
                   'city',
                 ])}, ${get(clinics, [
-                  selectedClinic,
+                  selectedClinicId,
                   'state',
-                ])}, ${get(clinics, [selectedClinic, 'postalCode'])}`}
+                ])}, ${get(clinics, [selectedClinicId, 'postalCode'])}`}
                 width="100%"
                 themeProps={{
                   px: 2,
@@ -478,7 +478,7 @@ export const ClinicAdmin = (props) => {
               name="clinic_sharecode"
               label={t('Clinic share code')}
               disabled={true}
-              value={get(clinics, [selectedClinic, 'shareCode'])}
+              value={get(clinics, [selectedClinicId, 'shareCode'])}
               width="100%"
               themeProps={{
                 px: 2,
@@ -516,7 +516,7 @@ export const ClinicAdmin = (props) => {
               mr={4}
               variant="primary"
               onClick={() => {
-                dispatch(push('/clinic-invite', { clinicId: selectedClinic }));
+                dispatch(push('/clinic-invite', { clinicId: selectedClinicId }));
               }}
             >
               {t('Invite new clinic team member')}

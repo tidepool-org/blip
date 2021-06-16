@@ -1741,3 +1741,12 @@ export function getClinicsForClinicianFailure(error, apiError) {
     },
   };
 }
+
+export function selectClinic(clinicId) {
+  return {
+    type: ActionTypes.SELECT_CLINIC,
+    payload: {
+      clinicId
+    },
+  };
+}
