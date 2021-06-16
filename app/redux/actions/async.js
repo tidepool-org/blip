@@ -229,27 +229,61 @@ export function login(api, credentials, options, postLoginAction) {
             ));
           } else {
             const isClinic = personUtils.isClinic(user);
+            const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
 
             let redirectRoute = '/patients?justLoggedIn=true';
-            if (isClinic && !_.get(user, ['profile', 'clinic'], false)) {
-              redirectRoute = '/clinician-details';
-            }
-            if (isClinic && config.CLINICS_ENABLED) {
-              dispatch(sync.getClinicsForClinicianRequest());
-              api.clinics.getClinicsForClinician(user.userid, {}, (err, clinics) => {
+            if (config.CLINICS_ENABLED) { // TODO: && _.get(user, ['profile','newClinicFlag'], false)
+              dispatch(fetchClinicianInvites(api, user.userid, (err, invites) => {
                 if (err) {
                   dispatch(sync.loginFailure(
-                    createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
+                    createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, err), err
                   ));
                 } else {
-                  dispatch(sync.getClinicsForClinicianSuccess(clinics));
-                  if(_.isEmpty(clinics)) {
-                    redirectRoute = '/clinic-details';
+                  if (!_.isEmpty(invites)) {
+                    if (hasClinicProfile) {
+                      redirectRoute = '/workspace-switch';
+                      forward();
+                    } else {
+                      redirectRoute = '/clinic-details';
+                      forward();
+                    }
+                  } else {
+                    // no pending clinician invites
+                    if (isClinic) {
+                      if (hasClinicProfile) {
+                        dispatch(getClinicsForClinician(api, user.userid, {}, (err, clinics) => {
+                          if (err) {
+                            dispatch(sync.loginFailure(
+                              createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
+                            ));
+                          } else {
+                            if(_.isEmpty(clinics)) {
+                              // is clinic, no pending clinician invites, has clinic profile, not member of a clinic -> create clinic
+                              redirectRoute = '/clinic-details';
+                              forward();
+                            } else {
+                              // is clinic, no pending clinician invites, has clinic profile, is member of a clinic -> patient list
+                              forward();
+                            }
+                          }
+                        }))
+                      } else {
+                        // is clinic, no pending invites, no clinic profile -> create clinic
+                        redirectRoute = '/clinic-details'
+                        forward();
+                      }
+                    } else {
+                      // not a clinic, no pending clinician invites -> default 'patients' screen
+                      forward();
+                    }
                   }
-                  forward();
                 }
-              });
+              }));
             } else {
+              // no new clinic system
+              if (isClinic && !hasClinicProfile){
+                redirectRoute = '/clinician-details'
+              }
               forward();
             }
 
@@ -2113,8 +2147,9 @@ export function fetchClinicsForPatient(api, userId, options = {}) {
  *
  * @param  {Object} api - an instance of the API wrapper
  * @param {String} userId - User Id of the clinician
+ * @param {Function} [cb] - optional callback
  */
-export function fetchClinicianInvites(api, userId) {
+export function fetchClinicianInvites(api, userId, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.fetchClinicianInvitesRequest());
 
@@ -2126,6 +2161,7 @@ export function fetchClinicianInvites(api, userId) {
       } else {
         dispatch(sync.fetchClinicianInvitesSuccess(invites));
       }
+      cb(err, invites);
     });
   };
 }
@@ -2179,11 +2215,12 @@ export function dismissClinicianInvite(api, userId, inviteId) {
 /**
  * Get Clinics for Clinician Action Creator
  *
+ * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicianId - Clinician User ID
  * @param {Object} [options]
  * @param {Number} [options.limit] - Query result limit
  * @param {Number} [options.offset] - Query offset
- * @param {Object} api - an instance of the API wrapper
+ * @param {Function} [cb] - optional callback
  */
 export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.noop) {
   return (dispatch) => {
