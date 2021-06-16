@@ -30,6 +30,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 
 import { makeStyles, Theme } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
@@ -37,6 +38,7 @@ import Link from "@material-ui/core/Link";
 
 import diabeloopUrls from "../lib/diabeloop-url";
 import config from "../lib/config";
+import sendMetrics from "../lib/metrics";
 
 interface FooterLinksProps {
   atBottom?: boolean;
@@ -56,21 +58,30 @@ const footerStyle = makeStyles((theme: Theme) => {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "start",
       fontSize: "small",
+      marginBottom: "auto",
+      marginTop: "auto",
     },
     centeredLink: {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "center",
       color: "#109182",
+      marginBottom: "auto",
+      marginTop: "auto",
     },
     leftLink: {
       padding: theme.spacing(0.5), // eslint-disable-line no-magic-numbers
       textAlign: "end",
       fontSize: "small",
+      marginBottom: "auto",
+      marginTop: "auto",
     },
     selection: {
       padding: theme.spacing(2),
       textAlign: "center",
       fontSize: "small",
+    },
+    cookiesButton: {
+      textTransform: "initial",
     },
     appVersion: {
       fontSize: "small",
@@ -82,6 +93,14 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
   const { t, i18n } = useTranslation("yourloops");
   const classes = footerStyle();
   const containerClassName = props.atBottom ? `${classes.container} ${classes.containerAtBottom}` : classes.container;
+
+  const handleShowCookieBanner = () => {
+    sendMetrics("show-cookie-banner");
+    if (typeof window.openAxeptioCookies === "function") {
+      window.openAxeptioCookies();
+    }
+  };
+
   return (
     <Container id="footer-links-container" className={containerClassName} maxWidth="sm">
       <Grid id="footer-links" container>
@@ -96,10 +115,14 @@ function FooterLinks(props: FooterLinksProps): JSX.Element {
         <Grid item xs={4} className={classes.leftLink}>
           <Link id="footer-link-url-support" href={diabeloopUrls.SupportUrl}>{t("footer-link-url-support")}</Link>
         </Grid>
-        <Grid item xs={6} className={classes.rightLink}>
+        <Grid item xs={4} className={classes.rightLink}>
           <Link id="footer-link-url-terms" href={diabeloopUrls.getTermsUrL(i18n.language)}>{t("terms-and-conditions")}</Link>
         </Grid>
-        <Grid item xs={6} className={classes.leftLink}>
+        <Grid item xs={4} className={classes.centeredLink}>
+          {/* TODO: Add tooltip + aria label */}
+          <Button id="footer-link-cookies" color="primary" variant="text" size="small" className={classes.cookiesButton} onClick={handleShowCookieBanner}>{t("cookies")}</Button>
+        </Grid>
+        <Grid item xs={4} className={classes.leftLink}>
           <Link id="footer-link-url-intended-use" href={diabeloopUrls.getIntendedUseUrL(i18n.language)}>{t("footer-link-url-intended-use")}</Link>
         </Grid>
       </Grid>

@@ -47,6 +47,8 @@ declare global {
     _axcb: { // Axeptio
       push: (f: (a: AxeptIO) => void) => void;
     };
+    /** Display the Axeptio cookie banner */
+    openAxeptioCookies?: () => void;
     loadStonlyWidget: () => void;
     zE: (...args: any) => void; // Zendesk API
     config?: AppConfig;
