@@ -11,6 +11,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-791 Patient can share to the same team several times
 - YLP-796 Set header x-tidepool-language for all requests to /confirm/send/xx
 - YLP-799 CSS fixes for mobile display of patient data
+- YLP-831 Missing team name on modals delete team / remove team member
 
 ### Engineering Use
 - YLP-808 Regenerate package-lock.json files

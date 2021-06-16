@@ -89,7 +89,7 @@ function RemoveMemberDialog(props: RemoveMemberDialogProps): JSX.Element {
       aria-labelledby={t("aria-team-members-dialog-rmmember-title", { teamName })}
       aria-describedby={t("aria-team-members-dialog-rmmember-question", { hcpFirstName, hcpLastName })}>
       <DialogTitle id="team-members-dialog-rmmember-title">
-        <Trans i18nKey="team-members-dialog-rmmember-title" t={t} components={{ strong: <strong /> }} parent={React.Fragment}>
+        <Trans i18nKey="team-members-dialog-rmmember-title" t={t} components={{ strong: <strong /> }} values={{ teamName }} parent={React.Fragment}>
           Remove a healthcare professional from the team <strong>{{ teamName }}</strong>
         </Trans>
       </DialogTitle>
