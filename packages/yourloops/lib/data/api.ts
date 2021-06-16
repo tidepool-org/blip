@@ -33,6 +33,7 @@ import _ from "lodash";
 import { PatientData } from "models/device-data";
 import { MessageNote, MessagesThread } from "models/message";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
+import { APITideWhispererErrorResponse } from "../../models/error";
 import { ComputedTIR } from "../../models/device-data";
 import { IUser, UserRoles } from "../../models/shoreline";
 
@@ -151,7 +152,7 @@ function getPatientDataRangeV1(session: Session, patient: IUser): Promise<Respon
  * @param patient The patient (user) to fetch data
  * @returns Array [string, string] of ISO 8601 dates time
  */
-export async function getPatientDataRange(session: Session, patient: IUser): Promise<string[]> {
+export async function getPatientDataRange(session: Session, patient: IUser): Promise<string[] | null> {
   let response: Response | null = null;
   if (routeV1Available) {
     response = await getPatientDataRangeV1(session, patient);
@@ -162,6 +163,18 @@ export async function getPatientDataRange(session: Session, patient: IUser): Pro
       }
       return dataRange;
     } else if (response.status === HttpStatus.StatusNotFound) {
+      try {
+        const text = await response.text();
+        if (text.length > 0) {
+          const errorResponse = JSON.parse(text) as APITideWhispererErrorResponse;
+          if (_.get(errorResponse, "status", 0) === HttpStatus.StatusNotFound) {
+            // This is a /v1 route response, no patient data
+            return null;
+          }
+        }
+      } catch (_err) {
+        // Ignore
+      }
       routeV1Available = false;
     }
   }
@@ -192,7 +205,7 @@ export async function getPatientDataRange(session: Session, patient: IUser): Pro
         const endDate = new Date(lastDatum.timeProcessing).toISOString();
         return [startDate, endDate];
       }
-      return Promise.reject(new Error("Invalid response"));
+      return null;
     }
 
     response = responseUpload;

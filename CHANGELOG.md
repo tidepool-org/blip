@@ -15,6 +15,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-831 Missing team name on modals delete team / remove team member
 
 ### Engineering Use
+- YLP-750 Support TideWhisper v1 routes
 - YLP-808 Regenerate package-lock.json files
 
 ## 2.0.0 2021-05-21

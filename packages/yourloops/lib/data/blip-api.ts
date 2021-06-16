@@ -66,7 +66,7 @@ class BlipApi {
     return _.cloneDeep(this.authHook.user);
   }
 
-  public getPatientDataRange(patient: IUser): Promise<string[]> {
+  public getPatientDataRange(patient: IUser): Promise<string[] | null> {
     this.log.debug("getPatientDataRange", { userId: patient.userid });
     const session = this.authHook.session();
     if (session !== null) {

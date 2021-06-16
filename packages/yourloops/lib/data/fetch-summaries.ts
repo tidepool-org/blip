@@ -48,8 +48,8 @@ async function fetchSummary(session: Session, patient: IUser): Promise<MedicalDa
   } catch (reason) {
     log.info("fetchSummary:getPatientDataRange", patient.userid, { reason });
   }
+
   if (range === null) {
-    // TODO with API v0
     return null;
   }
 
