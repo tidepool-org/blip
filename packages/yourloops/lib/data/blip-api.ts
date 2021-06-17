@@ -79,7 +79,14 @@ class BlipApi {
     this.log.debug("getPatientData", { userId: patient.userid, options });
     const session = this.authHook.session();
     if (session !== null) {
-      return apiGetPatientData(session, patient, options);
+      sendMetrics.startTimer("fetch-patient-data");
+      return apiGetPatientData(session, patient, options).then((r) => {
+        sendMetrics.endTimer("fetch-patient-data", "OK");
+        return Promise.resolve(r);
+      }).catch((r) => {
+        sendMetrics.endTimer("fetch-patient-data", "failed");
+        return Promise.reject(r);
+      });
     }
     return Promise.reject(new Error(translate("not-logged-in")));
   }

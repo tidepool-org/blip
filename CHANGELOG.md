@@ -18,6 +18,7 @@ It is based on Tidepool Blip 1.27.
 ### Engineering Use
 - YLP-750 Support TideWhisper v1 routes
 - YLP-808 Regenerate package-lock.json files
+- YLP-833 Add matomo analytics for better perfs metrics
 
 ## 2.0.0 2021-05-21
 ### Added

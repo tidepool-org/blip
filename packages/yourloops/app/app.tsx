@@ -45,11 +45,33 @@ import PatientConsentPage from "../pages/patient/patient-consent";
 import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
+const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/(.*)/;
+const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
+const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
 function MetricsLocationListener() {
   const location = useLocation();
+  const locPathname = location.pathname;
   React.useEffect(() => {
-    sendMetrics("setCustomUrl", location.pathname);
-  }, [location]);
+    let pathname: string | null = null;
+    let match = locPathname.match(RE_PATIENT_URL);
+    if (match !== null) {
+      pathname = `/patient/userid/${match[1]}`;
+    }
+    match = pathname === null ? locPathname.match(RE_CAREGIVER_URL) : null;
+    if (match !== null) {
+      pathname = `/caregiver/patient/userid/${match.length > 1 ? match[1] : ""}`;
+    }
+    match = pathname === null ? locPathname.match(RE_HCP_URL) : null;
+    if (match !== null) {
+      pathname = `/professional/patient/userid/${match.length > 1 ? match[1] : ""}`;
+    }
+
+    if (pathname === null) {
+      pathname = locPathname;
+    }
+    sendMetrics("setCustomUrl", pathname);
+    sendMetrics("trackPageView");
+  }, [locPathname]);
   return null;
 }
 

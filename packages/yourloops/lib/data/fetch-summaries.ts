@@ -27,10 +27,12 @@
  */
 
 import bows from "bows";
+import _ from "lodash";
 
 import { MS_IN_DAY } from "../../models/generic";
 import { MedicalData } from "../../models/device-data";
 import { IUser, UserRoles } from "../../models/shoreline";
+import sendMetrics from "../metrics";
 import { Session } from "../auth";
 
 import {
@@ -40,13 +42,52 @@ import {
 
 const log = bows("FetchSummaries");
 
+interface ITimerAvgMetrics {
+  duration: number;
+  result: "range-error" | "tir-error" | "OK";
+}
+
+const avgMetrics: ITimerAvgMetrics[] = [];
+/** Send a metrics on average fetch tir every 30s */
+const sendTimerMetrics = _.throttle(() => {
+  const nMetrics = avgMetrics.length;
+  let totalTime = 0;
+  let nRangeErrors = 0;
+  let nTirErrors = 0;
+  let nOK = 0;
+  for (let i=0; i<nMetrics; i++) {
+    const m = avgMetrics[i];
+    totalTime += m.duration;
+    switch (m.result) {
+    case "OK":
+      nOK++;
+      break;
+    case "range-error":
+      nRangeErrors++;
+      break;
+    case "tir-error":
+      nTirErrors++;
+      break;
+    }
+  }
+  sendMetrics("timer", { name: "fetch-summaries", avgTime: Math.round(totalTime / nMetrics), nOK, nRangeErrors, nTirErrors });
+  avgMetrics.splice(0);
+}, 30000); // eslint-disable-line no-magic-numbers
+
+function addMetric(metric: ITimerAvgMetrics): void {
+  avgMetrics.push(metric);
+  sendTimerMetrics();
+}
+
 async function fetchSummary(session: Session, patient: IUser): Promise<MedicalData | null> {
   let range: string[] | null = null;
+  const startTime = Date.now();
 
   try {
     range = await getPatientDataRange(session, patient);
   } catch (reason) {
     log.info("fetchSummary:getPatientDataRange", patient.userid, { reason });
+    addMetric({ result: "range-error", duration: Date.now() - startTime });
   }
 
   if (range === null) {
@@ -65,11 +106,12 @@ async function fetchSummary(session: Session, patient: IUser): Promise<MedicalDa
   try {
     const tir = await getPatientsDataSummary(session, patient.userid, { startDate, endDate });
     medicalData.computedTir = tir;
+    addMetric({ result: "OK", duration: Date.now() - startTime });
   } catch (reason) {
     log.info("fetchSummary:getPatientsDataSummary", patient.userid, { reason });
+    addMetric({ result: "tir-error", duration: Date.now() - startTime });
   }
 
-  // patient.medicalData = medicalData;
   return medicalData;
 }
 
