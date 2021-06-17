@@ -2,7 +2,7 @@
 Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
-## Unreleased
+## 2.0.1 - 2021-06-16
 ### Fixed
 - YLP-779 Caregiver switching to hcp is logged off at the end of the process
 - YLP-Y82 Overview calendar day hover are hard to read
