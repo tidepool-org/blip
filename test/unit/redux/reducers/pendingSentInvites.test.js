@@ -70,6 +70,27 @@ describe('pendingSentInvites', () => {
       expect(state.length).to.equal(initialStateForTest.length + 1);
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
+
+    it('should replace an existing invitation in state', () => {
+      let initialStateForTest = [
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
+      ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let invitation = { key: 'xyz123zyx', updated: true };
+
+      let action = actions.sync.sendInviteSuccess(invitation);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(initialStateForTest.length);
+      expect(state).to.eql([
+        { key: 'xyz123zyx', updated: true },
+        { key: 'abc987cba' }
+      ]);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
   });
 
   describe('cancelSentInviteSuccess', () => {

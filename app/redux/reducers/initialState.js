@@ -118,8 +118,6 @@ const initialState = {
     fetchingClinic: Object.assign({}, working),
     fetchingClinicsByIds: Object.assign({}, working),
     updatingClinic: Object.assign({}, working),
-    cancellingSentClinicInvite: Object.assign({}, working),
-    removingClinicFromTargetCareTeam: Object.assign({}, working),
     fetchingCliniciansFromClinic: Object.assign({}, working),
     fetchingClinician: Object.assign({}, working),
     updatingClinician: Object.assign({}, working),

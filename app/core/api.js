@@ -411,19 +411,19 @@ api.user.getAssociatedAccounts = function(cb) {
           status: 'confirmed',
         });
       } else {
+        // An associated user can be both a trustor and trustee, so we want to include them in all
+        // applicable groups.
         if (!_.isEmpty(user.trustorPermissions)) {
           // These are the accounts that have shared their data
           // with a given set of permissions.
           user.permissions = user.trustorPermissions
-          delete user.trustorPermissions
-          viewableUsers.push(user);
+          viewableUsers.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
         }
         if (!_.isEmpty(user.trusteePermissions)) {
           // These are accounts with which the user has shared access to their data, exluding the
           // data donation accounts
           user.permissions = user.trusteePermissions
-          delete user.trusteePermissions
-          careTeam.push(user);
+          careTeam.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
         }
       }
     });

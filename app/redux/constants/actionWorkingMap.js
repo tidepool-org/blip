@@ -249,16 +249,6 @@ export default (type) => {
     case types.UPDATE_CLINIC_FAILURE:
       return 'updatingClinic';
 
-    case types.CANCEL_SENT_CLINIC_INVITE_REQUEST:
-    case types.CANCEL_SENT_CLINIC_INVITE_SUCCESS:
-    case types.CANCEL_SENT_CLINIC_INVITE_FAILURE:
-      return 'cancellingSentClinicInvite';
-
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_REQUEST:
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_SUCCESS:
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_FAILURE:
-      return 'removingClinicFromTargetCareTeam';
-
     case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
     case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:

@@ -100,6 +100,7 @@ const InviteMember = props => {
   return (
     <Box
       as="form"
+      id="invite-member"
       onSubmit={handleSubmit}
       mx="auto"
       mt={2}

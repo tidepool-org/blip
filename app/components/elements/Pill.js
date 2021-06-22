@@ -42,15 +42,17 @@ const Pill = (props) => {
 };
 
 Pill.propTypes = {
-  colorPalette: PropTypes.oneOf([
-    'blues',
-    'cyans',
-    'grays',
-    'greens',
-    'indigos',
-    'oranges',
-    'pinks',
-    'purples',
+  colorPalette: PropTypes.oneOfType([
+    PropTypes.oneOf([
+      'blues',
+      'cyans',
+      'grays',
+      'greens',
+      'indigos',
+      'oranges',
+      'pinks',
+      'purples',
+    ]),
     PropTypes.arrayOf(PropTypes.string),
   ]),
   label: PropTypes.string.isRequired,
