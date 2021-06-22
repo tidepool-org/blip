@@ -138,7 +138,11 @@ describe('InviteMember', () => {
       sinon.assert.calledWith(
         defaultProps.api.invitation.send,
         'clint@foo.com',
+<<<<<<< HEAD
         { note: {}, upload: {}, view: {} }
+=======
+        { note: {  }, upload: {  }, view: {  } }
+>>>>>>> 90f3bf4130fa893a78c915ffd5e90a4517de0194
       );
       done();
     }, 0);
