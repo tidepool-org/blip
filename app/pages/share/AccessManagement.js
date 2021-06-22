@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
-import capitalize from 'lodash/capitalize';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
@@ -40,10 +39,9 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import personUtils from '../../core/personutils';
-import baseTheme from '../../themes/baseTheme';
+import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
-import { colors } from '../../themes/baseTheme';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -206,7 +204,7 @@ export const AccessManagement = (props) => {
     const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
     setPendingClinicInvites(clinicInvites);
 
-    const sharedAccounts = [
+    const accounts = [
       ...(map(patientClinics, clinic => ({
         id: clinic.id,
         name: clinic.name,
@@ -249,7 +247,7 @@ export const AccessManagement = (props) => {
       }))),
     ];
 
-    setSharedAccounts(sharedAccounts);
+    setSharedAccounts(accounts);
   }, [
     clinics,
     membersOfTargetCareTeam,
@@ -311,13 +309,13 @@ export const AccessManagement = (props) => {
       });
 
       // TODO: remove clinic api call when ready
-      dispatch(
-        actions.async.removeMemberFromTargetCareTeam(
-          api,
-          loggedInUserId,
-          member.id
-        )
-      );
+      // dispatch(
+      //   actions.async.removeMemberFromTargetCareTeam(
+      //     api,
+      //     loggedInUserId,
+      //     member.id
+      //   )
+      // );
     } else if (member.type === 'account') {
       trackMetric('Patient - Remove shared account', {
         type: member.role,
@@ -369,6 +367,7 @@ export const AccessManagement = (props) => {
       {status ? (
         <Pill
           text={status === 'pending' ? t('invite sent') : t('invite declined')}
+          label={status === 'pending' ? t('invite sent') : t('invite declined')}
           colorPalette={status === 'pending' ? colors.status.pending : colors.status.declined}
         />
       ) : ''}
@@ -398,7 +397,7 @@ export const AccessManagement = (props) => {
       : t('Allow upload permission');
 
       const removeLabel = t('Remove {{memberType}}', {
-        memberType: capitalize(member.type),
+        memberType: member.type,
       });
 
       items.push({
@@ -436,7 +435,7 @@ export const AccessManagement = (props) => {
       if (member.role === 'member') items.push({
         disabled: sendingInvite.inProgress,
         icon: InputIcon,
-        iconLabel: t('Resend Invitation'),
+        iconLabel: t('Resend invitation'),
         iconPosition: 'left',
         id: `resendInvite-${member.inviteId}`,
         onClick: _popupState => {
@@ -451,7 +450,7 @@ export const AccessManagement = (props) => {
 
       items.push({
         icon: DeleteForeverIcon,
-        iconLabel: t('Delete Invitation'),
+        iconLabel: t('Revoke invitation'),
         iconPosition: 'left',
         id: `deleteInvite-${member.inviteId}`,
         onClick: _popupState => {
@@ -546,6 +545,7 @@ export const AccessManagement = (props) => {
           </Title>
           <Flex width={['100%', 'auto']} justifyContent='center' pb={[3, 0]}>
             <Button
+              id="invite-member"
               variant="primary"
               onClick={() => {
                 dispatch(push(`/patients/${loggedInUserId}/share/member`));
@@ -555,6 +555,7 @@ export const AccessManagement = (props) => {
             </Button>
             <Button
               ml={3}
+              id="invite-clinic"
               variant="secondary"
               className="active"
               onClick={() => {
@@ -566,7 +567,7 @@ export const AccessManagement = (props) => {
           </Flex>
         </Flex>
 
-        <Body2 px={[3, 4, 5, 6]} py={[4, 5]}>{sharedAccounts.length
+        <Body2 id="member-invites-label" px={[3, 4, 5, 6]} py={[4, 5]}>{sharedAccounts.length
           ? t('You have invited the following members to view your data:')
           : t('You have not invited any other members to view your data.')}
         </Body2>
@@ -606,6 +607,7 @@ export const AccessManagement = (props) => {
             {t('Cancel')}
           </Button>
           <Button
+            className="remove-account-access"
             variant="danger"
             processing={cancellingSentInvite.inProgress || removingMemberFromTargetCareTeam.inProgress}
             onClick={() => {

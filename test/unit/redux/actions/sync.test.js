@@ -10,7 +10,7 @@ import isTSA from 'tidepool-standard-action';
 import * as sync from '../../../../app/redux/actions/sync';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS } from '../../../../app/core/constants';
+import { MMOLL_UNITS } from '../../../../app/core/constants';
 
 describe('Actions', () => {
   describe('Synchronous Actions', () => {
@@ -2373,6 +2373,47 @@ describe('Actions', () => {
         let error = new Error('stink :(');
         let action = sync.fetchClinicFailure(error);
         expect(action.type).to.equal('FETCH_CLINIC_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchClinicsByIdsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicsByIdsRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICS_BY_IDS_REQUEST', () => {
+        let action = sync.fetchClinicsByIdsRequest();
+        expect(action.type).to.equal('FETCH_CLINICS_BY_IDS_REQUEST');
+      });
+    });
+
+    describe('fetchClinicsByIdsSuccess', () => {
+      let clinics = [{id: 'clinicId', name: 'Clinic Name'}];
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicsByIdsSuccess(clinics);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICS_BY_IDS_SUCCESS', () => {
+        let action = sync.fetchClinicsByIdsSuccess(clinics);
+        expect(action.type).to.equal('FETCH_CLINICS_BY_IDS_SUCCESS');
+        expect(action.payload.clinics).to.equal(clinics);
+      });
+    });
+
+    describe('fetchClinicsByIdsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching clinic failed :(');
+        let action = sync.fetchClinicsByIdsFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINICS_BY_IDS_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchClinicsByIdsFailure(error);
+        expect(action.type).to.equal('FETCH_CLINICS_BY_IDS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

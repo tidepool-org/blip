@@ -53,6 +53,7 @@ const PopoverMenu = props => {
       >
         {map(items, item => (
           <Button
+            className="action-list-item"
             disabled={item.disabled}
             icon={item.processing ? CircularProgress : item.icon}
             iconLabel={item.iconLabel}

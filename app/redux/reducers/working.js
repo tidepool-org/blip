@@ -92,8 +92,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_CLINIC_REQUEST:
     case types.FETCH_CLINICS_BY_IDS_REQUEST:
     case types.UPDATE_CLINIC_REQUEST:
-    case types.CANCEL_SENT_CLINIC_INVITE_REQUEST:
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_REQUEST:
+    case types._REQUEST:
     case types.FETCH_CLINICIANS_FROM_CLINIC_REQUEST:
     case types.FETCH_CLINICIAN_REQUEST:
     case types.UPDATE_CLINICIAN_REQUEST:
@@ -231,8 +230,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_CLINIC_SUCCESS:
     case types.FETCH_CLINICS_BY_IDS_SUCCESS:
     case types.UPDATE_CLINIC_SUCCESS:
-    case types.CANCEL_SENT_CLINIC_INVITE_SUCCESS:
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_SUCCESS:
     case types.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS:
     case types.FETCH_CLINICIAN_SUCCESS:
     case types.UPDATE_CLINICIAN_SUCCESS:
@@ -376,8 +373,6 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_CLINIC_FAILURE:
     case types.FETCH_CLINICS_BY_IDS_FAILURE:
     case types.UPDATE_CLINIC_FAILURE:
-    case types.CANCEL_SENT_CLINIC_INVITE_FAILURE:
-    case types.REMOVE_CLINIC_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.FETCH_CLINICIANS_FROM_CLINIC_FAILURE:
     case types.FETCH_CLINICIAN_FAILURE:
     case types.UPDATE_CLINICIAN_FAILURE:

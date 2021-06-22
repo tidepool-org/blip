@@ -1721,7 +1721,7 @@ export function fetchClinicsByIds(api, clinicIds) {
     async.parallel(async.reflectAll(fetchers), (err, results) => {
       const resultsErr = _.mapValues(results, ({ error }) => error);
       const resultsVal = _.mapValues(results, ({ value }) => value);
-      const error = _.find(resultsErr, _.isError);
+      const error = _.find(resultsErr, err => !_.isUndefined(err));
 
       if (error) {
         dispatch(sync.fetchClinicsByIdsFailure(

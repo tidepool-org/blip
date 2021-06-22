@@ -12,7 +12,6 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-import moment from 'moment';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -4168,6 +4167,93 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicsByIds', () => {
+      it('should trigger FETCH_CLINICS_BY_IDS_SUCCESS and it should call clinics.get once for a successful request', () => {
+        let clinic1 = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let clinic2 = {
+          id: '12f2f123s2e1f1f3s2e11535',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            get: sinon.stub()
+              .onCall(0).callsArgWith(1, null, clinic1)
+              .onCall(1).callsArgWith(1, null, clinic2),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICS_BY_IDS_REQUEST' },
+          { type: 'FETCH_CLINICS_BY_IDS_SUCCESS', payload: { clinics : {
+            [clinic1.id]: clinic1,
+            [clinic2.id]: clinic2,
+          } } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicsByIds(api, [clinic1.id, clinic2.id]));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.get.callCount).to.equal(2);
+      });
+
+      it('should trigger FETCH_CLINICS_BY_IDS_FAILURE and it should call error once for a failed request', () => {
+        let clinic1 = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let clinic2 = {
+          id: '12f2f123s2e1f1f3s2e11535',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            get: sinon.stub()
+              .onCall(0).callsArgWith(1, null, clinic1)
+              .onCall(1).callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICS_BY_IDS_REQUEST' },
+          { type: 'FETCH_CLINICS_BY_IDS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicsByIds(api, [clinic1.id, clinic2.id]));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.get.callCount).to.equal(2);
+      });
+    });
+
     describe('updateClinic', () => {
       it('should trigger UPDATE_CLINIC_SUCCESS and it should call clinics.update once for a successful request', () => {
         let api = {
@@ -4927,6 +5013,68 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicianInvite.callCount).to.equal(1);
+      });
+    });
+
+    describe('sendClinicInvite', () => {
+      it('should trigger SEND_INVITE_SUCCESS and it should call clinics.inviteClinic once for a successful request', () => {
+        let shareCode = 'shareCode123';
+        let permissions = { view: {} };
+        let patientId = 'patientIdABC';
+
+        let api = {
+          clinics: {
+            inviteClinic: sinon.stub().callsArgWith(3, null, { my: 'invite' }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'SEND_INVITE_SUCCESS', payload: {
+            invite: { my: 'invite' },
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicInvite(api, shareCode, permissions, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinic.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_INVITE_FAILURE and it should call error once for a failed request', () => {
+        let shareCode = 'shareCode123';
+        let permissions = { view: {} };
+        let patientId = 'patientIdABC';
+
+        let api = {
+          clinics: {
+            inviteClinic: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_CLINIC_INVITE);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'SEND_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicInvite(api, shareCode, permissions, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_CLINIC_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinic.callCount).to.equal(1);
       });
     });
 
