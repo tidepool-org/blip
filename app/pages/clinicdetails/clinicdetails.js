@@ -185,7 +185,6 @@ export const ClinicDetails = (props) => {
         validationSchema={displayFullForm ? clinicSchema : clinicianSchema}
         onSubmit={(values) => {
           const profileUpdates = {
-            fullName: `${values.firstName} ${values.lastName}`,
             profile: {
               fullName: `${values.firstName} ${values.lastName}`,
               clinic: {
@@ -193,8 +192,9 @@ export const ClinicDetails = (props) => {
               },
             },
           };
+
           if (values.npi) {
-            profileUpdates.clinic.npi = values.npi;
+            profileUpdates.profile.clinic.npi = values.npi;
           }
 
           dispatch(actions.async.updateUser(api, profileUpdates));
