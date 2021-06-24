@@ -59,7 +59,7 @@ function initCookiesConcentListener(): void {
   log.debug("Waiting for acceptation", axeptioCb);
   if (config.COOKIE_BANNER_CLIENT_ID === "disabled") {
     acceptCookiesListener({ matomo: true, stonly: true, zendesk: true });
-  } else if (_.isFunction(_.get(axeptioCb, "push"))) {
+  } else if (_.isObject(axeptioCb) && _.isFunction(_.get(axeptioCb, "push"))) {
     axeptioCb.push((axeptio: AxeptIO) => {
       axeptio.on("cookies:complete", acceptCookiesListener);
     });

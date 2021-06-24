@@ -18,6 +18,8 @@
 /* eslint-disable max-len, no-underscore-dangle */
 
 import _ from 'lodash';
+import sinon from 'sinon';
+import { expect, assert } from 'chai';
 
 import BgLogPrintView from '../../../src/modules/print/BgLogPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -150,7 +152,7 @@ describe('BgLogPrintView', () => {
         { prop: 'chartDates', type: 'array' },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
@@ -225,7 +227,7 @@ describe('BgLogPrintView', () => {
 
       expect(result).to.be.an('array').and.have.length(9);
 
-      _.each(result, (column, i) => {
+      _.forEach(result, (column, i) => {
         expect(column.header).to.equal(defaultBgChartHeaders[i].text);
         expect(column.id).to.equal(defaultBgChartHeaders[i].id);
         expect(column.cache).to.be.false;
@@ -308,10 +310,14 @@ describe('BgLogPrintView', () => {
   });
 
   describe('render', () => {
+    before(() => {
+      sinon.stub(BgLogPrintView.prototype, 'renderBGChart');
+      sinon.stub(BgLogPrintView.prototype, 'renderSummaryTable');
+    });
+    after(() => {
+      sinon.restore();
+    });
     it('should call all the appropriate render methods', () => {
-      sinon.stub(Renderer, 'renderBGChart');
-      sinon.stub(Renderer, 'renderSummaryTable');
-
       Renderer.render();
 
       sinon.assert.calledOnce(Renderer.renderBGChart);
@@ -321,9 +327,13 @@ describe('BgLogPrintView', () => {
 
   describe('renderBGChart', () => {
     beforeEach(() => {
-      Renderer.renderTable = sinon.stub();
+      sinon.resetHistory();
+      sinon.stub(BgLogPrintView.prototype, "renderTable");
       Renderer.getBgChartColumns = sinon.stub().returns('stubbed columns');
       Renderer.getBgChartRow = sinon.stub().returns('stubbed row');
+    });
+    afterEach(() => {
+      sinon.restore();
     });
 
     it('should define a bgChart class property', () => {
@@ -345,8 +355,6 @@ describe('BgLogPrintView', () => {
     });
 
     it('should define the bg chart columns', () => {
-      sinon.assert.notCalled(Renderer.getBgChartColumns);
-
       Renderer.renderBGChart();
 
       sinon.assert.called(Renderer.getBgChartColumns);
@@ -354,8 +362,6 @@ describe('BgLogPrintView', () => {
     });
 
     it('should create the bg chart rows - one for each chart date', () => {
-      sinon.assert.callCount(Renderer.getBgChartRow, 0);
-
       Renderer.renderBGChart();
       assert(Renderer.chartDates.length === 30);
       expect(Renderer.bgChart.rows).to.be.an('array').and.have.length(30);

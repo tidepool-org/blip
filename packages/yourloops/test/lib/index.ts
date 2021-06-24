@@ -26,10 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import _ from "lodash";
+import testCookiesManager from "./cookies-manager.test";
 
 function testLib(): void {
-  describe.skip("API", _.noop);
+  describe("CookiesManager", testCookiesManager);
 }
 
 export default testLib;

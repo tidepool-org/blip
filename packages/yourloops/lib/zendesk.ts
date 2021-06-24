@@ -39,6 +39,14 @@ export function isZendeskActive(): boolean {
 }
 
 /**
+ * Function for unit tests to check the allowCookies value
+ * @returns true if allow cookies
+ */
+export function isZendeskAllowCookies(): boolean {
+  return allowCookies;
+}
+
+/**
  * Ask zendesk to login the user
  *
  * Login routine is implemented in `templates/zendesk.js`

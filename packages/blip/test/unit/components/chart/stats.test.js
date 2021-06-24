@@ -108,7 +108,7 @@ describe('Stats', () => {
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
       sinon.assert.calledWith(dataUtilEndpointsSpy.set, baseProps.endpoints);
-      dataUtilEndpointsSpy.restore();
+      baseProps.dataUtil = new DataUtilStub();
     });
   });
 

@@ -17,6 +17,8 @@
 
 import _ from 'lodash';
 import i18next from 'i18next';
+import sinon from 'sinon';
+import { expect, assert } from 'chai';
 
 import BasicsPrintView from '../../../src/modules/print/BasicsPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -158,7 +160,7 @@ describe('BasicsPrintView', () => {
         { prop: 'manufacturer', type: 'string' },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });

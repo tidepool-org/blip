@@ -17,7 +17,7 @@
 
 import _ from 'lodash';
 import moment from 'moment-timezone';
-// import sinon from 'sinon'; // Activate it, makes 1 test crash...
+import sinon from 'sinon';
 import { expect } from 'chai';
 
 import DailyPrintView from '../../../src/modules/print/DailyPrintView';
@@ -511,11 +511,24 @@ describe('DailyPrintView', () => {
       // Should draw a vertical line for every 3hr slot,
       // plus a final one to close the chart and the 2 BG target lines
       sinon.assert.callCount(Renderer.doc.lineTo, 24 / 3 + 1 + 2);
-      sinon.assert.calledWith(Renderer.doc.moveTo, sinon.match.number, args.topEdge);
-      sinon.assert.calledWith(Renderer.doc.lineTo, sinon.match.number, args.bottomOfBasalChart);
+      sinon.assert.callCount(Renderer.doc.moveTo, Renderer.doc.lineTo.callCount);
+      for (let i = 0; i < 9; i++) {
+        sinon.assert.match(Renderer.doc.moveTo.getCall(i).args, [sinon.match.number, args.topEdge]);
+        sinon.assert.match(Renderer.doc.lineTo.getCall(i).args, [sinon.match.number, args.bottomOfBasalChart]);
+      }
+      sinon.assert.match(Renderer.doc.moveTo.getCall(9).args, [sinon.match.number, 100]);
+      sinon.assert.match(Renderer.doc.moveTo.getCall(10).args, [sinon.match.number, 100]);
+      sinon.assert.match(Renderer.doc.lineTo.getCall(9).args, [sinon.match.number, 100]);
+      sinon.assert.match(Renderer.doc.lineTo.getCall(10).args, [sinon.match.number, 100]);
 
       // Should render the timeslot time in the format 9a or 12p
-      sinon.assert.calledWith(Renderer.doc.text, sinon.match(/\d?(\d)[a|p]/));
+      // and the bg ticks values
+      expect(Renderer.doc.text.callCount).to.be.equals(12);
+      for (let i = 0; i < Renderer.doc.text.callCount; i++) {
+        const args = Renderer.doc.text.getCall(i).args;
+        expect(args).to.be.an('array').not.empty;
+        expect(args[0]).to.be.a('string').match(/^(\d{1,2}[ap]m)|(\d+)$/);
+      }
     });
 
     it('should not render a BG bound higher than the `bgScaleYLimit` value', () => {

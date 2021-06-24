@@ -16,7 +16,8 @@
  */
 
 import MemoryStream from 'memorystream';
-
+import sinon from 'sinon';
+import { expect } from 'chai';
 import * as Module from '../../../src/modules/print';
 import Doc from '../../helpers/pdfDoc';
 
@@ -67,13 +68,19 @@ describe('print module', () => {
   let doc;
   let stream;
 
-  sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
-  sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
-  sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
-  sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
-  sinon.stub(Module.utils, 'BgLogPrintView').returns(new BgLogPrintView());
-  sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
-  sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
+  before(() => {
+    sinon.stub(Module.utils, 'reshapeBgClassesToBgBounds');
+    sinon.stub(Module.utils.PrintView, 'renderPageNumbers');
+    sinon.stub(Module.utils, 'BasicsPrintView').returns(new BasicsPrintView());
+    sinon.stub(Module.utils, 'DailyPrintView').returns(new DailyPrintView());
+    sinon.stub(Module.utils, 'BgLogPrintView').returns(new BgLogPrintView());
+    sinon.stub(Module.utils, 'SettingsPrintView').returns(new SettingsPrintView());
+    sinon.stub(Module.utils, 'blobStream').returns(new MemoryStream());
+  });
+
+  after(() => {
+    sinon.restore();
+  });
 
   beforeEach(() => {
     stream = new MemoryStream();

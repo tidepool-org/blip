@@ -44,12 +44,12 @@ declare global {
   interface Window {
     _jipt: any; // Zendesk
     _paq: any[]; // Matomo
-    _axcb: { // Axeptio
+    _axcb?: { // Axeptio
       push: (f: (a: AxeptIO) => void) => void;
     };
     /** Display the Axeptio cookie banner */
     openAxeptioCookies?: () => void;
-    loadStonlyWidget: () => void;
+    loadStonlyWidget?: () => void;
     zE: (...args: any) => void; // Zendesk API
     config?: AppConfig;
     cleanBlipReduxStore?: () => void;

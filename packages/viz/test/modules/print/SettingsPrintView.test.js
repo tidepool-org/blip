@@ -16,6 +16,8 @@
  */
 
 import _ from 'lodash';
+import sinon from 'sinon';
+import { expect, assert } from 'chai';
 
 import SettingsPrintView from '../../../src/modules/print/SettingsPrintView';
 import PrintView from '../../../src/modules/print/PrintView';
@@ -147,7 +149,7 @@ describe('SettingsPrintView', () => {
         { prop: 'deviceMeta', type: 'object' },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
@@ -167,7 +169,7 @@ describe('SettingsPrintView', () => {
         { prop: 'deviceMeta', type: 'object' },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
@@ -185,7 +187,7 @@ describe('SettingsPrintView', () => {
         { prop: 'deviceMeta', type: 'object' },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });

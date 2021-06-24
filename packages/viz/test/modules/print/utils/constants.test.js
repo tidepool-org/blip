@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import { expect } from 'chai';
 import * as constants from '../../../../src/modules/print/utils/constants';
 
 describe('constants', () => {

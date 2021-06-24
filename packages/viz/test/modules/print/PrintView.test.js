@@ -18,9 +18,10 @@
 /* eslint-disable max-len */
 
 import _ from 'lodash';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
 import PrintView from '../../../src/modules/print/PrintView';
-
 import * as patients from '../../../data/patient/profiles';
 
 import {
@@ -117,7 +118,7 @@ describe('PrintView', () => {
         'patient',
       ];
 
-      _.each(overrideOpts, opt => {
+      _.forEach(overrideOpts, opt => {
         expect(Renderer[opt]).to.equal(opts[opt]);
       });
 
@@ -149,7 +150,7 @@ describe('PrintView', () => {
 
       const strippedRenderer = new PrintView(doc, data, opts);
 
-      _.each(fallbackOpts, opt => {
+      _.forEach(fallbackOpts, opt => {
         expect(strippedRenderer[opt]).to.not.be.undefined;
       });
     });
@@ -179,7 +180,7 @@ describe('PrintView', () => {
         { prop: 'currentPageIndex', type: 'number', value: -1 },
       ];
 
-      _.each(requiredProps, item => {
+      _.forEach(requiredProps, item => {
         expect(Renderer[item.prop]).to.be.a(item.type);
         item.hasOwnProperty('value') && expect(Renderer[item.prop]).to.eql(item.value);
       });
@@ -1175,7 +1176,8 @@ describe('PrintView', () => {
     it('should initialize the FitColumn table plugin when required', () => {
       Renderer.renderTable([], [], { flexColumn: 'test' }, TableStub, FitColumnStub);
       sinon.assert.calledOnce(Renderer.table.addPlugin);
-      sinon.assert.calledWith(Renderer.table.addPlugin, new FitColumnStub());
+      expect(Renderer.table.addPlugin.firstCall.args).to.be.an('array').of.length(1);
+      expect(Renderer.table.addPlugin.firstCall.args[0]).to.be.instanceOf(Promise);
       sinon.assert.calledWith(FitColumnStub, { column: 'test' });
     });
 
