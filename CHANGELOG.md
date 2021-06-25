@@ -3,6 +3,8 @@ Blip is the web front end for YourLoops system.
 It is based on Tidepool Blip 1.27.
 
 ## Unreleased
+### Fixed
+- YLP-842 Patient user click logo leads to a blank page
 ### Engineering Use
 - YLP-813 Add TU for cookies manager
 

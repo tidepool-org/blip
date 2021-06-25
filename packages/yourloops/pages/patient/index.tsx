@@ -52,6 +52,7 @@ const log = bows("PatientPage");
 function PatientPage(): JSX.Element {
   const { t } = useTranslation("yourloops");
   const historyHook = useHistory();
+  const { pathname } = historyHook.location;
   const { user } = useAuth();
 
   if (user === null) {
@@ -62,7 +63,6 @@ function PatientPage(): JSX.Element {
   const defaultURL = `${prefixURL}/data`;
 
   React.useEffect(() => {
-    const { pathname } = historyHook.location;
     if (user.role !== UserRoles.patient) {
       // Only allow patient for this route
       document.title = t("brand-name");
@@ -72,7 +72,7 @@ function PatientPage(): JSX.Element {
       log.info(`Redirecting to ${defaultURL}`);
       historyHook.replace(defaultURL);
     }
-  }, [historyHook, prefixURL, defaultURL, user, t]);
+  }, [pathname, historyHook, prefixURL, defaultURL, user, t]);
 
   return (
     <TeamContextProvider>
