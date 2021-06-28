@@ -96,13 +96,16 @@ export const Workspaces = (props) => {
 
   useEffect(() => {
     handleAsyncResult(acceptingClinicianInvite, t('You’re in. You now have access to {{name}}.', {
-      email: selectedWorkspace?.name,
+      name: selectedWorkspace?.name,
     }));
+
+    // Refetch clinician clinics to include newly-accepeted invitation
+    dispatch(actions.async.getClinicsForClinician(api, loggedInUserId));
   }, [acceptingClinicianInvite]);
 
   useEffect(() => {
     handleAsyncResult(dismissingClinicianInvite, t('Invitation to {{name}} has been declined.', {
-      email: selectedWorkspace?.name,
+      name: selectedWorkspace?.name,
     }));
   }, [dismissingClinicianInvite]);
 
@@ -226,8 +229,8 @@ export const Workspaces = (props) => {
       dispatch(
         actions.async.dismissClinicianInvite(
           api,
-          selectedWorkspace.id,
-          loggedInUserId
+          loggedInUserId,
+          selectedWorkspace.key
         )
       );
     }
