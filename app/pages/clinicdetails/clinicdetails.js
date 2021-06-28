@@ -150,7 +150,7 @@ export const ClinicDetails = (props) => {
           message: t('Profile updated'),
           variant: 'success',
         });
-        dispatch(push('/workspace-switch'));
+        dispatch(push('/workspaces'));
       }
     }
   }, [working.updatingUser]);

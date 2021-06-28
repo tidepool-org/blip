@@ -241,7 +241,7 @@ export function login(api, credentials, options, postLoginAction) {
                 } else {
                   if (!_.isEmpty(invites)) {
                     if (hasClinicProfile) {
-                      redirectRoute = '/workspace-switch';
+                      redirectRoute = '/workspaces';
                       forward();
                     } else {
                       redirectRoute = '/clinic-details';
