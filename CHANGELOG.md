@@ -8,7 +8,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-851 Translation error in Loop Mode widget (DE)
 - YLP-852 App crash in the daily view on mobile - on resize display
 - YLP-856 Viz metrics are not updated after loading new data
-
+- YLP-862 Translation error in Italian for My Care Teams
 ### Engineering Use
 - YLP-813 Add TU for cookies manager
 
