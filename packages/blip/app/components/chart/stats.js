@@ -16,6 +16,7 @@ class Stats extends React.Component {
     chartType: PropTypes.oneOf(['basics', 'daily', 'bgLog', 'trends']).isRequired,
     dataUtil: PropTypes.object.isRequired,
     endpoints: PropTypes.arrayOf(PropTypes.string),
+    loading: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -34,55 +35,61 @@ class Stats extends React.Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const update = this.updatesRequired(nextProps);
-
+  componentDidUpdate(prevProps) {
+    const update = this.updatesRequired(prevProps);
     if (update) {
-      if (update.stats) {
+      if (update.dataChanged) {
+        this.updateDataUtilEndpoints();
+        this.updateStatData();
         this.setState({
-          stats: this.getStatsByChartType(nextProps)
+          stats: this.getStatsByChartType(),
+        });
+      } else if (update.stats) {
+        this.setState({
+          stats: this.getStatsByChartType(),
         });
       } else if (update.endpoints) {
-        this.updateDataUtilEndpoints(nextProps);
-        this.updateStatData(nextProps);
+        this.updateDataUtilEndpoints();
+        this.updateStatData();
       } else if (update.activeDays) {
-        this.updateStatData(nextProps);
+        this.updateStatData();
       }
     }
   }
 
-  shouldComponentUpdate(nextProps) {
-    return this.updatesRequired(nextProps);
-  }
-
-  updatesRequired(nextProps) {
+  updatesRequired(prevProps) {
     const {
       bgSource,
       chartPrefs,
       chartType,
       endpoints,
-    } = nextProps;
+      loading,
+    } = prevProps;
 
     const { activeDays } = chartPrefs[chartType];
 
     const activeDaysChanged = activeDays && !_.isEqual(activeDays, this.props.chartPrefs[chartType].activeDays);
     const bgSourceChanged = bgSource && !_.isEqual(bgSource, this.props.bgSource);
     const endpointsChanged = endpoints && !_.isEqual(endpoints, this.props.endpoints);
+    const dataChanged = loading && !this.props.loading;
 
-    return activeDaysChanged || bgSourceChanged || endpointsChanged
+    return activeDaysChanged || bgSourceChanged || endpointsChanged || dataChanged
       ? {
         activeDays: activeDaysChanged,
         endpoints: endpointsChanged,
         stats: bgSourceChanged,
+        dataChanged,
       }
       : false;
   }
 
-  renderStats = (stats, animate) => (_.map(stats, stat => (
-    <div id={`Stat--${stat.id}`} key={stat.id}>
-      <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
-    </div>
-  )));
+  renderStats(stats, animate) {
+    return _.map(stats, stat => (
+      <div id={`Stat--${stat.id}`} key={stat.id}>
+        <Stat animate={animate} bgPrefs={this.bgPrefs} {...stat} />
+      </div>
+    ));
+  }
 
   render() {
     const { chartPrefs: { animateStats } } = this.props;
@@ -94,12 +101,12 @@ class Stats extends React.Component {
     );
   }
 
-  getStatsByChartType = (props = this.props) => {
+  getStatsByChartType() {
     const {
       chartType,
       dataUtil,
       bgSource,
-    } = props;
+    } = this.props;
 
     const { commonStats } = vizUtils.stat;
     const { bgBounds, bgUnits, days, latestPump } = dataUtil;
@@ -109,7 +116,7 @@ class Stats extends React.Component {
     const stats = [];
 
     const addStat = statType => {
-      const chartStatOpts = _.get(props, ['chartPrefs', chartType, statType]);
+      const chartStatOpts = _.get(this.props, `chartPrefs.${chartType}.${statType}`);
 
       const stat = vizUtils.stat.getStatDefinition(dataUtil[vizUtils.stat.statFetchMethods[statType]](), statType, {
         bgSource,
@@ -171,19 +178,19 @@ class Stats extends React.Component {
     }
 
     return stats;
-  };
+  }
 
-  updateDataUtilEndpoints(props) {
+  updateDataUtilEndpoints() {
     const {
       dataUtil,
       endpoints,
-    } = props;
+    } = this.props;
 
     dataUtil.endpoints = endpoints;
   }
 
-  updateStatData(props) {
-    const { bgSource, dataUtil } = props;
+  updateStatData() {
+    const { bgSource, dataUtil } = this.props;
     const stats = this.state.stats;
 
 
