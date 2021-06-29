@@ -29,7 +29,7 @@ import {
 } from '../../components/elements/Dialog';
 
 import { useToasts } from '../../providers/ToastProvider';
-import baseTheme, { colors } from '../../themes/baseTheme';
+import baseTheme from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 
