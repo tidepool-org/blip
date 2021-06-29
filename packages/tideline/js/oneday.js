@@ -95,7 +95,7 @@ function oneDay(emitter, options = {}) {
   function container(selection) {
     container.mainSVG = selection.append('svg');
     container.mainGroup = container.mainSVG.append('g').attr('id', 'tidelineMainSVG');
-    // update SVG dimenions and ID
+    // update SVG dimensions and ID
     container.mainSVG.attr({
       'id': id,
       'width': width,
@@ -150,6 +150,7 @@ function oneDay(emitter, options = {}) {
   container.xScale = d3.time.scale.utc();
   /** @type {TidelineData} */
   container.tidelineData = null;
+  container.throttleTrackMetric = _.throttle(options.trackMetric, 10000);
 
   /**
    * To be updated by the daily view.
@@ -190,6 +191,8 @@ function oneDay(emitter, options = {}) {
     container.emitter.emit('inTransition', value);
   };
 
+  container.isInTransition = () => inTransition;
+
   /**
    * Scroll the daily view to a specific date
    * @param {Date} date The date to translate
@@ -221,13 +224,21 @@ function oneDay(emitter, options = {}) {
       .tween('zoom', () => {
         const ix = d3.interpolate(nav.currentTranslation + translationAmount, nav.currentTranslation);
         return (t) => {
-          nav.pan.translate([ix(t), 0]);
-          // Trigger the zoom events on nav.pan
-          nav.pan.event(container.mainGroup);
+          if (nav.pan !== null) {
+            nav.pan.translate([ix(t), 0]);
+            // Trigger the zoom events on nav.pan
+            nav.pan.event(container.mainGroup);
+          }
         };
       })
       .each(() => ++nUgly)
       .each('end', () => {
+        if (container.mainSVG === null) {
+          // Callback after destroy
+          // we must do nothing
+          log.debug('transition ends: destroyed, nothing to do');
+          return;
+        }
         // this ugly solution courtesy of the man himself:
         // https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
         if (!--nUgly) {
@@ -436,7 +447,7 @@ function oneDay(emitter, options = {}) {
     container.renderPoolsData();
 
     // Update the dailyX sticky label
-    emitter.emit('dailyx-navigated', domain[0].valueOf());
+    container.emitter.emit('dailyx-navigated', domain[0].valueOf());
   };
 
   container.onZoomEnd = () => {
@@ -502,6 +513,7 @@ function oneDay(emitter, options = {}) {
   container.onDragEnd = () => {
     container.navString(true);
     container.inTransition(false);
+    container.throttleTrackMetric('daily', { event: 'drag' });
   };
 
   container.setScrollNav = function() {
@@ -601,7 +613,22 @@ function oneDay(emitter, options = {}) {
 
   container.destroy = function() {
     log.info('Destroying chart container...');
+    container.mainSVG.attr({ display: "none", id: "tidelineMainSVGDeleted" });
+    // Cancel any navigated in progress
     container.throttleNavigated.cancel();
+    // Cancel any trackMetric in progress
+    container.throttleTrackMetric.cancel();
+    if (nav.pan !== null) {
+      // d3 has no function to un-subsribe to an event
+      nav.pan.on('zoomstart', _.noop);
+      nav.pan.on('zoom', _.noop);
+      nav.pan.on('zoomend', _.noop);
+    }
+    if (nav.drag !== null) {
+      nav.drag.on('dragstart', _.noop);
+      nav.drag.on('drag', _.noop);
+      nav.drag.on('dragend', _.noop);
+    }
     container.emitter.removeAllListeners();
     container.mainSVG.remove();
     container.pools.forEach(pool => pool.destroy());
@@ -628,6 +655,7 @@ function oneDay(emitter, options = {}) {
     container.pools = null;
     container.throttleNavigated = null;
     container.tidelineData = null;
+    container.throttleTrackMetric = null;
   };
 
   // getters and setters
@@ -691,6 +719,10 @@ function oneDay(emitter, options = {}) {
       throw new Error("Sorry, I can't render anything without /some/ data.");
     } else if (td.data.length < 2) {
       throw new Error("Sorry, I can't render anything with only *one* datapoint.");
+    }
+
+    if (container.loadingInProgress) {
+      return container;
     }
 
     const lastTimezone = td.getLastTimezone();

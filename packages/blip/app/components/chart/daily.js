@@ -99,6 +99,8 @@ class DailyChart extends React.Component {
       chart: null,
       windowHeight: 0,
       windowWidth: 0,
+      /** Avoid recreate the chart on loading: This leads to a crash */
+      needRecreate: false,
     };
     /** @type {React.RefObject} */
     this.refNode = React.createRef();
@@ -106,10 +108,15 @@ class DailyChart extends React.Component {
 
   componentDidUpdate() {
     // Prevent the scroll drag while loading
-    const { chart } = this.state;
+    const { loading } = this.props;
+    const { chart, needRecreate } = this.state;
     if (chart !== null) {
-      const { loading } = this.props;
       chart.loadingInProgress = loading;
+      if (needRecreate && !loading && !chart.isInTransition()) {
+        this.setState({ needRecreate: false }, () => {
+          this.reCreateChart();
+        });
+      }
     }
   }
 
@@ -170,11 +177,18 @@ class DailyChart extends React.Component {
   }
 
   handleWindowResize = ({windowHeight: height, windowWidth: width}) => {
-    const { windowHeight, windowWidth } = this.state;
+    const { loading } = this.props;
+    const { windowHeight, windowWidth, chart } = this.state;
     this.log.debug('handleWindowResize', { windowHeight, windowWidth }, '=>', { height, width });
     if (windowHeight !== height || width !== windowWidth) {
-      this.setState({ windowHeight: height, windowWidth: width }, () => {
-        this.reCreateChart();
+      const needRecreate = loading || chart?.isInTransition() === true;
+      this.setState({ windowHeight: height, windowWidth: width, needRecreate }, () => {
+        this.props.trackMetric('daily', { event: 'resize', width, height });
+        if (!needRecreate) {
+          this.reCreateChart();
+        } else {
+          this.log.info('Delaying chart re-creation: loading or transition in progress');
+        }
       });
     }
   };
