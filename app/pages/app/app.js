@@ -306,6 +306,7 @@ export class AppComponent extends React.Component {
             onLogout={this.props.onLogout}
             trackMetric={this.props.context.trackMetric}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
+            api={this.props.context.api}
             ref="navbar"/>
           </div>
         );

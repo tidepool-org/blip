@@ -1,17 +1,17 @@
-var React = require('react');
-var Link = require('react-router-dom').Link;
+import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { Flex } from 'rebass/styled-components'
 import { translate } from 'react-i18next';
 
-var _ = require('lodash');
-var cx = require('classnames');
+import _ from 'lodash';
+import cx from 'classnames';
 
-var personUtils = require('../../core/personutils');
-var NavbarPatientCard = require('../../components/navbarpatientcard');
+import personUtils from '../../core/personutils';
+import NavbarPatientCard from '../../components/navbarpatientcard';
+import WorkspaceSwitcher from '../../components/WorkspaceSwitcher';
 
-var logoSrc = require('./images/tidepool-logo-408x46.png');
-
+import logoSrc from './images/tidepool-logo-408x46.png';
 export default translate()(class extends React.Component {
   static propTypes = {
     currentPage: PropTypes.string,
@@ -33,7 +33,7 @@ export default translate()(class extends React.Component {
     return (
       <div className="Navbar">
         {this.renderLogoSection()}
-        {this.renderPatientSection()}
+        {this.renderMiddleSection()}
         {this.renderMenuSection()}
       </div>
     );
@@ -71,10 +71,20 @@ export default translate()(class extends React.Component {
     return '/patients/' + patient.userid + '/data';
   };
 
-  renderPatientSection = () => {
+  renderMiddleSection = () => {
     var patient = this.props.patient;
 
+    console.log('patient', patient);
+    console.log('user', this.props.user);
+
     if (_.isEmpty(patient)) {
+      if (personUtils.isClinic(this.props.user) && personUtils.flaggedForClinicWorkflow(this.props.user)) {
+        return (
+          <Flex alignItems="center" justifyContent="center">
+            <WorkspaceSwitcher api={this.props.api} />
+          </Flex>
+        );
+      }
       return <div className="Navbar-patientSection"></div>;
     }
 

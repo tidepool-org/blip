@@ -50,6 +50,7 @@ export let Patients = translate()(class extends React.Component {
     loading: PropTypes.bool.isRequired,
     location: PropTypes.object.isRequired,
     loggedInUserId: PropTypes.string,
+    selectedClinicId: PropTypes.string,
     onAcceptInvitation: PropTypes.func.isRequired,
     onDismissInvitation: PropTypes.func.isRequired,
     onHideWelcomeSetup: PropTypes.func.isRequired,
@@ -185,7 +186,7 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinic(this.props.user)) {
+    if (personUtils.isClinic(this.props.user) && (!personUtils.flaggedForClinicWorkflow(this.props.user) || this.props.selectedClinicId)) {
       return (
         <div className="container-box-inner patients-section js-patients-shared">
           <div className="patients-vca-section-content">
@@ -405,6 +406,7 @@ export function mapStateToProps(state) {
     fetchingAssociatedAccounts,
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
+    selectedClinicId: state.blip.selectedClinicId,
     patients: _.keys(patientMap).map((key) => patientMap[key]),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user: user,
@@ -414,7 +416,7 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
-  removePatient: actions.async.removeMembershipInOtherCareTeam,
+  removePatient: actions.async.removeMembershipInOtherCareTeam, // TODO: removePatientFromClinic if selectedClinicId
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
