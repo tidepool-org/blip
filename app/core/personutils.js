@@ -49,6 +49,10 @@ personUtils.isClinic = (user) => {
   return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
 };
 
+personUtils.flaggedForClinicWorkflow = (user) => {
+  return Boolean(_.get(user, ['profile', 'flags', 'clinicWorkflow']));
+};
+
 personUtils.isDataDonationAccount = (account) => {
   const username = account.username || account.email || '';
   return /^bigdata(.+)?@tidepool\.org$/.test(username);
