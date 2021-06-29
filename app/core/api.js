@@ -968,6 +968,10 @@ api.clinics.inviteClinic = function(shareCode, permissions, patientId, cb) {
   return tidepool.inviteClinic(shareCode, permissions, patientId, cb);
 };
 
+api.clinics.getClinicByShareCode = function(shareCode, cb) {
+  return tidepool.getClinicByShareCode(shareCode, cb);
+};
+
 // ----- Errors -----
 
 api.errors = {};

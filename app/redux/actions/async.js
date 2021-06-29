@@ -2258,3 +2258,25 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
     });
   };
 }
+
+/**
+ * Fetch Clinic by Share Code Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} shareCode - Share code of the clinic
+ */
+ export function fetchClinicByShareCode(api, shareCode) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicRequest());
+
+    api.clinics.getClinicByShareCode(shareCode, (err, clinic) => {
+      if (err) {
+        dispatch(sync.fetchClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicSuccess(clinic));
+      }
+    });
+  };
+}
