@@ -6,6 +6,7 @@ import filter from 'lodash/filter';
 import find from 'lodash/find';
 import forEach from 'lodash/forEach';
 import has from 'lodash/has';
+import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import values from 'lodash/values';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
@@ -18,17 +19,13 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 
-import { useToasts } from '../providers/ToastProvider';
-import { useIsFirstRender } from '../core/hooks';
-import * as actions from '../redux/actions';
-import Button from '../components/elements/Button';
-import Popover from '../components/elements/Popover';
+import * as actions from '../../redux/actions';
+import Button from '../elements/Button';
+import Popover from '../elements/Popover';
 
-const WorkspaceSwitcher = props => {
+export const WorkspaceSwitcher = props => {
   const { t, api } = props;
   const dispatch = useDispatch();
-  const { set: setToast } = useToasts();
-  const isFirstRender = useIsFirstRender();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -65,23 +62,13 @@ const WorkspaceSwitcher = props => {
   }, [loggedInUserId]);
 
   useEffect(() => {
-    const selected = find(menuOptions, {id: selectedClinicId})
-    setSelectedClinic(selected);
+    const selected = find(menuOptions, {id: selectedClinicId});
+    if (selected) setSelectedClinic(selected);
 
-    dispatch(actions.async.fetchPatientsForClinic(api, selectedClinicId));
-
-    //TODO: Should I toast anything here? Will it not be obvious enough on it's own?
-    if (!isFirstRender) {
-      setToast({
-        message: t('You are now using the {{workspace}}', { workspace: selected.label }),
-        variant: 'success',
-        anchorOrigin: {
-          horizontal: 'left',
-          vertical: 'top',
-        },
-      });
+    if (selectedClinicId && isEmpty(clinics?.[selectedClinicId]?.patients)) {
+      dispatch(actions.async.fetchPatientsForClinic(api, selectedClinicId));
     }
-  }, [selectedClinicId]);
+  }, [menuOptions.length, selectedClinicId]);
 
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
@@ -92,7 +79,7 @@ const WorkspaceSwitcher = props => {
         id: clinic.id,
         label: t('{{name}} Workspace', { name: clinic.name }),
       })),
-    ])
+    ]);
   }, [clinics]);
 
   const handleSelect = option => {

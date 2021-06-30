@@ -36,6 +36,7 @@ import Invitation from '../../components/invitation';
 import BrowserWarning from '../../components/browserwarning';
 
 import { components as vizComponents } from '@tidepool/viz';
+import ClinicProfile from '../../components/clinic/ClinicProfile';
 const { Loader } = vizComponents;
 
 export let Patients = translate()(class extends React.Component {
@@ -190,6 +191,7 @@ export let Patients = translate()(class extends React.Component {
       return (
         <div className="container-box-inner patients-section js-patients-shared">
           <div className="patients-vca-section-content">
+            {this.props.selectedClinicId && <ClinicProfile width="100%" mt={0} mb={6} />}
             <PeopleTable
               people={patients}
               trackMetric={this.props.trackMetric}
@@ -357,38 +359,62 @@ export function mapStateToProps(state) {
   var user = null;
   let patientMap = {};
 
+  if (state.blip.selectedClinicId) {
+    patientMap = _.reduce(
+      _.values(_.get(state.blip, ['clinics', state.blip.selectedClinicId, 'patients'], {})),
+      (newSet, patient) => {
+        newSet[patient.id] = {
+          emails: [patient.email],
+          permissions: patient.permissions,
+          profile: {
+            fullName: patient.fullName,
+            patient: {
+              birthday: patient.birthDate,
+            },
+          },
+          userid: patient.id,
+          username: patient.email,
+        };
+        return newSet;
+      },
+      {}
+    );
+  }
+
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
-    if (state.blip.targetUserId) {
-      patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
-      // to pass through the permissions of the logged-in user on the target (usually self)
-      if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
-        patientMap = update(patientMap, {
-          [state.blip.targetUserId]: { $merge: { permissions: state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId] } }
+    if (!state.blip.selectedClinicId) {
+      if (state.blip.targetUserId) {
+        patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
+        // to pass through the permissions of the logged-in user on the target (usually self)
+        if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
+          patientMap = update(patientMap, {
+            [state.blip.targetUserId]: { $merge: { permissions: state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId] } }
+          });
+        }
+      }
+
+      if (state.blip.membershipInOtherCareTeams) {
+        _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
+          patientMap[key] = state.blip.allUsersMap[key];
         });
       }
-    }
 
-    if (state.blip.membershipInOtherCareTeams) {
-      _.forEach(state.blip.membershipInOtherCareTeams, (key) => {
-        patientMap[key] = state.blip.allUsersMap[key];
-      });
-    }
-
-    if (state.blip.membershipPermissionsInOtherCareTeams) {
-      const permissions = state.blip.membershipPermissionsInOtherCareTeams;
-      const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
-      _.forEach(keys, (key) => {
-        if (!patientMap[key]) {
-          patientMap[key] = state.blip.allUsersMap[key];
-        }
-        patientMap = update(patientMap, {
-          [key]: { $merge: { permissions: permissions[key] } }
+      if (state.blip.membershipPermissionsInOtherCareTeams) {
+        const permissions = state.blip.membershipPermissionsInOtherCareTeams;
+        const keys = _.keys(state.blip.membershipPermissionsInOtherCareTeams);
+        _.forEach(keys, (key) => {
+          if (!patientMap[key]) {
+            patientMap[key] = state.blip.allUsersMap[key];
+          }
+          patientMap = update(patientMap, {
+            [key]: { $merge: { permissions: permissions[key] } }
+          });
         });
-      });
+      }
     }
   }
 
@@ -407,7 +433,8 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     selectedClinicId: state.blip.selectedClinicId,
-    patients: _.keys(patientMap).map((key) => patientMap[key]),
+    // patients: _.keys(patientMap).map((key) => patientMap[key]),
+    patients: _.values(patientMap),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user: user,
   }

@@ -22,7 +22,7 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Box, Text } from 'rebass/styled-components';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -61,13 +61,14 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   UNSAFE_componentWillReceiveProps(nextProps) {
     //Watches for an update to the user list, if a clinician accepts an invitation then updates the visable user list
     if (nextProps.people !== this.props.people) {
-      this.setState( {dataList: this.buildDataList()} );
+      this.setState( {dataList: this.buildDataList(nextProps)} );
     }
   }
 
-  buildDataList() {
-    const { t } = this.props;
-    const list = _.map(this.props.people, (person) => {
+  buildDataList(props = this.props) {
+    const { t } = props;
+
+    const list = _.map(props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
 
       if (bday) {

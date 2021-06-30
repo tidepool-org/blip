@@ -236,7 +236,8 @@ export const Workspaces = (props) => {
     }
   }
 
-  function handleGoToPersonalWorkspace() {
+  function handleGoToWorkspace(workspace) {
+    dispatch(actions.sync.selectClinic(workspace?.id || null));
     dispatch(push('/patients'));
   }
 
@@ -244,7 +245,7 @@ export const Workspaces = (props) => {
     const workspaceActions = workspace.type === 'clinic' ? (
       <>
         <Button variant='secondary' onClick={handleLeaveClinic.bind(null, workspace)}>{t('Leave Clinic')}</Button>
-        <Button ml={[3]}>{t('Go to Workspace')}</Button>
+        <Button ml={[3]} onClick={handleGoToWorkspace.bind(null, workspace)}>{t('Go to Workspace')}</Button>
       </>
     ) : (
       <>
@@ -349,7 +350,7 @@ export const Workspaces = (props) => {
               variant='textPrimary'
               fontSize={'1'}
               py={0}
-              onClick={handleGoToPersonalWorkspace}
+              onClick={handleGoToWorkspace}
             >
               {t('Go to Personal Workspace')}
             </Button>

@@ -9,7 +9,7 @@ import cx from 'classnames';
 
 import personUtils from '../../core/personutils';
 import NavbarPatientCard from '../../components/navbarpatientcard';
-import WorkspaceSwitcher from '../../components/WorkspaceSwitcher';
+import WorkspaceSwitcher from '../../components/clinic/WorkspaceSwitcher';
 
 import logoSrc from './images/tidepool-logo-408x46.png';
 export default translate()(class extends React.Component {
@@ -74,11 +74,14 @@ export default translate()(class extends React.Component {
   renderMiddleSection = () => {
     var patient = this.props.patient;
 
-    console.log('patient', patient);
-    console.log('user', this.props.user);
+    console.log('this.props.currentPage', this.props.currentPage);
 
     if (_.isEmpty(patient)) {
-      if (personUtils.isClinic(this.props.user) && personUtils.flaggedForClinicWorkflow(this.props.user)) {
+      if (
+        this.props.currentPage === '/patients' &&
+        personUtils.isClinic(this.props.user) &&
+        personUtils.flaggedForClinicWorkflow(this.props.user)
+      ) {
         return (
           <Flex alignItems="center" justifyContent="center">
             <WorkspaceSwitcher api={this.props.api} />
