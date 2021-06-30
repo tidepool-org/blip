@@ -1893,7 +1893,7 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
           createActionError(ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC, err), err
         ));
       } else {
-        dispatch(sync.fetchPatientsForClinicSuccess(patients));
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, patients));
       }
     });
   };

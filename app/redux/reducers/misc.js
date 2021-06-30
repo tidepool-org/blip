@@ -662,6 +662,16 @@ export const clinics = (state = initialState.clinics, action) => {
       );
       return _.merge({}, state, newClinics);
     }
+    case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
+      let { clinicId, patients } = action.payload;
+      const newPatientSet = _.reduce(patients, (newSet, patient) => {
+        newSet[patient.id] = patient
+        return newSet;
+      }, {});
+      return update(state, {
+        [clinicId]: { $set: { patients: newPatientSet, ...state[clinicId] } },
+      });
+    }
     case types.CREATE_CLINIC_SUCCESS: {
       let clinic = _.get(action.payload, 'clinic', {});
       return update(state, {
