@@ -27,8 +27,6 @@ import utils from '../../core/utils';
 import _ from 'lodash';
 import cx from 'classnames';
 
-import config from '../../config';
-
 import personUtils from '../../core/personutils';
 import PeopleList from '../../components/peoplelist';
 import PeopleTable from '../../components/peopletable';
