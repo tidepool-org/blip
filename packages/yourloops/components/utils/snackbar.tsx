@@ -127,8 +127,9 @@ export const Snackbar = (props: SnackbarContext): JSX.Element => {
 
   return (
     <SnackbarUI open={currentAlert !== null}
-      autoHideDuration={alerts.length > 1 ? 3000 : 6000} // eslint-disable-line no-magic-numbers
+      autoHideDuration={alerts.length > 1 ? 1000 : 6000} // eslint-disable-line no-magic-numbers
       onClose={onCloseAlert}
+      key={currentAlert?.id ?? Number.MAX_SAFE_INTEGER}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}>
       {alertUI}
     </SnackbarUI>

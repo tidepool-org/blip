@@ -148,11 +148,12 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
         setInProgress(true);
         state.formValues.preferencesLanguage = getCurrentLang();
         await auth.signup(state);
-        setInProgress(false);
         handleNext();
       } catch (reason: unknown) {
         const errorMessage = errorTextFromException(reason);
         alert.error(t(errorMessage));
+      } finally {
+        setInProgress(false);
       }
     }
   };
@@ -169,6 +170,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
     >
       <TextField
         id="username"
+        autoComplete="username"
         className={classes.TextField}
         margin="normal"
         label={t("email")}
@@ -182,6 +184,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       />
       <TextField
         id="password"
+        autoComplete="new-password"
         className={classes.TextField}
         margin="normal"
         label={t("New password")}
@@ -213,6 +216,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
       />
       <TextField
         id="confirm-password"
+        autoComplete="new-password"
         className={classes.TextField}
         margin="normal"
         label={t("confirm-new-password")}

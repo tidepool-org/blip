@@ -45,6 +45,7 @@ import TextField from "@material-ui/core/TextField";
 
 import brandingLogo from "branding/logo.png";
 
+import appConfig from "../../lib/config";
 import { User, useAuth } from "../../lib/auth";
 import { errorTextFromException } from "../../lib/utils";
 import { useAlert } from "../../components/utils/snackbar";
@@ -142,8 +143,13 @@ function Login(): JSX.Element {
       const user = await auth.login(username, password, signupKey);
       pushRoute(user);
     } catch (reason: unknown) {
-      const errorMessage = errorTextFromException(reason);
-      alert.error(t(errorMessage));
+      let errorMessage = errorTextFromException(reason);
+      if (errorMessage === "error-account-lock") {
+        errorMessage = t(errorMessage, { delayBeforeNextLoginAttempt: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT });
+      } else {
+        errorMessage = t(errorMessage);
+      }
+      alert.error(errorMessage);
     }
   };
 
@@ -188,6 +194,7 @@ function Login(): JSX.Element {
                 autoComplete="off">
                 <TextField
                   id="login-username"
+                  autoComplete="username"
                   className={classes.textField}
                   margin="normal"
                   label={t("email")}
@@ -201,6 +208,7 @@ function Login(): JSX.Element {
                 />
                 <Password
                   id="login-password"
+                  autoComplete="current-password"
                   variant="outlined"
                   margin="normal"
                   className={classes.textField}

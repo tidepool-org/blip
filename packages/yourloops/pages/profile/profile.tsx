@@ -338,6 +338,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password-current"
+          autoComplete="current-password"
           variant="standard"
           label={t("current-password")}
           value={currentPassword}
@@ -347,6 +348,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password"
+          autoComplete="new-password"
           variant="standard"
           label={t("new-password")}
           value={password}
@@ -356,6 +358,7 @@ const ProfilePage = (props: ProfilePageProps): JSX.Element => {
         />
         <Password
           id="profile-textfield-password-confirmation"
+          autoComplete="new-password"
           variant="standard"
           label={t("confirm-password")}
           value={passwordConfirmation}

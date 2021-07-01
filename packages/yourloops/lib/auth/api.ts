@@ -29,22 +29,23 @@
 import bows from "bows";
 import _ from "lodash";
 
-import { APIErrorResponse } from "models/error";
-import User from "./user";
-import { Profile, Preferences, Settings, UserRoles } from "../../models/shoreline";
+import { APIErrorResponse } from "../../models/error";
+import { Profile, Preferences, Settings, UserRoles, IUser } from "../../models/shoreline";
 import { HttpHeaderKeys, HttpHeaderValues } from "../../models/api";
 
-import { errorFromHttpStatus } from "../utils";
+import { errorFromHttpStatus, errorTextFromException } from "../utils";
 import appConfig from "../config";
 import { t } from "../language";
+import sendMetrics from "../metrics";
 import HttpStatus from "../http-status-codes";
 
 import { Session, UpdateUser } from "./models";
+import User from "./user";
 
 const log = bows("Auth API");
 const failedLoginCounter = new Map<string, number>();
 
-function format(user: any): User {
+function format(user: IUser): User {
   const u = new User(user.userid, user.username);
   u.emails = user.emails;
   u.emailVerified = user.emailVerified;
@@ -60,78 +61,78 @@ function format(user: any): User {
  * @return {Promise<User>} Return the logged-in user or a promise rejection.
  */
 async function authenticate(username: string, password: string, traceToken: string): Promise<Session> {
-  let reason: string | null = null;
-
   if (!_.isString(username) || _.isEmpty(username)) {
-    reason = t("no-username") as string;
-    return Promise.reject(new Error(reason));
+    sendMetrics("Login", "no-username");
+    return Promise.reject(new Error("no-username"));
   }
 
   if (!_.isString(password) || _.isEmpty(password)) {
-    reason = t("no-password") as string;
-    return Promise.reject(new Error(reason));
+    sendMetrics("Login", "no-password");
+    return Promise.reject(new Error("no-password"));
   }
 
   log.debug("login: /auth/login", appConfig.API_HOST);
   const authURL = new URL("/auth/login", appConfig.API_HOST);
 
-  const response = await fetch(authURL.toString(), {
-    method: "POST",
-    headers: {
-      [HttpHeaderKeys.traceToken]: traceToken,
-      Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    },
-  });
+  try {
+    const response = await fetch(authURL.toString(), {
+      method: "POST",
+      headers: {
+        [HttpHeaderKeys.traceToken]: traceToken,
+        Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+      },
+    });
 
-  if (!response.ok || response.status !== HttpStatus.StatusOK) {
-    switch (response.status) {
-    case HttpStatus.StatusUnauthorized:
-      if (typeof appConfig.MAX_FAILED_LOGIN_ATTEMPTS === "number") {
-        let wrongCredentialCount = failedLoginCounter.get(username) ?? 0;
-        wrongCredentialCount += 1;
-        failedLoginCounter.set(username, wrongCredentialCount);
-        if (wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
-          reason = t(
-            "Your account has been locked for {{numMinutes}} minutes. You have reached the maximum number of login attempts.",
-            { numMinutes: appConfig.DELAY_BEFORE_NEXT_LOGIN_ATTEMPT }
-          );
+    if (!response.ok || response.status !== HttpStatus.StatusOK) {
+      let reason: string | null = null;
+      switch (response.status) {
+      case HttpStatus.StatusUnauthorized:
+        if (typeof appConfig.MAX_FAILED_LOGIN_ATTEMPTS === "number") {
+          let wrongCredentialCount = failedLoginCounter.get(username) ?? 0;
+          wrongCredentialCount += 1;
+          failedLoginCounter.set(username, wrongCredentialCount);
+          if (wrongCredentialCount >= appConfig.MAX_FAILED_LOGIN_ATTEMPTS) {
+            reason = "error-account-lock";
+          }
         }
+        break;
+      case HttpStatus.StatusForbidden:
+        reason = "email-not-verified";
+        break;
+      default:
+        reason = "error-http-500";
+        break;
       }
+
       if (reason === null) {
-        reason = "Wrong username or password";
+        reason = "error-invalid-credentials";
       }
-      break;
-    case HttpStatus.StatusForbidden:
-      reason = "email-not-verified";
-      break;
-    default:
-      reason = "An error occurred while logging in.";
-      break;
+
+      sendMetrics("Login", reason);
+      return Promise.reject(new Error(reason));
     }
 
-    if (reason === null) {
-      reason = "Login Failed";
+    // this.wrongCredentialCount = 0;
+    const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
+    if (sessionToken === null) {
+      sendMetrics("Login", "missing-response-token");
+      return Promise.reject(new Error("error-http-40x"));
     }
 
-    // this.sendMetrics("Login failed", reason);
-    return Promise.reject(new Error(reason as string));
+    const user = await response
+      .json()
+      .then((res: IUser) => format(res));
+
+    // We may miss some case, but it's probably good enough:
+    failedLoginCounter.clear();
+
+    sendMetrics("Login", "success");
+
+    return { sessionToken, traceToken, user };
+  } catch (reason) {
+    sendMetrics("Login", errorTextFromException(reason));
+    return Promise.reject(new Error("error-http-500"));
   }
-
-  // this.wrongCredentialCount = 0;
-  const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
-  if (sessionToken === null) {
-    reason = "An error occurred while logging in.";
-    return Promise.reject(new Error(reason as string));
-  }
-
-  const user = await response
-    .json()
-    .then((res) => format(res));
-
-  // We may miss some case, but it's probably good enough:
-  failedLoginCounter.clear();
-
-  return { sessionToken, traceToken, user };
 }
 
 
@@ -143,52 +144,56 @@ async function authenticate(username: string, password: string, traceToken: stri
  * @return {Promise<User>} Return the logged-in user or a promise rejection.
  */
 async function signup(username: string, password: string, role: UserRoles, traceToken: string): Promise<Session> {
-  let reason: string | null = null;
-
   if (!_.isString(username) || _.isEmpty(username)) {
-    reason = t("no-username") as string;
-    return Promise.reject(new Error(reason));
+    return Promise.reject(new Error("no-username"));
   }
 
   if (!_.isString(password) || _.isEmpty(password)) {
-    reason = t("no-password") as string;
-    return Promise.reject(new Error(reason));
+    return Promise.reject(new Error("no-password"));
   }
 
   log.debug("signup", username, role);
   const authURL = new URL("/auth/user", appConfig.API_HOST);
 
-  const response = await fetch(authURL.toString(), {
-    method: "POST",
-    headers: {
-      [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
-      [HttpHeaderKeys.traceToken]: traceToken,
-    },
-    body: JSON.stringify({
-      username: username,
-      emails: [username],
-      password: password,
-      roles: [role],
-    }),
-  });
+  try {
+    const response = await fetch(authURL.toString(), {
+      method: "POST",
+      headers: {
+        [HttpHeaderKeys.contentType]: HttpHeaderValues.json,
+        [HttpHeaderKeys.traceToken]: traceToken,
+      },
+      body: JSON.stringify({
+        username: username,
+        emails: [username],
+        password: password,
+        roles: [role],
+      }),
+    });
 
-  if (response.ok) {
-    const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
-    if (sessionToken === null) {
-      reason = "An error occurred while signup";
-      return Promise.reject(new Error(reason as string));
+    if (response.ok) {
+      const sessionToken = response.headers.get(HttpHeaderKeys.sessionToken);
+      if (sessionToken === null) {
+        sendMetrics("Signup", "missing-response-token");
+        return Promise.reject(new Error("error-http-40x"));
+      }
+
+      const user = await response
+        .json()
+        .then((res: IUser) => format(res));
+
+      return Promise.resolve({
+        sessionToken: sessionToken,
+        traceToken,
+        user: user,
+      });
     }
 
-    const user = (await response.json()) as User;
-
-    return Promise.resolve({
-      sessionToken: sessionToken,
-      traceToken,
-      user: user,
-    });
+    sendMetrics("Signup", `error-http-${response.status}`);
+    return Promise.reject(errorFromHttpStatus(response, log));
+  } catch (reason) {
+    sendMetrics("Signup", errorTextFromException(reason));
+    return Promise.reject(new Error("error-http-500"));
   }
-
-  return Promise.reject(errorFromHttpStatus(response, log));
 }
 
 async function getProfile(session: Readonly<Session>, userId?: string): Promise<Profile | null> {

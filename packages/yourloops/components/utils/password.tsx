@@ -51,6 +51,7 @@ export interface PasswordProps {
   error: boolean;
   helperText: string;
   required?: boolean;
+  autoComplete: "current-password" | "new-password";
   variant: "standard" | "filled" | "outlined";
   margin?: "none" | "dense" | "normal";
   className?: string;
@@ -84,6 +85,7 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   required,
   variant,
   margin,
+  autoComplete,
   onValidate,
   setState,
 }: PasswordProps) => {
@@ -111,6 +113,7 @@ const Password: React.FunctionComponent<PasswordProps> = ({
   return (
     <TextField
       id={id}
+      autoComplete={autoComplete}
       label={label}
       value={value}
       error={error}
