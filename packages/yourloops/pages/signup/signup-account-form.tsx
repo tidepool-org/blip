@@ -250,6 +250,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
           color="secondary"
           className={classes.Button}
           onClick={handleBack}
+          classes={{ label: "button-signup-steppers-back-label" }}
         >
           {t("signup-steppers-back")}
         </Button>
@@ -260,6 +261,7 @@ function SignUpAccountForm(props: SignUpFormProps): JSX.Element {
           disabled={isErrorSeen || inProgress}
           className={classes.Button}
           onClick={onNext}
+          classes={{ label: "button-signup-steppers-create-account-label" }}
         >
           {t("signup-steppers-create-account")}
         </Button>

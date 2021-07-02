@@ -229,7 +229,7 @@ function TeamCard(props: TeamCardProps): JSX.Element {
   const teamCode = getDisplayTeamCode(team.code);
 
   return (
-    <Paper elevation={0} className={classes.paper} classes={{ root: classes.paperRoot }}>
+    <Paper id={`team-card-${id}`} elevation={0} className={`${classes.paper} team-card`} classes={{ root: classes.paperRoot }} data-teamid={id}>
       <div id={`team-card-${id}-actions`} className={classes.firstRow}>
         <h2 id={`team-card-${id}-name`} className={classes.teamName}>
           {team.name}

@@ -263,9 +263,10 @@ function HeaderBar(props: HeaderProps): JSX.Element {
     );
   }
 
+  const numInvitations = notificationHook.receivedInvitations.length;
   return (
-    <AppBar position="static">
-      <Toolbar className={classes.toolBar}>
+    <AppBar id="primary-appbar" position="static">
+      <Toolbar id="primary-toolbar" className={classes.toolBar}>
         <div id="primary-toolbar-left" className={classes.toolbarLeft}>
           <input id="branding-logo-full" type="image" className={classes.toolbarLogoFull} alt={t("alt-img-logo")} src={brandingLogoFull} onClick={onLogoClick} />
           <input id="branding-logo-icon" type="image" className={classes.toolbarLogoIcon} alt={t("alt-img-logo")} src={brandingLogoIcon} onClick={onLogoClick} />
@@ -278,9 +279,9 @@ function HeaderBar(props: HeaderProps): JSX.Element {
           )
         }
         <div id="primary-toolbar-right" className={classes.toolbarRight}>
-          <IconButton onClick={handleOpenNotifications}>
-            <Badge color="error" badgeContent={notificationHook.receivedInvitations.length}>
-              <NotificationsIcon />
+          <IconButton id="primary-toolbar-button-notifications" onClick={handleOpenNotifications}>
+            <Badge id="primary-toolbar-button-notifications-badge" data-num-invites={numInvitations} color="error" badgeContent={numInvitations}>
+              <NotificationsIcon id="primary-toolbar-button-notifications-badgeicon" />
             </Badge>
           </IconButton>
           {accountMenu}

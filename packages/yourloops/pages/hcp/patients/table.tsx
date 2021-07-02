@@ -59,29 +59,32 @@ import { getMedicalValues } from "./utils";
 
 // const log = bows("PatientListTable");
 
-const patientListStyle = makeStyles((theme: Theme) => {
-  return {
-    table: {
-      width: "100%",
-    },
-    tableRow: {
-      cursor: "pointer",
-    },
-    tableRowPending: {
-      cursor: "default",
-      backgroundColor: theme.palette.primary.light,
-    },
-    tableRowHeader: {
-      textTransform: "uppercase",
-    },
-    tableCellHeader: {
-      fontSize: "14px",
-    },
-    flag: {
-      color: theme.palette.primary.main,
-    },
-  };
-}, { name: "ylp-hcp-patients-table" });
+const patientListStyle = makeStyles(
+  (theme: Theme) => {
+    return {
+      table: {
+        width: "100%",
+      },
+      tableRow: {
+        cursor: "pointer",
+      },
+      tableRowPending: {
+        cursor: "default",
+        backgroundColor: theme.palette.primary.light,
+      },
+      tableRowHeader: {
+        textTransform: "uppercase",
+      },
+      tableCellHeader: {
+        fontSize: "14px",
+      },
+      flag: {
+        color: theme.palette.primary.main,
+      },
+    };
+  },
+  { name: "ylp-hcp-patients-table" }
+);
 
 function PatientRow(props: PatientElementProps): JSX.Element {
   const { trNA, patient, flagged, onClickPatient, onFlagPatient } = props;
@@ -93,6 +96,7 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   const rowRef = React.createRef<HTMLTableRowElement>();
 
   const userId = patient.userid;
+  const email = patient.username;
   const isFlagged = flagged.includes(userId);
   const firstName = getUserFirstName(patient);
   const lastName = getUserLastName(patient);
@@ -150,10 +154,10 @@ function PatientRow(props: PatientElementProps): JSX.Element {
 
   if (isPendingInvitation) {
     return (
-      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending}`} ref={rowRef}>
+      <TableRow id={rowId} tabIndex={-1} hover className={`${classes.tableRow} ${classes.tableRowPending} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
         <TableCell id={`patients-list-row-icon-${userId}`}>
           <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-            <AccessTimeIcon />
+            <AccessTimeIcon id={`patients-list-row-pendingicon-${userId}`} />
           </Tooltip>
         </TableCell>
         <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
@@ -166,10 +170,10 @@ function PatientRow(props: PatientElementProps): JSX.Element {
   }
 
   return (
-    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={classes.tableRow} ref={rowRef}>
+    <TableRow id={rowId} tabIndex={-1} hover onClick={onRowClick} className={`${classes.tableRow} patient-list-row`} data-userid={userId} data-email={email} ref={rowRef}>
       <TableCell id={`patients-list-row-icon-${userId}`}>
         <IconButton className={classes.flag} aria-label={t("aria-flag-patient")} size="small" onClick={onClickFlag}>
-          {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
+          {isFlagged ? <FlagIcon id={`patients-list-row-flagged-${userId}`} /> : <FlagOutlineIcon id={`patients-list-row-un-flagged-${userId}`} />}
         </IconButton>
       </TableCell>
       <TableCell id={`patients-list-row-lastname-${userId}`}>{lastName}</TableCell>
@@ -218,27 +222,47 @@ function PatientListTable(props: PatientListProps): JSX.Element {
           <TableRow className={classes.tableRowHeader}>
             <TableCell id="patients-list-header-icon" className={classes.tableCellHeader} />
             <TableCell id="patients-list-header-lastname" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === SortFields.lastname} direction={order} onClick={createSortHandler(SortFields.lastname)}>
+              <TableSortLabel
+                id={`patients-list-header-lastname-label${orderBy === SortFields.lastname ? `-${order}` : ""}`}
+                active={orderBy === SortFields.lastname}
+                direction={order}
+                onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-firstname" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === SortFields.firstname} direction={order} onClick={createSortHandler(SortFields.firstname)}>
+              <TableSortLabel
+                id={`patients-list-header-firstname-label${orderBy === SortFields.firstname ? `-${order}` : ""}`}
+                active={orderBy === SortFields.firstname}
+                direction={order}
+                onClick={createSortHandler(SortFields.firstname)}>
                 {t("firstname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-tir" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === SortFields.tir} direction={order} onClick={createSortHandler(SortFields.tir)}>
+              <TableSortLabel
+                id={`patients-list-header-tir-label${orderBy === SortFields.tir ? `-${order}` : ""}`}
+                active={orderBy === SortFields.tir}
+                direction={order}
+                onClick={createSortHandler(SortFields.tir)}>
                 {t("list-patient-tir")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-tbr" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === SortFields.tbr} direction={order} onClick={createSortHandler(SortFields.tbr)}>
+              <TableSortLabel
+                id={`patients-list-header-tbr-label${orderBy === SortFields.tbr ? `-${order}` : ""}`}
+                active={orderBy === SortFields.tbr}
+                direction={order}
+                onClick={createSortHandler(SortFields.tbr)}>
                 {t("list-patient-tbr")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-upload" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === SortFields.upload} direction={order} onClick={createSortHandler(SortFields.upload)}>
+              <TableSortLabel
+                id={`patients-list-header-upload-label${orderBy === SortFields.upload ? `-${order}` : ""}`}
+                active={orderBy === SortFields.upload}
+                direction={order}
+                onClick={createSortHandler(SortFields.upload)}>
                 {t("list-patient-upload")}
               </TableSortLabel>
             </TableCell>

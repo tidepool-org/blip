@@ -133,16 +133,16 @@ const NotificationSpan = ({ t, notification, className, id }: NotificationSpanPr
   return <span id={id} className={className}>{notificationText}</span>;
 };
 
-const NotificationIcon = ({ id, type }: { id: string; type: NotificationType; }): JSX.Element => {
+const NotificationIcon = ({ id, type, className }: { id: string; type: NotificationType; className: string }): JSX.Element => {
   switch (type) {
   case NotificationType.directInvitation:
-    return <PersonIcon id={id} />;
+    return <PersonIcon id={id} className={className} />;
   case NotificationType.careTeamProInvitation:
-    return <GroupIcon id={id} />;
+    return <GroupIcon id={id} className={className} />;
   case NotificationType.careTeamPatientInvitation:
-    return <MedicalServiceIcon id={id} />;
+    return <MedicalServiceIcon id={id} className={className} />;
   default:
-    return <GroupIcon id={id} />;
+    return <GroupIcon id={id} className={className} />;
   }
 };
 
@@ -212,25 +212,27 @@ export const Notification = (props: NotificationProps): JSX.Element => {
   };
 
   return (
-    <div id={`notification-line-${id}`} className={classes.container}>
-      <NotificationIcon id={`notification-icon-${id}`} type={notification.type} />
-      <NotificationSpan id={`notification-text-${id}`} t={t} notification={notification} className={classes.notificationSpan} />
+    <div id={`notification-line-${id}`} className={`${classes.container} notification-line`} data-notificationid={id}>
+      <NotificationIcon id={`notification-icon-${id}`} className="notification-icon" type={notification.type} />
+      <NotificationSpan id={`notification-text-${id}`} t={t} notification={notification} className={`${classes.notificationSpan} notification-text`} />
       <div className={classes.rightSide}>
         <NotificationDate createdDate={notification.date} id={id} />
         {props.userRole === UserRoles.caregiver && notification.type === NotificationType.careTeamProInvitation ? (
           <IconButton
+            id={`notification-help-${id}-button`}
+            className="notification-help-button"
             size="medium"
             color="primary"
             aria-label="notification-help-button"
             onClick={props.onHelp}>
-            <HelpIcon id={`notification-help-${id}`} />
+            <HelpIcon id={`notification-help-${id}-icon`} />
           </IconButton>
         ) : (
           <Button
             id={`notification-button-accept-${id}`}
             color="primary"
             variant="contained"
-            className={classes.buttonAccept}
+            className={`${classes.buttonAccept} notification-button-accept`}
             disabled={inProgress}
             onClick={onAccept}>
             {t("button-accept")}
@@ -238,7 +240,7 @@ export const Notification = (props: NotificationProps): JSX.Element => {
         )}
         <Button
           id={`notification-button-decline-${id}`}
-          className={classes.buttonDecline}
+          className={`${classes.buttonDecline} notification-button-decline`}
           variant="contained"
           color="secondary"
           disabled={inProgress}

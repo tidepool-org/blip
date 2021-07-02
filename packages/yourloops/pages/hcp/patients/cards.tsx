@@ -154,9 +154,9 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
   if (isPendingInvitation) {
     const email = _.get(patient, "emails[0]", patient.username);
     return (
-      <Paper id={`patients-list-card-${email}`} className={classes.patientPaperCard}>
+      <Paper id={`patients-list-card-${email}`} className={classes.patientPaperCard} data-userid={email}>
         <div className={classes.patientDivPendingIcon}>
-          <AccessTimeIcon />
+          <AccessTimeIcon id={`patients-list-card-${email}-pendingicon`}/>
         </div>
         <Link
           color="textPrimary"
@@ -181,14 +181,14 @@ function PatientCard(props: PatientElementCardProps): JSX.Element {
   };
 
   return (
-    <Paper id={`patients-list-card-${userId}`} className={classes.patientPaperCard} ref={paperRef}>
+    <Paper id={`patients-list-card-${userId}`} className={classes.patientPaperCard} ref={paperRef} data-userid={userId}>
       <IconButton
         id={`patients-list-card-${userId}-flag-btn`}
         className={classes.flagButton}
         aria-label={t("aria-flag-patient")}
         size="small"
         onClick={onClickFlag}>
-        {isFlagged ? <FlagIcon /> : <FlagOutlineIcon />}
+        {isFlagged ? <FlagIcon id={`patients-list-card-${userId}-flagged-icon`} /> : <FlagOutlineIcon id={`patients-list-card-${userId}-un-flagged-icon`} />}
       </IconButton>
       <Typography id={`patients-list-card-${userId}-fullname`} component="span">
         {fullName}

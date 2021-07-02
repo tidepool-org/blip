@@ -144,17 +144,17 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
 
     if (us.status === UserInvitationStatus.pending) {
       return (
-        <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`} className={classes.tableRowPending}>
+        <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`} data-userid={userId} data-status={us.status} className={classes.tableRowPending}>
           <TableCell id={`patient-caregivers-table-row-${userId}-status`}>
             <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-              <AccessTimeIcon />
+              <AccessTimeIcon id={`patient-caregivers-table-row-pendingicon-${userId}`} />
             </Tooltip>
           </TableCell>
           <TableCell id={`patient-caregivers-table-row-${userId}-lastname`}>-</TableCell>
           <TableCell id={`patient-caregivers-table-row-${userId}-firstname`}>{us.user.username}</TableCell>
           <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
             <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
-              <IconButton aria-label={removeAction} size="small" onClick={handleClickDelete}>
+              <IconButton id={`patient-caregivers-table-row-${userId}-button-remove`} aria-label={removeAction} size="small" onClick={handleClickDelete}>
                 <PersonRemoveIcon color="primary" />
               </IconButton>
             </Tooltip>
@@ -163,13 +163,13 @@ function CaregiverTable(props: CaregiverTableProps): JSX.Element {
       );
     }
     return (
-      <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`}>
+      <TableRow key={userId} id={`patient-caregivers-table-row-${userId}`} data-userid={userId} data-status={us.status}>
         <TableCell id={`patient-caregivers-table-row-${userId}-status`} />
         <TableCell id={`patient-caregivers-table-row-${userId}-lastname`}>{getUserLastName(us.user)}</TableCell>
         <TableCell id={`patient-caregivers-table-row-${userId}-firstname`}>{getUserFirstName(us.user)}</TableCell>
         <TableCell id={`patient-caregivers-table-row-${userId}-actions`} className={classes.tableCellActions}>
           <Tooltip title={removeAction} aria-label={removeAction} placement="bottom">
-            <IconButton aria-label={removeAction} size="small" onClick={handleClickDelete}>
+            <IconButton id={`patient-caregivers-table-row-${userId}-button-remove`} aria-label={removeAction} size="small" onClick={handleClickDelete}>
               <PersonRemoveIcon color="primary" />
             </IconButton>
           </Tooltip>

@@ -71,29 +71,32 @@ export interface PatientTableRowProps {
 
 // const log = bows("PatientListTable");
 
-const patientListStyle = makeStyles((theme: Theme) => {
-  return {
-    table: {
-      width: "100%",
-    },
-    tableRow: {
-      cursor: "pointer",
-    },
-    tableRowPending: {
-      cursor: "default",
-      backgroundColor: theme.palette.primary.light,
-    },
-    tableRowHeader: {
-      textTransform: "uppercase",
-    },
-    tableCellHeader: {
-      fontSize: "14px",
-    },
-    flag: {
-      color: theme.palette.primary.main,
-    },
-  };
-}, { name: "ylp-caregiver-patients-table" });
+const patientListStyle = makeStyles(
+  (theme: Theme) => {
+    return {
+      table: {
+        width: "100%",
+      },
+      tableRow: {
+        cursor: "pointer",
+      },
+      tableRowPending: {
+        cursor: "default",
+        backgroundColor: theme.palette.primary.light,
+      },
+      tableRowHeader: {
+        textTransform: "uppercase",
+      },
+      tableCellHeader: {
+        fontSize: "14px",
+      },
+      flag: {
+        color: theme.palette.primary.main,
+      },
+    };
+  },
+  { name: "ylp-caregiver-patients-table" }
+);
 
 function PatientRow(props: PatientTableRowProps): JSX.Element {
   const { shareUser, flagged, onClickPatient, onRemovePatient } = props;
@@ -192,12 +195,17 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
           <TableRow className={classes.tableRowHeader}>
             <TableCell id="patients-list-header-icon" className={classes.tableCellHeader} />
             <TableCell id="patients-list-header-lastname" className={classes.tableCellHeader}>
-              <TableSortLabel active={orderBy === "lastname"} direction={order} onClick={createSortHandler(SortFields.lastname)}>
+              <TableSortLabel
+                id={`patients-list-header-lastname-label${orderBy === SortFields.lastname ? `-${order}` : ""}`}
+                active={orderBy === "lastname"}
+                direction={order}
+                onClick={createSortHandler(SortFields.lastname)}>
                 {t("lastname")}
               </TableSortLabel>
             </TableCell>
             <TableCell id="patients-list-header-firstname" className={classes.tableCellHeader}>
               <TableSortLabel
+                id={`patients-list-header-firstname-label${orderBy === SortFields.firstname ? `-${order}` : ""}`}
                 active={orderBy === "firstname"}
                 direction={order}
                 onClick={createSortHandler(SortFields.firstname)}>
@@ -206,6 +214,7 @@ function PatientListTable(props: PatientListTableProps): JSX.Element {
             </TableCell>
             <TableCell id="patients-list-header-email" className={classes.tableCellHeader}>
               <TableSortLabel
+                id={`patients-list-header-email-label${orderBy === SortFields.email ? `-${order}` : ""}`}
                 active={orderBy === "email"}
                 direction={order}
                 onClick={createSortHandler(SortFields.email)}>

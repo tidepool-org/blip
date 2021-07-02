@@ -174,9 +174,9 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   return (
     <SecondaryHeaderBar>
       <div id="patients-list-toolbar-item-left" className={classes.toolBarLeft}>
-        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-          <Typography color="textPrimary" className={classes.breadcrumbText}>
-            <HomeIcon className={classes.homeIcon} />
+        <Breadcrumbs id="caregiver-navbar-breadcrumbs" className="secondary-navbar-breadcrumbs" aria-label={t("aria-breadcrumbs")}>
+          <Typography id="caregiver-navbar-breadcrumbs-mypatients" color="textPrimary" className={classes.breadcrumbText}>
+            <HomeIcon id="caregiver-navbar-breadcrumbs-homeicon" className={classes.homeIcon} />
             {t("my-patients-title")}
           </Typography>
         </Breadcrumbs>

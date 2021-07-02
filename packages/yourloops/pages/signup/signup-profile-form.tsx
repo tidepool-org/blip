@@ -202,7 +202,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
         >
           <MenuItem key="" value="" />
           {availableCountries.map((item) => (
-            <MenuItem key={item.code} value={item.code}>
+            <MenuItem id={`signup-country-menuitem-${item.code}`} key={item.code} value={item.code}>
               {t(item.name)}
             </MenuItem>
           ))}
@@ -214,6 +214,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="secondary"
           className={classes.Button}
+          classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}
         >
           {t("signup-steppers-back")}
@@ -223,6 +224,7 @@ function SignUpProfileForm(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.Button}
+          classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}
         >
           {t("signup-steppers-next")}

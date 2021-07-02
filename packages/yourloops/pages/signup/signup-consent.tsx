@@ -169,6 +169,9 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
         <FormControlLabel
           id="signup-consent-privacy-ctl"
           className={classes.formControlLabel}
+          classes={{
+            label: "signup-consent-privacy-text",
+          }}
           control={
             <Checkbox
               id="signup-consent-privacy-check"
@@ -182,6 +185,9 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
         <FormControlLabel
           id="signup-consent-terms-ctl"
           className={classes.formControlLabel}
+          classes={{
+            label: "signup-consent-terms-text",
+          }}
           control={
             <Checkbox
               id="checkbox-signup-consent-terms"
@@ -200,8 +206,9 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="secondary"
           disabled={props.activeStep === 0}
-          onClick={handleBack}
-          className={classes.button}>
+          className={classes.button}
+          classes={{ label: "button-signup-steppers-back-label" }}
+          onClick={handleBack}>
           {t("signup-steppers-back")}
         </Button>
         <Button
@@ -209,6 +216,7 @@ export default function SignUpConsent(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.button}
+          classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>

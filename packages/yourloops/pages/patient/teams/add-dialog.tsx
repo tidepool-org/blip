@@ -66,6 +66,7 @@ export interface ConfirmTeamProps {
 }
 
 export interface DisplayErrorMessageProps {
+  id: string;
   message: string;
   handleClose: () => void;
 }
@@ -114,14 +115,14 @@ function DisplayErrorMessage(props: DisplayErrorMessageProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <DialogContent style={{ marginTop: "2.5em", marginBottom: "calc(2.5em - 16px)", marginRight: "1em", marginLeft: "1em", paddingTop: "8px" }}>
+      <DialogContent id={`${props.id}-error-message`} style={{ marginTop: "2.5em", marginBottom: "calc(2.5em - 16px)", marginRight: "1em", marginLeft: "1em", paddingTop: "8px" }}>
         {props.message}
       </DialogContent>
 
       <DialogActions style={{ marginBottom: "0.5em", marginRight: " 0.5em" }}>
         <Button
           className={buttonClasses.buttonOk}
-          id="team-add-dialog-error-button-ok"
+          id={`${props.id}-error-button-ok`}
           onClick={props.handleClose}
           color="primary"
           variant="contained">
@@ -353,7 +354,7 @@ function AddTeamDialog(props: AddTeamDialogProps): JSX.Element {
   if (idCode === "") {
     content = <EnterIdentificationCode handleClose={handleClose} handleSetIdCode={handleSetTeamId} />;
   } else if (errorMessage) {
-    content = <DisplayErrorMessage handleClose={handleClose} message={errorMessage} />;
+    content = <DisplayErrorMessage id="team-add-dialog" handleClose={handleClose} message={errorMessage} />;
   } else if (team === null) {
     content = (
       <DialogContent>

@@ -106,12 +106,12 @@ function SecondaryBar(props: BarProps): JSX.Element {
   return (
     <SecondaryHeaderBar>
       <div id="patient-navbar-item-left" className={classes.toolBarLeft}>
-        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-          <Link component={RouterLink} to={props.defaultURL} className={classes.breadcrumbLink}>
-            <HomeIcon className={classes.homeIcon} />
+        <Breadcrumbs id="patient-navbar-breadcrumbs" className="secondary-navbar-breadcrumbs" aria-label={t("aria-breadcrumbs")}>
+          <Link id="patient-navbar-breadcrumbs-link-home" component={RouterLink} to={props.defaultURL} className={`${classes.breadcrumbLink} secondary-navbar-breadcrumbs-link-home`}>
+            <HomeIcon id="patient-navbar-breadcrumbs-link-homeicon" className={classes.homeIcon} />
             {t("breadcrumb-home")}
           </Link>
-          <Typography className={classes.breadcrumbText}>{t("breadcrumb-patient-teams")}</Typography>
+          <Typography id="patient-navbar-breadcrumbs-teams" className={classes.breadcrumbText}>{t("breadcrumb-patient-teams")}</Typography>
         </Breadcrumbs>
       </div>
       <div id="patient-navbar-item-middle"></div>

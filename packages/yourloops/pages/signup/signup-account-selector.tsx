@@ -174,6 +174,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="secondary"
           className={classes.Button}
+          classes={{ label: "button-signup-steppers-back-label" }}
           onClick={handleBack}>
           {t("signup-steppers-back")}
         </Button>
@@ -182,6 +183,7 @@ function SignUpAccountSelector(props: SignUpFormProps): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.Button}
+          classes={{ label: "button-signup-steppers-next-label" }}
           onClick={onNext}>
           {t("signup-steppers-next")}
         </Button>

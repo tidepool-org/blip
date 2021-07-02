@@ -85,9 +85,9 @@ function TeamsSecondaryBar(props: BarProps): JSX.Element {
   return (
     <SecondaryHeaderBar>
       <div id="teams-navbar-item-left">
-        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-          <Typography color="textPrimary" className={classes.breadcrumbText}>
-            <HomeIcon className={classes.homeIcon} />
+        <Breadcrumbs id="team-navbar-breadcrumbs" className="secondary-navbar-breadcrumbs" aria-label={t("aria-breadcrumbs")}>
+          <Typography id="team-navbar-breadcrumbs-myteams" color="textPrimary" className={classes.breadcrumbText}>
+            <HomeIcon id="team-navbar-breadcrumbs-homeicon" className={classes.homeIcon} />
             {t("teams-navbar-breadcrumbs-title-my-teams")}
           </Typography>
         </Breadcrumbs>

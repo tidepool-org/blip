@@ -239,6 +239,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
           <Checkbox
             disabled={checkboxAdminDisabled}
             id={`team-members-list-${team.id}-row-${userId}-role-checkbox`}
+            className="team-members-list-role-checkbox"
             color="primary"
             name={userId}
             checked={isAdmin}
@@ -250,7 +251,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
       rowClassName = props.classes?.tableRowPending ?? "";
       icon = (
         <Tooltip title={t("team-member-pending") as string} aria-label={t("team-member-pending")} placement="bottom">
-          <AccessTimeIcon />
+          <AccessTimeIcon id={`team-members-list-${team.id}-row-${userId}-pending-icon`} className="team-members-list-row-pending" />
         </Tooltip>
       );
     }
@@ -264,6 +265,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
         <Tooltip title={removeText} aria-label={removeText} placement="bottom">
           <IconButton
             id={`team-members-list-${team.id}-row-${userId}-action-remove`}
+            className="team-members-list-action-remove"
             color="primary"
             aria-label={removeText}
             component="span"
@@ -275,7 +277,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
     }
 
     return (
-      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={rowClassName} key={email}>
+      <TableRow id={`team-members-list-${team.id}-row-${userId}`} className={`${rowClassName} team-members-list-row`} key={email} data-email={email} data-userid={userId} data-teamid={team.id} data-role={member.role} data-status={member.status}>
         <TableCell id={`team-members-list-${team.id}-row-${userId}-icon`}>{icon}</TableCell>
         <TableCell style={{ fontWeight: "bold" }} id={`team-members-list-${team.id}-row-${userId}-lastname`}>
           {lastName}
@@ -287,6 +289,7 @@ function MembersTableBody(props: TeamMembersProps): JSX.Element {
           <Link
             classes={{ root: classes.root }}
             id={`team-members-list-${team.id}-row-${userId}-email-link`}
+            className="team-members-list-email-link"
             href={`mailto:${email}`}
             target="_blank"
             rel="noreferrer">

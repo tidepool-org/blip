@@ -148,21 +148,24 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const classes = pageBarStyles();
   const teamHook = useTeam();
   const selectFilterValues = [
-    { value: "all", label: t("select-all-patients"), icon: null },
+    { value: "all", label: t("select-all-patients"), icon: null, id: "menuitem-filter-patients-all" },
     {
       value: "flagged",
       label: t("select-flagged-patients"),
       icon: <FlagIcon color="primary" className={classes.selectFilterIcon} />,
+      id: "menuitem-filter-patients-flagged",
     },
     {
       value: TeamType.private,
       label: t("private-practice"),
       icon: <MedicalServiceIcon color="primary" className={classes.selectFilterIcon} />,
+      id: "menuitem-filter-patients-private-practice",
     },
     {
       value: "pending",
       label: t("select-pending-invitation-patients"),
       icon: <AccessTimeIcon color="primary" className={classes.selectFilterIcon} />,
+      id: "menuitem-filter-patients-pending-invitation",
     },
   ];
 
@@ -173,7 +176,7 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   const optionsFilterElements: JSX.Element[] = [];
   for (const sfv of selectFilterValues) {
     optionsFilterElements.push(
-      <MenuItem value={sfv.value} key={sfv.value} aria-label={sfv.label}>
+      <MenuItem value={sfv.value} key={sfv.value} aria-label={sfv.label} id={sfv.id} className="menuitem-filter-patients">
         {sfv.icon}
         {sfv.label}
       </MenuItem>
@@ -185,7 +188,7 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
     optionsFilterElements.push(<ListSubheader key="team-sub-header">{t("teams")}</ListSubheader>);
     for (const team of teams) {
       optionsFilterElements.push(
-        <MenuItem value={team.id} key={team.id} aria-label={team.name}>
+        <MenuItem value={team.id} key={team.id} aria-label={team.name} id={`menuitem-filter-patients-team-${team.id}`} className="menuitem-filter-patients">
           {team.name}
         </MenuItem>
       );
@@ -195,9 +198,9 @@ function PatientsSecondaryBar(props: PatientListBarProps): JSX.Element {
   return (
     <SecondaryHeaderBar>
       <div id="patients-list-toolbar-item-left" className={classes.toolBarLeft}>
-        <Breadcrumbs aria-label={t("aria-breadcrumbs")}>
-          <Typography color="textPrimary" className={classes.breadcrumbText}>
-            <HomeIcon className={classes.homeIcon} />
+        <Breadcrumbs id="team-navbar-breadcrumbs" className="secondary-navbar-breadcrumbs" aria-label={t("aria-breadcrumbs")}>
+          <Typography id="team-navbar-breadcrumbs-mypatients" color="textPrimary" className={classes.breadcrumbText}>
+            <HomeIcon id="team-navbar-breadcrumbs-homeicon" className={classes.homeIcon} />
             <span>{t("my-patients-title")}</span>
           </Typography>
         </Breadcrumbs>

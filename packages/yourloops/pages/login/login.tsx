@@ -226,7 +226,7 @@ function Login(): JSX.Element {
               </Link>
             </CardContent>
             <CardActions className={classes.CardActions}>
-              <Link component={RouterLink} to="/signup">
+              <Link id="link-signup" component={RouterLink} to="/signup">
                 {t("signup-steppers-create-account")}
               </Link>
               <Button

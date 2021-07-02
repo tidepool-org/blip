@@ -13,6 +13,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-862 Translation error in Italian for My Care Teams
 ### Engineering Use
 - YLP-813 Add TU for cookies manager
+- YLP-855 Add more HTML selectors to ease system tests
 
 ## 2.0.1 - 2021-06-16
 ### Fixed

@@ -202,6 +202,7 @@ function PatientFilters(props: PatientFiltersProps): JSX.Element {
           <SearchIcon />
         </div>
         <InputBase
+          id="input-patient-list-search"
           placeholder={t("placeholder-search")}
           classes={{
             root: classes.inputRoot,
