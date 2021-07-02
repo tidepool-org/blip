@@ -10,6 +10,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-852 App crash in the daily view on mobile - on resize display
 - YLP-856 Viz metrics are not updated after loading new data
 - YLP-860 Adjust the display of temporay basal to workaround handset issue #220
+- YLP-861 First consent login page for patient is never displayed
 - YLP-862 Translation error in Italian for My Care Teams
 ### Engineering Use
 - YLP-813 Add TU for cookies manager

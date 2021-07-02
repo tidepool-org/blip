@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { Redirect, Route, RouteProps } from "react-router-dom";
+import { Redirect, Route, RouteProps, useHistory } from "react-router-dom";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -40,9 +40,11 @@ import { SnackbarContextProvider, DefaultSnackbarContext } from "./utils/snackba
 import { NotificationContextProvider } from "../lib/notifications/hook";
 
 export const PublicRoute = (props: RouteProps): JSX.Element => {
+  const historyHook = useHistory<{ from?: { pathname?: string; }; }>();
   const { isLoggedIn, user } = useAuth();
   if (isLoggedIn()) {
-    return <Redirect to={{ pathname: user?.getHomePage() }} />;
+    const fromPath = historyHook.location.state?.from?.pathname;
+    return <Redirect to={{ pathname: fromPath ?? user?.getHomePage() }} />;
   }
   return (
     <ThemeProvider theme={externalTheme}>
@@ -71,9 +73,7 @@ export const PrivateRoute = (props: RouteProps): JSX.Element => {
   if (user !== null && !renewConsentPath) {
     if (user.role === UserRoles.patient && user.shouldAcceptConsent()) {
       component = <Redirect to={{ pathname: "/new-consent", state: { from: props.location } }} />;
-    }
-
-    if (user.shouldRenewConsent()) {
+    } else if (user.shouldRenewConsent()) {
       component = <Redirect to={{ pathname: "/renew-consent", state: { from: props.location } }} />;
     }
   }
@@ -90,7 +90,7 @@ export const PrivateRoute = (props: RouteProps): JSX.Element => {
           {component}
         </NotificationContextProvider>
       </SnackbarContextProvider>
-      <FooterLinks atBottom />
+      <FooterLinks atBottom={!renewConsentPath} />
     </ThemeProvider>
   );
 };
