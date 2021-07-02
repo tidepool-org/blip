@@ -489,6 +489,154 @@ describe('TidelineData', function() {
     });
   });
 
+  describe('YLP-820 Adjust the display of temporay basal to workaround handset issue #220', () => {
+    const basalsData = [
+      {
+        _active: true,
+        createdTime: "2021-06-03T00:54:07.124Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T02:44:29",
+        id: "dbc8a9e458439d10c60020907dd9cb18",
+        time: "2021-06-03T00:44:29.057Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "basal",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        deliveryType: "automated",
+        duration: 60000,
+        rate: 2.21,
+      },
+      {
+        _active: true,
+        createdTime: "2021-06-03T00:59:03.862Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T02:44:32",
+        id: "5df42142f60c620d4851ecb836fef2ac",
+        _schemaVersion: 3,
+        time: "2021-06-03T00:44:32Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "basal",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        deliveryType: "temp",
+        duration: 598378,
+        rate: 2.21,
+      },
+    ];
+
+    /** @type {TidelineData} */
+    let td = null;
+
+    before(() => {
+      td = new TidelineData({ timePrefs: { timezoneName } });
+    });
+
+    it("should do the adjustment", async () => {
+      await td.addData(_.cloneDeep(basalsData));
+      expect(td.data).to.be.an('array');
+      const basals = td.data.filter((d) => d.type === 'basal');
+      expect(basals).to.be.lengthOf(2);
+      expect(basals.find((d) => d.subType === 'temp')).to.be.undefined;
+      expect(basals[0], "first auto basal").to.deep.include({
+        id: 'dbc8a9e458439d10c60020907dd9cb18',
+        duration: 0,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+      expect(basals[1], "temp basal transformed").to.deep.include({
+        id: '5df42142f60c620d4851ecb836fef2ac',
+        duration: 598378,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+    });
+
+    it("should not change previously updated basal data", async () => {
+      const newBasal = {
+        _active: true,
+        createdTime: "2021-06-03T12:00:00.000Z",
+        deviceId: "MobiGo352719110492773",
+        deviceTime: "2021-06-03T12:00:00",
+        id: "abcd",
+        time: "2021-06-03T12:00:00.000Z",
+        timezone: "Europe/Paris",
+        timezoneOffset: 120,
+        type: "basal",
+        uploadId: "dd3b7032e7507332d85babe88d8ac173",
+        _userId: "1740d455c3",
+        deliveryType: "temp",
+        duration: 365125,
+        rate: 2.21,
+      };
+      await td.addData([_.clone(newBasal)]);
+      expect(td.data).to.be.an('array');
+      const basals = td.data.filter((d) => d.type === 'basal');
+      expect(basals).to.be.lengthOf(3);
+      expect(basals[0], "first auto basal").to.deep.include({
+        id: 'dbc8a9e458439d10c60020907dd9cb18',
+        duration: 0,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+      expect(basals[1], "temp basal transformed").to.deep.include({
+        id: '5df42142f60c620d4851ecb836fef2ac',
+        duration: 598378,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+      expect(basals[2]).to.be.deep.include({
+        id: newBasal.id,
+        duration: newBasal.duration,
+        deliveryType: newBasal.deliveryType,
+        subType: newBasal.deliveryType,
+        rate: newBasal.rate,
+      });
+    });
+
+    it("should not take temp basal too far appart", async () => {
+      td.data = [];
+      const data = _.cloneDeep(basalsData);
+      data.push({ ...basalsData[1], time: "2021-06-03T00:44:20.000Z", id: "a" });
+      data.push({ ...basalsData[1], time: "2021-06-03T00:44:40.000Z", id: "b" });
+      await td.addData(_.cloneDeep(data));
+      const basals = td.data.filter((d) => d.type === 'basal');
+      expect(basals[0], "temp basal A not transformed").to.deep.include({
+        id: 'a',
+        duration: 598378,
+        deliveryType: 'temp',
+        subType: 'temp',
+        rate: 2.21,
+      });
+      expect(basals[1], "auto basal").to.deep.include({
+        id: 'dbc8a9e458439d10c60020907dd9cb18',
+        duration: 0,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+      expect(basals[2], "temp basal transformed").to.deep.include({
+        id: '5df42142f60c620d4851ecb836fef2ac',
+        duration: 598378,
+        deliveryType: 'automated',
+        subType: 'automated',
+        rate: 2.21,
+      });
+      expect(basals[3], "temp basal B not transformed").to.deep.include({
+        id: 'b',
+        duration: 598378,
+        deliveryType: 'temp',
+        subType: 'temp',
+        rate: 2.21,
+      });
+    });
+  });
+
 /*
   it('should contain sorted groups of data by normalTime', async () => {
     const data = [

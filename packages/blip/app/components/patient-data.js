@@ -26,6 +26,7 @@ import { Switch, Route /*, Redirect */ } from 'react-router-dom';
 import { TidelineData, nurseShark, MS_IN_DAY } from 'tideline';
 import { utils as vizUtils, components as vizComponents, createPrintPDFPackage } from 'tidepool-viz';
 
+import config from "../config";
 import personUtils from '../core/personutils';
 import utils from '../core/utils';
 import { MGDL_UNITS } from '../core/constants';
@@ -957,6 +958,7 @@ class PatientDataPage extends React.Component {
         // Used by tideline oneDay to set-up the scroll range
         // Send this information by tidelineData options
         dataRange: this.apiUtils.dataRange,
+        YLP820_BASAL_TIME: config.YLP820_BASAL_TIME,
       };
       tidelineData = new TidelineData(opts);
     }

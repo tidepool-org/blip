@@ -35,6 +35,7 @@ const defaultConfig = {
   METRICS_FORCED: false,
   MAX_FAILED_LOGIN_ATTEMPTS: 5,
   DELAY_BEFORE_NEXT_LOGIN_ATTEMPT: 10,
+  YLP820_BASAL_TIME: 5000,
   DEV: true,
   TEST: false,
 };

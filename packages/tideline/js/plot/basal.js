@@ -72,7 +72,7 @@ function plotBasal(pool, opts = defaults) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
-
+      currentData = _.filter(currentData, (d) => d.type === 'basal' && d.duration > 0);
       basal.addAnnotations(_.filter(currentData, 'annotations'));
 
       const basalSegments = d3.select(this)
@@ -141,7 +141,7 @@ function plotBasal(pool, opts = defaults) {
           'class': (d) => d
         });
 
-        const undeliveredPath = d3.select(undeliveredPaths[0][0]);
+      const undeliveredPath = d3.select(undeliveredPaths[0][0]);
       basal.updatePath(undeliveredPath, getUndelivereds(currentData), true);
 
       basalSegments.exit().remove();

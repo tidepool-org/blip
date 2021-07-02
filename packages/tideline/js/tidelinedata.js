@@ -45,6 +45,7 @@ const BASICS_TYPE = ["basal", "bolus", "cbg", "smbg", "deviceEvent", "wizard", "
 const DAILY_TYPES = ["basal", "bolus", "cbg", "food", "message", "smbg", "physicalActivity", "deviceEvent", "wizard"];
 
 const defaults = {
+  YLP820_BASAL_TIME: 5000,
   CBG_PERCENT_FOR_ENOUGH: 0.75,
   CBG_MAX_DAILY: 288,
   SMBG_DAILY_MIN: 4,
@@ -330,9 +331,9 @@ TidelineData.prototype.cleanDatum = function cleanDatum(d) {
     d.source = this.opts.defaultSource;
   }
 
-  if (d.type === "basal" && d.deliveryType === "temp") {
+  if (d.type === "basal" && d.subType !== d.deliveryType) {
     // For some reason the transition to subType was partially done
-    d.subType = "temp";
+    d.subType = d.deliveryType;
   }
 };
 
@@ -687,6 +688,45 @@ TidelineData.prototype.deduplicatePhysicalActivities = function deduplicatePhysi
   // For each eventID take the most recent item
   this.physicalActivities = _.map(physicalActivities, _.head);
   this.physicalActivities = _.filter(this.physicalActivities, (pa) => pa.duration.value > 0);
+};
+
+/**
+ * YLP-820 Adjust the display of temporay basal to workaround handset issue #220
+ *
+ * - A temp basal and an automated basal occurs at the same time (+ or - 2/3 seconds),
+ *   the 2/3 seconds offset has to be adjusted according to existing database data, or maybe set as a variable
+ * - The duration of the automated basal is exactly 1 minute
+ * - The temp basal and automated basal have the same rate value
+ * - The temp basal and automated basal may not have the same created date (to be confirmed)
+ */
+TidelineData.prototype.deduplicateTempBasal = function deduplicateTempBasal() {
+  const tempBasalMaxOffset = this.opts.YLP820_BASAL_TIME ?? 5000;
+  const basals = _.get(this.grouped, "basal", []);
+  const automatedBasal = _.filter(basals, { subType: "automated", duration: 60000 });
+  const nAutomatedBasal = automatedBasal.length;
+  const tempBasals = _.filter(basals, { subType: "temp" });
+  let nTempBasalReplaced = 0;
+
+  for (let i=0; i<nAutomatedBasal; i++) {
+    const basal = automatedBasal[i];
+    if (typeof basal.replace === "string" || typeof basal.replacedBy === "string") {
+      continue;
+    }
+    // Search for it's corresponding temp basal
+    const tempBasalFound = _.find(tempBasals, (tempBasal) =>
+      Math.abs(tempBasal.epoch - basal.epoch) < tempBasalMaxOffset
+      && tempBasal.rate === basal.rate
+    );
+    if (tempBasalFound) {
+      tempBasalFound.subType = "automated";
+      tempBasalFound.deliveryType = "automated";
+      tempBasalFound.replace = basal.id;
+      basal.duration = 0;
+      basal.replacedBy = tempBasalFound.id;
+      nTempBasalReplaced++;
+    }
+  }
+  this.log.info(`${nTempBasalReplaced} temp basal replaced by automated`);
 };
 
 TidelineData.prototype.setDiabetesData = function setDiabetesData() {
@@ -1121,8 +1161,9 @@ TidelineData.prototype.addData = async function addData(newData) {
   this.deduplicatePhysicalActivities();
   endTimer("deduplicatePhysicalActivities");
 
-  // Filter unwanted types from the data array
-  // this.filterDataArray();
+  startTimer("deduplicateTempBasal");
+  this.deduplicateTempBasal();
+  endTimer("deduplicateTempBasal");
 
   startTimer("updateCrossFilters");
   this.updateCrossFilters();
