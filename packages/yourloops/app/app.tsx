@@ -45,12 +45,15 @@ import PatientConsentPage from "../pages/patient/patient-consent";
 import CaregiverPage from "../pages/caregiver";
 import { RequestPasswordResetPage, ConfirmPasswordResetPage } from "../pages/password-reset";
 
-const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/(.*)/;
+const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
+const CONFIDENTIALS_PARAMS = ["signupEmail", "signupKey", "resetKey"];
 function MetricsLocationListener() {
   const location = useLocation();
   const locPathname = location.pathname;
+  const locSearch = location.search;
+
   React.useEffect(() => {
     let pathname: string | null = null;
     let match = locPathname.match(RE_PATIENT_URL);
@@ -69,9 +72,20 @@ function MetricsLocationListener() {
     if (pathname === null) {
       pathname = locPathname;
     }
+
+    const searchParams = new URLSearchParams(locSearch);
+    let nParams = 0;
+    for (let i=0; i<CONFIDENTIALS_PARAMS.length; i++) {
+      const paramName = CONFIDENTIALS_PARAMS[i];
+      if (searchParams.has(paramName)) {
+        pathname = `${pathname}${nParams > 0 ? "&" : "?"}${paramName}=confidential`;
+        nParams++;
+      }
+    }
+
     sendMetrics("setCustomUrl", pathname);
     sendMetrics("trackPageView");
-  }, [locPathname]);
+  }, [locPathname, locSearch]);
   return null;
 }
 
