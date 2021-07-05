@@ -40,6 +40,8 @@
   "cookie-content": "We gebruiken cookies om je ervaring met onze app te verbeteren. Cookies van derden stellen je in staat te profiteren van ondersteuningsfuncties zoals onze widget en ons contactformulier en helpen ons te begrijpen hoe de app wordt gebruikt. Lees meer en update je voorkeuren op elk willekeurig moment door ons Cookiebeleid te bezoeken. Accepteer je deze cookies?",
   "error-http-500": "Er is iets fout gegaan. Probeer het over enkele ogenblikken opnieuw. Neem contact op met support voor hulp als het probleem zich blijft voordoen",
   "error-http-40x": "Er is een fout opgetreden. Neem contact op metsupport voor hulp",
+  "error-account-lock": "Te veel mislukte inlogpogingen. Probeer het over {{delayBeforeNextLoginAttempt}} minuten opnieuw.",
+  "error-invalid-credentials": "Verkeerde gebruikersnaam of wachtwoord.",
   "confirm-password": "Wachtwoord bevestigen",
   "current-password": "Huidig wachtwoord",
   "initial-hbA1c": "Initiële HbA1c waarde",

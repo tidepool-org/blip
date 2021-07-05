@@ -40,6 +40,8 @@
   "cookie-content": "Wir verwenden Cookies, um Ihre Nutzung unserer App zu verbessern. Über Cookies von Drittanbietern können Sie Support-Funktionen wie unser Widget- und Kontaktformular nutzen – und wir können somit verstehen, wie die App genutzt wird. In unserer Cookie-Richtlinie finden Sie weitere Informationen und können Ihre Einstellungen jederzeit anpassen. Akzeptieren Sie diese Cookies?",
   "error-http-500": "Etwas ist schiefgelaufen. Versuchen Sie es in Kürze erneut. Wenden Sie sich an den Kundendienst, falls das Problem weiterhin besteht.",
   "error-http-40x": "Es ist ein Fehler aufgetreten. Wenden Sie sich an den Kundendienst.",
+  "error-account-lock": "Zu viele fehlgeschlagene Anmeldeversuche. Bitte versuchen Sie es in {{delayBeforeNextLoginAttempt}} wenigen Minuten erneut.",
+  "error-invalid-credentials": "Falscher Benutzername oder Passwort.",
   "confirm-password": "Passwort bestätigen",
   "current-password": "Aktuelles Passwort",
   "initial-hbA1c": "Ausgangs-HbA1c-Wert",

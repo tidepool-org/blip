@@ -40,6 +40,8 @@
   "cookie-content": "Utilizziamo i cookie per migliorare la sua esperienza sulla nostra app. I cookie di terze parti le permettono di sfruttare funzioni di supporto come il nostro widget e il modulo di contatto e ci aiutano a capire come viene utilizzata l’app. Per ulteriori informazioni e per aggiornare le sue preferenze in qualsiasi momento, visiti la nostra politica sui cookie. Accettare questi cookie?",
   "error-http-500": "Si è verificato un problema. Riprovare tra qualche minuto. Se il problema persiste, contattare il supporto per ricevere assistenza",
   "error-http-40x": "Si è verificato un errore. Contattare il supporto per ricevere assistenza",
+  "error-account-lock": "Troppi tentativi di accesso non riusciti. Riprovare tra {{delayBeforeNextLoginAttempt}} minuti.",
+  "error-invalid-credentials": "Nome utente o password errati.",
   "confirm-password": "Conferma password",
   "current-password": "Password attuale",
   "initial-hbA1c": "HbA1c iniziale",

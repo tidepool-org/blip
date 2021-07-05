@@ -40,6 +40,8 @@
   "cookie-content": "Utilizamos cookies para mejorar su experiencia en nuestra aplicación. Las cookies de terceros le permiten beneficiarse de funciones de soporte como nuestro widget y formulario de contacto y a nosotros nos ayudan a entender cómo se utiliza la aplicación. Puede obtener más información y actualizar sus preferencias en cualquier momento en nuestra Política de Cookies. ¿Acepta las cookies?",
   "error-http-500": "Algo ha fallado. Vuelva a intentarlo más tarde. Si el problema persiste, póngase en contacto con la asistencia al cliente para recibir ayuda",
   "error-http-40x": "Se ha producido un error. Póngase en contacto con la asistencia al cliente para recibir ayuda",
+  "error-account-lock": "Demasiados intentos fallidos de inicio de sesión. Vuelva a intentarlo dentro de {{delayBeforeNextLoginAttempt}} minutos.",
+  "error-invalid-credentials": "Nombre de usuario o contraseña incorrectos.",
   "confirm-password": "Confirmar contraseña",
   "current-password": "Contraseña actual",
   "initial-hbA1c": "HbA1c inicial",
