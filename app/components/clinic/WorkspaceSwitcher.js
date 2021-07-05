@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import { translate } from 'react-i18next';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
@@ -22,6 +23,7 @@ import {
 import * as actions from '../../redux/actions';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
   const { t, api } = props;
@@ -36,7 +38,7 @@ export const WorkspaceSwitcher = props => {
     popupId: 'jumpMenu',
   });
 
-  const personalWorkspaceOption = { id: null, label: 'Personal Workspace' };
+  const personalWorkspaceOption = { id: null, label: t('Personal Workspace') };
 
   const [menuOptions, setMenuOptions] = useState([personalWorkspaceOption])
   const [selectedClinic, setSelectedClinic] = useState(menuOptions[0]);
@@ -84,6 +86,7 @@ export const WorkspaceSwitcher = props => {
 
   const handleSelect = option => {
     dispatch(actions.sync.selectClinic(option.id));
+    dispatch(push('/patients'));
     popupState.close();
   };
 
@@ -96,6 +99,11 @@ export const WorkspaceSwitcher = props => {
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
         iconLabel="Search By"
+        sx={{
+          '&:hover': {
+            color: colors.purpleDark,
+          },
+        }}
       >
         {selectedClinic?.label}
       </Button>
@@ -118,13 +126,22 @@ export const WorkspaceSwitcher = props => {
               variant="textPrimary"
               color="text.primary"
               width="100%"
-              py={2}
+              pt={2}
+              pb={3}
               px={3}
               justifyContent="space-between"
               key={key}
               fontSize={2}
               icon={option.id === selectedClinic.id ? CheckRoundedIcon : null}
               onClick={() => handleSelect(option)}
+              sx={{
+                '&:hover': {
+                  color: colors.purpleDark,
+                },
+                '&:last-child': {
+                  pb: 2,
+                },
+              }}
             >
               {option.label}
             </Button>
