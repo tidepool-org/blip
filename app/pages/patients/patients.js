@@ -78,11 +78,15 @@ export let Patients = translate()(class extends React.Component {
     return (
       <div className="container-box-outer">
         <div className={backgroundClasses}>
-          {welcomeTitle}
-          {welcomeSetup}
-          {noPatientsOrInvites}
-          {invites}
-          {noPatientsSetupStorage}
+          {!this.props.selectedClinicId && (
+            <>
+            {welcomeTitle}
+            {welcomeSetup}
+            {noPatientsOrInvites}
+            {invites}
+            {noPatientsSetupStorage}
+            </>
+          )}
           {patients}
           <Loader show={this.props.loading} overlay={true} />
         </div>
@@ -161,7 +165,7 @@ export let Patients = translate()(class extends React.Component {
   };
 
   renderNoPatientsSetupStorageLink = () => {
-    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinic(this.props.user)) {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || personUtils.isClinicianAccount(this.props.user)) {
       return null;
     }
     return (
@@ -173,7 +177,7 @@ export let Patients = translate()(class extends React.Component {
 
   renderPatients = () => {
     const { t } = this.props;
-    if (!this.hasPatients()) {
+    if (!this.hasPatients() && !this.props.selectedClinicId) {
       return null;
     }
 
@@ -185,7 +189,7 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinic(this.props.user) && (!personUtils.flaggedForClinicWorkflow(this.props.user) || this.props.selectedClinicId)) {
+    if (personUtils.isClinicianAccount(this.props.user) && this.props.selectedClinicId) {
       return (
         <div className="container-box-inner patients-section js-patients-shared">
           <div className="patients-vca-section-content">
@@ -324,7 +328,7 @@ export let Patients = translate()(class extends React.Component {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
-      if (!personUtils.isClinic(user) && patients.length === 1 && invites.length === 0) {
+      if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
         this.props.history.push(`/patients/${patient.userid}/data`);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
@@ -431,7 +435,6 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingAssociatedAccounts.inProgress || fetchingPendingReceivedInvites.inProgress,
     loggedInUserId: state.blip.loggedInUserId,
     selectedClinicId: state.blip.selectedClinicId,
-    // patients: _.keys(patientMap).map((key) => patientMap[key]),
     patients: _.values(patientMap),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user: user,

@@ -45,12 +45,8 @@ personUtils.isPatient = (person) => {
   return Boolean(personUtils.patientInfo(person));
 };
 
-personUtils.isClinic = (user) => {
+personUtils.isClinicianAccount = (user) => {
   return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
-};
-
-personUtils.flaggedForClinicWorkflow = (user) => {
-  return Boolean(_.get(user, ['profile', 'flags', 'clinicWorkflow']));
 };
 
 personUtils.isDataDonationAccount = (account) => {

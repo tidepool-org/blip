@@ -185,7 +185,7 @@ export function acceptTerms(api, acceptedDate, userId) {
       } else {
         if (loggedInUserId) {
           dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-          if(personUtils.isClinic(user)){
+          if(personUtils.isClinicianAccount(user)){
             dispatch(push('/clinician-details'));
           } else {
             dispatch(push('/patients?justLoggedIn=true'));
@@ -228,7 +228,7 @@ export function login(api, credentials, options, postLoginAction) {
               createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
             ));
           } else {
-            const isClinic = personUtils.isClinic(user);
+            const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
 
             let redirectRoute = '/patients?justLoggedIn=true';
@@ -249,7 +249,7 @@ export function login(api, credentials, options, postLoginAction) {
                     }
                   } else {
                     // no pending clinician invites
-                    if (isClinic) {
+                    if (isClinicianAccount) {
                       if (hasClinicProfile) {
                         dispatch(getClinicsForClinician(api, user.userid, {}, (err, clinics) => {
                           if (err) {
@@ -281,7 +281,7 @@ export function login(api, credentials, options, postLoginAction) {
               }));
             } else {
               // no new clinic system
-              if (isClinic && !hasClinicProfile){
+              if (isClinicianAccount && !hasClinicProfile){
                 redirectRoute = '/clinician-details'
               }
               forward();

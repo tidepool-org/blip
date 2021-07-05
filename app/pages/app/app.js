@@ -615,7 +615,7 @@ export function mapStateToProps(state) {
   if (userHasSharedData) {
     let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
     userHasSharedDataWithClinician = userCareTeam.some(user => {
-      return personUtils.isClinic(user);
+      return personUtils.isClinicianAccount(user);
     });
   }
 
