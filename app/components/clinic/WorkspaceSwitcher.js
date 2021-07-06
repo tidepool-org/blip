@@ -98,7 +98,7 @@ export const WorkspaceSwitcher = props => {
         fontSize={2}
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
-        iconLabel="Search By"
+        iconLabel={t('Open navigation menu')}
         sx={{
           '&:hover': {
             color: colors.purpleDark,

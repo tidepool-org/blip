@@ -13,6 +13,7 @@ import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCi
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
+import ViewListRoundedIcon from '@material-ui/icons/ViewListRounded';
 import { Flex , Box } from 'rebass/styled-components';
 
 import {
@@ -52,6 +53,12 @@ export const NavigationMenu = props => {
     label: t('Account Settings'),
   };
 
+  const manageWorkspacesOption = {
+    action: () => dispatch(push('/workspaces')),
+    icon: ViewListRoundedIcon,
+    label: t('Manage Workspaces'),
+  };
+
   const logoutOption = {
     action: () => dispatch(actions.async.logout(api)),
     icon: ExitToAppRoundedIcon,
@@ -87,16 +94,19 @@ export const NavigationMenu = props => {
   useEffect(() => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
-    setMenuOptions([
-      personalWorkspaceOption,
-      ...map(userClinics, clinic => ({
-        action: handleSelectWorkspace.bind(null, clinic.id),
-        icon: DashboardRoundedIcon,
-        label: t('{{name}} Workspace', { name: clinic.name }),
-      })),
-      accountSettingsOption,
-      logoutOption,
-    ]);
+    if (userClinics.length) {
+      setMenuOptions([
+        personalWorkspaceOption,
+        ...map(userClinics, clinic => ({
+          action: handleSelectWorkspace.bind(null, clinic.id),
+          icon: DashboardRoundedIcon,
+          label: t('{{name}} Workspace', { name: clinic.name }),
+        })),
+        manageWorkspacesOption,
+        accountSettingsOption,
+        logoutOption,
+      ]);
+    }
   }, [clinics]);
 
   function handleSelectWorkspace(clinicId) {
@@ -117,7 +127,7 @@ export const NavigationMenu = props => {
         fontSize={2}
         {...bindTrigger(popupState)}
         icon={KeyboardArrowDownRoundedIcon}
-        iconLabel="Search By"
+        iconLabel={t('Choose workspace')}
         sx={{
           '&:hover': {
             color: colors.purpleDark,
