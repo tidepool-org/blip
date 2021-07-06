@@ -46,7 +46,7 @@ export const Workspaces = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Viewed Share');
+      trackMetric('Viewed Workspaces');
     }
   }, []);
 
@@ -288,17 +288,11 @@ export const Workspaces = (props) => {
   return (
     <>
       <Box
-        mx="auto"
-        mt={2}
-        mb={6}
-        bg="white"
-        width={[1, 0.85]}
+        variant="containers.largeBordered"
         sx={{
-          border: baseTheme.borders.default,
           borderLeft: ['none', baseTheme.borders.default],
           borderRight: ['none', baseTheme.borders.default],
           borderRadius: ['none', baseTheme.radii.default],
-          maxWidth: '1280px',
         }}
       >
         <Flex
@@ -394,6 +388,7 @@ export const Workspaces = (props) => {
 Workspaces.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 export default translate()(Workspaces);

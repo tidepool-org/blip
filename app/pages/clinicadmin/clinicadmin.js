@@ -13,22 +13,26 @@ import { Box, Flex, Text } from 'rebass/styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import InputIcon from '@material-ui/icons/Input';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+
 import {
   Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
+
 import TextInput from '../../components/elements/TextInput';
 import Button from '../../components/elements/Button';
 import Table from '../../components/elements/Table';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Pill from '../../components/elements/Pill';
+
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '../../components/elements/Dialog';
+
 import ClinicProfile from '../../components/clinic/ClinicProfile';
 import { useToasts } from '../../providers/ToastProvider';
 import personUtils from '../../core/personutils';
@@ -53,7 +57,6 @@ export const ClinicAdmin = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = get(clinics, selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
@@ -169,11 +172,14 @@ export const ClinicAdmin = (props) => {
     (clinician) => {
       const { roles, email, id: clinicianId, inviteId } = clinician;
       const user = get(allUsers, clinicianId, {});
-      const role = includes(roles, 'CLINIC_ADMIN')
-        ? t('Clinic Admin')
-        : includes(roles, 'CLINIC_MEMBER')
-        ? t('Clinic Member')
-        : '';
+      let role = '';
+
+      if (includes(roles, 'CLINIC_ADMIN')) {
+        role = t('Clinic Admin');
+      } else if (includes(roles, 'CLINIC_MEMBER')) {
+        role = t('Clinic Member');
+      }
+
       return {
         fullName: personUtils.fullName(user),
         fullNameOrderable: (personUtils.fullName(user) || '').toLowerCase(),
@@ -380,18 +386,9 @@ export const ClinicAdmin = (props) => {
 
   return (
     <>
-      <ClinicProfile clinic={clinic} />
-      <Box
-        mx="auto"
-        my={3}
-        bg="white"
-        width={[1, 0.85]}
-        sx={{
-          border: baseTheme.borders.default,
-          borderRadius: baseTheme.radii.default,
-          maxWidth: '1280px',
-        }}
-      >
+      <ClinicProfile />
+
+      <Box variant="containers.largeBordered">
         <Flex
           sx={{ borderBottom: baseTheme.borders.default }}
           alignItems={'center'}

@@ -40,13 +40,13 @@ import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import Table from '../../components/elements/Table';
 import TextInput from '../../components/elements/TextInput';
+import ClinicProfile from '../../components/clinic/ClinicProfile';
 import { Body1, Headline, MediumTitle } from '../../components/elements/FontStyles';
 import withPrescriptions from './withPrescriptions';
 import withAssociatedAccounts from './withAssociatedAccounts';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
-import baseTheme from '../../themes/baseTheme';
 
 const Prescriptions = props => {
   const {
@@ -255,136 +255,132 @@ const Prescriptions = props => {
 
   // Render
   return (
-    <Box
-      mx={'auto'}
-      mb={5}
-      px={4}
-      py={4}
-      bg='white'
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderRadius: baseTheme.radii.default,
-        maxWidth: '1280px',
-      }}
-    >
-      <Flex my={3} justifyContent="space-between">
-        <Box alignSelf="flex-end">
-          <Flex>
-            <Headline mr={3}>{t('Prescriptions')}</Headline>
-            <Button variant="primary" onClick={handleAddNew}>{t('Add New')}</Button>
-          </Flex>
-        </Box>
-        <Box>
-          <Flex>
-            <Button
-              variant="filter"
-              active={filterStateActive}
-              {...bindTrigger(popupFilterState)}
-              icon={KeyboardArrowDownRoundedIcon}
-              iconLabel="Filter by status"
-              mr={2}
-              fontSize={1}
-            >
-              {t('Status{{count}}', {
-                count: activeStatesCount < keys(prescriptionStates).length ? ` (${activeStatesCount})` : '',
-              })}
-            </Button>
+    <>
+      <ClinicProfile />
 
-            <Popover width="15em" {...bindPopover(popupFilterState)}>
-              <DialogContent px={2} py={3} dividers>
-                {map(prescriptionStateOptions, ({label, value}) => (
-                  <Checkbox
-                    checked={pendingActiveStates[value]}
-                    key={`filter-${value}`}
-                    name={`filter-${value}`}
-                    label={label}
-                    onChange={() => togglePendingActiveState(value)}
-                  />
-                ))}
-              </DialogContent>
-              <DialogActions justifyContent="space-between" p={1}>
-                <Button
-                  fontSize={1}
-                  variant="textSecondary"
-                  onClick={() => {
-                    const active = without(values(pendingActiveStates), false).length < keys(prescriptionStates).length;
-
-                    setPendingActiveStates(transform(pendingActiveStates, function(result, value, key) {
-                      result[key] = active;
-                    }, {}));
-                  }}
-                >
-                  {(without(values(pendingActiveStates), false).length < keys(prescriptionStates).length) ? t('Select All') : t('Deselect All')}
-                </Button>
-                <Button fontSize={0} variant="textPrimary" onClick={() => {
-                  setActiveStates(pendingActiveStates);
-                  setFilterStateActive(includes(values(pendingActiveStates), false));
-                  popupFilterState.close();
-                }}>
-                  {t('Apply')}
-                </Button>
-              </DialogActions>
-            </Popover>
-
-            <TextInput
-              themeProps={{
-                width: 'auto',
-                minWidth: '250px',
-              }}
-              placeholder={t('Search Entries')}
-              icon={searchText ? CloseRoundedIcon : SearchIcon}
-              iconLabel="search"
-              onClickIcon={searchText ? clearSearchText : null}
-              name="search-prescriptions"
-              onChange={handleSearchChange}
-              value={searchText}
-              variant="condensed"
-            />
-          </Flex>
-        </Box>
-      </Flex>
-      <Table
-        fontSize={1}
-        label="Prescription List"
-        id="prescriptions-table"
-        data={data}
-        columns={columns}
-        rowsPerPage={10}
-        searchText={searchText}
-        onClickRow={handleRowClick}
-        orderBy="createdTime"
-        order="desc"
-        pagination
-      />
-      <Dialog
-        id={'prescription-delete'}
-        aria-labelledby="dialog-title"
-        open={deleteDialog.open}
-        onClose={closeDeleteDialog}
+      <Box
+        variant="containers.largeBordered"
+        px={4}
+        pb={4}
       >
-        <DialogTitle onClose={closeDeleteDialog}>
-          <MediumTitle mr={2} id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
-        </DialogTitle>
-        <DialogContent>
-          <Body1>
-            Are you sure you want to delete this prescription?
-          </Body1>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="secondary" onClick={closeDeleteDialog}>
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            processing={deletingPrescription.inProgress}
-            onClick={() => deletePrescription(deleteDialog.prescription.id)}
-          >
-            Delete Prescription
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        <Flex py={4} justifyContent="space-between">
+          <Box alignSelf="flex-end">
+            <Flex>
+              <Headline mr={3}>{t('Prescriptions')}</Headline>
+              <Button variant="primary" onClick={handleAddNew}>{t('Add New')}</Button>
+            </Flex>
+          </Box>
+          <Box>
+            <Flex>
+              <Button
+                variant="filter"
+                active={filterStateActive}
+                {...bindTrigger(popupFilterState)}
+                icon={KeyboardArrowDownRoundedIcon}
+                iconLabel="Filter by status"
+                mr={2}
+                fontSize={1}
+              >
+                {t('Status{{count}}', {
+                  count: activeStatesCount < keys(prescriptionStates).length ? ` (${activeStatesCount})` : '',
+                })}
+              </Button>
+
+              <Popover width="15em" {...bindPopover(popupFilterState)}>
+                <DialogContent px={2} py={3} dividers>
+                  {map(prescriptionStateOptions, ({label, value}) => (
+                    <Checkbox
+                      checked={pendingActiveStates[value]}
+                      key={`filter-${value}`}
+                      name={`filter-${value}`}
+                      label={label}
+                      onChange={() => togglePendingActiveState(value)}
+                    />
+                  ))}
+                </DialogContent>
+                <DialogActions justifyContent="space-between" p={1}>
+                  <Button
+                    fontSize={1}
+                    variant="textSecondary"
+                    onClick={() => {
+                      const active = without(values(pendingActiveStates), false).length < keys(prescriptionStates).length;
+
+                      setPendingActiveStates(transform(pendingActiveStates, function(result, value, key) {
+                        result[key] = active;
+                      }, {}));
+                    }}
+                  >
+                    {(without(values(pendingActiveStates), false).length < keys(prescriptionStates).length) ? t('Select All') : t('Deselect All')}
+                  </Button>
+                  <Button fontSize={0} variant="textPrimary" onClick={() => {
+                    setActiveStates(pendingActiveStates);
+                    setFilterStateActive(includes(values(pendingActiveStates), false));
+                    popupFilterState.close();
+                  }}>
+                    {t('Apply')}
+                  </Button>
+                </DialogActions>
+              </Popover>
+
+              <TextInput
+                themeProps={{
+                  width: 'auto',
+                  minWidth: '250px',
+                }}
+                placeholder={t('Search Entries')}
+                icon={searchText ? CloseRoundedIcon : SearchIcon}
+                iconLabel="search"
+                onClickIcon={searchText ? clearSearchText : null}
+                name="search-prescriptions"
+                onChange={handleSearchChange}
+                value={searchText}
+                variant="condensed"
+              />
+            </Flex>
+          </Box>
+        </Flex>
+        <Table
+          fontSize={1}
+          label="Prescription List"
+          id="prescriptions-table"
+          data={data}
+          columns={columns}
+          rowsPerPage={10}
+          searchText={searchText}
+          onClickRow={handleRowClick}
+          orderBy="createdTime"
+          order="desc"
+          pagination
+        />
+        <Dialog
+          id={'prescription-delete'}
+          aria-labelledby="dialog-title"
+          open={deleteDialog.open}
+          onClose={closeDeleteDialog}
+        >
+          <DialogTitle onClose={closeDeleteDialog}>
+            <MediumTitle mr={2} id="dialog-title">Delete Prescription for {patientNameFromPrescription(deleteDialog.prescription)}</MediumTitle>
+          </DialogTitle>
+          <DialogContent>
+            <Body1>
+              Are you sure you want to delete this prescription?
+            </Body1>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="secondary" onClick={closeDeleteDialog}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              processing={deletingPrescription.inProgress}
+              onClick={() => deletePrescription(deleteDialog.prescription.id)}
+            >
+              Delete Prescription
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 

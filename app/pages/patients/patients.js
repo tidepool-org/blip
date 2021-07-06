@@ -79,7 +79,7 @@ export let Patients = translate()(class extends React.Component {
     });
 
     return (
-      <div className="container-box-outer">
+      <Box variant="containers.large" bg="transparent" mb={0}>
         <div className={backgroundClasses}>
           {!this.props.selectedClinicId && (
             <>
@@ -93,7 +93,7 @@ export let Patients = translate()(class extends React.Component {
           {patients}
           <Loader show={this.props.loading} overlay={true} />
         </div>
-      </div>
+      </Box>
     );
   }
 
@@ -201,42 +201,14 @@ export let Patients = translate()(class extends React.Component {
     patients = this.addLinkToPatients(patients);
 
     if (personUtils.isClinicianAccount(this.props.user) && this.props.selectedClinicId) {
-      const clinicActions = [];
-      const isClinicAdmin = _.includes(_.get(this.props.clinic, ['clinicians', this.props.loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
-
-      if (isClinicAdmin) {
-        clinicActions.push({
-          label: t('Manage Clinic'),
-          action: () => {
-            this.props.history.push('/clinic-admin');
-          },
-        });
-      }
-
       return (
         <Box>
-          {this.props.selectedClinicId && (
-            <ClinicProfile
-              width="100%"
-              mt={0}
-              mb={4}
-              clinic={this.props.clinic}
-              clinicActions={clinicActions}
-            />
-          )}
+          <ClinicProfile width={['100%', '100%']} />
 
           <Box
-            mx="auto"
+            variant="containers.largeBordered"
             px={4}
-            py={0}
-            bg="white"
-            width="100%"
-            mt={0}
-            mb={6}
-            sx={{
-              border: baseTheme.borders.default,
-              borderRadius: baseTheme.radii.default,
-            }}
+            width={['100%', '100%']}
           >
             <PeopleTable
               people={patients}
@@ -409,10 +381,9 @@ export function getFetchers(dispatchProps, stateProps, api) {
 export function mapStateToProps(state) {
   var user = null;
   let patientMap = {};
-  let clinic = null
 
   if (state.blip.selectedClinicId) {
-    clinic = _.get(state.blip, ['clinics', state.blip.selectedClinicId]);
+    const clinic = _.get(state.blip, ['clinics', state.blip.selectedClinicId]);
 
     patientMap = _.reduce(
       _.values(_.get(clinic, 'patients', {})),
@@ -479,7 +450,6 @@ export function mapStateToProps(state) {
   } = state.blip.working;
 
   return {
-    clinic,
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,

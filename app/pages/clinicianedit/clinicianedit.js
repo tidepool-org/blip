@@ -180,15 +180,8 @@ export const ClinicianEdit = (props) => {
 
   return (
     <Box
-      mx="auto"
-      my={2}
+      variant="containers.mediumBordered"
       bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderRadius: baseTheme.radii.default,
-        maxWidth: '840px',
-      }}
     >
       <Flex
         sx={{ borderBottom: baseTheme.borders.default }}

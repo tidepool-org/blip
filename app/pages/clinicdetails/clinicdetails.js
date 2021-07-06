@@ -154,14 +154,8 @@ export const ClinicDetails = (props) => {
 
   return (
     <Box
-      mx={'auto'}
-      my={2}
+      variant="containers.mediumBordered"
       p={4}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        maxWidth: '840px',
-      }}
     >
       {!displayFullForm &&
       <>
