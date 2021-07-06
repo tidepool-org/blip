@@ -29,56 +29,23 @@ export const ClinicProfile = (props) => {
       }}
       {...boxProps}
     >
-      <Flex p={4} alignItems="flex-start">
+      <Flex p={4} alignItems="flex-start" flexWrap="wrap" flexDirection={['column', null, 'row']} sx={{
+        display: ['block', 'flex'],
+      }}>
         <Box>
           <Title py={4} pr={4}>
             {t('Clinic Profile')}
           </Title>
         </Box>
-        <Box flexDirection="column" flexGrow="1">
-          <TextInput
-            name="clinic_name"
-            label={t('Clinic name')}
-            disabled={true}
-            value={clinic.name}
-            width="100%"
-            themeProps={{
-              px: 2,
-              pb: 2,
-              sx: {
-                '&& input:disabled': {
-                  color: baseTheme.colors.text.primary,
-                  bg: 'white',
-                },
-              },
-            }}
-          ></TextInput>
-          <TextInput
-            name="clinic_address"
-            label={t('Clinic address')}
-            disabled={true}
-            value={clinic.address}
-            width="100%"
-            color={baseTheme.colors.text.primary}
-            bg="white"
-            themeProps={{
-              px: 2,
-              sx: {
-                '&& input:disabled': {
-                  color: baseTheme.colors.text.primary,
-                  bg: 'white',
-                },
-              },
-            }}
-          ></TextInput>
-        </Box>
-        <Box flexDirection="column" flexGrow="1">
-          <Box>
+        <Box flex={1} width="100%" flexDirection={['row', null, 'column']}  flexWrap={['wrap', 'nowrap']} sx={{
+          display: ['block', null, 'flex'],
+        }}>
+          <Flex flex={1} flexDirection={['column', 'row']}>
             <TextInput
-              name="clinic_contact"
-              label={t('Clinic contact')}
+              name="clinic_name"
+              label={t('Clinic name')}
               disabled={true}
-              value={clinic.email}
+              value={clinic.name}
               width="100%"
               themeProps={{
                 px: 2,
@@ -91,8 +58,46 @@ export const ClinicProfile = (props) => {
                 },
               }}
             ></TextInput>
-          </Box>
-          <Box>
+
+            <TextInput
+              name="clinic_sharecode"
+              label={t('Clinic share code')}
+              disabled={true}
+              value={clinic.shareCode}
+              width="100%"
+              themeProps={{
+                px: 2,
+                pb: 2,
+                sx: {
+                  '&& input:disabled': {
+                    color: baseTheme.colors.text.primary,
+                    bg: 'white',
+                  },
+                },
+              }}
+            ></TextInput>
+          </Flex>
+
+          <Flex flex={1} flexDirection={['column', 'row']}>
+            <TextInput
+              name="clinic_address"
+              label={t('Clinic address')}
+              disabled={true}
+              value={clinic.address}
+              width="100%"
+              color={baseTheme.colors.text.primary}
+              bg="white"
+              themeProps={{
+                px: 2,
+                sx: {
+                  '&& input:disabled': {
+                    color: baseTheme.colors.text.primary,
+                    bg: 'white',
+                  },
+                },
+              }}
+            ></TextInput>
+
             <TextInput
               name="clinic_cityzip"
               label={t('City, State, Zipcode')}
@@ -109,26 +114,7 @@ export const ClinicProfile = (props) => {
                 },
               }}
             ></TextInput>
-          </Box>
-        </Box>
-        <Box flexDirection="column" flexGrow="1">
-          <TextInput
-            name="clinic_sharecode"
-            label={t('Clinic share code')}
-            disabled={true}
-            value={clinic.shareCode}
-            width="100%"
-            themeProps={{
-              px: 2,
-              pb: 2,
-              sx: {
-                '&& input:disabled': {
-                  color: baseTheme.colors.text.primary,
-                  bg: 'white',
-                },
-              },
-            }}
-          ></TextInput>
+          </Flex>
         </Box>
       </Flex>
 
