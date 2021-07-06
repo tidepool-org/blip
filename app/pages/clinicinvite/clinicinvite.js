@@ -137,10 +137,11 @@ export const ClinicInvite = (props) => {
       mx="auto"
       my={2}
       bg="white"
-      width={[1, 0.75, 0.75, 0.5]}
+      width={[1, 0.85]}
       sx={{
         border: baseTheme.borders.default,
         borderRadius: baseTheme.radii.default,
+        maxWidth: '840px',
       }}
     >
       <Flex

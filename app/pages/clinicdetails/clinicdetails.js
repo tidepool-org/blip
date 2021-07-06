@@ -153,7 +153,16 @@ export const ClinicDetails = (props) => {
   }, [working.updatingUser]);
 
   return (
-    <Box mx={'auto'} my={2} p={4} bg="white" width={[1, 0.75, 0.75, 0.5]}>
+    <Box
+      mx={'auto'}
+      my={2}
+      p={4}
+      bg="white"
+      width={[1, 0.85]}
+      sx={{
+        maxWidth: '840px',
+      }}
+    >
       {!displayFullForm &&
       <>
         <Title>Update your account</Title>

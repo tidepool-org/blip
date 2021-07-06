@@ -46,6 +46,7 @@ import withAssociatedAccounts from './withAssociatedAccounts';
 import { dateRegex, prescriptionStateOptions } from './prescriptionFormConstants';
 import { useToasts } from '../../providers/ToastProvider';
 import { useIsFirstRender } from '../../core/hooks';
+import baseTheme from '../../themes/baseTheme';
 
 const Prescriptions = props => {
   const {
@@ -254,7 +255,19 @@ const Prescriptions = props => {
 
   // Render
   return (
-    <Box mx={3} mb={5} px={4} py={4} bg='white'>
+    <Box
+      mx={'auto'}
+      mb={5}
+      px={4}
+      py={4}
+      bg='white'
+      width={[1, 0.85]}
+      sx={{
+        border: baseTheme.borders.default,
+        borderRadius: baseTheme.radii.default,
+        maxWidth: '1280px',
+      }}
+    >
       <Flex my={3} justifyContent="space-between">
         <Box alignSelf="flex-end">
           <Flex>

@@ -22,10 +22,11 @@ export const ClinicProfile = (props) => {
       mx="auto"
       my={2}
       bg="white"
-      width={[1, 0.75, 0.75, 0.5]}
+      width={[1, 0.85]}
       sx={{
         border: baseTheme.borders.default,
         borderRadius: baseTheme.radii.default,
+        maxWidth: '1280px',
       }}
       {...boxProps}
     >
@@ -48,8 +49,8 @@ export const ClinicProfile = (props) => {
               value={clinic.name}
               width="100%"
               themeProps={{
-                px: 2,
-                pb: 2,
+                mr: [0, 4],
+                mb: 2,
                 sx: {
                   '&& input:disabled': {
                     color: baseTheme.colors.text.primary,
@@ -66,8 +67,7 @@ export const ClinicProfile = (props) => {
               value={clinic.shareCode}
               width="100%"
               themeProps={{
-                px: 2,
-                pb: 2,
+                mb: 2,
                 sx: {
                   '&& input:disabled': {
                     color: baseTheme.colors.text.primary,
@@ -88,7 +88,8 @@ export const ClinicProfile = (props) => {
               color={baseTheme.colors.text.primary}
               bg="white"
               themeProps={{
-                px: 2,
+                mr: [0, 4],
+                mb: 2,
                 sx: {
                   '&& input:disabled': {
                     color: baseTheme.colors.text.primary,
@@ -105,7 +106,7 @@ export const ClinicProfile = (props) => {
               value={`${clinic.city}, ${clinic.state}, ${clinic.postalCode}`}
               width="100%"
               themeProps={{
-                px: 2,
+                mb: 2,
                 sx: {
                   '&& input:disabled': {
                     color: baseTheme.colors.text.primary,
