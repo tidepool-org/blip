@@ -176,7 +176,7 @@ export const Workspaces = (props) => {
       if (selectedWorkspace.type === 'clinic') {
         title = t('Leave {{name}}', { name: selectedWorkspace.name });
         submitText = t('Leave Clinic');
-        body = t('{{name}} will lose all access to your data. Are you sure you want to leave this clinic?', { name: selectedWorkspace.name });
+        body = t('You will lose all access to {{name}} and its patient list. Are you sure you want to leave this clinic?', { name: selectedWorkspace.name });
       } else if (selectedWorkspace.type === 'clinician_invitation') {
         title = t('Decline {{name}}', { name: selectedWorkspace.name });
         submitText = t('Decline Invite');
