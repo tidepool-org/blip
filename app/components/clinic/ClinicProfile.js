@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { push } from 'connected-react-router';
+import get from 'lodash/get'
+import includes from 'lodash/includes'
 import map from 'lodash/map'
-import { Box, Flex } from 'rebass/styled-components';
+import { Box, Flex, BoxProps } from 'rebass/styled-components';
 
 import {
   Title,
@@ -13,21 +18,55 @@ import TextInput from '../../components/elements/TextInput';
 import baseTheme from '../../themes/baseTheme';
 
 export const ClinicProfile = (props) => {
-  const { t, clinic, clinicActions = [], ...boxProps } = props;
+  const { t, ...boxProps } = props;
+  const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const clinics = useSelector((state) => state.blip.clinics);
+  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = get(clinics, selectedClinicId);
+
+  const clinicActions = [
+    {
+      label: t('View Patients'),
+      action: () => {
+        if (pathname !== '/patients') {
+          dispatch(push('/patients'));
+        }
+      },
+      selected: pathname === '/patients',
+    },
+    {
+      label: t('View Prescriptions'),
+      action: () => {
+        if (pathname !== '/prescriptions') {
+          dispatch(push('/prescriptions'));
+        }
+      },
+      selected: pathname === '/prescriptions',
+    },
+  ];
+
+  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
+
+  if (isClinicAdmin) {
+    clinicActions.push({
+      label: t('Manage Clinic'),
+      action: () => {
+        if (pathname !== '/clinic-admin') {
+          dispatch(push('/clinic-admin'));
+        }
+      },
+      selected: pathname === '/clinic-admin',
+    });
+  }
 
   if (!clinic) return null;
 
   return (
     <Box
-      mx="auto"
-      my={2}
-      bg="white"
-      width={[1, 0.85]}
-      sx={{
-        border: baseTheme.borders.default,
-        borderRadius: baseTheme.radii.default,
-        maxWidth: '1280px',
-      }}
+      variant="containers.largeBordered"
+      mb={4}
       {...boxProps}
     >
       <Flex p={4} alignItems="flex-start" flexWrap="wrap" flexDirection={['column', null, 'row']} sx={{
@@ -122,7 +161,8 @@ export const ClinicProfile = (props) => {
       {!!clinicActions.length && (
         <Flex
           id="clinic-actions"
-          justifyContent="flex-end"
+          justifyContent={['center', null, 'flex-end']}
+          flexDirection={['column', 'row']}
           px={4}
           py={3}
           sx={{
@@ -130,8 +170,24 @@ export const ClinicProfile = (props) => {
           }}
         >
           {map(clinicActions, (action, key) => (
-            <Button key={key} variant={action.variant || 'primary'} onClick={action.action}>
-              {t('Manage Clinic')}
+            <Button
+              ml={[0, 3]}
+              mb={[3, 0]}
+              sx={{
+                '&:first-child': {
+                  ml: 0,
+                },
+                '&:last-child': {
+                  mb: 0,
+                },
+              }}
+              key={key}
+              variant={action.variant || 'primary'}
+              selected={action.selected}
+              disabled={action.disabled}
+              onClick={action.action}
+            >
+              {action.label}
             </Button>
           ))}
         </Flex>
@@ -141,13 +197,8 @@ export const ClinicProfile = (props) => {
 };
 
 ClinicProfile.propTypes = {
-  api: PropTypes.object.isRequired,
-  clinic: PropTypes.object.isRequired,
-  clinicActions: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    action: PropTypes.func.isRequired,
-    variant: PropTypes.string,
-  })),
+  ...BoxProps,
+  t: PropTypes.func.isRequired,
 };
 
 export default translate()(ClinicProfile);
