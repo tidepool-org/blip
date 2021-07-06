@@ -179,7 +179,8 @@ export let Login = translate()(class extends React.Component {
         password: formValues.password
       },
       options: {
-        remember: formValues.remember
+        remember: formValues.remember,
+        location: this.props.location
       }
     };
   };
@@ -239,7 +240,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.trackMetric,
-    onSubmit: dispatchProps.onSubmit.bind(null, api)
+    onSubmit: dispatchProps.onSubmit.bind(null, api),
+    location: ownProps.location
   });
 };
 

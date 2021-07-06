@@ -409,4 +409,40 @@ utils.getUploaderDownloadURL = (releases) => {
   };
 }
 
+const environments = {
+  'dev1.dev.tidepool.org': 'dev',
+  'qa1.development.tidepool.org': 'qa1',
+  'qa2.development.tidepool.org': 'qa2',
+  'int-app.tidepool.org': 'int',
+  'app.tidepool.org': 'prd',
+  localhost: 'local',
+};
+
+utils.initializePendo = (user, location) => {
+  const noPendo = _.get(location, 'query.noPendo', false);
+  if (noPendo) return;
+  const initialize = _.get(window, 'pendo.initialize', false);
+  if (_.isFunction(initialize)) {
+    const hostname = _.get(window, 'location.hostname');
+    const env = _.get(environments, hostname, 'unknown');
+    const role =
+      _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1
+        ? 'clinician'
+        : 'personal';
+
+    initialize({
+      visitor: {
+        id: `${env}-${user.userid}`,
+        role,
+        // permission: [administrator, clinician, prescriber], when available
+        application: 'Web',
+      },
+      account: {
+        id: `${env}-tidepool`,
+        // clinic: [Clinic Name], when available
+      },
+    });
+  }
+};
+
 export default utils;
