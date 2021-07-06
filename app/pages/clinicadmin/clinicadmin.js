@@ -53,6 +53,7 @@ export const ClinicAdmin = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = get(clinics, selectedClinicId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const fetchingClinicsForClinician = working.fetchingClinicsForClinician;
@@ -379,10 +380,10 @@ export const ClinicAdmin = (props) => {
 
   return (
     <>
-      <ClinicProfile />
+      <ClinicProfile clinic={clinic} />
       <Box
         mx="auto"
-        my={2}
+        my={3}
         bg="white"
         width={[1, 0.75, 0.75, 0.5]}
         sx={{

@@ -1,27 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 import { translate } from 'react-i18next';
-import get from 'lodash/get'
+import map from 'lodash/map'
 import { Box, Flex } from 'rebass/styled-components';
 
 import {
   Title,
 } from '../../components/elements/FontStyles';
 
+import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import baseTheme from '../../themes/baseTheme';
 
 export const ClinicProfile = (props) => {
-  const { t, ...boxProps } = props;
-  const clinics = useSelector((state) => state.blip.clinics);
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const { t, clinic, clinicActions = [], ...boxProps } = props;
+
+  if (!clinic) return null;
 
   return (
     <Box
       mx="auto"
       my={2}
-      p={4}
       bg="white"
       width={[1, 0.75, 0.75, 0.5]}
       sx={{
@@ -30,16 +29,18 @@ export const ClinicProfile = (props) => {
       }}
       {...boxProps}
     >
-      <Flex alignItems="flex-start">
-        <Title py={4} pr={4}>
-          {t('Clinic Profile')}
-        </Title>
+      <Flex p={4} alignItems="flex-start">
+        <Box>
+          <Title py={4} pr={4}>
+            {t('Clinic Profile')}
+          </Title>
+        </Box>
         <Box flexDirection="column" flexGrow="1">
           <TextInput
             name="clinic_name"
             label={t('Clinic name')}
             disabled={true}
-            value={get(clinics, [selectedClinicId, 'name'])}
+            value={clinic.name}
             width="100%"
             themeProps={{
               px: 2,
@@ -56,7 +57,7 @@ export const ClinicProfile = (props) => {
             name="clinic_address"
             label={t('Clinic address')}
             disabled={true}
-            value={get(clinics, [selectedClinicId, 'address'])}
+            value={clinic.address}
             width="100%"
             color={baseTheme.colors.text.primary}
             bg="white"
@@ -77,7 +78,7 @@ export const ClinicProfile = (props) => {
               name="clinic_contact"
               label={t('Clinic contact')}
               disabled={true}
-              value={get(clinics, [selectedClinicId, 'email'])}
+              value={clinic.email}
               width="100%"
               themeProps={{
                 px: 2,
@@ -96,13 +97,7 @@ export const ClinicProfile = (props) => {
               name="clinic_cityzip"
               label={t('City, State, Zipcode')}
               disabled={true}
-              value={`${get(clinics, [
-                selectedClinicId,
-                'city',
-              ])}, ${get(clinics, [
-                selectedClinicId,
-                'state',
-              ])}, ${get(clinics, [selectedClinicId, 'postalCode'])}`}
+              value={`${clinic.city}, ${clinic.state}, ${clinic.postalCode}`}
               width="100%"
               themeProps={{
                 px: 2,
@@ -121,7 +116,7 @@ export const ClinicProfile = (props) => {
             name="clinic_sharecode"
             label={t('Clinic share code')}
             disabled={true}
-            value={get(clinics, [selectedClinicId, 'shareCode'])}
+            value={clinic.shareCode}
             width="100%"
             themeProps={{
               px: 2,
@@ -136,13 +131,36 @@ export const ClinicProfile = (props) => {
           ></TextInput>
         </Box>
       </Flex>
+
+      {!!clinicActions.length && (
+        <Flex
+          id="clinic-actions"
+          justifyContent="flex-end"
+          px={4}
+          py={3}
+          sx={{
+            borderTop: baseTheme.borders.divider,
+          }}
+        >
+          {map(clinicActions, (action, key) => (
+            <Button key={key} variant={action.variant || 'primary'} onClick={action.action}>
+              {t('Manage Clinic')}
+            </Button>
+          ))}
+        </Flex>
+      )}
     </Box>
   );
 };
 
 ClinicProfile.propTypes = {
   api: PropTypes.object.isRequired,
-  trackMetric: PropTypes.func.isRequired,
+  clinic: PropTypes.object.isRequired,
+  clinicActions: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    action: PropTypes.func.isRequired,
+    variant: PropTypes.string,
+  })),
 };
 
 export default translate()(ClinicProfile);

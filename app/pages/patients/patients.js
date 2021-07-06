@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { translate, Trans } from 'react-i18next';
 import update from 'immutability-helper';
+import { Box } from 'rebass/styled-components';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
@@ -35,10 +36,12 @@ import BrowserWarning from '../../components/browserwarning';
 
 import { components as vizComponents } from '@tidepool/viz';
 import ClinicProfile from '../../components/clinic/ClinicProfile';
+import baseTheme from '../../themes/baseTheme';
 const { Loader } = vizComponents;
 
 export let Patients = translate()(class extends React.Component {
   static propTypes = {
+    clinic: PropTypes.object,
     clearPatientInView: PropTypes.func.isRequired,
     currentPatientInViewId: PropTypes.string,
     fetchers: PropTypes.array.isRequired,
@@ -71,7 +74,7 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
-      'patients js-patients-page': true,
+      'patients js-patients-page': !this.props.selectedClinicId,
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
@@ -156,11 +159,19 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
     return (
-      <Trans className="patients-message" i18nKey="html.patients-no-data">
-        Looks like you don’t have access to any data yet.
-        <br />
-        Please ask someone to invite you to see their data.
-      </Trans>
+      <Box textAlign="center">
+        <Trans className="patients-message" i18nKey="html.patients-no-data">
+          Looks like you don’t have access to any data yet.
+          <br />
+          Please ask someone to invite you to see their data.
+        </Trans>
+
+        {!personUtils.isPatient(this.props.user) && (
+          <Box mb={6}>
+            {this.renderAddDataStorage({ position: 'relative' })}
+          </Box>
+        )}
+      </Box>
     );
   };
 
@@ -190,17 +201,50 @@ export let Patients = translate()(class extends React.Component {
     patients = this.addLinkToPatients(patients);
 
     if (personUtils.isClinicianAccount(this.props.user) && this.props.selectedClinicId) {
+      const clinicActions = [];
+      const isClinicAdmin = _.includes(_.get(this.props.clinic, ['clinicians', this.props.loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
+
+      if (isClinicAdmin) {
+        clinicActions.push({
+          label: t('Manage Clinic'),
+          action: () => {
+            this.props.history.push('/clinic-admin');
+          },
+        });
+      }
+
       return (
-        <div className="container-box-inner patients-section js-patients-shared">
-          <div className="patients-vca-section-content">
-            {this.props.selectedClinicId && <ClinicProfile width="100%" mt={0} mb={6} />}
+        <Box>
+          {this.props.selectedClinicId && (
+            <ClinicProfile
+              width="100%"
+              mt={0}
+              mb={4}
+              clinic={this.props.clinic}
+              clinicActions={clinicActions}
+            />
+          )}
+
+          <Box
+            mx="auto"
+            px={4}
+            py={0}
+            bg="white"
+            width="100%"
+            mt={0}
+            mb={6}
+            sx={{
+              border: baseTheme.borders.default,
+              borderRadius: baseTheme.radii.default,
+            }}
+          >
             <PeopleTable
               people={patients}
               trackMetric={this.props.trackMetric}
               onRemovePatient={this.props.onRemovePatient}
             />
-          </div>
-        </div>
+          </Box>
+        </Box>
       );
     }
 
@@ -224,7 +268,7 @@ export let Patients = translate()(class extends React.Component {
     );
   };
 
-  renderAddDataStorage = () => {
+  renderAddDataStorage = ({ position } = {}) => {
     const { t } = this.props;
     // Until the "child accounts" feature,
     // don't allow additional data accounts once the primary one has been setup
@@ -232,12 +276,17 @@ export let Patients = translate()(class extends React.Component {
       return null;
     }
 
+    var classNames = cx({
+      'patients-new-account': true,
+      'relative': position === 'relative',
+    });
+
     return (
       <Link
-        className="patients-new-account"
+        className={classNames}
         to="/patients/new"
         onClick={this.handleClickCreateProfile}>
-        { t('Setup data storage') }
+        { t('Set up data storage') }
         <i className="icon-add"></i>
       </Link>
     );
@@ -360,10 +409,13 @@ export function getFetchers(dispatchProps, stateProps, api) {
 export function mapStateToProps(state) {
   var user = null;
   let patientMap = {};
+  let clinic = null
 
   if (state.blip.selectedClinicId) {
+    clinic = _.get(state.blip, ['clinics', state.blip.selectedClinicId]);
+
     patientMap = _.reduce(
-      _.values(_.get(state.blip, ['clinics', state.blip.selectedClinicId, 'patients'], {})),
+      _.values(_.get(clinic, 'patients', {})),
       (newSet, patient) => {
         newSet[patient.id] = {
           emails: [patient.email],
@@ -427,6 +479,7 @@ export function mapStateToProps(state) {
   } = state.blip.working;
 
   return {
+    clinic,
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,
@@ -437,7 +490,7 @@ export function mapStateToProps(state) {
     selectedClinicId: state.blip.selectedClinicId,
     patients: _.values(patientMap),
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
-    user: user,
+    user,
   }
 }
 
