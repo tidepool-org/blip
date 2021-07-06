@@ -98,9 +98,6 @@ const clinicSchema = yup.object().shape({
   state: yup.string().required(t('Please enter a state')),
   zip: yup.string().required(t('Please enter a zip code')),
   website: yup.string(),
-  email: yup.string()
-    .email(t('Please enter a valid email address'))
-    .required(t('Email address is required')),
   adminAcknowledge: yup
     .bool()
     .oneOf([true], t('You must acknowledge admin role')),
@@ -179,7 +176,6 @@ export const ClinicDetails = (props) => {
           state: '',
           zip: '',
           website: '',
-          email: '',
           adminAcknowledge: false,
         }}
         validationSchema={displayFullForm ? clinicSchema : clinicianSchema}
@@ -218,14 +214,12 @@ export const ClinicDetails = (props) => {
               ],
               clinicType: values.clinicType,
               clinicSize: parseInt(values.clinicSize, 10),
-              email: values.email,
               meta,
             };
 
             trackMetric('Clinic - Account created');
             dispatch(actions.async.createClinic(api, newClinic));
           }
-
         }}
       >
         {({ errors, touched, setFieldTouched, setFieldValue, values }) => (
@@ -393,14 +387,6 @@ export const ClinicDetails = (props) => {
                   name="website"
                   label={t('Website')}
                   error={touched.website && errors.website}
-                  {...inputStyles}
-                />
-                <FastField
-                  as={TextInput}
-                  id="email"
-                  name="email"
-                  label={t('Clinic Admin Email')}
-                  error={touched.email && errors.email}
                   {...inputStyles}
                 />
               </Flex>
