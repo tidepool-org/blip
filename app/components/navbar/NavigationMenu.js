@@ -186,7 +186,7 @@ export const NavigationMenu = props => {
 
 NavigationMenu.propTypes = {
   api: PropTypes.object.isRequired,
-  trackMetric: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 export default translate()(NavigationMenu);
