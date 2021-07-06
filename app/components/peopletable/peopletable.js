@@ -102,7 +102,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     return (
       <Flex alignItems="center" justifyContent="space-between">
         <Title py={4} pr={4}>
-          {t('Patient List')}
+          {t('Patients')}
         </Title>
 
         <Flex>
