@@ -22,21 +22,29 @@ import WindowSizeListener from 'react-window-size-listener';
 import { translate, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { Box, Text } from 'rebass/styled-components';
+import { Box, Text, Flex } from 'rebass/styled-components';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import SearchIcon from '@material-ui/icons/Search';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../modaloverlay';
 
-import Table from '../elements/Table';
+import Button from '../elements/Button';
 import Icon from '../elements/Icon';
+import Table from '../elements/Table';
+import TextInput from '../elements/TextInput';
+
+import {
+  Title,
+} from '../elements/FontStyles';
 
 export const PeopleTable = translate()(class PeopleTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleOverlayClick = this.handleOverlayClick.bind(this);
+    this.handleCloseOverlay = this.handleCloseOverlay.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleRemovePatient = this.handleRemovePatient.bind(this);
     this.handleToggleShowNames = this.handleToggleShowNames.bind(this);
@@ -68,7 +76,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   buildDataList(props = this.props) {
     const { t } = props;
 
-    const list = _.map(props.people, (person) => {
+    return _.map(props.people, (person) => {
       let bday = _.get(person, ['profile', 'patient', 'birthday'], '');
 
       if (bday) {
@@ -85,24 +93,44 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
         email: _.get(person, 'emails[0]'),
       };
     });
-
-    return list;
   }
 
-  renderSearchBar() {
+  renderHeader() {
     const { t } = this.props;
+    const toggleLabel = this.state.showNames ? t('Hide All') : t('Show All');
+
     return (
-      <div className="peopletable-search">
-        <div className="peopletable-search-label">
+      <Flex alignItems="center" justifyContent="space-between">
+        <Title py={4} pr={4}>
           {t('Patient List')}
-        </div>
-        <input
-          type="search"
-          className="peopletable-search-box form-control-border"
-          onChange={this.handleSearchChange}
-          placeholder={t('Search by Name')}
-        />
-      </div>
+        </Title>
+
+        <Flex>
+          <Button
+            variant="textSecondary"
+            disabled={!_.isEmpty(this.state.search)}
+            onClick={this.handleToggleShowNames}
+            mr={2}
+          >
+            {toggleLabel}
+          </Button>
+
+          <TextInput
+            themeProps={{
+              width: 'auto',
+              minWidth: '250px',
+            }}
+            placeholder={t('Search by Name')}
+            icon={!_.isEmpty(this.state.search) ? CloseRoundedIcon : SearchIcon}
+            iconLabel={t('Search by Name')}
+            onClickIcon={!_.isEmpty(this.state.search) ? this.handleClearSearch : null}
+            name="search-prescriptions"
+            onChange={this.handleSearchChange}
+            value={this.state.search}
+            variant="condensed"
+          />
+        </Flex>
+      </Flex>
     );
   }
 
@@ -114,23 +142,6 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
     this.props.trackMetric(toggleLabel);
     this.setState({ showNames: !this.state.showNames });
-  }
-
-  renderShowNamesToggle() {
-    const { t } = this.props;
-    let toggleLabel = t('Hide All');
-
-    if (!this.state.showNames) {
-      toggleLabel = t('Show All');
-    }
-
-    return (
-      <div className="peopletable-names-toggle-wrapper">
-        <a className="peopletable-names-toggle" disabled={this.state.search} onClick={this.handleToggleShowNames}>
-          {toggleLabel}
-        </a>
-      </div>
-    );
   }
 
   renderPeopleInstructions() {
@@ -155,7 +166,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
           </p>
         </Trans>
         <div className="ModalOverlay-controls">
-          <button className="btn-secondary" type="button" onClick={this.handleOverlayClick}>
+          <button className="btn-secondary" type="button" onClick={this.handleCloseOverlay}>
             {t('Cancel')}
           </button>
           <button className="btn btn-danger" type="submit" onClick={this.handleRemovePatient(patient)}>
@@ -171,16 +182,14 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
-        overlayClickHandler={this.handleOverlayClick} />
+        overlayClickHandler={this.handleCloseOverlay} />
     );
   }
 
   handleRemovePatient(patient) {
     return () => {
       this.props.onRemovePatient(patient.userid, (err) => {
-        this.setState({
-          showModalOverlay: false,
-        });
+        this.handleCloseOverlay();
       });
 
       this.props.trackMetric('Web - clinician removed patient account');
@@ -196,7 +205,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
     };
   }
 
-  handleOverlayClick() {
+  handleCloseOverlay() {
     this.setState({
       showModalOverlay: false,
     });
@@ -218,6 +227,10 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
 
   handleSearchChange(event) {
     this.setState({search: event.target.value});
+  }
+
+  handleClearSearch(event) {
+    this.setState({search: ''});
   }
 
   renderPatient = ({fullName, email, link}) => (
@@ -328,8 +341,7 @@ export const PeopleTable = translate()(class PeopleTable extends React.Component
   render() {
     return (
       <div>
-        {this.renderSearchBar()}
-        {this.renderShowNamesToggle()}
+        {this.renderHeader()}
         {this.renderPeopleArea()}
         {this.renderModalOverlay()}
         <WindowSizeListener onResize={this.handleWindowResize} />
