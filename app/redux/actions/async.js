@@ -263,7 +263,7 @@ export function login(api, credentials, options, postLoginAction) {
                   } else {
                     user = update(user, { $merge: patient });
                     dispatch(sync.loginSuccess(user));
-                    utils.initializePendo(user, _.get(options, 'location', {}));
+                    utils.initializePendo(user, _.get(options, 'location', {}), window);
                     if (postLoginAction) {
                       dispatch(postLoginAction());
                     }
@@ -272,7 +272,7 @@ export function login(api, credentials, options, postLoginAction) {
                 }));
               } else {
                 dispatch(sync.loginSuccess(user));
-                utils.initializePendo(user, _.get(options, 'location', {}));
+                utils.initializePendo(user, _.get(options, 'location', {}), window);
                 if (postLoginAction) {
                   dispatch(postLoginAction());
                 }

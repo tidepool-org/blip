@@ -418,7 +418,7 @@ const environments = {
   localhost: 'local',
 };
 
-utils.initializePendo = (user, location) => {
+utils.initializePendo = (user, location, window) => {
   const noPendo = _.get(location, 'query.noPendo', false);
   if (noPendo) return;
   const initialize = _.get(window, 'pendo.initialize', false);
