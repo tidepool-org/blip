@@ -23,7 +23,11 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
     '&:hover': {
       borderColor: colors.grays[2],
     },
-    '&:active, &.selected': {
+    '&:active': {
+      borderColor: colors.purpleMedium,
+    },
+    '&.selected': {
+      cursor: 'default',
       borderColor: colors.purpleMedium,
     },
     '&:disabled': {
@@ -66,6 +70,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       color: colors.white,
       borderRadius: radii.default,
       '&.selected': {
+        cursor: 'default',
         backgroundColor: colors.blueGreyDark,
         borderColor: colors.blueGreyDark,
       },
@@ -101,6 +106,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
       borderColor: colors.feedback.danger,
       borderRadius: radii.default,
       '&.selected': {
+        cursor: 'default',
         backgroundColor: colors.pinks[13],
         borderColor: colors.pinks[13],
       },
@@ -168,6 +174,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         color: colors.text.primaryDisabled,
       },
       '&.selected': {
+        cursor: 'default',
         backgroundColor: colors.blueGreyDark,
         color: colors.white,
 
@@ -200,9 +207,9 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         color: colors.text.primaryDisabled,
       },
       '&.selected': {
+        cursor: 'default',
         backgroundColor: colors.blues[0],
         color: colors.purpleBright,
-        cursor: 'auto',
 
         '&:disabled': {
           color: colors.text.primaryDisabled,
@@ -253,6 +260,7 @@ export default ({ colors, borders, fontSizes, radii, fonts, space, fontWeights }
         borderColor: colors.purpleMedium,
       },
       '&.selected': {
+        cursor: 'default',
         color: colors.white,
         backgroundColor: colors.blueGreyDark,
         borderColor: colors.blueGreyDark,
