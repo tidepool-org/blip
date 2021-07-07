@@ -76,7 +76,7 @@ export default translate()(class extends React.Component {
 
     if (_.isEmpty(patient)) {
       if (
-        this.props.currentPage === '/patients' &&
+        _.includes(['/patients', '/clinic-admin', '/prescriptions'], this.props.currentPage) &&
         personUtils.isClinicianAccount(this.props.user)
       ) {
         return (
