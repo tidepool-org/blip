@@ -1872,6 +1872,31 @@ export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
 }
 
 /**
+ * Delete Patient from Clinic Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} patientId - Id of the clinician
+ */
+export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.deletePatientFromClinicRequest());
+
+    api.clinics.deletePatientFromClinic(clinicId, patientId, (err) => {
+      cb(err);
+
+      if (err) {
+        dispatch(sync.deletePatientFromClinicFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Patients for Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper

@@ -904,6 +904,10 @@ api.clinics.deleteClinicianFromClinic = function(clinicId, clinicianId, cb) {
   return tidepool.deleteClinicianFromClinic(clinicId, clinicianId, cb);
 };
 
+api.clinics.deletePatientFromClinic = function(clinicId, patientId, cb) {
+  return tidepool.deletePatientFromClinic(clinicId, patientId, cb);
+};
+
 api.clinics.getPatientsForClinic = function(clinicId, options, cb) {
   return tidepool.getPatientsForClinic(clinicId, options, cb);
 };

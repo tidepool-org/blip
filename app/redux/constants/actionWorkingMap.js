@@ -269,6 +269,11 @@ export default (type) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
       return 'deletingClinicianFromClinic';
 
+    case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
+    case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
+    case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
+      return 'deletingPatientFromClinic';
+
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
