@@ -100,7 +100,7 @@ describe('ToastProvider', () => {
     expect(toast()).to.have.lengthOf(1);
     expect(toast().text()).to.equal('Info!');
 
-    const closeIcon = toast().find('span.close');
+    const closeIcon = toast().find('button.close');
     expect(closeIcon).to.have.lengthOf(1);
 
     closeIcon.simulate('click');

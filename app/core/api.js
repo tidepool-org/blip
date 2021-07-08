@@ -881,68 +881,84 @@ api.clinics.get = function(clinicId, cb) {
   return tidepool.getClinic(clinicId, cb);
 };
 
-api.clinics.update = function(clinicId, updates, cb) {
-  return tidepool.updateClinic(clinicId, updates, cb);
+api.clinics.update = function(clinicId, clinic, cb) {
+  return tidepool.updateClinic(clinicId, clinic, cb);
 };
 
-api.clinics.delete = function(clinicId, cb) {
-  return tidepool.deleteClinic(clinicId, cb);
+api.clinics.getCliniciansFromClinic = function(clinicId, options, cb) {
+  return tidepool.getCliniciansFromClinic(clinicId, options, cb);
 };
 
 api.clinics.getClinician = function(clinicId, clinicianId, cb) {
   return tidepool.getClinician(clinicId, clinicianId, cb);
 };
 
-api.clinics.updateClinician = function(clinicId, clinicianId, updates, cb) {
-  return tidepool.updateClinician(clinicId, clinicianId, updates, cb);
+api.clinics.updateClinician = function(clinicId, clinicianId, clinician, cb) {
+  return tidepool.updateClinician(clinicId, clinicianId, clinician, cb);
 };
 
 api.clinics.deleteClinicianFromClinic = function(clinicId, clinicianId, cb) {
   return tidepool.deleteClinicianFromClinic(clinicId, clinicianId, cb);
 };
 
-api.clinics.getPatientsForClinic = function(clinicId, cb) {
-  return tidepool.getPatientsForClinic(clinicId, cb);
+api.clinics.getPatientsForClinic = function(clinicId, options, cb) {
+  return tidepool.getPatientsForClinic(clinicId, options, cb);
 };
 
-api.clinics.addPatientToClinic = function(clinicId, patient, cb) {
-  return tidepool.addPatientToClinic(clinicId, patient, cb);
+api.clinics.createCustodialAccount = function(clinicId, patient, cb) {
+  return tidepool.createCustodialAccount(clinicId, patient, cb);
 };
 
 api.clinics.getPatientFromClinic = function(clinicId, patientId, cb) {
   return tidepool.getPatientFromClinic(clinicId, patientId, cb);
 };
 
-api.clinics.updateClinicPatient = function(clinicId, patientId, updates, cb) {
-  return tidepool.updateClinicPatient(clinicId, patientId, updates, cb);
+api.clinics.updateClinicPatient = function(clinicId, patientId, patient, cb) {
+  return tidepool.updateClinicPatient(clinicId, patientId, patient, cb);
 };
 
-api.clinics.deletePatientFromClinic = function(clinicId, patientId, cb) {
-  return tidepool.deletePatientFromClinic(clinicId, patientId, cb);
+api.clinics.inviteClinician = function(clinicId, clinician, cb) {
+  return tidepool.inviteClinician(clinicId, clinician, cb);
 };
 
-api.clinics.getCliniciansFromClinic = function(clinicId, cb) {
-  return tidepool.getCliniciansFromClinic(clinicId, cb);
+api.clinics.resendClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.resendClinicianInvite(clinicId, inviteId, cb);
 };
 
-api.clinics.addClinicianToClinic = function(clinicId, clinician, cb) {
-  return tidepool.addClinicianToClinic(clinicId, clinician, cb);
+api.clinics.deleteClinicianInvite = function(clinicId, inviteId, cb) {
+  return tidepool.deleteClinicianInvite(clinicId, inviteId, cb);
 };
 
-api.clinics.getClinicsPatient = function(patientId, cb) {
-  return tidepool.getClinicsPatient(patientId, cb);
+api.clinics.getPatientInvites = function(clinicId, cb) {
+  return tidepool.getPatientInvites(clinicId, cb);
 };
 
-api.clinics.deleteClinicsPatient = function(patientId, cb) {
-  return tidepool.deleteClinicsPatient(patientId, cb);
+api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
+  return tidepool.acceptPatientInvitation(clinicId, inviteId, cb);
 };
 
-api.clinics.getClinicsClinician = function(clinicianId, cb) {
-  return tidepool.getClinicsClinician(clinicianId, cb);
+api.clinics.updatePatientPermissions = function(clinicId, patientId, permissions, cb) {
+  return tidepool.updatePatientPermissions(clinicId, patientId, permissions, cb);
 };
 
-api.clinics.deleteClinicsClinician = function(clinicianId, cb) {
-  return tidepool.deleteClinicsClinician(clinicianId, cb);
+api.clinics.getClinicsForPatient = function(userId, options, cb) {
+  return tidepool.getClinicsForPatient(userId, options, cb);
+};
+
+api.clinics.getClinicianInvites = function(userId, cb) {
+  return tidepool.getClinicianInvites(userId, cb);
+};
+
+api.clinics.acceptClinicianInvite = function(userId, inviteId, cb) {
+  return tidepool.acceptClinicianInvite(userId, inviteId, cb);
+};
+
+api.clinics.dismissClinicianInvite = function(userId, inviteId, cb) {
+  return tidepool.dismissClinicianInvite(userId, inviteId, cb);
+};
+
+api.clinics.getClinicsForClinician = function(clinicianId, options, cb) {
+  return tidepool.getClinicsForClinician(clinicianId, options, cb);
 };
 
 // ----- Errors -----

@@ -1,6 +1,6 @@
 import React from 'react';
 import { translate } from 'react-i18next';
-import { FastField, useFormikContext } from 'formik';
+import { FastField, Field, useFormikContext } from 'formik';
 import { Box, Flex } from 'rebass/styled-components';
 import bows from 'bows';
 import get from 'lodash/get';
@@ -56,8 +56,10 @@ export const PatientPhone = translate()(props => {
             alwaysShowMask
             defaultValue={get(values, 'phoneNumber.number')}
             onBlur={e => {
-              setFieldTouched('phoneNumber.number', true);
-              setFieldValue('phoneNumber.number', e.target.value);
+              // Only set value if field contains at least one numeric digit
+              const value = !!e.target.value.match(/(?=.*\d)/) ? e.target.value : '';
+              setFieldTouched('phoneNumber.number');
+              setFieldValue('phoneNumber.number', value);
             }}
           >
             <TextInput
@@ -121,6 +123,7 @@ export const PatientGender = translate()(props => {
         options={sexOptions}
         error={getFieldError('sex', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
@@ -131,12 +134,14 @@ export const PatientDevices = translate()(props => {
   const formikContext = useFormikContext();
 
   const {
+    setFieldTouched,
     setFieldValue,
     values,
   } = formikContext;
 
   const patientName = get(values, 'firstName');
   const initialFocusedInputRef = useInitialFocusedInput();
+  const [hasInitialFocus, setHasInitialFocus] = React.useState(true);
 
   return (
     <Box {...fieldsetStyles}>
@@ -144,7 +149,7 @@ export const PatientDevices = translate()(props => {
       <Flex {...checkboxGroupStyles}>
         {map(pumpDeviceOptions(devices), device => (
           <React.Fragment key={device.value}>
-            <FastField
+            <Field
               as={Checkbox}
               id="initialSettings.pumpId"
               name="initialSettings.pumpId"
@@ -152,10 +157,15 @@ export const PatientDevices = translate()(props => {
               checked={!isEmpty(get(values, 'initialSettings.pumpId', ''))}
               label={device.label}
               onChange={e => {
+                setFieldTouched('initialSettings.pumpId');
                 setFieldValue('initialSettings.pumpId', e.target.checked ? device.value : '')
               }}
               error={getFieldError('initialSettings.pumpId', formikContext)}
               innerRef={initialFocusedInputRef}
+              onBlur={e => {
+                if (hasInitialFocus) return setHasInitialFocus(false);
+                setFieldTouched('initialSettings.pumpId');
+              }}
               {...checkboxStyles}
             />
             <Caption mt={1}>{device.extraInfo}</Caption>

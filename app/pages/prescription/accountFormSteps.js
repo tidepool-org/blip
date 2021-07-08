@@ -12,7 +12,7 @@ import i18next from '../../core/language';
 import RadioGroup from '../../components/elements/RadioGroup';
 import TextInput from '../../components/elements/TextInput';
 import { Caption, Headline } from '../../components/elements/FontStyles';
-import { stepValidationFields, typeOptions } from './prescriptionFormConstants';
+import { dateRegex, stepValidationFields, typeOptions } from './prescriptionFormConstants';
 import { fieldsetStyles, condensedInputStyles } from './prescriptionFormStyles';
 
 const t = i18next.t.bind(i18next);
@@ -34,6 +34,7 @@ export const AccountType = translate()(props => {
         options={typeOptions}
         error={getFieldError('accountType', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
@@ -50,7 +51,6 @@ export const PatientInfo = translate()(props => {
   } = formikContext;
 
   const initialFocusedInputRef = useInitialFocusedInput();
-  const dateFormatRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
   const dateInputFormat = 'MM/DD/YYYY';
   const maskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
 
@@ -80,10 +80,10 @@ export const PatientInfo = translate()(props => {
             mask={maskFormat}
             maskPlaceholder={dateInputFormat}
             alwaysShowMask
-            defaultValue={get(values, 'birthday', '').replace(dateFormatRegex, '$2/$3/$1')}
+            defaultValue={get(values, 'birthday', '').replace(dateRegex, '$2/$3/$1')}
             onBlur={e => {
               setFieldTouched('birthday');
-              setFieldValue('birthday', e.target.value.replace(dateFormatRegex, '$3-$1-$2'))
+              setFieldValue('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))
             }}
           >
             <TextInput
@@ -132,8 +132,8 @@ export const PatientEmail = translate()(props => {
     if (!isCaregiverAccount) {
       setFieldValue('caregiverFirstName', '');
       setFieldValue('caregiverLastName', '');
-      setFieldTouched('caregiverFirstName', true);
-      setFieldTouched('caregiverLastName', true);
+      setFieldTouched('caregiverFirstName');
+      setFieldTouched('caregiverLastName');
     }
   }, []);
 

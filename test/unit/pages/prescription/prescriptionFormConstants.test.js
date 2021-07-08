@@ -20,15 +20,31 @@ describe('prescriptionFormConstants', function() {
     expect(prescriptionFormConstants.dateFormat).to.equal('YYYY-MM-DD');
   });
 
+  it('should export the `dateRegex`', function() {
+    expect(prescriptionFormConstants.dateRegex).to.eql(/^(.*)[-|/](.*)[-|/](.*)$/);
+  });
+
   it('should export the `phoneRegex`', function() {
     expect(prescriptionFormConstants.phoneRegex).to.eql(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/);
   });
 
   it('should export the list of revision states', function() {
-    expect(prescriptionFormConstants.revisionStates).to.be.an('array').and.to.eql([
-      'draft',
-      'pending',
-      'submitted',
+    expect(prescriptionFormConstants.revisionStateOptions).to.be.an('array').and.to.eql([
+      {
+        colorPalette: 'blues',
+        label: 'Draft',
+        value: 'draft',
+      },
+      {
+        colorPalette: 'oranges',
+        label: 'Pending Approval',
+        value: 'pending',
+      },
+      {
+        colorPalette: 'indigos',
+        label: 'Submitted',
+        value: 'submitted',
+      },
     ]);
   });
 
@@ -892,6 +908,26 @@ describe('prescriptionFormConstants', function() {
           recommendedInsulinSensitivity: expectedInsulinSensitivity,
         });
       });
+    });
+  });
+
+  describe('hasCalculatorResults', () => {
+    const values = {
+      calculator: {
+        recommendedBasalRate: 0.5,
+        recommendedInsulinSensitivity: 25,
+        recommendedCarbohydrateRatio: 20,
+      }
+    };
+
+    it('should return `true` if stored calculator field contains values for recommended basal rate, sensitivity factor, and carb ratio', () => {
+      expect(prescriptionFormConstants.hasCalculatorResults(values)).to.be.true;
+    });
+
+    it('should return `false` if stored calculator field is missing values for recommended basal rate, sensitivity factor, or carb ratio', () => {
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedBasalRate: undefined } })).to.be.false;
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedInsulinSensitivity: undefined } })).to.be.false;
+      expect(prescriptionFormConstants.hasCalculatorResults({ calculator: { ...values.calculator, recommendedCarbohydrateRatio: undefined } })).to.be.false;
     });
   });
 

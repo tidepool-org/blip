@@ -92,6 +92,9 @@ const clinicSchema = yup.object().shape({
   state: yup.string().required(t('Please enter a state')),
   zip: yup.string().required(t('Please enter a zip code')),
   website: yup.string(),
+  email: yup.string()
+    .email(t('Please enter a valid email address'))
+    .required(t('Email address is required')),
   adminAcknowledge: yup
     .bool()
     .oneOf([true], t('You must acknowledge admin role')),
@@ -107,7 +110,7 @@ export const ClinicDetails = (props) => {
 
   useEffect(() => {
     if (trackMetric) {
-      trackMetric('Web - Clinic Details Setup');
+      trackMetric('Clinic - Clinic Details Setup');
     }
   }, []);
 
@@ -130,6 +133,7 @@ export const ClinicDetails = (props) => {
           state: '',
           zip: '',
           website: '',
+          email: '',
           adminAcknowledge: false,
         }}
         validationSchema={clinicSchema}
@@ -140,8 +144,9 @@ export const ClinicDetails = (props) => {
           const newClinic = {
             name: values.orgName,
             address,
-            postalCode: values.zip,
             city: values.city,
+            state: values.state,
+            postalCode: values.zip,
             country: values.country,
             phoneNumbers: [
               {
@@ -151,6 +156,7 @@ export const ClinicDetails = (props) => {
             ],
             clinicType: values.clinicType,
             clinicSize: parseInt(values.clinicSize, 10),
+            email: values.email,
             meta,
           };
           const profileUpdates = {
@@ -166,6 +172,7 @@ export const ClinicDetails = (props) => {
             profileUpdates.clinic.npi = values.npi;
           }
           dispatch(actions.async.updateUser(api, profileUpdates));
+          trackMetric('Clinic - Account created');
           dispatch(actions.async.createClinic(api, newClinic));
         }}
       >
@@ -332,6 +339,14 @@ export const ClinicDetails = (props) => {
                 name="website"
                 label={t('Website')}
                 error={touched.website && errors.website}
+                {...inputStyles}
+              />
+              <FastField
+                as={TextInput}
+                id="email"
+                name="email"
+                label={t('Clinic Admin Email')}
+                error={touched.email && errors.email}
                 {...inputStyles}
               />
             </Flex>

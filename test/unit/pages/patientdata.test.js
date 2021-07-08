@@ -17,7 +17,9 @@ import { mount, shallow } from 'enzyme';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
+import { ThemeProvider } from 'styled-components';
 
+import baseTheme from '../../../app/themes/baseTheme';
 
 const { Loader } = vizComponents;
 
@@ -2639,7 +2641,7 @@ describe('PatientData', function () {
           t,
         };
 
-        const wrapper = mount(<PatientDataClass {...props} />);
+        const wrapper = mount(<ThemeProvider theme={baseTheme}><PatientDataClass {...props} /></ThemeProvider>).find(PatientDataClass);
         const instance = wrapper.instance();
         const setStateSpy = sinon.spy(instance, 'setState');
 

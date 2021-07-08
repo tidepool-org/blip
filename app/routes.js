@@ -7,6 +7,9 @@ import AppComponent from './pages/app';
 import BrowserWarning from './pages/browserwarning';
 import ClinicianDetails from './pages/cliniciandetails';
 import ClinicDetails from './pages/clinicdetails';
+import ClinicAdmin from './pages/clinicadmin';
+import ClinicInvite from './pages/clinicinvite';
+import ClinicianEdit from './pages/clinicianedit';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
@@ -216,13 +219,16 @@ export const getRoutes = (appContext) => {
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinician-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianDetails {...routeProps} {...props} /></Gate>)} />
           {config.CLINICS_ENABLED && <Route path='/clinic-details' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />}
+          {config.CLINICS_ENABLED && <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />}
+          {config.CLINICS_ENABLED && <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />}
+          {config.CLINICS_ENABLED && <Route path='/clinician-edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianEdit {...routeProps} {...props} /></Gate>)} />}
           <Route path='/email-verification' render={routeProps => (<Gate onEnter={boundRequireNotVerified} key={routeProps.match.path}><EmailVerification {...routeProps} {...props} /></Gate>)} />
           <Route path='/profile' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
           {config.RX_ENABLED && <Route exact path='/prescriptions' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Prescriptions {...routeProps} {...props} /></Gate>)} />}
           {config.RX_ENABLED && <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
-          {config.RX_ENABLED && <Route exact path='/prescriptions/:id/edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
+          {config.RX_ENABLED && <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
           <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><Share {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireChrome} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />

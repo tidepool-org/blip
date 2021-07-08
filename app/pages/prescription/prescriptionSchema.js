@@ -15,8 +15,9 @@ import {
   phoneRegex,
   pumpDeviceOptions,
   pumpRanges,
-  revisionStates,
+  revisionStateOptions,
   sexOptions,
+  therapySettingsOptions,
   totalDailyDoseScaleFactorOptions,
   trainingOptions,
   typeOptions,
@@ -43,7 +44,7 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
   return yup.object().shape({
     id: yup.string(),
     state: yup.string()
-      .oneOf(revisionStates, t('Please select a valid option')),
+      .oneOf(map(revisionStateOptions, 'value'), t('Please set a valid prescription status')),
     accountType: yup.string()
       .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
       .required(t('Account type is required')),
@@ -92,8 +93,12 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
           .min(0)
           .required(t('Total Daily Dose is required')),
       }),
-      totalDailyDoseScaleFactor: yup.number()
-        .oneOf(map(totalDailyDoseScaleFactorOptions, 'value')),
+      totalDailyDoseScaleFactor: yup.mixed().notRequired().when('method', {
+        is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
+        then: yup.number()
+          .oneOf(map(totalDailyDoseScaleFactorOptions, 'value'))
+          .required(),
+      }),
       weight: yup.mixed().notRequired().when('method', {
         is: method => includes(['weight', 'totalDailyDoseAndWeight'], method),
         then: yup.number()
@@ -104,15 +109,21 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .oneOf(map(weightUnitOptions, 'value')),
       recommendedBasalRate: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedInsulinSensitivity: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedCarbohydrateRatio: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
     }),
     initialSettings: yup.object().shape({
@@ -227,6 +238,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
     }),
     training: yup.string()
       .oneOf(map(trainingOptions, 'value'), t('Please select a valid option'))
+      .required(t('Training type is required')),
+    therapySettings: yup.string()
+      .oneOf(map(therapySettingsOptions, 'value'), t('Please select a valid option'))
       .required(t('Training type is required')),
     therapySettingsReviewed: yup.boolean()
       .test('isTrue', t('Please confirm the therapy settings for this patient'), value => (value === true)),

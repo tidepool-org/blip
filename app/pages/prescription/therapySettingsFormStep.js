@@ -12,14 +12,16 @@ import max from 'lodash/max';
 import { fieldsAreValid, getFieldError, getThresholdWarning } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
 import i18next from '../../core/language';
-import { Paragraph2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
+import { Paragraph2, Body2, Headline, OrderedList, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import TextInput from '../../components/elements/TextInput';
 import ScheduleForm from './ScheduleForm';
+import SettingsCalculatorResults from './SettingsCalculatorResults';
 
 import {
   defaultValues,
+  hasCalculatorResults,
   insulinModelOptions,
   pumpRanges,
   roundValueToIncrement,
@@ -71,6 +73,27 @@ export const PatientInfo = props => {
 
 PatientInfo.propTypes = fieldsetPropTypes;
 
+export const DefaultCalculatorSettings = props => {
+  const { t, pump, ...themeProps } = props;
+  const { values } = useFormikContext();
+  const totalDailyDose = get(values, 'calculator.totalDailyDose');
+  const weight = get(values, 'calculator.weight');
+  const weightUnits = get(values, 'calculator.weightUnits');
+
+  return (
+    <Box {...fieldsetStyles} {...wideFieldsetStyles} {...borderedFieldsetStyles} {...themeProps}>
+      <Body2 mb={3}>
+        {t('Recommended default settings from AACE calculator:')}
+      </Body2>
+      {totalDailyDose && <Text mb={1}><strong>{t('Total Daily Dose:')}</strong> {totalDailyDose} {t('U')}</Text>}
+      {weight && <Text mb={1}><strong>{t('Weight:')}</strong> {weight} {weightUnits}</Text>}
+      <SettingsCalculatorResults mt={3} />
+    </Box>
+  );
+};
+
+DefaultCalculatorSettings.propTypes = fieldsetPropTypes;
+
 export const PatientTraining = props => {
   const { t, pump, ...themeProps } = props;
   const initialFocusedInputRef = useInitialFocusedInput();
@@ -91,6 +114,7 @@ export const PatientTraining = props => {
         options={trainingOptions}
         error={getFieldError('training', formikContext)}
         innerRef={initialFocusedInputRef}
+        onMouseDown={e => e.preventDefault()}
       />
     </Box>
   );
@@ -381,6 +405,40 @@ export const InsulinSettings = props => {
         </Box>
 
         <PopoverLabel
+          id='insulin-sensitivity-factors'
+          label={t('Insulin sensitivity factors')}
+          mb={2}
+          popoverContent={(
+            <Box p={3}>
+              <Paragraph2>
+                {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
+              </Paragraph2>
+              <Paragraph2>
+                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
+              </Paragraph2>
+            </Box>
+          )}
+        />
+
+        <Box {...scheduleGroupStyles} mb={3}>
+          <ScheduleForm
+            addButtonText={t('Add an additional insulin sensitivity factor')}
+            fieldArrayName='initialSettings.insulinSensitivitySchedule'
+            fields={[
+              {
+                label: t('1 U of insulin decreases BG by'),
+                name: 'amount',
+                suffix: bgUnits,
+                threshold: thresholds.insulinSensitivityFactor,
+                type: 'number',
+                ...ranges.insulinSensitivityFactor,
+              },
+            ]}
+            useFastField
+          />
+        </Box>
+
+        <PopoverLabel
           id='max-basal'
           label={t('Max Basal')}
           mb={2}
@@ -477,40 +535,6 @@ export const InsulinSettings = props => {
           error={getFieldError('initialSettings.insulinModel', formikContext)}
           mb={4}
         />
-
-        <PopoverLabel
-          id='insulin-sensitivity-factors'
-          label={t('Insulin sensitivity factors')}
-          mb={2}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                {t('Your insulin sensitivity factor (ISF) is the {{bgUnits}} drop in glucose expected from one unit of insulin.', { bgUnits })}
-              </Paragraph2>
-              <Paragraph2>
-                {t('If you are unsure, Tidepool’s recommendation is to start with 1700 / TDD.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-
-        <Box {...scheduleGroupStyles} mb={3}>
-          <ScheduleForm
-            addButtonText={t('Add an additional insulin sensitivity factor')}
-            fieldArrayName='initialSettings.insulinSensitivitySchedule'
-            fields={[
-              {
-                label: t('1 U of insulin decreases BG by'),
-                name: 'amount',
-                suffix: bgUnits,
-                threshold: thresholds.insulinSensitivityFactor,
-                type: 'number',
-                ...ranges.insulinSensitivityFactor,
-              },
-            ]}
-            useFastField
-          />
-        </Box>
       </Box>
     </Box>
   );
@@ -624,6 +648,7 @@ export const TherapySettings = translate()(props => {
   return (
     <Box>
       <PatientInfo mb={4} {...props} />
+      {hasCalculatorResults(values) && <DefaultCalculatorSettings mt={0} mb={4} {...props} />}
       <PatientTraining mt={0} mb={4} {...props} />
       {values.training === 'inModule' && <InModuleTrainingNotification mt={0} mb={4} {...props} />}
       <GlucoseSettings mt={0} mb={4} {...{ ranges, thresholds, ...props }} />
