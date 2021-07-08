@@ -82,6 +82,7 @@ export const ERR_FETCHING_CLINICIANS_FROM_CLINIC = t('Something went wrong while
 export const ERR_FETCHING_CLINICIAN = t('Something went wrong while fetching clinician.');
 export const ERR_UPDATING_CLINICIAN = t('Something went wrong while updating clinician.');
 export const ERR_DELETING_CLINICIAN_FROM_CLINIC = t('Something went wrong while deleting clinician from clinic.');
+export const ERR_DELETING_PATIENT_FROM_CLINIC = t('Something went wrong while deleting patient from clinic.');
 export const ERR_FETCHING_PATIENTS_FOR_CLINIC = t('Something went wrong while fetching patients for clinic.');
 export const ERR_CREATING_CUSTODIAL_ACCOUNT = t('Something went wrong while adding patient to clinic.');
 export const ERR_FETCHING_PATIENT_FROM_CLINIC = t('Something went wrong while fetching patient from clinic.');

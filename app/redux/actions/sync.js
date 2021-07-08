@@ -1360,6 +1360,32 @@ export function deleteClinicianFromClinicFailure(error, apiError) {
   };
 }
 
+export function deletePatientFromClinicRequest() {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_REQUEST,
+  };
+}
+
+export function deletePatientFromClinicSuccess(clinicId, patientId) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_SUCCESS,
+    payload: {
+      clinicId,
+      patientId,
+    },
+  };
+}
+
+export function deletePatientFromClinicFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_FROM_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchPatientsForClinicRequest() {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_REQUEST,

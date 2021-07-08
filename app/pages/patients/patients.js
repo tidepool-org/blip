@@ -467,7 +467,8 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
-  removePatient: actions.async.removeMembershipInOtherCareTeam,
+  removeMembershipInOtherCareTeam: actions.async.removeMembershipInOtherCareTeam,
+  deletePatientFromClinic: actions.async.deletePatientFromClinic,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
@@ -493,7 +494,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       uploadUrl: api.getUploadUrl(),
       onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
       onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
-      onRemovePatient: stateProps.selectedClinicId ? () => {console.log('Placeholder for removePatientFromClinic')} : dispatchProps.removePatient.bind(null, api),
+      onRemovePatient: stateProps.selectedClinicId ? dispatchProps.deletePatientFromClinic.bind(null, api, stateProps.selectedClinicId) : dispatchProps.removeMembershipInOtherCareTeam.bind(null, api),
       trackMetric: ownProps.trackMetric,
       history: ownProps.history,
     }
