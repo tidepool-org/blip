@@ -2141,6 +2141,29 @@ export function acceptPatientInvitation(api, clinicId, inviteId) {
 }
 
 /**
+ * Delete Patient Invitation Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} inviteId - Id of the invite
+ */
+export function deletePatientInvitation(api, clinicId, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.deletePatientInvitationRequest());
+
+    api.clinics.deletePatientInvitation(clinicId, inviteId, (err, result) => {
+      if (err) {
+        dispatch(sync.deletePatientInvitationFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PATIENT_INVITATION, err), err
+        ));
+      } else {
+        dispatch(sync.deletePatientInvitationSuccess(inviteId));
+      }
+    });
+  };
+}
+
+/**
  * Update Patient Permissions Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper

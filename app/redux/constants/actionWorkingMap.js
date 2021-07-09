@@ -319,6 +319,11 @@ export default (type) => {
     case types.ACCEPT_PATIENT_INVITATION_FAILURE:
       return 'acceptingPatientInvitation';
 
+    case types.DELETE_PATIENT_INVITATION_REQUEST:
+    case types.DELETE_PATIENT_INVITATION_SUCCESS:
+    case types.DELETE_PATIENT_INVITATION_FAILURE:
+      return 'deletingPatientInvitation';
+
     case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:
     case types.UPDATE_PATIENT_PERMISSIONS_FAILURE:

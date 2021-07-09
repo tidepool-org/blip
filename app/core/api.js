@@ -944,6 +944,11 @@ api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
   return tidepool.acceptPatientInvitation(clinicId, inviteId, cb);
 };
 
+api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
+  console.log('typeof cb', typeof cb);
+  return tidepool.deletePatientInvitation(clinicId, inviteId, cb);
+};
+
 api.clinics.updatePatientPermissions = function(clinicId, patientId, permissions, cb) {
   return tidepool.updatePatientPermissions(clinicId, patientId, permissions, cb);
 };

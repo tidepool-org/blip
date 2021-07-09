@@ -518,8 +518,13 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
       }
       return state;
     case types.CANCEL_SENT_INVITE_SUCCESS:
-      return update(state, { $apply: (invite) => {
-          return invite.filter( (i) => i.email !== action.payload.removedEmail )
+      return update(state, { $apply: (invites) => {
+          return invites.filter( (i) => i.email !== action.payload.removedEmail )
+        }
+      });
+    case types.DELETE_PATIENT_INVITATION_SUCCESS:
+      return update(state, { $apply: (invites) => {
+          return invites.filter( (i) => i.key !== action.payload.inviteId )
         }
       });
     case types.LOGOUT_REQUEST:

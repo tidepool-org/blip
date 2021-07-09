@@ -1643,6 +1643,31 @@ export function acceptPatientInvitationFailure(error, apiError) {
   };
 }
 
+export function deletePatientInvitationRequest() {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_REQUEST,
+  };
+}
+
+export function deletePatientInvitationSuccess(inviteId) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_SUCCESS,
+    payload: {
+      inviteId: inviteId,
+    },
+  };
+}
+
+export function deletePatientInvitationFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_PATIENT_INVITATION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function updatePatientPermissionsRequest() {
   return {
     type: ActionTypes.UPDATE_PATIENT_PERMISSIONS_REQUEST,

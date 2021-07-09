@@ -94,6 +94,7 @@ export const ERR_RESENDING_CLINICIAN_INVITE = t('Something went wrong while rese
 export const ERR_DELETING_CLINICIAN_INVITE = t('Something went wrong while deleting clinician invite.');
 export const ERR_FETCHING_PATIENT_INVITES = t('Something went wrong while fetching patient invites.');
 export const ERR_ACCEPTING_PATIENT_INVITATION = t('Something went wrong while accepting patient invitation.');
+export const ERR_DELETING_PATIENT_INVITATION = t('Something went wrong while deleting patient invitation.');
 export const ERR_UPDATING_PATIENT_PERMISSIONS = t('Something went wrong while updating patient permissions.');
 export const ERR_FETCHING_CLINICS_FOR_PATIENT = t('Something went wrong while fetching clinics for patient.');
 export const ERR_FETCHING_CLINICIAN_INVITES = t('Something went wrong while fetching clinician invites.');

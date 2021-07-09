@@ -71,6 +71,8 @@ export const AccessManagement = (props) => {
 
   const {
     cancellingSentInvite,
+    deletingPatientInvitation,
+    deletingPatientFromClinic,
     fetchingAssociatedAccounts,
     fetchingClinicsByIds,
     fetchingClinicsForPatient,
@@ -139,6 +141,18 @@ export const AccessManagement = (props) => {
       name: selectedSharedAccount?.name,
     }));
   }, [removingMemberFromTargetCareTeam]);
+
+  useEffect(() => {
+    handleAsyncResult(deletingPatientFromClinic, t('Share access for {{name}} has been revoked.', {
+      name: selectedSharedAccount?.name,
+    }));
+  }, [deletingPatientFromClinic]);
+
+  useEffect(() => {
+    handleAsyncResult(deletingPatientInvitation, t('Share invitation to {{name}} has been revoked.', {
+      name: selectedSharedAccount?.name,
+    }));
+  }, [deletingPatientInvitation]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingClinicsByIds;
@@ -304,18 +318,17 @@ export const AccessManagement = (props) => {
 
   function handleDelete(member) {
     if (member.type === 'clinic') {
-      trackMetric('Patient - Remove shared account', {
+      trackMetric('Patient - Remove clinic', {
         type: member.role,
       });
 
-      // TODO: remove clinic api call when ready
-      // dispatch(
-      //   actions.async.removeMemberFromTargetCareTeam(
-      //     api,
-      //     loggedInUserId,
-      //     member.id
-      //   )
-      // );
+      dispatch(
+        actions.async.deletePatientFromClinic(
+          api,
+          member.id,
+          loggedInUserId
+        )
+      );
     } else if (member.type === 'account') {
       trackMetric('Patient - Remove shared account', {
         type: member.role,
@@ -333,9 +346,11 @@ export const AccessManagement = (props) => {
         type: member.role,
       });
 
-      dispatch(
-        actions.async.cancelSentInvite(api, member.email)
-      );
+      const action = member.role === 'clinic'
+        ? actions.async.deletePatientInvitation(api, member.id, member.key)
+        : actions.async.cancelSentInvite(api, member.email);
+
+      dispatch(action);
     }
   }
 
