@@ -414,7 +414,7 @@ export function mapStateToProps(state) {
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
-  removeMembershipInOtherCareTeam: actions.async.removeMembershipInOtherCareTeam,
+  removePatient: actions.async.removeMembershipInOtherCareTeam,
   deletePatientFromClinic: actions.async.deletePatientFromClinic,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
