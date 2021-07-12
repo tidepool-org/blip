@@ -106,6 +106,7 @@ const initialState = {
     requestingPasswordReset: Object.assign({}, working),
     resendingEmailVerification: Object.assign({}, working),
     sendingInvite: Object.assign({}, working),
+    resendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
     updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),

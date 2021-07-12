@@ -131,6 +131,11 @@ export default (type) => {
     case types.SEND_INVITE_FAILURE:
       return 'sendingInvite';
 
+    case types.RESEND_INVITE_REQUEST:
+    case types.RESEND_INVITE_SUCCESS:
+    case types.RESEND_INVITE_FAILURE:
+      return 'resendingInvite';
+
     case types.CANCEL_SENT_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_SUCCESS:
     case types.CANCEL_SENT_INVITE_FAILURE:

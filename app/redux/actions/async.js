@@ -410,6 +410,29 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
 }
 
 /**
+ * Resend Invite Async Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} email
+ * @param  {Object} permissions
+ */
+export function resendInvite(api, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.resendInviteRequest());
+
+    api.invitation.resend(inviteId, (err, invite) => {
+      if (err) {
+        dispatch(sync.resendInviteFailure(
+          createActionError(ErrorMessages.ERR_RESENDING_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.resendInviteSuccess(invite, inviteId));
+      }
+    });
+  }
+}
+
+/**
  * Cancel Sent Invite Async Action Creator
  *
  * @param  {Object} api an instance of the API wrapper

@@ -522,6 +522,16 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
           return invites.filter( (i) => i.email !== action.payload.removedEmail )
         }
       });
+    case types.RESEND_INVITE_SUCCESS:
+      const updatedInvite = _.get(action.payload, 'invite', null);
+      const removedInviteId = _.get(action.payload, 'removedInviteId');
+      if (updatedInvite) {
+        // Replace at index of existing invite if already in state, else push if new.
+        const existingInviteIndex = _.findIndex(state, { key: removedInviteId });
+        if (existingInviteIndex >= 0) return update(state, { $splice: [[existingInviteIndex, 1, updatedInvite]] });
+        return update(state, { $push: [ updatedInvite ] });
+      }
+      return state;
     case types.DELETE_PATIENT_INVITATION_SUCCESS:
       return update(state, { $apply: (invites) => {
           return invites.filter( (i) => i.key !== action.payload.inviteId )

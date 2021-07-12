@@ -80,7 +80,7 @@ export const AccessManagement = (props) => {
     fetchingPendingSentInvites,
     removingMemberFromTargetCareTeam,
     settingMemberPermissions,
-    sendingInvite,
+    resendingInvite,
     updatingPatientPermissions,
   } = useSelector((state) => state.blip.working);
 
@@ -125,10 +125,10 @@ export const AccessManagement = (props) => {
   }, [updatingPatientPermissions]);
 
   useEffect(() => {
-    handleAsyncResult(sendingInvite, t('Share invitation to {{email}} has been re-sent.', {
+    handleAsyncResult(resendingInvite, t('Share invitation to {{email}} has been re-sent.', {
       email: selectedSharedAccount?.email,
     }));
-  }, [sendingInvite]);
+  }, [resendingInvite]);
 
   useEffect(() => {
     handleAsyncResult(cancellingSentInvite, t('Share invitation to {{email}} has been revoked.', {
@@ -360,7 +360,7 @@ export const AccessManagement = (props) => {
     });
 
     dispatch(
-      actions.async.sendInvite(api, member.email, member.permissions, member.key)
+      actions.async.resendInvite(api, member.key)
     );
   }
 
@@ -448,7 +448,7 @@ export const AccessManagement = (props) => {
 
     if (member.type === 'careteam_invitation') {
       if (member.role === 'member') items.push({
-        disabled: sendingInvite.inProgress,
+        disabled: resendingInvite.inProgress,
         icon: InputIcon,
         iconLabel: t('Resend invitation'),
         iconPosition: 'left',
@@ -458,7 +458,7 @@ export const AccessManagement = (props) => {
           setSelectedSharedAccount(member);
           handleResendInvite(member);
         },
-        processing: sendingInvite.inProgress,
+        processing: resendingInvite.inProgress,
         text: t('Resend invitation'),
         variant: 'actionListItem',
       });

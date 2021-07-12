@@ -69,6 +69,7 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST:
     case types.REQUEST_PASSWORD_RESET_REQUEST:
     case types.SEND_INVITE_REQUEST:
+    case types.RESEND_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_REQUEST:
     case types.ACCEPT_RECEIVED_INVITE_REQUEST:
     case types.REJECT_RECEIVED_INVITE_REQUEST:
@@ -146,6 +147,8 @@ export default (state = initialWorkingState, action) => {
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
           types.CREATE_CUSTODIAL_ACCOUNT_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
+          types.SEND_INVITE_REQUEST,
+          types.RESEND_INVITE_REQUEST,
           types.DELETE_CLINICIAN_INVITE_REQUEST,
           types.ACCEPT_PATIENT_INVITATION_REQUEST,
           types.DELETE_PATIENT_INVITATION_REQUEST,
@@ -210,6 +213,7 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
     case types.SEND_INVITE_SUCCESS:
+    case types.RESEND_INVITE_SUCCESS:
     case types.CANCEL_SENT_INVITE_SUCCESS:
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
     case types.REJECT_RECEIVED_INVITE_SUCCESS:
@@ -356,6 +360,7 @@ export default (state = initialWorkingState, action) => {
     case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
     case types.SEND_INVITE_FAILURE:
+    case types.RESEND_INVITE_FAILURE:
     case types.CANCEL_SENT_INVITE_FAILURE:
     case types.ACCEPT_RECEIVED_INVITE_FAILURE:
     case types.REJECT_RECEIVED_INVITE_FAILURE:

@@ -760,6 +760,11 @@ api.invitation.send = function(emailAddress, permissions, callback) {
   return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
 };
 
+api.invitation.resend = function(inviteId, callback) {
+  api.log('PATCH /confirm/resend/invite/' + inviteId);
+  return tidepool.resendInvite(inviteId, callback);
+};
+
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
   return tidepool.invitesReceived(tidepool.getUserId(),callback);

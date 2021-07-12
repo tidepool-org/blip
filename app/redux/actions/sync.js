@@ -393,6 +393,32 @@ export function sendInviteFailure(error, apiError) {
   };
 }
 
+export function resendInviteRequest() {
+  return {
+    type: ActionTypes.RESEND_INVITE_REQUEST,
+  };
+}
+
+export function resendInviteSuccess(invite, removedInviteId) {
+  return {
+    type: ActionTypes.RESEND_INVITE_SUCCESS,
+    payload: {
+      invite: invite,
+      removedInviteId: removedInviteId,
+    },
+  };
+}
+
+export function resendInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.RESEND_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function cancelSentInviteRequest() {
   return {
     type: ActionTypes.CANCEL_SENT_INVITE_REQUEST,
