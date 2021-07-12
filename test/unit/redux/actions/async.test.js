@@ -1219,11 +1219,10 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let key = null;
         let invite = { foo: 'bar' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, null, invite)
+            send: sinon.stub().callsArgWith(2, null, invite)
           }
         };
 
@@ -1237,11 +1236,11 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
         // assert callback contains no error, and the invite
         sinon.assert.calledOnce(callback);
@@ -1253,11 +1252,10 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let key = null;
         let invite = { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, null, invite),
+            send: sinon.stub().callsArgWith(2, null, invite),
             getSent: sinon.stub(),
           }
         };
@@ -1273,11 +1271,11 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
         // assert callback contains no error, and the invite
         sinon.assert.calledOnce(callback);
@@ -1289,12 +1287,10 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let key = null;
-        let invitation = { foo: 'bar' };
         const error = { status: 409, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, error)
+            send: sinon.stub().callsArgWith(2, error)
           }
         };
 
@@ -1312,13 +1308,13 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_ALREADY_SENT_TO_EMAIL });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
@@ -1330,12 +1326,11 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let key = null;
         let invitation = { foo: 'bar' };
         const error = { status: 500, body: 'Error!' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, error)
+            send: sinon.stub().callsArgWith(2, error)
           }
         };
 
@@ -1353,17 +1348,76 @@ describe('Actions', () => {
         let store = mockStore({ blip: initialState });
         const callback = sinon.stub();
 
-        store.dispatch(async.sendInvite(api, email, permissions, key, callback));
+        store.dispatch(async.sendInvite(api, email, permissions, callback));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions, key)).to.be.true;
+        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
 
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
         sinon.assert.calledWithExactly(callback, error, undefined);
+      });
+    });
+
+    describe('resendInvite', () => {
+      it('should trigger RESEND_INVITE_SUCCESS and it should call api.invitation.resend and callback once for a successful request', () => {
+        let inviteId = 'inviteId';
+        let invite = { foo: 'bar' };
+        let api = {
+          invitation: {
+            resend: sinon.stub().callsArgWith(1, null, invite)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'RESEND_INVITE_REQUEST' },
+          { type: 'RESEND_INVITE_SUCCESS', payload: { invite: invite, removedInviteId: inviteId } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.resendInvite(api, inviteId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.resend.calledWith(inviteId)).to.be.true;
+      });
+
+      it('should trigger RESEND_INVITE_FAILURE and it should call api.invitation.resend and callback once with error for a failed request', () => {
+        let inviteId = 'inviteId';
+        const error = { status: 500, body: 'Error!' };
+        let api = {
+          invitation: {
+            resend: sinon.stub().callsArgWith(1, error)
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_RESENDING_INVITE);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'RESEND_INVITE_REQUEST' },
+          { type: 'RESEND_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        const callback = sinon.stub();
+
+        store.dispatch(async.resendInvite(api, inviteId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_RESENDING_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.resend.calledWith(inviteId)).to.be.true;
       });
     });
 
@@ -1446,7 +1500,7 @@ describe('Actions', () => {
 
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
+            send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
             cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
@@ -1495,7 +1549,7 @@ describe('Actions', () => {
 
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(3, { status: 500, body: 'Error!' } , null),
+            send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
             cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
             getSent: sinon.stub(),
           }
@@ -4519,7 +4573,7 @@ describe('Actions', () => {
     });
 
     describe('deleteClinicianFromClinic', () => {
-      it('should trigger UPDATE_CLINICIAN_SUCCESS and it should call clinics.deleteClinicianFromClinic once for a successful request', () => {
+      it('should trigger DELETE_CLINICIAN_FROM_CLINIC_SUCCESS and it should call clinics.deleteClinicianFromClinic once for a successful request', () => {
         let api = {
           clinics: {
             deleteClinicianFromClinic: sinon.stub().callsArgWith(2, null, {}),
@@ -4570,6 +4624,198 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicianFromClinic.callCount).to.equal(1);
+      });
+    });
+
+    describe('deletePatientFromClinic', () => {
+      it('should trigger DELETE_PATIENT_FROM_CLINIC_SUCCESS and it should call clinics.deletePatientFromClinic once for a successful request', () => {
+        let api = {
+          clinics: {
+            deletePatientFromClinic: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          { type: 'DELETE_PATIENT_FROM_CLINIC_SUCCESS', payload: {
+            clinicId: '5f85fbe6686e6bb9170ab5d0',
+            patientId: 'patient_id',
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientFromClinic(api, '5f85fbe6686e6bb9170ab5d0', 'patient_id', callback));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
+
+        // assert callback contains no error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null);
+      });
+
+      it('should trigger DELETE_PATIENT_FROM_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            deletePatientFromClinic: sinon.stub().callsArgWith(2, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          { type: 'DELETE_PATIENT_FROM_CLINIC_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientFromClinic(api, '5f85fbe6686e6bb9170ab5d0', 'patient_id', callback));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error);
+      });
+    });
+
+    describe('deletePatientInvitation', () => {
+      it('should trigger DELETE_PATIENT_INVITATION_SUCCESS and it should call clinics.deletePatientInvitation once for a successful request', () => {
+        let api = {
+          clinics: {
+            deletePatientInvitation: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_INVITATION_REQUEST' },
+          { type: 'DELETE_PATIENT_INVITATION_SUCCESS', payload: {
+            inviteId: 'invite_id',
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientInvitation(api, '5f85fbe6686e6bb9170ab5d0', 'invite_id', callback));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientInvitation.callCount).to.equal(1);
+      });
+
+      it('should trigger DELETE_PATIENT_INVITATION_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            deletePatientInvitation: sinon.stub().callsArgWith(2, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_INVITATION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_INVITATION_REQUEST' },
+          { type: 'DELETE_PATIENT_INVITATION_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientInvitation(api, '5f85fbe6686e6bb9170ab5d0', 'invite_id', callback));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PATIENT_INVITATION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientInvitation.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchClinicByShareCode', () => {
+      it('should trigger FETCH_CLINIC_SUCCESS and it should call clinics.getClinicByShareCode once for a successful request', () => {
+        let clinic = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            getClinicByShareCode: sinon.stub().callsArgWith(1, null, clinic),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_REQUEST' },
+          { type: 'FETCH_CLINIC_SUCCESS', payload: {
+            clinic,
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            getClinicByShareCode: sinon.stub().callsArgWith(1, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_INVITATION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_REQUEST' },
+          { type: 'FETCH_CLINIC_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
       });
     });
 

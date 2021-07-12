@@ -146,6 +146,7 @@ const InviteClinic = props => {
   return (
     <Box
       as="form"
+      id="invite-clinic"
       onSubmit={handleSubmit}
       mx="auto"
       mt={2}
@@ -210,6 +211,8 @@ const InviteClinic = props => {
           <>
             <TextInput
               label={t('Clinic Name')}
+              id="clinicName"
+              name="clinicName"
               value={clinic.name}
               variant="condensed"
               disabled

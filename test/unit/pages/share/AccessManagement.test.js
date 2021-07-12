@@ -30,6 +30,9 @@ describe('AccessManagement', () => {
     t: sinon.stub().callsFake((string) => string),
     api: {
       clinics: {
+        updatePatientPermissions: sinon.stub(),
+        deletePatientFromClinic: sinon.stub(),
+        deletePatientInvitation: sinon.stub(),
       },
       access: {
         setMemberPermissions: sinon.stub(),
@@ -38,6 +41,7 @@ describe('AccessManagement', () => {
       invitation: {
         cancel: sinon.stub(),
         send: sinon.stub(),
+        resend: sinon.stub(),
       }
     },
   };
@@ -51,7 +55,7 @@ describe('AccessManagement', () => {
     defaultProps.api.access.setMemberPermissions.resetHistory();
     defaultProps.api.access.removeMember.resetHistory();
     defaultProps.api.invitation.cancel.resetHistory();
-    defaultProps.api.invitation.send.resetHistory();
+    defaultProps.api.invitation.resend.resetHistory();
   });
 
   after(() => {
@@ -80,8 +84,11 @@ describe('AccessManagement', () => {
         fetchingPatient: completedState,
         fetchingPendingSentInvites: completedState,
         cancellingSentInvite: defaultWorkingState,
+        deletingPatientInvitation: defaultWorkingState,
+        deletingPatientFromClinic: defaultWorkingState,
         fetchingClinicsByIds: defaultWorkingState,
         removingMemberFromTargetCareTeam: defaultWorkingState,
+        resendingInvite: defaultWorkingState,
         settingMemberPermissions: defaultWorkingState,
         sendingInvite: defaultWorkingState,
         updatingPatientPermissions: defaultWorkingState,
@@ -332,7 +339,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(4);
-      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('member');
+      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('invite declined').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -341,7 +348,7 @@ describe('AccessManagement', () => {
 
       const expectedActions = [
         {
-          type: 'SEND_INVITE_REQUEST',
+          type: 'RESEND_INVITE_REQUEST',
         },
         {
           type: 'CANCEL_SENT_INVITE_REQUEST',
@@ -356,13 +363,11 @@ describe('AccessManagement', () => {
       expect(actions()[0]).to.eql(expectedActions[0]);
 
       sinon.assert.calledWith(
-        defaultProps.api.invitation.send,
-        'yetanotherpatient@example.com',
-        { upload: {}, view: {} },
+        defaultProps.api.invitation.resend,
         '456'
       );
 
-      // Click delete invitation button to open confirmation modal
+      // Click revoke invitation button to open confirmation modal
       expect(popoverActionButtons.at(1).text()).contains('Revoke invitation');
       expect(wrapper.find(Dialog).props().open).to.be.false;
       popoverActionButtons.at(1).props().onClick();
@@ -378,6 +383,99 @@ describe('AccessManagement', () => {
       sinon.assert.calledWith(
         defaultProps.api.invitation.cancel,
         'yetanotherpatient@example.com',
+      );
+    });
+
+    it('should render appropriate popover actions for a clinic member', () => {
+      const table = wrapper.find(Table)
+
+      const accountRow = table.find('tr').at(2);
+      expect(accountRow.text()).contains('new_clinic_name').and.contains('clinic');
+
+      const popoverMenu = accountRow.find('PopoverMenu');
+      expect(popoverMenu).to.have.length(1);
+      const popoverActionButtons = popoverMenu.find('button.action-list-item');
+      expect(popoverActionButtons).to.have.length(2)
+
+      const expectedActions = [
+        {
+          type: 'UPDATE_PATIENT_PERMISSIONS_REQUEST',
+        },
+        {
+          type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST',
+        },
+      ];
+
+      const actions = () => store.getActions();
+
+      // Click upload permissions toggle
+      expect(popoverActionButtons.at(0).text()).contains('Remove upload permission');
+      popoverActionButtons.at(0).props().onClick();
+      expect(actions()[0]).to.eql(expectedActions[0]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.clinics.updatePatientPermissions,
+        'clinicID456',
+        'patient123',
+        { note: {}, upload: undefined, view: {} }
+      );
+
+      // Click remove account button to open confirmation modal
+      expect(popoverActionButtons.at(1).text()).contains('Remove clinic');
+      expect(wrapper.find(Dialog).props().open).to.be.false;
+      popoverActionButtons.at(1).props().onClick();
+      wrapper.update();
+      expect(wrapper.find(Dialog).props().open).to.be.true;
+
+      // Confirm delete in modal
+      const deleteButton = wrapper.find('button.remove-account-access');
+      expect(deleteButton).to.have.length(1);
+      deleteButton.props().onClick();
+      expect(actions()[1]).to.eql(expectedActions[1]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.clinics.deletePatientFromClinic,
+        'clinicID456',
+        'patient123',
+      );
+    });
+
+    it('should render appropriate popover actions for a clinic invitation', () => {
+      const table = wrapper.find(Table)
+
+      const accountRow = table.find('tr').at(3);
+      expect(accountRow.text()).contains('other_clinic_name').and.contains('invite sent').and.contains('clinic');
+
+      const popoverMenu = accountRow.find('PopoverMenu');
+      expect(popoverMenu).to.have.length(1);
+      const popoverActionButtons = popoverMenu.find('button.action-list-item');
+      expect(popoverActionButtons).to.have.length(1)
+
+      const expectedActions = [
+        {
+          type: 'CANCEL_SENT_INVITE_REQUEST',
+        },
+      ];
+
+      const actions = () => store.getActions();
+
+      // Click revoke invitation button to open confirmation modal
+      expect(popoverActionButtons.at(0).text()).contains('Revoke invitation');
+      expect(wrapper.find(Dialog).props().open).to.be.false;
+      popoverActionButtons.at(0).props().onClick();
+      wrapper.update();
+      expect(wrapper.find(Dialog).props().open).to.be.true;
+
+      // Confirm delete in modal
+      const deleteButton = wrapper.find('button.remove-account-access');
+      expect(deleteButton).to.have.length(1);
+      deleteButton.props().onClick();
+      expect(actions()[1]).to.eql(expectedActions[1]);
+
+      sinon.assert.calledWith(
+        defaultProps.api.clinics.deletePatientInvitation,
+        'clinicID123',
+        '123'
       );
     });
   });

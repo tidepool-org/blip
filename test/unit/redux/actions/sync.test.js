@@ -721,6 +721,68 @@ describe('Actions', () => {
       });
     });
 
+    describe('resendInviteRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.resendInviteRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_INVITE_REQUEST', () => {
+        let action = sync.resendInviteRequest();
+        expect(action.type).to.equal('RESEND_INVITE_REQUEST');
+      });
+    });
+
+    describe('resendInviteSuccess', () => {
+      it('should be a TSA', () => {
+        let invite = {
+          email: 'joe@google.com',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let action = sync.resendInviteSuccess(invite);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_INVITE_SUCCESS', () => {
+        let invite = {
+          email: 'joe@google.com',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let removedInviteId = '1234321';
+
+        let action = sync.resendInviteSuccess(invite, removedInviteId);
+
+        expect(action.type).to.equal('RESEND_INVITE_SUCCESS');
+        expect(action.payload.invite).to.equal(invite);
+        expect(action.payload.removedInviteId).to.equal(removedInviteId);
+      });
+    });
+
+    describe('resendInviteFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.resendInviteFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_INVITE_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.resendInviteFailure(error);
+
+        expect(action.type).to.equal('RESEND_INVITE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('cancelSentInviteRequest', () => {
       it('should be a TSA', () => {
         let action = sync.cancelSentInviteRequest();
@@ -764,6 +826,62 @@ describe('Actions', () => {
         let action = sync.cancelSentInviteFailure(error);
 
         expect(action.type).to.equal('CANCEL_SENT_INVITE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('deletePatientFromClinicRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.deletePatientFromClinicRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_FROM_CLINIC_REQUEST', () => {
+        let action = sync.deletePatientFromClinicRequest();
+        expect(action.type).to.equal('DELETE_PATIENT_FROM_CLINIC_REQUEST');
+      });
+    });
+
+    describe('deletePatientFromClinicSuccess', () => {
+      it('should be a TSA', () => {
+        let invite = {
+          email: 'joe@google.com',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let action = sync.deletePatientFromClinicSuccess(invite);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_FROM_CLINIC_SUCCESS', () => {
+        let clinicId = 'clinicId';
+        let patientId = 'patientId';
+
+        let action = sync.deletePatientFromClinicSuccess(clinicId, patientId);
+
+        expect(action.type).to.equal('DELETE_PATIENT_FROM_CLINIC_SUCCESS');
+        expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.patientId).to.equal(patientId);
+      });
+    });
+
+    describe('deletePatientFromClinicFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.deletePatientFromClinicFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_FROM_CLINIC_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.deletePatientFromClinicFailure(error);
+
+        expect(action.type).to.equal('DELETE_PATIENT_FROM_CLINIC_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
@@ -3014,6 +3132,59 @@ describe('Actions', () => {
         let error = new Error('stink :(');
         let action = sync.acceptPatientInvitationFailure(error);
         expect(action.type).to.equal('ACCEPT_PATIENT_INVITATION_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('deletePatientInvitationRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.deletePatientInvitationRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_INVITATION_REQUEST', () => {
+        let action = sync.deletePatientInvitationRequest();
+        expect(action.type).to.equal('DELETE_PATIENT_INVITATION_REQUEST');
+      });
+    });
+
+    describe('deletePatientInvitationSuccess', () => {
+      it('should be a TSA', () => {
+        let invite = {
+          email: 'joe@google.com',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let action = sync.deletePatientInvitationSuccess(invite);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_INVITATION_SUCCESS', () => {
+        let inviteId = 'inviteId';
+        let action = sync.deletePatientInvitationSuccess(inviteId);
+
+        expect(action.type).to.equal('DELETE_PATIENT_INVITATION_SUCCESS');
+        expect(action.payload.inviteId).to.equal(inviteId);
+      });
+    });
+
+    describe('deletePatientInvitationFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.deletePatientInvitationFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal DELETE_PATIENT_INVITATION_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.deletePatientInvitationFailure(error);
+
+        expect(action.type).to.equal('DELETE_PATIENT_INVITATION_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

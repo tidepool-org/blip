@@ -183,6 +183,28 @@ describe('clinics', () => {
     });
   });
 
+  describe('deletePatientFromClinicSuccess', () => {
+    it('should remove patient', () => {
+      let initialStateForTest = {
+        clinicId123: {
+          id: 'clinicId123',
+          patients: {
+            patientId123: {
+              id: 'patientId123',
+              name: 'patient123'
+            }
+          },
+          clinicians: {
+            clinicianId: {},
+          },
+        },
+      };
+      let action = actions.sync.deletePatientFromClinicSuccess('clinicId123', 'patientId123');
+      let state = reducer(initialStateForTest, action);
+      expect(state.clinicId123.patients).to.eql({});
+    });
+  });
+
   describe('sendClinicianInviteSuccess', () => {
     it('should add clinician by invite', () => {
       let initialStateForTest = {
