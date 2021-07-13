@@ -16,6 +16,7 @@ import {
 import Button from '../../components/elements/Button';
 import TextInput from '../../components/elements/TextInput';
 import baseTheme from '../../themes/baseTheme';
+import config from '../../config';
 
 export const ClinicProfile = (props) => {
   const { t, ...boxProps } = props;
@@ -36,7 +37,10 @@ export const ClinicProfile = (props) => {
       },
       selected: pathname === '/patients',
     },
-    {
+  ];
+
+  if (config.RX_ENABLED) {
+    clinicActions.push({
       label: t('View Prescriptions'),
       action: () => {
         if (pathname !== '/prescriptions') {
@@ -44,8 +48,8 @@ export const ClinicProfile = (props) => {
         }
       },
       selected: pathname === '/prescriptions',
-    },
-  ];
+    });
+  }
 
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
 
@@ -158,7 +162,7 @@ export const ClinicProfile = (props) => {
         </Box>
       </Flex>
 
-      {!!clinicActions.length && (
+      {(clinicActions.length > 1) && (
         <Flex
           id="clinic-actions"
           justifyContent={['center', null, 'flex-end']}
