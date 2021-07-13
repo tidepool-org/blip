@@ -96,13 +96,13 @@ export const NavigationMenu = props => {
 
     if (userClinics.length) {
       setMenuOptions([
-        personalWorkspaceOption,
         ...map(userClinics, clinic => ({
           action: handleSelectWorkspace.bind(null, clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
         })),
         manageWorkspacesOption,
+        personalWorkspaceOption,
         accountSettingsOption,
         logoutOption,
       ]);

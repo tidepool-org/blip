@@ -76,11 +76,11 @@ export const WorkspaceSwitcher = props => {
     const userClinics = filter(values(clinics), ({ clinicians }) => has(clinicians, loggedInUserId));
 
     setMenuOptions([
-      personalWorkspaceOption,
       ...map(userClinics, clinic => ({
         id: clinic.id,
         label: t('{{name}} Workspace', { name: clinic.name }),
       })),
+      personalWorkspaceOption,
     ]);
   }, [clinics]);
 
