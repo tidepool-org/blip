@@ -415,6 +415,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
   rejectReceivedInvite: actions.async.rejectReceivedInvite,
   removePatient: actions.async.removeMembershipInOtherCareTeam,
+  deletePatientFromClinic: actions.async.deletePatientFromClinic,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
