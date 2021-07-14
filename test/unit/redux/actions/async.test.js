@@ -4797,7 +4797,7 @@ describe('Actions', () => {
           },
         };
 
-        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_INVITATION);
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC);
         err.status = 500;
 
         let expectedActions = [
