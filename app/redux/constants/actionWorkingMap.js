@@ -131,6 +131,16 @@ export default (type) => {
     case types.SEND_INVITE_FAILURE:
       return 'sendingInvite';
 
+    case types.SEND_CLINIC_INVITE_REQUEST:
+    case types.SEND_CLINIC_INVITE_SUCCESS:
+    case types.SEND_CLINIC_INVITE_FAILURE:
+      return 'sendingClinicInvite';
+
+    case types.RESEND_INVITE_REQUEST:
+    case types.RESEND_INVITE_SUCCESS:
+    case types.RESEND_INVITE_FAILURE:
+      return 'resendingInvite';
+
     case types.CANCEL_SENT_INVITE_REQUEST:
     case types.CANCEL_SENT_INVITE_SUCCESS:
     case types.CANCEL_SENT_INVITE_FAILURE:
@@ -239,6 +249,11 @@ export default (type) => {
     case types.FETCH_CLINIC_FAILURE:
       return 'fetchingClinic';
 
+    case types.FETCH_CLINICS_BY_IDS_REQUEST:
+    case types.FETCH_CLINICS_BY_IDS_SUCCESS:
+    case types.FETCH_CLINICS_BY_IDS_FAILURE:
+      return 'fetchingClinicsByIds';
+
     case types.UPDATE_CLINIC_REQUEST:
     case types.UPDATE_CLINIC_SUCCESS:
     case types.UPDATE_CLINIC_FAILURE:
@@ -313,6 +328,11 @@ export default (type) => {
     case types.ACCEPT_PATIENT_INVITATION_SUCCESS:
     case types.ACCEPT_PATIENT_INVITATION_FAILURE:
       return 'acceptingPatientInvitation';
+
+    case types.DELETE_PATIENT_INVITATION_REQUEST:
+    case types.DELETE_PATIENT_INVITATION_SUCCESS:
+    case types.DELETE_PATIENT_INVITATION_FAILURE:
+      return 'deletingPatientInvitation';
 
     case types.UPDATE_PATIENT_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_PERMISSIONS_SUCCESS:

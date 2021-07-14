@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.21.0-web-1179-devices-count-fix.1":
-  version "1.21.0-web-1179-devices-count-fix.1"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.21.0-web-1179-devices-count-fix.1.tgz#7dcc2d0f5a851a0a613c445d77df1a25580b0a1d"
-  integrity sha512-M79+pf0MZu/Cjjk6W5giv+PJyYDNv4w4wmE6aUco2GTCsnxayv5r5FOTLCQvcPXfg55qd6KaroEFkaBYc2d9ew==
+"@tidepool/viz@1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.21.0.tgz#9d1d6e1dec338ebd6756c086e308f66760302f9e"
+  integrity sha512-U9Kud7V4qF/OLiSXM8onM/0sCCaesCEIJy/nGho7PFHFe2lisMpZKaix27y7Od226APpXFhBUrA0kk6zIWjobg==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -18442,10 +18442,10 @@ tideline@1.24.0:
     react-sizeme "2.6.12"
     sundial "1.6.0"
 
-tidepool-platform-client@0.46.0-clinics.1:
-  version "0.46.0-clinics.1"
-  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.46.0-clinics.1.tgz#b31b18c55142bc7dd8895a9351ab9b0b3f245c51"
-  integrity sha512-jOjZcRKqxJfFUDAYfDUskFC+0oq4nNzDCbeFhWljkAzsENEr3S4BmPGTAjeBOs5IVM+DPOobH4PBeQGI1h1Ypw==
+tidepool-platform-client@0.46.0-web-1159-share-management-flow.1:
+  version "0.46.0-web-1159-share-management-flow.1"
+  resolved "https://registry.yarnpkg.com/tidepool-platform-client/-/tidepool-platform-client-0.46.0-web-1159-share-management-flow.1.tgz#3fbf72c939c891fc24e3baf7725a32ce37bd1a59"
+  integrity sha512-L6oPLQXULU6H4gTV7A4bTBkx1m1bZHH7ONKqkb3Q2AvuLvSE302QCqMFYFFTD6LKl/5k77qKkelCJnVJ9SHhtQ==
   dependencies:
     async "0.9.0"
     lodash "3.3.1"

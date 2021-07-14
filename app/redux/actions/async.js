@@ -297,6 +297,7 @@ export function login(api, credentials, options, postLoginAction) {
                   } else {
                     user = update(user, { $merge: patient });
                     dispatch(sync.loginSuccess(user));
+                    utils.initializePendo(user, _.get(options, 'location', {}), window);
                     if (postLoginAction) {
                       dispatch(postLoginAction());
                     }
@@ -305,6 +306,7 @@ export function login(api, credentials, options, postLoginAction) {
                 }));
               } else {
                 dispatch(sync.loginSuccess(user));
+                utils.initializePendo(user, _.get(options, 'location', {}), window);
                 if (postLoginAction) {
                   dispatch(postLoginAction());
                 }
@@ -438,6 +440,29 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
           dispatch(fetchPendingSentInvites(api));
         }
         dispatch(sync.sendInviteSuccess(invite));
+      }
+    });
+  }
+}
+
+/**
+ * Resend Invite Async Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} email
+ * @param  {Object} permissions
+ */
+export function resendInvite(api, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.resendInviteRequest());
+
+    api.invitation.resend(inviteId, (err, invite) => {
+      if (err) {
+        dispatch(sync.resendInviteFailure(
+          createActionError(ErrorMessages.ERR_RESENDING_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.resendInviteSuccess(invite, inviteId));
       }
     });
   }
@@ -1007,7 +1032,7 @@ export function fetchPatientData(api, options, id) {
           } else {
             // We then determine the date range to fetch data for by first finding the latest
             // diabetes datum time and going back 30 days
-            const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload'], d.type));
+            const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload', 'pumpSettings'], d.type));
             const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
 
             // If we have no latest diabetes datum time, we fall back to use the server time as the
@@ -1737,6 +1762,38 @@ export function fetchClinic(api, clinicId) {
 }
 
 /**
+ * Fetch Clinics By IDs Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {Array} clinicIds - Array of clinic Ids of the clinics to fetch
+ */
+export function fetchClinicsByIds(api, clinicIds) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicsByIdsRequest());
+
+    const fetchers = {};
+
+    _.forEach(clinicIds, clinicId => {
+      fetchers[clinicId] = api.clinics.get.bind(api, clinicId);
+    });
+
+    async.parallel(async.reflectAll(fetchers), (err, results) => {
+      const resultsErr = _.mapValues(results, ({ error }) => error);
+      const resultsVal = _.mapValues(results, ({ value }) => value);
+      const error = _.find(resultsErr, err => !_.isUndefined(err));
+
+      if (error) {
+        dispatch(sync.fetchClinicsByIdsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS, error), error
+        ));
+      } else {
+        dispatch(sync.fetchClinicsByIdsSuccess(resultsVal));
+      }
+    });
+  };
+}
+
+/**
  * Update Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2075,6 +2132,30 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
 }
 
 /**
+ * Send Clinic Invite Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} shareCode - share code of the clinic to invite
+ * @param {Object} permissions - permissions to be given
+ * @param {String} patientId - id of the patient sending the invite
+ */
+ export function sendClinicInvite(api, shareCode, permissions, patientId) {
+  return (dispatch) => {
+    dispatch(sync.sendClinicInviteRequest());
+
+    api.clinics.inviteClinic(shareCode, permissions, patientId, (err, invite) => {
+      if (err) {
+        dispatch(sync.sendClinicInviteFailure(
+          createActionError(ErrorMessages.ERR_SENDING_CLINIC_INVITE, err), err
+        ));
+      } else {
+        dispatch(sync.sendClinicInviteSuccess(invite));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Patient Invites Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
@@ -2120,6 +2201,29 @@ export function acceptPatientInvitation(api, clinicId, inviteId) {
 }
 
 /**
+ * Delete Patient Invitation Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} inviteId - Id of the invite
+ */
+export function deletePatientInvitation(api, clinicId, inviteId) {
+  return (dispatch) => {
+    dispatch(sync.deletePatientInvitationRequest());
+
+    api.clinics.deletePatientInvitation(clinicId, inviteId, (err, result) => {
+      if (err) {
+        dispatch(sync.deletePatientInvitationFailure(
+          createActionError(ErrorMessages.ERR_DELETING_PATIENT_INVITATION, err), err
+        ));
+      } else {
+        dispatch(sync.deletePatientInvitationSuccess(inviteId));
+      }
+    });
+  };
+}
+
+/**
  * Update Patient Permissions Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
@@ -2137,7 +2241,7 @@ export function updatePatientPermissions(api, clinicId, patientId, permissions) 
           createActionError(ErrorMessages.ERR_UPDATING_PATIENT_PERMISSIONS, err), err
         ));
       } else {
-        dispatch(sync.updatePatientPermissionsSuccess(permissions));
+        dispatch(sync.updatePatientPermissionsSuccess(clinicId, patientId, permissions));
       }
     });
   };
@@ -2260,6 +2364,28 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
         ));
       } else {
         dispatch(sync.getClinicsForClinicianSuccess(clinics, options));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Clinic by Share Code Action Creator
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} shareCode - Share code of the clinic
+ */
+ export function fetchClinicByShareCode(api, shareCode) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicRequest());
+
+    api.clinics.getClinicByShareCode(shareCode, (err, clinic) => {
+      if (err) {
+        dispatch(sync.fetchClinicFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicSuccess(clinic));
       }
     });
   };
