@@ -4222,7 +4222,7 @@ describe('Actions', () => {
     });
 
     describe('fetchClinicsByIds', () => {
-      it('should trigger FETCH_CLINICS_BY_IDS_SUCCESS and it should call clinics.get once for a successful request', () => {
+      it('should trigger FETCH_CLINICS_BY_IDS_SUCCESS and it should call clinics.get twice for a successful request', () => {
         let clinic1 = {
           id: '5f85fbe6686e6bb9170ab5d0',
           address: '1 Address Ln, City Zip',
