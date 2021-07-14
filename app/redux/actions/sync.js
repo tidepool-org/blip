@@ -393,6 +393,31 @@ export function sendInviteFailure(error, apiError) {
   };
 }
 
+export function sendClinicInviteRequest() {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_REQUEST,
+  };
+}
+
+export function sendClinicInviteSuccess(invite) {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_SUCCESS,
+    payload: {
+      invite: invite,
+    },
+  };
+}
+
+export function sendClinicInviteFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_CLINIC_INVITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function resendInviteRequest() {
   return {
     type: ActionTypes.RESEND_INVITE_REQUEST,

@@ -2104,15 +2104,15 @@ export function deleteClinicianInvite(api, clinicId, inviteId) {
  */
  export function sendClinicInvite(api, shareCode, permissions, patientId) {
   return (dispatch) => {
-    dispatch(sync.sendInviteRequest());
+    dispatch(sync.sendClinicInviteRequest());
 
     api.clinics.inviteClinic(shareCode, permissions, patientId, (err, invite) => {
       if (err) {
-        dispatch(sync.sendInviteFailure(
+        dispatch(sync.sendClinicInviteFailure(
           createActionError(ErrorMessages.ERR_SENDING_CLINIC_INVITE, err), err
         ));
       } else {
-        dispatch(sync.sendInviteSuccess(invite));
+        dispatch(sync.sendClinicInviteSuccess(invite));
       }
     });
   };

@@ -63,7 +63,7 @@ describe('InviteClinic', () => {
     blip: {
       loggedInUserId: 'patient123',
       working: {
-        sendingInvite: defaultWorkingState,
+        sendingClinicInvite: defaultWorkingState,
         fetchingClinic: defaultWorkingState,
       },
     },
@@ -73,7 +73,7 @@ describe('InviteClinic', () => {
     blip: {
       loggedInUserId: 'patient123',
       working: {
-        sendingInvite: defaultWorkingState,
+        sendingClinicInvite: defaultWorkingState,
         fetchingClinic: completedState,
       },
       clinics: {
@@ -192,7 +192,7 @@ describe('InviteClinic', () => {
 
       expectedActions = [
         {
-          type: 'SEND_INVITE_REQUEST',
+          type: 'SEND_CLINIC_INVITE_REQUEST',
         },
       ];
 

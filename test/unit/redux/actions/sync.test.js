@@ -721,6 +721,65 @@ describe('Actions', () => {
       });
     });
 
+    describe('sendClinicInviteRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.sendClinicInviteRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SEND_CLINIC_INVITE_REQUEST', () => {
+        let action = sync.sendClinicInviteRequest();
+        expect(action.type).to.equal('SEND_CLINIC_INVITE_REQUEST');
+      });
+    });
+
+    describe('sendClinicInviteSuccess', () => {
+      it('should be a TSA', () => {
+        let invite = {
+          shareCode: 'ABCD',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let action = sync.sendClinicInviteSuccess(invite);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SEND_CLINIC_INVITE_SUCCESS', () => {
+        let invite = {
+          shareCode: 'ABCD',
+          permissions: {
+            view: true,
+            clear: true
+          }
+        };
+        let action = sync.sendClinicInviteSuccess(invite);
+
+        expect(action.type).to.equal('SEND_CLINIC_INVITE_SUCCESS');
+        expect(action.payload.invite).to.equal(invite);
+      });
+    });
+
+    describe('sendClinicInviteFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.sendClinicInviteFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SEND_CLINIC_INVITE_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.sendClinicInviteFailure(error);
+
+        expect(action.type).to.equal('SEND_CLINIC_INVITE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('resendInviteRequest', () => {
       it('should be a TSA', () => {
         let action = sync.resendInviteRequest();

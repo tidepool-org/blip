@@ -32,7 +32,7 @@ const InviteClinic = props => {
   const { set: setToast } = useToasts();
   const clinics = useSelector((state) => state.blip.clinics);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const { sendingInvite, fetchingClinic } = useSelector((state) => state.blip.working);
+  const { sendingClinicInvite, fetchingClinic } = useSelector((state) => state.blip.working);
   const [clinic, setClinic] = useState(null);
 
   const shareCodeRegex = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/
@@ -107,7 +107,7 @@ const InviteClinic = props => {
   }, [fetchingClinic]);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = sendingInvite;
+    const { inProgress, completed, notification } = sendingClinicInvite;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
@@ -130,7 +130,7 @@ const InviteClinic = props => {
 
       setSubmitting(false);
     }
-  }, [sendingInvite]);
+  }, [sendingClinicInvite]);
 
   const handleBack = () => {
     if (clinic) {

@@ -2909,6 +2909,114 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('sendClinicInvite', () => {
+    describe('request', () => {
+      it('should set sendingClinicInvite.completed to null', () => {
+        expect(initialState.sendingClinicInvite.completed).to.be.null;
+
+        let requestAction = actions.sync.sendClinicInviteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.sendingClinicInvite.completed).to.be.null;
+
+        let successAction = actions.sync.sendClinicInviteSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.sendingClinicInvite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.sendingClinicInvite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicInvite.inProgress to be true', () => {
+        let action = actions.sync.sendClinicInviteRequest();
+
+        expect(initialState.sendingClinicInvite.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.sendingClinicInvite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set sendingClinicInvite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.sendingClinicInvite.completed).to.be.null;
+
+        let failureAction = actions.sync.sendClinicInviteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.sendingClinicInvite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicInvite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          sendingClinicInvite: {
+            inProgress: true,
+            notification: null
+          }
+        });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+
+        let action = actions.sync.sendClinicInviteFailure(error);
+
+        expect(initialStateForTest.sendingClinicInvite.inProgress).to.be.true;
+        expect(initialStateForTest.sendingClinicInvite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingClinicInvite.inProgress).to.be.false;
+        expect(state.sendingClinicInvite.notification.type).to.equal('error');
+        expect(state.sendingClinicInvite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set sendingClinicInvite.completed to be true', () => {
+        expect(initialState.sendingClinicInvite.completed).to.be.null;
+
+        let successAction = actions.sync.sendClinicInviteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.sendingClinicInvite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set sendingClinicInvite.inProgress to be false', () => {
+        let pendingSentInvites = [
+          { email: 'a@a.com', permissions: 'bar'}
+        ];
+
+        let initialStateForTest = _.merge(
+          {},
+          initialState,
+          {
+            sendingClinicInvite: {
+              inProgress: true,
+              notification: false
+            }
+        });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let invitation = { email: 'f@f.com', permissions: 'foo' };
+        let action = actions.sync.sendClinicInviteSuccess(invitation);
+
+        expect(initialStateForTest.sendingClinicInvite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.sendingClinicInvite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('resendInvite', () => {
     describe('request', () => {
       it('should set resendingInvite.completed to null', () => {

@@ -509,6 +509,7 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
     case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
       return update(state, { $set: _.get(action.payload, 'pendingSentInvites', []) });
     case types.SEND_INVITE_SUCCESS:
+    case types.SEND_CLINIC_INVITE_SUCCESS:
       const invite = _.get(action.payload, 'invite', null);
       if (invite) {
         // Replace at index of existing invite if already in state, else push if new.

@@ -313,7 +313,7 @@ describe('AccessManagement', () => {
       sinon.assert.calledWith(
         defaultProps.api.access.setMemberPermissions,
         'otherPatient123',
-        { note: {}, upload: undefined, view: {} }
+        { upload: undefined, view: {} }
       );
 
       // Click remove account button to open confirmation modal
@@ -417,7 +417,7 @@ describe('AccessManagement', () => {
         defaultProps.api.clinics.updatePatientPermissions,
         'clinicID456',
         'patient123',
-        { note: {}, upload: undefined, view: {} }
+        { upload: undefined, view: {} }
       );
 
       // Click remove account button to open confirmation modal

@@ -5263,7 +5263,7 @@ describe('Actions', () => {
     });
 
     describe('sendClinicInvite', () => {
-      it('should trigger SEND_INVITE_SUCCESS and it should call clinics.inviteClinic once for a successful request', () => {
+      it('should trigger SEND_CLINIC_INVITE_SUCCESS and it should call clinics.inviteClinic once for a successful request', () => {
         let shareCode = 'shareCode123';
         let permissions = { view: {} };
         let patientId = 'patientIdABC';
@@ -5275,8 +5275,8 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SEND_INVITE_REQUEST' },
-          { type: 'SEND_INVITE_SUCCESS', payload: {
+          { type: 'SEND_CLINIC_INVITE_REQUEST' },
+          { type: 'SEND_CLINIC_INVITE_SUCCESS', payload: {
             invite: { my: 'invite' },
           } }
         ];
@@ -5292,7 +5292,7 @@ describe('Actions', () => {
         expect(api.clinics.inviteClinic.callCount).to.equal(1);
       });
 
-      it('should trigger SEND_INVITE_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger SEND_CLINIC_INVITE_FAILURE and it should call error once for a failed request', () => {
         let shareCode = 'shareCode123';
         let permissions = { view: {} };
         let patientId = 'patientIdABC';
@@ -5307,8 +5307,8 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
-          { type: 'SEND_INVITE_REQUEST' },
-          { type: 'SEND_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'SEND_CLINIC_INVITE_REQUEST' },
+          { type: 'SEND_CLINIC_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

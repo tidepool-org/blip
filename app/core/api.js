@@ -950,7 +950,6 @@ api.clinics.acceptPatientInvitation = function(clinicId, inviteId, cb) {
 };
 
 api.clinics.deletePatientInvitation = function(clinicId, inviteId, cb) {
-  console.log('typeof cb', typeof cb);
   return tidepool.deletePatientInvitation(clinicId, inviteId, cb);
 };
 

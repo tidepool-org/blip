@@ -304,8 +304,7 @@ export const AccessManagement = (props) => {
     trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
 
     const permissions = {
-      view: {},
-      note: {},
+      ...member.permissions,
       upload: member.uploadPermission ? undefined : {},
     };
 
