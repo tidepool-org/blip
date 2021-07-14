@@ -319,7 +319,7 @@ describe('clinics', () => {
   });
 
   describe('updatePatientPermissions', () => {
-    it('should add clinics with clinician attached to state', () => {
+    it('should update patient permissions in state', () => {
       let clinicId = 'clinicId123';
       let patientId = 'patientId1234';
       let viewOnlyPermissions = { view: {} };
