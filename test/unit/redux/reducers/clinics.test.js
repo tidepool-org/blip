@@ -291,7 +291,7 @@ describe('clinics', () => {
   });
 
   describe('fetchClinicsForPatient', () => {
-    it('should add clinics with clinician attached to state', () => {
+    it('should add clinics with patient attached to state', () => {
       let initialStateForTest = {};
       let clinics = [
         {
