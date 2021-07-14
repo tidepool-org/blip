@@ -47,6 +47,10 @@ describe('AccessManagement', () => {
   };
 
   before(() => {
+    AccessManagement.__Rewire__('config', {
+      CLINICS_ENABLED: true,
+    });
+
     mount = createMount();
   });
 
@@ -59,6 +63,7 @@ describe('AccessManagement', () => {
   });
 
   after(() => {
+    AccessManagement.__ResetDependency__('config');
     mount.cleanUp();
   });
 
