@@ -3084,6 +3084,7 @@ describe('Actions', () => {
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
           { id: 26, value: 30.8, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
+          { id: 27, uploadId: 'upload123', type: 'pumpSettings', time: '2018-05-01T00:00:00.000Z' },
           { type: 'upload', id: 'upload789', uploadId: '_upload789', time: '2018-06-01T00:00:00.000Z' },
         ];
 
@@ -3234,9 +3235,9 @@ describe('Actions', () => {
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
-          expect(api.patientData.get.callCount).to.equal(2);
+          expect(api.patientData.get.callCount).to.equal(3);
 
-          // Should set the start date based on the latest smbg, even though the upload is more recent
+          // Should set the start date based on the latest smbg, even though the pump settings and upload are more recent
           expect(api.patientData.get.withArgs(patientId, {
             ...options,
             startDate: '2017-12-31T00:00:00.000Z',
@@ -3268,7 +3269,7 @@ describe('Actions', () => {
                 meta: { WebWorker: true, worker: 'data', origin: 'http://originStub', patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
-                  fetchedCount: 5,
+                  fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
@@ -3354,8 +3355,8 @@ describe('Actions', () => {
 
           api.patientData = {
             get: sinon.stub()
-              .onFirstCall().callsArgWith(2, null, [ ...patientData, { type: 'pumpSettings', uploadId: 'upload123', time: '2018-02-01T00:00:00.000Z' }])
-              .onSecondCall().callsArgWith(2, null, patientData)
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, _.reject(patientData, { type: 'pumpSettings' }))
               .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
 

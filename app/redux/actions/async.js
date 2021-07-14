@@ -263,6 +263,7 @@ export function login(api, credentials, options, postLoginAction) {
                   } else {
                     user = update(user, { $merge: patient });
                     dispatch(sync.loginSuccess(user));
+                    utils.initializePendo(user, _.get(options, 'location', {}), window);
                     if (postLoginAction) {
                       dispatch(postLoginAction());
                     }
@@ -271,6 +272,7 @@ export function login(api, credentials, options, postLoginAction) {
                 }));
               } else {
                 dispatch(sync.loginSuccess(user));
+                utils.initializePendo(user, _.get(options, 'location', {}), window);
                 if (postLoginAction) {
                   dispatch(postLoginAction());
                 }
@@ -995,7 +997,7 @@ export function fetchPatientData(api, options, id) {
           } else {
             // We then determine the date range to fetch data for by first finding the latest
             // diabetes datum time and going back 30 days
-            const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload'], d.type));
+            const diabetesDatums = _.reject(latestDatums, d => _.includes(['food', 'upload', 'pumpSettings'], d.type));
             const latestDiabetesDatumTime = _.max(_.map(diabetesDatums, d => (d.time)));
 
             // If we have no latest diabetes datum time, we fall back to use the server time as the
