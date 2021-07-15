@@ -3009,10 +3009,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@tidepool/viz@1.21.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-1.21.0.tgz#9d1d6e1dec338ebd6756c086e308f66760302f9e"
-  integrity sha512-U9Kud7V4qF/OLiSXM8onM/0sCCaesCEIJy/nGho7PFHFe2lisMpZKaix27y7Od226APpXFhBUrA0kk6zIWjobg==
+"@tidepool/viz@2.21.0-microtech-equil.4":
+  version "2.21.0-microtech-equil.4"
+  resolved "https://registry.yarnpkg.com/@tidepool/viz/-/viz-2.21.0-microtech-equil.4.tgz#060d9dbf701dd76970a234be10e27a54347190f9"
+  integrity sha512-9vVEq6yh6qGNIrVEctPBMVmflnSm1lM2H3Eli7fyhScAaAum9KB+sz9HOvHDipalZ0F3cMOaO7qKyq56Z+mWGQ==
   dependencies:
     bluebird "3.5.2"
     bows "1.7.0"
@@ -3029,7 +3029,7 @@
     gsap "2.0.2"
     i18next "11.9.0"
     intl "1.2.5"
-    lodash "4.17.19"
+    lodash "4.17.21"
     memorystream "0.3.1"
     moment "2.22.2"
     moment-timezone "0.5.21"
@@ -11852,11 +11852,6 @@ lodash@4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
-
-lodash@4.17.19:
-  version "4.17.19"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
-  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
 lodash@4.17.4:
   version "4.17.4"
