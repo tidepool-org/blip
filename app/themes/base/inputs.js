@@ -40,7 +40,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         boxShadow: 'none',
       },
       '&:disabled': {
-        color: colors.text.primaryDisabled,
+        color: colors.text.primarySubdued,
         borderColor: colors.lightestGrey,
         backgroundColor: colors.lightestGrey,
       },
@@ -94,7 +94,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     ...common,
     color: colors.text.primary,
     '&.disabled': {
-      color: colors.text.primaryDisabled,
+      color: colors.text.primarySubdued,
       borderColor: colors.lightestGrey,
       backgroundColor: colors.lightestGrey,
     },
@@ -184,6 +184,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         flexDirection: 'column',
         padding: `${space[3]}px`,
         border: borders.input,
+        borderRadius: radii.default,
         marginBottom: `${space[3]}px`,
         fontSize: fontSizes[1],
 
@@ -207,6 +208,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         label: {
           padding: `${space[3]}px`,
           border: borders.input,
+          borderRadius: radii.default,
           marginBottom: `${space[3]}px`,
 
           '&:last-child': {

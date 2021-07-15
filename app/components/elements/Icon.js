@@ -32,7 +32,7 @@ export const Icon = props => {
     ...buttonProps
   } = props;
 
-  const as = props.variant === 'icons.button' ? 'button' : 'span';
+  const as = props.variant === 'button' ? 'button' : 'span';
 
   const classNames = cx({
     disabled: props.disabled,

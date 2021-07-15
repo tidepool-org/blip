@@ -15,6 +15,7 @@ import RadioGroup from '../../components/elements/RadioGroup';
 import Select from '../../components/elements/Select';
 import TextInput from '../../components/elements/TextInput';
 import { Paragraph1, Headline } from '../../components/elements/FontStyles';
+import SettingsCalculatorResults from './SettingsCalculatorResults';
 
 import {
   condensedInputStyles,
@@ -35,13 +36,18 @@ const t = i18next.t.bind(i18next);
 const log = bows('PrescriptionCalculator');
 
 export const CalculatorMethod = translate()(props => {
-  const { t } = props;
+  const { t, onMethodChange } = props;
   const formikContext = useFormikContext();
   const initialFocusedInputRef = useInitialFocusedInput();
+  const method = get(formikContext.values, 'calculator.method', '');
 
-  const options = !isEmpty(get(formikContext.values, 'calculator.method', ''))
+  const options = !isEmpty(method)
     ? calculatorMethodOptions
     : [ { label: t('Select method'), value: '' }, ...calculatorMethodOptions ];
+
+  React.useEffect(() => {
+    onMethodChange();
+  }, [method]);
 
   return (
     <Box {...fieldsetStyles}>
@@ -70,7 +76,6 @@ export const CalculatorMethod = translate()(props => {
 export const CalculatorInputs = translate()(props => {
   const { t, schema } = props;
   const formikContext = useFormikContext();
-  const [results, setResults] = React.useState();
 
   const {
     setFieldTouched,
@@ -78,19 +83,18 @@ export const CalculatorInputs = translate()(props => {
     values,
   } = formikContext;
 
-  React.useEffect(() => {
+  const setResults = (results) => {
     if (results) {
       setFieldValue('calculator.recommendedBasalRate', results.recommendedBasalRate, true);
       setFieldValue('calculator.recommendedInsulinSensitivity', results.recommendedInsulinSensitivity, true);
       setFieldValue('calculator.recommendedCarbohydrateRatio', results.recommendedCarbohydrateRatio, true);
     }
-  }, [results])
+  };
 
   const initialFocusedInputRef = useInitialFocusedInput();
   const method = get(values, 'calculator.method');
   const showTotalDailyDose = includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method);
   const showWeight = includes(['weight', 'totalDailyDoseAndWeight'], method);
-  const bgUnits = values.initialSettings.bloodGlucoseUnits;
 
   return (
     <Box {...fieldsetStyles}>
@@ -106,7 +110,7 @@ export const CalculatorInputs = translate()(props => {
         <Box mb={3}>
           <FastField
             as={TextInput}
-            label={t('Total Daily Dose')}
+            label={t('Total Daily Dose (U)')}
             placeholder={t('Enter Patient\'s Total Daily Dose')}
             type="number"
             id="calculator.totalDailyDose"
@@ -188,24 +192,7 @@ export const CalculatorInputs = translate()(props => {
         {t('Calculate')}
       </Button>
 
-      {results && (
-        <Box
-          mt={4}
-          sx={{ borderLeft: '3px solid', borderLeftColor: 'purpleMedium' }}
-          bg="purpleLight"
-          p={3}
-        >
-          <Paragraph1>
-            <strong>{t('Basal Rate: ')}</strong>{results.recommendedBasalRate} U/hr
-          </Paragraph1>
-          <Paragraph1>
-            <strong>{t('Insulin Sensitivity: ')}</strong>{results.recommendedInsulinSensitivity} {`${bgUnits}/U`}
-          </Paragraph1>
-          <Paragraph1>
-            <strong>{t('Carbohydrate Ratio: ')}</strong>{results.recommendedCarbohydrateRatio} g/U
-          </Paragraph1>
-        </Box>
-      )}
+      <SettingsCalculatorResults mt={3} />
     </Box>
   );
 });
@@ -214,11 +201,15 @@ const settingsCalculatorFormSteps = (schema, handlers, values ) => ({
   label: t('Therapy Settings Calculator'),
   optional: true,
   onSkip: handlers.clearCalculator,
+  onEnter: handlers.goToFirstSubStep,
   subSteps: [
     {
       disableComplete: isEmpty(get(values, stepValidationFields[2][0][0])) || !fieldsAreValid(stepValidationFields[2][0], schema, values),
       onComplete: () => log('Calculator Method Complete'),
-      panelContent: <CalculatorMethod />
+      panelContent: <CalculatorMethod onMethodChange={() => {
+        handlers.clearCalculatorInputs();
+        handlers.clearCalculatorResults();
+      }} />,
     },
     {
       disableComplete: !fieldsAreValid(stepValidationFields[2][1], schema, values),

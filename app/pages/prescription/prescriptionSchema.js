@@ -27,6 +27,20 @@ import {
 
 const t = i18next.t.bind(i18next);
 
+yup.setLocale({
+  mixed: {
+    notType: ({ type }) => {
+      let msg = t(`Please enter a valid ${type}`);
+
+      if (type === 'date') {
+        msg += t(' in the requested format');
+      }
+
+      return msg;
+    },
+  },
+});
+
 export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) => {
   const pump = find(devices.pumps, { id: pumpId });
   const ranges = pumpRanges(pump, bgUnits, values);
@@ -60,9 +74,9 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
       is: 'caregiver',
       then: yup.string().required(t('Last name is required')),
     }),
-    birthday: yup.string()
-      .test('matchesDateFormat', t('Please enter a valid date in the requested format'), value => moment(value, dateFormat, true).isValid())
-      .test('isPastDate', t('Please enter a date prior to today'), value => value < moment().format(dateFormat))
+    birthday: yup.date()
+      .min(moment().subtract(130, 'years').format(dateFormat), t('Please enter a date within the last 130 years'))
+      .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
       .required(t('Patient\'s birthday is required')),
     email: yup.string()
       .email(t('Please enter a valid email address'))
@@ -93,8 +107,12 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
           .min(0)
           .required(t('Total Daily Dose is required')),
       }),
-      totalDailyDoseScaleFactor: yup.number()
-        .oneOf(map(totalDailyDoseScaleFactorOptions, 'value')),
+      totalDailyDoseScaleFactor: yup.mixed().notRequired().when('method', {
+        is: method => includes(['totalDailyDose', 'totalDailyDoseAndWeight'], method),
+        then: yup.number()
+          .oneOf(map(totalDailyDoseScaleFactorOptions, 'value'))
+          .required(),
+      }),
       weight: yup.mixed().notRequired().when('method', {
         is: method => includes(['weight', 'totalDailyDoseAndWeight'], method),
         then: yup.number()
@@ -105,15 +123,21 @@ export default (devices, pumpId, bgUnits = defaultUnits.bloodGlucose, values) =>
         .oneOf(map(weightUnitOptions, 'value')),
       recommendedBasalRate: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedInsulinSensitivity: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
       recommendedCarbohydrateRatio: yup.mixed().notRequired().when('method', {
         is: method => includes(map(calculatorMethodOptions, 'value'), method),
-        then: yup.number().required(),
+        then: yup.number()
+          .min(0)
+          .required(),
       }),
     }),
     initialSettings: yup.object().shape({
