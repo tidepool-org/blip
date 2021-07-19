@@ -111,15 +111,24 @@ const defaultConfig = {
 
     verbose: true, // output config used by istanbul for debugging
   },
+  junitReporter: {
+    logReport: false,
+    name: "yourloops",
+    filename: "junit.xml",
+  },
   mime: {
     "text/x-typescript": ["ts", "tsx"],
   },
   frameworks: ["mocha"],
-  reporters: ["mocha", "coverage-istanbul"],
+  reporters: ["mocha", "coverage-istanbul", "junit"],
   webpackMiddleware: {
     noInfo: true,
     stats: "errors-only",
   },
+  plugins: [
+    'karma-*',
+    require("./karma.junit.reporter"),
+  ],
 };
 
 let updatedConfig = null;
@@ -150,6 +159,8 @@ function updateDefaultConfig(projectName, karmaConfig, webpackConfig, typescript
   updatedConfig = _.defaultsDeep(karmaConfig, defaultConfig);
   updatedConfig.webpack = webpackConfig;
   updatedConfig.coverageIstanbulReporter.dir = path.join(__dirname, `coverage/${projectName}`);
+  updatedConfig.junitReporter.name = projectName;
+  updatedConfig.junitReporter.filename = path.join(__dirname, `reports/${projectName}.junit.xml`);
 }
 
 /**

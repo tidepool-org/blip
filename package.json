@@ -10,7 +10,7 @@
     "postinstall": "lerna bootstrap",
     "mrproper": "npm run clean && lerna run mrproper",
     "postmrproper": "rm -rf node_modules cloudfront-dist/deployment/node_modules server/node_modules",
-    "clean": "lerna exec -- rm -rf dist coverage deploy && lerna clean --yes",
+    "clean": "lerna exec -- rm -rf dist coverage deploy reports && lerna clean --yes",
     "postclean": "rm -rf doc dist coverage",
     "info": "lerna info",
     "prebuild": "rm -rf dist",
@@ -18,7 +18,7 @@
     "postbuild": "mkdir dist && mv packages/yourloops/dist dist/static",
     "gen-lambda": "node server/cloudfront-gen-lambda.js",
     "lint": "lerna run lint",
-    "clean-coverage": "rm -rf coverage",
+    "clean-coverage": "rm -rf coverage reports",
     "pretest": "npm run clean-coverage",
     "test": "npm run test-sundial && npm run test-tideline && npm run test-viz && npm run test-blip && npm run test-yourloops",
     "test-sundial": "lerna --stream --scope=sundial run test",
@@ -36,8 +36,8 @@
     "start-dev": "bash -c 'source config/env.docker.sh && lerna run --stream --scope yourloops start-dev'"
   },
   "engines": {
-    "node": ">=10.x",
-    "npm": ">=6.x"
+    "node": ">=12.x",
+    "npm": ">=7.x"
   },
   "dependencies": {
     "blip": "file:packages/blip",

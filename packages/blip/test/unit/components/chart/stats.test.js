@@ -85,6 +85,10 @@ describe('Stats', () => {
   let wrapper;
   let instance;
 
+  beforeEach(() => {
+    baseProps.dataUtil = new DataUtilStub();
+  });
+
   describe('constructor', () => {
     beforeEach(() => {
       wrapper = shallow(<Stats {...baseProps} />);
@@ -108,7 +112,6 @@ describe('Stats', () => {
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
       sinon.assert.calledWith(dataUtilEndpointsSpy.set, baseProps.endpoints);
-      baseProps.dataUtil = new DataUtilStub();
     });
   });
 
@@ -563,7 +566,6 @@ describe('Stats', () => {
 
       sinon.assert.callCount(dataUtilEndpointsSpy.set, 1);
       sinon.assert.calledWith(dataUtilEndpointsSpy.set, ['foo', 'bar']);
-      dataUtilEndpointsSpy.restore();
 
       sinon.assert.callCount(updateStatDataSpy, 1);
       sinon.assert.calledWith(updateStatDataSpy, nextProps);

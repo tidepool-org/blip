@@ -29,6 +29,8 @@ artifact_node.sh
 artifact_packaging.sh
 artifact_images.sh
 coverage/
+reports/
+*.junit.xml
 
 yarn.lock
 

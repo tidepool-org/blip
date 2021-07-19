@@ -39,6 +39,7 @@ pipeline {
                     sh 'npm run test-yourloops'
                     sh 'npm run test-lambda'
                     sh 'npm run security-checks'
+                    junit 'reports/*.junit.xml'
                 }
             }
         }
