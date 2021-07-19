@@ -44,11 +44,25 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://tidepoolsupport.zendesk.com',
       'wss://tidepoolsupport.zendesk.com',
       'wss://*.zopim.com',
+      (req) => {
+        return req.hostname !== 'app.tidepool.org' && "'unsafe-eval'"; //required for Pendo.io Designer
+      },
+      (req) => {
+        return req.hostname !== 'app.tidepool.org' && "'unsafe-inline'"; //required for Pendo.io Designer
+      },
+      'https://app.pendo.io',
+      'https://pendo-io-static.storage.googleapis.com',
+      'https://cdn.pendo.io',
+      'https://pendo-static-5707274877534208.storage.googleapis.com',
+      'https://data.pendo.io',
     ],
     styleSrc: [
       "'self'",
       'blob:',
       "'unsafe-inline'",
+      'https://app.pendo.io',
+      'https://cdn.pendo.io',
+      'https://pendo-static-5707274877534208.storage.googleapis.com',
     ],
     imgSrc: [
       "'self'",
@@ -57,12 +71,16 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://static.zdassets.com',
       'https://tidepoolsupport.zendesk.com',
       'https://support.tidepool.org',
+      'https://cdn.pendo.io',
+      'https://app.pendo.io',
+      'https://pendo-static-5707274877534208.storage.googleapis.com',
+      'https://data.pendo.io'
     ],
     fontSrc: ["'self'", 'data:'],
     reportUri: '/event/csp-report/violation',
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
-    childSrc: ["'self'", 'blob:','https://docs.google.com'],
+    childSrc: ["'self'", 'blob:', 'https://docs.google.com', 'https://app.pendo.io'],
     frameSrc: ['https://docs.google.com'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost',
@@ -77,7 +95,11 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       '*.development.tidepool.org',
       '*.integration.tidepool.org',
       'http://*.integration-test.tidepool.org',
+      'https://app.pendo.io',
+      'https://data.pendo.io',
+      'https://pendo-static-5707274877534208.storage.googleapis.com',
     ]),
+    frameAncestors: ['https://app.pendo.io']
   },
   reportOnly: false,
 }));
