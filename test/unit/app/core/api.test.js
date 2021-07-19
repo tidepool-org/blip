@@ -23,7 +23,6 @@ describe('api', () => {
       getUserId: sinon.stub().returns(currentUserId),
       getCurrentUser: sinon.stub(),
       getAssociatedUsersDetails: sinon.stub(),
-      findProfile: sinon.stub(),
       updateCustodialUser: sinon.stub(),
       addOrUpdateProfile: sinon.stub(),
       signupStart: sinon.stub(),
@@ -59,6 +58,11 @@ describe('api', () => {
       acceptClinicianInvite: sinon.stub(),
       dismissClinicianInvite: sinon.stub(),
       getClinicsForClinician: sinon.stub(),
+      inviteClinic: sinon.stub(),
+      resendInvite: sinon.stub(),
+      deletePatientFromClinic: sinon.stub(),
+      deletePatientInvitation: sinon.stub(),
+      getClinicByShareCode: sinon.stub(),
     };
 
     rollbar = {
@@ -111,6 +115,10 @@ describe('api', () => {
     tidepool.acceptClinicianInvite.resetHistory();
     tidepool.dismissClinicianInvite.resetHistory();
     tidepool.getClinicsForClinician.resetHistory();
+    tidepool.resendInvite.resetHistory();
+    tidepool.deletePatientFromClinic.resetHistory();
+    tidepool.deletePatientInvitation.resetHistory();
+    tidepool.getClinicByShareCode.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -317,13 +325,13 @@ describe('api', () => {
           { userid: '1', username: 'bigdata@tidepool.org' },
           { userid: '2', username: 'bigdata+foo@tidepool.org' },
           { userid: '3', username: 'patient1@tidepool.org', trustorPermissions: { view: {} } },
-          { userid: '4', username: 'patient2@tidepool.org', trustorPermissions: { view: {} } },
+          { userid: '4', username: 'patient2@tidepool.org', trustorPermissions: { view: {} }, trusteePermissions: { view: {}, upload: {} } },
           { userid: '5', username: 'careteam1@tidepool.org', trusteePermissions: { view: {}, upload: {} } },
           { userid: '6', username: 'missing_permissions@tidepool.org' },
         ];
 
         tidepool.getAssociatedUsersDetails.callsArgWith(1, null, accounts);
-        const cb = sinon.stub()
+        const cb = sinon.stub();
 
         api.user.getAssociatedAccounts(cb);
 
@@ -337,6 +345,7 @@ describe('api', () => {
             { userid: '2', email: 'bigdata+foo@tidepool.org', status: 'confirmed' },
           ],
           careTeam: [
+            { userid: '4', username: 'patient2@tidepool.org', permissions: { view: {}, upload: {} } },
             { userid: '5', username: 'careteam1@tidepool.org', permissions: { view: {}, upload: {} } },
           ],
         });
@@ -790,6 +799,50 @@ describe('api', () => {
         const options = {};
         api.clinics.getClinicsForClinician(clinicianId, options, cb);
         sinon.assert.calledWith(tidepool.getClinicsForClinician, clinicianId, options, cb);
+      });
+    });
+    describe('inviteClinic', () => {
+      it('should call tidepool.inviteClinic with the appropriate args', () => {
+        const cb = sinon.stub();
+        const shareCode = 'shareCode';
+        const permissions = { view: {}, upload: {} };
+        const patientId = 'patientId';
+        api.clinics.inviteClinic(shareCode, permissions, patientId, cb);
+        sinon.assert.calledWith(tidepool.inviteClinic, shareCode, permissions, patientId, cb);
+      });
+    });
+    describe('invitation.resend', () => {
+      it('should call tidepool.resendInvite with the appropriate args', () => {
+        const cb = sinon.stub();
+        const inviteId = 'inviteId';
+        api.invitation.resend(inviteId, cb);
+        sinon.assert.calledWith(tidepool.resendInvite, inviteId, cb);
+      });
+    });
+    describe('clinics.deletePatientFromClinic', () => {
+      it('should call tidepool.deletePatientFromClinic with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId';
+        const patientId = 'patientId';
+        api.clinics.deletePatientFromClinic(clinicId, patientId, cb);
+        sinon.assert.calledWith(tidepool.deletePatientFromClinic, clinicId, patientId, cb);
+      });
+    });
+    describe('clinics.deletePatientInvitation', () => {
+      it('should call tidepool.deletePatientInvitation with the appropriate args', () => {
+        const cb = sinon.stub();
+        const clinicId = 'clinicId';
+        const inviteId = 'inviteId';
+        api.clinics.deletePatientInvitation(clinicId, inviteId, cb);
+        sinon.assert.calledWith(tidepool.deletePatientInvitation, clinicId, inviteId, cb);
+      });
+    });
+    describe('clinics.getClinicByShareCode', () => {
+      it('should call tidepool.getClinicByShareCode with the appropriate args', () => {
+        const cb = sinon.stub();
+        const shareCode = 'shareCode';
+        api.clinics.getClinicByShareCode(shareCode, cb);
+        sinon.assert.calledWith(tidepool.getClinicByShareCode, shareCode, cb);
       });
     });
   });

@@ -70,6 +70,67 @@ describe('pendingSentInvites', () => {
       expect(state.length).to.equal(initialStateForTest.length + 1);
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
+
+    it('should replace an existing invitation in state', () => {
+      let initialStateForTest = [
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
+      ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let invitation = { key: 'xyz123zyx', updated: true };
+
+      let action = actions.sync.sendInviteSuccess(invitation);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(initialStateForTest.length);
+      expect(state).to.eql([
+        { key: 'xyz123zyx', updated: true },
+        { key: 'abc987cba' }
+      ]);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('resendInviteSuccess', () => {
+    it('should push new invitation to state', () => {
+      let initialStateForTest = [
+        { inviteid: 'xyz123zyx' },
+        { inviteid: 'abc987cba' }
+      ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let invitation = { inviteid: 'def456fed' };
+
+      let action = actions.sync.resendInviteSuccess(invitation, 'missingId');
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(initialStateForTest.length + 1);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should replace an existing invitation in state', () => {
+      let initialStateForTest = [
+        { key: 'xyz123zyx' },
+        { key: 'abc987cba' }
+      ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let invitation = { key: 'def456fed', updated: true };
+
+      let action = actions.sync.resendInviteSuccess(invitation, 'xyz123zyx');
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(initialStateForTest.length);
+      expect(state).to.eql([
+        { key: 'def456fed', updated: true },
+        { key: 'abc987cba' }
+      ]);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
   });
 
   describe('cancelSentInviteSuccess', () => {
@@ -89,6 +150,27 @@ describe('pendingSentInvites', () => {
       expect(state.length).to.equal(initialStateForTest.length - 1);
       expect(_.find(state, {email: removedEmail})).to.be.undefined;
       expect(state[0].email).to.equal('a@a.com');
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('deletePatientInvitationSuccess', () => {
+    it('should remove invitation from state array', () => {
+      let initialStateForTest = [
+        { key: 'xyz123zyx', email: 'g@g.com' },
+        { key: 'abc987cba', email: 'a@a.com' }
+      ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let inviteId = 'xyz123zyx';
+
+      let action = actions.sync.deletePatientInvitationSuccess(inviteId);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state.length).to.equal(initialStateForTest.length - 1);
+      expect(_.find(state, {key: inviteId})).to.be.undefined;
+      expect(state[0].key).to.equal('abc987cba');
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });

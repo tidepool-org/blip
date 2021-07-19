@@ -37,7 +37,7 @@ describe('forms', function() {
     notInitiallySetAndError: undefined,
   };
 
-  const formikContext = {
+  let formikContext = {
     errors,
     touched,
     initialValues,
@@ -125,6 +125,48 @@ describe('forms', function() {
     it('should return `null` if non-numeric value is passed in', () => {
       expect(formUtils.getThresholdWarning('', threshold)).to.equal(null);
       expect(formUtils.getThresholdWarning('6', threshold)).to.equal(null);
+    });
+  });
+
+  describe('getCommonFormikFieldProps', () => {
+    it('should return appropriate props for a given fieldpath from formikContext', () => {
+      const fieldpath = 'user.name';
+      formikContext = {
+        handleChange: sinon.stub(),
+        handleBlur: sinon.stub(),
+        errors: { [fieldpath]: 'name is silly'},
+        touched: { [fieldpath]: true },
+        values: { [fieldpath]: 'Fooey McBear' },
+      };
+
+      expect (formUtils.getCommonFormikFieldProps(fieldpath, formikContext)).to.eql({
+        id: 'user.name',
+        name: 'user.name',
+        onChange: formikContext.handleChange,
+        onBlur: formikContext.handleBlur,
+        error: 'name is silly',
+        value: 'Fooey McBear',
+      })
+    });
+
+    it('should allow setting a custom value prop', () => {
+      const fieldpath = 'user.name';
+      formikContext = {
+        handleChange: sinon.stub(),
+        handleBlur: sinon.stub(),
+        errors: { [fieldpath]: 'name is silly'},
+        touched: { [fieldpath]: true },
+        values: { [fieldpath]: 'Fooey McBear' },
+      };
+
+      expect (formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue')).to.eql({
+        id: 'user.name',
+        name: 'user.name',
+        onChange: formikContext.handleChange,
+        onBlur: formikContext.handleBlur,
+        error: 'name is silly',
+        myValue: 'Fooey McBear',
+      })
     });
   });
 });

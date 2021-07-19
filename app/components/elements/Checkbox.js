@@ -65,6 +65,8 @@ export const Checkbox = (props) => {
         as={Label}
         theme={baseTheme}
         variant={`inputs.checkboxes.${variant}`}
+        sx={{ display: 'inline-flex !important' }}
+        width="auto"
         {...themeProps}
       >
         <StyledCheckbox className={classNames} {...checkboxProps} />

@@ -40,7 +40,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
         boxShadow: 'none',
       },
       '&:disabled': {
-        color: colors.text.primaryDisabled,
+        color: colors.text.primarySubdued,
         borderColor: colors.lightestGrey,
         backgroundColor: colors.lightestGrey,
       },
@@ -94,7 +94,7 @@ export default ({ borders, colors, fonts, radii, fontSizes, fontWeights, space }
     ...common,
     color: colors.text.primary,
     '&.disabled': {
-      color: colors.text.primaryDisabled,
+      color: colors.text.primarySubdued,
       borderColor: colors.lightestGrey,
       backgroundColor: colors.lightestGrey,
     },

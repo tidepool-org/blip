@@ -41,6 +41,10 @@ export const colors = {
     border: '#75849F',
     text: '#727375',
   },
+  status: {
+    pending: ['#E2FFEE', '#006644'],
+    declined: ['#FFECEE', '#DD2C00'],
+  },
 };
 
 export const borders = {

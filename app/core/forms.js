@@ -48,3 +48,19 @@ export const getThresholdWarning = (value, threshold) => {
   }
   return null;
 };
+
+/**
+ * Get props commonly used for Formik fields
+ * @param {String} fieldPath path to the field in dot notation
+ * @param {Object} formikContext context provided by useFormikContext()
+ * @param {String} valueProp prop name to use for field value
+ * @returns {Object}
+ */
+export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 'value') => ({
+  id: fieldpath,
+  name: fieldpath,
+  onChange: formikContext.handleChange,
+  onBlur: formikContext.handleBlur,
+  error: getFieldError(fieldpath, formikContext),
+  [valueProp]: formikContext.values[fieldpath],
+});

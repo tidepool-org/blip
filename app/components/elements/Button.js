@@ -58,7 +58,7 @@ export const Button = props => {
         <StyledCircularProgress>
           <CircularProgress
             color="inherit"
-            size={themeContext.fontSizes[3]}
+            size={themeContext?.fontSizes[3]}
             thickness={5}
           />
         </StyledCircularProgress>

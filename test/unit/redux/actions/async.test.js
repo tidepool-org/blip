@@ -12,7 +12,6 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
-import moment from 'moment';
 import _ from 'lodash';
 
 import isTSA from 'tidepool-standard-action';
@@ -1288,7 +1287,6 @@ describe('Actions', () => {
         let permissions = {
           view: true
         };
-        let invitation = { foo: 'bar' };
         const error = { status: 409, body: 'Error!' };
         let api = {
           invitation: {
@@ -1361,6 +1359,65 @@ describe('Actions', () => {
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
         sinon.assert.calledWithExactly(callback, error, undefined);
+      });
+    });
+
+    describe('resendInvite', () => {
+      it('should trigger RESEND_INVITE_SUCCESS and it should call api.invitation.resend and callback once for a successful request', () => {
+        let inviteId = 'inviteId';
+        let invite = { foo: 'bar' };
+        let api = {
+          invitation: {
+            resend: sinon.stub().callsArgWith(1, null, invite)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'RESEND_INVITE_REQUEST' },
+          { type: 'RESEND_INVITE_SUCCESS', payload: { invite: invite, removedInviteId: inviteId } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.resendInvite(api, inviteId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.resend.calledWith(inviteId)).to.be.true;
+      });
+
+      it('should trigger RESEND_INVITE_FAILURE and it should call api.invitation.resend and callback once with error for a failed request', () => {
+        let inviteId = 'inviteId';
+        const error = { status: 500, body: 'Error!' };
+        let api = {
+          invitation: {
+            resend: sinon.stub().callsArgWith(1, error)
+          }
+        };
+
+        let err = new Error(ErrorMessages.ERR_RESENDING_INVITE);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'RESEND_INVITE_REQUEST' },
+          { type: 'RESEND_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        const callback = sinon.stub();
+
+        store.dispatch(async.resendInvite(api, inviteId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_RESENDING_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.invitation.resend.calledWith(inviteId)).to.be.true;
       });
     });
 
@@ -3027,6 +3084,7 @@ describe('Actions', () => {
         patientData = [
           { id: 25, value: 540.4, type: 'smbg', time: '2018-01-01T00:00:00.000Z' },
           { id: 26, value: 30.8, type: 'smbg', time: '2018-01-30T00:00:00.000Z' },
+          { id: 27, uploadId: 'upload123', type: 'pumpSettings', time: '2018-05-01T00:00:00.000Z' },
           { type: 'upload', id: 'upload789', uploadId: '_upload789', time: '2018-06-01T00:00:00.000Z' },
         ];
 
@@ -3177,9 +3235,9 @@ describe('Actions', () => {
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 
-          expect(api.patientData.get.callCount).to.equal(2);
+          expect(api.patientData.get.callCount).to.equal(3);
 
-          // Should set the start date based on the latest smbg, even though the upload is more recent
+          // Should set the start date based on the latest smbg, even though the pump settings and upload are more recent
           expect(api.patientData.get.withArgs(patientId, {
             ...options,
             startDate: '2017-12-31T00:00:00.000Z',
@@ -3211,7 +3269,7 @@ describe('Actions', () => {
                 meta: { WebWorker: true, worker: 'data', origin: 'http://originStub', patientId },
                 payload: {
                   data: JSON.stringify([...patientData, uploadRecord, ...teamNotes]),
-                  fetchedCount: 5,
+                  fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
@@ -3297,8 +3355,8 @@ describe('Actions', () => {
 
           api.patientData = {
             get: sinon.stub()
-              .onFirstCall().callsArgWith(2, null, [ ...patientData, { type: 'pumpSettings', uploadId: 'upload123', time: '2018-02-01T00:00:00.000Z' }])
-              .onSecondCall().callsArgWith(2, null, patientData)
+              .onFirstCall().callsArgWith(2, null, patientData)
+              .onSecondCall().callsArgWith(2, null, _.reject(patientData, { type: 'pumpSettings' }))
               .onThirdCall().callsArgWith(2, {status: 500, body: 'Error!'}, null),
           };
 
@@ -4164,6 +4222,93 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchClinicsByIds', () => {
+      it('should trigger FETCH_CLINICS_BY_IDS_SUCCESS and it should call clinics.get twice for a successful request', () => {
+        let clinic1 = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let clinic2 = {
+          id: '12f2f123s2e1f1f3s2e11535',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            get: sinon.stub()
+              .onCall(0).callsArgWith(1, null, clinic1)
+              .onCall(1).callsArgWith(1, null, clinic2),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICS_BY_IDS_REQUEST' },
+          { type: 'FETCH_CLINICS_BY_IDS_SUCCESS', payload: { clinics : {
+            [clinic1.id]: clinic1,
+            [clinic2.id]: clinic2,
+          } } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicsByIds(api, [clinic1.id, clinic2.id]));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.get.callCount).to.equal(2);
+      });
+
+      it('should trigger FETCH_CLINICS_BY_IDS_FAILURE and it should call error once for a failed request', () => {
+        let clinic1 = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let clinic2 = {
+          id: '12f2f123s2e1f1f3s2e11535',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            get: sinon.stub()
+              .onCall(0).callsArgWith(1, null, clinic1)
+              .onCall(1).callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINICS_BY_IDS_REQUEST' },
+          { type: 'FETCH_CLINICS_BY_IDS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicsByIds(api, [clinic1.id, clinic2.id]));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINICS_BY_IDS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.get.callCount).to.equal(2);
+      });
+    });
+
     describe('updateClinic', () => {
       it('should trigger UPDATE_CLINIC_SUCCESS and it should call clinics.update once for a successful request', () => {
         let api = {
@@ -4429,7 +4574,7 @@ describe('Actions', () => {
     });
 
     describe('deleteClinicianFromClinic', () => {
-      it('should trigger UPDATE_CLINICIAN_SUCCESS and it should call clinics.deleteClinicianFromClinic once for a successful request', () => {
+      it('should trigger DELETE_CLINICIAN_FROM_CLINIC_SUCCESS and it should call clinics.deleteClinicianFromClinic once for a successful request', () => {
         let api = {
           clinics: {
             deleteClinicianFromClinic: sinon.stub().callsArgWith(2, null, {}),
@@ -4480,6 +4625,198 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.deleteClinicianFromClinic.callCount).to.equal(1);
+      });
+    });
+
+    describe('deletePatientFromClinic', () => {
+      it('should trigger DELETE_PATIENT_FROM_CLINIC_SUCCESS and it should call clinics.deletePatientFromClinic once for a successful request', () => {
+        let api = {
+          clinics: {
+            deletePatientFromClinic: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          { type: 'DELETE_PATIENT_FROM_CLINIC_SUCCESS', payload: {
+            clinicId: '5f85fbe6686e6bb9170ab5d0',
+            patientId: 'patient_id',
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientFromClinic(api, '5f85fbe6686e6bb9170ab5d0', 'patient_id', callback));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
+
+        // assert callback contains no error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, null);
+      });
+
+      it('should trigger DELETE_PATIENT_FROM_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            deletePatientFromClinic: sinon.stub().callsArgWith(2, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
+          { type: 'DELETE_PATIENT_FROM_CLINIC_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientFromClinic(api, '5f85fbe6686e6bb9170ab5d0', 'patient_id', callback));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PATIENT_FROM_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientFromClinic.callCount).to.equal(1);
+
+        // assert callback contains the error
+        sinon.assert.calledOnce(callback);
+        sinon.assert.calledWithExactly(callback, error);
+      });
+    });
+
+    describe('deletePatientInvitation', () => {
+      it('should trigger DELETE_PATIENT_INVITATION_SUCCESS and it should call clinics.deletePatientInvitation once for a successful request', () => {
+        let api = {
+          clinics: {
+            deletePatientInvitation: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_INVITATION_REQUEST' },
+          { type: 'DELETE_PATIENT_INVITATION_SUCCESS', payload: {
+            inviteId: 'invite_id',
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientInvitation(api, '5f85fbe6686e6bb9170ab5d0', 'invite_id', callback));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientInvitation.callCount).to.equal(1);
+      });
+
+      it('should trigger DELETE_PATIENT_INVITATION_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            deletePatientInvitation: sinon.stub().callsArgWith(2, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_DELETING_PATIENT_INVITATION);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'DELETE_PATIENT_INVITATION_REQUEST' },
+          { type: 'DELETE_PATIENT_INVITATION_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const callback = sinon.stub();
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.deletePatientInvitation(api, '5f85fbe6686e6bb9170ab5d0', 'invite_id', callback));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DELETING_PATIENT_INVITATION });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.deletePatientInvitation.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchClinicByShareCode', () => {
+      it('should trigger FETCH_CLINIC_SUCCESS and it should call clinics.getClinicByShareCode once for a successful request', () => {
+        let clinic = {
+          id: '5f85fbe6686e6bb9170ab5d0',
+          address: '1 Address Ln, City Zip',
+          name: 'Clinic1',
+          phoneNumbers: [{ number: '(888) 555-5555', type: 'Office' }],
+        };
+
+        let api = {
+          clinics: {
+            getClinicByShareCode: sinon.stub().callsArgWith(1, null, clinic),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_REQUEST' },
+          { type: 'FETCH_CLINIC_SUCCESS', payload: {
+            clinic,
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_CLINIC_FAILURE and it should call error once for a failed request', () => {
+        const error = {status: 500, body: 'Error!'};
+        let api = {
+          clinics: {
+            getClinicByShareCode: sinon.stub().callsArgWith(1, error, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'FETCH_CLINIC_REQUEST' },
+          { type: 'FETCH_CLINIC_FAILURE', error: err, meta: { apiError: error } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
       });
     });
 
@@ -4926,6 +5263,68 @@ describe('Actions', () => {
       });
     });
 
+    describe('sendClinicInvite', () => {
+      it('should trigger SEND_CLINIC_INVITE_SUCCESS and it should call clinics.inviteClinic once for a successful request', () => {
+        let shareCode = 'shareCode123';
+        let permissions = { view: {} };
+        let patientId = 'patientIdABC';
+
+        let api = {
+          clinics: {
+            inviteClinic: sinon.stub().callsArgWith(3, null, { my: 'invite' }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_CLINIC_INVITE_REQUEST' },
+          { type: 'SEND_CLINIC_INVITE_SUCCESS', payload: {
+            invite: { my: 'invite' },
+          } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicInvite(api, shareCode, permissions, patientId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinic.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_CLINIC_INVITE_FAILURE and it should call error once for a failed request', () => {
+        let shareCode = 'shareCode123';
+        let permissions = { view: {} };
+        let patientId = 'patientIdABC';
+
+        let api = {
+          clinics: {
+            inviteClinic: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        let err = new Error(ErrorMessages.ERR_SENDING_CLINIC_INVITE);
+        err.status = 500;
+
+        let expectedActions = [
+          { type: 'SEND_CLINIC_INVITE_REQUEST' },
+          { type: 'SEND_CLINIC_INVITE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.sendClinicInvite(api, shareCode, permissions, patientId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_CLINIC_INVITE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.inviteClinic.callCount).to.equal(1);
+      });
+    });
+
     describe('fetchPatientInvites', () => {
       it('should trigger FETCH_PATIENT_INVITES_SUCCESS and it should call clinics.getPatientInvites once for a successful request', () => {
         let clinicId = 'clinicId345';
@@ -5058,7 +5457,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PATIENT_PERMISSIONS_REQUEST' },
-          { type: 'UPDATE_PATIENT_PERMISSIONS_SUCCESS', payload: { permissions } }
+          { type: 'UPDATE_PATIENT_PERMISSIONS_SUCCESS', payload: { clinicId, patientId, permissions } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

@@ -188,36 +188,6 @@ describe('notification', () => {
     });
   });
 
-  describe('sendInviteFailure', () => {
-    it('should build a notification', () => {
-      let action = actions.sync.sendInviteFailure(ERR);
-
-      let state = reducer(initialState, action);
-
-      expect(state).to.deep.equal({
-        key: 'sendingInvite',
-        isDismissible: true,
-        link: null,
-        status: null
-      });
-    });
-  });
-
-  describe('cancelSentInviteFailure', () => {
-    it('should build a notification', () => {
-      let action = actions.sync.cancelSentInviteFailure(ERR);
-
-      let state = reducer(initialState, action);
-
-      expect(state).to.deep.equal({
-        key: 'cancellingSentInvite',
-        isDismissible: true,
-        link: null,
-        status: null
-      });
-    });
-  });
-
   describe('acceptReceivedInviteFailure', () => {
     it('should build a notification', () => {
       let action = actions.sync.acceptReceivedInviteFailure(ERR);
@@ -241,21 +211,6 @@ describe('notification', () => {
 
       expect(state).to.deep.equal({
         key: 'rejectingReceivedInvite',
-        isDismissible: true,
-        link: null,
-        status: null
-      });
-    });
-  });
-
-  describe('setMemberPermissionsFailure', () => {
-    it('should build a notification', () => {
-      let action = actions.sync.setMemberPermissionsFailure(ERR);
-
-      let state = reducer(initialState, action);
-
-      expect(state).to.deep.equal({
-        key: 'settingMemberPermissions',
         isDismissible: true,
         link: null,
         status: null

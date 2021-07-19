@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { default as Base, TableProps } from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
@@ -147,7 +148,7 @@ export const Table = props => {
   }, [searchText, filteredData.length, rowsPerPage]);
 
   return (
-    <>
+    <TableContainer>
       <Box as={StyledTable} id={id} variant={`tables.${variant}`} aria-label={label} {...tableProps}>
         <TableHead>
           <TableRow>
@@ -214,7 +215,7 @@ export const Table = props => {
         my={3}
         {...paginationProps}
       />}
-    </>
+    </TableContainer>
   );
 };
 
