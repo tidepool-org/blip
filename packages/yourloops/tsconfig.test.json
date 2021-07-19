@@ -11,7 +11,7 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "strict": true,
+    "strict": false,
     "newLine": "lf",
     "alwaysStrict": false,
     "allowSyntheticDefaultImports": true,

@@ -49,7 +49,7 @@ const RE_PATIENT_URL = /^\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_CAREGIVER_URL = /^\/caregiver\/patient\/[0-9a-f]+\/?(.*)/;
 const RE_HCP_URL = /^\/professional\/patient\/[0-9a-f]+\/?(.*)/;
 const CONFIDENTIALS_PARAMS = ["signupEmail", "signupKey", "resetKey"];
-function MetricsLocationListener() {
+function MetricsLocationListener(): null {
   const location = useLocation();
   const locPathname = location.pathname;
   const locSearch = location.search;

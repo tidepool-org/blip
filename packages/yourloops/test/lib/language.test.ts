@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021, Diabeloop
- * Auth hook tests
+ * language manager tests
  *
  * All rights reserved.
  *
@@ -26,28 +26,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import i18n from "i18next";
+import moment from "moment-timezone";
 import sinon from "sinon";
+import { expect } from "chai";
 
-import { NotificationContext, INotification } from "../../../lib/notifications/models";
+import { getCurrentLang, getLangName } from "../../lib/language";
 
-const stubNotficationContextValueInternal = {
-  accept: sinon.stub().resolves(),
-  cancel: sinon.stub().resolves(),
-  decline: sinon.stub().resolves(),
-  update: sinon.stub(),
-  initialized: true,
-  receivedInvitations: [] as INotification[],
-  sentInvitations: [] as INotification[],
-};
+function testLanguage(): void {
+  const zeSpy = sinon.spy();
+  before(() => {
+    window.zE = zeSpy;
+  });
+  after(async () => {
+    delete window.zE;
+    await i18n.changeLanguage("en");
+  });
+  beforeEach(() => {
+    zeSpy.resetHistory();
+  });
 
-export const stubNotficationContextValue = stubNotficationContextValueInternal as NotificationContext;
+  it("should update zendesk & moment locale on change", async () => {
+    await i18n.changeLanguage("fr");
+    expect(zeSpy.calledOnce, "zendesk").to.be.true;
+    expect(moment.locale(), "moment").to.be.equals("fr");
+    expect(localStorage.getItem("lang"), "localStorage").to.be.equals("fr");
+    expect(getCurrentLang(), "getCurrentLang").to.be.equals("fr");
+  });
 
-export function resetNotficationContextValueStubs(): void {
-  stubNotficationContextValueInternal.accept.resetHistory();
-  stubNotficationContextValueInternal.cancel.resetHistory();
-  stubNotficationContextValueInternal.decline.resetHistory();
-  stubNotficationContextValueInternal.update.resetHistory();
-  stubNotficationContextValueInternal.initialized = true;
-  stubNotficationContextValueInternal.receivedInvitations = [];
-  stubNotficationContextValueInternal.sentInvitations = [];
+  it("getLangName should return the language name", () => {
+    expect(getLangName("en"), "en").to.be.equals("English");
+    expect(getLangName("fr"), "fr").to.be.equals("Français");
+    expect(getLangName("de"), "de").to.be.equals("Deutsch");
+    expect(getLangName("es"), "es").to.be.equals("Español");
+    expect(getLangName("it"), "it").to.be.equals("Italiano");
+    expect(getLangName("nl"), "nl").to.be.equals("Nederlands");
+  });
 }
+
+export default testLanguage;

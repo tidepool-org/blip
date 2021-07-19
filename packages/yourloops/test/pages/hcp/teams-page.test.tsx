@@ -31,12 +31,13 @@ import { expect } from "chai";
 import { mount, ReactWrapper, MountRendererProps } from "enzyme";
 import sinon from "sinon";
 
+import { ITeam } from "../../../models/team";
 import { AuthContextProvider } from "../../../lib/auth";
 import { NotificationContextProvider } from "../../../lib/notifications";
 import { TeamContextProvider } from "../../../lib/team";
+import { waitTimeout } from "../../../lib/utils";
 import TeamsPage from "../../../pages/hcp/teams-page";
 
-import { waitTimeout } from "../../../lib/utils";
 import { teams } from "../../common";
 import { authHookHcp } from "../../lib/auth/hook.test";
 import { stubNotficationContextValue } from "../../lib/notifications/hook.test";
@@ -99,7 +100,7 @@ function testTeamPage(): void {
   });
 
   it("should show the loading progress when mounting", async () => {
-    const longWaitPromise = async () => {
+    const longWaitPromise = async (): Promise<ITeam[]> => {
       await waitTimeout(apiTimeout);
       return [];
     };

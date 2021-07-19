@@ -32,7 +32,7 @@ import { expect } from "chai";
 import { mount, ReactWrapper, MountRendererProps } from "enzyme";
 import sinon from "sinon";
 
-import { Team, loadTeams } from "../../../lib/team";
+import { Team, TeamMember, loadTeams } from "../../../lib/team";
 import TeamEditDialog from "../../../pages/hcp/team-edit-dialog";
 import { TeamEditModalContentProps } from "../../../pages/hcp/types";
 import { authHcp } from "../../lib/auth/hook.test";
@@ -151,7 +151,7 @@ function testTeamEditDialog(): void {
         value: "Updated name",
       },
     };
-    const updatedTeam = { ...defaultProps.team, members: [], name: event.target.value };
+    const updatedTeam = { ...defaultProps.team, members: [] as TeamMember[], name: event.target.value };
 
     component.find("input").find("#team-edit-dialog-field-name").at(0).simulate("change", event);
     expect(component.find("#team-edit-dialog-button-validate").at(0).prop("disabled")).to.be.false;

@@ -5,6 +5,8 @@ It is based on Tidepool Blip 1.27.
 ## Unreleased
 ### Added
 - YLP-759 Add Austria
+### Engineering Use
+- YLP-814 Add TU for i18next integration / localization
 
 ## 2.0.2 - 2021-07-05
 ### Fixed
