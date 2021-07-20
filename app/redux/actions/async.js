@@ -210,6 +210,15 @@ export function login(api, credentials, options, postLoginAction) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
+    const routes = {
+      patients: '/patients?justLoggedIn=true',
+      workspaces: '/workspaces',
+      clinicDetails: '/clinic-details',
+      clinicianDetails: '/clinician-details',
+    };
+
+    let redirectRoute = routes.patients;
+
     api.user.login(credentials, options, (err) => {
       if (err) {
         var error = (err.status === 401) ? createActionError(ErrorMessages.ERR_LOGIN_CREDS, err) :
@@ -224,95 +233,94 @@ export function login(api, credentials, options, postLoginAction) {
       } else {
         dispatch(fetchUser(api, (err, user) => {
           if (err) {
-            dispatch(sync.loginFailure(
-              createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
-            ));
+            handleLoginFailure(ErrorMessages.ERR_FETCHING_USER, err);
           } else {
             const isClinicianAccount = personUtils.isClinicianAccount(user);
             const hasClinicProfile = !!_.get(user, ['profile', 'clinic'], false);
 
-            let redirectRoute = '/patients?justLoggedIn=true';
-            if (config.CLINICS_ENABLED) { // TODO: && _.get(user, ['profile','newClinicFlag'], false)
-              dispatch(fetchClinicianInvites(api, user.userid, (err, invites) => {
-                if (err) {
-                  dispatch(sync.loginFailure(
-                    createActionError(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, err), err
-                  ));
-                } else {
-                  if (!_.isEmpty(invites)) {
-                    if (hasClinicProfile) {
-                      redirectRoute = '/workspaces';
-                      forward();
-                    } else {
-                      redirectRoute = '/clinic-details';
-                      forward();
-                    }
-                  } else {
-                    // no pending clinician invites
-                    if (isClinicianAccount) {
-                      if (hasClinicProfile) {
-                        dispatch(getClinicsForClinician(api, user.userid, {}, (err, clinics) => {
-                          if (err) {
-                            dispatch(sync.loginFailure(
-                              createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
-                            ));
-                          } else {
-                            if(_.isEmpty(clinics)) {
-                              // is clinic, no pending clinician invites, has clinic profile, not member of a clinic -> create clinic
-                              redirectRoute = '/clinic-details';
-                              forward();
-                            } else {
-                              // is clinic, no pending clinician invites, has clinic profile, is member of a clinic -> patient list
-                              forward();
-                            }
-                          }
-                        }))
-                      } else {
-                        // is clinic, no pending invites, no clinic profile -> create clinic
-                        redirectRoute = '/clinic-details'
-                        forward();
-                      }
-                    } else {
-                      // not a clinic, no pending clinician invites -> default 'patients' screen
-                      forward();
-                    }
+            if (config.CLINICS_ENABLED) {
+              // Fetch clinic-clinician relationships and pending clinic invites, and only proceed
+              // to the clinic workflow if a relationship with a clinic object or an invite exists.
+              const fetchers = {
+                clinics: cb => dispatch(getClinicsForClinician(api, user.userid, {}, cb)),
+                invites: cb => dispatch(fetchClinicianInvites(api, user.userid, cb)),
+              };
+
+              async.parallel(async.reflectAll(fetchers), (err, results) => {
+                const errors = _.mapValues(results, ({error}) => error);
+                const values = _.mapValues(results, ({value}) => value);
+                const hasError = _.some(errors, err => !_.isUndefined(err));
+
+                if (hasError) {
+                  if (errors.clinics) {
+                    handleLoginFailure(ErrorMessages.ERR_GETTING_CLINICS, errors.clinics);
+                  }
+                  if (errors.invites) {
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_CLINICIAN_INVITES, errors.invites);
                   }
                 }
-              }));
+                else {
+                  if (values.invites.length) {
+                    // If we have an empty clinic profile, go to clinic details, otherwise workspaces
+                    setRedirectRoute(!hasClinicProfile ? routes.clinicDetails : routes.workspaces);
+                  } else if (values.clinics.length) {
+                    // If we have an empty clinic object, go to clinic details, otherwise workspaces
+                    setRedirectRoute(_.isEmpty(_.get(values.clinics, '0.clinic')) ? routes.clinicDetails : routes.workspaces)
+                  } else {
+                    // Clinic flow is not enabled for this account
+                    skipClinicFlow();
+                  }
+                }
+              });
             } else {
-              // no new clinic system
-              if (isClinicianAccount && !hasClinicProfile){
-                redirectRoute = '/clinician-details'
-              }
-              forward();
+              // Clinic flow is not enabled
+              skipClinicFlow();
             }
 
-            function forward() {
+            function setRedirectRoute(route) {
+              redirectRoute = route;
+              getPatientProfile();
+            }
+
+            function skipClinicFlow() {
+              if (isClinicianAccount && !hasClinicProfile) {
+                redirectRoute = routes.clinicianDetails;
+              }
+
+              getPatientProfile();
+            }
+
+            function getPatientProfile() {
               if (_.get(user, ['profile', 'patient'])) {
                 dispatch(fetchPatient(api, user.userid, (err, patient) => {
                   if (err) {
-                    dispatch(sync.loginFailure(
-                      createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
-                    ));
+                    handleLoginFailure(ErrorMessages.ERR_FETCHING_PATIENT, err);
                   } else {
                     user = update(user, { $merge: patient });
-                    dispatch(sync.loginSuccess(user));
-                    utils.initializePendo(user, _.get(options, 'location', {}), window);
-                    if (postLoginAction) {
-                      dispatch(postLoginAction());
-                    }
-                    dispatch(push(redirectRoute));
+                    handleLoginSuccess(user)
                   }
                 }));
               } else {
-                dispatch(sync.loginSuccess(user));
-                utils.initializePendo(user, _.get(options, 'location', {}), window);
-                if (postLoginAction) {
-                  dispatch(postLoginAction());
-                }
-                dispatch(push(redirectRoute));
+                handleLoginSuccess(user)
               }
             }
+          }
+
+          function handleLoginSuccess(user) {
+            dispatch(sync.loginSuccess(user));
+            utils.initializePendo(user, _.get(options, 'location', {}), window);
+
+            if (postLoginAction) {
+              dispatch(postLoginAction());
+            }
+
+            dispatch(push(redirectRoute));
+          }
+
+          function handleLoginFailure(message, err) {
+            dispatch(sync.loginFailure(
+              createActionError(message, err), err
+            ));
           }
         }));
       }
