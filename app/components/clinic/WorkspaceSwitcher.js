@@ -90,7 +90,7 @@ export const WorkspaceSwitcher = props => {
     popupState.close();
   };
 
-  return (
+  return (menuOptions.length > 1) ? (
     <Flex width="400px" justifyContent="center">
       <Button
         variant="textPrimary"
@@ -149,7 +149,7 @@ export const WorkspaceSwitcher = props => {
         </Box>
       </Popover>
     </Flex>
-  );
+  ) : null;
 };
 
 WorkspaceSwitcher.propTypes = {
