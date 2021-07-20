@@ -29,11 +29,13 @@
 import testCookiesManager from "./cookies-manager.test";
 import testLanguage from "./language.test";
 import testMetrics from "./metrics.test";
+import testZendesk from "./zendesk.test";
 
 function testLib(): void {
   describe("CookiesManager", testCookiesManager);
   describe("Language", testLanguage);
   describe("Metrics", testMetrics);
+  describe("Zendesk", testZendesk);
 }
 
 export default testLib;

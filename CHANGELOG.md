@@ -9,6 +9,7 @@ It is based on Tidepool Blip 1.27.
 - YLP-814 Add TU for i18next integration / localization
 - YLP-815 Add TU for metrics / Matomo
 - YLP-816 Add JUnit reports to Jenkins
+- YLP-832 Add TU for zendesk manager
 
 ## 2.0.2 - 2021-07-05
 ### Fixed
