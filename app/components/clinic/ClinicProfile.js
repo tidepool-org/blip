@@ -51,19 +51,15 @@ export const ClinicProfile = (props) => {
     });
   }
 
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
-
-  if (isClinicAdmin) {
-    clinicActions.push({
-      label: t('Manage Clinic'),
-      action: () => {
-        if (pathname !== '/clinic-admin') {
-          dispatch(push('/clinic-admin'));
-        }
-      },
-      selected: pathname === '/clinic-admin',
-    });
-  }
+  clinicActions.push({
+    label: t('Manage Clinic'),
+    action: () => {
+      if (pathname !== '/clinic-admin') {
+        dispatch(push('/clinic-admin'));
+      }
+    },
+    selected: pathname === '/clinic-admin',
+  });
 
   if (!clinic) return null;
 
