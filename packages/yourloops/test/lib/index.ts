@@ -28,10 +28,12 @@
 
 import testCookiesManager from "./cookies-manager.test";
 import testLanguage from "./language.test";
+import testMetrics from "./metrics.test";
 
 function testLib(): void {
   describe("CookiesManager", testCookiesManager);
   describe("Language", testLanguage);
+  describe("Metrics", testMetrics);
 }
 
 export default testLib;

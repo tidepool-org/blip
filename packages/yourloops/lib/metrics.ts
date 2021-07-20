@@ -83,7 +83,7 @@ function sendMetrics(eventName: string, properties?: unknown): void {
         // Clear the do not track default check
         matomoPaq.push(['setDoNotTrack', false]);
       } else {
-        window._paq.push(['forgetConsentGiven']);
+        matomoPaq.push(['forgetConsentGiven']);
         matomoPaq.push(['setDoNotTrack', true]);
       }
     } else if (eventName === "setCustomUrl") {
