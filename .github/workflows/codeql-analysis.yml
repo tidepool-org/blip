@@ -17,6 +17,9 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ dblp ]
+    paths-ignore:
+      - 'test/**'
+      - 'packages/*/test/**'
   schedule:
     - cron: '33 22 * * 4'
 
