@@ -83,7 +83,7 @@ const InviteMember = props => {
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {

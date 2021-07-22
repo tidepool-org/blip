@@ -86,7 +86,6 @@ const InviteClinic = props => {
     values,
   } = formikContext;
 
-
   useEffect(() => {
     const { inProgress, completed, notification } = fetchingClinic;
 
@@ -118,7 +117,7 @@ const InviteClinic = props => {
           variant: 'success',
         });
 
-        dispatch(push(`/patients/${loggedInUserId}/share`))
+        dispatch(push(`/patients/${loggedInUserId}/share`));
       }
 
       if (completed === false) {
@@ -136,7 +135,7 @@ const InviteClinic = props => {
     if (clinic) {
       setClinic(null);
     } else {
-      dispatch(push(`/patients/${loggedInUserId}/share`))
+      dispatch(push(`/patients/${loggedInUserId}/share`));
     }
   };
 
