@@ -26,7 +26,7 @@ import * as actions from '../../redux/actions';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import personUtils from '../../core/personutils';
-import { borders, colors } from '../../themes/baseTheme';
+import { borders, colors, space } from '../../themes/baseTheme';
 
 export const NavigationMenu = props => {
   const { t, api } = props;
@@ -154,7 +154,7 @@ export const NavigationMenu = props => {
             <Button
               variant="textPrimary"
               color="text.primary"
-              width="100%"
+              width={`calc(100% - ${space[3]}px)`}
               py={3}
               pr={3}
               ml={3}
@@ -172,6 +172,9 @@ export const NavigationMenu = props => {
                 },
                 '&:last-child': {
                   borderBottom: 'none',
+                },
+                '> div': {
+                  textAlign: 'left',
                 },
               }}
             >
