@@ -74,7 +74,7 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.renderPatients();
 
     var backgroundClasses = cx({
-      'patients js-patients-page': !this.props.selectedClinicId,
+      'patients js-patients-page': (this.props.clinicFlowActive && !this.props.selectedClinicId),
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
@@ -200,10 +200,10 @@ export let Patients = translate()(class extends React.Component {
     var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
-    if (personUtils.isClinicianAccount(this.props.user) && this.props.selectedClinicId) {
+    if (personUtils.isClinicianAccount(this.props.user) && (!this.props.clinicFlowActive || !_.isEmpty(this.props.selectedClinicId))) {
       return (
         <Box>
-          <ClinicProfile width={['100%', '100%']} />
+          {this.props.selectedClinicId && <ClinicProfile width={['100%', '100%']} />}
 
           <Box
             variant="containers.largeBordered"
@@ -450,6 +450,7 @@ export function mapStateToProps(state) {
   } = state.blip.working;
 
   return {
+    clinicFlowActive: state.blip.clinicFlowActive,
     currentPatientInViewId: state.blip.currentPatientInViewId,
     invites: state.blip.pendingReceivedInvites,
     fetchingUser: fetchingUser,

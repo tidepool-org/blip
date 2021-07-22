@@ -294,6 +294,15 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
         [creator.userid]: creator,
         [`${creator.userid}_cacheUntil`]: generateCacheTTL(36e5),
       } });
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+      let { clinicianId, clinics } = action.payload;
+      return update(state, { $merge: {
+        [clinicianId]: {
+          ...state[clinicianId],
+          isClinicMember: clinics.length > 0,
+        },
+        [`${clinicianId}_cacheUntil`]: generateCacheTTL(36e5),
+      } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.SETUP_DATA_STORAGE_SUCCESS:
@@ -839,6 +848,19 @@ export const pendingReceivedClinicianInvites = (state = initialState.pendingRece
       });
     case types.LOGOUT_REQUEST:
       return [];
+    default:
+      return state;
+  }
+};
+
+export const clinicFlowActive = (state = initialState.clinicFlowActive, action) => {
+  switch(action.type) {
+    case types.FETCH_CLINICIAN_INVITES_SUCCESS:
+      return action.payload.invites.length > 0 || state;
+    case types.GET_CLINICS_FOR_CLINICIAN_SUCCESS:
+      return action.payload.clinics.length > 0 || state;
+    case types.LOGOUT_REQUEST:
+      return initialState.clinicFlowActive;
     default:
       return state;
   }

@@ -156,6 +156,7 @@ const initialState = {
   clinics: {},
   selectedClinicId: null,
   pendingReceivedClinicianInvites: [],
+  clinicFlowActive: false,
 };
 
 export default initialState;

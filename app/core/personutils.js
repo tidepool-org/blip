@@ -46,7 +46,7 @@ personUtils.isPatient = (person) => {
 };
 
 personUtils.isClinicianAccount = (user) => {
-  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+  return (_.indexOf(_.get(user, 'roles', []), 'clinic') !== -1 || user?.isClinicMember);
 };
 
 personUtils.isDataDonationAccount = (account) => {

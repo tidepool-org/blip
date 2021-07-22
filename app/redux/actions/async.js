@@ -2371,7 +2371,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
           createActionError(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, err), err
         ));
       } else {
-        dispatch(sync.getClinicsForClinicianSuccess(clinics, options));
+        dispatch(sync.getClinicsForClinicianSuccess(clinics, clinicianId, options));
       }
     });
   };

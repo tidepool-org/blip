@@ -1853,11 +1853,12 @@ export function getClinicsForClinicianRequest() {
   };
 }
 
-export function getClinicsForClinicianSuccess(clinics) {
+export function getClinicsForClinicianSuccess(clinics, clinicianId) {
   return {
     type: ActionTypes.GET_CLINICS_FOR_CLINICIAN_SUCCESS,
     payload: {
       clinics: clinics,
+      clinicianId: clinicianId,
     },
   };
 }
