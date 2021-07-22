@@ -287,13 +287,15 @@ const Prescriptions = props => {
               <Popover width="15em" {...bindPopover(popupFilterState)}>
                 <DialogContent px={2} py={3} dividers>
                   {map(prescriptionStateOptions, ({label, value}) => (
-                    <Checkbox
-                      checked={pendingActiveStates[value]}
-                      key={`filter-${value}`}
-                      name={`filter-${value}`}
-                      label={label}
-                      onChange={() => togglePendingActiveState(value)}
-                    />
+                    <Box>
+                      <Checkbox
+                        checked={pendingActiveStates[value]}
+                        key={`filter-${value}`}
+                        name={`filter-${value}`}
+                        label={label}
+                        onChange={() => togglePendingActiveState(value)}
+                      />
+                    </Box>
                   ))}
                 </DialogContent>
                 <DialogActions justifyContent="space-between" p={1}>
