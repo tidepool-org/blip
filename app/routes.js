@@ -73,6 +73,13 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
       if (!personUtils.hasAcceptedTerms(user)) {
         dispatch(push('/terms'));
       }
+      getClinicsForMember(user);
+    }
+
+    function getClinicsForMember(user) {
+      if (config.CLINICS_ENABLED && !state.working.fetchingClinicsForClinician.inProgress && !state.working.fetchingClinicsForClinician.completed) {
+        dispatch(actions.async.getClinicsForClinician(api, user.userid));
+      }
       cb();
     }
   }
