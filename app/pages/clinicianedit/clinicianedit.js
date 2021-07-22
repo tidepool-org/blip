@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useFormik } from 'formik';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
+import map from 'lodash/map';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
+import * as yup from 'yup';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import {
   Title,
@@ -25,31 +28,21 @@ import {
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import baseTheme from '../../themes/baseTheme';
-import personUtils from '../../core/personutils';
-import { usePrevious } from '../../core/hooks';
+import { useIsFirstRender } from '../../core/hooks';
+import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 
 export const ClinicianEdit = (props) => {
   const { t, api, trackMetric } = props;
+  const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
-
-  const [formTouched, setFormTouched] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const location = useLocation();
   const selectedClinicianId = get(location, 'state.clinicianId', false);
-
-  if (!selectedClinicianId) {
-    dispatch(push('/clinic-admin'));
-  }
-
-  const working = useSelector((state) => state.blip.working);
-  const previousWorking = usePrevious(working);
-
-  const selectedClinicianUser = useSelector((state) =>
-    get(state, ['blip', 'allUsersMap', selectedClinicianId])
-  );
+  const { updatingClinician } = useSelector((state) => state.blip.working);
   const selectedClinic = get(location, 'state.clinicId', false);
+
   const selectedClinician = useSelector((state) =>
     get(state, [
       'blip',
@@ -59,16 +52,82 @@ export const ClinicianEdit = (props) => {
       selectedClinicianId,
     ])
   );
-  const selectedClinicianRoles = get(selectedClinician, 'roles');
-  const [prescriberPermission, setPrescriberPermission] = useState(
-    includes(selectedClinicianRoles, 'PRESCRIBER') ? true : false
+
+  const selectedClinicianRoles = selectedClinician?.roles;
+  const clinicianName = selectedClinician?.name;
+
+  const clinicAdminDesc = (
+    <>
+      <Title mt="-0.25em">{t('Clinic Admin')}</Title>
+      <Body1>
+        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}
+      </Body1>
+    </>
   );
-  const [selectedType, setSelectedType] = useState(
-    includes(selectedClinicianRoles, 'CLINIC_ADMIN')
-      ? 'CLINIC_ADMIN'
-      : 'CLINIC_MEMBER'
+
+  const clinicMemberDesc = (
+    <>
+      <Title mt="-0.25em">{t('Clinic Member')}</Title>
+      <Body1>
+        {t('Clinic members have read access to access management. More details are described here.')}
+      </Body1>
+    </>
   );
-  const fullName = personUtils.fullName(selectedClinicianUser);
+
+  const typeOptions = [
+    { value: 'CLINIC_ADMIN', label: clinicAdminDesc },
+    { value: 'CLINIC_MEMBER', label: clinicMemberDesc },
+  ];
+
+  const validationSchema = yup.object().shape({
+    clinicianType: yup.string()
+      .oneOf(map(typeOptions, 'value'), t('Please select a valid option'))
+      .required(t('Account type is required')),
+    prescriberPermission: yup.boolean(),
+  });
+
+  const formikContext = useFormik({
+    initialValues: {
+      clinicianType: includes(selectedClinicianRoles, 'CLINIC_ADMIN') ? 'CLINIC_ADMIN' : 'CLINIC_MEMBER',
+      prescriberPermission: includes(selectedClinicianRoles, 'PRESCRIBER'),
+    },
+    onSubmit: (values) => {
+      const {
+        clinicianType,
+        prescriberPermission,
+      } = values;
+
+      const updatedClinician = cloneDeep(selectedClinician);
+      const updatedRoles = [clinicianType];
+      if (prescriberPermission) updatedRoles.push('PRESCRIBER');
+      updatedClinician.roles = updatedRoles;
+      trackMetric('Clinic - Edit clinician');
+
+      dispatch(
+        actions.async.updateClinician(
+          api,
+          selectedClinic,
+          updatedClinician.id,
+          updatedClinician
+        )
+      );
+    },
+    validationSchema,
+  });
+
+  const {
+    dirty,
+    handleSubmit,
+    isSubmitting,
+    setSubmitting,
+    values,
+  } = formikContext;
+
+  console.log('formikContext', formikContext);
+
+  if (!selectedClinicianId) {
+    dispatch(push('/clinic-admin'));
+  }
 
   useEffect(() => {
     if (trackMetric) {
@@ -77,43 +136,35 @@ export const ClinicianEdit = (props) => {
   }, []);
 
   useEffect(() => {
-    const { inProgress, completed, notification } = working.updatingClinician;
-    const prevInProgress = get(
-      previousWorking,
-      'updatingClinician.inProgress'
-    );
-    if (!inProgress && completed && prevInProgress) {
-      if (notification) {
+    const { inProgress, completed, notification } = updatingClinician;
+
+    if (!isFirstRender && !inProgress) {
+      if (completed) {
         setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('You have successfully updated clinician.'),
+          message: t('You have successfully updated the clinician.'),
           variant: 'success',
         });
+
         dispatch(push('/clinic-admin'));
       }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      setSubmitting(false);
     }
-  }, [working.updatingClinician]);
+  }, [updatingClinician]);
 
   function handleClickDelete() {
     setDeleteDialogOpen(true);
   }
 
-  function handleSelectType(event) {
-    setSelectedType(event.target.value);
-    setFormTouched(true);
-  }
-
-  function handleTogglePrescriberPermission(event) {
-    setPrescriberPermission(event.target.checked);
-    setFormTouched(true);
-  }
-
   function handleBack() {
-    if (formTouched) {
+    if (dirty) {
       setConfirmDialogOpen(true);
     } else {
       dispatch(push('/clinic-admin'));
@@ -143,41 +194,6 @@ export const ClinicianEdit = (props) => {
     dispatch(push('/clinic-admin'));
   }
 
-  function handleSave() {
-    const updatedClinician = cloneDeep(selectedClinician);
-    const updatedRoles = [];
-    updatedRoles.push(selectedType);
-    if (prescriberPermission) updatedRoles.push('PRESCRIBER');
-    updatedClinician.roles = updatedRoles;
-    trackMetric('Clinic - Edit clinician');
-    dispatch(
-      actions.async.updateClinician(
-        api,
-        selectedClinic,
-        updatedClinician.id,
-        updatedClinician
-      )
-    );
-  }
-
-  const clinicAdminDesc = (
-    <>
-      <Title>{t('Clinic Admin')}</Title>
-      <Body1>
-        {t('Clinic administrators have full read and edit access to access. Clinic administrators have full read and edit access to access')}
-      </Body1>
-    </>
-  );
-
-  const clinicMemberDesc = (
-    <>
-      <Title>{t('Clinic Member')}</Title>
-      <Body1>
-        {t('Clinic members have read access to access management. More details are described here.')}
-      </Body1>
-    </>
-  );
-
   return (
     <Box
       variant="containers.mediumBordered"
@@ -191,8 +207,8 @@ export const ClinicianEdit = (props) => {
         px={6}
       >
         <Box flexGrow={1}>
-          <Text fontWeight="medium">{fullName}</Text>
-          <Text>{get(selectedClinicianUser, 'emails[0]') || '\u00A0'}</Text>
+          <Text fontWeight="medium">{clinicianName}</Text>
+          <Text>{selectedClinician?.email}</Text>
         </Box>
         <Text
           color="feedback.danger"
@@ -202,17 +218,16 @@ export const ClinicianEdit = (props) => {
           {t('Remove User')}
         </Text>
       </Flex>
-      <Box px={6}>
+      <Box
+        as="form"
+        id="edit-member"
+        onSubmit={handleSubmit}
+        px={6}
+      >
         <RadioGroup
           id="clinician-type"
-          name="clinician-type"
-          options={[
-            { value: 'CLINIC_ADMIN', label: clinicAdminDesc },
-            { value: 'CLINIC_MEMBER', label: clinicMemberDesc },
-          ]}
-          required={true}
-          value={selectedType}
-          onChange={handleSelectType}
+          options={typeOptions}
+          {...getCommonFormikFieldProps('clinicianType', formikContext)}
           variant="verticalBordered"
           sx={{
             '&&': {
@@ -226,6 +241,7 @@ export const ClinicianEdit = (props) => {
             },
           }}
         />
+
         <Box
           p={4}
           mb={4}
@@ -237,21 +253,23 @@ export const ClinicianEdit = (props) => {
           }}
         >
           <Checkbox
+            {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
             label={t('Prescribing access')}
-            checked={prescriberPermission}
-            onChange={handleTogglePrescriberPermission}
             themeProps={{ bg: 'lightestGrey' }}
           />
         </Box>
+
         <Flex p={4} justifyContent="flex-end">
-          <Button id="back" variant="secondary" m={2} onClick={handleBack}>
+          <Button id="cancel" variant="secondary" onClick={handleBack}>
             {t('Back')}
           </Button>
-          <Button id="save" variant="primary" m={2} onClick={handleSave}>
-            {t('Save')}
+
+          <Button id="submit" type="submit" processing={isSubmitting} disabled={!fieldsAreValid(['clinicianType'], validationSchema, values)} variant="primary" ml={3}>
+            {t('Update Member')}
           </Button>
         </Flex>
       </Box>
+
       <Dialog
         id="deleteDialog"
         aria-labelledBy="dialog-title"
@@ -259,13 +277,15 @@ export const ClinicianEdit = (props) => {
         onClose={handleCloseDeleteDialog}
       >
         <DialogTitle onClose={handleCloseDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{fullName}}', { fullName })}</MediumTitle>
+          <MediumTitle id="dialog-title">{t('Remove {{clinicianName}}', { clinicianName })}</MediumTitle>
         </DialogTitle>
+
         <DialogContent>
           <Body1>
-            {t('{{fullName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { fullName })}
+            {t('{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { clinicianName })}
           </Body1>
         </DialogContent>
+
         <DialogActions>
           <Button
             id="deleteDialogCancel"
@@ -274,6 +294,7 @@ export const ClinicianEdit = (props) => {
           >
             {t('Cancel')}
           </Button>
+
           <Button
             id="deleteDialogRemove"
             variant="danger"
@@ -283,6 +304,7 @@ export const ClinicianEdit = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         id="confirmDialog"
         aria-labelledBy="dialog-title"
@@ -292,11 +314,13 @@ export const ClinicianEdit = (props) => {
         <DialogTitle onClose={handleCloseConfirmDialog}>
           <MediumTitle id="dialog-title">{t('Unsaved changes')}</MediumTitle>
         </DialogTitle>
+
         <DialogContent>
           <Body1>
             {t('You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
           </Body1>
         </DialogContent>
+
         <DialogActions>
           <Button
             id="confirmDialogCancel"
@@ -305,6 +329,7 @@ export const ClinicianEdit = (props) => {
           >
             {t('Cancel')}
           </Button>
+
           <Button
             id="confirmDialogExit"
             variant="danger"
