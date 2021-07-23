@@ -76,8 +76,13 @@ export default translate()(class extends React.Component {
 
     if (_.isEmpty(patient)) {
       if (
-        _.includes(['/patients', '/clinic-admin', '/prescriptions'], this.props.currentPage) &&
-        personUtils.isClinicianAccount(this.props.user)
+        _.includes([
+          '/patients',
+          '/clinic-admin',
+          '/prescriptions',
+          '/clinic-invite',
+          '/clinician-edit'
+        ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
       ) {
         return (
           <Flex flex={1} alignItems="center" justifyContent="center">
