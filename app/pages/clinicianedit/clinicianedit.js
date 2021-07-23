@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useFormik } from 'formik';
+import { setNestedObjectValues, useFormik } from 'formik';
 import { translate } from 'react-i18next';
 import { push } from 'connected-react-router';
 import get from 'lodash/get';
@@ -11,6 +11,8 @@ import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
 import * as yup from 'yup';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import { components as vizComponents } from '@tidepool/viz';
+
 import {
   Title,
   MediumTitle,
@@ -31,6 +33,8 @@ import baseTheme from '../../themes/baseTheme';
 import { useIsFirstRender } from '../../core/hooks';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 
+const { Loader } = vizComponents;
+
 export const ClinicianEdit = (props) => {
   const { t, api, trackMetric } = props;
   const isFirstRender = useIsFirstRender();
@@ -40,7 +44,8 @@ export const ClinicianEdit = (props) => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const location = useLocation();
   const selectedClinicianId = get(location, 'state.clinicianId', false);
-  const { updatingClinician } = useSelector((state) => state.blip.working);
+  const { updatingClinician, fetchingCliniciansFromClinic } = useSelector((state) => state.blip.working);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const selectedClinic = get(location, 'state.clinicId', false);
 
   const selectedClinician = useSelector((state) =>
@@ -86,11 +91,17 @@ export const ClinicianEdit = (props) => {
     prescriberPermission: yup.boolean(),
   });
 
-  const formikContext = useFormik({
-    initialValues: {
+  const clinicianValues = () => (selectedClinician ? {
       clinicianType: includes(selectedClinicianRoles, 'CLINIC_ADMIN') ? 'CLINIC_ADMIN' : 'CLINIC_MEMBER',
       prescriberPermission: includes(selectedClinicianRoles, 'PRESCRIBER'),
-    },
+    } : {
+      clinicianType: null,
+      prescriberPermission: false,
+    }
+  );
+
+  const formikContext = useFormik({
+    initialValues: clinicianValues(),
     onSubmit: (values) => {
       const {
         clinicianType,
@@ -120,13 +131,30 @@ export const ClinicianEdit = (props) => {
     handleSubmit,
     isSubmitting,
     setSubmitting,
+    setValues,
     values,
   } = formikContext;
 
-  console.log('formikContext', formikContext);
+  useEffect(() => {
+    if (selectedClinician) {
+      setValues(clinicianValues())
+    }
+  }, [selectedClinician])
 
-  if (!selectedClinicianId) {
+  if (!selectedClinic || !selectedClinicianId) {
     dispatch(push('/clinic-admin'));
+  } else if (!selectedClinicId) {
+    dispatch(actions.sync.selectClinic(selectedClinic));
+  }
+
+  if (selectedClinicianId && !selectedClinician) {
+    if (
+      !fetchingCliniciansFromClinic.inProgress &&
+      !fetchingCliniciansFromClinic.completed &&
+      !fetchingCliniciansFromClinic.notification
+    ) {
+      dispatch(actions.async.fetchCliniciansFromClinic(api, selectedClinic));
+    }
   }
 
   useEffect(() => {
@@ -199,148 +227,152 @@ export const ClinicianEdit = (props) => {
       variant="containers.mediumBordered"
       bg="white"
     >
-      <Flex
-        sx={{ borderBottom: baseTheme.borders.default }}
-        alignItems="center"
-        p={4}
-        mb={4}
-        px={6}
-      >
-        <Box flexGrow={1}>
-          <Text fontWeight="medium">{clinicianName}</Text>
-          <Text>{selectedClinician?.email}</Text>
-        </Box>
-        <Text
-          color="feedback.danger"
-          sx={{ cursor: 'pointer' }}
-          onClick={() => handleClickDelete()}
-        >
-          {t('Remove User')}
-        </Text>
-      </Flex>
-      <Box
-        as="form"
-        id="edit-member"
-        onSubmit={handleSubmit}
-        px={6}
-      >
-        <RadioGroup
-          id="clinician-type"
-          options={typeOptions}
-          {...getCommonFormikFieldProps('clinicianType', formikContext)}
-          variant="verticalBordered"
-          sx={{
-            '&&': {
-              label: {
-                marginBottom: 0,
-                '&:first-child': {
-                  borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
-                  borderBottom: 'none',
+      {selectedClinician ? (
+        <>
+          <Flex
+            sx={{ borderBottom: baseTheme.borders.default }}
+            alignItems="center"
+            p={4}
+            mb={4}
+            px={6}
+          >
+            <Box flexGrow={1}>
+              <Text fontWeight="medium">{clinicianName}</Text>
+              <Text>{selectedClinician.email}</Text>
+            </Box>
+            <Text
+              color="feedback.danger"
+              sx={{ cursor: 'pointer' }}
+              onClick={() => handleClickDelete()}
+            >
+              {t('Remove User')}
+            </Text>
+          </Flex>
+          <Box
+            as="form"
+            id="edit-member"
+            onSubmit={handleSubmit}
+            px={6}
+          >
+            <RadioGroup
+              id="clinician-type"
+              options={typeOptions}
+              {...getCommonFormikFieldProps('clinicianType', formikContext)}
+              variant="verticalBordered"
+              sx={{
+                '&&': {
+                  label: {
+                    marginBottom: 0,
+                    '&:first-child': {
+                      borderRadius: `${baseTheme.radii.default}px ${baseTheme.radii.default}px 0 0`,
+                      borderBottom: 'none',
+                    },
+                  },
                 },
-              },
-            },
-          }}
-        />
+              }}
+            />
 
-        <Box
-          p={4}
-          mb={4}
-          bg="lightestGrey"
-          sx={{
-            border: baseTheme.borders.default,
-            borderTop: 'none',
-            borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
-          }}
-        >
-          <Checkbox
-            {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
-            label={t('Prescribing access')}
-            themeProps={{ bg: 'lightestGrey' }}
-          />
-        </Box>
+            <Box
+              p={4}
+              mb={4}
+              bg="lightestGrey"
+              sx={{
+                border: baseTheme.borders.default,
+                borderTop: 'none',
+                borderRadius: `0 0 ${baseTheme.radii.default}px ${baseTheme.radii.default}px`,
+              }}
+            >
+              <Checkbox
+                {...getCommonFormikFieldProps('prescriberPermission', formikContext, 'checked')}
+                label={t('Prescribing access')}
+                themeProps={{ bg: 'lightestGrey' }}
+              />
+            </Box>
 
-        <Flex p={4} justifyContent="flex-end">
-          <Button id="cancel" variant="secondary" onClick={handleBack}>
-            {t('Back')}
-          </Button>
+            <Flex p={4} justifyContent="flex-end">
+              <Button id="cancel" variant="secondary" onClick={handleBack}>
+                {t('Back')}
+              </Button>
 
-          <Button id="submit" type="submit" processing={isSubmitting} disabled={!fieldsAreValid(['clinicianType'], validationSchema, values)} variant="primary" ml={3}>
-            {t('Update Member')}
-          </Button>
-        </Flex>
-      </Box>
+              <Button id="submit" type="submit" processing={isSubmitting} disabled={!fieldsAreValid(['clinicianType'], validationSchema, values)} variant="primary" ml={3}>
+                {t('Update Member')}
+              </Button>
+            </Flex>
+          </Box>
 
-      <Dialog
-        id="deleteDialog"
-        aria-labelledBy="dialog-title"
-        open={deleteDialogOpen}
-        onClose={handleCloseDeleteDialog}
-      >
-        <DialogTitle onClose={handleCloseDeleteDialog}>
-          <MediumTitle id="dialog-title">{t('Remove {{clinicianName}}', { clinicianName })}</MediumTitle>
-        </DialogTitle>
-
-        <DialogContent>
-          <Body1>
-            {t('{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { clinicianName })}
-          </Body1>
-        </DialogContent>
-
-        <DialogActions>
-          <Button
-            id="deleteDialogCancel"
-            variant="secondary"
-            onClick={handleCloseDeleteDialog}
+          <Dialog
+            id="deleteDialog"
+            aria-labelledBy="dialog-title"
+            open={deleteDialogOpen}
+            onClose={handleCloseDeleteDialog}
           >
-            {t('Cancel')}
-          </Button>
+            <DialogTitle onClose={handleCloseDeleteDialog}>
+              <MediumTitle id="dialog-title">{t('Remove {{clinicianName}}', { clinicianName })}</MediumTitle>
+            </DialogTitle>
 
-          <Button
-            id="deleteDialogRemove"
-            variant="danger"
-            onClick={handleConfirmDeleteDialog}
+            <DialogContent>
+              <Body1>
+                {t('{{clinicianName}} will lose all access to this clinic workspace and its patient list. Are you sure you want to remove this user?', { clinicianName })}
+              </Body1>
+            </DialogContent>
+
+            <DialogActions>
+              <Button
+                id="deleteDialogCancel"
+                variant="secondary"
+                onClick={handleCloseDeleteDialog}
+              >
+                {t('Cancel')}
+              </Button>
+
+              <Button
+                id="deleteDialogRemove"
+                variant="danger"
+                onClick={handleConfirmDeleteDialog}
+              >
+                {t('Remove User')}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            id="confirmDialog"
+            aria-labelledBy="dialog-title"
+            open={confirmDialogOpen}
+            onClose={handleCloseConfirmDialog}
           >
-            {t('Remove User')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <DialogTitle onClose={handleCloseConfirmDialog}>
+              <MediumTitle id="dialog-title">{t('Unsaved changes')}</MediumTitle>
+            </DialogTitle>
 
-      <Dialog
-        id="confirmDialog"
-        aria-labelledBy="dialog-title"
-        open={confirmDialogOpen}
-        onClose={handleCloseConfirmDialog}
-      >
-        <DialogTitle onClose={handleCloseConfirmDialog}>
-          <MediumTitle id="dialog-title">{t('Unsaved changes')}</MediumTitle>
-        </DialogTitle>
+            <DialogContent>
+              <Body1>
+                {t('You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
+              </Body1>
+            </DialogContent>
 
-        <DialogContent>
-          <Body1>
-            {t('You have a unsaved changes to this clinician which will be lost if you navigate away. Are you sure you wish to discard these changes?')}
-          </Body1>
-        </DialogContent>
+            <DialogActions>
+              <Button
+                id="confirmDialogCancel"
+                variant="secondary"
+                onClick={handleCloseConfirmDialog}
+              >
+                {t('Cancel')}
+              </Button>
 
-        <DialogActions>
-          <Button
-            id="confirmDialogCancel"
-            variant="secondary"
-            onClick={handleCloseConfirmDialog}
-          >
-            {t('Cancel')}
-          </Button>
-
-          <Button
-            id="confirmDialogExit"
-            variant="danger"
-            onClick={handleExitConfirmDialog}
-          >
-            {t('Exit')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+              <Button
+                id="confirmDialogExit"
+                variant="danger"
+                onClick={handleExitConfirmDialog}
+              >
+                {t('Exit')}
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      ) : <Loader />}
     </Box>
-  );
+  )
 };
 
 ClinicianEdit.propTypes = {

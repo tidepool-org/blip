@@ -42,6 +42,7 @@ export const ClinicInvite = (props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const location = useLocation();
   const selectedClinic = get(location, 'state.clinicId', false);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const { sendingClinicianInvite } = useSelector((state) => state.blip.working);
 
   const clinicAdminDesc = (
@@ -113,6 +114,8 @@ export const ClinicInvite = (props) => {
 
   if (!selectedClinic) {
     dispatch(push('/clinic-admin'));
+  } else if (!selectedClinicId) {
+    dispatch(actions.sync.selectClinic(selectedClinic));
   }
 
   useEffect(() => {
